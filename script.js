@@ -1144,46 +1144,64 @@ class MedicalExamApp {
 window.app = new MedicalExamApp();
 const app = window.app;
 
-
-       let isWrongFiltered = false;
+let isShowingWrongOnly = false;
 
 function toggleWrongQuestions() {
-    isWrongFiltered = !isWrongFiltered;
+    isShowingWrongOnly = !isShowingWrongOnly;
     const btn = document.getElementById("wrong-btn");
-    
-    // Page-er shob question ba option box-gulo khuje ber korchi
-    // Apnar page-e protiti question-er sathe 'ভুল উত্তর' ba 'উত্তর দেওয়া হয়নি' ba 'সঠিক উত্তর' thake
-    const allCards = document.querySelectorAll('div');
+    const container = document.getElementById("wrong-questions-container");
 
-    allCards.forEach(card => {
-        const content = card.innerText || "";
-        
-        // Ekhane amra check korchi eta ki kono question card naki (jehethu protiti question-e option ba byakha thake)
-        if (content.includes("ব্যাখ্যা:") || (content.includes("A.") && content.includes("B."))) {
-            
-            // Check korchi card-ti ki bhul ba un-answered naki
-            const isIncorrectOrSkipped = content.includes("ভুল উত্তর") || content.includes("উত্তর দেওয়া হয়নি");
+    // যদি আপনার প্রজেক্টের প্রশ্ন ডেটার অ্যারের নাম অন্য কিছু হয় (যেমন: allQuestions বা quizData), তবে এখানে সেই নাম দেবেন
+    if (typeof questions === 'undefined') {
+        alert("প্রশ্নের ডেটা অ্যারে (questions) পাওয়া যায়নি!");
+        return;
+    }
 
-            if (isWrongFiltered) {
-                if (btn) {
-                    btn.innerText = "সব প্রশ্ন দেখুন";
-                    btn.style.backgroundColor = "#2ecc71"; // Sobuj rong
-                }
-
-                // Jodi bhul ba skip kora na hoy (mane sothik hoy), tahole hide kore dibo
-                if (!isIncorrectOrSkipped) {
-                    card.style.display = "none";
-                } else {
-                    card.style.display = "block";
-                }
-            } else {
-                if (btn) {
-                    btn.innerText = "See Wrong Questions";
-                    btn.style.backgroundColor = "#dc3545"; // Lal rong
-                }
-                // Abar sob card-gulo visible kore dibo
-                card.style.display = "block";
-            }
+    if (isShowingWrongOnly) {
+        // বাটনের ডিজাইন ও লেখা পরিবর্তন
+        if (btn) {
+            btn.innerText = "সব প্রশ্ন দেখুন";
+            btn.style.backgroundColor = "#2ecc71"; // সবুজ রঙ
         }
-    });
+
+        // শুধু ভুল বা যেগুলোর উত্তর দেওয়া হয়নি সেগুলো ফিল্টার করা
+        const wrongList = questions.filter(q => !q.userAnswer || q.userAnswer !== q.correctAnswer);
+
+        if (wrongList.length === 0) {
+            container.innerHTML = "<p style='color: #2ecc71; text-align: center; margin: 20px; font-size: 16px;'>অভিনন্দন! আপনার কোনো উত্তর ভুল হয়নি।</p>";
+            return;
+        }
+
+        let html = "<h3 style='margin: 20px 0; color: #ff4d4d; border-bottom: 2px solid #ff4d4d; padding-bottom: 5px;'>ভুল হওয়া প্রশ্নসমূহ:</h3>";
+        
+        wrongList.forEach((q, index) => {
+            html += `
+                <div style="background: #111827; border: 1px solid #dc3545; padding: 15px; margin-bottom: 15px; border-radius: 8px; color: #fff;">
+                    <span style="background: #374151; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #fbbf24;">${q.subject || 'GENERAL'}</span>
+                    <p style="margin-top: 10px; font-weight: bold; font-size: 15px;">${index + 1}. ${q.question}</p>
+                    <p style="color: #ef4444; margin: 5px 0;">আপনার উত্তর: ${q.userAnswer || "উত্তর দেওয়া হয়নি"}</p>
+                    <p style="color: #10b981; margin: 5px 0;">সঠিক উত্তর: ${q.correctAnswer}</p>
+                    ${q.explanation ? `<p style="font-size: 13px; color: #9ca3af; margin-top: 8px;">ব্যাখ্যা: ${q.explanation}</p>` : ''}
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        
+        // চাইলে নিচে মূল সব প্রশ্নগুলোর লিস্ট হাইড করে দিতে পারেন
+        // document.querySelectorAll('.question-card-class').forEach(el => el.style.display = 'none');
+
+    } else {
+        // আবার আগের অবস্থায় ফিরিয়ে আনা
+        if (btn) {
+            btn.innerText = "See Wrong Questions";
+            btn.style.backgroundColor = "#dc3545"; // লাল রঙ
+        }
+
+        // ফিল্টার করা কন্টেইনারটি খালি করে দেওয়া
+        container.innerHTML = "";
+        
+        // মূল প্রশ্নগুলো আবার দৃশ্যমান করা (প্রয়োজন হলে)
+        // document.querySelectorAll('.question-card-class').forEach(el => el.style.display = 'block');
+    }
 }
