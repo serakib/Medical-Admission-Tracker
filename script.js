@@ -1140,29 +1140,48 @@ class MedicalExamApp {
             }
         }
 
+function toggleWrongQuestions() {
+    let container = document.getElementById("wrong-questions-container");
+    
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "wrong-questions-container";
+        // হেডার বক্সের ঠিক নিচে কন্টেইনারটি যুক্ত করা হবে
+        document.querySelector(".review-header-box").after(container);
+    }
+
+    // যদি কন্টেইনারে ইতিমধ্যে প্রশ্ন দেখানো হয়ে থাকে, তবে আবার ক্লিক করলে তা মুছে যাবে (হাইড হবে)
+    if (container.innerHTML.trim() !== "") {
+        container.innerHTML = "";
+        return;
+    }
+
+    // যে প্রশ্নগুলোর উত্তর ভুল হয়েছে বা দেওয়া হয়নি, সেগুলোকে ফিল্টার করা
+    const wrongList = questions.filter(q => !q.userAnswer || q.userAnswer !== q.correctAnswer);
+
+    if (wrongList.length === 0) {
+        container.innerHTML = "<p style='color: #2ecc71; text-align: center; margin: 20px;'>অভিনন্দন! আপনার কোনো উত্তর ভুল হয়নি।</p>";
+        return;
+    }
+
+    let html = "<h3 style='margin: 20px 0; color: #ff4d4d;'>ভুল হওয়া প্রশ্নসমূহ:</h3>";
+    
+    wrongList.forEach((q, index) => {
+        html += `
+            <div style="background: #111827; border: 1px solid #dc3545; padding: 15px; margin-bottom: 15px; border-radius: 8px; color: #fff;">
+                <span style="background: #374151; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #fbbf24;">${q.subject || 'GENERAL'}</span>
+                <p style="margin-top: 10px; font-weight: bold;">${index + 1}. ${q.question}</p>
+                <p style="color: #ef4444; margin: 5px 0;">আপনার উত্তর: ${q.userAnswer || "উত্তর দেওয়া হয়নি"}</p>
+                <p style="color: #10b981; margin: 5px 0;">সঠিক উত্তর: ${q.correctAnswer}</p>
+                ${q.explanation ? `<p style="font-size: 13px; color: #9ca3af; margin-top: 8px;">ব্যাখ্যা: ${q.explanation}</p>` : ''}
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
 // Expose the app for existing inline UI handlers and legacy Firebase integration.
 window.app = new MedicalExamApp();
 const app = window.app;
 
-
-function showWrongQuestions() {
-  const wrongList = getWrongQuestions();
-  const container = document.getElementById("review-container");
-  container.innerHTML = ""; // আগের কন্টেন্ট পরিষ্কার করা
-
-  if (wrongList.length === 0) {
-    container.innerHTML = "<p>অভিনন্দন! আপনার কোনো উত্তর ভুল হয়নি।</p>";
-    return;
-  }
-
-  wrongList.forEach((q, index) => {
-    container.innerHTML += `
-      <div class="question-card">
-        <h3>${index + 1}. ${q.question}</h3>
-        <p>আপনার উত্তর: <span style="color: red;">${q.userAnswer || "উত্তর দেওয়া হয়নি"}</span></p>
-        <p>সঠিক উত্তর: <span style="color: green;">${q.correctAnswer}</span></p>
-        <p>ব্যাখ্যা: ${q.explanation}</p>
-      </div>
-    `;
-  });
-}
