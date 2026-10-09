@@ -1143,3 +1143,26 @@ class MedicalExamApp {
 // Expose the app for existing inline UI handlers and legacy Firebase integration.
 window.app = new MedicalExamApp();
 const app = window.app;
+
+
+function showWrongQuestions() {
+  const wrongList = getWrongQuestions();
+  const container = document.getElementById("review-container");
+  container.innerHTML = ""; // আগের কন্টেন্ট পরিষ্কার করা
+
+  if (wrongList.length === 0) {
+    container.innerHTML = "<p>অভিনন্দন! আপনার কোনো উত্তর ভুল হয়নি।</p>";
+    return;
+  }
+
+  wrongList.forEach((q, index) => {
+    container.innerHTML += `
+      <div class="question-card">
+        <h3>${index + 1}. ${q.question}</h3>
+        <p>আপনার উত্তর: <span style="color: red;">${q.userAnswer || "উত্তর দেওয়া হয়নি"}</span></p>
+        <p>সঠিক উত্তর: <span style="color: green;">${q.correctAnswer}</span></p>
+        <p>ব্যাখ্যা: ${q.explanation}</p>
+      </div>
+    `;
+  });
+}
