@@ -1144,44 +1144,45 @@ class MedicalExamApp {
 window.app = new MedicalExamApp();
 const app = window.app;
 
-let isWrongOnly = false;
+
+       let isWrongFiltered = false;
 
 function toggleWrongQuestions() {
-    isWrongOnly = !isWrongOnly;
+    isWrongFiltered = !isWrongFiltered;
     const btn = document.getElementById("wrong-btn");
+    
+    // Page-er shob question ba option box-gulo khuje ber korchi
+    // Apnar page-e protiti question-er sathe 'ভুল উত্তর' ba 'উত্তর দেওয়া হয়নি' ba 'সঠিক উত্তর' thake
+    const allCards = document.querySelectorAll('div');
 
-    // পেজের সব প্রশ্ন কার্ডগুলো খুঁজে বের করা (যেহেতু প্রতিটি প্রশ্নের বক্সে মূল প্রশ্ন ও অপশন থাকে)
-    const questionBoxes = document.querySelectorAll('div');
-
-    questionBoxes.forEach(box => {
-        const text = box.innerText || "";
+    allCards.forEach(card => {
+        const content = card.innerText || "";
         
-        // চেক করা হচ্ছে এটি কোনো নির্দিষ্ট প্রশ্নের কার্ড কি না (যেখানে অপশন বা নম্বর আছে)
-        if ((text.includes("A.") && text.includes("B.")) || text.includes("ব্যাখ্যা:")) {
+        // Ekhane amra check korchi eta ki kono question card naki (jehethu protiti question-e option ba byakha thake)
+        if (content.includes("ব্যাখ্যা:") || (content.includes("A.") && content.includes("B."))) {
             
-            // চেক করা হচ্ছে প্রশ্নটি ভুল বা আনঅ্যানসারড কিনা
-            const isWrongOrUnanswered = text.includes("ভুল উত্তর") || text.includes("উত্তর দেওয়া হয়নি");
+            // Check korchi card-ti ki bhul ba un-answered naki
+            const isIncorrectOrSkipped = content.includes("ভুল উত্তর") || content.includes("উত্তর দেওয়া হয়নি");
 
-            if (isWrongOnly) {
-                // বাটনের লেখা এবং রঙ পরিবর্তন
+            if (isWrongFiltered) {
                 if (btn) {
                     btn.innerText = "সব প্রশ্ন দেখুন";
-                    btn.style.backgroundColor = "#2ecc71"; // সবুজ রঙ
+                    btn.style.backgroundColor = "#2ecc71"; // Sobuj rong
                 }
 
-                // যদি ভুল বা উত্তর না দেওয়া না হয়, তবে লুকিয়ে ফেলবে
-                if (!isWrongOrUnanswered) {
-                    box.style.display = "none";
+                // Jodi bhul ba skip kora na hoy (mane sothik hoy), tahole hide kore dibo
+                if (!isIncorrectOrSkipped) {
+                    card.style.display = "none";
                 } else {
-                    box.style.display = "block";
+                    card.style.display = "block";
                 }
             } else {
-                // আবার আগের অবস্থায় ফিরিয়ে আনা (সব দেখাবে)
                 if (btn) {
                     btn.innerText = "See Wrong Questions";
-                    btn.style.backgroundColor = "#dc3545"; // লাল রঙ
+                    btn.style.backgroundColor = "#dc3545"; // Lal rong
                 }
-                box.style.display = "block";
+                // Abar sob card-gulo visible kore dibo
+                card.style.display = "block";
             }
         }
     });
