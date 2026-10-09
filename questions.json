@@ -741,12 +741,12 @@
     "subject": "physics",
     "question": "ভূ-পৃষ্ঠে অভিকর্ষজ ত্বরণ 'g' এর আদর্শ মান কত ধরা হয়?",
     "options": {
-      "A": "9.81 m/s^1",
+      "A": "9.81 km/s",
       "B": "9.78 m/s²",
-      "C": "9.83 m/s²",
-      "D": "10 m/s²"
+      "C": "9.81 m/s²",
+      "D": "9.8 m/s²"
     },
-    "correctAnswer": "A",
+    "correctAnswer": "C",
     "explanation": "৪৫° অক্ষাংশে সমুদ্র সমতলে g এর মান ৯.৮০৬৬৫ বা ৯.৮১ m/s² ধরা হয়।",
     "source": "Model Test",
     "difficulty": "medium"
@@ -758,7 +758,7 @@
     "question": "তড়িৎ প্রবাহের একক কোনটি?",
     "options": {
       "A": "ভোল্ট",
-      "B": "অ্যাম্পিয়ার (Ampere)",
+      "B": "অ্যাম্পিয়ার",
       "C": "ওহম",
       "D": "কুলম্ব"
     },
@@ -773,12 +773,12 @@
     "subject": "physics",
     "question": "পরম শূন্য তাপমাত্রা (Absolute Zero Temperature) সেলসিয়াস স্কেলে কত?",
     "options": {
-      "A": "0 °C",
-      "B": "-273.15 °C",
-      "C": "100 °C",
-      "D": "-100 °C"
+      "A": "-273.15°K",
+      "B": "-273.17 °C",
+      "C": "-273.16°C",
+      "D": "0°K"
     },
-    "correctAnswer": "B",
+    "correctAnswer": "D",
     "explanation": "0 Kelvin = -273.15 °C, যাকে পরম শূন্য তাপমাত্রা বলা হয়।",
     "source": "Model Test",
     "difficulty": "medium"
