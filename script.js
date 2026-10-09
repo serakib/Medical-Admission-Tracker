@@ -1144,48 +1144,50 @@ class MedicalExamApp {
 window.app = new MedicalExamApp();
 const app = window.app;
 
+
 let isWrongFiltered = false;
 
 function toggleWrongQuestions() {
-    isWrongFiltered = !isWrongFiltered;
-    const btn = document.getElementById("wrong-btn");
+  isWrongFiltered = !isWrongFiltered;
 
-    // Ekhane apnar page-er shob question element-gulo direct DOM theke select korchi, 
-    // jate kono variable-er upor depend korte na hoy!
-    const questionBoxes = document.querySelectorAll('div');
+  const btn = document.getElementById("wrong-btn");
+  const questionBoxes = document.querySelectorAll(
+    "#wrong-questions-container .question-card"
+  );
 
-    let foundAny = false;
+  let foundAny = false;
 
-    questionBoxes.forEach(box => {
-        const text = box.innerText || "";
-        
-        // Check korchi eta ki kono question card naki (jehethu protiti question-e 'ব্যাখ্যা' ba 'A.' ba 'B.' thake)
-        if (text.includes("ব্যাখ্যা:") || (text.includes("A.") && text.includes("B."))) {
-            
-            // Check korchi box-ti ki bhul ba un-answered naki
-            const isIncorrectOrSkipped = text.includes("ভুল উত্তর") || text.includes("উত্তর দেওয়া হয়নি");
+  questionBoxes.forEach(box => {
+    const text = box.innerText || "";
 
-            if (isWrongFiltered) {
-                if (btn) {
-                    btn.innerText = "সব প্রশ্ন দেখুন";
-                    btn.style.backgroundColor = "#2ecc71"; // Sobuj rong
-                }
+    const isIncorrectOrSkipped =
+      box.classList.contains("wrong") ||
+      text.includes("ভুল উত্তর") ||
+      text.includes("উত্তর দেওয়া হয়নি");
 
-                // Jodi bhul ba skip kora na hoy, tahole hide kore dibo
-                if (!isIncorrectOrSkipped) {
-                    box.style.display = "none";
-                } else {
-                    box.style.display = "block";
-                    foundAny = true;
-                }
-            } else {
-                if (btn) {
-                    btn.innerText = "See Wrong Questions";
-                    btn.style.backgroundColor = "#dc3545"; // Lal rong
-                }
-                // Abar sob card-gulo visible kore dibo
-                box.style.display = "block";
-            }
-        }
-    });
+    if (isWrongFiltered) {
+      if (isIncorrectOrSkipped) {
+        box.classList.remove("is-hidden");
+        foundAny = true;
+      } else {
+        box.classList.add("is-hidden");
+      }
+    } else {
+      box.classList.remove("is-hidden");
+    }
+  });
+
+  if (btn) {
+    btn.innerText = isWrongFiltered
+      ? "সব প্রশ্ন দেখুন"
+      : "See Wrong Questions";
+
+    btn.style.backgroundColor = isWrongFiltered
+      ? "#2ecc71"
+      : "#dc3545";
+  }
+
+  if (isWrongFiltered && !foundAny) {
+    alert("কোনো ভুল বা উত্তর না দেওয়া প্রশ্ন পাওয়া যায়নি!");
+  }
 }
