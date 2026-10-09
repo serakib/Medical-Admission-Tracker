@@ -637,9 +637,17 @@
                 </button>
             </div>
 
-            <button id="wrong-btn" onclick="showWrongQuestions()">See Wrong Questions</button>
-<div id="review-container"></div>
-
+            <!-- বাটনগুলোর ধারণকারী অংশ (ফলাফলে ফিরে যান এবং See Wrong Questions একসাথে থাকবে) -->
+    <div style="display: flex; gap: 10px;">
+        <button class="return-btn">ফলাফলে ফিরে যান</button>
+        
+        <!-- নতুন লাল রঙের বাটনটি -->
+        <button id="see-wrong-btn" onclick="toggleWrongQuestions()" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            See Wrong Questions
+        </button>
+    </div>
+</div>
+            
             <!-- Review Questions List Dynamic -->
             <div id="review-list-container" class="space-y-6">
                 <!-- Dynamic Review Cards injected here -->
