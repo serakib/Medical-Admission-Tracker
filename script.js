@@ -1144,45 +1144,45 @@ class MedicalExamApp {
 window.app = new MedicalExamApp();
 const app = window.app;
 
-
-let isShowingOnlyWrong = false;
+let isWrongOnly = false;
 
 function toggleWrongQuestions() {
-    // পেজের সব প্রশ্ন কার্ডগুলো সিলেক্ট করা (আপনার পেজের স্ট্রাকচার অনুযায়ী কার্ডগুলোর ক্লাস বা ট্যাগ দিতে হবে)
-    // ধরে নিচ্ছি প্রতিটি প্রশ্নের মূল কন্টেইনার হলো একটি div বা কার্ড
-    const questionCards = document.querySelectorAll('.review-header-box ~ div, .question-card, [style*="background: #111827"]');
-    
-    isShowingOnlyWrong = !isShowingOnlyWrong;
-    const btn = document.getElementById("wrong-btn") || event.target;
+    isWrongOnly = !isWrongOnly;
+    const btn = document.getElementById("wrong-btn");
 
-    if (isShowingOnlyWrong) {
-        btn.innerText = "সব প্রশ্ন দেখুন";
-        btn.style.backgroundColor = "#2ecc71"; // সবুজ রঙে পরিবর্তন হবে
+    // পেজের সব প্রশ্ন কার্ডগুলো খুঁজে বের করা (যেহেতু প্রতিটি প্রশ্নের বক্সে মূল প্রশ্ন ও অপশন থাকে)
+    const questionBoxes = document.querySelectorAll('div');
 
-        // পেজের প্রশ্নগুলোর ওপর লুপ চালিয়ে যেগুলোতে ভুল উত্তর বা উত্তর দেওয়া হয়নি কেবল সেগুলো রেখে বাকিগুলো হাইড করা
-        // আপনার পেজে "ভুল উত্তর" বা "উত্তর দেওয়া হয়নি" টেক্সটগুলো প্রতিটি প্রশ্নের সাথে থাকে
-        const allBlocks = document.querySelectorAll('div'); // অথবা আপনার প্রশ্নের নির্দিষ্ট ক্লাস
+    questionBoxes.forEach(box => {
+        const text = box.innerText || "";
         
-        allBlocks.forEach(block => {
-            const text = block.innerText || "";
-            // যদি ব্লকটিতে প্রশ্ন থাকে কিন্তু "ভুল উত্তর" বা "উত্তর দেওয়া হয়নি" লেখা না থাকে, তবে সেটি লুকিয়ে ফেলা
-            if ((text.includes("Power-এর SI unit") || text.includes("মহাকর্ষ") || block.innerHTML.includes("QUESTION")) || 
-                (block.innerText.includes("PHYSICS") || block.innerText.includes("BIOLOGY") || block.innerText.includes("CHEMISTRY") || block.innerText.includes("GK") || block.innerText.includes("ENGLISH"))) {
-                
-                // চেক করা যাক এটি ভুল বা আনঅ্যানসারড কিনা
-                const isWrong = block.innerText.includes("ভুল উত্তর") || block.innerText.includes("উত্তর দেওয়া হয়নি");
-                const hasOptions = block.innerHTML.includes("A.") && block.innerHTML.includes("B.");
-                
-                if (hasOptions && !isWrong) {
-                    block.style.display = "none"; // সঠিক প্রশ্নগুলো লুকিয়ে ফেলবে
+        // চেক করা হচ্ছে এটি কোনো নির্দিষ্ট প্রশ্নের কার্ড কি না (যেখানে অপশন বা নম্বর আছে)
+        if ((text.includes("A.") && text.includes("B.")) || text.includes("ব্যাখ্যা:")) {
+            
+            // চেক করা হচ্ছে প্রশ্নটি ভুল বা আনঅ্যানসারড কিনা
+            const isWrongOrUnanswered = text.includes("ভুল উত্তর") || text.includes("উত্তর দেওয়া হয়নি");
+
+            if (isWrongOnly) {
+                // বাটনের লেখা এবং রঙ পরিবর্তন
+                if (btn) {
+                    btn.innerText = "সব প্রশ্ন দেখুন";
+                    btn.style.backgroundColor = "#2ecc71"; // সবুজ রঙ
                 }
+
+                // যদি ভুল বা উত্তর না দেওয়া না হয়, তবে লুকিয়ে ফেলবে
+                if (!isWrongOrUnanswered) {
+                    box.style.display = "none";
+                } else {
+                    box.style.display = "block";
+                }
+            } else {
+                // আবার আগের অবস্থায় ফিরিয়ে আনা (সব দেখাবে)
+                if (btn) {
+                    btn.innerText = "See Wrong Questions";
+                    btn.style.backgroundColor = "#dc3545"; // লাল রঙ
+                }
+                box.style.display = "block";
             }
-        });
-    } else {
-        btn.innerText = "See Wrong Questions";
-        btn.style.backgroundColor = "#dc3545"; // আবার লাল রঙে ফিরে যাবে
-        
-        // আবার সব প্রশ্ন একসাথে শো করা
-        location.reload(); // অথবা সব ব্লক আবার display: block করে দেওয়া সহজ মাধ্যম
-    }
+        }
+    });
 }
