@@ -1145,49 +1145,65 @@ window.app = new MedicalExamApp();
 const app = window.app;
 
 
+
 let isWrongFiltered = false;
 
 function toggleWrongQuestions() {
-  isWrongFiltered = !isWrongFiltered;
+    isWrongFiltered = !isWrongFiltered;
 
-  const btn = document.getElementById("wrong-btn");
-  const questionBoxes = document.querySelectorAll(
-    "#wrong-questions-container .question-card"
-  );
+    const btn = document.getElementById("wrong-btn");
 
-  let foundAny = false;
+    // শুধু সেই div খুঁজবে, যার মধ্যে
+    // ভুল উত্তর বা উত্তর না দেওয়ার লেখা রয়েছে।
+    const allDivs = document.querySelectorAll("div");
+    const questionCards = new Set();
 
-  questionBoxes.forEach(box => {
-    const text = box.innerText || "";
+    allDivs.forEach(div => {
+        const text = div.innerText || "";
 
-    const isIncorrectOrSkipped =
-      box.classList.contains("wrong") ||
-      text.includes("ভুল উত্তর") ||
-      text.includes("উত্তর দেওয়া হয়নি");
+        if (
+            text.includes("ভুল উত্তর") ||
+            text.includes("উত্তর দেওয়া হয়নি")
+        ) {
+            // সবচেয়ে কাছের সম্ভাব্য প্রশ্নের কন্টেইনার খোঁজা
+            let parent = div;
+
+            while (parent && parent !== document.body) {
+                const parentText = parent.innerText || "";
+
+                if (
+                    parentText.includes("ব্যাখ্যা") &&
+                    parentText.length > text.length
+                ) {
+                    questionCards.add(parent);
+                    break;
+                }
+
+                parent = parent.parentElement;
+            }
+        }
+    });
 
     if (isWrongFiltered) {
-      if (isIncorrectOrSkipped) {
-        box.classList.remove("is-hidden");
-        foundAny = true;
-      } else {
-        box.classList.add("is-hidden");
-      }
+        questionCards.forEach(card => {
+            // প্রশ্নের সম্ভাব্য কন্টেইনার
+            card.dataset.wrongFilter = "true";
+        });
+
+        if (btn) {
+            btn.innerText = "সব প্রশ্ন দেখুন";
+            btn.style.backgroundColor = "#2ecc71";
+        }
     } else {
-      box.classList.remove("is-hidden");
+        document.querySelectorAll(
+            '[data-wrong-filter="true"]'
+        ).forEach(card => {
+            delete card.dataset.wrongFilter;
+        });
+
+        if (btn) {
+            btn.innerText = "See Wrong Questions";
+            btn.style.backgroundColor = "#dc3545";
+        }
     }
-  });
-
-  if (btn) {
-    btn.innerText = isWrongFiltered
-      ? "সব প্রশ্ন দেখুন"
-      : "See Wrong Questions";
-
-    btn.style.backgroundColor = isWrongFiltered
-      ? "#2ecc71"
-      : "#dc3545";
-  }
-
-  if (isWrongFiltered && !foundAny) {
-    alert("কোনো ভুল বা উত্তর না দেওয়া প্রশ্ন পাওয়া যায়নি!");
-  }
 }
