@@ -1140,48 +1140,49 @@ class MedicalExamApp {
             }
         }
 
-function toggleWrongQuestions() {
-    let container = document.getElementById("wrong-questions-container");
-    
-    if (!container) {
-        container = document.createElement("div");
-        container.id = "wrong-questions-container";
-        // হেডার বক্সের ঠিক নিচে কন্টেইনারটি যুক্ত করা হবে
-        document.querySelector(".review-header-box").after(container);
-    }
-
-    // যদি কন্টেইনারে ইতিমধ্যে প্রশ্ন দেখানো হয়ে থাকে, তবে আবার ক্লিক করলে তা মুছে যাবে (হাইড হবে)
-    if (container.innerHTML.trim() !== "") {
-        container.innerHTML = "";
-        return;
-    }
-
-    // যে প্রশ্নগুলোর উত্তর ভুল হয়েছে বা দেওয়া হয়নি, সেগুলোকে ফিল্টার করা
-    const wrongList = questions.filter(q => !q.userAnswer || q.userAnswer !== q.correctAnswer);
-
-    if (wrongList.length === 0) {
-        container.innerHTML = "<p style='color: #2ecc71; text-align: center; margin: 20px;'>অভিনন্দন! আপনার কোনো উত্তর ভুল হয়নি।</p>";
-        return;
-    }
-
-    let html = "<h3 style='margin: 20px 0; color: #ff4d4d;'>ভুল হওয়া প্রশ্নসমূহ:</h3>";
-    
-    wrongList.forEach((q, index) => {
-        html += `
-            <div style="background: #111827; border: 1px solid #dc3545; padding: 15px; margin-bottom: 15px; border-radius: 8px; color: #fff;">
-                <span style="background: #374151; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #fbbf24;">${q.subject || 'GENERAL'}</span>
-                <p style="margin-top: 10px; font-weight: bold;">${index + 1}. ${q.question}</p>
-                <p style="color: #ef4444; margin: 5px 0;">আপনার উত্তর: ${q.userAnswer || "উত্তর দেওয়া হয়নি"}</p>
-                <p style="color: #10b981; margin: 5px 0;">সঠিক উত্তর: ${q.correctAnswer}</p>
-                ${q.explanation ? `<p style="font-size: 13px; color: #9ca3af; margin-top: 8px;">ব্যাখ্যা: ${q.explanation}</p>` : ''}
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
-
 // Expose the app for existing inline UI handlers and legacy Firebase integration.
 window.app = new MedicalExamApp();
 const app = window.app;
 
+
+let isShowingOnlyWrong = false;
+
+function toggleWrongQuestions() {
+    // পেজের সব প্রশ্ন কার্ডগুলো সিলেক্ট করা (আপনার পেজের স্ট্রাকচার অনুযায়ী কার্ডগুলোর ক্লাস বা ট্যাগ দিতে হবে)
+    // ধরে নিচ্ছি প্রতিটি প্রশ্নের মূল কন্টেইনার হলো একটি div বা কার্ড
+    const questionCards = document.querySelectorAll('.review-header-box ~ div, .question-card, [style*="background: #111827"]');
+    
+    isShowingOnlyWrong = !isShowingOnlyWrong;
+    const btn = document.getElementById("wrong-btn") || event.target;
+
+    if (isShowingOnlyWrong) {
+        btn.innerText = "সব প্রশ্ন দেখুন";
+        btn.style.backgroundColor = "#2ecc71"; // সবুজ রঙে পরিবর্তন হবে
+
+        // পেজের প্রশ্নগুলোর ওপর লুপ চালিয়ে যেগুলোতে ভুল উত্তর বা উত্তর দেওয়া হয়নি কেবল সেগুলো রেখে বাকিগুলো হাইড করা
+        // আপনার পেজে "ভুল উত্তর" বা "উত্তর দেওয়া হয়নি" টেক্সটগুলো প্রতিটি প্রশ্নের সাথে থাকে
+        const allBlocks = document.querySelectorAll('div'); // অথবা আপনার প্রশ্নের নির্দিষ্ট ক্লাস
+        
+        allBlocks.forEach(block => {
+            const text = block.innerText || "";
+            // যদি ব্লকটিতে প্রশ্ন থাকে কিন্তু "ভুল উত্তর" বা "উত্তর দেওয়া হয়নি" লেখা না থাকে, তবে সেটি লুকিয়ে ফেলা
+            if ((text.includes("Power-এর SI unit") || text.includes("মহাকর্ষ") || block.innerHTML.includes("QUESTION")) || 
+                (block.innerText.includes("PHYSICS") || block.innerText.includes("BIOLOGY") || block.innerText.includes("CHEMISTRY") || block.innerText.includes("GK") || block.innerText.includes("ENGLISH"))) {
+                
+                // চেক করা যাক এটি ভুল বা আনঅ্যানসারড কিনা
+                const isWrong = block.innerText.includes("ভুল উত্তর") || block.innerText.includes("উত্তর দেওয়া হয়নি");
+                const hasOptions = block.innerHTML.includes("A.") && block.innerHTML.includes("B.");
+                
+                if (hasOptions && !isWrong) {
+                    block.style.display = "none"; // সঠিক প্রশ্নগুলো লুকিয়ে ফেলবে
+                }
+            }
+        });
+    } else {
+        btn.innerText = "See Wrong Questions";
+        btn.style.backgroundColor = "#dc3545"; // আবার লাল রঙে ফিরে যাবে
+        
+        // আবার সব প্রশ্ন একসাথে শো করা
+        location.reload(); // অথবা সব ব্লক আবার display: block করে দেওয়া সহজ মাধ্যম
+    }
+}
