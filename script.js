@@ -1152,26 +1152,46 @@ function toggleWrongQuestions() {
     const btn = document.getElementById("wrong-btn");
     const container = document.getElementById("review-list-container");
 
-    if (!container) return;
+    if (!container) {
+        console.error("review-list-container not found!");
+        return;
+    }
 
-    // প্রতিটি প্রশ্নের আসল কার্ড খুঁজুন
-    const questions = container.querySelectorAll(
-        ":scope > div > div.space-y-2 > div"
-    );
+    // প্রতিটি সম্পূর্ণ প্রশ্নের কার্ড খুঁজবে
+    const questions = container.querySelectorAll(":scope > div");
 
     if (!isWrongFiltered) {
         originalQuestionStates.clear();
+
+        let foundWrongOrSkipped = false;
 
         questions.forEach(question => {
             const text = question.innerText || "";
 
             const isWrongOrSkipped =
-                /ভুল উত্তর|উত্তর দেওয়া হয়নি|উত্তর দেওয়া হয়নি|উত্তর দেয়া হয়নি|উত্তর দেয়া হয়নি/.test(text);
+                /ভুল উত্তর|উত্তর দেওয়া হয়নি|উত্তর দেওয়া হয়নি|উত্তর দেয়া হয়নি|উত্তর দেয়া হয়নি|Wrong|Incorrect|Skipped/i.test(text);
 
             originalQuestionStates.set(question, question.hidden);
 
             question.hidden = !isWrongOrSkipped;
+
+            if (isWrongOrSkipped) {
+                foundWrongOrSkipped = true;
+            }
         });
+
+        if (!foundWrongOrSkipped) {
+            originalQuestionStates.forEach((wasHidden, question) => {
+                if (question.isConnected) {
+                    question.hidden = wasHidden;
+                }
+            });
+
+            originalQuestionStates.clear();
+
+            alert("কোনো ভুল বা উত্তর না দেওয়া প্রশ্ন পাওয়া যায়নি!");
+            return;
+        }
 
         isWrongFiltered = true;
 
@@ -1179,7 +1199,9 @@ function toggleWrongQuestions() {
             btn.innerText = "সব প্রশ্ন দেখুন";
             btn.style.backgroundColor = "#2ecc71";
         }
+
     } else {
+        // সব প্রশ্ন আগের অবস্থায় ফিরিয়ে আনবে
         originalQuestionStates.forEach((wasHidden, question) => {
             if (question.isConnected) {
                 question.hidden = wasHidden;
