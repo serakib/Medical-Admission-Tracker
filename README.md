@@ -154,7 +154,7 @@ See the repository's `LICENSE` file for the applicable terms.
 
 ## 👨‍💻 Developer
 
-**Rakib Hasan** [Open the Live Website](https://rakibhasandc27.blogspot.com/)
+**Rakib Hasan** [Visit Developer Portfolio](https://rakibhasandc27.blogspot.com/)
 
 
 Medical Admission Tester — a web-based platform for medical admission preparation.
