@@ -467,8 +467,8 @@ class MedicalExamApp {
 
             getDemoLeaderboardRows(){
                 return [
-                    {uid:'demo_01',name:'Arafat Hossain',college:'Dhaka College',points:1860,quizzes:18,correct:470,answered:520,accuracy:90.4,isDemo:true},
-                    {uid:'demo_02',name:'Samiha Rahman',college:'Viqarunnisa Noon College',points:1725,quizzes:16,correct:438,answered:500,accuracy:87.6,isDemo:true},
+                    {uid:'demo_01',name:'Rakib Hasan',college:'Dhaka College',points:1890,quizzes:18,correct:470,answered:520,accuracy:90.4,isDemo:true},
+                    {uid:'demo_02',name:'Abdullah Shawon',college:'Dhaka College',points:1725,quizzes:16,correct:438,answered:500,accuracy:87.6,isDemo:true},
                     {uid:'demo_03',name:'Tanvir Ahmed',college:'Notre Dame College',points:1580,quizzes:15,correct:402,answered:470,accuracy:85.5,isDemo:true},
                     {uid:'demo_04',name:'Nusrat Jahan',college:'Holy Cross College',points:1495,quizzes:14,correct:381,answered:450,accuracy:84.7,isDemo:true},
                     {uid:'demo_05',name:'Fahim Hasan',college:'Rajuk Uttara Model College',points:1360,quizzes:13,correct:352,answered:425,accuracy:82.8,isDemo:true},
