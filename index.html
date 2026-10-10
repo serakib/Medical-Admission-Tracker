@@ -123,9 +123,7 @@ function redirectToLogin() {
             <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
             </button>
-            <button onclick="app.openAuthModal(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-user ml-2"></i> লগইন / রেজিস্টার / Guest
-            </button>
+            
         </div>
     </header>
 
@@ -665,7 +663,17 @@ function redirectToLogin() {
                     <h2 id="profile-name" class="profile-name">Guest Student</h2>
                     <p id="profile-email" class="profile-subtitle">Guest mode • আপনার progress এই device-এ সংরক্ষিত</p>
                 </div>
-                <button onclick="app.openAuthModal()" class="primary-btn profile-action"><i class="fa-solid fa-right-to-bracket"></i><span id="profile-auth-action">লগইন / রেজিস্টার</span></button>
+                <!-- মেইন ওয়েবসাইটের LOG IN বাটন -->
+<button onclick="redirectToLogin()" style="cursor: pointer; padding: 10px 20px; background-color: #00ff66; color: #121212; border: none; font-weight: bold; border-radius: 5px;">
+  LOG IN / SIGN UP
+</button>
+
+<script>
+function redirectToLogin() {
+  // ক্লিক করলে সরাসরি লগইন পেজে নিয়ে যাবে
+  window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
+}
+</script>
             </div>
             <div class="profile-stat-grid">
                 <div class="profile-stat-card"><span>Questions Practiced</span><strong id="profile-seen-count">0</strong><small>unique questions</small></div>
