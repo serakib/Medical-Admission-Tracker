@@ -620,35 +620,112 @@ class MedicalExamApp {
                 qs.forEach((q,i)=>{const card=document.createElement('article');card.className='bank-card';const opts=q.options.map((o,j)=>`<div class="bank-option"><b>${'ABCD'[j]}</b><span>${this.escapeHtml(this.getLocalizedOption(q,j))}</span></div>`).join('');card.innerHTML=`<div class="bank-meta"><span>${this.escapeHtml(this.localizedSubject(q.subject))}</span><span>${this.escapeHtml(q.year||this.t('practice','Practice'))}</span></div><h3>${i+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h3><div class="bank-options">${opts}</div><button class="bank-answer-btn" type="button">${this.t('Show Answer','উত্তর দেখুন')}</button><div class="bank-answer hidden"><strong>${this.t('Correct Answer','সঠিক উত্তর')}:</strong> ${q.correctAnswer}<br>${this.escapeHtml(this.language==='en'?(q.explanation_en||q.explanation||''):(q.explanation||''))}</div>`;card.querySelector('.bank-answer-btn').onclick=()=>{const a=card.querySelector('.bank-answer');a.classList.toggle('hidden');card.querySelector('.bank-answer-btn').textContent=a.classList.contains('hidden')?this.t('Show Answer','উত্তর দেখুন'):this.t('Hide Answer','উত্তর লুকান')};list.appendChild(card);});
                 if(!qs.length)list.innerHTML=`<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><h3>${this.t('No questions found','কোনো প্রশ্ন পাওয়া যায়নি')}</h3><p>${this.t('Try another filter or search term.','অন্য filter বা search ব্যবহার করুন।')}</p></div>`;
               }
+
             
             startPractice(){
-                const qs=this.questionBank.filter(q=>q.source && !/^verified previous/i.test(q.source) && !q.isPreviousYear);
-                const unseen=this.getUnseenPool(qs);
-                this.showView('practice');
-                if(!unseen.length){
-                    this.practiceSession={questions:[],index:0,answers:[],marks:0,showAnswer:false};
-                    const root=document.getElementById('practice-question');
-                    if(root)root.innerHTML=`<div class="empty-state"><i class="fa-solid fa-circle-check"></i><h3>সব ইউনিক Practice প্রশ্ন শেষ করেছেন</h3><p>একই প্রশ্ন আবার দেখানো হবে না। নতুন প্রশ্ন যোগ হলে সেগুলো Practice করতে পারবেন। Question Bank থেকে আগে দেখা প্রশ্নের উত্তর ও ব্যাখ্যা দেখতে পারবেন।</p></div>`;
-                    const score=document.getElementById('practice-score');if(score)score.textContent='0';
-                    const progress=document.getElementById('practice-progress');if(progress)progress.textContent='সব প্রশ্ন সম্পন্ন';
-                    return;
+                // পুরানো টাইমার চললে তা বন্ধ করা
+                if (this.practiceTimerInterval) {
+                    clearInterval(this.practiceTimerInterval);
                 }
-                const selected=[...unseen].sort(()=>Math.random()-.5).slice(0,Math.min(20,unseen.length));
-                // Strict no-repeat: reserve every question as soon as it is shown, across Practice and Exams.
+
+                const qs=this.questionBank.filter(q=>q.source && !/^verified previous/i.test(q.source) && !q.isPreviousYear);
+                const pool = qs.length ? qs : this.questionBank; 
+                this.showView('practice');
+                
+                // ১০টি করে প্রশ্ন সিলেক্ট করা
+                const selected=[...pool].sort(()=>Math.random()-.5).slice(0, Math.min(10, pool.length));
+                
                 this.markQuestionsSeen(selected);
-                this.practiceSession={questions:selected,index:0,answers:[],marks:0,showAnswer:false}; this.renderPractice();
-            }
+                
+                // প্র্যাকটিস সেশন এবং ১০ মিনিট (600 সেকেন্ড) টাইম সেট করা
+                this.practiceSession={
+                    questions: selected,
+                    index: 0,
+                    answers: [],
+                    marks: 0,
+                    showAnswer: false,
+                    timeLeft: 600 // ১০ মিনিট = ৬০০ সেকেন্ড
+                }; 
+
+                this.renderPractice();
+                this.startPracticeTimer(); // টাইমার চালু করা
+            },
+
+            startPracticeTimer() {
+                if (this.practiceTimerInterval) clearInterval(this.practiceTimerInterval);
+
+                this.practiceTimerInterval = setInterval(() => {
+                    if (!this.practiceSession) {
+                        clearInterval(this.practiceTimerInterval);
+                        return;
+                    }
+
+                    if (this.practiceSession.timeLeft > 0) {
+                        this.practiceSession.timeLeft--;
+                        this.updatePracticeTimerUI();
+                    } else {
+                        clearInterval(this.practiceTimerInterval);
+                        // সময় শেষ হলে অ্যালার্ট দিয়ে অটোমেটিক নতুন সেশন শুরু হবে
+                        alert('সময় শেষ! নতুন প্র্যাকটিস সেশন শুরু হচ্ছে।');
+                        this.startPractice();
+                    }
+                }, 1000);
+            },
+
+            updatePracticeTimerUI() {
+                const timerEl = document.getElementById('practice-timer');
+                if (!timerEl || !this.practiceSession) return;
+
+                const mins = Math.floor(this.practiceSession.timeLeft / 60);
+                const secs = this.practiceSession.timeLeft % 60;
+                timerEl.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            },
+
             renderPractice(){
                 const s=this.practiceSession,q=s?.questions?.[s.index]; if(!q)return;
                 const root=document.getElementById('practice-question'); if(!root)return;
                 const chosen=s.answers[s.index];
-                root.innerHTML=`<div class="practice-meta"><span>${this.localizedSubject(q.subject)}</span><span>${s.index+1} / ${s.questions.length}</span></div><h2>${s.index+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h2><div class="practice-options">${q.options.map((o,j)=>`<button class="practice-option ${chosen!==undefined?(j===q.answer?'correct':j===chosen?'wrong':''):''}" ${chosen!==undefined?'disabled':''} data-i="${j}"><span>${'ABCD'[j]}</span>${this.escapeHtml(this.getLocalizedOption(q,j))}</button>`).join('')}</div>${chosen!==undefined?`<div class="practice-feedback ${chosen===q.answer?'ok':'bad'}"><strong>${chosen===q.answer?this.t('Correct — +1 practice mark','সঠিক — +১ practice mark'):this.t('Not correct — 0 mark','সঠিক নয় — ০ mark')}</strong><p>${this.escapeHtml(this.language==='en'?(q.explanation_en||q.explanation||''):(q.explanation||''))}</p></div>`:''}`;
+                
+                this.updatePracticeTimerUI(); // প্রতিবার প্রশ্ন রেন্ডার করার সময় টাইমার আপডেট রাখা
+
+                root.innerHTML=`<div class="practice-meta"><span>${this.localizedSubject(q.subject)}</span><span>প্রশ্ন ${s.index+1} / ${s.questions.length}</span></div><h2>${s.index+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h2><div class="practice-options">${q.options.map((o,j)=>`<button class="practice-option ${chosen!==undefined?(j===q.answer?'correct':j===chosen?'wrong':''):''}" ${chosen!==undefined?'disabled':''} data-i="${j}"><span>${'ABCD'[j]}</span>${this.escapeHtml(this.getLocalizedOption(q,j))}</button>`).join('')}</div>${chosen!==undefined?`<div class="practice-feedback ${chosen===q.answer?'ok':'bad'}"><strong>${chosen===q.answer?this.t('Correct — +1 practice mark','সঠিক — +১ practice mark'):this.t('Not correct — 0 mark','সঠিক নয় — ০ mark')}</strong><p>${this.escapeHtml(this.language==='en'?(q.explanation_en||q.explanation||''):(q.explanation||''))}</p></div>`:''}`;
                 root.querySelectorAll('.practice-option').forEach(btn=>btn.onclick=()=>this.answerPractice(Number(btn.dataset.i)));
-                document.getElementById('practice-score').textContent=String(s.marks);document.getElementById('practice-progress').textContent=this.t(`Question ${s.index+1} of ${s.questions.length}`,`প্রশ্ন ${s.index+1} / ${s.questions.length}`);
-            }
-            answerPractice(i){const s=this.practiceSession;if(!s||s.answers[s.index]!==undefined)return;s.answers[s.index]=i;this.markQuestionPracticed(s.questions[s.index]);if(i===s.questions[s.index].answer){s.marks++;this.markQuestionCoveredIfCorrect(s.questions[s.index],i);}this.renderPractice();}
-            nextPractice(){const s=this.practiceSession;if(!s)return;if(s.index<s.questions.length-1){s.index++;this.renderPractice();}else{localStorage.setItem(this.getHistoryKey()+'_practice',JSON.stringify({marks:s.marks,total:s.questions.length,date:Date.now()}));this.showProfile();this.loadProgressStats();}}
-            prevPractice(){const s=this.practiceSession;if(s&&s.index>0){s.index--;this.renderPractice();}}
+                document.getElementById('practice-score').textContent=String(s.marks);
+                document.getElementById('practice-progress').textContent=this.t(`Question ${s.index+1} of ${s.questions.length}`,`প্রশ্ন ${s.index+1} / ${s.questions.length}`);
+            },
+
+            answerPractice(i){
+                const s=this.practiceSession;
+                if(!s||s.answers[s.index]!==undefined)return;
+                s.answers[s.index]=i;
+                this.markQuestionPracticed(s.questions[s.index]);
+                if(i===s.questions[s.index].answer){
+                    s.marks++;
+                    this.markQuestionCoveredIfCorrect(s.questions[s.index],i);
+                }
+                this.renderPractice();
+            },
+
+            nextPractice(){
+                const s=this.practiceSession;
+                if(!s) return;
+                if(s.index < s.questions.length - 1){
+                    s.index++;
+                    this.renderPractice();
+                } else {
+                    // ১০টি প্রশ্ন শেষ হলে টাইমার বন্ধ করে আবার নতুন ১০টি প্রশ্ন নিয়ে রিসেট হবে
+                    if (this.practiceTimerInterval) clearInterval(this.practiceTimerInterval);
+                    this.startPractice();
+                }
+            },
+
+            prevPractice(){
+                const s=this.practiceSession;
+                if(s&&s.index>0){
+                    s.index--;
+                    this.renderPractice();
+                }
+            },
 
             // Theme Management
             toggleTheme() {
