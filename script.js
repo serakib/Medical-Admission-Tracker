@@ -1394,44 +1394,44 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Auth State Listener (Nogor o Profile obhoy button automatic badlabar jonno)
-onAuthStateChanged(auth, (user) => {
-    const authContainers = document.querySelectorAll('.auth-btn-target');
-    
-    authContainers.forEach(container => {
-        if (user) {
-            // User logged in thakle Logout button dekhabe
-            container.innerHTML = `
-                <button onclick="handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Log Out</span>
-                </button>
-            `;
-        } else {
-            // User logged out thakle Login button dekhabe
-            container.innerHTML = `
-                <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>Login / Sign up</span>
-                </button>
-            `;
-        }
+// ফায়ারবেস অথেন্টিকেশন লিসেনার ও ডাইনামিক বাটন আপডেট
+if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().onAuthStateChanged((user) => {
+        const authContainers = document.querySelectorAll('.auth-btn-target');
+        authContainers.forEach(container => {
+            if (user) {
+                container.innerHTML = `
+                    <button onclick="window.handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>লগআউট</span>
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Login / Sign up</span>
+                    </button>
+                `;
+            }
+        });
     });
-});
+}
 
-// Redirect Function
+// গ্লোবাল রিডাইরেক্ট এবং লগআউট ফাংশন
 window.redirectToLogin = function() {
     window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 };
 
-// Logout Function
 window.handleLogout = function() {
-    if (confirm("Apni ki sotti logout korte chan?")) {
-        signOut(auth).then(() => {
-            window.location.reload();
-        }).catch((error) => {
-            console.error("Logout Error:", error);
-            alert("Logout korte somossa hoyeche.");
-        });
+    if (confirm("আপনি কি সত্যিই লগআউট করতে চান?")) {
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().signOut().then(() => {
+                window.location.reload();
+            }).catch((error) => {
+                console.error("Logout Error:", error);
+                alert("লগআউট করতে ব্যর্থ হয়েছে।");
+            });
+        }
     }
 };
