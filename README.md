@@ -1,4 +1,4 @@
-# 🩺 Medical Admission Tester
+# 🩺 Medical Admission Pro with Rakib
 
 ### Medical Admission Preparation Platform by Rakib Hasan
 
