@@ -582,7 +582,7 @@ class MedicalExamApp {
         }catch(e){
             console.error('Leaderboard write failed',e);
             this.queueLeaderboardSync({...updated, meta});
-            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপده সংরক্ষিত আছে।',true);
+            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপদে সংরক্ষিত আছে।',true);
             return false;
         }
     }
@@ -1252,7 +1252,6 @@ class MedicalExamApp {
 }
 
 window.app = new MedicalExamApp();
-const app = window.app;
 
 let isWrongFiltered = false;
 let originalQuestionStates = new Map();
