@@ -1376,3 +1376,53 @@ async function handleSubmit() {
     alert('Error: ' + error.message);
   }
 }
+
+
+
+
+// ফায়ারবেস অথ স্টেট পরিবর্তন ট্র্যাক করার জন্য
+firebase.auth().onAuthStateChanged((user) => {
+    const loginButtonContainer = document.getElementById('login-button-container'); // আপনার হেডার বা যেখানে লগইন বাটন আছে তার আইডি বা সিলেক্টর
+    
+    if (user) {
+        // ইউজার যদি লগইন করা থাকে, তবে লগআউট বাটন দেখাবে
+        console.log("Logged in as:", user.email);
+        
+        // এখানে আপনার হেডারের লগইন বাটনটিকে লগআউট বাটন দিয়ে রিপ্লেস করে দিন
+        // উদাহরণস্বরূপ:
+        if (loginButtonContainer) {
+            loginButtonContainer.innerHTML = `
+                <button onclick="handleLogout()" style="
+                  background: #dc3545;
+                  color: #ffffff;
+                  border: none;
+                  padding: 6px 14px;
+                  font-size: 13.5px;
+                  font-weight: 600;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 6px;
+                ">
+                  <i class="fa-solid fa-right-from-bracket"></i>
+                  <span>লগআউট</span>
+                </button>
+            `;
+        }
+    } else {
+        // ইউজার লগইন করা না থাকলে আগের মতো লগইন বাটন দেখাবে
+        console.log("No user logged in.");
+        // চাইলে এখানে আবার ডিফল্ট লগইন বাটন সেট করে দিতে পারেন
+    }
+});
+
+// লগআউট করার ফাংশন
+function handleLogout() {
+    firebase.auth().signOut().then(() => {
+        // সফলভাবে লগআউট হওয়ার পর হোমপেজে বা লগইন পেজে রিডাইরেক্ট করবে
+        window.location.reload();
+    }).catch((error) => {
+        console.error("Logout Error:", error);
+    });
+}
