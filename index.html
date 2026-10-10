@@ -121,15 +121,7 @@ function redirectToLogin() {
   window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 }
 </script>
-                 <!-- Theme/Mode Toggle Button -->
-                    <button id="theme-toggle" onclick="app.toggleTheme()" class="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        <i class="fa-solid fa-gear text-base"></i>
-                    </button>
                 
-                <!-- Mobile Menu Button -->
-                    <button onclick="app.toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
                 </div>
             </div>
         </div>
@@ -853,6 +845,43 @@ function redirectToLogin() {
         </section>
 
     </main>
+
+    <!-- Floating Bottom-Right Theme Toggle Button (Exact Design) -->
+<button id="theme-toggle" onclick="app.toggleTheme()" title="Toggle Theme" style="
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(20, 20, 30, 0.7);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+" onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';">
+  
+  <!-- Sun / Gear Icon matching screenshot -->
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+</button>
 
     <!-- Footer -->
     <footer id="main-footer" class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6 text-center text-xs text-gray-500 dark:text-gray-400">
