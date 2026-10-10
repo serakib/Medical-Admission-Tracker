@@ -1353,10 +1353,10 @@
         "subject": "chemistry",
         "question": "নিচের কোনটি সামঞ্জস্যতা (oxidation-reduction) বিক্রিয়া?",
         "options": {
-            "A": "H_2S + SO_2 \\rightarrow 2H_2O + 3S",
-            "B": "CaCO_3 \\rightarrow CaO + CO_2",
-            "C": "NaOH + HCl \\rightarrow NaCl + H_2O",
-            "D": "CaF_2 + 2AgNO_3 \\rightarrow 2AgF + Ca(NO_3)_2"
+           "A": "H2S + SO2 → 2H2O + 3S",
+"B": "CaCO3 → CaO + CO2",
+"C": "NaOH + HCl → NaCl + H2O",
+"D": "CaF2 + 2AgNO3 → 2AgF + Ca(NO3)2"
         },
         "correctAnswer": "A",
         "explanation": "H_2S ও SO_2 এর বিক্রিয়ায় একই সাথে সালফারের জারণ ও বিজারণ ঘটে এবং সালফার উৎপন্ন হয় (Disproportionation/Redox)।",
