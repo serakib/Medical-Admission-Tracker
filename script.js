@@ -624,10 +624,19 @@ class MedicalExamApp {
             startPractice(){
                 const qs=this.questionBank.filter(q=>q.source && !/^verified previous/i.test(q.source) && !q.isPreviousYear);
                 const unseen=this.getUnseenPool(qs);
-                if(!unseen.length){this.showDataError('Practice-এর সব available question আপনি ইতিমধ্যে দেখেছেন। নতুন প্রশ্নের জন্য Question Bank/অন্য subject ব্যবহার করুন।');return;}
-                const selected=unseen.sort(()=>Math.random()-.5).slice(0,20);
+                this.showView('practice');
+                if(!unseen.length){
+                    this.practiceSession={questions:[],index:0,answers:[],marks:0,showAnswer:false};
+                    const root=document.getElementById('practice-question');
+                    if(root)root.innerHTML=`<div class="empty-state"><i class="fa-solid fa-circle-check"></i><h3>সব ইউনিক Practice প্রশ্ন শেষ করেছেন</h3><p>একই প্রশ্ন আবার দেখানো হবে না। নতুন প্রশ্ন যোগ হলে সেগুলো Practice করতে পারবেন। Question Bank থেকে আগে দেখা প্রশ্নের উত্তর ও ব্যাখ্যা দেখতে পারবেন।</p></div>`;
+                    const score=document.getElementById('practice-score');if(score)score.textContent='0';
+                    const progress=document.getElementById('practice-progress');if(progress)progress.textContent='সব প্রশ্ন সম্পন্ন';
+                    return;
+                }
+                const selected=[...unseen].sort(()=>Math.random()-.5).slice(0,Math.min(20,unseen.length));
+                // Strict no-repeat: reserve every question as soon as it is shown, across Practice and Exams.
                 this.markQuestionsSeen(selected);
-                this.practiceSession={questions:selected,index:0,answers:[],marks:0,showAnswer:false}; this.showView('practice'); this.renderPractice();
+                this.practiceSession={questions:selected,index:0,answers:[],marks:0,showAnswer:false}; this.renderPractice();
             }
             renderPractice(){
                 const s=this.practiceSession,q=s?.questions?.[s.index]; if(!q)return;
@@ -637,7 +646,7 @@ class MedicalExamApp {
                 root.querySelectorAll('.practice-option').forEach(btn=>btn.onclick=()=>this.answerPractice(Number(btn.dataset.i)));
                 document.getElementById('practice-score').textContent=String(s.marks);document.getElementById('practice-progress').textContent=this.t(`Question ${s.index+1} of ${s.questions.length}`,`প্রশ্ন ${s.index+1} / ${s.questions.length}`);
             }
-            answerPractice(i){const s=this.practiceSession;if(!s||s.answers[s.index]!==undefined)return;s.answers[s.index]=i;if(i===s.questions[s.index].answer)s.marks++;this.renderPractice();}
+            answerPractice(i){const s=this.practiceSession;if(!s||s.answers[s.index]!==undefined)return;s.answers[s.index]=i;this.markQuestionAnswered(s.questions[s.index]);if(i===s.questions[s.index].answer)s.marks++;this.renderPractice();}
             nextPractice(){const s=this.practiceSession;if(!s)return;if(s.index<s.questions.length-1){s.index++;this.renderPractice();}else{localStorage.setItem(this.getHistoryKey()+'_practice',JSON.stringify({marks:s.marks,total:s.questions.length,date:Date.now()}));this.showProfile();this.loadProgressStats();}}
             prevPractice(){const s=this.practiceSession;if(s&&s.index>0){s.index--;this.renderPractice();}}
 
@@ -786,6 +795,22 @@ class MedicalExamApp {
             markQuestionsSeen(questions) { const seen=this.getSeenQuestionIds(); questions.forEach(q=>{ if(q?.id!=null) seen.add(String(q.id)); }); this.saveSeenQuestionIds(seen); }
             getUnseenPool(pool) { const seen=this.getSeenQuestionIds(); return pool.filter(q=>q?.id!=null && !seen.has(String(q.id))); }
 
+            // Coverage means questions the user actually answered, not merely opened.
+            getAnsweredQuestionKey() { return this.authUser?.uid ? `med_answered_questions_${this.authUser.uid}` : 'med_answered_questions_guest'; }
+            getAnsweredQuestionIds() {
+                try {
+                    const raw = JSON.parse(localStorage.getItem(this.getAnsweredQuestionKey()) || '[]');
+                    return new Set(Array.isArray(raw) ? raw.map(String) : []);
+                } catch { return new Set(); }
+            }
+            markQuestionAnswered(question) {
+                if (!question || question.id == null) return;
+                const answered = this.getAnsweredQuestionIds();
+                answered.add(String(question.id));
+                localStorage.setItem(this.getAnsweredQuestionKey(), JSON.stringify([...answered]));
+                this.loadProgressStats();
+            }
+
             /**
              * Fisher-Yates Shuffle that reshuffles options AND updates the answer index
              */
@@ -800,9 +825,7 @@ class MedicalExamApp {
                 if (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz') filtered = filtered.filter(q => q.isPreviousYear && q.year);
                 if (this.setup.mode === 'challenge') filtered = filtered.filter(q => q.source && !/^practice$/i.test(q.year || '') );
                 if (!filtered.length) { this.showDataError('এই ফিল্টারে কোনো বৈধ প্রশ্ন পাওয়া যায়নি।'); return []; }
-                const unseen=this.getUnseenPool(filtered);
-                if (!unseen.length) { this.showDataError('এই সেটের সব প্রশ্ন আপনি ইতিমধ্যে দেখেছেন। অন্য subject বা নতুন practice set বেছে নিন।'); return []; }
-                filtered=unseen;
+                // Previously answered questions remain available for unlimited practice.
                 for (let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
                 return filtered.slice(0,Math.min(count,filtered.length)).map(q=>{
                     const optionsWithIndex=q.options.map((text,idx)=>({text,isCorrect:idx===q.answer}));
@@ -945,6 +968,7 @@ class MedicalExamApp {
 
             selectOption(optIdx) {
                 this.examState.userAnswers[this.examState.currentIndex] = optIdx;
+                this.markQuestionAnswered(this.examState.questions[this.examState.currentIndex]);
                 this.renderQuestion();
                 this.renderPalette();
             }
@@ -1113,7 +1137,7 @@ class MedicalExamApp {
 
             loadProgressStats() {
                 const history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-                const seen=this.getSeenQuestionIds();
+                const answered=this.getAnsweredQuestionIds();
                 const total=this.questionBank.length||520;
                 const attempts=history.length;
                 const best=attempts?Math.max(...history.map(h=>parseFloat(h.score)||0)):0;
@@ -1123,8 +1147,8 @@ class MedicalExamApp {
                 set('dash-total-exams',attempts); set('prog-total-attempts',attempts); set('dash-best-score',best.toFixed(2)); set('prog-best-score',best.toFixed(2)); set('dash-avg-accuracy',`${avgAcc.toFixed(1)}%`); set('prog-avg-accuracy',`${avgAcc.toFixed(1)}%`); set('prog-avg-score',avgScore.toFixed(2));
                 set('profile-name',this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student');
                 set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):'Guest mode • আপনার progress এই device-এ সংরক্ষিত');
-                set('profile-seen-count',seen.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
-                const coverage=total?Math.min(100,(seen.size/total)*100):0; set('profile-coverage',`${coverage.toFixed(0)}%`);
+                set('profile-seen-count',answered.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
+                const coverage=total?Math.min(100,(answered.size/total)*100):0; set('profile-coverage',`${coverage.toFixed(0)}%`);
                 const bar=document.getElementById('profile-progress-bar');if(bar)bar.style.width=`${coverage}%`;
                 const note=document.getElementById('profile-performance-note');if(note) note.textContent=attempts?`আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`:'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
                 const action=document.getElementById('profile-auth-action');if(action)action.textContent=this.authUser?'Account':'লগইন / রেজিস্টার';
