@@ -3,6 +3,45 @@
  * Firebase configuration/auth remains external and is never hard-coded here.
  */
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged, 
+    updateProfile,
+    setPersistence,
+    browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc, 
+    collection, 
+    runTransaction, 
+    serverTimestamp, 
+    orderBy, 
+    query, 
+    getDocs,
+    getDocFromServer
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Firebase Configuration & Initialization
+const firebaseConfig = {
+    apiKey: "AIzaSyBWPpAhnn-OZokPwh5qFRU8McEvh7smlsQ",
+    authDomain: "medical-admission-pro.firebaseapp.com",
+    projectId: "medical-admission-pro",
+    storageBucket: "medical-admission-pro.firebasestorage.app",
+    messagingSenderId: "371132803062",
+    appId: "1:371132803062:web:220cae49436abf5a9009d7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 let QUESTION_BANK = [];
 
 class MedicalExamApp {
@@ -23,7 +62,7 @@ class MedicalExamApp {
         this.leaderboardCacheKey = 'med_leaderboard_cache_v5';
         this.leaderboardLocalKey = 'med_leaderboard_local_v1';
         this.leaderboardSyncKey = 'med_leaderboard_sync_queue_v1';
-        this.firestore = null;
+        this.firestore = db;
         this.profile = null;
         
         // Exam Setup Options
@@ -49,7 +88,7 @@ class MedicalExamApp {
         this.questionBank = [];
         this.questionsLoaded = false;
         this.authUser = null;
-        this.auth = null;
+        this.auth = auth;
         this.authMode = 'login';
         this.authReady = false;
         this.examActive = false;
@@ -61,14 +100,12 @@ class MedicalExamApp {
     }
 
     async init() {
-        // Apply theme and show the existing home UI immediately.
         this.applyTheme();
         this.applyLanguage();
         history.replaceState({ app: true }, '', window.location.href);
         this.showView('home');
         this.setDataStatus('loading');
 
-        // Firebase/auth should never prevent Guest mode.
         this.initAuth();
 
         try {
@@ -143,7 +180,6 @@ class MedicalExamApp {
 
         const options = rawOptions.map(v => String(v ?? '').trim());
         if (options.length !== 4 || options.some(v => !v)) {
-            console.warn(`Skipping invalid question at index ${index}: options missing`);
             return null;
         }
 
@@ -164,21 +200,13 @@ class MedicalExamApp {
             }
         }
 
-        if (answer < 0 || answer > 3) {
-            console.warn(`Skipping invalid question at index ${index}: correct answer missing`);
-            return null;
-        }
+        if (answer < 0 || answer > 3) return null;
 
         const questionText = String(q.question ?? q.questionText ?? '').trim();
-        if (!questionText) {
-            console.warn(`Skipping invalid question at index ${index}: question text missing`);
-            return null;
-        }
+        if (!questionText) return null;
 
         const source = String(q.source || 'Model Test').trim();
-        const year = q.year === null || q.year === undefined || q.year === ''
-            ? null
-            : String(q.year).trim();
+        const year = q.year === null || q.year === undefined || q.year === '' ? null : String(q.year).trim();
 
         const rawSubject = String(q.subject || 'general').trim().toLowerCase();
         const subjectAliases = {
@@ -248,30 +276,14 @@ class MedicalExamApp {
 
     initAuth() {
         try {
-            if (typeof firebase === 'undefined' || !firebase.auth) {
-                this.setAuthState(null, 'Firebase Authentication is not available; Guest mode remains available.');
-                return;
-            }
-
-            if (!firebase.apps?.length) {
-                const config = window.FIREBASE_CONFIG || window.firebaseConfig || window.__FIREBASE_CONFIG__;
-                if (config && typeof firebase.initializeApp === 'function') {
-                    firebase.initializeApp(config);
-                }
-            }
-
-            if (!firebase.apps?.length) {
-                this.setAuthState(null, 'Firebase configuration is unavailable; Guest mode remains available.');
-                return;
-            }
-
-            this.auth = firebase.auth();
-            this.firestore = firebase.firestore ? firebase.firestore() : null;
-            this.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
+            setPersistence(this.auth, browserLocalPersistence).catch(err => {
                 console.warn('Firebase persistence could not be set:', err);
             });
 
-            this.auth.onAuthStateChanged(user => { this.setAuthState(user); if (user) this.loadUserProfile(); });
+            onAuthStateChanged(this.auth, user => { 
+                this.setAuthState(user); 
+                if (user) this.loadUserProfile(); 
+            });
             this.authReady = true;
         } catch (error) {
             console.error('Firebase initialization error:', error);
@@ -384,16 +396,16 @@ class MedicalExamApp {
             if (message) message.textContent = 'অনুগ্রহ করে অপেক্ষা করুন...';
             let result;
             if (this.authMode === 'register') {
-                result = await this.auth.createUserWithEmailAndPassword(email, password);
-                if (name && result.user?.updateProfile) { await result.user.updateProfile({ displayName: name }); }
+                result = await createUserWithEmailAndPassword(this.auth, email, password);
+                if (name && result.user) { await updateProfile(result.user, { displayName: name }); }
                 if (this.firestore && result.user) {
-                    await this.firestore.collection('students').doc(result.user.uid).set({
+                    await setDoc(doc(this.firestore, 'students', result.user.uid), {
                         uid: result.user.uid, name: name || '', college: college || '', mobile: mobile || '', email, class: studentClass || '', bloodGroup: bloodGroup || '',
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp(), createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        updatedAt: serverTimestamp(), createdAt: serverTimestamp()
                     }, { merge: true });
                 }
             } else {
-                result = await this.auth.signInWithEmailAndPassword(email, password);
+                result = await signInWithEmailAndPassword(this.auth, email, password);
             }
             this.closeAuthModal();
             this.setAuthState(result.user);
@@ -405,7 +417,7 @@ class MedicalExamApp {
 
     async logout() {
         try {
-            if (this.auth) await this.auth.signOut();
+            if (this.auth) await signOut(this.auth);
             this.closeAuthModal();
         } catch (error) {
             console.error('Logout error:', error);
@@ -461,7 +473,7 @@ class MedicalExamApp {
     }
     startPreviousYearQuiz(){ if(!this.previousSelectedYear) return; this.setup.mode='previousQuiz'; this.setup.subject='all'; this.setup.questionsCount=Math.min(20,this.questionBank.filter(q=>q.year===this.previousSelectedYear&&q.isPreviousYear).length); this.setup.durationMins=10; const ys=document.getElementById('setup-year'); if(ys) ys.value=this.previousSelectedYear; this.prepareExamFromSetup(); }
 
-    async loadUserProfile(){ if(!this.firestore||!this.authUser) return; try{ const snap=await this.firestore.collection('students').doc(this.authUser.uid).get(); this.profile=snap.exists?snap.data():{name:this.authUser.displayName||'',email:this.authUser.email||''}; this.loadProgressStats(); }catch(e){console.warn('Profile load failed',e);} }
+    async loadUserProfile(){ if(!this.firestore||!this.authUser) return; try{ const snap=await getDoc(doc(this.firestore, 'students', this.authUser.uid)); this.profile=snap.exists()?snap.data():{name:this.authUser.displayName||'',email:this.authUser.email||''}; this.loadProgressStats(); }catch(e){console.warn('Profile load failed',e);} }
 
     getDemoLeaderboardRows(){
         return [
@@ -558,18 +570,19 @@ class MedicalExamApp {
         if(!this.authUser||!this.firestore)return false;
         const attemptId=`${this.authUser.uid}_${this.examState.startedAt||Date.now()}`;
         try{
-            const attemptRef=this.firestore.collection('quizAttempts').doc(attemptId);
-            const existing=await attemptRef.get(); if(existing.exists)return true;
-            await this.firestore.runTransaction(async tx=>{
-                tx.set(attemptRef,{uid:this.authUser.uid,quizPoints:Number(meta.quizPoints)||0,correct:Number(meta.correctCount)||0,wrong:Number(meta.wrongCount)||0,total:Number(meta.totalQuestions)||0,accuracy:Number(meta.accuracy)||0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-                tx.set(this.firestore.collection('leaderboard').doc(this.authUser.uid),{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+            const attemptRef=doc(this.firestore, 'quizAttempts', attemptId);
+            const userLbRef=doc(this.firestore, 'leaderboard', this.authUser.uid);
+            
+            await runTransaction(this.firestore, async tx=>{
+                tx.set(attemptRef,{uid:this.authUser.uid,quizPoints:Number(meta.quizPoints)||0,correct:Number(meta.correctCount)||0,wrong:Number(meta.wrongCount)||0,total:Number(meta.totalQuestions)||0,accuracy:Number(meta.accuracy)||0,createdAt:serverTimestamp()});
+                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
             });
             this.setLeaderboardSyncQueue(this.getLeaderboardSyncQueue().filter(x=>x.uid!==updated.uid));
             return true;
         }catch(e){
             console.error('Leaderboard write failed',e);
             this.queueLeaderboardSync({...updated, meta});
-            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপদে সংরক্ষিত আছে।',true);
+            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপده সংরক্ষিত আছে।',true);
             return false;
         }
     }
@@ -589,7 +602,8 @@ class MedicalExamApp {
         }
         try{
             await this.syncPendingLeaderboard();
-            const snap=await this.firestore.collection('leaderboard').orderBy('points','desc').limit(100).get();
+            const qRef = query(collection(this.firestore, 'leaderboard'), orderBy('points', 'desc'));
+            const snap = await getDocs(qRef);
             const remote=snap.docs.map(d=>({uid:d.id,...d.data()}));
             const rows=this.mergeLeaderboardRows(remote);
             this.setLocalLeaderboardRows(rows);
@@ -638,7 +652,7 @@ class MedicalExamApp {
             answers: [],
             marks: 0,
             showAnswer: false,
-            timeLeft: 600 // ১০ মিনিট = ৬০০ সেকেন্ড
+            timeLeft: 600
         }; 
 
         this.renderPractice();
@@ -1243,7 +1257,7 @@ const app = window.app;
 let isWrongFiltered = false;
 let originalQuestionStates = new Map();
 
-function toggleWrongQuestions() {
+window.toggleWrongQuestions = function() {
     const btn = document.getElementById("wrong-btn");
     const container = document.getElementById("review-list-container");
 
@@ -1311,14 +1325,14 @@ function toggleWrongQuestions() {
     }
 }
 
-
-
-async function handleSubmit() {
-  const email = document.getElementById('emailInput').value.trim();
-  const pass = document.getElementById('passwordInput').value;
+window.handleSubmit = async function() {
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const pass = passwordInput ? passwordInput.value : '';
 
   if (!email) {
-    showError('* Please enter your email address');
+    alert('* Please enter your email address');
     return;
   }
   if (!pass) {
@@ -1327,96 +1341,35 @@ async function handleSubmit() {
   }
 
   try {
-    if (currentMode === 'login') {
-      // ১. লগইন প্রসেস
-      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
-      alert('Login Successful!');
-      
-      // অটোমেটিক মেইন ওয়েবসাইটে ব্যাক করবে
-      window.location.href = "https://serakib.github.io/Medical-Admission-Tracker/";
-
-    } else {
-      // ২. সাইন-আপ প্রসেস
-      const confirmPass = document.getElementById('confirmPasswordInput').value;
-      if (pass !== confirmPass) {
-        alert('Passwords do not match!');
-        return;
-      }
-
-      const name = document.getElementById('nameInput').value.trim();
-      const college = document.getElementById('collegeInput').value.trim();
-      const mobile = document.getElementById('mobileInput').value.trim();
-      const studentClass = document.getElementById('classInput').value;
-
-      if (!name || !college) {
-        alert('Please fill in Student Name and College Name.');
-        return;
-      }
-
-      // ফায়ারবেসে একাউন্ট তৈরি
-      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass);
-      const user = userCredential.user;
-
-      // প্রোফাইল ডাটাবেজে (Firestore) সেভ করা
-      await firebase.firestore().collection('users').doc(user.uid).set({
-        studentName: name,
-        collegeName: college,
-        mobile: mobile || '',
-        class: studentClass,
-        email: email,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      alert('Account Created Successfully!');
-      
-      // অটোমেটিক মেইন ওয়েবসাইটে ব্যাক করবে
-      window.location.href = "https://serakib.github.io/Medical-Admission-Tracker/";
-    }
+    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+    alert('Login Successful!');
+    window.location.href = "https://serakib.github.io/Medical-Admission-Tracker/";
   } catch (error) {
     alert('Error: ' + error.message);
   }
 }
 
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-// Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyBWPpAhnn-OZokPwh5qFRU8McEvh7smlsQ",
-    authDomain: "medical-admission-pro.firebaseapp.com",
-    projectId: "medical-admission-pro",
-    storageBucket: "medical-admission-pro.firebasestorage.app",
-    messagingSenderId: "371132803062",
-    appId: "1:371132803062:web:220cae49436abf5a9009d7"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
 // ফায়ারবেস অথেন্টিকেশন লিসেনার ও ডাইনামিক বাটন আপডেট
-if (typeof firebase !== 'undefined' && firebase.auth) {
-    firebase.auth().onAuthStateChanged((user) => {
-        const authContainers = document.querySelectorAll('.auth-btn-target');
-        authContainers.forEach(container => {
-            if (user) {
-                container.innerHTML = `
-                    <button onclick="window.handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>লগআউট</span>
-                    </button>
-                `;
-            } else {
-                container.innerHTML = `
-                    <button onclick="window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>Login / Sign up</span>
-                    </button>
-                `;
-            }
-        });
+onAuthStateChanged(auth, (user) => {
+    const authContainers = document.querySelectorAll('.auth-btn-target');
+    authContainers.forEach(container => {
+        if (user) {
+            container.innerHTML = `
+                <button onclick="window.handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>লগআউট</span>
+                </button>
+            `;
+        } else {
+            container.innerHTML = `
+                <button onclick="window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Login / Sign up</span>
+                </button>
+            `;
+        }
     });
-}
+});
 
 // গ্লোবাল রিডাইরেক্ট এবং লগআউট ফাংশন
 window.redirectToLogin = function() {
@@ -1425,13 +1378,11 @@ window.redirectToLogin = function() {
 
 window.handleLogout = function() {
     if (confirm("আপনি কি সত্যিই লগআউট করতে চান?")) {
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().signOut().then(() => {
-                window.location.reload();
-            }).catch((error) => {
-                console.error("Logout Error:", error);
-                alert("লগআউট করতে ব্যর্থ হয়েছে।");
-            });
-        }
+        signOut(auth).then(() => {
+            window.location.reload();
+        }).catch((error) => {
+            console.error("Logout Error:", error);
+            alert("লগআউট করতে ব্যর্থ হয়েছে।");
+        });
     }
 };
