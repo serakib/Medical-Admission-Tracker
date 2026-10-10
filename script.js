@@ -1378,47 +1378,60 @@ async function handleSubmit() {
 }
 
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-// ফায়ারবেস অথ স্টেট লিসেনার
-firebase.auth().onAuthStateChanged((user) => {
-    const authContainer = document.getElementById('nav-auth-container');
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyBWPpAhnn-OZokPwh5qFRU8McEvh7smlsQ",
+    authDomain: "medical-admission-pro.firebaseapp.com",
+    projectId: "medical-admission-pro",
+    storageBucket: "medical-admission-pro.firebasestorage.app",
+    messagingSenderId: "371132803062",
+    appId: "1:371132803062:web:220cae49436abf5a9009d7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Auth State Listener (Nogor o Profile obhoy button automatic badlabar jonno)
+onAuthStateChanged(auth, (user) => {
+    const authContainers = document.querySelectorAll('.auth-btn-target');
     
-    if (authContainer) {
+    authContainers.forEach(container => {
         if (user) {
-            // ইউজার লগইন করা থাকলে লগআউট বাটন দেখাবে
-            authContainer.innerHTML = `
-                <button onclick="handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none">
+            // User logged in thakle Logout button dekhabe
+            container.innerHTML = `
+                <button onclick="handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>লগআউট</span>
+                    <span>Log Out</span>
                 </button>
             `;
         } else {
-            // ইউজার লগআউট করা থাকলে লগইন বাটন দেখাবে
-            authContainer.innerHTML = `
-                <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                    <span>লগইন / রেজিস্টার</span>
+            // User logged out thakle Login button dekhabe
+            container.innerHTML = `
+                <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Login / Sign up</span>
                 </button>
             `;
         }
-    }
+    });
 });
 
-// লগইন পেজে রিডাইরেক্ট করার ফাংশন
-function redirectToLogin() {
+// Redirect Function
+window.redirectToLogin = function() {
     window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
-}
+};
 
-// রিয়েল লগআউট ফাংশন (কনফার্মেশন সহ)
-function handleLogout() {
-    if (confirm("আপনি কি সত্যিই লগআউট করতে চান?")) {
-        firebase.auth().signOut().then(() => {
+// Logout Function
+window.handleLogout = function() {
+    if (confirm("Apni ki sotti logout korte chan?")) {
+        signOut(auth).then(() => {
             window.location.reload();
         }).catch((error) => {
-            console.error("লগআউট করতে সমস্যা হয়েছে:", error);
-            alert("লগআউট করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
+            console.error("Logout Error:", error);
+            alert("Logout korte somossa hoyeche.");
         });
     }
-}
+};
