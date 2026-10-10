@@ -1379,50 +1379,46 @@ async function handleSubmit() {
 
 
 
-
-// ফায়ারবেস অথ স্টেট পরিবর্তন ট্র্যাক করার জন্য
+// ফায়ারবেস অথ স্টেট লিসেনার
 firebase.auth().onAuthStateChanged((user) => {
-    const loginButtonContainer = document.getElementById('login-button-container'); // আপনার হেডার বা যেখানে লগইন বাটন আছে তার আইডি বা সিলেক্টর
+    const authContainer = document.getElementById('nav-auth-container');
     
-    if (user) {
-        // ইউজার যদি লগইন করা থাকে, তবে লগআউট বাটন দেখাবে
-        console.log("Logged in as:", user.email);
-        
-        // এখানে আপনার হেডারের লগইন বাটনটিকে লগআউট বাটন দিয়ে রিপ্লেস করে দিন
-        // উদাহরণস্বরূপ:
-        if (loginButtonContainer) {
-            loginButtonContainer.innerHTML = `
-                <button onclick="handleLogout()" style="
-                  background: #dc3545;
-                  color: #ffffff;
-                  border: none;
-                  padding: 6px 14px;
-                  font-size: 13.5px;
-                  font-weight: 600;
-                  border-radius: 8px;
-                  cursor: pointer;
-                  display: inline-flex;
-                  align-items: center;
-                  gap: 6px;
-                ">
-                  <i class="fa-solid fa-right-from-bracket"></i>
-                  <span>লগআউট</span>
+    if (authContainer) {
+        if (user) {
+            // ইউজার লগইন করা থাকলে লগআউট বাটন দেখাবে
+            authContainer.innerHTML = `
+                <button onclick="handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>লগআউট</span>
+                </button>
+            `;
+        } else {
+            // ইউজার লগআউট করা থাকলে লগইন বাটন দেখাবে
+            authContainer.innerHTML = `
+                <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span>লগইন / রেজিস্টার</span>
                 </button>
             `;
         }
-    } else {
-        // ইউজার লগইন করা না থাকলে আগের মতো লগইন বাটন দেখাবে
-        console.log("No user logged in.");
-        // চাইলে এখানে আবার ডিফল্ট লগইন বাটন সেট করে দিতে পারেন
     }
 });
 
-// লগআউট করার ফাংশন
+// লগইন পেজে রিডাইরেক্ট করার ফাংশন
+function redirectToLogin() {
+    window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
+}
+
+// রিয়েল লগআউট ফাংশন (কনফার্মেশন সহ)
 function handleLogout() {
-    firebase.auth().signOut().then(() => {
-        // সফলভাবে লগআউট হওয়ার পর হোমপেজে বা লগইন পেজে রিডাইরেক্ট করবে
-        window.location.reload();
-    }).catch((error) => {
-        console.error("Logout Error:", error);
-    });
+    if (confirm("আপনি কি সত্যিই লগআউট করতে চান?")) {
+        firebase.auth().signOut().then(() => {
+            window.location.reload();
+        }).catch((error) => {
+            console.error("লগআউট করতে সমস্যা হয়েছে:", error);
+            alert("লগআউট করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
+        });
+    }
 }
