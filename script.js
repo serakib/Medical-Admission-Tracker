@@ -28,7 +28,7 @@ import {
     getDocFromServer
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Firebase Configuration & Initialization
+// Firebase Configuration & Initialization (firebaseApp নাম ব্যবহার করা হয়েছে ডুপ্লিকেট এড়াতে)[cite: 1]
 const firebaseConfig = {
     apiKey: "AIzaSyBWPpAhnn-OZokPwh5qFRU8McEvh7smlsQ",
     authDomain: "medical-admission-pro.firebaseapp.com",
@@ -38,9 +38,9 @@ const firebaseConfig = {
     appId: "1:371132803062:web:220cae49436abf5a9009d7"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
 let QUESTION_BANK = [];
 
@@ -582,7 +582,7 @@ class MedicalExamApp {
         }catch(e){
             console.error('Leaderboard write failed',e);
             this.queueLeaderboardSync({...updated, meta});
-            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপده সংরক্ষিত আছে।',true);
+            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপদে সংরক্ষিত আছে।',true);
             return false;
         }
     }
