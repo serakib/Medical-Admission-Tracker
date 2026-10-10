@@ -1,5 +1,6 @@
-[
+
   {
+[
     "id": "bio_001",
     "year": "2023-24",
     "subject": "biology",
@@ -3058,6 +3059,1612 @@
         "source": "Medical College Admission Test 2024-2025",
         "difficulty": "easy"
     },
+
+ 
+  {
+    "id": "bio_053",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "কোন জিনের মাধ্যমে আলু রোগ-প্রতিরোধী হয়েছে?",
+    "options": {
+      "A": "এসিটাইল ট্রান্সফারেজ",
+      "B": "অসমোটিন জিন",
+      "C": "ক্রিস্টাল প্রোটিন জিন",
+      "D": "CP-জিন"
+    },
+    "correctAnswer": "B",
+    "explanation": "আলুতে অসমোটিন জিন ব্যবহারের মাধ্যমে রোগ প্রতিরোধী জাত উদ্ভাবন করা হয়েছে। তামাক গাছে এসিটাইল ট্রান্সফারেজ, টমেটোতে কোড প্রোটিন জিন এবং বেগুনে ক্রিস্টাল প্রোটিন জিন ব্যবহৃত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_054",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "গ্লাইকোজেন বিষয়ে নিচের কোনটি সঠিক?",
+    "options": {
+      "A": "আয়োডিন দ্রবণে নীল বর্ণ ধারণ করে",
+      "B": "উদ্ভিদ দেহে সঞ্চিত খাদ্য হিসেবে থাকে",
+      "C": "পেশির কাজে শক্তি যোগান দেয়",
+      "D": "পানিতে সম্পূর্ণরূপে দ্রবণীয়"
+    },
+    "correctAnswer": "C",
+    "explanation": "গ্লাইকোজেন পেশির কাজে শক্তি জোগায়। এটি আয়োডিন দ্রবণে লালচে-বেগুনি বর্ণ ধারণ করে এবং পানিতে আংশিক দ্রবণীয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_055",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "নিচের কোনটি অত্যাবশ্যকীয় অ্যামিনো এসিডের বৈশিষ্ট্য?",
+    "options": {
+      "A": "নিম্ন গলনাঙ্ক",
+      "B": "বর্ণহীন ও স্ফটিকাকার",
+      "C": "অ্যালকোহলে দ্রবণীয়",
+      "D": "দেহভ্যন্তরে তৈরি হয়"
+    },
+    "correctAnswer": "B",
+    "explanation": "অত্যাবশ্যকীয় অ্যামিনো এসিডগুলো সাধারণত বর্ণহীন ও স্ফটিকাকার পদার্থ হয়, এদের গলনাঙ্ক উচ্চ এবং এগুলো দেহভ্যন্তরে তৈরি হয় না।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_056",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "সেন্ট্রোমিয়ার বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "সেন্ট্রিওল থাকে",
+      "B": "শুধুমাত্র প্রাণிகোষে থাকে",
+      "C": "মাকুতন্ত্র সাথে ক্রোমোজোমকে সংযুক্ত রাখে",
+      "D": "আরএনএ (RNA) এবং প্রোটিন দিয়ে গঠিত"
+    },
+    "correctAnswer": "C",
+    "explanation": "সেন্ট্রোমিয়ার মাকুতন্ত্রের সাথে ক্রোমোজোমকে সংযুক্ত রাখে। এটি উদ্ভিদ ও প্রাণিকোষ উভয়েই থাকে এবং ডিএনএ ও প্রোটিন দ্বারা গঠিত।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_057",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "জেনেটিক ম্যাপ তৈরি করা হয়—",
+    "options": {
+      "A": "ক্রসিংওভারের শতকরা হার থেকে",
+      "B": "কোশে ক্রোমোজোমের অবস্থান থেকে",
+      "C": "মেইসিসের বিয়োজন বিভাজনের শতকরা হার থেকে",
+      "D": "মাইটোটিক ইনডেক্স থেকে"
+    },
+    "correctAnswer": "A",
+    "explanation": "ক্রসিংওভারের শতকরা হার থেকে ক্রোমোজোম ম্যাপ বা জেনেটিক ম্যাপ তৈরি করা যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_058",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "ব্যাকটেরিয়ার কোশঝিল্লির বৈশিষ্ট্য কোনটি?",
+    "options": {
+      "A": "এতে কোন এনজাইম থাকে না",
+      "B": "এটি কোশ প্রাচীরের বাইরের স্তর",
+      "C": "এটি দ্রবীভূত পদার্থের যাতায়াত নিয়ন্ত্রণ করে",
+      "D": "এটি লিপোপ্রোটিন ও কোলেস্টেরল দ্বারা গঠিত"
+    },
+    "correctAnswer": "C",
+    "explanation": "ব্যাকটেরিয়ার কোশঝিল্লি কোশের ভেতরে ও বাইরে দ্রবীভূত পদার্থের যাতায়াত নিয়ন্ত্রণ করে। এতে বিভিন্ন ধরনের এনজাইম থাকে এবং কোলেস্টেরল থাকে না।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_059",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "জীবদেহে বিভিন্ন প্রকার লিপিদের ভূমিকা বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "ফসফোলিপিড কোশের আয়নকে স্থির রাখে",
+      "B": "লিপিড উদ্ভিদে বর্ণ সৃষ্টি করে",
+      "C": "কোলেস্টেরল কোশ আবরণীর তারল্যতা বৃদ্ধি করে",
+      "D": "মহিলাদের রক্তের LDL হৃদরোগের ঝুঁকি কমায়"
+    },
+    "correctAnswer": "B",
+    "explanation": "ক্যারোটিন, জ্যান্থোফিল ও ক্লোরোফিলের মতো লিপিড উদ্ভিদে বর্ণ সৃষ্টি করে। ফসফোলিপিড কোষের আয়ন বাহক হিসেবে কাজ করে এবং কোলেস্টেরল কোষ আবরণীর তারল্যতা নিয়ন্ত্রণ করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_060",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "একশত গ্রাম মাশরুমে কত গ্রাম শর্করা থাকে?",
+    "options": {
+      "A": "4 - 5 grams",
+      "B": "5 - 6 grams",
+      "C": "2 - 4 grams",
+      "D": "8 - 9 grams"
+    },
+    "correctAnswer": "A",
+    "explanation": "প্রতি একশত গ্রাম মাশরুমে প্রায় ৪ থেকে ৫ গ্রাম (৪.৩ গ্রাম) শর্করা থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_061",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "ম্যালেরিয়া রোগীর রক্তশূন্যতার প্রধান কারণ কোনটি?",
+    "options": {
+      "A": "প্লীহা নিঃসৃত lysolecithin দ্বারা লোহিত কণিকা ধ্বংস",
+      "B": "এরিথ্রোসাইটিক সাইজেগনি চক্রে লোহিত কণিকা ধ্বংস",
+      "C": "Haemolysin এন্টিবডি দ্বারা লোহিত কণিকা ধ্বংস",
+      "D": "পুষ্টির অভাবে রক্তকণিকা তৈরি হয় না"
+    },
+    "correctAnswer": "B",
+    "explanation": "ম্যালেরিয়ার এরিথ্রোসাইটিক সাইজেগনি চক্রের শেষে লোহিত কণিকার প্রাচীর ভেঙে মেরোজয়েটগুলো রক্তরসে বেরিয়ে আসে, যার ফলে লোহিত কণিকা ধ্বংস হয় এবং রক্তশূন্যতা দেখা দেয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_062",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "শৈবাল বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "সোনালী-হলুদ শৈবাল জলজ বাস্তুতন্ত্র নষ্ট করে",
+      "B": "ডায়াটমে ফিউকোজেনথিন নামক রঞ্জক থাকে",
+      "C": "সবুজ এবং লাল শৈবাল মিলিত হয়ে লাইকেন গঠন করে",
+      "D": "লোহিত শৈবাল কোরাল প্রাচীর গঠন করে"
+    },
+    "correctAnswer": "D",
+    "explanation": "লোহিত শৈবাল প্রবাল প্রাচীর বা কোরাল রিফ গঠনে গুরুত্বপূর্ণ ভূমিকা পালন করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_063",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "কলেরা বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "বাংলাদেশে সাধারণত V. cholerae O139 পাওয়া যায়",
+      "B": "বিশ্বে প্রতি বছর ২,০০,০০০ লোক মারা যায়",
+      "C": "গ্রাম নেগেটিভ ব্যাকটেরিয়া এ রোগের কারণ",
+      "D": "এটি ভাইরাসজনিত ছোঁয়াচে রোগ"
+    },
+    "correctAnswer": "C",
+    "explanation": "কলেরা একটি ব্যাকটেরিয়াজনিত রোগ যা গ্রাম-নেগেটিভ ব্যাকটেরিয়ার কারণে হয়ে থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_064",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "কোন ব্যাকটেরিয়া মুক্ত অক্সিজেন ছাড়া বাঁচে?",
+    "options": {
+      "A": "Salmonella typhi",
+      "B": "Mycobacterium",
+      "C": "Clostridium",
+      "D": "Vibrio cholerae"
+    },
+    "correctAnswer": "C",
+    "explanation": "ক্লোস্ট্রিডিয়াম (Clostridium) ব্যাকটেরিয়া বাতাসের মুক্ত অক্সিজেন ছাড়াই বেঁচে থাকতে পারে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_065",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "প্রাণীকোষ বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "কোশ কেন্দ্রে বড় কোশ গহ্বর থাকে",
+      "B": "সাইটোপ্লাজমে প্লাস্টিড থাকে",
+      "C": "কোশে সেন্ট্রোসোম থাকে",
+      "D": "সঞ্চিত খাদ্য সাধারণত শ্বেতসার"
+    },
+    "correctAnswer": "C",
+    "explanation": "প্রাণীকোষে সেন্ট্রোসোম উপস্থিত থাকে। প্রাণীকোষে সাধারণত প্লাস্টিড থাকে না এবং সঞ্চিত খাদ্য চর্বি ও গ্লাইকোজেন।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_066",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "ডেঙ্গু ভাইরাস বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "একটি রাইনো ভাইরাসের উদাহরণ",
+      "B": "শুধুমাত্র এডিস এজেন্টি (Aedes aegypti) মশা রোগ বিস্তার করে",
+      "C": "এটি DNA ভাইরাস",
+      "D": "আক্রান্ত ব্যক্তির রক্তে IgM অ্যান্টিবডি বেশি পাওয়া যায়"
+    },
+    "correctAnswer": "D",
+    "explanation": "ডেঙ্গু ভাইরাসে আক্রান্ত ব্যক্তির রক্তে আইজিএম (IgM) অ্যান্টিবডি বেশি পরিমাণে পাওয়া যায়। এটি একটি ফ্ল্যাভি ভাইরাস এবং আরএনএ (RNA) ভাইরাস।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_067",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "রাইবোজ—",
+    "options": {
+      "A": "বিভিন্ন কো-এনজাইম তৈরিতে ব্যবহৃত হয়",
+      "B": "60°C তাপমাত্রে গলে",
+      "C": "ডিএনএ(DNA) এর মূল উপাদান",
+      "D": "অ্যালডোহেক্সোজ নামে পরিচিত"
+    },
+    "correctAnswer": "A",
+    "explanation": "রাইবোজ শর্করা বিভিন্ন কো-এনজাইম (যেমন এটিপি, এনএডিপি ইত্যাদি) তৈরিতে এবং আরএনএ (RNA) গঠনে ব্যবহৃত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_068",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "ফল, রুটি এবং অন্যান্য খাদ্যের উপরে কোন ছত্রাক জন্মায়?",
+    "options": {
+      "A": "থলী ছত্রাক",
+      "B": "মুক্ত ছত্রাক",
+      "C": "জাইগোট ছত্রাক",
+      "D": "ডিঞ্চ ছত্রাক"
+    },
+    "correctAnswer": "C",
+    "explanation": "জাইগোট ছত্রাক বা মিউকর জাতীয় ছত্রাক ফল, রুটি ও বিভিন্ন খাদ্যের ওপর জন্মায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_069",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "ট্রান্সজেনিক সয়াবিনের বৈশিষ্ট্য কোনটি?",
+    "options": {
+      "A": "কীটপতঙ্গ ও ভাইরাস প্রতিরোধী",
+      "B": "আগাছানাশক সহনশীল",
+      "C": "ভিটামিন সমৃদ্ধ",
+      "D": "উচ্চ অলিয়েক এসিড (oleic acid) সমৃদ্ধ"
+    },
+    "correctAnswer": "D",
+    "explanation": "ট্রান্সজেনিক সয়াবিন উচ্চ অলিয়েক এসিড (oleic acid) সমৃদ্ধ হয়ে থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_070",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "নিচের কোনটি লাইসোসোম (Lysosome) এর বৈশিষ্ট্য?",
+    "options": {
+      "A": "বিক্ষিপ্তভাবে সাইটোপ্লাজমে থাকে",
+      "B": "বাহ্যিক আবরণী দ্বারা আবৃত থাকে না",
+      "C": "প্রোটিন সংশ্লেষণ প্রধান কাজ",
+      "D": "বিভিন্ন ধরনের এনজাইম থাকে"
+    },
+    "correctAnswer": "D",
+    "explanation": "লাইসোসোমে বিভিন্ন ধরনের পরিপাককারী হাইড্রোলাইটিক এনজাইম থাকে। এটি একক ঝিল্লি দ্বারা আবৃত থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_071",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "Arthropoda পর্বের প্রাণীদের প্রধান রেচন অঙ্গ কোনটি?",
+    "options": {
+      "A": "নেফ্রিডিয়াল",
+      "B": "শিখা কোশ",
+      "C": "নেক্লিডিয়া",
+      "D": "ম্যালপিজিয়ান নালিকা"
+    },
+    "correctAnswer": "D",
+    "explanation": "আর্থ্রোপোডা বা সন্ধিপদ প্রাণীদের প্রধান রেচন অঙ্গ হলো ম্যালপিজিয়ান নালিকা।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_072",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "কোন পর্বের প্রাণীতে র্যাবডিটিফর্ম লার্ভা দশা দেখা যায়?",
+    "options": {
+      "A": "Nematoda",
+      "B": "Platyhelminthes",
+      "C": "Echinodermata",
+      "D": "Arthropoda"
+    },
+    "correctAnswer": "A",
+    "explanation": "নেমাটোডা পর্বের প্রাণীদের জীবনচক্রে র্যাবডিটিফর্ম লার্ভা দশা দেখা যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_073",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "নিচের কোনটিতে অরীয় প্রতিসাম্য দেখা যায়?",
+    "options": {
+      "A": "শামুক",
+      "B": "জেলিফিশ",
+      "C": "মানুষ",
+      "D": "প্রজাপতি"
+    },
+    "correctAnswer": "B",
+    "explanation": "জেলিফিশ, হাইড্রা এবং সি অ্যানিমনে অরীয় প্রতিসাম্যতা দেখা যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_074",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "কোন এনজাইম ব্যাকটেরিয়া ধ্বংস করে?",
+    "options": {
+      "A": "পেপসিন",
+      "B": "মন্টেজ",
+      "C": "টায়ালিন",
+      "D": "লাইসোজাইম"
+    },
+    "correctAnswer": "D",
+    "explanation": "লালা ও চোখের জলে উপস্থিত লাইসোজাইম এনজাইম ব্যাকটেরিয়া কোষের প্রাচীর ভেঙে ব্যাকটেরিয়া ধ্বংস করতে সাহায্য করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_075",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "হিমোগ্লোবিনের কোন অংশে CO2 যুক্ত হয়?",
+    "options": {
+      "A": "-OH",
+      "B": "-COOH",
+      "C": "-HCO3",
+      "D": "-NH2"
+    },
+    "correctAnswer": "D",
+    "explanation": "হিমোগ্লোবিনের গ্লোবিন অংশের অ্যামিনো গ্রুপের (-NH2) সাথে কার্বন ডাই-অক্সাইড যুক্ত হয়ে কার্বামিনোহিমোগ্লোবিন যৌগ গঠন করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_076",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "সরিষপের যুগ কোনটি?",
+    "options": {
+      "A": "পালিওজয়িক",
+      "B": "সিনোজয়িক",
+      "C": "মেসোজয়িক",
+      "D": "আারকিওজয়িক"
+    },
+    "correctAnswer": "C",
+    "explanation": "মেসোজয়িক যুগকে সরীসৃপের যুগ বলা হয়। সিনোজয়িক যুগ হলো স্তন্যপায়ীর যুগ।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_077",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "কোন প্রাণীর ক্ষেত্রে পুরুষ অপেক্ষা স্ত্রীতে একটি ক্রোমোজোম বেশি থাকে?",
+    "options": {
+      "A": "মানুষ",
+      "B": "কবুতর",
+      "C": "ঘাসফড়িং",
+      "D": "মুরগী"
+    },
+    "correctAnswer": "C",
+    "explanation": "ঘাসফড়িংয়ের ক্ষেত্রে পুরুষে ক্রোমোজোম সংখ্যা কম (XO) এবং স্ত্রী ঘাসফড়িংয়ে একটি ক্রোমোজোম বেশি (XX) থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_078",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "সবচেয়ে বেশি খাদ্যসার শোষিত হয়-",
+    "options": {
+      "A": "ডিউডেনাম",
+      "B": "ইলিয়াম",
+      "C": "জেজুনাম",
+      "D": "পাকস্থলী"
+    },
+    "correctAnswer": "C",
+    "explanation": "ক্ষুদ্রান্ত্রের জেজুনাম অংশে সবচেয়ে বেশি পরিমাণ খাদ্যসার শোষিত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_079",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "নিচের কোন কোশ যেকোনো কোষে পরিণত হতে পারে?",
+    "options": {
+      "A": "নিডেব্লাস্ট কোশ",
+      "B": "ইন্টারস্টিশিয়াল কোশ",
+      "C": "সংবেদী কোশ",
+      "D": "আবরণী কোশ"
+    },
+    "correctAnswer": "B",
+    "explanation": "হাইড্রার ইন্টারস্টিশিয়াল কোষ যেকোনো ধরনের কোষে রূপান্তরিত হতে সক্ষম।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_080",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "প্লাজমার কোন উপাদান রক্তক্ষরণ বন্ধে সহায়তা করে?",
+    "options": {
+      "A": "সেরোটোনিন",
+      "B": "আলবুমিন",
+      "C": "ফাইব্রিনোজেন",
+      "D": "গ্লোবিউলিন"
+    },
+    "correctAnswer": "C",
+    "explanation": "প্লাজমা প্রোটিনের মধ্যে ফাইব্রিনোজেন রক্ত তঞ্চন বা রক্তক্ষরণ বন্ধে সরাসরি সহায়তা করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_081",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "বর্ণান্ধ বাবা ও স্বাভাবিক দৃষ্টির মায়ের (বাহক নয়) কন্যা সন্তানের স্বাভাবিক দৃষ্টির সম্ভাব্য হার কত?",
+    "options": {
+      "A": "75%",
+      "B": "50%",
+      "C": "25%",
+      "D": "100%"
+    },
+    "correctAnswer": "D",
+    "explanation": "বর্ণান্ধ বাবা এবং সম্পূর্ণ স্বাভাবিক মায়ের কন্যা সন্তানেরা সবাই স্বাভাবিক দৃষ্টিসম্পন্ন (বাহক) হবে, অর্থাৎ স্বাভাবিক দৃষ্টির সম্ভাবনা ১০০%।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "hard"
+  },
+  {
+    "id": "bio_082",
+    "year": "2023-2024",
+    "subject": "biology",
+    "question": "নিকট সম্পর্কিত জীবগোষ্ঠী ভিন্ন পরিবেশে বসবাসের ফলে যে বিবর্তন ঘটে, তাকে বলা হয়-",
+    "options": {
+      "A": "ম্যাক্রো",
+      "B": "অপসারী",
+      "C": "সমান্তরাল",
+      "D": "অভিসারী"
+    },
+    "correctAnswer": "B",
+    "explanation": "নিকট সম্পর্কিত জীবগোষ্ঠী ভিন্ন পরিবেশে বসবাসের ফলে যে বিবর্তন ঘটে তাকে অপসারী (divergent) বিবর্তন বলা হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_044",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "H2 ফুয়েল সেলে অ্যানোড ও ক্যাথোড হিসেবে কোনটি ব্যবহৃত হয়?",
+    "options": {
+      "A": "platinum (Pt)",
+      "B": "nickel (Ni)",
+      "C": "silver (Ag)",
+      "D": "graphite (Gr)"
+    },
+    "correctAnswer": "D",
+    "explanation": "হাইড্রোজেন ফুয়েল সেলে পোরসাস গ্রাফাইট বা কার্বন দণ্ড অ্যানোড ও ক্যাথোড হিসেবে ব্যবহৃত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_045",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "বায়ুমণ্ডলে H2S এর কত ppm মাত্রা মানুষের জন্য প্রাণঘাতী?",
+    "options": {
+      "A": "20 ppm",
+      "B": "50 ppm",
+      "C": "40 ppm",
+      "D": "30 ppm"
+    },
+    "correctAnswer": "B",
+    "explanation": "বায়ুমণ্ডলে হাইড্রোজেন সালফাইড (H2S) গ্যাসের ৫০ পিপিএম (50 ppm) মাত্রা মানুষের জন্য প্রাণঘাতী।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_046",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "বুরেটের পর পর ক্ষুদ্রতম দুই দাগের পার্থক্য কত মি:লি: (ml)?",
+    "options": {
+      "A": "0.01 mL",
+      "B": "0.001 mL",
+      "C": "0.1 mL",
+      "D": "1.0 mL"
+    },
+    "correctAnswer": "C",
+    "explanation": "ল্যাবরেটরিতে ব্যবহৃত বুরেটের পরপর ক্ষুদ্রতম দুটি দাগের মধ্যকার ব্যবধান বা পার্থক্য ০.১ মিলি লিটার (0.1 mL)।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_047",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "কোন গ্যাসদ্বয়ের ব্যাপনের হার সমান?",
+    "options": {
+      "A": "C2H4, O2",
+      "B": "N2, O2",
+      "C": "N2, CO",
+      "D": "CO, O2"
+    },
+    "correctAnswer": "C",
+    "explanation": "গ্রাহামের ব্যাপন সূত্রানুসারে, যেসব গ্যাসের আণবিক ভর সমান তাদের ব্যাপন হারও সমান হয়। নাইট্রোজেন (N2) ও কার্বন মনোক্সাইড (CO) উভয়ের আণবিক ভরই ২৮।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_048",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "গ্যাসীয় অবস্থায় এক মোল পরমাণুতে এক মোল ইলেকট্রন যুক্ত হলে যে শক্তির পরিবর্তন হয় তাকে কি বলে?",
+    "options": {
+      "A": "ইলেক্ট্রোনেগেটিভিটি",
+      "B": "২য় ইলেকট্রন আসক্তি",
+      "C": "১ম ইলেকট্রন আসক্তি",
+      "D": "১ম আয়নীকরণ শক্তি"
+    },
+    "correctAnswer": "C",
+    "explanation": "গ্যাসীয় অবস্থায় কোনো মৌলের এক মোল বিচ্ছিন্ন পরমাণুতে এক মোল ইলেকট্রন যুক্ত করে এক মোল একক ঋণাত্মক আধানযুক্ত গ্যাসীয় আয়ন তৈরি করতে যে শক্তি নির্গত হয় তাকে প্রথম ইলেকট্রন আসক্তি বলে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_049",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "NTP তে 2.24L গ্যাসে কতটি CO2 molecule থাকে?",
+    "options": {
+      "A": "6.023 x 10^22",
+      "B": "6.023 x 10^21",
+      "C": "6.023 x 10^23",
+      "D": "6.011 x 10^23"
+    },
+    "correctAnswer": "A",
+    "explanation": "স্বাভাবিক তাপমাত্রা ও চাপে (NTP) ২২.৪ লিটার গ্যাসে অণুর সংখ্যা অ্যাভোগ্রেড্রো সংখ্যার সমান (6.023 x 10^23)। সে অনুযায়ী ২.২৪ লিটার গ্যাসে অণুর সংখ্যা হবে 6.023 x 10^22 টি।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_050",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "কোনটিতে অ্যালকোহল ও এসিড কার্যকরী মূলক উভয়ই বিদ্যমান?",
+    "options": {
+      "A": "অক্সালিক এসিড (oxalic acid)",
+      "B": "ফিউমারিক এসিড (fumaric acid)",
+      "C": "ম্যালেরিক এসিড (maleic acid)",
+      "D": "ল্যাকটিক এসিড (lactic acid)"
+    },
+    "correctAnswer": "D",
+    "explanation": "ল্যাকটিক এসিডে কার্বক্সিলিক এসিড (-COOH) এবং অ্যালকোহল বা হাইড্রক্সিল (-OH) উভয় কার্যকরী মূলকই উপস্থিত থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_051",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "ক্ষারীয় বাফার দ্রবণ তৈরি করতে কোন জোড়াটি ব্যবহার করা হয়?",
+    "options": {
+      "A": "Na2SO4 and H2SO4",
+      "B": "NaOH and NaCl",
+      "C": "NH4Cl and NH4OH",
+      "D": "CH3COOH and CH3COONa"
+    },
+    "correctAnswer": "C",
+    "explanation": "একটি দুর্বল ক্ষারক এবং সেই ক্ষারকের সাথে সবল এসিডের বিক্রিয়ায় উৎপন্ন লবণ (যেমন অ্যামোনিয়াম ক্লোরাইড ও অ্যামোনিয়াম হাইড্রোক্সাইড) মিশ্রণ ক্ষারীয় বাফার দ্রবণ হিসেবে কাজ করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_052",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "20 cm^3 0.25 M H2SO4 দ্রবণকে ডেসিমোলোর দ্রবণে রূপান্তরিত করতে কি পরিমাণ পানি যোগ করতে হবে?",
+    "options": {
+      "A": "30 cm^3",
+      "B": "20 cm^3",
+      "C": "10 cm^3",
+      "D": "50 cm^3"
+    },
+    "correctAnswer": "A",
+    "explanation": "মোলারিটির সূত্র V1M1 = V2M2 ব্যবহার করে হিসাব করলে নতুন আয়তন হয় ৫০ সেন্টিমিটার কিউব। প্রাথমিক আয়তন ২০ সেন্টিমিটার কিউব বাদ দিলে অতিরিক্ত ৩০ সেন্টিমিটার কিউব পানি যোগ করতে হবে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "hard"
+  },
+  {
+    "id": "chem_053",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "30°C উষ্ণতায় KCl এর দ্রাব্যতা 37.2 g/100 g পানি। 85.5 g KCl এর সম্পৃক্ত দ্রবণ প্রস্তুত করতে কতটুকু পানি প্রয়োজন?",
+    "options": {
+      "A": "228.80 g",
+      "B": "230.56 g",
+      "C": "229.84 g",
+      "D": "230.95 g"
+    },
+    "correctAnswer": "C",
+    "explanation": "দ্রাব্যতার নিয়ম অনুযায়ী অনুপাত হিসাব করে দেখা যায় ৮৫.৫ গ্রাম সম্পৃক্ত দ্রবণ তৈরি করতে প্রায় ২২৯.৮৪ গ্রাম পানির প্রয়োজন হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "hard"
+  },
+  {
+    "id": "chem_054",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "কোন মৌলটির আয়নীকরণ শক্তি সবচেয়ে বেশি?",
+    "options": {
+      "A": "Cs",
+      "B": "Rb",
+      "C": "K",
+      "D": "Na"
+    },
+    "correctAnswer": "D",
+    "explanation": "পর্যায় সারণির গ্রুপ ১-এর মৌলগুলোর ক্ষেত্রে উপর থেকে নিচে নামলে আয়নীকরণ শক্তি হ্রাস পায়। প্রদত্ত অপশনগুলোর মধ্যে সোডিয়াম (Na) সবার উপরে থাকায় এর আয়নীকরণ শক্তি সবচেয়ে বেশি।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_055",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "ইথাইল আয়োডাইড ও KOH(aq) এর বিক্রিয়ায় কোনটি উৎপন্ন হয়?",
+    "options": {
+      "A": "ethene",
+      "B": "ethane",
+      "C": "ethyne",
+      "D": "ethanol"
+    },
+    "correctAnswer": "D",
+    "explanation": "ইথাইল আয়োডাইডের সাথে জলীয় পটাশিয়াম হাইড্রোক্সাইড (KOH) এর নিউক্লিওফিলিক প্রতিস্থাপন বিক্রিয়ায় ইথানল উৎপন্ন হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_056",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "ফরমালডিহাইড এবং পটাশিয়াম একত্রে উত্তপ্ত করা হলে কি পাওয়া যায়?",
+    "options": {
+      "A": "ethyl formate",
+      "B": "methyl alcohol",
+      "C": "thane",
+      "D": "acetylene"
+    },
+    "correctAnswer": "B",
+    "explanation": "ফরমালডিহাইডের সাথে ক্ষার বা পটাশিয়ামের ক্যানিজারো বিক্রিয়ায় জারণ-বিজারণের মাধ্যমে মিথাইল অ্যালকোহল ও ফরমিক এসিড উৎপন্ন হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_057",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি শিখা পরীক্ষায় বেগুনি বর্ণ দেয়?",
+    "options": {
+      "A": "Al^3+",
+      "B": "Ni^2+",
+      "C": "K^+",
+      "D": "Na^+"
+    },
+    "correctAnswer": "C",
+    "explanation": "শিখা পরীক্ষায় পটাশিয়াম আয়ন (K^+) হালকা বেগুনি বা নীরাভ বেগুনি বর্ণ প্রদর্শন করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_058",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "বরফ গঠনে একটি অক্সিজেন পরমাণুতে কয়টি H-বন্ধন বিদ্যমান?",
+    "options": {
+      "A": "3",
+      "B": "2",
+      "C": "5",
+      "D": "4"
+    },
+    "correctAnswer": "B",
+    "explanation": "বরফের ক্রিস্টাল কাঠামোগত বিন্যাসে প্রতিটি অক্সিজেন পরমাণু দুটি হাইড্রোজেন বন্ধন (H-bond) গঠন করে যুক্ত থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_059",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "কোনটিতে যোজনী ও জারণ মান উভয়ই শূন্য?",
+    "options": {
+      "A": "MgO",
+      "B": "Ne",
+      "C": "F",
+      "D": "CH2Cl"
+    },
+    "correctAnswer": "B",
+    "explanation": "নিষ্ক্রিয় গ্যাস হিলিয়াম, নিয়ন (Ne) ইত্যাদি মুক্ত পরমাণু হিসেবে থাকে এবং রাসায়নিক বন্ধনে অংশ নেয় না বিধায় এদের যোজনী ও জারণ মান উভয়ই শূন্য হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_060",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "বজ্রপাতের সময় বায়ুমণ্ডলের কোন গ্যাসটি সক্রিয় হয়?",
+    "options": {
+      "A": "CO2",
+      "B": "Ar",
+      "C": "H2",
+      "D": "N2"
+    },
+    "correctAnswer": "D",
+    "explanation": "বজ্রপাতের ফলে সৃষ্ট উচ্চ তাপমাত্রায় বায়ুমণ্ডলের নাইট্রোজেন (N2) গ্যাস অক্সিজেনের সাথে বিক্রিয়া করে নাইট্রিক অক্সাইড উৎপন্ন করে, অর্থাৎ নাইট্রোজেন সক্রিয় হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_061",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "কোন জৈব যৌগে H atom নাই?",
+    "options": {
+      "A": "dichloromethane",
+      "B": "iodoform",
+      "C": "cyclohexane",
+      "D": "hexachlorobenzene"
+    },
+    "correctAnswer": "D",
+    "explanation": "হেক্সাক্লোরোবেনজিনের সংকেত হলো C6Cl6, যেখানে কোনো হাইড্রোজেন (H) পরমাণু থাকে না।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_062",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি আলোক সক্রিয়?",
+    "options": {
+      "A": "CH3CH(NH2)COOH",
+      "B": "(CH33C-OH",
+      "C": "CH3CH=CHCH3",
+      "D": "NO2.CH2-Cl"
+    },
+    "correctAnswer": "A",
+    "explanation": "যেসব যৌগে অপ্রতিসম বা কাইরাল কার্বন পরমাণু থাকে তারা আলোক সক্রিয়তা প্রদর্শন করে। অ্যামিনো এসিড যেমন অ্যালানিনে কাইরাল কার্বন থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_063",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "কোন যৌগটি জলীয় NaOH এর সাথে বিক্রিয়া করে না?",
+    "options": {
+      "A": "C2H5OH",
+      "B": "C2H5COOH",
+      "C": "C6H5COOH",
+      "D": "C6H5OH"
+    },
+    "correctAnswer": "A",
+    "explanation": "ইথানল (C2H5OH) একটি দুর্বল এসিড হওয়ায় জলীয় সোডিয়াম হাইড্রোক্সাইডের সাথে সাধারণ অবস্থায় বিক্রিয়া করে না।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_064",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "18°C তাপমাত্রায় 0.8 atm চাপে একটি গ্যাসের ঘনত্ব 2.25gL^-1 হলে এর আণবিক ভর কত?",
+    "options": {
+      "A": "36.63 g mol^-1",
+      "B": "36.24 g mol^-1",
+      "C": "24.36 g mol^-1",
+      "D": "67.11 g mol^-1"
+    },
+    "correctAnswer": "D",
+    "explanation": "আদর্শ গ্যাস সমীকরণ থেকে প্রাপ্ত M = (dRT)/P সূত্র ব্যবহার করে হিসাব করলে গ্যাসের আণবিক ভর প্রায় 67.11 গ্রাম প্রতি মোল পাওয়া যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "hard"
+  },
+  {
+    "id": "chem_065",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "250 mL 0.1 M Na2CO3 দ্রবণ প্রস্তুত করতে কত গ্রাম Na2CO3 দরকার?",
+    "options": {
+      "A": "10.6 g",
+      "B": "1.60 g",
+      "C": "2.65 g",
+      "D": "26.5 g"
+    },
+    "correctAnswer": "C",
+    "explanation": "সোডিয়াম কার্বনেটের মোলার ভর ১০৬ গ্রাম। সূত্র W = SMV/1000 প্রয়োগ করলে প্রয়োজনীয় দ্রবের পরিমাণ ২.৬৫ গ্রাম পাওয়া যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_066",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "তীব্র এসিড ও মৃদু ক্ষার টাইট্রেশনের জন্য উপযুক্ত নির্দেশক কোনটি?",
+    "options": {
+      "A": "thymol blue",
+      "B": "litmus",
+      "C": "phenolphthalein",
+      "D": "methyl orange"
+    },
+    "correctAnswer": "D",
+    "explanation": "তীব্র এসিড এবং মৃদু ক্ষারের টাইট্রেশনের ক্ষেত্রে মিথাইল অরেঞ্জ বা মিথাইল রেড উপযুক্ত নির্দেশক হিসেবে কাজ করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_067",
+    "year": "2023-2024",
+    "subject": "chemistry",
+    "question": "50 mL সম্পৃক্ত দ্রবণে 5g CaCl2 আছে। লিটার প্রতি এর দ্রাব্যতা কত?",
+    "options": {
+      "A": "100 gL^-1",
+      "B": "10 gL^-1",
+      "C": "110 gL^-1",
+      "D": "101 gL^-1"
+    },
+    "correctAnswer": "A",
+    "explanation": "৫০ মিলিলিটার দ্রবণে ৫ গ্রাম লবণ থাকলে ১০০০ মিলিলিটার বা ১ লিটারে থাকবে ১০০ গ্রাম। সুতরাং এর দ্রাব্যতা প্রতি লিটারে ১০০ গ্রাম।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_041",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "পটাশিয়াম পাইরোহাইড্রোনাটাইমোনেন্ট দ্রবণ দ্বারা কোন ক্যাটায়ন শনাক্ত করা যায়?",
+    "options": {
+      "A": "Zn^2+",
+      "B": "NH4+",
+      "C": "Na^+",
+      "D": "Cu^2+"
+    },
+    "correctAnswer": "C",
+    "explanation": "পটাশিয়াম পাইরোহাইড্রোনাটাইমোনেন্ট বিকারক দ্রবণ প্রধানত সোডিয়াম (Na^+) ক্যাটায়ন শনাক্তকরণে ব্যবহৃত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_042",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "একটি শব্দ তরঙ্গ এক মাধ্যম হতে অন্য মাধ্যমে প্রবেশ করলে পরিবর্তিত হয়-",
+    "options": {
+      "A": "কম্পাঙ্ক ও তরঙ্গ দৈর্ঘ্য",
+      "B": "কম্পাঙ্ক ও বেগ",
+      "C": "তরঙ্গ দৈর্ঘ্য ও বেগ",
+      "D": "কম্পাঙ্ক, তরঙ্গ দৈর্ঘ্য ও বেগ"
+    },
+    "correctAnswer": "C",
+    "explanation": "শব্দ তরঙ্গ এক মাধ্যম থেকে অন্য মাধ্যমে প্রবেশ করলে এর বেগ ও তরঙ্গদৈর্ঘ্য পরিবর্তিত হয়, কিন্তু উৎসের ওপর নির্ভরশীল হওয়ায় কম্পাঙ্ক অপরিবর্তিত থাকে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_043",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোন দুটি আলোর জন্য কৌণিক বিচ্ছুরণ সর্বাধিক?",
+    "options": {
+      "A": "নীল ও কমলা",
+      "B": "লাল ও নীল",
+      "C": "হলুদ ও সবুজ",
+      "D": "লাল ও সবুজ"
+    },
+    "correctAnswer": "B",
+    "explanation": "দৃশ্যমান আলোর বর্ণালীতে লাল ও নীল আলোর বিচ্যুতির পার্থক্য সবচেয়ে বেশি হওয়ায় এদের কৌণিক বিচ্ছুরণ সর্বাধিক হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_044",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোন সূত্রের উপর নির্ভর করে তাপীয় ইঞ্জিন ও রেফ্রিজারেটর তৈরি হয়?",
+    "options": {
+      "A": "তাপগতি বিদ্যার তৃতীয় সূত্র",
+      "B": "তাপগতি বিদ্যার দ্বিতীয় সূত্র",
+      "C": "তাপগতি বিদ্যার প্রথম সূত্র",
+      "D": "তাপগতি বিদ্যার শূন্যতম সূত্র"
+    },
+    "correctAnswer": "B",
+    "explanation": "তাপগতিবিদ্যার দ্বিতীয় সূত্রের ওপর ভিত্তি করে তাপীয় ইঞ্জিন এবং রেফ্রিজারেটর বা হিমায়ক তৈরি করা হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_045",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোন তাপমাত্রায় সেলসিয়াস ও ফারেনহাইট স্কেলে একই মান দেখা যায়?",
+    "options": {
+      "A": "-40°",
+      "B": "32°",
+      "C": "40°",
+      "D": "-32°"
+    },
+    "correctAnswer": "A",
+    "explanation": "মাইনাস চল্লিশ ডিগ্রি (-40°) তাপমাত্রায় সেলসিয়াস এবং ফারেনহাইট স্কেলের মান একই বা সমান হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_046",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "নিউট্রিয় চূল্লিতে ক্যাডমিয়াম দণ্ড ব্যবহার করা হয়-",
+    "options": {
+      "A": "কিছু ইলেকট্রন শোষণের জন্য",
+      "B": "নিউট্রনের গতি ত্বরান্বিত করার জন্য",
+      "C": "কিছু নিউট্রন শোষণের জন্য",
+      "D": "নিউট্রনের গতি স্থির রাখার জন্য"
+    },
+    "correctAnswer": "C",
+    "explanation": "পারমাণবিক চুল্লিতে অতিরিক্ত নিউট্রন শোষণ করে ফিউশন বা ফিশন বিক্রিয়া নিয়ন্ত্রণে ক্যাডমিয়াম বা বোরন দণ্ড নিয়ন্ত্রক হিসেবে ব্যবহৃত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_047",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "শব্দ তরঙ্গকে বায়ুতে সমবর্তন করা যায় না কারণ এ ধরনের তরঙ্গ-",
+    "options": {
+      "A": "চলমান",
+      "B": "অনুদৈর্ঘ্য",
+      "C": "স্থির",
+      "D": "অনুপ্রস্থ"
+    },
+    "correctAnswer": "B",
+    "explanation": "শব্দ তরঙ্গ হলো অনুদৈর্ঘ্য তরঙ্গ, আর কেবল অনুপ্রস্থ তরঙ্গেরই সমবর্তন বা পোলারায়ন সম্ভব। তাই শব্দ তরঙ্গকে সমবর্তন করা যায় না।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_048",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "দুটি আাহিত বস্তু পরস্পরের সাথে সংযুক্ত করলে আধানের প্রবাহ কোন দিকে হবে তা কোন বিষয়ের উপর নির্ভর করে?",
+    "options": {
+      "A": "তড়িৎ বিভব",
+      "B": "তড়িৎপ্রবাহ",
+      "C": "আধানের পরিমাণ",
+      "D": "তড়িৎক্ষেত্র"
+    },
+    "correctAnswer": "A",
+    "explanation": "দুটি পরিবাহী বস্তু সংযুক্ত করলে তাদের মধ্যে আধানের প্রবাহ উচ্চ বিভব থেকে নিম্ন বিভবের দিকে ঘটে, যা মূলত তাদের তড়িৎ বিভবের ওপর নির্ভর করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_049",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "নিচের কোনটি রোধের উষ্ণতা সহগ ঋণাত্মক?",
+    "options": {
+      "A": "তামা",
+      "B": "অ্যালুমিনিয়াম",
+      "C": "সিলিকন",
+      "D": "পিতল"
+    },
+    "correctAnswer": "C",
+    "explanation": "অর্ধপরিবাহী যেমন সিলিকন, জার্মেনিয়াম ইত্যাদির রোধের উষ্ণতা সহগ ঋণাত্মক হয়, অর্থাৎ তাপমাত্রা বাড়লে এদের রোধ কমে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_050",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "মানুষের কান সবচেয়ে মৃদু যে শব্দ শুনতে পায় তার তীব্রতা কত?",
+    "options": {
+      "A": "10^-12 Wm^-2",
+      "B": "10^-6 Wm^-2",
+      "C": "10^-10 Wm^-2",
+      "D": "10^-8 Wm^-2"
+    },
+    "correctAnswer": "A",
+    "explanation": "শ্রবণসীমার সর্বনিম্ন তীব্রতা বা মানুষের কান কর্তৃক সংবেদনশীল সবচেয়ে মৃদু শব্দের তীব্রতা হলো 10^-12 Wm^-2।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_051",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "সূর্যের মধ্যে ফিশন বিক্রিয়ায় হাইড্রোজেন থেকে কোনটি তৈরি হয়?",
+    "options": {
+      "A": "helium",
+      "B": "nitrogen",
+      "C": "oxygen",
+      "D": "neon"
+    },
+    "correctAnswer": "A",
+    "explanation": "সূর্যের কেন্দ্রে নিউক্লীয় সংযোজন বা ফিউশন বিক্রিয়ার মাধ্যমে হাইড্রোজেন পরমাণুগুলো মিলিত হয়ে হিলিয়াম নিউক্লিয়াস তৈরি করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_052",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোন কণার পারস্পরিক বিনিময়ের জন্য তড়িৎ চৌম্বক বল কার্যকর হয়?",
+    "options": {
+      "A": "ফোটন",
+      "B": "গ্রাভিটন",
+      "C": "মেসন",
+      "D": "প্রোটন"
+    },
+    "correctAnswer": "A",
+    "explanation": "ফোটন কণার পারস্পরিক বিনিময়ের ফলে তড়িচ্চুম্বকীয় বল কার্যকর হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_053",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোনো বস্তুর ভরবেগ দ্বিগুণ করা হলে গতিশক্তি কত হবে?",
+    "options": {
+      "A": "দ্বিগুণ",
+      "B": "আটগুণ",
+      "C": "একই থাকে",
+      "D": "চারগুণ"
+    },
+    "correctAnswer": "D",
+    "explanation": "গতিশক্তি ভরবেগের বর্গের সমানুপাতিক (E proportional p^2)। ভরবেগ দ্বিগুণ করা হলে গতিশক্তি দুইয়ের বর্গ বা চারগুণ হবে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_054",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোন ধরনের প্রক্রিয়ায় বায়ুর মাধ্যমে শব্দ সঞ্চালন হয়?",
+    "options": {
+      "A": "সমোষ্ণ",
+      "B": "রুদ্ধতাপীয়",
+      "C": "সমায়তন",
+      "D": "সমচাপীয়"
+    },
+    "correctAnswer": "B",
+    "explanation": "বায়ুর মধ্য দিয়ে শব্দ সঞ্চালনের প্রক্রিয়াটি অত্যন্ত দ্রুত ঘটে বিধায় এটি একটি রুদ্ধতাপীয় প্রক্রিয়া হিসেবে গণ্য হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_055",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "শব্দর কোন বৈশিষ্ট্যের জন্য তীব্র ভূমিকম্পের সময় ঘরবাড়ি ভেঙে যায়?",
+    "options": {
+      "A": "ঘরকম্প",
+      "B": "মুক্ত কম্পন",
+      "C": "তীব্রতা",
+      "D": "পরবশ কম্পন"
+    },
+    "correctAnswer": "D",
+    "explanation": "ভূমিকম্পের ফলে ভবনে উৎপন্ন পরবশ কম্পনের বিস্তার যখন অত্যন্ত বৃদ্ধি পায় এবং ভবনের উপাদানের সহনসীমা অতিক্রম করে, তখন ঘরবাড়ি ভেঙে যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_056",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "নিচের কোনটি অন্তরক?",
+    "options": {
+      "A": "লোহা",
+      "B": "সিলিকন",
+      "C": "বিসমাথ",
+      "D": "সিরামিক"
+    },
+    "correctAnswer": "D",
+    "explanation": "সিরামিক, রাবার, কাচ ও কাঠ হলো অন্তরক পদার্থ, কারণ এদের মধ্যে কোনো মুক্ত ইলেকট্রন থাকে না এবং এরা বিদ্যুৎ পরিবহন করে না।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_057",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "হলোগ্রাফি সৃষ্টিতে কোন রশ্মি ব্যবহৃত হয়?",
+    "options": {
+      "A": "ক্যাথোড রশ্মি",
+      "B": "গামা রশ্মি",
+      "C": "এক্স রশ্মি",
+      "D": "লেজার রশ্মি"
+    },
+    "correctAnswer": "D",
+    "explanation": "ত্রিমাত্রিক ছবি বা হলোগ্রাফি তৈরিতে অত্যন্ত সুসংগত লেজার রশ্মি ব্যবহার করা হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_058",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "ট্রানজিস্টর নিচের কোন কাজটি করে?",
+    "options": {
+      "A": "তাপ উৎপাদন করে",
+      "B": "লাইন ভোল্টেজকে ত্রুটিমুক্ত করে",
+      "C": "ভোল্টেজ নিয়ন্ত্রণ করে",
+      "D": "দুর্বল সংকেতকে বিবর্ধিত করে"
+    },
+    "correctAnswer": "D",
+    "explanation": "ট্রানজিস্টর দুর্বল বৈদ্যুতিক সংকেতকে বহুগুণ বৃদ্ধি বা বিবর্ধিত করতে পারে, তাই এটি অ্যাম্লিফায়ার হিসেবে ব্যবহৃত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_059",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "কোন মৌলিক বলের কারণে নিউট্রিনো ও বিটা কণা নির্গমন ঘটে?",
+    "options": {
+      "A": "সবল নিউক্লীয় বল",
+      "B": "মহাকর্ষ বল",
+      "C": "দুর্বল নিউক্লীয় বল",
+      "D": "তড়িৎ চুম্বকীয় বল"
+    },
+    "correctAnswer": "C",
+    "explanation": "তেজস্ক্রিয় ক্ষয় এবং বিটা কণা বা নিউট্রিনো নির্গমনের জন্য দুর্বল নিউক্লীয় বল দায়ী।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_060",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "প্রস্থচ্ছেদের ক্ষেত্রফল দ্বিগুণ করা হলে রোধের পরিমাণ কত হবে?",
+    "options": {
+      "A": "দ্বিগুণ",
+      "B": "চারগুণ",
+      "C": "অর্ধেক",
+      "D": "তিনগুণ"
+    },
+    "correctAnswer": "C",
+    "explanation": "পরিবাহীর রোধ এর প্রস্থচ্ছেদের ক্ষেত্রফলের ব্যাস্তানুপাতিক (R proportional 1/A)। ক্ষেত্রফল দ্বিগুণ করা হলে রোধ অর্ধেক হয়ে যায়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_061",
+    "year": "2023-2024",
+    "subject": "physics",
+    "question": "স্প্রিংকে প্রসারিত করলে এর মধ্যে কোন ধরনের শক্তি সঞ্চিত হয়?",
+    "options": {
+      "A": "গতিশক্তি",
+      "B": "বিভবশক্তি",
+      "C": "রাসায়নিক শক্তি",
+      "D": "তাপশক্তি"
+    },
+    "correctAnswer": "B",
+    "explanation": "স্প্রিংকে টেনে প্রসারিত করা হলে এর মধ্যে স্থিতিস্থাপক বিভবশক্তি সঞ্চিত হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_026",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "বঙ্গবন্ধু শেখ মুজিবুর রহমানের জীবনী কত সাল পর্যন্ত “অসমাপ্ত আত্মজীবনী” গ্রন্থে লিপিবদ্ধ আছে?",
+    "options": {
+      "A": "১৯৬০",
+      "B": "১৯৭০",
+      "C": "১৯৫৫",
+      "D": "১৯৬৬"
+    },
+    "correctAnswer": "C",
+    "explanation": "বঙ্গবন্ধুর লেখা 'অসমাপ্ত আত্মজীবনী' গ্রন্থে ১৯৫৫ সাল পর্যন্ত জীবনের নানা গুরুত্বপূর্ণ ঘটনাবলী স্থান পেয়েছে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_027",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "মুক্তিযুদ্ধকালীন মুজিবনগর সরকারের সর্বদলীয় উপদেষ্টা কমিটির চেয়ারম্যান কে ছিলেন?",
+    "options": {
+      "A": "সৈয়দ নজরুল ইসলাম",
+      "B": "তাজউদ্দীন আহমদ",
+      "C": "কমরেড মণি সিং",
+      "D": "মৌওলানা ভাসানী"
+    },
+    "correctAnswer": "D",
+    "explanation": "মুক্তিযুদ্ধকালীন গঠিত সর্বদলীয় উপদেষ্টা পরিষদের প্রধান বা চেয়ারম্যান ছিলেন মাওলানা আবদুল হামিদ খান ভাসানী।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_028",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "বিশ্ব স্বাস্থ্য সংস্থা কর্তৃক কালাজ্বর নির্মূল করার ক্ষেত্রে বাংলাদেশ বিশ্বের প্রথম দেশ হিসেবে স্বীকৃতি লাভ করে কোন তারিখে?",
+    "options": {
+      "A": "৩০ সেপ্টেম্বর ২০২৩",
+      "B": "৩১ অক্টোবর ২০২৩",
+      "C": "০১ নভেম্বর ২০২৩",
+      "D": "৩০ নভেম্বর ২০২৩"
+    },
+    "correctAnswer": "B",
+    "explanation": "বিশ্ব স্বাস্থ্য সংস্থার ঘোষণা অনুযায়ী ২০২৩ সালের ৩১ অক্টোবর বাংলাদেশ বিশ্বের প্রথম দেশ হিসেবে কালাজ্বর নির্মূলের স্বীকৃতি লাভ করে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_029",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "ইপিআই কর্মসূচিতে সর্বশেষ অন্তর্ভুক্ত টিকা কোনটি?",
+    "options": {
+      "A": "কোভিড ১৯",
+      "B": "হিউম্যান প্যাপিলোমা ভাইরাস",
+      "C": "হেপাটাইটিস বি",
+      "D": "পেন্টাভ্যালেন্ট"
+    },
+    "correctAnswer": "B",
+    "explanation": "সম্প্রসারিত টিকাদান কর্মসূচি বা ইপিআই (EPI)-এর আওতায় জরায়ুমুখ ক্যান্সার রোধে হিউম্যান প্যাপিলোমা ভাইরাস (HPV) টিকা সর্বশেষ অন্তর্ভুক্ত হয়েছে।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_030",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "বাংলাদেশে 'গণঅভ্যুত্থান দিবস' পালিত হয় কোন তারিখ?",
+    "options": {
+      "A": "২৪ জানুয়ারি",
+      "B": "১৭ মার্চ",
+      "C": "১৪ ফেব্রুয়ারি",
+      "D": "১৯ জানুয়ারি"
+    },
+    "correctAnswer": "A",
+    "explanation": "ঊনসত্তরের গণঅভ্যুত্থানের শহীদ মতিউর রহমানের স্মরণে প্রতি বছর ২৪ জানুয়ারি বাংলাদেশে গণঅভ্যুত্থান দিবস পালন করা হয়।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_031",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "কোন শিল্পী মুক্তিযুদ্ধে প্ল্যাটুন কমান্ডার হিসেবে অংশগ্রহণ করেছিলেন?",
+    "options": {
+      "A": "হামিদুজ্জামান",
+      "B": "জামালউদ্দিন আহমেদ",
+      "C": "শাহাবুদ্দিন আহমেদ",
+      "D": "আমিনুল ইসলাম"
+    },
+    "correctAnswer": "C",
+    "explanation": "খ্যাতিমান চিত্রশিল্পী শাহাবুদ্দিন আহমেদ ১৯৭১ সালের মুক্তিযুদ্ধে ক্র্যাক প্লাটুনের একজন বীর মুক্তিযোদ্ধা ও প্ল্যাটুন কমান্ডার ছিলেন।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_032",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "‘ঢাকা গে이트’ কে নির্মাণ করেছেন?",
+    "options": {
+      "A": "শের শাহ সূরি",
+      "B": "মীর জুমলা",
+      "C": "শাহ সুজা",
+      "D": "শায়েস্তা খান"
+    },
+    "correctAnswer": "B",
+    "explanation": "ঢাকার ঐতিহাসিক 'ঢাকা গে이트' সুবেদার মীর জুমলা নির্মাণ করেছিলেন।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_033",
+    "year": "2023-2024",
+    "subject": "gk",
+    "group": "gk",
+    "question": "সিলেট কোন প্রাচীন জনপদের অন্তর্ভুক্ত ছিল?",
+    "options": {
+      "A": "ব্রেদ্র",
+      "B": "হরিকেল",
+      "C": "গৌড়",
+      "D": "পুঞ্জ"
+    },
+    "correctAnswer": "B",
+    "explanation": "প্রাচীন বাংলার ষোলটি জনপদের মধ্যে সিলেট অঞ্চলটি 'হরিকেল' জনপদের অন্তর্ভুক্ত ছিল।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_034",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "বাংলাভাষার প্রথম সার্চ ইঞ্জিনের নাম কি?",
+    "options": {
+      "A": "ঘাস ফর্ডিং",
+      "B": "পিপীলিকা",
+      "C": "প্রজাপতি",
+      "D": "গুগল বাংলা"
+    },
+    "correctAnswer": "B",
+    "explanation": "শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়ের উদ্যোগে তৈরি 'পিপীলিকা' হলো বাংলা ভাষার প্রথম সার্চ ইঞ্জিন।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_035",
+    "year": "2023-2024",
+    "subject": "gk",
+    "question": "“সেপ্টেম্বর অন যশোর রোড” কবিতাটির রচয়িতা কে?",
+    "options": {
+      "A": "জর্জ হ্যারিসন",
+      "B": "অ্যালেন গিনসবার্গ",
+      "C": "পল ওয়ায়েলেস",
+      "D": "বব ডিলান"
+    },
+    "correctAnswer": "B",
+    "explanation": "মার্কিন কবি অ্যালেন গিনসবার্গ বাংলাদেশের মহান মুক্তিযুদ্ধকালীন সময়ে শরণার্থী ও উদ্বাস্তুদের অবর্ণনীয় দুঃখ-কষ্ট দেখে 'সেপ্টেম্বর অন যশোর রোড' কবিতাটি রচনা করেন।",
+    "source": "Medical College Admission Test 2023-2024",
+    "difficulty": "medium"
+  }
+]
+ 
+  {
+    "id": "eng_31",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "The synonym of the word 'anarchy' is:",
+    "options": {
+      "A": "serenity",
+      "B": "placidity",
+      "C": "lawlessness",
+      "D": "discipline"
+    },
+    "correctAnswer": "C",
+    "explanation": "Anarchy- নৈরাজ্য, অরাজকতা, বিশৃঙ্খলা; serenity- নির্মলতা; placidity- প্রশান্তি; lawlessness- অরাজকতা; discipline- শৃঙ্খলা। তাই Anarchy এর synonym lawlessness[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_32",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Few men are free from faults. Here 'few' means:",
+    "options": {
+      "A": "none",
+      "B": "hardly any",
+      "C": "not much",
+      "D": "some"
+    },
+    "correctAnswer": "B",
+    "explanation": "Few অর্থ অতি অল্পসংখ্যক বা নেই বললেই চলে। A Few অর্থ কিছু সংখ্যক এবং the few অর্থ যে কয়জন/যে কটি আছে তার সবাই/সবগুলো। Few men are free from faults.- ভুলের ঊর্ধ্বে মানুষ নেই বললেই চলে[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_33",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Choose the correct sentence:",
+    "options": {
+      "A": "I do need some furnitures",
+      "B": "I need a few furniture",
+      "C": "I do not need furniture",
+      "D": "I need a few furnitures"
+    },
+    "correctAnswer": "C",
+    "explanation": "Uncountable Noun হল ঐ সকল Noun যাদের গণনা করা যায় না এবং এদের কোন Plural Form নেই। এখানে furniture uncountable noun হওয়ায় plural form হয় না। আবার few, a few, the few, many সবগুলো countable noun এর পূর্বে বসে। uncountable noun এর পূর্বে little, a little, the little, much বসে। তাই Option-C সঠিক উত্তর[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_34",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "We work every day except Friday. What part of speech is 'except'?",
+    "options": {
+      "A": "adverb",
+      "B": "conjunction",
+      "C": "preposition",
+      "D": "adjective"
+    },
+    "correctAnswer": "C",
+    "explanation": "We work every day except Friday-আমরা শুক্রবার ব্যতীত অন্য সকল দিন কাজ করি। ছাড়া, ব্যতীত, অভাব ইত্যাদি অর্থ except, without, but (ব্যতীত) preposition হিসেবে ব্যবহৃত হয়[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_35",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Find out the misspelled word:",
+    "options": {
+      "A": "symbolic",
+      "B": "scintillating",
+      "C": "symetery",
+      "D": "suggestive"
+    },
+    "correctAnswer": "C",
+    "explanation": "সঠিক বানান: Symmetry-সামঞ্জস্য; symbolic-প্রতীকী; scintillating-ফুলিঙ্গ ছড়ানো, ঝকমিক করা; suggestive-পরামর্শমূলক[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_36",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Choose the correctly spelled word:",
+    "options": {
+      "A": "renaissance",
+      "B": "reneissance",
+      "C": "reneisance",
+      "D": "renaisance"
+    },
+    "correctAnswer": "A",
+    "explanation": "সঠিক বানান: renaissance (Rena is sance-রিনাই জ সান্স)- নবজাগরণ[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_37",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Which one of the following is an example of an indefinite pronoun?",
+    "options": {
+      "A": "either",
+      "B": "such",
+      "C": "any",
+      "D": "this"
+    },
+    "correctAnswer": "C",
+    "explanation": "Indefinite Pronoun: যে সকল Pronoun কোন অনির্দিষ্ট ব্যক্তি বা বস্তুকে বোঝায়। যেমন: One, none, no one, any, anyone, anybody, some, everyone, another, others, most, ইত্যাদি। এখানে either-distributive pronoun; such, this-demonstrative pronoun[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_38",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "\"Call it a day\" means:",
+    "options": {
+      "A": "finish work",
+      "B": "fix an appointment",
+      "C": "spend the time",
+      "D": "open an event"
+    },
+    "correctAnswer": "A",
+    "explanation": "\"Call it a day\" means আজকের দিনের মত যথেষ্ট কাজ হয়েছে বলে স্থির করা, অর্থাৎ শেষ করা। তাই সঠিক উত্তর finish work[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_39",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Choose the word which never has a plural form:",
+    "options": {
+      "A": "information",
+      "B": "woman",
+      "C": "inventor",
+      "D": "mouse"
+    },
+    "correctAnswer": "A",
+    "explanation": "Uncountable Noun হল ঐ সকল Noun যাদের গণনা করা যায় না এবং এদের কোন Plural Form নেই। শুধু Singular Form আছে। এখানে information uncountable noun হওয়ায় plural form নেই। woman(singular)-women (plural); inventor(singular)-inventors(plural); mouse(singular)-mice(plural)[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_40",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Select the correct word to fill up the gap in the sentence, \"He complained to me _______ your conduct.\"",
+    "options": {
+      "A": "for",
+      "B": "about",
+      "C": "of",
+      "D": "on"
+    },
+    "correctAnswer": "C",
+    "explanation": "Complain of (a thing)/ to a (person)/ against (another): নালিশ বা অভিযুক্ত হওয়া। যেমন: He complained to me against you, or of your conduct[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_41",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Which one of the following is an abstract noun?",
+    "options": {
+      "A": "boy",
+      "B": "family",
+      "C": "childhood",
+      "D": "child"
+    },
+    "correctAnswer": "C",
+    "explanation": "যে সকল Noun দ্বারা দোষ, গুণ, অবস্থা ও কাজের নাম বোঝায়, তাদেরকে Abstract Noun বলে এবং শেষে সাধারণত -hood, -ness, -ment ইত্যাদি থাকে। যেমন: Childhood (চাইল্ডহুড-শৈশব)। boy, child-common noun; family- collective noun[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_42",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "Choose the correct one to fill in the blank.\n\"I came to England _______ English\".",
+    "options": {
+      "A": "for learning",
+      "B": "for to learn",
+      "C": "to learning",
+      "D": "to learn"
+    },
+    "correctAnswer": "D",
+    "explanation": "উদ্দেশ্য বোঝাতে Infinitive (to + base verb) ব্যবহৃত হয়। এখানে ইংল্যান্ডে আসার উদ্দেশ্য ইংরেজি শেখা, তাই to learn বসবে[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_43",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "What is the correct indirect form of : He said 'You had better see a doctor'?",
+    "options": {
+      "A": "He proposed to see a doctor.",
+      "B": "He suggested that he had seen a doctor.",
+      "C": "He advised me to see a doctor.",
+      "D": "He advised that he should see a doctor."
+    },
+    "correctAnswer": "C",
+    "explanation": "বাক্যটি দ্বারা উপদেশ বুঝিয়েছে। 'You had better' দিয়ে উপদেশ প্রকাশ করার কারণে Indirect করার সময় reporting verb হিসেবে 'advised' এবং ইনভার্টেড কমা তুলে দিয়ে 'to' বসে[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "hard"
+  },
+  {
+    "id": "eng_44",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "What does the phrase “keep your chin up” mean?",
+    "options": {
+      "A": "be cheerful",
+      "B": "be careful",
+      "C": "be brave",
+      "D": "be smart"
+    },
+    "correctAnswer": "A",
+    "explanation": "keep your chin up- be cheerful (প্রফুল্ল বা উচ্ছ্বসিত থাকা)[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_45",
+    "year": "2023-2024",
+    "subject": "english",
+    "question": "The antonym of the word 'impediment' is:",
+    "options": {
+      "A": "useful",
+      "B": "hindrance",
+      "C": "obstacle",
+      "D": "helpful"
+    },
+    "correctAnswer": "D",
+    "explanation": "impediment- অন্তরায়/বাধা; helpful- সহায়ক। বাধা বা অন্তরায়ের বিপরীত শব্দ হলো সহায়াতাকারী বা helpful[cite: 1].",
+    "source": "Medical College Admission Test 2023-2024[cite: 1]",
+    "difficulty": "medium"
+  }
+
   
   {
     "id": "q_001",
