@@ -1155,9 +1155,10 @@
     "difficulty": "hard"
   },
 
-{
+[
+    {
         "id": "chem_021",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "বাংলাদেশে পানীয় জলে As এর গ্রহণযোগ্য মাত্রা কত?",
         "options": {
@@ -1168,62 +1169,62 @@
         },
         "correctAnswer": "A",
         "explanation": "বিশ্ব স্বাস্থ্য সংস্থা (WHO) ও বাংলাদেশ সরকারের মানদণ্ড অনুযায়ী পানীয় জলে আর্সেনিকের (As) সহনশীল সর্বোচ্চ মাত্রা হলো 0.01 mg/L বা 0.01 ppm।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_022",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "নিচের কোনটি তাপহারী (endothermic) বিক্রিয়া?",
+        "question": "নিচের কোনটি তাপহারী (endothermic) বিক্রিয়া?",
         "options": {
-            "A": "C+O_2 = CO_2",
-            "B": "N_2 + O_2 = 2NO",
-            "C": "CH_4 + 2O_2 = CO_2 + 2H_2O",
-            "D": "2H_2 + O_2 = 2H_2O"
+            "A": "C + O₂ = CO₂",
+            "B": "N₂ + O₂ = 2NO",
+            "C": "CH₄ + 2O₂ = CO₂ + 2H₂O",
+            "D": "2H₂ + O₂ = 2H₂O"
         },
         "correctAnswer": "B",
         "explanation": "নাইট্রোজেন ও অক্সিজেন বিক্রিয়া করে নাইট্রিক অক্সাইড (NO) তৈরি একটি তাপহারী বা তাপ শোষণকারী বিক্রিয়া (ΔH positive)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_023",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "নিচের কোনটি ক্যানসার সৃষ্টি করতে পারে?",
         "options": {
-            "A": "CH_3COOH",
+            "A": "CH₃COOH",
             "B": "HCHO",
-            "C": "C_2H_5OH",
-            "D": "CH_3OH"
+            "C": "C₂H₅OH",
+            "D": "CH₃OH"
         },
         "correctAnswer": "B",
-        "explanation": "ফরমালডিহাইড (HCHO) একটি মানবদেহে কার্সিনোজেন বা ক্যানসার সৃষ্টিকারী পদার্থ হিসেবে পরিচিত।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "ফরমালডিহাইড (HCHO) মানবদেহে কার্সিনোজেন বা ক্যানসার সৃষ্টিকারী পদার্থ হিসেবে পরিচিত।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_024",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "নিচের কোনটি প্রধান গ্রিনহাউস গ্যাস?",
         "options": {
-            "A": "CO_2",
-            "B": "CH_4",
-            "C": "O_3",
-            "D": "N_2O"
+            "A": "CO₂",
+            "B": "CH₄",
+            "C": "O₃",
+            "D": "N₂O"
         },
         "correctAnswer": "A",
-        "explanation": "বায়ুমণ্ডলে সর্বাধিক পরিমাণে উপস্থিত এবং গ্রিনহাউস প্রভাবে সবচেয়ে বেশি অবদান রাখা প্রধান গ্যাসটি হলো কার্বন ডাই-অক্সাইড (CO_2)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "বায়ুমণ্ডলে সর্বাধিক পরিমাণে উপস্থিত এবং গ্রিনহাউস প্রভাবে সবচেয়ে বেশি অবদান রাখা প্রধান গ্যাসটি হলো কার্বন ডাই-অক্সাইড (CO₂)।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_025",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "35°C পানিতে O_2 এর দ্রাব্যতা 2.3 × 10^{-4} M হলে ppm এককে তা কত?",
+        "question": "35°C পানিতে O₂ এর দ্রাব্যতা 2.3 × 10⁻⁴ M হলে ppm এককে তা কত?",
         "options": {
             "A": "6.90",
             "B": "0.74",
@@ -1231,15 +1232,15 @@
             "D": "7.36"
         },
         "correctAnswer": "A",
-        "explanation": "O_2 এর মোলার ভর = 32 g/mol। দ্রাব্যতা = 2.3 × 10^{-4} mol/L = 2.3 × 10^{-4} × 32 g/L = 7.36 × 10^{-3} g/L = 7.36 mg/L বা ppm এর কাছাকাছি (বা সঠিক গণনা অনুযায়ী 7.36/7.01/6.90 - সঠিক মান হিসেব সাপেক্ষে বিকল্প A)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "O₂ এর মোলার ভর = 32 g/mol। দ্রাব্যতা = 2.3 × 10⁻⁴ mol/L = 2.3 × 10⁻⁴ × 32 g/L = 7.36 × 10⁻³ g/L = 7.36 mg/L বা ppm।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "hard"
     },
     {
         "id": "chem_026",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "ডাউ প্রদ্ধতিতে নিচের কোনটি উৎপন্ন করা যায়?",
+        "question": "ডাউ পদ্ধতিতে নিচের কোনটি উৎপন্ন করা যায়?",
         "options": {
             "A": "ফেনল",
             "B": "টলুইন",
@@ -1248,14 +1249,14 @@
         },
         "correctAnswer": "A",
         "explanation": "ডাউ পদ্ধতিতে ক্লোরোবেনজিনের সাথে সোডিয়াম হাইড্রোক্সাইডের উচ্চ তাপমাত্রা ও চাপে বিক্রিয়ার মাধ্যমে ফেনল প্রস্তুত করা হয়।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_027",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "নিচের কোনটির কারণে পচা মাছে গন্ধ হয়?",
+        "question": "নিচের কোনটির কারণে পচা মাছে গন্ধ হয়?",
         "options": {
             "A": "অ্যামাইড",
             "B": "ফ্যাটি এসিড",
@@ -1264,12 +1265,12 @@
         },
         "correctAnswer": "C",
         "explanation": "পচা মাছ ও মাংসের দুর্গন্ধের জন্য প্রধানত পচনশীল প্রোটিন থেকে উৎপন্ন উদ্বায়ী অ্যামিন (যেমন- পুট্রেসিন, ক্যাডাভারিন) দায়ী।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_028",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "অস্ত্রের ইমেজিং কাজে ব্যবহৃত বেরিয়াম সালফেট মিশ্রণ কোন শ্রেণিভুক্ত?",
         "options": {
@@ -1280,14 +1281,14 @@
         },
         "correctAnswer": "B",
         "explanation": "বেরিয়াম সালফেট পানিতে অদ্রবণীয় এবং এর কণাগুলো বড় হওয়ায় এটি একটি সাসপেনশন (Suspension) তৈরি করে।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_029",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "বর্জ্য রিসাইক্লিং থেকে প্রধান কি সুফল পাওয়া যায়?",
+        "question": "বর্জ্য রিসাইক্লিং থেকে প্রধান কি সুফল পাওয়া যায়?",
         "options": {
             "A": "দূষণ হ্রাস পায়",
             "B": "বিদ্যুৎ খরচ কমে",
@@ -1296,44 +1297,44 @@
         },
         "correctAnswer": "A",
         "explanation": "বর্জ্য পুনর্ব্যবহার বা রিসাইক্লিংয়ের ফলে পরিবেশে বর্জ্যের পরিমাণ ও দূষণ উল্লেখযোগ্যভাবে হ্রাস পায়।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_030",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "নিচের কোন মূলকটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক?",
         "options": {
-            "A": "-CH_3",
-            "B": "-NO_2",
+            "A": "-CH₃",
+            "B": "-NO₂",
             "C": "-CHO",
             "D": "-CN"
         },
         "correctAnswer": "A",
-        "explanation": "অ্যালকাইল মূলক যেমন মিথাইল মূলক (-CH_3) হলো ইলেকট্রন দাতা এবং এটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "অ্যালকাইল মূলক যেমন মিথাইল মূলক (-CH₃) হলো ইলেকট্রন দাতা এবং এটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_031",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "পৃথিবীতে প্রাণিকুলের অস্তিত্বের মূলে কোন রাসায়নিক প্রক্রিয়া অত্যাবশ্যক?",
         "options": {
             "A": "বায়োলজিক্যাল ফিক্সেশন",
-            "B": "অসওয়াল্ড পদ্ধতি",
+            "B": "অসওয়াল্ড পদ্ধতি",
             "C": "মাটিতে প্রাকৃতিক N-ফিক্সেশন",
             "D": "হেবার পদ্ধতি"
         },
         "correctAnswer": "C",
-        "explanation": "প্রাকৃতিক উপায়ে বায়ুমণ্ডলীয় নাইট্রোজেন মাটিতে সংবদ্ধ (N-fixation) না হলে প্রোটিন ও ডিএনএ সংশ্লেষণ অসম্ভব হতো, যা প্রাণের অস্তিত্বের মূল ভিত্তি।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "প্রাকৃতিক উপায়ে বায়ুমণ্ডলীয় নাইট্রোজেন মাটিতে সংবদ্ধ (N-fixation) না হলে প্রোটিন ও ডিএনএ সংশ্লেষণ অসম্ভব হতো।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_032",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "নিচের কোনটি বিজারক পদার্থের বৈশিষ্ট্য?",
         "options": {
@@ -1344,30 +1345,30 @@
         },
         "correctAnswer": "C",
         "explanation": "বিজারক পদার্থ নিজে ইলেকট্রন বর্জন বা ত্যাগ করে জারিত হয় এবং অন্যকে বিজারিত করে।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_033",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "নিচের কোনটি সামঞ্জস্যতা (oxidation-reduction) বিক্রিয়া?",
+        "question": "নিচের কোনটি জারণ-বিজারণ (Redox) বিক্রিয়া?",
         "options": {
-           "A": "H2S + SO2 → 2H2O + 3S",
-"B": "CaCO3 → CaO + CO2",
-"C": "NaOH + HCl → NaCl + H2O",
-"D": "CaF2 + 2AgNO3 → 2AgF + Ca(NO3)2"
+            "A": "H₂S + SO₂ → 2H₂O + 3S",
+            "B": "CaCO₃ → CaO + CO₂",
+            "C": "NaOH + HCl → NaCl + H₂O",
+            "D": "CaF₂ + 2AgNO₃ → 2AgF + Ca(NO₃)₂"
         },
         "correctAnswer": "A",
-        "explanation": "H_2S ও SO_2 এর বিক্রিয়ায় একই সাথে সালফারের জারণ ও বিজারণ ঘটে এবং সালফার উৎপন্ন হয় (Disproportionation/Redox)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "H₂S ও SO₂ এর বিক্রিয়ায় একই সাথে সালফারের জারণ ও বিজারণ ঘটে এবং সালফার উৎপন্ন হয়।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "hard"
     },
     {
         "id": "chem_034",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "মানবদেহে কোন ধাতুর আধিক্য হিমোগ্লোবিনের উৎপাদনে বাধাগ্রস্ত হয়?",
+        "question": "মানবদেহে কোন ধাতুর আধিক্য হিমোগ্লোবিনের উৎপাদনে বাধাগ্রস্ত হয়?",
         "options": {
             "A": "As",
             "B": "Fe",
@@ -1375,47 +1376,47 @@
             "D": "Cd"
         },
         "correctAnswer": "D",
-        "explanation": "ক্যাডমিয়াম (Cd) বা সীসা মানবদেহে হিমোগ্লোবিনের সংশ্লেষণ ও উৎপাদনের সাথে জড়িত এনজাইমগুলোকে প্রতিহত করে।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "ক্যাডমিয়াম (Cd) মানবদেহে হিমোগ্লোবিনের সংশ্লেষণ ও উৎপাদনের সাথে জড়িত এনজাইমগুলোকে প্রতিহত করে।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_035",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "নিচের কোন বর্ণটি \"পরিবেশ দূষক\" এর প্রতীক?",
         "options": {
             "A": "O",
             "B": "T",
-            "C": "C",
-            "D": "N"
+            "C": "N",
+            "D": "C"
         },
         "correctAnswer": "C",
-        "explanation": "রাসায়নিক পদার্থের প্যাকেজিংয়ে বিপজ্জনক বা পরিবেশের জন্য ক্ষতিকর/দূষক পদার্থ বোঝাতে 'N' (Dangerous for the environment) প্রতীক ব্যবহৃত হয় (অথবা প্রশ্নে প্রদত্ত বিকল্প অনুযায়ী C)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "রাসায়নিক পদার্থের প্যাকেজিংয়ে বিপজ্জনক বা পরিবেশের জন্য ক্ষতিকর/দূষক পদার্থ বোঝাতে 'N' (Dangerous for the environment) প্রতীক ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_036",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "ডেবলের মূল উপাদান কি?",
+        "question": "ডেটোলের মূল উপাদান কি?",
         "options": {
             "A": "ক্লোরো-বেনজিন",
             "B": "আইসোপ্রোপাইল এলকোহল",
             "C": "ফ্লোরাল",
-            "D": "ক্লোরো-জাইলিনল"
+            "D": "ক্লোরোজাইলিনল"
         },
         "correctAnswer": "D",
         "explanation": "ডেটল (Dettol)-এর মূল অ্যান্টিসেপটিক সক্রিয় উপাদান হলো ক্লোরোজাইলিনল (Chloroxylenol)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_037",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "কোন দ্রবণের OH^- আয়নের ঘনত্বমাত্রা 3.5 \\times 10^{-4} M হলে তার pH কত?",
+        "question": "কোন দ্রবণের OH⁻ আয়নের ঘনত্বমাত্রা 3.5 × 10⁻⁴ M হলে তার pH কত?",
         "options": {
             "A": "12.50",
             "B": "13.55",
@@ -1423,95 +1424,95 @@
             "D": "3.55"
         },
         "correctAnswer": "C",
-        "explanation": "[OH^-] = 3.5 × 10^{-4}, pOH = -log(3.5 × 10^{-4}) ≈ 3.46। pH = 14 - pOH = 14 - 3.46 = 10.54।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "[OH⁻] = 3.5 × 10⁻⁴, pOH = -log(3.5 × 10⁻⁴) ≈ 3.46। pH = 14 - pOH = 14 - 3.46 = 10.54।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "hard"
     },
     {
         "id": "chem_038",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "10% Na_2CO_3 দ্রবণের মোলারিটি কত?",
+        "question": "10% Na₂CO₃ দ্রবণের মোলারিটি কত?",
         "options": {
-            "A": "0.95",
+            "A": "0.94",
             "B": "9.15",
             "C": "1.94",
-            "D": "0.94"
+            "D": "0.95"
         },
         "correctAnswer": "A",
-        "explanation": "10% w/v দ্রবণ মানে 100 mL এ 10 g Na_2CO_3 থাকে। 1 লিটারে 100 g। Na_2CO_3 এর মোলার ভর = 106 g/mol। মোলারিটি = 100 / 106 ≈ 0.943 M (বা অপਸ਼ਨ A)।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "10% w/v দ্রবণ মানে 100 mL এ 10 g Na₂CO₃ থাকে। 1 লিটারে 100 g। Na₂CO₃ এর মোলার ভর = 106 g/mol। মোলারিটি = 100 / 106 ≈ 0.943 M।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "hard"
     },
     {
         "id": "chem_039",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "কোন বায়ু-দূষক এসিড বৃষ্টি ঘটায়?",
         "options": {
-            "A": "SO_3",
-            "B": "CO_2",
-            "C": "N_2O",
+            "A": "SO₃",
+            "B": "CO₂",
+            "C": "N₂O",
             "D": "CO"
         },
         "correctAnswer": "A",
-        "explanation": "সালফার ট্রাইঅক্সাইড (SO_3) ও সালফার ডাইঅক্সাইড বায়ুমণ্ডলের পানির সাথে বিক্রিয়া করে সালফিউরিক এসিড তৈরি করে এসিড বৃষ্টি ঘটায়।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "সালফার ট্রাইঅক্সাইড (SO₃) ও সালফার ডাইঅক্সাইড বায়ুমণ্ডলের পানির সাথে বিক্রিয়া করে সালফিউরিক এসিড তৈরি করে এসিড বৃষ্টি ঘটায়।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_040",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "সংগৃহীত দুধের pH নিয়ন্ত্রণে কোনটি ব্যবহৃত হয়?",
+        "question": "সংগৃহীত দুধের pH নিয়ন্ত্রণে কোনটি ব্যবহৃত হয়?",
         "options": {
-            "A": "KHCO_3",
-            "B": "Na_2CO_3",
-            "C": "NaHCO_3",
-            "D": "H_2O"
+            "A": "KHCO₃",
+            "B": "Na₂CO₃",
+            "C": "NaHCO₃",
+            "D": "H₂O"
         },
         "correctAnswer": "C",
-        "explanation": "দুধের অম্লতা বৃদ্ধি রোধ ও pH নিয়ন্ত্রণে খাদ্য গ্রেড সোডিয়াম বাইকার্বনেট (NaHCO_3) বা ক্ষারীয় বাফার ব্যবহৃত হয়।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "দুধের অম্লতা বৃদ্ধি রোধ ও pH নিয়ন্ত্রণে খাদ্য গ্রেড সোডিয়াম বাইকার্বনেট (NaHCO₃) বা ক্ষারীয় বাফার ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
     },
     {
         "id": "chem_041",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "নিচের কোনটি প্রাইমারী স্টান্ডার্ড পদার্থ?",
+        "question": "নিচের কোনটি প্রাইমারী স্ট্যান্ডার্ড পদার্থ?",
         "options": {
-            "A": "Na_2CO_3",
+            "A": "Na₂CO₃",
             "B": "NaOH",
             "C": "HCl",
-            "D": "KMnO_4"
+            "D": "KMnO₄"
         },
         "correctAnswer": "A",
-        "explanation": "সোডিয়াম কার্বনেট (Na_2CO_3) একটি বিশুদ্ধ প্রাইমারি স্ট্যান্ডার্ড পদার্থ, যার ওজন বাতাসে অপরিবর্তিত থাকে।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "সোডিয়াম কার্বনেট (Na₂CO₃) একটি বিশুদ্ধ প্রাইমারি স্ট্যান্ডার্ড পদার্থ, যার ওজন বাতাসে অপরিবর্তিত থাকে।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_042",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
         "question": "নিচের কোনটি উভধর্মী যৌগ?",
         "options": {
-            "A": "H_2O",
-            "B": "H_3O^+",
-            "C": "NH_3",
-            "D": "NH_4^+"
+            "A": "H₂O",
+            "B": "H₃O⁺",
+            "C": "NH₃",
+            "D": "NH₄⁺"
         },
         "correctAnswer": "A",
-        "explanation": "পানি (H_2O) অ্যাসিড ও ক্ষার উভয় হিসেবেই আচরণ করতে পারে, তাই এটি একটি উভধর্মী (Amphoteric) যৌগ।",
-        "source": "Medical College Admission Test 2024-2025",
+        "explanation": "পানি (H₂O) অ্যাসিড ও ক্ষার উভয় হিসেবেই আচরণ করতে পারে, তাই এটি একটি উভধর্মী (Amphoteric) যৌগ।",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "easy"
     },
     {
         "id": "chem_043",
-        "year": "2024-2025",
+        "year": "2024-25",
         "subject": "chemistry",
-        "question": "শিখা পরীক্ষায় ব্যবহৃত কোবাল্ট ব্লু-গ্লাস কোন আলো সম্পূর্ণ শোষণ করে?",
+        "question": "শিখা পরীক্ষায় ব্যবহৃত কোবাল্ট ব্লু-গ্লাস কোন আলো সম্পূর্ণ শোষণ করে?",
         "options": {
             "A": "হালকা বেগুনি",
             "B": "গোলাপী লাল",
@@ -1520,9 +1521,10 @@
         },
         "correctAnswer": "C",
         "explanation": "পটাশিয়ামের শিখা পরীক্ষার সময় সোডিয়ামের উপস্থিতির কারণে উৎপন্ন সোনালী হলুদ বা পীতবর্ণের আলো কোবাল্ট নীল কাঁচ সম্পূর্ণ শোষণ করে।",
-        "source": "Medical College Admission Test 2024-2025",
+        "source": "Medical College Admission Test 2024-25",
         "difficulty": "medium"
-    },
+    }
+]
   
   {
     "id": "phy_001",
