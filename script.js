@@ -646,7 +646,7 @@ class MedicalExamApp {
                 root.querySelectorAll('.practice-option').forEach(btn=>btn.onclick=()=>this.answerPractice(Number(btn.dataset.i)));
                 document.getElementById('practice-score').textContent=String(s.marks);document.getElementById('practice-progress').textContent=this.t(`Question ${s.index+1} of ${s.questions.length}`,`প্রশ্ন ${s.index+1} / ${s.questions.length}`);
             }
-            answerPractice(i){const s=this.practiceSession;if(!s||s.answers[s.index]!==undefined)return;s.answers[s.index]=i;this.markQuestionAnswered(s.questions[s.index]);if(i===s.questions[s.index].answer)s.marks++;this.renderPractice();}
+            answerPractice(i){const s=this.practiceSession;if(!s||s.answers[s.index]!==undefined)return;s.answers[s.index]=i;this.markQuestionPracticed(s.questions[s.index]);if(i===s.questions[s.index].answer){s.marks++;this.markQuestionCoveredIfCorrect(s.questions[s.index],i);}this.renderPractice();}
             nextPractice(){const s=this.practiceSession;if(!s)return;if(s.index<s.questions.length-1){s.index++;this.renderPractice();}else{localStorage.setItem(this.getHistoryKey()+'_practice',JSON.stringify({marks:s.marks,total:s.questions.length,date:Date.now()}));this.showProfile();this.loadProgressStats();}}
             prevPractice(){const s=this.practiceSession;if(s&&s.index>0){s.index--;this.renderPractice();}}
 
@@ -795,20 +795,39 @@ class MedicalExamApp {
             markQuestionsSeen(questions) { const seen=this.getSeenQuestionIds(); questions.forEach(q=>{ if(q?.id!=null) seen.add(String(q.id)); }); this.saveSeenQuestionIds(seen); }
             getUnseenPool(pool) { const seen=this.getSeenQuestionIds(); return pool.filter(q=>q?.id!=null && !seen.has(String(q.id))); }
 
-            // Coverage means questions the user actually answered, not merely opened.
+            // Coverage means unique questions answered correctly.
             getAnsweredQuestionKey() { return this.authUser?.uid ? `med_answered_questions_${this.authUser.uid}` : 'med_answered_questions_guest'; }
+            getPracticedQuestionKey() { return this.authUser?.uid ? `med_practiced_questions_${this.authUser.uid}` : 'med_practiced_questions_guest'; }
+            getPracticedQuestionIds() {
+                try { const raw = JSON.parse(localStorage.getItem(this.getPracticedQuestionKey()) || '[]'); return new Set(Array.isArray(raw) ? raw.map(String) : []); } catch { return new Set(); }
+            }
+            markQuestionPracticed(question) {
+                if (!question || question.id == null) return;
+                const practiced = this.getPracticedQuestionIds();
+                practiced.add(String(question.id));
+                localStorage.setItem(this.getPracticedQuestionKey(), JSON.stringify([...practiced]));
+            }
+            resetCoverage() {
+                localStorage.removeItem(this.getAnsweredQuestionKey());
+                this.loadProgressStats();
+            }
+            clearCoverage() { this.resetCoverage(); }
             getAnsweredQuestionIds() {
                 try {
                     const raw = JSON.parse(localStorage.getItem(this.getAnsweredQuestionKey()) || '[]');
                     return new Set(Array.isArray(raw) ? raw.map(String) : []);
                 } catch { return new Set(); }
             }
+            // Coverage includes only unique questions answered correctly.
             markQuestionAnswered(question) {
                 if (!question || question.id == null) return;
                 const answered = this.getAnsweredQuestionIds();
                 answered.add(String(question.id));
                 localStorage.setItem(this.getAnsweredQuestionKey(), JSON.stringify([...answered]));
                 this.loadProgressStats();
+            }
+            markQuestionCoveredIfCorrect(question, selectedIndex) {
+                if (question && selectedIndex === question.answer) this.markQuestionAnswered(question);
             }
 
             /**
@@ -935,7 +954,13 @@ class MedicalExamApp {
 
                 // Nav Buttons
                 document.getElementById('btn-prev-q').disabled = idx === 0;
-                document.getElementById('btn-next-q').disabled = idx === this.examState.questions.length - 1;
+                const nextBtn = document.getElementById('btn-next-q');
+                if (nextBtn) {
+                    const isLast = idx === this.examState.questions.length - 1;
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = isLast ? this.t('Submit','সাবমিট') : this.t('Next','পরবর্তী');
+                    nextBtn.setAttribute('aria-label', isLast ? 'Submit exam' : 'Next question');
+                }
             }
 
             // Render Side Palette Grid
@@ -967,16 +992,20 @@ class MedicalExamApp {
             }
 
             selectOption(optIdx) {
-                this.examState.userAnswers[this.examState.currentIndex] = optIdx;
-                this.markQuestionAnswered(this.examState.questions[this.examState.currentIndex]);
+                const idx = this.examState.currentIndex;
+                // First selected option is final for this question; do not show a lock message.
+                if (this.examState.userAnswers[idx] !== null) return;
+                this.examState.userAnswers[idx] = optIdx;
+                const question = this.examState.questions[idx];
+                this.markQuestionPracticed(question);
+                this.markQuestionCoveredIfCorrect(question, optIdx);
                 this.renderQuestion();
                 this.renderPalette();
             }
 
             clearOptionSelection() {
-                this.examState.userAnswers[this.examState.currentIndex] = null;
-                this.renderQuestion();
-                this.renderPalette();
+                // Selection is intentionally permanent for the current attempt.
+                return;
             }
 
             toggleMarkReview() {
@@ -999,6 +1028,8 @@ class MedicalExamApp {
                     this.examState.currentIndex++;
                     this.renderQuestion();
                     this.renderPalette();
+                } else {
+                    this.confirmSubmitExam('manual');
                 }
             }
 
