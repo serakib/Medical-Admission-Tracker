@@ -4,7 +4,7 @@ Polished static medical admission preparation app.
 
 ## Included
 - Natural Bengali UI with standard English medical/technical terms where appropriate
-- 520-question bank preserved
+- several number of question bank preserved
 - Unique-question tracking for Practice/Exam sessions
 - Profile-based progress and performance dashboard
 - Polished leaderboard with top-3 podium and current-user highlight
