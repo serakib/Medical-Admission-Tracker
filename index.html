@@ -86,17 +86,17 @@
                     </button>
                 </nav>
 
-                <!-- Actions Right (Authentication, Theme Toggle & Mobile Menu) -->
-                <div class="flex items-center space-x-2 space-x-reverse">
-                    <button id="authStatusBtn" onclick="app.openAuthModal()" class="hidden sm:inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-medical-700 dark:text-medical-300 hover:bg-medical-50 dark:hover:bg-gray-700 transition">
-                        <i id="authStatusIcon" class="fa-solid fa-user ml-1"></i>
-                        <span id="authStatusLabel">লগইন</span>
-                    </button>
-                    <button id="themeToggleBtn" onclick="app.toggleTheme()" class="p-2 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none" title="থিম পরিবর্তন">
-                        <i class="fa-solid fa-moon text-lg dark:hidden"></i>
-                        <i class="fa-solid fa-sun text-lg hidden dark:inline"></i>
-                    </button>
+              <!-- মেইন ওয়েবসাইটের LOG IN বাটন -->
+<button onclick="redirectToLogin()" style="cursor: pointer; padding: 10px 20px; background-color: #00ff66; color: #121212; border: none; font-weight: bold; border-radius: 5px;">
+  LOG IN / SIGN UP
+</button>
 
+<script>
+function redirectToLogin() {
+  // ক্লিক করলে সরাসরি লগইন পেজে নিয়ে যাবে
+  window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
+}
+</script>
                     <!-- Mobile Menu Button -->
                     <button onclick="app.toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
                         <i class="fa-solid fa-bars text-xl"></i>
