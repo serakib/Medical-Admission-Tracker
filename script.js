@@ -19,6 +19,7 @@ class MedicalExamApp {
                 this.bankSearch = '';
                 this.practiceIndex = 0;
                 this.practiceSession = null;
+                this.practiceTimerInterval = null; // প্র্যাকটিস টাইমার প্রপার্টি যুক্ত করা হয়েছে
                 this.leaderboardCacheKey = 'med_leaderboard_cache_v5';
                 this.leaderboardLocalKey = 'med_leaderboard_local_v1';
                 this.leaderboardSyncKey = 'med_leaderboard_sync_queue_v1';
@@ -435,7 +436,6 @@ class MedicalExamApp {
                 return map[code] || error?.message || 'Authentication ব্যর্থ হয়েছে।';
             }
 
-            // Single-language UI: natural Bengali with standard English medical/technical terms where appropriate.
             t(en, bn) { return bn ?? en; }
             applyLanguage() {
                 document.documentElement.lang = 'bn';
@@ -448,7 +448,6 @@ class MedicalExamApp {
 
             renderQuestionIfCurrent(idx){ if(this.examState.currentIndex===idx && this.examActive) this.renderQuestion(); else if(!document.getElementById('view-previous')?.classList.contains('hidden')) this.renderPreviousQuestions(); }
 
-            // Previous-year browser (read-only; quiz is a separate action)
             showPreviousYears() { this.showView('previous'); this.renderPreviousYearList(); }
             renderPreviousYearList() {
                 const years=[...new Set(this.questionBank.filter(q=>q.year && q.isPreviousYear).map(q=>q.year))].sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
@@ -623,7 +622,6 @@ class MedicalExamApp {
 
             
             startPractice(){
-                // পুরানো টাইমার চললে তা বন্ধ করা
                 if (this.practiceTimerInterval) {
                     clearInterval(this.practiceTimerInterval);
                 }
@@ -632,12 +630,10 @@ class MedicalExamApp {
                 const pool = qs.length ? qs : this.questionBank; 
                 this.showView('practice');
                 
-                // ১০টি করে প্রশ্ন সিলেক্ট করা
                 const selected=[...pool].sort(()=>Math.random()-.5).slice(0, Math.min(10, pool.length));
                 
                 this.markQuestionsSeen(selected);
                 
-                // প্র্যাকটিস সেশন এবং ১০ মিনিট (600 সেকেন্ড) টাইম সেট করা
                 this.practiceSession={
                     questions: selected,
                     index: 0,
@@ -648,7 +644,7 @@ class MedicalExamApp {
                 }; 
 
                 this.renderPractice();
-                this.startPracticeTimer(); // টাইমার চালু করা
+                this.startPracticeTimer();
             },
 
             startPracticeTimer() {
@@ -665,7 +661,6 @@ class MedicalExamApp {
                         this.updatePracticeTimerUI();
                     } else {
                         clearInterval(this.practiceTimerInterval);
-                        // সময় শেষ হলে অ্যালার্ট দিয়ে অটোমেটিক নতুন সেশন শুরু হবে
                         alert('সময় শেষ! নতুন প্র্যাকটিস সেশন শুরু হচ্ছে।');
                         this.startPractice();
                     }
@@ -686,9 +681,9 @@ class MedicalExamApp {
                 const root=document.getElementById('practice-question'); if(!root)return;
                 const chosen=s.answers[s.index];
                 
-                this.updatePracticeTimerUI(); // প্রতিবার প্রশ্ন রেন্ডার করার সময় টাইমার আপডেট রাখা
+                this.updatePracticeTimerUI();
 
-                root.innerHTML=`<div class="practice-meta"><span>${this.localizedSubject(q.subject)}</span><span>প্রশ্ন ${s.index+1} / ${s.questions.length}</span></div><h2>${s.index+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h2><div class="practice-options">${q.options.map((o,j)=>`<button class="practice-option ${chosen!==undefined?(j===q.answer?'correct':j===chosen?'wrong':''):''}" ${chosen!==undefined?'disabled':''} data-i="${j}"><span>${'ABCD'[j]}</span>${this.escapeHtml(this.getLocalizedOption(q,j))}</button>`).join('')}</div>${chosen!==undefined?`<div class="practice-feedback ${chosen===q.answer?'ok':'bad'}"><strong>${chosen===q.answer?this.t('Correct — +1 practice mark','সঠিক — +১ practice mark'):this.t('Not correct — 0 mark','সঠিক নয় — ০ mark')}</strong><p>${this.escapeHtml(this.language==='en'?(q.explanation_en||q.explanation||''):(q.explanation||''))}</p></div>`:''}`;
+                root.innerHTML=`<div class="practice-meta"><span>${this.localizedSubject(q.subject)}</span><span>প্রশ্ন ${s.index+1} / ${s.questions.length}</span></div><h2>${s.index+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h2><div class="practice-options">${q.options.map((o,j)=>`<button class="practice-option ${chosen!==undefined?(j===q.answer?'correct':j===chosen?'wrong':''):''}" ${chosen!==undefined?'disabled':''} data-i="${j}"><span>${'ABCD'[j]}</span>${this.escapeHtml(this.getLocalizedOption(q,j))}</button>`).join('')}</div>${chosen!==undefined?`<div class="practice-feedback ${chosen===q.answer?'ok':'bad'}"><strong>${chosen===q.answer?this.t('Correct — +1 practice mark','সঠিক — +১ practice mark'):this.t('Not correct — 0 mark','সঠিক নয় — ০ mark')}</strong><p>${this.escapeHtml(this.language==='en'?(q.explanation_en||q.explanation||''):(q.explanation||''))}</div>`:''}`;
                 root.querySelectorAll('.practice-option').forEach(btn=>btn.onclick=()=>this.answerPractice(Number(btn.dataset.i)));
                 document.getElementById('practice-score').textContent=String(s.marks);
                 document.getElementById('practice-progress').textContent=this.t(`Question ${s.index+1} of ${s.questions.length}`,`প্রশ্ন ${s.index+1} / ${s.questions.length}`);
@@ -713,7 +708,6 @@ class MedicalExamApp {
                     s.index++;
                     this.renderPractice();
                 } else {
-                    // ১০টি প্রশ্ন শেষ হলে টাইমার বন্ধ করে আবার নতুন ১০টি প্রশ্ন নিয়ে রিসেট হবে
                     if (this.practiceTimerInterval) clearInterval(this.practiceTimerInterval);
                     this.startPractice();
                 }
@@ -727,7 +721,6 @@ class MedicalExamApp {
                 }
             },
 
-            // Theme Management
             toggleTheme() {
                 this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
                 localStorage.setItem('med_theme', this.currentTheme);
@@ -742,13 +735,11 @@ class MedicalExamApp {
                 }
             }
 
-            // Mobile Menu
             toggleMobileMenu() {
                 const menu = document.getElementById('mobileMenu');
                 menu.classList.toggle('hidden');
             }
 
-            // Profile / analytics
             showProfile() {
                 this.showView('profile');
                 this.loadProgressStats();
@@ -760,7 +751,6 @@ class MedicalExamApp {
                 this.showProfile();
             }
 
-            // View Switching
             showView(viewName, force = false) {
                 if (this.examActive && !this.examState.submitted && !force && viewName !== 'exam') {
                     this.confirmSubmitExam('navigation');
@@ -775,7 +765,6 @@ class MedicalExamApp {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // Quick Exam Actions
             openSetupView() {
                 this.showView('setup');
             }
@@ -798,7 +787,6 @@ class MedicalExamApp {
                 this.prepareExamFromSetup();
             }
 
-            // Setup Config Adjusters
             setSetupMode(mode) {
                 this.setup.mode = mode;
                 ['random', 'model', 'previous'].forEach(m => {
@@ -830,7 +818,6 @@ class MedicalExamApp {
                 if (yearSelect && !yearSelect.value) yearSelect.value = 'all';
                 this.setSetupMode(this.setup.mode);
 
-                // Update Question Count buttons active state
                 const qBtns = document.querySelectorAll('.q-count-btn');
                 qBtns.forEach(btn => {
                     const val = parseInt(btn.innerText.trim());
@@ -841,7 +828,6 @@ class MedicalExamApp {
                     }
                 });
 
-                // Update Time buttons active state
                 const tBtns = document.querySelectorAll('.time-btn');
                 tBtns.forEach(btn => {
                     const val = parseInt(btn.innerText.replace(/[^0-9]/g, ''));
@@ -872,7 +858,6 @@ class MedicalExamApp {
             markQuestionsSeen(questions) { const seen=this.getSeenQuestionIds(); questions.forEach(q=>{ if(q?.id!=null) seen.add(String(q.id)); }); this.saveSeenQuestionIds(seen); }
             getUnseenPool(pool) { const seen=this.getSeenQuestionIds(); return pool.filter(q=>q?.id!=null && !seen.has(String(q.id))); }
 
-            // Coverage means unique questions answered correctly.
             getAnsweredQuestionKey() { return this.authUser?.uid ? `med_answered_questions_${this.authUser.uid}` : 'med_answered_questions_guest'; }
             getPracticedQuestionKey() { return this.authUser?.uid ? `med_practiced_questions_${this.authUser.uid}` : 'med_practiced_questions_guest'; }
             getPracticedQuestionIds() {
@@ -895,7 +880,6 @@ class MedicalExamApp {
                     return new Set(Array.isArray(raw) ? raw.map(String) : []);
                 } catch { return new Set(); }
             }
-            // Coverage includes only unique questions answered correctly.
             markQuestionAnswered(question) {
                 if (!question || question.id == null) return;
                 const answered = this.getAnsweredQuestionIds();
@@ -907,9 +891,6 @@ class MedicalExamApp {
                 if (question && selectedIndex === question.answer) this.markQuestionAnswered(question);
             }
 
-            /**
-             * Fisher-Yates Shuffle that reshuffles options AND updates the answer index
-             */
             shuffleQuestionsAndOptions(pool, count) {
                 let filtered = [...pool];
                 const subjectSelect = document.getElementById('setup-subject');
@@ -921,7 +902,6 @@ class MedicalExamApp {
                 if (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz') filtered = filtered.filter(q => q.isPreviousYear && q.year);
                 if (this.setup.mode === 'challenge') filtered = filtered.filter(q => q.source && !/^practice$/i.test(q.year || '') );
                 if (!filtered.length) { this.showDataError('এই ফিল্টারে কোনো বৈধ প্রশ্ন পাওয়া যায়নি।'); return []; }
-                // Previously answered questions remain available for unlimited practice.
                 for (let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
                 return filtered.slice(0,Math.min(count,filtered.length)).map(q=>{
                     const optionsWithIndex=q.options.map((text,idx)=>({text,isCorrect:idx===q.answer}));
@@ -930,7 +910,6 @@ class MedicalExamApp {
                 });
             }
 
-            // Prepare exam; starting is always a deliberate second step after the instructions screen.
             startExamWithConfig() { this.prepareExamFromSetup(); }
 
             prepareExamFromSetup() {
@@ -968,7 +947,6 @@ class MedicalExamApp {
                 this.renderQuestion(); this.renderPalette(); this.showView('exam'); this.startTimer();
             }
 
-            // Timer uses a deadline timestamp to avoid interval drift.
             startTimer() {
                 if (this.examState.timerInterval) clearInterval(this.examState.timerInterval);
                 const tick = () => {
@@ -983,19 +961,16 @@ class MedicalExamApp {
                 tick(); this.examState.timerInterval = setInterval(tick, 250);
             }
 
-            // Render Current Question
             renderQuestion() {
                 const idx = this.examState.currentIndex;
                 const q = this.examState.questions[idx];
 
-                // Meta Info
                 document.getElementById('exam-progress-text').innerText = `${this.t('Question','প্রশ্ন')}: ${idx + 1} / ${this.examState.questions.length}`;
                 document.getElementById('q-subject').innerText = this.localizedSubject(q.subject);
                 document.getElementById('q-source').innerText = q.year ? `${this.localizedSource(q.source)} • ${q.year}` : this.localizedSource(q.source);
                 document.getElementById('q-difficulty').classList.add('hidden');
                 document.getElementById('q-text').innerText = `${idx + 1}. ${this.getLocalizedQuestionText(q)}`;
 
-                // Options
                 const optionsContainer = document.getElementById('q-options');
                 optionsContainer.innerHTML = '';
 
@@ -1021,7 +996,6 @@ class MedicalExamApp {
                     optionsContainer.appendChild(btn);
                 });
 
-                // Review Button State
                 const reviewBtn = document.getElementById('btn-mark-review');
                 if (this.examState.markedForReview[idx]) {
                     reviewBtn.className = "px-3 py-2 rounded-xl bg-amber-500 text-white font-semibold text-xs transition flex items-center";
@@ -1029,7 +1003,6 @@ class MedicalExamApp {
                     reviewBtn.className = "px-3 py-2 rounded-xl border border-amber-400 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 font-semibold text-xs transition flex items-center";
                 }
 
-                // Nav Buttons
                 document.getElementById('btn-prev-q').disabled = idx === 0;
                 const nextBtn = document.getElementById('btn-next-q');
                 if (nextBtn) {
@@ -1040,7 +1013,6 @@ class MedicalExamApp {
                 }
             }
 
-            // Render Side Palette Grid
             renderPalette() {
                 const paletteGrid = document.getElementById('q-palette-grid');
                 paletteGrid.innerHTML = '';
@@ -1070,7 +1042,6 @@ class MedicalExamApp {
 
             selectOption(optIdx) {
                 const idx = this.examState.currentIndex;
-                // First selected option is final for this question; do not show a lock message.
                 if (this.examState.userAnswers[idx] !== null) return;
                 this.examState.userAnswers[idx] = optIdx;
                 const question = this.examState.questions[idx];
@@ -1081,7 +1052,6 @@ class MedicalExamApp {
             }
 
             clearOptionSelection() {
-                // Selection is intentionally permanent for the current attempt.
                 return;
             }
 
@@ -1145,7 +1115,6 @@ class MedicalExamApp {
                     ? ((correctCount / (correctCount + wrongCount)) * 100).toFixed(1) 
                     : 0;
 
-                // Update Results View UI
                 document.getElementById('res-score-main').innerText = `${totalScore.toFixed(2)} / ${totalQuestions}`;
                 document.getElementById('res-percentage').innerText = `${(totalQuestions ? ((totalScore / totalQuestions) * 100) : 0).toFixed(1)}%`;
                 document.getElementById('res-accuracy').innerText = `${accuracy}%`;
@@ -1159,7 +1128,6 @@ class MedicalExamApp {
                 const secsUsed = usedSeconds % 60;
                 document.getElementById('res-time-used').innerText = `${minsUsed}:${secsUsed.toString().padStart(2, '0')}`;
 
-                // Save to LocalStorage
                 const quizPoints = (this.examState.mode === 'challenge' || this.examState.mode === 'previousQuiz') ? Math.max(0, correctCount * 4 - wrongCount) : 0;
 
                 this.saveExamAttempt({
@@ -1235,7 +1203,6 @@ class MedicalExamApp {
                 this.showView('review');
             }
 
-            // LocalStorage and Analytics
             saveExamAttempt(attempt) {
                 let history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
                 history.unshift(attempt);
@@ -1272,7 +1239,6 @@ class MedicalExamApp {
             }
         }
 
-// Expose the app for existing inline UI handlers and legacy Firebase integration.
 window.app = new MedicalExamApp();
 const app = window.app;
 
@@ -1289,7 +1255,6 @@ function toggleWrongQuestions() {
         return;
     }
 
-    // প্রতিটি সম্পূর্ণ প্রশ্নের কার্ড খুঁজবে
     const questions = container.querySelectorAll(":scope > div");
 
     if (!isWrongFiltered) {
@@ -1333,7 +1298,6 @@ function toggleWrongQuestions() {
         }
 
     } else {
-        // সব প্রশ্ন আগের অবস্থায় ফিরিয়ে আনবে
         originalQuestionStates.forEach((wasHidden, question) => {
             if (question.isConnected) {
                 question.hidden = wasHidden;
