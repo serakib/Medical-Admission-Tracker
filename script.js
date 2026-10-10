@@ -599,7 +599,7 @@ class MedicalExamApp {
                     this.showLeaderboardStatus('Leaderboard Firebase থেকে sync হয়েছে এবং local-এ cache করা হয়েছে।',false);
                 }catch(e){
                     console.error(e);
-                    this.showLeaderboardStatus('Previous Year কোশ্চেনে কুইজ দিলে তা এখানে অন্তর্ভুক্ত হবে, তবে সেজন্য অবশ্যই লগইন করে নিতে হবে। সর্বশেষ local leaderboard দেখানো হচ্ছে।',false);
+                    this.showLeaderboardStatus('Previous Year কোশ্চেনে কুইজ দিলে তা এখানে অন্তর্ভুক্ত হবে, তবে সেজন্য অবশ্যই লগইন করে নিতে হবে। সর্বশেষ local leaderboard',false);
                 }
             }
             showLeaderboardStatus(msg,error){const el=document.getElementById('leaderboard-status');if(!el)return;el.textContent=msg;el.className=`mb-4 rounded-xl p-3 text-sm ${error?'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300':'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;}
