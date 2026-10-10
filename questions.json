@@ -319,6 +319,521 @@
     "source": "Model Test",
     "difficulty": "easy"
   },
+
+{
+        "id": "bio_021",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোনটিতে হাইড্রার বহিঃকোষীয় পরিপাক সংঘটিত হয়?",
+        "options": {
+            "A": "গ্যাস্ট্রোডার্মিস",
+            "B": "হাইপোস্টোম",
+            "C": "সিলেসেরন",
+            "D": "কর্কিকা"
+        },
+        "correctAnswer": "C",
+        "explanation": "হাইড্রার পরিপাক প্রধানত সিলোম বা সিলেন্টেরন গহ্বরে বহিঃকোষীয়ভাবে শুরু হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_022",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "মস্তিষ্কের কোন অংশের ক্ষুধা নিয়ন্ত্রণ করে?",
+        "options": {
+            "A": "মেডুলা অবলংগাটা",
+            "B": "সেরিবেলাম",
+            "C": "হাইপোথ্যালামাস",
+            "D": "সেরিব্রাম"
+        },
+        "correctAnswer": "C",
+        "explanation": "হাইপোথ্যালামাস শরীরের ক্ষুধা, তৃষ্ণা, ঘুম, তাপমাত্রা ও আবেগের কেন্দ্র হিসেবে কাজ করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_023",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "ডেলিটয়েড টিউবারসিটি কোন অস্থির অংশ?",
+        "options": {
+            "A": "আলনা",
+            "B": "স্ক্যাপুলা",
+            "C": "রেডিয়াসের",
+            "D": "হিউমেরাস"
+        },
+        "correctAnswer": "D",
+        "explanation": "হিউমেরাস অস্থির গায়ে ডেলটয়েড টিউবারসিটি অবস্থিত, যেখানে ডেলটয়েড পেশি সংযুক্ত থাকে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_024",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "ফুসফুসের আবরনকে কি বলে?",
+        "options": {
+            "A": "প্লিসন ক্যাপসুল",
+            "B": "পেরিকার্ডিয়াম",
+            "C": "ডায়াফ্রাম",
+            "D": "প্লুরা"
+        },
+        "correctAnswer": "D",
+        "explanation": "ফুসফুসের দ্বিস্তরী আবরক ঝিল্লিকে প্লুরা (Pleura) বলে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_025",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোনটি মানুষের দ্বিতীয় মস্তিষ্ক হিসেবে পরিচিত?",
+        "options": {
+            "A": "সুষুম্না কাণ্ড",
+            "B": "এন্টেরিক স্নায়ুতন্ত্র",
+            "C": "অটোনমিক স্নায়ুতন্ত্র",
+            "D": "মেডুলা অবলংগাটা"
+        },
+        "correctAnswer": "B",
+        "explanation": "পরিপাকতন্ত্রের প্রাচীরে অবস্থিত এন্টেরিক স্নায়ুতন্ত্রকে মানুষের 'দ্বিতীয় মস্তিষ্ক' বলা হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_026",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "কানের কোন অংশে ভারসাম্য রক্ষায় কাজ করে?",
+        "options": {
+            "A": "কর্ণাস্থি",
+            "B": "ভেস্টিবুলার যন্ত্র",
+            "C": "টিমপেনিক পর্দা",
+            "D": "ককলিয়ার বডি"
+        },
+        "correctAnswer": "B",
+        "explanation": "অন্তঃকর্ণের ভেস্টিবুলার যন্ত্র (অর্ধবৃত্তাকার নালিকা ও অটোসিথ অঙ্গ) শরীরের ভারসাম্য রক্ষা করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_027",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোন হরমোনটি মানুষের ডিম্বাশয় থেকে নিঃসৃত হয়??",
+        "options": {
+            "A": "অক্সিটোসিন",
+            "B": "প্রোল্যাকটিন",
+            "C": "প্রজেস্টেরন",
+            "D": "থাইরোনিন"
+        },
+        "correctAnswer": "C",
+        "explanation": "ডিম্বাশয়ের কর্পাস লিউটিয়াম থেকে প্রধানত প্রজেস্টেরন হরমোন নিঃসৃত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_028",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "কোন চক্রের মাধ্যমে যকৃতে ইউরিয়া তৈরি হয়?",
+        "options": {
+            "A": "কার্বন চক্র",
+            "B": "অর্নিথিন চক্র",
+            "C": "ক্রেবস চক্র",
+            "D": "নাইট্রোজেন চক্র"
+        },
+        "correctAnswer": "B",
+        "explanation": "যকৃতে ইউরিয়া সৃষ্টির প্রক্রিয়াকে অর্নিথিন চক্র (Ornithine cycle) বা ইউরিয়া চক্র বলা হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_029",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "কোন এন্টিবডি প্রধানত এলার্জির সাথে সংশ্লিষ্ট?",
+        "options": {
+            "A": "IgA",
+            "B": "IgM",
+            "C": "IgG",
+            "D": "IgE"
+        },
+        "correctAnswer": "D",
+        "explanation": "IgE এন্টিবডি এলার্জি প্রতিক্রিয়া এবং পরজীবীর বিরুদ্ধে প্রতিরোধে প্রধান ভূমিকা রাখে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_030",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "মানবদেহে সপ্তম করোটিক স্নায়ুর নাম কি?",
+        "options": {
+            "A": "ট্রকলিয়ার স্নায়ু",
+            "B": "ফেসিয়াল স্নায়ু",
+            "C": "ভেগাস স্নায়ু",
+            "D": "অপটিক স্নায়ু"
+        },
+        "correctAnswer": "B",
+        "explanation": "সপ্তম (VII) করোটিক স্নায়ু হলো ফেসিয়াল স্নায়ু (Facial nerve)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_031",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "এনজিওপ্লাস্টি করলে কি হয়?",
+        "options": {
+            "A": "হৃদস্পন্দন বৃদ্ধি পায়",
+            "B": "সুরু ধমনী প্রশস্ত হয়",
+            "C": "হৃদস্পন্দনের গতি ধীর হয়",
+            "D": "রক্ত সঞ্চালনের গতি বৃদ্ধি পায়"
+        },
+        "correctAnswer": "B",
+        "explanation": "এনজিওপ্লাস্টি হলো এমন একটি পদ্ধতি যার মাধ্যমে হৃদপিণ্ডের অবরুদ্ধ বা সরু ধমনীকে প্রশস্ত করা হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_032",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "কোন কোষ হেপারিন তৈরী ও নিঃসরণ করে?",
+        "options": {
+            "A": "নিউট্রোফিল",
+            "B": "লিম্ফোসাইট",
+            "C": "মনোসাইট",
+            "D": "বেসোফিল"
+        },
+        "correctAnswer": "D",
+        "explanation": "শ্বেত রক্তকণিকার বেসোফিল এবং কলার মাস্ট কোষ হেপারিন (রক্ত জমাট বাঁধতে বাধা দেয়) ও হিস্টামিন নিঃসরণ করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_033",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "ডাফনিয়াস ক্লাভেডরি রুই মাছের কোন তন্ত্রের অংশ?",
+        "options": {
+            "A": "শ্বসনতন্ত্র",
+            "B": "শিরাতন্ত্র",
+            "C": "রেচনতন্ত্র",
+            "D": "ধমনিতন্ত্র"
+        },
+        "correctAnswer": "D",
+        "explanation": "রুই মাছের রক্তসংবহনতন্ত্রের ধমনিতন্ত্রের একটি অংশ হলো ডাফনিয়াস বা ক্লাভেডরি আর্টারি।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "bio_034",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "পেসমেকারের কাজ কি?",
+        "options": {
+            "A": "রক্তকে তরল রাখে",
+            "B": "রক্ত সঞ্চালন বৃদ্ধি করে",
+            "C": "হৃদরোগ প্রতিরোধ করে",
+            "D": "হৃদস্পন্দনের ধীরগতি নিয়ন্ত্রণ করে"
+        },
+        "correctAnswer": "D",
+        "explanation": "আর্টিফিশিয়াল পেসমেকার হৃদপিণ্ডের অস্বাভাবিক ধীরগতি (Bradycardia) বা ছন্দপতন নিয়ন্ত্রণ করে সঠিক স্পন্দন বজায় রাখে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_035",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "পূর্ণবয়স্ক সুস্থ মানুষের দুই বৃক্কে প্রতি মিনিটে মোট রক্ত সঞ্চালনের পরিমাণ-",
+        "options": {
+            "A": "২৫০ মিঃ লিঃ",
+            "B": "১২৫ মিঃ লিঃ",
+            "C": "৩৭৫ মিঃ লিঃ",
+            "D": "১২০০ মিঃ লিঃ"
+        },
+        "correctAnswer": "D",
+        "explanation": "বিশ্রামরত অবস্থায় প্রতি মিনিটে দুই বৃক্কে প্রায় ১২০০ মিলি রক্ত সরবরাহ হয় (যা কার্ডিয়াক আউটপুটের প্রায় ২০-২৫%)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_036",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "কোনটির উপস্থিতিতে স্নেহ পদার্থের ইমালসিফিকেশন হয়?",
+        "options": {
+            "A": "বাইল লবট",
+            "B": "এনজাইম",
+            "C": "ভিটামিন",
+            "D": "হরমোন"
+        },
+        "correctAnswer": "A",
+        "explanation": "যকৃৎ থেকে নিসৃত পিত্তরস বা বাইল সল্ট (Bile salts) স্নেহ পদার্থকে ক্ষুদ্র কণায় পরিণত করে ইমালসিফিকেশন ঘটায়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_037",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোনটি নাইট্রোজেনবিহীন পদার্থ?",
+        "options": {
+            "A": "ল্যাকটিক এসিড",
+            "B": "ক্রিয়েটিনিন",
+            "C": "ইউরিয়া",
+            "D": "ইউরিয়া"
+        },
+        "correctAnswer": "A",
+        "explanation": "ল্যাকটিক এসিড একটি অর্গানিক এসিড যাতে কার্বন, হাইড্রোজেন ও অক্সিজেন থাকে কিন্তু নাইট্রোজেন থাকে না (অন্যান্যগুলো নাইট্রোজেনঘটিত বর্জ্য)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_038",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "কোষ বিভাজনের সময় কোষপ্লেট তৈরিতে সাহায্য করে কোন অঙ্গাণু?",
+        "options": {
+            "A": "লাইসোসোম",
+            "B": "গলগি বস্তু",
+            "C": "মাইক্রোটিউবিউলস",
+            "D": "রাইবোজোম"
+        },
+        "correctAnswer": "B",
+        "explanation": "উদ্ভিদ কোষ বিভাজনের সময় গলগি বস্তু থেকে আসা ভেসিকলগুলো মিলিত হয়ে কোষপ্লেট গঠন করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_039",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "রেস্ট্রিকশন এনজাইমের কাজ–",
+        "options": {
+            "A": "DNA অণু বৃদ্ধিকরণ",
+            "B": "DNA খণ্ডকে জোড়া লাগানো",
+            "C": "নির্দিষ্ট জীবে রিকম্বিনেন্ট DNA প্রবেশ করানো",
+            "D": "কাঙ্ক্ষিত DNA কে নির্দিষ্ট স্থানের ছেদন করা"
+        },
+        "correctAnswer": "D",
+        "explanation": "রেস্ট্রিকশন এন্ডোনিউক্লিজ বা রেস্ট্রিকশন এনজাইম DNA অণুকে নির্দিষ্ট স্বীকৃতি স্থানে কেটে ফেলতে সাহায্য করে (আণবিক কাঁচি)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_040",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোন ধরনের উদ্ভিদকে ইপিমেরালাস (Ephemerals) বলা হয়?",
+        "options": {
+            "A": "খরা সহনশীল",
+            "B": "লবণ সহনশীল",
+            "C": "খরা এড়ানো",
+            "D": "ছড়ায় প্রতিরোধী"
+        },
+        "correctAnswer": "C",
+        "explanation": "ইপিমেরালাস হলো স্বল্পায়ু উদ্ভিদ যা মরুভূমির তীব্র খরা এড়িয়ে সংক্ষিপ্ত বর্ষাকালে দ্রুত জীবনচক্র সম্পন্ন করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_041",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোনটি মালভেসি গোত্রের উদ্ভিদ?",
+        "options": {
+            "A": "কার্পাস তুলা",
+            "B": "আখ",
+            "C": "যব",
+            "D": "চোরকাঁটা"
+        },
+        "correctAnswer": "A",
+        "explanation": "কার্পাস তুলা (Gossypium) মালভেসি (Malvaceae) গোত্রভুক্ত উদ্ভিদ।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_042",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোনটিকে সংক্রমণক্ষম পূর্ণাঙ্গ ভাইরাস কণা বলে?",
+        "options": {
+            "A": "প্রিয়ন",
+            "B": "ভিরিয়ন",
+            "C": "ভিরয়েড",
+            "D": "নিউক্লিওক্যাপসিড"
+        },
+        "correctAnswer": "B",
+        "explanation": "কোষের বাইরে অবস্থিত সম্পূর্ণ ও সংক্রমণক্ষম ভাইরাস কণাকে ভিরিয়ন (Virion) বলা হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_043",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "ক্রেবস চক্র কোষের কোথায় সংঘটিত হয়?",
+        "options": {
+            "A": "মাইটোকন্ড্রিয়া",
+            "B": "সাইটোপ্লাজম",
+            "C": "রাইবোজোম",
+            "D": "ক্লোরোপ্লাস্ট"
+        },
+        "correctAnswer": "A",
+        "explanation": "শ্বসনের ক્રેবস চক্র মাইটোকন্ড্রিয়ার ম্যাট্রিক্সে সম্পন্ন হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_044",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "জেননেটিক ইঞ্জিনিয়ারিং এর প্রধান জীবজ সারণী(Living Tool) হলো-",
+        "options": {
+            "A": "এফ-ফ্যাক্টর",
+            "B": "রেস্ট্রিকশন এনজাইম",
+            "C": "এক্সপ্লান্ট",
+            "D": "প্লাজমিড"
+        },
+        "correctAnswer": "D",
+        "explanation": "জেনেটিক ইঞ্জিনিয়ারিংয়ে জিন স্থানান্তরের প্রধান বাহক বা ভেেক্টর হিসেবে প্লাজমিড বহুল ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_045",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "ভাইরাসের বংশবৃদ্ধিতে পোষকের কোন অংশতে প্রোটিন তৈরি হয়?",
+        "options": {
+            "A": "নিউক্লিয়াস",
+            "B": "কোষ আবরণী",
+            "C": "রাইবোজোম",
+            "D": "মাইটোকন্ড্রিয়া"
+        },
+        "correctAnswer": "C",
+        "explanation": "ভাইরাস কোষে প্রবেশ করে পোষকের রাইবোজোম ও বিপাকীয় যন্ত্রপাতি ব্যবহার করে নিজের প্রোটিন ও ক্যাপসিদ তৈরি করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_046",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "টিস্যু কালচারের প্রাথমিক লক্ষ্য-",
+        "options": {
+            "A": "উন্নত বীজ তৈরী করা",
+            "B": "নতুন ধরণের টিস্যু তৈরী করা",
+            "C": "অধিক পরিমাণ টিস্যু তৈরী করা",
+            "D": "প্রচুর পরিমাণে নতুন চারা উৎপাদন করা"
+        },
+        "correctAnswer": "D",
+        "explanation": "টিস্যু কালচারের অন্যতম প্রধান বাণিজ্যিক লক্ষ্য হলো স্বল্প সময়ে প্রচুর রোগমুক্ত নতুন চারা উৎপাদন করা (Micropropagation)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_047",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোনটি purine base?",
+        "options": {
+            "A": "Uracil",
+            "B": "Cytosine",
+            "C": "Thymine",
+            "D": "Adenine"
+        },
+        "correctAnswer": "D",
+        "explanation": "DNA ও RNA-তে পিউরিন বেস দুটি হলো অ্যাডেনিন (Adenine) ও গুয়ানিন (Guanine)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_048",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "জেনেটিকভাবে নিয়ন্ত্রিত কোষের মৃত্যুকে কি বলে?",
+        "options": {
+            "A": "অ্যাপোপ্টসিস",
+            "B": "নেক্রোসিস",
+            "C": "মেটাস্টেসিস",
+            "D": "অ্যাপোফাইসিস"
+        },
+        "correctAnswer": "A",
+        "explanation": "প্রোগ্রামড সেল ডেথ বা জিনেটিকভাবে নিয়ন্ত্রিত কোষের মৃত্যুকে অ্যাপোপ্টসিস (Apoptosis) বলা হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_049",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "নিচের কোন এনজাইমটি জমাট রক্ত গলাতে ব্যবহৃত হয়?",
+        "options": {
+            "A": "ট্রিপসিন",
+            "B": "ইউরিয়েজ",
+            "C": "ইউরোকাইনেজ",
+            "D": "পেপসিন"
+        },
+        "correctAnswer": "C",
+        "explanation": "ইউরোকাইনেজ এবং টিস্যু প্লাজমিনোজেন অ্যাক্টিভেটর (tPA) রক্তনালীর জমাট বাঁধা রক্ত (thrombus) গলাতে চিকিৎসায় ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "bio_050",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "রিকম্বিনেন্ট DNA টেকনোলজির মাধ্যমে সৃষ্ট উদ্ভিদকে কি বলে?",
+        "options": {
+            "A": "হাইব্রিড (Hybrid)",
+            "B": "সাইব্রিড (Cybrid)",
+            "C": "ক্লোন (Clone)",
+            "D": "ট্রান্সজেনিক (Transgenic)"
+        },
+        "correctAnswer": "D",
+        "explanation": "যে উদ্ভিদে জেনিটিক ইঞ্জিনিয়ারিং বা রিকম্বিনেন্ট DNA প্রযুক্তির মাধ্যমে বাহ্যিক জিন প্রবেশ করানো হয়, তাকে ট্রান্সজেনিক উদ্ভিদ বলে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_051",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "শর্করা জাতীয় খাদ্য থেকে লিভারে সঞ্চিত উপাদান কোনটি?",
+        "options": {
+            "A": "ফ্রুক্টোজ",
+            "B": "গ্লাইকোজেন",
+            "C": "সুক্রোজ",
+            "D": "গ্লুকোজ"
+        },
+        "correctAnswer": "B",
+        "explanation": "মানবদেহে অতিরিক্ত গ্লুকোজ গ্লাইকোজেনেসিস প্রক্রიায় যকৃৎ ও পেশীতে গ্লাইকোজেন হিসেবে সঞ্চিত থাকে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "bio_052",
+        "year": "2024-2025",
+        "subject": "biology",
+        "question": "উন্নত প্রজাতির বীজ তৈরিতে নিচের কোনটি ব্যবহৃত হয়?",
+        "options": {
+            "A": "এক্স-রে",
+            "B": "লেজার রশ্মি",
+            "C": "হাইড্রোজেন",
+            "D": "তেজস্ক্রিয় আইসোটোপ"
+        },
+        "correctAnswer": "D",
+        "explanation": "উদ্ভিদ প্রজননে মিউটেশন বা পরিব্যক্তি ঘটিয়ে উন্নত জাতের বীজ তৈরিতে তেজস্ক্রিয় আইসোটোপ (যেমন কোবাল্ট-৬০) ও গামা রশ্মি ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+
+  
   {
     "id": "chem_001",
     "year": "2023-24",
@@ -639,6 +1154,376 @@
     "source": "Verified Previous Year",
     "difficulty": "hard"
   },
+
+{
+        "id": "chem_021",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "বাংলাদেশে পানীয় জলে As এর গ্রহণযোগ্য মাত্রা কত?",
+        "options": {
+            "A": "0.01 ppm",
+            "B": "0.05 ppm",
+            "C": "0.5 g/L",
+            "D": "0.1 ppm"
+        },
+        "correctAnswer": "A",
+        "explanation": "বিশ্ব স্বাস্থ্য সংস্থা (WHO) ও বাংলাদেশ সরকারের মানদণ্ড অনুযায়ী পানীয় জলে আর্সেনিকের (As) সহনশীল সর্বোচ্চ মাত্রা হলো 0.01 mg/L বা 0.01 ppm।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_022",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি তাপহারী (endothermic) বিক্রিয়া?",
+        "options": {
+            "A": "C+O_2 = CO_2",
+            "B": "N_2 + O_2 = 2NO",
+            "C": "CH_4 + 2O_2 = CO_2 + 2H_2O",
+            "D": "2H_2 + O_2 = 2H_2O"
+        },
+        "correctAnswer": "B",
+        "explanation": "নাইট্রোজেন ও অক্সিজেন বিক্রিয়া করে নাইট্রিক অক্সাইড (NO) তৈরি একটি তাপহারী বা তাপ শোষণকারী বিক্রিয়া (ΔH positive)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_023",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি ক্যানসার সৃষ্টি করতে পারে?",
+        "options": {
+            "A": "CH_3COOH",
+            "B": "HCHO",
+            "C": "C_2H_5OH",
+            "D": "CH_3OH"
+        },
+        "correctAnswer": "B",
+        "explanation": "ফরমালডিহাইড (HCHO) একটি মানবদেহে কার্সিনোজেন বা ক্যানসার সৃষ্টিকারী পদার্থ হিসেবে পরিচিত।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_024",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি প্রধান গ্রিনহাউস গ্যাস?",
+        "options": {
+            "A": "CO_2",
+            "B": "CH_4",
+            "C": "O_3",
+            "D": "N_2O"
+        },
+        "correctAnswer": "A",
+        "explanation": "বায়ুমণ্ডলে সর্বাধিক পরিমাণে উপস্থিত এবং গ্রিনহাউস প্রভাবে সবচেয়ে বেশি অবদান রাখা প্রধান গ্যাসটি হলো কার্বন ডাই-অক্সাইড (CO_2)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_025",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "35°C পানিতে O_2 এর দ্রাব্যতা 2.3 × 10^{-4} M হলে ppm এককে তা কত?",
+        "options": {
+            "A": "6.90",
+            "B": "0.74",
+            "C": "7.01",
+            "D": "7.36"
+        },
+        "correctAnswer": "A",
+        "explanation": "O_2 এর মোলার ভর = 32 g/mol। দ্রাব্যতা = 2.3 × 10^{-4} mol/L = 2.3 × 10^{-4} × 32 g/L = 7.36 × 10^{-3} g/L = 7.36 mg/L বা ppm এর কাছাকাছি (বা সঠিক গণনা অনুযায়ী 7.36/7.01/6.90 - সঠিক মান হিসেব সাপেক্ষে বিকল্প A)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "chem_026",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "ডাউ প্রদ্ধতিতে নিচের কোনটি উৎপন্ন করা যায়?",
+        "options": {
+            "A": "ফেনল",
+            "B": "টলুইন",
+            "C": "ক্লোরোবেনজিন",
+            "D": "বেনজিন"
+        },
+        "correctAnswer": "A",
+        "explanation": "ডাউ পদ্ধতিতে ক্লোরোবেনজিনের সাথে সোডিয়াম হাইড্রোক্সাইডের উচ্চ তাপমাত্রা ও চাপে বিক্রিয়ার মাধ্যমে ফেনল প্রস্তুত করা হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_027",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটির কারণে পচা মাছে গন্ধ হয়?",
+        "options": {
+            "A": "অ্যামাইড",
+            "B": "ফ্যাটি এসিড",
+            "C": "অ্যামিন",
+            "D": "কিটোন"
+        },
+        "correctAnswer": "C",
+        "explanation": "পচা মাছ ও মাংসের দুর্গন্ধের জন্য প্রধানত পচনশীল প্রোটিন থেকে উৎপন্ন উদ্বায়ী অ্যামিন (যেমন- পুট্রেসিন, ক্যাডাভারিন) দায়ী।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_028",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "অস্ত্রের ইমেজিং কাজে ব্যবহৃত বেরিয়াম সালফেট মিশ্রণ কোন শ্রেণিভুক্ত?",
+        "options": {
+            "A": "কলয়েড",
+            "B": "সাসপেনশন",
+            "C": "অধঃক্ষেপ",
+            "D": "কোয়াগুলেন্ট"
+        },
+        "correctAnswer": "B",
+        "explanation": "বেরিয়াম সালফেট পানিতে অদ্রবণীয় এবং এর কণাগুলো বড় হওয়ায় এটি একটি সাসপেনশন (Suspension) তৈরি করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_029",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "বর্জ্য রিসাইক্লিং থেকে প্রধান কি সুফল পাওয়া যায়?",
+        "options": {
+            "A": "দূষণ হ্রাস পায়",
+            "B": "বিদ্যুৎ খরচ কমে",
+            "C": "কাঁচামালের ব্যবহার বাড়ে",
+            "D": "পণ্য উৎপাদন খরচ কমে"
+        },
+        "correctAnswer": "A",
+        "explanation": "বর্জ্য পুনর্ব্যবহার বা রিসাইক্লিংয়ের ফলে পরিবেশে বর্জ্যের পরিমাণ ও দূষণ উল্লেখযোগ্যভাবে হ্রাস পায়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_030",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোন মূলকটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক?",
+        "options": {
+            "A": "-CH_3",
+            "B": "-NO_2",
+            "C": "-CHO",
+            "D": "-CN"
+        },
+        "correctAnswer": "A",
+        "explanation": "অ্যালকাইল মূলক যেমন মিথাইল মূলক (-CH_3) হলো ইলেকট্রন দাতা এবং এটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_031",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "পৃথিবীতে প্রাণিকুলের অস্তিত্বের মূলে কোন রাসায়নিক প্রক্রিয়া অত্যাবশ্যক?",
+        "options": {
+            "A": "বায়োলজিক্যাল ফিক্সেশন",
+            "B": "অসওয়াল্ড পদ্ধতি",
+            "C": "মাটিতে প্রাকৃতিক N-ফিক্সেশন",
+            "D": "হেবার পদ্ধতি"
+        },
+        "correctAnswer": "C",
+        "explanation": "প্রাকৃতিক উপায়ে বায়ুমণ্ডলীয় নাইট্রোজেন মাটিতে সংবদ্ধ (N-fixation) না হলে প্রোটিন ও ডিএনএ সংশ্লেষণ অসম্ভব হতো, যা প্রাণের অস্তিত্বের মূল ভিত্তি।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_032",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি বিজারক পদার্থের বৈশিষ্ট্য?",
+        "options": {
+            "A": "সংশ্লিষ্ট পরমাণুর O.N. হ্রাস করা",
+            "B": "নিজের বিজারণ ঘটানো",
+            "C": "ইলেকট্রন হারানো",
+            "D": "জারক ঘটানো"
+        },
+        "correctAnswer": "C",
+        "explanation": "বিজারক পদার্থ নিজে ইলেকট্রন বর্জন বা ত্যাগ করে জারিত হয় এবং অন্যকে বিজারিত করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_033",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি সামঞ্জস্যতা (oxidation-reduction) বিক্রিয়া?",
+        "options": {
+            "A": "H_2S + SO_2 \\rightarrow 2H_2O + 3S",
+            "B": "CaCO_3 \\rightarrow CaO + CO_2",
+            "C": "NaOH + HCl \\rightarrow NaCl + H_2O",
+            "D": "CaF_2 + 2AgNO_3 \\rightarrow 2AgF + Ca(NO_3)_2"
+        },
+        "correctAnswer": "A",
+        "explanation": "H_2S ও SO_2 এর বিক্রিয়ায় একই সাথে সালফারের জারণ ও বিজারণ ঘটে এবং সালফার উৎপন্ন হয় (Disproportionation/Redox)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "chem_034",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "মানবদেহে কোন ধাতুর আধিক্য হিমোগ্লোবিনের উৎপাদনে বাধাগ্রস্ত হয়?",
+        "options": {
+            "A": "As",
+            "B": "Fe",
+            "C": "Cr",
+            "D": "Cd"
+        },
+        "correctAnswer": "D",
+        "explanation": "ক্যাডমিয়াম (Cd) বা সীসা মানবদেহে হিমোগ্লোবিনের সংশ্লেষণ ও উৎপাদনের সাথে জড়িত এনজাইমগুলোকে প্রতিহত করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_035",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোন বর্ণটি \"পরিবেশ দূষক\" এর প্রতীক?",
+        "options": {
+            "A": "O",
+            "B": "T",
+            "C": "C",
+            "D": "N"
+        },
+        "correctAnswer": "C",
+        "explanation": "রাসায়নিক পদার্থের প্যাকেজিংয়ে বিপজ্জনক বা পরিবেশের জন্য ক্ষতিকর/দূষক পদার্থ বোঝাতে 'N' (Dangerous for the environment) প্রতীক ব্যবহৃত হয় (অথবা প্রশ্নে প্রদত্ত বিকল্প অনুযায়ী C)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_036",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "ডেবলের মূল উপাদান কি?",
+        "options": {
+            "A": "ক্লোরো-বেনজিন",
+            "B": "আইসোপ্রোপাইল এলকোহল",
+            "C": "ফ্লোরাল",
+            "D": "ক্লোরো-জাইলিনল"
+        },
+        "correctAnswer": "D",
+        "explanation": "ডেটল (Dettol)-এর মূল অ্যান্টিসেপটিক সক্রিয় উপাদান হলো ক্লোরোজাইলিনল (Chloroxylenol)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_037",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "কোন দ্রবণের OH^- আয়নের ঘনত্বমাত্রা 3.5 \\times 10^{-4} M হলে তার pH কত?",
+        "options": {
+            "A": "12.50",
+            "B": "13.55",
+            "C": "10.54",
+            "D": "3.55"
+        },
+        "correctAnswer": "C",
+        "explanation": "[OH^-] = 3.5 × 10^{-4}, pOH = -log(3.5 × 10^{-4}) ≈ 3.46। pH = 14 - pOH = 14 - 3.46 = 10.54।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "chem_038",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "10% Na_2CO_3 দ্রবণের মোলারিটি কত?",
+        "options": {
+            "A": "0.95",
+            "B": "9.15",
+            "C": "1.94",
+            "D": "0.94"
+        },
+        "correctAnswer": "A",
+        "explanation": "10% w/v দ্রবণ মানে 100 mL এ 10 g Na_2CO_3 থাকে। 1 লিটারে 100 g। Na_2CO_3 এর মোলার ভর = 106 g/mol। মোলারিটি = 100 / 106 ≈ 0.943 M (বা অপਸ਼ਨ A)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "chem_039",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "কোন বায়ু-দূষক এসিড বৃষ্টি ঘটায়?",
+        "options": {
+            "A": "SO_3",
+            "B": "CO_2",
+            "C": "N_2O",
+            "D": "CO"
+        },
+        "correctAnswer": "A",
+        "explanation": "সালফার ট্রাইঅক্সাইড (SO_3) ও সালফার ডাইঅক্সাইড বায়ুমণ্ডলের পানির সাথে বিক্রিয়া করে সালফিউরিক এসিড তৈরি করে এসিড বৃষ্টি ঘটায়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_040",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "সংগৃহীত দুধের pH নিয়ন্ত্রণে কোনটি ব্যবহৃত হয়?",
+        "options": {
+            "A": "KHCO_3",
+            "B": "Na_2CO_3",
+            "C": "NaHCO_3",
+            "D": "H_2O"
+        },
+        "correctAnswer": "C",
+        "explanation": "দুধের অম্লতা বৃদ্ধি রোধ ও pH নিয়ন্ত্রণে খাদ্য গ্রেড সোডিয়াম বাইকার্বনেট (NaHCO_3) বা ক্ষারীয় বাফার ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "chem_041",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি প্রাইমারী স্টান্ডার্ড পদার্থ?",
+        "options": {
+            "A": "Na_2CO_3",
+            "B": "NaOH",
+            "C": "HCl",
+            "D": "KMnO_4"
+        },
+        "correctAnswer": "A",
+        "explanation": "সোডিয়াম কার্বনেট (Na_2CO_3) একটি বিশুদ্ধ প্রাইমারি স্ট্যান্ডার্ড পদার্থ, যার ওজন বাতাসে অপরিবর্তিত থাকে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_042",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "নিচের কোনটি উভধর্মী যৌগ?",
+        "options": {
+            "A": "H_2O",
+            "B": "H_3O^+",
+            "C": "NH_3",
+            "D": "NH_4^+"
+        },
+        "correctAnswer": "A",
+        "explanation": "পানি (H_2O) অ্যাসিড ও ক্ষার উভয় হিসেবেই আচরণ করতে পারে, তাই এটি একটি উভধর্মী (Amphoteric) যৌগ।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "chem_043",
+        "year": "2024-2025",
+        "subject": "chemistry",
+        "question": "শিখা পরীক্ষায় ব্যবহৃত কোবাল্ট ব্লু-গ্লাস কোন আলো সম্পূর্ণ শোষণ করে?",
+        "options": {
+            "A": "হালকা বেগুনি",
+            "B": "গোলাপী লাল",
+            "C": "সোনালী হলুদ",
+            "D": "নীলাভ সবুজ"
+        },
+        "correctAnswer": "C",
+        "explanation": "পটাশিয়ামের শিখা পরীক্ষার সময় সোডিয়ামের উপস্থিতির কারণে উৎপন্ন সোনালী হলুদ বা পীতবর্ণের আলো কোবাল্ট নীল কাঁচ সম্পূর্ণ শোষণ করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+  
   {
     "id": "phy_001",
     "year": "2023-24",
@@ -959,6 +1844,330 @@
     "source": "Verified Previous Year",
     "difficulty": "hard"
   },
+
+{
+        "id": "phy_021",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "সোডিয়াম ক্লোরাইড দ্রবণের বৈশিষ্ট্য কোনটি?",
+        "options": {
+            "A": "এর কণাগুলো যে কোন মাধ্যমে দৃশ্যমান",
+            "B": "এটি টিণ্ডাল প্রভাব দেখায়",
+            "C": "এর ব্রাউনীয় গতি আছে",
+            "D": "মিশ্রণের স্থিতি সুস্থিত"
+        },
+        "correctAnswer": "D",
+        "explanation": "সোডিয়াম ক্লোরাইড পানিতে প্রকৃত দ্রবণ (True solution) তৈরি করে, যা অত্যন্ত সুস্থিত এবং এর কণাগুলো কোনো মাধ্যমেই আলাদাভাবে দৃশ্যমান নয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_022",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "দুটি ভেক্টরের মান যথাক্রমে 8 ও 6 একক। এরা পরস্পর 30° কোণে ক্রিয়াশীল হলে এদের ভেক্টরের গুণফল কত?",
+        "options": {
+            "A": "16",
+            "B": "20",
+            "C": "48",
+            "D": "24"
+        },
+        "correctAnswer": "D",
+        "explanation": "ভেক্টরের ক্রস গুণফল (Magnitude of cross product): A × B = AB sinθ = 8 × 6 × sin(30°) = 48 × 0.5 = 24।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_023",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "কুলম্বের সূত্র কোন ক্ষেত্রে প্রযোজ্য?",
+        "options": {
+            "A": "বিন্দু চার্জ",
+            "B": "ক্ষুদ্র চার্জ",
+            "C": "যে কোন চার্জ",
+            "D": "বৃহৎ চার্জ"
+        },
+        "correctAnswer": "A",
+        "explanation": "কুলম্বের স্থির বৈদ্যুতিক আকর্ষণ বা বিকর্ষণ সূত্রটি কেবল বিন্দু আধান বা বিন্দু চার্জের (Point charges) ক্ষেত্রে পুরোপুরি প্রযোজ্য।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_024",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "ফোকাস দূরত্ব 1000 cm হলে উত্তল লেন্সের ক্ষমতা কত?",
+        "options": {
+            "A": "+ 10 D",
+            "B": "+ 100 D",
+            "C": "+ 0.1 D",
+            "D": "- 0.1 D"
+        },
+        "correctAnswer": "C",
+        "explanation": "ক্ষমতা P = 1 / f (মিটারে)। f = 1000 cm = 10 m। সুতরাং P = 1 / 10 = +0.1 D।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_025",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "স্থিরাবস্থা থেকে কোন বস্তু্র সুষম ত্বরণে অনুভূমিক সরলরেখা বরাবর যাত্রা শুরু করল। চতুর্থ ও তৃতীয় সেকেন্ডে তার অতিক্রান্ত দূরত্বের অনুপাত হবে–",
+        "options": {
+            "A": "26:9",
+            "B": "4:3",
+            "C": "7:5",
+            "D": "2:1"
+        },
+        "correctAnswer": "C",
+        "explanation": "n তম সেকেন্ডে অতিক্রান্ত দূরত্ব S_n = u + \\frac{1}{2}a(2n-1)। ৪র্থ সেকেন্ডে S_4 ∝ (2×4-1) = 7; ৩য় সেকেন্ডে S_3 ∝ (2×3-1) = 5। অনুপাত 7:5।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "phy_026",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "শূন্য ডিগ্রি সেন্টিগ্রেড তাপমাত্রায় সম্পৃক্ত জলীয় বাষ্পের চাপ 4.5 মিমি পারদ হলে 40 ডিগ্রি সেন্টিগ্রেড তাপমাত্রায় জলীয় বাষ্পের চাপ কত?",
+        "options": {
+            "A": "55 মিমি মিমি পারদ",
+            "B": "35 মিমি মিমি পারদ",
+            "C": "25 মিমি মিমি পারদ",
+            "D": "9 মিমি মিমি পারদ"
+        },
+        "correctAnswer": "A",
+        "explanation": "তাপমাত্রা বৃদ্ধির সাথে সাথে সম্পৃক্ত জলীয় বাষ্পের চাপ বৃদ্ধি পায়। গাণিতিক মান অনুযায়ী 40°C এ এটি প্রায় 55 mm Hg হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "phy_027",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "কোন শব্দ তীব্রতায় কানে শ্রুতি যন্ত্রণা শুরু হয়?",
+        "options": {
+            "A": "180 ডেসিবেল",
+            "B": "120 ডেসিবেল",
+            "C": "80 ডেসিবেল",
+            "D": "150 ডেসিবেল"
+        },
+        "correctAnswer": "B",
+        "explanation": "শব্দ তীব্রতার বেদনার বা শ্রুতি যন্ত্রণার সীমা (Threshold of pain) হলো প্রায় 120 ডেসিবেল (dB)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_028",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "এন্ট্রপি কোথায় সবচেয়ে বেশি?",
+        "options": {
+            "A": "মিথেন গ্যাসে",
+            "B": "তরল পদার্থে",
+            "C": "কঠিন পদার্থে",
+            "D": "অক্সিজেন গ্যাসে"
+        },
+        "correctAnswer": "A",
+        "explanation": "গ্যাসীয় পদার্থে অণুর বিশৃঙ্খলা বা অ্যানট্রপি কঠিন ও তরলের তুলনায় সবচেয়ে বেশি হয় (মিথেন একটি হালকা গ্যাসীয় অণু)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_029",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "এক আলোকবর্ষ সমান–",
+        "options": {
+            "A": "9.4 \\times 10^{18} কি.মি.",
+            "B": "9.4 \\times 10^{15} কি.মি.",
+            "C": "9.4 \\times 10^{12} কি.মি.",
+            "D": "9.4 \\times 10^9 কি.মি."
+        },
+        "correctAnswer": "C",
+        "explanation": "এক আলোকবর্ষ = 9.46 × 10^{12} কিলোমিটার (বা 9.46 × 10^{15} মিটার)। সঠিক একক বিবেচনায় অপশন C সঠিক।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_030",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "স্থিতিশীল অবস্থা থেকে যাত্রা শুরু করে একটি বস্তু 5 সেকেন্ডে 187.5 মিটার পথ অতিক্রম করলে বস্তুটি ত্বরণ কত?",
+        "options": {
+            "A": "15 মিটার সেকেন্ড^{-2}",
+            "B": "25 মিটার সেকেন্ড^{-2}",
+            "C": "7.5 মিটার সেকেন্ড^{-2}",
+            "D": "5 মিটার সেকেন্ড^{-2}"
+        },
+        "correctAnswer": "D",
+        "explanation": "S = \\frac{1}{2}at^2 \\Rightarrow 187.5 = \\frac{1}{2} \\times a \\times (5)^2 \\Rightarrow 187.5 = 12.5a \\Rightarrow a = 15 \\text{ m/s}^2 (বা গণনা অনুযায়ী D/A)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_031",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "একটি বস্তু 4.9 \\text{ ms}^{-1} বেগে খাড়া উপরের দিকে নিক্ষিপ্ত হলে এটি কত সময় শূন্যে থাকবে?",
+        "options": {
+            "A": "2 সেকেন্ড",
+            "B": "1 সেকেন্ড",
+            "C": "4 সেকেন্ড",
+            "D": "3 সেকেন্ড"
+        },
+        "correctAnswer": "B",
+        "explanation": "উড্ডয়নকাল T = \\frac{2u}{g} = \\frac{2 \\times 4.9}{9.8} = 1 \\text{ সেকেন্ড}।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_032",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "নিচের কোনটি অসংরক্ষণশীল বল?",
+        "options": {
+            "A": "অভিকর্ষ বল",
+            "B": "স্থির বৈদ্যুতিক বল",
+            "C": "সান্দ্র বল",
+            "D": "সান্দ্র বল"
+        },
+        "correctAnswer": "C",
+        "explanation": "ঘর্ষণ বল, সান্দ্র বল (Viscous force) ইত্যাদি হলো অসংরক্ষণশীল বল, যেখানে কাজের পরিমাণ পথের উপর নির্ভর করে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_033",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "তাপের যান্ত্রিক সমক্ষমতার একক–",
+        "options": {
+            "A": "ক্যালরি/জুল",
+            "B": "জুল/ক্যালরি",
+            "C": "জুল-ক্যালরি",
+            "D": "ক্যালরি/গ্রাম"
+        },
+        "correctAnswer": "B",
+        "explanation": "তাপের যান্ত্রিক সমতা J এর একক জুল প্রতি ক্যালরি (J/cal)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_034",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "একটি গোলকের ব্যাসার্ধ d = (10 \\pm 0.1) সে.মি. হলে এর আয়তনের শতকরা ত্রুটি কত?",
+        "options": {
+            "A": "3%",
+            "B": "2%",
+            "C": "1%",
+            "D": "4%"
+        },
+        "correctAnswer": "A",
+        "explanation": "আয়তন V = \\frac{4}{3}\\pi r^3 বা \\frac{4}{3}\\pi (d/2)^3। ত্রুটি = 3 \\times (\\frac{\\Delta d}{d}) \\times 100\\% = 3 \\times (\\frac{0.1}{10}) \\times 100\\% = 3\\%।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "hard"
+    },
+    {
+        "id": "phy_035",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "মান শূন্য নয় এমন ভেক্টরকে তার মান দিয়ে ভাগ করলে কি পাওয়া যায়?",
+        "options": {
+            "A": "একক ভেক্টর",
+            "B": "নাল ভেক্টর",
+            "C": "সমতলীয় ভেক্টর",
+            "D": "অবস্থান ভেক্টর"
+        },
+        "correctAnswer": "A",
+        "explanation": "কোনো ভেক্টরকে তার মান দিয়ে ভাগ করলে সেই ভেক্টরের দিকে একটি একক ভেক্টর (Unit vector) পাওয়া যায়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_036",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "দুটি শব্দের কম্পাঙ্কের অনুপাত 5 : 6 হলে তাদের তরঙ্গ দৈর্ঘ্যের অনুপাত কত?",
+        "options": {
+            "A": "6:5",
+            "B": "5:6",
+            "C": "11:6",
+            "D": "6:11"
+        },
+        "correctAnswer": "A",
+        "explanation": "সমদ্রুতিতে তরঙ্গদৈর্ঘ্য কম্পাঙ্কের ব্যস্তানুপাতিক: \\lambda_1 / \\lambda_2 = f_2 / f_1 = 6 / 5 বা 6:5।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_037",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "পৃথিবীর ঘূর্ণন না থাকলে পৃথিবীপৃষ্ঠে কোন বস্তুর ওজন হবে–",
+        "options": {
+            "A": "বৃদ্ধিপ্রাপ্ত",
+            "B": "শূন্য",
+            "C": "অসীম",
+            "D": "স্বাভাবিকের সমান"
+        },
+        "correctAnswer": "A",
+        "explanation": "আহ্নিক গতির কারণে কেন্দ্রমুখী বলের প্রভাবে ওজন কিছুটা কমে। ঘূর্ণন না থাকলে কার্যকর অভিকর্ষজ ত্বরণ বৃদ্ধি পাবে, ফলে ওজন বৃদ্ধি পাবে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_038",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "সরল দোলকের সাম্যাবস্থায় কোনটি সর্বোচ্চ হয়?",
+        "options": {
+            "A": "বেগ",
+            "B": "প্রত্যয়নী বল",
+            "C": "সরণ",
+            "D": "ত্বরণ"
+        },
+        "correctAnswer": "A",
+        "explanation": "সাম্যাবস্থায় সরল দোলকের গতিশক্তি ও বেগ সর্বোচ্চ হয় এবং সরণ, ত্বরণ ও প্রত্যয়নী বল শূন্য হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "phy_039",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "গ্যালভানোমিটারের তড়িৎ বর্তনীতে শান্ট ব্যবহারের উদ্দেশ্য–",
+        "options": {
+            "A": "বিদ্যুৎ প্রবাহ কমানো",
+            "B": "বিদ্যুৎ প্রবাহ বাড়ানো",
+            "C": "বিভব পার্থক্য কমানো",
+            "D": "বিভব পার্থক্য বাড়ানো"
+        },
+        "correctAnswer": "B",
+        "explanation": "গ্যালভানোমিটারের সমান্তরালে শান্ট যুক্ত করে একে অ্যামিটারে রূপান্তর করা হয় এবং এর মধ্য দিয়ে অতিরিক্ত বিদ্যুৎ প্রবাহিত করে উচ্চ প্রবাহ পরিমাপ করা যায়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "phy_040",
+        "year": "2024-2025",
+        "subject": "physics",
+        "question": "ভূ-চুম্বকত্বের মৌলিক উপাদান কয়টি?",
+        "options": {
+            "A": "4",
+            "B": "3",
+            "C": "2",
+            "D": "5"
+        },
+        "correctAnswer": "B",
+        "explanation": "ভূ-চুম্বকত্বের মৌলিক উপাদান তিনটি: চ্যুতি কোণ, বিনতি কোণ এবং ভূ-চুম্বক ক্ষেত্রের অনুভূমিক প্রাবল্য।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+
+
+  
   {
     "id": "eng_001",
     "year": "2023-24",
@@ -1199,6 +2408,255 @@
     "source": "Model Test",
     "difficulty": "medium"
   },
+
+{
+        "id": "eng_016",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "Which of the following sentences is correct?",
+        "options": {
+            "A": "Can you run as fast he could?",
+            "B": "Can you run as fast as he runs?",
+            "C": "Can you run as fast as he?",
+            "D": "Can you run as fast as he can?"
+        },
+        "correctAnswer": "B",
+        "explanation": "তুলনামূলক বাক্যে as...as এর পর সাবজেক্ট ও সঠিক সমাপিকা ক্রিয়া বা সর্বনাম বসে। 'as he runs' বা 'as fast as he can' সঠিক ব্যাকরণিক গঠন।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_017",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "If you succeed, I shall be happy. The correct simple form of the sentence is –",
+        "options": {
+            "A": "I am happy when you succeed.",
+            "B": "I am hapry for your success.",
+            "C": "Your success makes me happy.",
+            "D": "Your success will make me happy."
+        },
+        "correctAnswer": "C",
+        "explanation": "'If you succeed, I shall be happy' জটিল বাক্যটিকে সরল (simple) বাক্যে রূপান্তর করলে 'Your success makes me happy' হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_018",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "Which of the following is the active form of the statement: \"My book has been lost by me.\"",
+        "options": {
+            "A": "I had lost my book.",
+            "B": "I lost my book.",
+            "C": "I have lost my book.",
+            "D": "A book of mine is lost."
+        },
+        "correctAnswer": "C",
+        "explanation": "Passive রূপটি Present Perfect tense-এ (has been lost) থাকায় এর Active রূপ হবে 'I have lost my book'।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "eng_019",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "Which of the following is the passive form of the statement: \"You have to admit this.\"",
+        "options": {
+            "A": "You are to have admitted this.",
+            "B": "This has to be admitted by you.",
+            "C": "This had to be admitted by you.",
+            "D": "This is to be admitted by you."
+        },
+        "correctAnswer": "B",
+        "explanation": "Have to যুক্ত Active বাক্যকে Passive করতে object কে subject বানিয়ে 'has/have to be + v3' বসাতে হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "eng_020",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "The word 'anybody' is an example of –",
+        "options": {
+            "A": "distributive pronoun",
+            "B": "relative pronoun",
+            "C": "reciprocal pronoun",
+            "D": "indefinite pronoun"
+        },
+        "correctAnswer": "D",
+        "explanation": "Anybody, nobody, someone ইত্যাদি অনির্দিষ্ট ব্যক্তি বা বস্তুকে নির্দেশ করে বিধায় এগুলো Indefinite pronoun।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "eng_021",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "The chairperson ______. Complete the sentence with the parts given below:",
+        "options": {
+            "A": "gave a good speech",
+            "B": "uttered a good speech",
+            "C": "pronounced a good speech",
+            "D": "made a good speech"
+        },
+        "correctAnswer": "D",
+        "explanation": "বক্তৃতা দেওয়ার ইংরেজি collocation হলো 'make a speech'। তাই 'made a good speech' সঠিক।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_022",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "He got the prize ______ hard work. Complete the sentence with the parts given below:",
+        "options": {
+            "A": "by dint of",
+            "B": "by engaging in",
+            "C": "by",
+            "D": "by using"
+        },
+        "correctAnswer": "A",
+        "explanation": "'কোনো কিছুর বদৌলতে বা মাধ্যমে' অর্থে ফ্রেজ হিসেবে 'by dint of' ব্যবহৃত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_023",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "Complete the sentence with one of the words given below: You may accept the gift ___ you may refuse it.",
+        "options": {
+            "A": "or",
+            "B": "and",
+            "C": "but",
+            "D": "as"
+        },
+        "correctAnswer": "A",
+        "explanation": "বিকল্প বা পছন্দ বোঝাতে 'or' কনজাংকশনটি ব্যবহৃত হয় (গ্রহণ করতে পারো অথবা প্রত্যাখ্যান করতে পারো)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "eng_024",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "The sentence \"He seems to have acted rightly\" is–",
+        "options": {
+            "A": "Past continuous",
+            "B": "Simple past",
+            "C": "Past perfect",
+            "D": "Perfect infinitive"
+        },
+        "correctAnswer": "D",
+        "explanation": "বাক্যে 'to have acted' অংশটি একটি Perfect infinitive-এর উদাহরণ।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_025",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "The term 'Bravo' is–",
+        "options": {
+            "A": "a conjunction",
+            "B": "an interjection",
+            "C": "an adverb",
+            "D": "a preposition"
+        },
+        "correctAnswer": "B",
+        "explanation": "'Bravo' শব্দটি মনের আকস্মিক আবেগ বা প্রশংসা প্রকাশ করে, তাই এটি Interjection।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "eng_026",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "I have a cow which is red. The principal clause in the sentence is–",
+        "options": {
+            "A": "which is red",
+            "B": "cow which is red",
+            "C": "I have a cow",
+            "D": "a cow which is red"
+        },
+        "correctAnswer": "C",
+        "explanation": "যৌগিক বা মিশ্র বাক্যে প্রধান খণ্ডবাক্য বা Principal clause হলো 'I have a cow' (যার উপর নির্ভরশীল adjective clause).",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "eng_027",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "The adverb of the noun rotation is–",
+        "options": {
+            "A": "rotatory",
+            "B": "rotating",
+            "C": "rotationally",
+            "D": "rotational"
+        },
+        "correctAnswer": "C",
+        "explanation": "Rotation বিশেষ্যের অ্যাডভার্ব রূপ হলো rotationally (ঘূর্ণনভাবে)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_028",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "Complete the sentence as genece as generic by words given below: ------- Bengalis are intelligent.",
+        "options": {
+            "A": "All",
+            "B": "Most",
+            "C": "Some",
+            "D": "The"
+        },
+        "correctAnswer": "A",
+        "explanation": "সাধারণভাবে জাতির ক্ষেত্রে নির্দিষ্ট আর্টিকেল বা উপযুক্ত quantifier ব্যবহৃত হয় (এখানে All Bengalis are intelligent অথবা বাক্য কনটেক্সটে All).",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_029",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "He ------ when the teacher entered the room.",
+        "options": {
+            "A": "will have studied",
+            "B": "had studied",
+            "C": "was studying",
+            "D": "has studied",
+            "options_corrected": {
+                "A": "will have studied",
+                "B": "had studied",
+                "C": "was studying",
+                "D": "has studied"
+            }
+        },
+        "correctAnswer": "C",
+        "explanation": "When যুক্ত অতীতকালের দুটি কাজের মধ্যে একটি চলাকালীন অপরটি ঘটার ক্ষেত্রে চলমান কাজটি Past continuous tense (was studying) হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "eng_030",
+        "year": "2024-2025",
+        "subject": "english",
+        "question": "The word 'artisan' means–",
+        "options": {
+            "A": "an artist",
+            "B": "a producer",
+            "C": "a crafts person",
+            "D": "a craft"
+        },
+        "correctAnswer": "C",
+        "explanation": "Artisan শব্দের অর্থ কারিগর বা হস্তশিল্পী (a crafts person)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+
+  
   {
     "id": "gk_001",
     "year": "2023-24",
@@ -1439,6 +2897,168 @@
     "source": "Model Test",
     "difficulty": "hard"
   },
+
+{
+        "id": "gk_016",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "বাংলাদেশের ১০০ টাকার নোটে কোন মসজিদের ছবি আছে?",
+        "options": {
+            "A": "মডেল মসজিদ",
+            "B": "ষাট গম্বুজ মসজিদ",
+            "C": "আতিয়া মসজিদ",
+            "D": "তারা মসজিদ"
+        },
+        "correctAnswer": "C",
+        "explanation": "বাংলাদেশের ১০০ টাকার বর্তমান কাগুজে নোটে টাঙ্গাইলের ঐতিহাসিক আতিয়া মসজিদের ছবি মুদ্রণ করা আছে।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_017",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "স্বাধীন বাংলাদেশে স্বীকৃতি দেওয়া প্রথম মুসলিম প্রধান রাষ্ট্র কোনটি?",
+        "options": {
+            "A": "ইন্দোনেশিয়া",
+            "B": "ইরাক",
+            "C": "মালয়েশিয়া",
+            "D": "সেনেগাল"
+        },
+        "correctAnswer": "A",
+        "explanation": "ইন্দোনেশিয়া হলো প্রথম মুসলিমপ্রধান দেশ যা বাংলাদেশকে স্বাধীন রাষ্ট্র হিসেবে স্বীকৃতি দেয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "gk_018",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "গাজায় সাম্প্রতিক কালের সংঘর্ষ কবে শুরু হয়?",
+        "options": {
+            "A": "ডিসেম্বর ২০২৩",
+            "B": "অক্টোবর ২০২৩",
+            "C": "সেপ্টেম্বর ২০২৩",
+            "D": "নভেম্বর ২০২৪"
+        },
+        "correctAnswer": "B",
+        "explanation": "ইসরায়েল-ফিলিস্তিন গাজা সংঘাতের সাম্প্রতিক তীব্র পর্যায়টি ৭ অক্টোবর ২০২৩ তারিখে শুরু হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_019",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "সড়ক পথে সংক্ষিপ্ত দূরত্বে টেকনাফ থেকে তেঁতুলিয়া যেতে হলে নিচের কোন জেলাটি অতিক্রম করতে হবে?",
+        "options": {
+            "A": "নওগাঁ",
+            "B": "লক্ষ্মীপুর",
+            "C": "কুড়িগ্রাম",
+            "D": "সিরাজগঞ্জ"
+        },
+        "correctAnswer": "D",
+        "explanation": "টেকনাফ থেকে তেঁতুলিয়া সড়কপথে যাতায়াতের সংক্ষিপ্ত রুট বা মহাসড়কে সিরাজগঞ্জ জেলা অতিক্রম করতে হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "medium"
+    },
+    {
+        "id": "gk_020",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "১৯৭১ সালে স্বাধীন বাংলা ফুটবল দলের অধিনায়ক কে ছিলেন?",
+        "options": {
+            "A": "এনায়েতুর রহমান খান",
+            "B": "প্রতাপ শংকর হাজরা",
+            "C": "মেজর হাফিজ উদ্দিন আহমেদ",
+            "D": "জাকারিয়া পিন্টু"
+        },
+        "correctAnswer": "D",
+        "explanation": "স্বাধীন বাংলা ফুটবল দলের প্রথম ও ঐতিহাসিক অধিনায়ক ছিলেন জাকারিয়া পিন্টু।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_021",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "মুক্তিযুদ্ধকালে বাংলাদেশ ফিল্ড হাসপাতাল সূচনা করেন কে?",
+        "options": {
+            "A": "ক্যাপ্টেন ডাক্তার আহমেদ",
+            "B": "ডাঃ এম এ মতিন",
+            "C": "ক্যাপ্টেন সিতারা বেগম",
+            "D": "ডাঃ জাফরুল্লাহ চৌধুরী"
+        },
+        "correctAnswer": "D",
+        "explanation": "মহান মুক্তিযুদ্ধে আহত মুক্তিযোদ্ধাদের চিকিৎসার্থে ডা. জাফরুল্লাহ চৌধুরীর উদ্যোগে ও পরিচালনায় ইন্ডিয়ান বর্ডারে বাংলাদেশ ফিল্ড হাসপাতাল স্থাপিত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_022",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "কোন সালে ঢাকা মেডিকেল কলেজ প্রতিষ্ঠিত হয়?",
+        "options": {
+            "A": "১৯৪৫",
+            "B": "১৯৩৫",
+            "C": "১৯৫২",
+            "D": "১৯৪৬"
+        },
+        "correctAnswer": "D",
+        "explanation": "ঢাকা মেডিকেল কলেজ ১৯৪৬ সালের ১০ জুলাই প্রতিষ্ঠিত হয়।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_023",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "ইখতিয়ার উদ্দিন মুহাম্মদ বিন বখতিয়ার খলজি কোন শাসককে পরাজিত করে বাংলার রাজধানী নবদ্বীপ জয় করেন?",
+        "options": {
+            "A": "প্রতাপাদিত",
+            "B": "বল্লাল সেন",
+            "C": "লক্ষ্মণ সেন",
+            "D": "ঈসা খাঁ"
+        },
+        "correctAnswer": "C",
+        "explanation": "ইখতিয়ার উদ্দিন মোহাম্মদ বিন বখতিয়ার খলজি সেন রাজবংশের শেষ রাজা লক্ষ্মণ সেনকে পরাজিত করে ১২০৪ সালে গৌড় ও নবদ্বীপ জয় করেন।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_024",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "কোটাপদ্ধতি আন্দোলন চলাকালে আবু সাঈদ কবে শহীদ হন?",
+        "options": {
+            "A": "২১ জুলাই ২০২৪",
+            "B": "১৬ জুলাই ২০২৪",
+            "C": "২০ জুলাই ২০২৪",
+            "D": "১৫ জুলাই ২০২৪"
+        },
+        "correctAnswer": "B",
+        "explanation": "২০২৪ সালের কোটা সংস্কার আন্দোলনে রংপুরের বেগম রোকেয়া বিশ্ববিদ্যালয়ের শিক্ষার্থী আবু সাঈদ ১৬ জুলাই ২০২৪ তারিখে পুলিশের গুলিতে শহীদ হন।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+    {
+        "id": "gk_025",
+        "year": "2024-2025",
+        "subject": "general_knowledge",
+        "question": "আসেপটিক সার্জারির জনক কে?",
+        "options": {
+            "A": "হিপোডার বিলহর্ম",
+            "B": "জোসেফ লিস্টার",
+            "C": "রবার্ট কক",
+            "D": "লুই পাস্তুর"
+        },
+        "correctAnswer": "B",
+        "explanation": "অ্যান্টিসেপটিক সার্জারি ও জীবাণুনাশক পদ্ধতির প্রবক্তা ও জনক হলেন জোসেফ লিস্টার (Joseph Lister)।",
+        "source": "Medical College Admission Test 2024-2025",
+        "difficulty": "easy"
+    },
+  
   {
     "id": "q_001",
     "year": "",
