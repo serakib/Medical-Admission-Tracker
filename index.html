@@ -794,59 +794,43 @@
 
     </main>
 
-    <!-- Authentication Modal -->
-    <div id="authModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm p-4 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
-        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 id="auth-modal-title" class="text-xl font-bold text-gray-900 dark:text-white">অ্যাকাউন্টে লগইন করুন</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাকাউন্ট ঐচ্ছিক — Guest হিসেবেও পরীক্ষা দিতে পারবেন</p>
-                </div>
-                <button onclick="app.closeAuthModal()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Close">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+   <!-- মেইন ওয়েবসাইটের LOGIN বাটন -->
+<button onclick="openLoginPopup()">LOG IN</button>
 
-            <div id="authNotice" class="hidden mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-xs"></div>
-            <div id="authMessage" class="mb-3 text-xs text-red-600 dark:text-red-400" aria-live="polite"></div>
+<script>
+function openLoginPopup() {
+  // লগইন পেজের লিংক
+  const loginUrl = 'https://serakib.github.io/Medical-Admission-Tracker-login/'; 
+  
+  // স্ক্রিনের মাঝখানে পপ-আপ উইন্ডো ওপেন করা
+  const width = 450;
+  const height = 650;
+  const left = (screen.width - width) / 2;
+  const top = (screen.height - height) / 2;
 
-            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
-                <button id="auth-tab-login" onclick="app.setAuthMode('login')" class="flex-1 py-2 text-sm font-semibold text-medical-700 border-b-2 border-medical-600">লগইন</button>
-                <button id="auth-tab-register" onclick="app.setAuthMode('register')" class="flex-1 py-2 text-sm font-semibold text-gray-500 hover:text-medical-600">রেজিস্টার</button>
-            </div>
+  const popupWindow = window.open(
+    loginUrl, 
+    'LoginWindow', 
+    `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+  );
 
-            <form id="auth-form" onsubmit="app.handleAuthSubmit(event)" class="space-y-4">
-                <div id="auth-register-fields" class="hidden space-y-3">
-                    <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Student Name</label><input id="auth-name" type="text" autocomplete="name" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></div>
-                    <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">College Name</label><input id="auth-college" type="text" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></div>
-                    <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Mobile</label><input id="auth-mobile" type="tel" autocomplete="tel" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></div><div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Class</label><input id="auth-class" type="text" placeholder="HSC / 11 / 12" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></div></div>
-                    <div><label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Blood Group</label><select id="auth-blood" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm"><option value="">Select blood group</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">ইমেইল</label>
-                    <input id="auth-email" type="email" autocomplete="email" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">পাসওয়ার্ড</label>
-                    <input id="auth-password" type="password" minlength="6" autocomplete="current-password" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
-                </div>
-                <button id="auth-submit" type="submit" class="w-full py-3 rounded-xl bg-medical-600 hover:bg-medical-700 text-white font-bold text-sm transition">লগইন করুন</button>
-            </form>
-
-            <div id="auth-account" class="hidden space-y-4">
-                <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-700/60">
-                    <div class="text-xs text-gray-500 dark:text-gray-400">বর্তমান অ্যাকাউন্ট</div>
-                    <div id="auth-account-email" class="font-bold text-gray-900 dark:text-white mt-1"></div>
-                </div>
-                <button onclick="app.logout()" class="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm">Logout</button>
-            </div>
-
-            <button onclick="app.continueAsGuest()" class="w-full mt-3 py-3 rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold text-sm">
-                <i class="fa-solid fa-user-secret ml-1"></i> Guest হিসেবে চালিয়ে যান
-            </button>
-        </div>
-    </div>
-
+  // পপ-আপে লগইন/সাইন-আপ সম্পন্ন হলে ডাটা রিসিভ করার লিসেনার
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'AUTH_SUCCESS') {
+      const userData = event.data.user;
+      
+      console.log("Logged in Student Data:", userData);
+      alert("Welcome, " + (userData.studentName || userData.email) + "!");
+      
+      // পপ-আপ উইন্ডো বন্ধ করা
+      if (popupWindow) popupWindow.close();
+      
+      // মেইন পেজ রিফ্রেশ করে লগইন স্টেট দেখান
+      location.reload(); 
+    }
+  }, false);
+}
+</script>
     <!-- Footer -->
     <footer id="main-footer" class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6 text-center text-xs text-gray-500 dark:text-gray-400">
         <div class="max-w-7xl mx-auto px-4">
