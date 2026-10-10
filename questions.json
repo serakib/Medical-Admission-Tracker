@@ -4671,12 +4671,9 @@
 
 
 
-
-
-
- {
+{
 "id": "q_001",
-  "year": "practice",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহের ক্রেনিয়াল স্নায়ুগুলোর মধ্যে কোন জোড়টি মিশ্র স্নায়ু (Mixed nerve) নয়?",
 "options": {
@@ -4692,6 +4689,7 @@
 },
 {
 "id": "q_002",
+"year": "practice",
 "subject": "physics",
 "question": "মহাকর্ষীয় ধ্রুবক (G) এর এসআই (SI) একক কোনটি?",
 "options": {
@@ -4707,6 +4705,7 @@
 },
 {
 "id": "q_003",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন যৌগটি প্রাইমারি স্ট্যান্ডার্ড পদার্থ নয়?",
 "options": {
@@ -4722,6 +4721,7 @@
 },
 {
 "id": "q_004",
+"year": "practice",
 "subject": "biology",
 "question": "ম্যালিগন্যান্ট ম্যালেরিয়ার জন্য দায়ী প্লাজমোডিয়াম প্রজাতি কোনটি?",
 "options": {
@@ -4737,6 +4737,7 @@
 },
 {
 "id": "q_005",
+"year": "practice",
 "subject": "physics",
 "question": "পয়সনের অনুপাতের (Poisson's ratio) তাত্ত্বিক বা আদর্শ সীমা নিচের কোনটি?",
 "options": {
@@ -4752,6 +4753,7 @@
 },
 {
 "id": "q_006",
+"year": "practice",
 "subject": "chemistry",
 "question": "25°C তাপমাত্রায় বিশুদ্ধ পানির আয়নিক গুণফল (Kw) এর সঠিক মান কত?",
 "options": {
@@ -4767,6 +4769,7 @@
 },
 {
 "id": "q_007",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহের পাকস্থলীর প্যারাইটাল বা অক্সিন্টিক কোষ থেকে নিচের কোনটি নিঃসৃত হয়?",
 "options": {
@@ -4782,6 +4785,7 @@
 },
 {
 "id": "q_008",
+"year": "practice",
 "subject": "physics",
 "question": "একটি সেকেন্ড দোলককে যদি পৃথিবীর কেন্দ্রে নিয়ে যাওয়া হয়, তবে তার দোলনকাল কত হবে?",
 "options": {
@@ -4797,6 +4801,7 @@
 },
 {
 "id": "q_009",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন জোড়টি একটি আদর্শ বাফার দ্রবণ (Buffer solution) গঠন করে?",
 "options": {
@@ -4812,6 +4817,7 @@
 },
 {
 "id": "q_010",
+"year": "practice",
 "subject": "biology",
 "question": "ডিএনএ (DNA) অণুতে দুটি পরপর নিউক্লিওটাইডের মধ্যবর্তী লম্ব দূরত্ব কত?",
 "options": {
@@ -4827,6 +4833,7 @@
 },
 {
 "id": "q_011",
+"year": "practice",
 "subject": "physics",
 "question": "সান্দ্রতা গুণাঙ্কের (Coefficient of viscosity) সঠিক মাত্রা সমীকরণ কোনটি?",
 "options": {
@@ -4842,6 +4849,7 @@
 },
 {
 "id": "q_012",
+"year": "practice",
 "subject": "chemistry",
 "question": "কাঁচের ওপর দাগ কাটতে বা কাঁচ পরিষ্কার করতে নিচের কোন এসিডটি ব্যবহৃত হয়?",
 "options": {
@@ -4857,6 +4865,7 @@
 },
 {
 "id": "q_013",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহের কোন কোষে মাইটোকন্ড্রিয়া অনুপস্থিত থাকে?",
 "options": {
@@ -4872,6 +4881,7 @@
 },
 {
 "id": "q_014",
+"year": "practice",
 "subject": "physics",
 "question": "তড়িৎ ফ্লাক্সের (Electric flux) সঠিক একক নিচের কোনটি?",
 "options": {
@@ -4887,6 +4897,7 @@
 },
 {
 "id": "q_015",
+"year": "practice",
 "subject": "biology",
 "question": "রক্তের স্বাভাবিক pH এর মান কত?",
 "options": {
@@ -4902,6 +4913,7 @@
 },
 {
 "id": "q_016",
+"year": "practice",
 "subject": "biology",
 "question": "রক্ত তঞ্চনে (Blood clotting) অংশগ্রহণকারী প্রধান প্লাজমা প্রোটিন নয় কোনটি?",
 "options": {
@@ -4917,6 +4929,7 @@
 },
 {
 "id": "q_017",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন অরবিটালটির ক্ষেত্রে (n + l) এর মান সবচেয়ে বেশি?",
 "options": {
@@ -4932,6 +4945,7 @@
 },
 {
 "id": "q_018",
+"year": "practice",
 "subject": "physics",
 "question": "একটি তরঙ্গের দুটি বিন্দুর মধ্যে পথ পার্থক্য (Path difference) λ/2 হলে তাদের দশা পার্থক্য (Phase difference) কত?",
 "options": {
@@ -4947,6 +4961,7 @@
 },
 {
 "id": "q_019",
+"year": "practice",
 "subject": "biology",
 "question": "উদ্ভিদের ক্রোমোসোমে ক্রসিং ওভার (Crossing over) কোষ বিভাজনের কোন উপপর্যায়ে ঘটে?",
 "options": {
@@ -4962,6 +4977,7 @@
 },
 {
 "id": "q_020",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন অণুর আকৃতি চতুস্তলকীয় (Tetrahedral) নয়?",
 "options": {
@@ -4977,6 +4993,7 @@
 },
 {
 "id": "q_021",
+"year": "practice",
 "subject": "physics",
 "question": "একটি কৃষ্ণবস্তুর (Black body) তাপমাত্রা দ্বিগুণ করা হলে তার বিকিরণ শক্তির হার কতগুণ বৃদ্ধি পাবে?",
 "options": {
@@ -4992,6 +5009,7 @@
 },
 {
 "id": "q_022",
+"year": "practice",
 "subject": "biology",
 "question": "হৃৎপিণ্ডের কোন কপাটিকাটি (Valve) দুটি কাস্প (Bicuspid) বিশিষ্ট?",
 "options": {
@@ -5007,6 +5025,7 @@
 },
 {
 "id": "q_023",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোনটি সবচেয়ে শক্তিশালী নিউক্লিওফাইল (Nucleophile)?",
 "options": {
@@ -5022,6 +5041,7 @@
 },
 {
 "id": "q_024",
+"year": "practice",
 "subject": "physics",
 "question": "অভিকর্ষজ ত্বরণ g এর মান পৃথিবীর পৃষ্ঠে সর্বোচ্চ কোথায় হয়?",
 "options": {
@@ -5037,6 +5057,7 @@
 },
 {
 "id": "q_025",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহে ক্যালসিয়াম সাম্যাবস্থা নিয়ন্ত্রণে প্রধানত কাজ করে কোন হরমোন?",
 "options": {
@@ -5052,6 +5073,7 @@
 },
 {
 "id": "q_026",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন হ্যালোজেন এসিডটি সবচেয়ে শক্তিশালী এসিড?",
 "options": {
@@ -5067,6 +5089,7 @@
 },
 {
 "id": "q_027",
+"year": "practice",
 "subject": "physics",
 "question": "কাঁচের স্ল্যাবের মধ্য দিয়ে আলো অতিক্রম করার সময় কোন রাশিটির কোনো পরিবর্তন ঘটে না?",
 "options": {
@@ -5082,6 +5105,7 @@
 },
 {
 "id": "q_028",
+"year": "practice",
 "subject": "biology",
 "question": "বৃক্কের কোন অংশে হেনলির লুপ (Loop of Henle) অবস্থিত?",
 "options": {
@@ -5097,6 +5121,7 @@
 },
 {
 "id": "q_029",
+"year": "practice",
 "subject": "chemistry",
 "question": "বেনজিনের নাইট্রেশন বিক্রিয়ায় ব্যবহৃত নাইট্রেটিং মিক্সচারে ইলেকট্রোফাইল কোনটি?",
 "options": {
@@ -5112,6 +5137,7 @@
 },
 {
 "id": "q_030",
+"year": "practice",
 "subject": "physics",
 "question": "১ মেগা-ইলেকট্রন ভোল্ট (1 MeV) সমান কত জুল (J)?",
 "options": {
@@ -5127,6 +5153,7 @@
 },
 {
 "id": "q_031",
+"year": "practice",
 "subject": "biology",
 "question": "উদ্ভিদের শালোকসংশ্লেষণের C₄ চক্রে প্রথম স্থায়ী পদার্থ কোনটি?",
 "options": {
@@ -5142,6 +5169,7 @@
 },
 {
 "id": "q_032",
+"year": "practice",
 "subject": "chemistry",
 "question": "গ্যাসের ব্যাপন হার (Rate of diffusion) কিসের ওপর নির্ভর করে বিপরীতভাবে পরিবর্তিত হয়?",
 "options": {
@@ -5157,6 +5185,7 @@
 },
 {
 "id": "q_033",
+"year": "practice",
 "subject": "physics",
 "question": "একটি পরিবাহীর দৈর্ঘ্য কেটে অর্ধেক করা হলে তার আপেক্ষিক রোধ (Resistivity) কেমন হবে?",
 "options": {
@@ -5172,6 +5201,7 @@
 },
 {
 "id": "q_034",
+"year": "practice",
 "subject": "biology",
 "question": "স্তন্যপায়ী প্রাণীর কানের অঙ্গাণু 'অর্গান অব কর্টি' (Organ of Corti) কিসের সাথে সম্পর্কিত?",
 "options": {
@@ -5187,6 +5217,7 @@
 },
 {
 "id": "q_035",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোনটি আলোক সক্রিয় সমানুতা (Optical isomerism) প্রদর্শন করে?",
 "options": {
@@ -5202,6 +5233,7 @@
 },
 {
 "id": "q_036",
+"year": "practice",
 "subject": "physics",
 "question": "কোন সূত্রের ওপর ভিত্তি করে হাইড্রোলিক প্রেস বা হাইড্রোলিক লিফট কাজ করে?",
 "options": {
@@ -5217,6 +5249,7 @@
 },
 {
 "id": "q_037",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহে সবচেয়ে বড় লসিকাগ্রন্থি (Lymph node) কোনটি?",
 "options": {
@@ -5232,6 +5265,7 @@
 },
 {
 "id": "q_038",
+"year": "practice",
 "subject": "chemistry",
 "question": "পর্যায় সারণির কোন মৌলটির ইলেকট্রন আসক্তি (Electron affinity) সর্বাধিক?",
 "options": {
@@ -5247,6 +5281,7 @@
 },
 {
 "id": "q_039",
+"year": "practice",
 "subject": "physics",
 "question": "একটি উত্তল লেন্সকে সমান্তরাল আলোকরশ্মি গুচ্ছের সামনে রাখলে ফোকাস বিন্দুতে তীব্রতা কেমন হবে?",
 "options": {
@@ -5262,6 +5297,7 @@
 },
 {
 "id": "q_040",
+"year": "practice",
 "subject": "biology",
 "question": "মানুষের শ্বসনতন্ত্রে বায়ুনালী (Trachea) কতটি সি-আকৃতির তরুণাস্থি বলয় দ্বারা গঠিত?",
 "options": {
@@ -5277,6 +5313,7 @@
 },
 {
 "id": "q_041",
+"year": "practice",
 "subject": "chemistry",
 "question": "কোন এনজাইমটি গ্লুকোজকে সরাসরি ইথানল ও CO₂-এ রূপান্তর করে?",
 "options": {
@@ -5292,6 +5329,7 @@
 },
 {
 "id": "q_042",
+"year": "practice",
 "subject": "physics",
 "question": "তড়িৎ প্রাবল্যের (Electric field intensity) মাত্রা সমীকরণ কোনটি?",
 "options": {
@@ -5307,6 +5345,7 @@
 },
 {
 "id": "q_043",
+"year": "practice",
 "subject": "biology",
 "question": "ব্যাকটেরিয়ার কোষপ্রাচীরের মূল রাসায়নিক উপাদান কোনটি?",
 "options": {
@@ -5322,6 +5361,7 @@
 },
 {
 "id": "q_044",
+"year": "practice",
 "subject": "chemistry",
 "question": "নেসলার বিকারক (Nessler's reagent) দিয়ে কোন আয়ন শনাক্ত করা যায়?",
 "options": {
@@ -5337,6 +5377,7 @@
 },
 {
 "id": "q_045",
+"year": "practice",
 "subject": "physics",
 "question": "নিউক্লিয়াসের ভরত্রুটি (Mass defect) শক্তিরূপে রূপান্তরিত হওয়ার নীতি নির্দেশ করে কোন সমীকরণ?",
 "options": {
@@ -5352,6 +5393,7 @@
 },
 {
 "id": "q_046",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহে গ্লুকাগন (Glucagon) হরমোন নিঃসৃত হয় অগ্ন্যাশয়ের কোন কোষ থেকে?",
 "options": {
@@ -5367,6 +5409,7 @@
 },
 {
 "id": "q_047",
+"year": "practice",
 "subject": "chemistry",
 "question": "STP-তে ১ মোল যেকোনো আদর্শ গ্যাসের আয়তন কত লিটার?",
 "options": {
@@ -5382,6 +5425,7 @@
 },
 {
 "id": "q_048",
+"year": "practice",
 "subject": "physics",
 "question": "তাপগতিবিদ্যার কোন সূত্রকে তাপমাত্রা পরিমাপের মূল ভিত্তি বা নীতি বলা হয়?",
 "options": {
@@ -5397,6 +5441,7 @@
 },
 {
 "id": "q_049",
+"year": "practice",
 "subject": "biology",
 "question": "কোষের লাইসোসোমে কোন ধরনের এনজাইম প্রচুর পরিমাণে থাকে?",
 "options": {
@@ -5412,6 +5457,7 @@
 },
 {
 "id": "q_050",
+"year": "practice",
 "subject": "chemistry",
 "question": "কোন বন্ধন কোণের মান সবচেয়ে বেশি?",
 "options": {
@@ -5427,6 +5473,7 @@
 },
 {
 "id": "q_051",
+"year": "practice",
 "subject": "physics",
 "question": "পৃথিবীর ঘূর্ণন সম্পূর্ণ বন্ধ হয়ে গেলে বিষুবরেখায় অভিকর্ষজ ত্বরণ g এর মান কী হবে?",
 "options": {
@@ -5442,6 +5489,7 @@
 },
 {
 "id": "q_052",
+"year": "practice",
 "subject": "biology",
 "question": "মানুষের অক্ষিগোলকের কোন স্তরটি আলোক সংবেদী রড ও কোন কোষ ধারণ করে?",
 "options": {
@@ -5457,6 +5505,7 @@
 },
 {
 "id": "q_053",
+"year": "practice",
 "subject": "chemistry",
 "question": "ফেলিং দ্রবণ (Fehling's solution) এর সাথে বিক্রিয়া করে লাল রঙের Cu₂O এর অধঃক্ষেপ দেয় কোনটি?",
 "options": {
@@ -5472,6 +5521,7 @@
 },
 {
 "id": "q_054",
+"year": "practice",
 "subject": "physics",
 "question": "কোন নির্দিষ্ট তাপমাত্রায় বায়ুর আণাপেক্ষিক আর্দ্রতা ১০০% হলে শিশিরাঙ্ক (Dew point) কেমন হবে?",
 "options": {
@@ -5487,6 +5537,7 @@
 },
 {
 "id": "q_055",
+"year": "practice",
 "subject": "biology",
 "question": "অক্সিনাল গ্রন্থি ডায়াবেটিস ইনসিপিডাস (Diabetes insipidus) রোগ হয় কোন হরমোনের অভাবে?",
 "options": {
@@ -5502,6 +5553,7 @@
 },
 {
 "id": "q_056",
+"year": "practice",
 "subject": "chemistry",
 "question": "কোন অক্সাইডটি উভধর্মী (Amphoteric)?",
 "options": {
@@ -5517,6 +5569,7 @@
 },
 {
 "id": "q_057",
+"year": "practice",
 "subject": "physics",
 "question": "অপটিক্যাল ফাইবারে (Optical fiber) আলোর কোন ভৌত ঘটনাকে কাজে লাগানো হয়?",
 "options": {
@@ -5532,6 +5585,7 @@
 },
 {
 "id": "q_058",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহের পেশিকলা আকস্মিক ও শক্তিশালী সঙ্কোচনের পর কিসের সঞ্চয়ের কারণে ক্লান্তি (Fatigue) অনুভব করে?",
 "options": {
@@ -5547,6 +5601,7 @@
 },
 {
 "id": "q_059",
+"year": "practice",
 "subject": "chemistry",
 "question": "ফ্যারাডের তড়িৎ বিশ্লেষণ সূত্রের প্রথম সমীকরণ অনুযায়ী উৎপন্ন ভরের মান w = কত?",
 "options": {
@@ -5562,6 +5617,7 @@
 },
 {
 "id": "q_060",
+"year": "practice",
 "subject": "physics",
 "question": "ভূ-পৃষ্ট হতে কত উচ্চতায় গেলে g এর মান পৃথিবীর পৃষ্ঠের মানের এক- চতুর্থাংশ (1/4) হবে?",
 "options": {
@@ -5577,6 +5633,7 @@
 },
 {
 "id": "q_061",
+"year": "practice",
 "subject": "biology",
 "question": "জিনতত্ত্বের মেন্ডেলের প্রথম সূত্রের ব্যতিক্রম হিসেবে 'অসম্পূর্ণ প্রকটতার' (Incomplete dominance) ক্ষেত্রে ফিনোটাইপিক অনুপাত কত হয়?",
 "options": {
@@ -5592,6 +5649,7 @@
 },
 {
 "id": "q_062",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন ধাতুটির গলনাঙ্ক সবচেয়ে কম?",
 "options": {
@@ -5607,6 +5665,7 @@
 },
 {
 "id": "q_063",
+"year": "practice",
 "subject": "physics",
 "question": "বায়ুমণ্ডলীয় চাপ পরিমাপক ডিভাইস ম্যানোমিটার দ্বারা কিসের চাপ মাপা হয়?",
 "options": {
@@ -5622,6 +5681,7 @@
 },
 {
 "id": "q_064",
+"year": "practice",
 "subject": "biology",
 "question": "ভাইরাসের নিউক্লিক এসিড এবং প্রোটিন আবরণকে একসাথে কী বলা হয়?",
 "options": {
@@ -5637,6 +5697,7 @@
 },
 {
 "id": "q_065",
+"year": "practice",
 "subject": "chemistry",
 "question": "মার্বেল পাথরের ওপর এসিডের বিক্রিয়া কোন প্রকার প্রভাবনের উদাহরণ?",
 "options": {
@@ -5652,6 +5713,7 @@
 },
 {
 "id": "q_066",
+"year": "practice",
 "subject": "physics",
 "question": "কোন তরঙ্গটি শূন্য মাধ্যমের মধ্য দিয়ে গমন করতে পারে না?",
 "options": {
@@ -5667,6 +5729,7 @@
 },
 {
 "id": "q_067",
+"year": "practice",
 "subject": "biology",
 "question": "মানুষের লোহিত রক্তকণিকার গড় আয়ু আনুমানিক কত দিন?",
 "options": {
@@ -5682,6 +5745,7 @@
 },
 {
 "id": "q_068",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোনটি কার্বক্সিলিক এসিডের কার্যকরী মূলক?",
 "options": {
@@ -5697,6 +5761,7 @@
 },
 {
 "id": "q_069",
+"year": "practice",
 "subject": "physics",
 "question": "একটি তেজস্ক্রিয় মৌলের অর্ধায়ু (Half-life) ১০ দিন হলে, এর গড় আয়ু (Mean life) কত দিন?",
 "options": {
@@ -5712,6 +5777,7 @@
 },
 {
 "id": "q_070",
+"year": "practice",
 "subject": "biology",
 "question": "উদ্ভিদে ওয়াটার স্টোমাটা বা হাইডাথোড (Hydathode) দিয়ে পানি তরল আকারে বের হওয়াকে কী বলে?",
 "options": {
@@ -5727,6 +5793,7 @@
 },
 {
 "id": "q_071",
+"year": "practice",
 "subject": "chemistry",
 "question": "লুকাস বিকারক (Lucas reagent) নিচের কোন দুটির মিশ্রণ?",
 "options": {
@@ -5742,6 +5809,7 @@
 },
 {
 "id": "q_072",
+"year": "practice",
 "subject": "physics",
 "question": "ফটোইলেকট্রিক প্রভাবে নির্গত ইলেকট্রনের সর্বোচ্চ গতিশক্তি কিসের ওপর নির্ভর করে?",
 "options": {
@@ -5757,6 +5825,7 @@
 },
 {
 "id": "q_073",
+"year": "practice",
 "subject": "biology",
 "question": "মানুষের মস্তিষ্কের কোন অংশটি হৃদস্পন্দন, শ্বাসক্রিয়া ও রক্তচাপ নিয়ন্ত্রণ কেন্দ্র হিসেবে কাজ করে?",
 "options": {
@@ -5772,6 +5841,7 @@
 },
 {
 "id": "q_074",
+"year": "practice",
 "subject": "chemistry",
 "question": "পলির বর্জন নীতি (Pauli's exclusion principle) অনুযায়ী একটি পরমাণুর দুটি ইলেকট্রনের কয়টি কোয়ান্টাম সংখ্যার মান সর্বোচ্চ একই হতে পারে?",
 "options": {
@@ -5787,6 +5857,7 @@
 },
 {
 "id": "q_075",
+"year": "practice",
 "subject": "physics",
 "question": "কোন আলোর জন্য কাঁচের প্রতিসরাঙ্ক (Refractive index) সবচেয়ে বেশি?",
 "options": {
@@ -5802,6 +5873,7 @@
 },
 {
 "id": "q_076",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহে ভিটামিন বি-১২ (Cobalamin) শোষণে সাহায্য করে পাকস্থলীর কোন রাসায়নিক পদার্থ?",
 "options": {
@@ -5817,6 +5889,7 @@
 },
 {
 "id": "q_077",
+"year": "practice",
 "subject": "chemistry",
 "question": "একই তাপমাত্রা ও চাপে নির্দিষ্ট ভরের গ্যাসের আয়তন তার পরম তাপমাত্রার সমানুপাতিক - এটি কার সূত্র?",
 "options": {
@@ -5832,6 +5905,7 @@
 },
 {
 "id": "q_078",
+"year": "practice",
 "subject": "physics",
 "question": "পাস্কাল (Pa) কিসের একক?",
 "options": {
@@ -5847,6 +5921,7 @@
 },
 {
 "id": "q_079",
+"year": "practice",
 "subject": "biology",
 "question": "অগ্ন্যাশয় রস ডায়াফ্রামের নিচের কোন কপাটিকা পেরিয়ে ডিওডেনামে প্রবেশ করে?",
 "options": {
@@ -5862,6 +5937,7 @@
 },
 {
 "id": "q_080",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন যৌগে হাইড্রোজেন বন্ধন (Hydrogen bonding) দেখা যায় না?",
 "options": {
@@ -5877,6 +5953,7 @@
 },
 {
 "id": "q_081",
+"year": "practice",
 "subject": "physics",
 "question": "একটি পরিবাহীর রোধ ২০ ওহম। এর প্রবাহমাত্রা দ্বিগুণ করা হলে উৎপন্ন তাপের হার কতগুণ হবে?",
 "options": {
@@ -5892,6 +5969,7 @@
 },
 {
 "id": "q_082",
+"year": "practice",
 "subject": "biology",
 "question": "কোষ বিভাজনের কোন ধাপে ক্রোমোজোমগুলো সবচেয়ে খাটো ও মোটা দেখায়?",
 "options": {
@@ -5907,6 +5985,7 @@
 },
 {
 "id": "q_083",
+"year": "practice",
 "subject": "chemistry",
 "question": "গ্যালভানিক কোষে (Galvanic cell) অ্যানোড হিসেবে কাজ করে কোন মেরু?",
 "options": {
@@ -5922,6 +6001,7 @@
 },
 {
 "id": "q_084",
+"year": "practice",
 "subject": "physics",
 "question": "সরল দোলগতির সমীকরণে ত্বরন a এবং সরণ x এর মধ্যকার সম্পর্ক কোনটি?",
 "options": {
@@ -5937,6 +6017,7 @@
 },
 {
 "id": "q_085",
+"year": "practice",
 "subject": "biology",
 "question": "মানুষের রক্তরসে প্রোটিনের পরিমাণ আনুমানিক কত শতাংশ?",
 "options": {
@@ -5952,6 +6033,7 @@
 },
 {
 "id": "q_086",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোন মিশ্রণটি একটি প্রাইমারি কলোইডাল দ্রবণ (Aerosol)?",
 "options": {
@@ -5967,6 +6049,7 @@
 },
 {
 "id": "q_087",
+"year": "practice",
 "subject": "physics",
 "question": "প্রিজমের মধ্য দিয়ে আলো অতিক্রম করার সময় কোন বর্ণের আলোর বিচ্যুতি (Deviation) সবচেয়ে বেশি হয়?",
 "options": {
@@ -5982,6 +6065,7 @@
 },
 {
 "id": "q_088",
+"year": "practice",
 "subject": "biology",
 "question": "নিচের কোন টিস্যুটি উদ্ভিদের গৌণ বৃদ্ধি (Secondary growth) ঘটায়?",
 "options": {
@@ -5997,6 +6081,7 @@
 },
 {
 "id": "q_089",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোনটি দিয়ে অ্যালডিহাইড ও কিটোনের মধ্যে পার্থক্য নির্দেশ করা যায়?",
 "options": {
@@ -6012,6 +6097,7 @@
 },
 {
 "id": "q_090",
+"year": "practice",
 "subject": "physics",
 "question": "P-type সেমিকন্ডাক্টরে প্রধান চার্জ বাহক (Majority charge carriers) কোনটি?",
 "options": {
@@ -6027,6 +6113,7 @@
 },
 {
 "id": "q_091",
+"year": "practice",
 "subject": "biology",
 "question": "মানবদেহে ম্যালপিজিয়ান বডি (Malpighian body) কোন দুটি অংশের সমন্বয়ে গঠিত?",
 "options": {
@@ -6042,6 +6129,7 @@
 },
 {
 "id": "q_092",
+"year": "practice",
 "subject": "chemistry",
 "question": "তড়িৎ প্রলেপন (Electroplating) প্রক্রিয়ায় যে বস্তুর ওপর প্রলেপ দিতে হবে তাকে কোণ মেরুতে রাখতে হয়?",
 "options": {
@@ -6057,6 +6145,7 @@
 },
 {
 "id": "q_093",
+"year": "practice",
 "subject": "physics",
 "question": "এক আলোকবর্ষ (1 light year) সমান কত মিটার?",
 "options": {
@@ -6072,6 +6161,7 @@
 },
 {
 "id": "q_094",
+"year": "practice",
 "subject": "biology",
 "question": "ডিএনএ (DNA) অণুতে এডেনিন (Adenine) এর সাথে থাইমিন (Thymine) কয়টি হাইড্রোজেন বন্ধন দ্বারা যুক্ত থাকে?",
 "options": {
@@ -6087,6 +6177,7 @@
 },
 {
 "id": "q_095",
+"year": "practice",
 "subject": "chemistry",
 "question": "মিথেন (CH₄) অণুর কেন্দ্রীয় কার্বন পরমাণুতে কোন ধরনের সংকরায়ন (Hybridization) বিদ্যমান?",
 "options": {
@@ -6102,6 +6193,7 @@
 },
 {
 "id": "q_096",
+"year": "practice",
 "subject": "physics",
 "question": "কৈশিক নলে (Capillary tube) পানি উঠার জন্য দায়ী তরলের কোন ধর্ম?",
 "options": {
@@ -6117,6 +6209,7 @@
 },
 {
 "id": "q_097",
+"year": "practice",
 "subject": "biology",
 "question": "কোলেস্টেরল থেকে রূপান্তরিত হয়ে গঠিত প্রধান স্টেরয়েড হরমোন নয় কোনটি?",
 "options": {
@@ -6132,6 +6225,7 @@
 },
 {
 "id": "q_098",
+"year": "practice",
 "subject": "chemistry",
 "question": "নিচের কোনটি বিজারক গ্যাস হিসেবে কাজ করে?",
 "options": {
@@ -6147,6 +6241,7 @@
 },
 {
 "id": "q_099",
+"year": "practice",
 "subject": "physics",
 "question": "একটি পরিবাহীর দু'প্রান্তের বিভব পার্থক্য V এবং রোধ R হলে ব্যয়িত ক্ষমতা P = কত?",
 "options": {
@@ -6162,6 +6257,7 @@
 },
 {
 "id": "q_100",
+"year": "practice",
 "subject": "biology",
 "question": "মানুষের গ্যাস্ট্রিক রসে উপস্থিত প্রধান প্রোটিন পরিপাককারী নিষ্ক্রিয় এনজাইম কোনটি?",
 "options": {
@@ -6175,5 +6271,6 @@
 "source": "Medical Admission Question Practice",
 "difficulty": "Hard"
 }
+
    
 ]
