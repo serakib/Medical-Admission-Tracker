@@ -1155,9 +1155,9 @@
     "difficulty": "hard"
   },
 
-    {
+   {
         "id": "chem_021",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "বাংলাদেশে পানীয় জলে As এর গ্রহণযোগ্য মাত্রা কত?",
         "options": {
@@ -1171,10 +1171,9 @@
         "source": "Verified Previous Year",
         "difficulty": "medium"
     },
-  
-     {
+    {
         "id": "chem_022",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি তাপহারী (endothermic) বিক্রিয়া?",
         "options": {
@@ -1190,7 +1189,7 @@
     },
     {
         "id": "chem_023",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি ক্যানসার সৃষ্টি করতে পারে?",
         "options": {
@@ -1206,7 +1205,7 @@
     },
     {
         "id": "chem_024",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি প্রধান গ্রিনহাউস গ্যাস?",
         "options": {
@@ -1222,7 +1221,7 @@
     },
     {
         "id": "chem_025",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "35°C পানিতে O₂ এর দ্রাব্যতা 2.3 × 10⁻⁴ M হলে ppm এককে তা কত?",
         "options": {
@@ -1238,7 +1237,7 @@
     },
     {
         "id": "chem_026",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "ডাউ পদ্ধতিতে নিচের কোনটি উৎপন্ন করা যায়?",
         "options": {
@@ -1254,7 +1253,7 @@
     },
     {
         "id": "chem_027",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটির কারণে পচা মাছে গন্ধ হয়?",
         "options": {
@@ -1270,7 +1269,7 @@
     },
     {
         "id": "chem_028",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "অস্ত্রের ইমেজিং কাজে ব্যবহৃত বেরিয়াম সালফেট মিশ্রণ কোন শ্রেণিভুক্ত?",
         "options": {
@@ -1286,7 +1285,7 @@
     },
     {
         "id": "chem_029",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "বর্জ্য রিসাইক্লিং থেকে প্রধান কি সুফল পাওয়া যায়?",
         "options": {
@@ -1302,7 +1301,7 @@
     },
     {
         "id": "chem_030",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোন মূলকটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক?",
         "options": {
@@ -1318,7 +1317,7 @@
     },
     {
         "id": "chem_031",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "পৃথিবীতে প্রাণিকুলের অস্তিত্বের মূলে কোন রাসায়নিক প্রক্রিয়া অত্যাবশ্যক?",
         "options": {
@@ -1334,7 +1333,7 @@
     },
     {
         "id": "chem_032",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি বিজারক পদার্থের বৈশিষ্ট্য?",
         "options": {
@@ -1350,7 +1349,7 @@
     },
     {
         "id": "chem_033",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি জারণ-বিজারণ (Redox) বিক্রিয়া?",
         "options": {
@@ -1366,7 +1365,7 @@
     },
     {
         "id": "chem_034",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "মানবদেহে কোন ধাতুর আধিক্য হিমোগ্লোবিনের উৎপাদনে বাধাগ্রস্ত হয়?",
         "options": {
@@ -1382,7 +1381,7 @@
     },
     {
         "id": "chem_035",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোন বর্ণটি \"পরিবেশ দূষক\" এর প্রতীক?",
         "options": {
@@ -1398,7 +1397,7 @@
     },
     {
         "id": "chem_036",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "ডেটোলের মূল উপাদান কি?",
         "options": {
@@ -1414,7 +1413,7 @@
     },
     {
         "id": "chem_037",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "কোন দ্রবণের OH⁻ আয়নের ঘনত্বমাত্রা 3.5 × 10⁻⁴ M হলে তার pH কত?",
         "options": {
@@ -1430,7 +1429,7 @@
     },
     {
         "id": "chem_038",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "10% Na₂CO₃ দ্রবণের মোলারিটি কত?",
         "options": {
@@ -1446,7 +1445,7 @@
     },
     {
         "id": "chem_039",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "কোন বায়ু-দূষক এসিড বৃষ্টি ঘটায়?",
         "options": {
@@ -1462,7 +1461,7 @@
     },
     {
         "id": "chem_040",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "সংগৃহীত দুধের pH নিয়ন্ত্রণে কোনটি ব্যবহৃত হয়?",
         "options": {
@@ -1478,7 +1477,7 @@
     },
     {
         "id": "chem_041",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি প্রাইমারী স্ট্যান্ডার্ড পদার্থ?",
         "options": {
@@ -1494,7 +1493,7 @@
     },
     {
         "id": "chem_042",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "নিচের কোনটি উভধর্মী যৌগ?",
         "options": {
@@ -1505,12 +1504,12 @@
         },
         "correctAnswer": "A",
         "explanation": "পানি (H₂O) অ্যাসিড ও ক্ষার উভয় হিসেবেই আচরণ করতে পারে, তাই এটি একটি উভধর্মী (Amphoteric) যৌগ।",
-        "source": "Medical College Admission Test 2024-25",
+        "source": "Medical College Admission Test 2024-2025",
         "difficulty": "easy"
     },
     {
         "id": "chem_043",
-        "year": "2024-25",
+        "year": "2024-2025",
         "subject": "chemistry",
         "question": "শিখা পরীক্ষায় ব্যবহৃত কোবাল্ট ব্লু-গ্লাস কোন আলো সম্পূর্ণ শোষণ করে?",
         "options": {
@@ -1521,9 +1520,9 @@
         },
         "correctAnswer": "C",
         "explanation": "পটাশিয়ামের শিখা পরীক্ষার সময় সোডিয়ামের উপস্থিতির কারণে উৎপন্ন সোনালী হলুদ বা পীতবর্ণের আলো কোবাল্ট নীল কাঁচ সম্পূর্ণ শোষণ করে।",
-        "source": "Medical College Admission Test 2024-25",
+        "source": "Medical College Admission Test 2024-2025",
         "difficulty": "medium"
-    },
+    }
   
   {
     "id": "phy_001",
