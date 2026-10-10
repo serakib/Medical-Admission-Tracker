@@ -793,44 +793,18 @@
         </section>
 
     </main>
-
-   <!-- মেইন ওয়েবসাইটের LOGIN বাটন -->
-<button onclick="openLoginPopup()">LOG IN</button>
+<!-- মেইন ওয়েবসাইটের LOG IN বাটন -->
+<button onclick="redirectToLogin()" style="cursor: pointer; padding: 10px 20px; background-color: #00ff66; color: #121212; border: none; font-weight: bold; border-radius: 5px;">
+  LOG IN / SIGN UP
+</button>
 
 <script>
-function openLoginPopup() {
-  // লগইন পেজের লিংক
-  const loginUrl = 'https://serakib.github.io/Medical-Admission-Tracker-login/'; 
-  
-  // স্ক্রিনের মাঝখানে পপ-আপ উইন্ডো ওপেন করা
-  const width = 450;
-  const height = 650;
-  const left = (screen.width - width) / 2;
-  const top = (screen.height - height) / 2;
-
-  const popupWindow = window.open(
-    loginUrl, 
-    'LoginWindow', 
-    `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
-  );
-
-  // পপ-আপে লগইন/সাইন-আপ সম্পন্ন হলে ডাটা রিসিভ করার লিসেনার
-  window.addEventListener('message', function(event) {
-    if (event.data && event.data.type === 'AUTH_SUCCESS') {
-      const userData = event.data.user;
-      
-      console.log("Logged in Student Data:", userData);
-      alert("Welcome, " + (userData.studentName || userData.email) + "!");
-      
-      // পপ-আপ উইন্ডো বন্ধ করা
-      if (popupWindow) popupWindow.close();
-      
-      // মেইন পেজ রিফ্রেশ করে লগইন স্টেট দেখান
-      location.reload(); 
-    }
-  }, false);
+function redirectToLogin() {
+  // ক্লিক করলে সরাসরি লগইন পেজে নিয়ে যাবে
+  window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 }
 </script>
+  
     <!-- Footer -->
     <footer id="main-footer" class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6 text-center text-xs text-gray-500 dark:text-gray-400">
         <div class="max-w-7xl mx-auto px-4">
