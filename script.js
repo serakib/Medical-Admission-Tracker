@@ -1310,3 +1310,69 @@ function toggleWrongQuestions() {
         }
     }
 }
+
+
+
+async function handleSubmit() {
+  const email = document.getElementById('emailInput').value.trim();
+  const pass = document.getElementById('passwordInput').value;
+
+  if (!email) {
+    showError('* Please enter your email address');
+    return;
+  }
+  if (!pass) {
+    alert('Please enter your password.');
+    return;
+  }
+
+  try {
+    if (currentMode === 'login') {
+      // ১. লগইন প্রসেস
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
+      alert('Login Successful!');
+      
+      // অটোমেটিক মেইন ওয়েবসাইটে ব্যাক করবে
+      window.location.href = "https://serakib.github.io/Medical-Admission-Tracker/";
+
+    } else {
+      // ২. সাইন-আপ প্রসেস
+      const confirmPass = document.getElementById('confirmPasswordInput').value;
+      if (pass !== confirmPass) {
+        alert('Passwords do not match!');
+        return;
+      }
+
+      const name = document.getElementById('nameInput').value.trim();
+      const college = document.getElementById('collegeInput').value.trim();
+      const mobile = document.getElementById('mobileInput').value.trim();
+      const studentClass = document.getElementById('classInput').value;
+
+      if (!name || !college) {
+        alert('Please fill in Student Name and College Name.');
+        return;
+      }
+
+      // ফায়ারবেসে একাউন্ট তৈরি
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+      const user = userCredential.user;
+
+      // প্রোফাইল ডাটাবেজে (Firestore) সেভ করা
+      await firebase.firestore().collection('users').doc(user.uid).set({
+        studentName: name,
+        collegeName: college,
+        mobile: mobile || '',
+        class: studentClass,
+        email: email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      alert('Account Created Successfully!');
+      
+      // অটোমেটিক মেইন ওয়েবসাইটে ব্যাক করবে
+      window.location.href = "https://serakib.github.io/Medical-Admission-Tracker/";
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
