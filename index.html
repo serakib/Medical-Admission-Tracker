@@ -1154,441 +1154,416 @@ box-shadow: none;
 
 
 
+<!-- ======================================================
+     START: MEDICAL & HSC INFO — SINGLE HTML CODE
+     Existing SPA page container-এর মধ্যে বসাবেন।
+     ====================================================== -->
 
-<!-- START: MEDICAL ADMISSION + HSC INFO SECTION -->
+<!-- NAV BUTTON: JavaScript এটি existing navbar-এ যোগ করবে -->
+<a href="#medical-hsc-info"
+   id="mhi-nav-link"
+   class="nav-link mhi-nav-link"
+   data-page-link="medical-hsc-info"
+   aria-label="Medical and HSC Information"
+   hidden>
+  <span>▣</span>
+  <span>Medical &amp; HSC Info</span>
+</a>
 
-<section id="medical-hsc-info" class="view-section hidden space-y-6>
+<!-- SEPARATE PAGE: Homepage-এ শুরুতে দেখাবে না -->
+<section id="medical-hsc-info-page"
+         data-app-page="medical-hsc-info"
+         hidden>
 
-  <style>
-    /* ===== NAV BUTTON ===== */
-    .mhi-nav-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 9px 14px;
-      margin: 3px;
-      border-radius: 10px;
-      background: #0d9488;
-      color: #ffffff !important;
-      text-decoration: none !important;
-      font-weight: 700;
-      font-size: 13px;
-      border: 1px solid #0d9488;
-      transition: 0.25s ease;
-    }
+<style>
+#mhi-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: #0d9488;
+  border: 1px solid #0d9488;
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none !important;
+  line-height: 1.5;
+  white-space: normal;
+}
+#mhi-nav-link[hidden] { display: none !important; }
 
-    .mhi-nav-btn:hover {
-      background: #0f766e;
-      transform: translateY(-2px);
-    }
+#medical-hsc-info-page {
+  --mhi-bg: #0c1928;
+  --mhi-card: #102235;
+  --mhi-border: #20384e;
+  --mhi-text: #e8f1fb;
+  --mhi-muted: #93a8bd;
+  --mhi-accent: #0ea894;
 
-    /* ===== MAIN SECTION ===== */
-    .mhi-section {
-      --mhi-primary: #0d9488;
-      --mhi-text: #172033;
-      --mhi-muted: #64748b;
-      --mhi-card: #ffffff;
-      --mhi-border: #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--mhi-text);
+  font-family: inherit;
+  line-height: 1.6;
+}
 
-      width: 100%;
-      max-width: 1200px;
-      margin: 25px auto;
-      padding: 24px 16px;
-      box-sizing: border-box;
-      color: var(--mhi-text);
-      font-family: inherit;
-      line-height: 1.65;
-      overflow-wrap: anywhere;
-    }
+#medical-hsc-info-page[hidden] {
+  display: none !important;
+}
 
-    .mhi-section *,
-    .mhi-section *::before,
-    .mhi-section *::after {
-      box-sizing: border-box;
-    }
+#medical-hsc-info-page *,
+#medical-hsc-info-page *::before,
+#medical-hsc-info-page *::after {
+  box-sizing: border-box;
+}
 
-    .mhi-hero {
-      padding: 27px 20px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #102f46, #075e59);
-      color: #ffffff;
-      margin-bottom: 22px;
-      text-align: center;
-    }
+#medical-hsc-info-page .mhi-shell {
+  width: min(100% - 32px, 1460px);
+  margin: 34px auto;
+  padding: 38px 42px;
+  border: 1px solid var(--mhi-border);
+  border-radius: 30px;
+  background: var(--mhi-bg);
+}
 
-    .mhi-badge {
-      display: inline-block;
-      padding: 5px 12px;
-      border: 1px solid #ffffff50;
-      border-radius: 30px;
-      font-size: 12px;
-      margin-bottom: 9px;
-      color: #d5fff5;
-    }
+#medical-hsc-info-page .mhi-kicker {
+  color: #00b890;
+  font-weight: 800;
+  font-size: 14px;
+  margin: 0 0 5px;
+}
 
-    .mhi-hero h2 {
-      margin: 4px 0 10px;
-      font-size: clamp(23px, 4vw, 34px);
-      line-height: 1.35;
-      color: #ffffff;
-    }
+#medical-hsc-info-page .mhi-title {
+  margin: 0;
+  color: #eef6ff;
+  font-size: clamp(27px, 3vw, 40px);
+  line-height: 1.2;
+  font-weight: 850;
+}
 
-    .mhi-hero p {
-      margin: 0 auto;
-      max-width: 650px;
-      font-size: 14px;
-      color: #e0f2fe;
-    }
+#medical-hsc-info-page .mhi-subtitle {
+  max-width: 800px;
+  color: var(--mhi-muted);
+  font-size: 15px;
+  margin: 10px 0 22px;
+}
 
-    .mhi-search-wrap {
-      display: flex;
-      gap: 10px;
-      margin: 18px 0;
-      align-items: center;
-    }
+#medical-hsc-info-page .mhi-search {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 13px 15px;
+  margin: 20px 0 13px;
+  border: 1px solid var(--mhi-border);
+  border-radius: 12px;
+  background: #0f2032;
+  color: var(--mhi-text);
+  font: inherit;
+  font-size: 14px;
+}
 
-    .mhi-search {
-      width: 100%;
-      min-width: 0;
-      padding: 13px 15px;
-      border: 1px solid var(--mhi-border);
-      border-radius: 12px;
-      background: var(--mhi-card);
-      color: var(--mhi-text);
-      font: inherit;
-      font-size: 14px;
-      outline-offset: 3px;
-    }
+#medical-hsc-info-page .mhi-search:focus {
+  outline: 2px solid #0ea89488;
+}
 
-    .mhi-search:focus {
-      border-color: var(--mhi-primary);
-    }
+#medical-hsc-info-page .mhi-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 27px;
+}
 
-    .mhi-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 16px 0 25px;
-    }
+#medical-hsc-info-page .mhi-filter {
+  padding: 9px 13px;
+  border: 1px solid var(--mhi-border);
+  border-radius: 10px;
+  background: var(--mhi-card);
+  color: #adc0d2;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
 
-    .mhi-filter {
-      border: 1px solid var(--mhi-border);
-      border-radius: 25px;
-      padding: 8px 13px;
-      background: var(--mhi-card);
-      color: var(--mhi-text);
-      cursor: pointer;
-      font: inherit;
-      font-size: 12px;
-      font-weight: 700;
-      transition: 0.2s;
-    }
+#medical-hsc-info-page .mhi-filter.active,
+#medical-hsc-info-page .mhi-filter:hover {
+  background: #0e9687;
+  color: #fff;
+  border-color: #0e9687;
+}
 
-    .mhi-filter:hover,
-    .mhi-filter.active {
-      background: var(--mhi-primary);
-      color: #ffffff;
-      border-color: var(--mhi-primary);
-    }
+#medical-hsc-info-page .mhi-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0 15px;
+}
 
-    .mhi-heading {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 28px 0 15px;
-    }
+#medical-hsc-info-page .mhi-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid #28574f;
+  border-radius: 12px;
+  background: #103b3a;
+  font-size: 21px;
+}
 
-    .mhi-heading h3 {
-      color: var(--mhi-text);
-      font-size: 20px;
-      line-height: 1.4;
-      margin: 0;
-    }
+#medical-hsc-info-page .mhi-heading h3 {
+  margin: 0;
+  color: var(--mhi-text);
+  font-size: 20px;
+  line-height: 1.4;
+}
 
-    .mhi-heading-icon {
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      background: #d9f7f1;
-      font-size: 21px;
-    }
+#medical-hsc-info-page .mhi-heading p {
+  color: var(--mhi-muted);
+  font-size: 12px;
+  margin: 3px 0 0;
+}
 
-    .mhi-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
+#medical-hsc-info-page .mhi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
 
-    .mhi-item {
-      min-width: 0;
-    }
+#medical-hsc-info-page .mhi-item {
+  min-width: 0;
+}
 
-    .mhi-card {
-      height: 100%;
-      padding: 17px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      border: 1px solid var(--mhi-border);
-      border-radius: 15px;
-      background: var(--mhi-card);
-      transition: border-color 0.2s, transform 0.2s,
-                  box-shadow 0.2s;
-    }
+#medical-hsc-info-page .mhi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  min-height: 190px;
+  padding: 18px;
+  border: 1px solid var(--mhi-border);
+  border-radius: 19px;
+  background: linear-gradient(150deg, #102235, #12263a);
+  transition: border-color .2s, transform .2s;
+}
 
-    .mhi-card:hover {
-      border-color: var(--mhi-primary);
-      transform: translateY(-3px);
-      box-shadow: 0 7px 24px #0f766e12;
-    }
+#medical-hsc-info-page .mhi-card:hover {
+  border-color: #127e78;
+  transform: translateY(-2px);
+}
 
-    .mhi-label {
-      display: inline-block;
-      background: #ccfbf1;
-      color: #115e59;
-      padding: 4px 9px;
-      margin-bottom: 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 800;
-    }
+#medical-hsc-info-page .mhi-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  margin-bottom: 10px;
+  border: 1px solid #1d6158;
+  border-radius: 20px;
+  background: #103d3b;
+  color: #68e4c4;
+  font-size: 9px;
+  font-weight: 850;
+}
 
-    .mhi-card h4 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      line-height: 1.5;
-      color: var(--mhi-text);
-    }
+#medical-hsc-info-page .mhi-card h4 {
+  margin: 0 0 8px;
+  color: #eaf3fc;
+  font-size: 16px;
+  line-height: 1.45;
+}
 
-    .mhi-card p {
-      color: var(--mhi-muted);
-      font-size: 13px;
-      line-height: 1.7;
-      margin: 0 0 15px;
-    }
+#medical-hsc-info-page .mhi-card p {
+  margin: 0 0 15px;
+  color: var(--mhi-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
 
-    .mhi-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--mhi-primary) !important;
-      font-size: 13px;
-      font-weight: 800;
-      text-decoration: none !important;
-      margin-top: auto;
-    }
+#medical-hsc-info-page .mhi-link {
+  margin-top: auto;
+  color: #4be0b8 !important;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none !important;
+}
 
-    .mhi-link:hover {
-      text-decoration: underline !important;
-    }
+#medical-hsc-info-page .mhi-link:hover {
+  text-decoration: underline !important;
+}
 
-    .mhi-notice {
-      margin-top: 22px;
-      padding: 15px;
-      border: 1px solid #bae6fd;
-      border-radius: 13px;
-      background: #f0f9ff;
-      color: #164e63;
-      font-size: 13px;
-    }
+#medical-hsc-info-page .mhi-notice {
+  margin-top: 24px;
+  padding: 15px;
+  border: 1px solid #254e5b;
+  border-radius: 14px;
+  background: #0c2832;
+  color: #b8dce7;
+  font-size: 12px;
+}
 
-    .mhi-status {
-      color: var(--mhi-muted);
-      font-size: 13px;
-      margin: 4px 0 16px;
-    }
+#medical-hsc-info-page .mhi-empty {
+  display: none;
+  margin-top: 15px;
+  padding: 20px;
+  border: 1px dashed var(--mhi-border);
+  border-radius: 12px;
+  color: var(--mhi-muted);
+  text-align: center;
+}
 
-    .mhi-empty {
-      display: none;
-      padding: 20px;
-      text-align: center;
-      color: var(--mhi-muted);
-      border: 1px dashed var(--mhi-border);
-      border-radius: 12px;
-    }
+#medical-hsc-info-page .mhi-footer {
+  margin: 20px 0 0;
+  color: #768ea5;
+  font-size: 11px;
+  text-align: center;
+}
 
-    .mhi-footer {
-      text-align: center;
-      margin-top: 24px;
-      color: var(--mhi-muted);
-      font-size: 12px;
-    }
+@media (max-width: 1000px) {
+  #medical-hsc-info-page .mhi-shell {
+    width: calc(100% - 24px);
+    padding: 26px 22px;
+  }
 
-    /* ===== DARK THEME SUPPORT ===== */
-    @media (prefers-color-scheme: dark) {
-      .mhi-section {
-        --mhi-text: #e5edf8;
-        --mhi-muted: #aab9ce;
-        --mhi-card: #17212e;
-        --mhi-border: #354254;
-      }
+  #medical-hsc-info-page .mhi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-      .mhi-notice {
-        background: #102d39;
-        border-color: #285a67;
-        color: #d4f4fa;
-      }
+@media (max-width: 600px) {
+  #medical-hsc-info-page .mhi-shell {
+    width: calc(100% - 16px);
+    margin: 16px auto;
+    padding: 21px 12px;
+    border-radius: 20px;
+  }
 
-      .mhi-heading-icon {
-        background: #164e4a;
-      }
+  #medical-hsc-info-page .mhi-title {
+    font-size: 25px;
+  }
 
-      .mhi-label {
-        background: #164e4a;
-        color: #ccfbf1;
-      }
-    }
+  #medical-hsc-info-page .mhi-subtitle {
+    font-size: 12px;
+  }
 
-    @media (max-width: 760px) {
-      .mhi-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
+  #medical-hsc-info-page .mhi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
 
-      .mhi-section {
-        padding: 16px 10px;
-      }
+  #medical-hsc-info-page .mhi-card {
+    min-height: 180px;
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
 
-      .mhi-hero {
-        padding: 23px 14px;
-      }
+  #medical-hsc-info-page .mhi-card h4 {
+    font-size: 13px;
+  }
 
-      .mhi-card {
-        padding: 13px;
-      }
+  #medical-hsc-info-page .mhi-card p {
+    font-size: 11px;
+  }
 
-      .mhi-card h4 {
-        font-size: 14px;
-      }
+  #medical-hsc-info-page .mhi-link {
+    font-size: 10px;
+  }
 
-      .mhi-card p {
-        font-size: 12px;
-      }
+  #medical-hsc-info-page .mhi-filter {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
 
-      .mhi-filter {
-        padding: 7px 10px;
-        font-size: 11px;
-      }
-    }
+  #medical-hsc-info-page .mhi-heading h3 {
+    font-size: 16px;
+  }
+}
 
-    @media (max-width: 360px) {
-      .mhi-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+@media (max-width: 330px) {
+  #medical-hsc-info-page .mhi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 
-  <!-- HERO -->
-  <header class="mhi-hero">
-    <span class="mhi-badge">STUDENT INFORMATION CENTER</span>
-    <h2>Medical Admission &amp; HSC Information</h2>
-    <p>
-      মেডিকেল ভর্তি, MBBS ও BDS, HSC পরীক্ষা, ফলাফল,
-      শিক্ষা বোর্ড এবং গুরুত্বপূর্ণ শিক্ষা-সংক্রান্ত
-      তথ্য এক জায়গায় খুঁজুন।
-    </p>
-  </header>
+<div class="mhi-shell">
+
+  <p class="mhi-kicker">STUDENT INFORMATION CENTER</p>
+
+  <h1 class="mhi-title">Medical &amp; HSC Information</h1>
+
+  <p class="mhi-subtitle">
+    মেডিকেল ভর্তি, MBBS ও BDS, HSC পরীক্ষা, ফলাফল,
+    শিক্ষা বোর্ড এবং গুরুত্বপূর্ণ সরকারি লিংক—সব এক জায়গায়।
+  </p>
 
   <!-- SEARCH -->
-  <div class="mhi-search-wrap">
-    <input
-      type="search"
-      id="mhi-search"
-      class="mhi-search"
-      placeholder="তথ্য খুঁজুন... যেমন MBBS, HSC Result, Dhaka Board"
-      aria-label="Search medical and HSC information"
-    />
-  </div>
+  <input type="search"
+         id="mhi-search"
+         class="mhi-search"
+         placeholder="তথ্য খুঁজুন: MBBS, HSC Result, Dhaka Board..."
+         aria-label="তথ্য খুঁজুন">
 
   <!-- CATEGORY FILTERS -->
-  <div class="mhi-filters" aria-label="তথ্যের ক্যাটাগরি">
-    <button class="mhi-filter active" data-filter="all" type="button">
-      সব তথ্য
-    </button>
-    <button class="mhi-filter" data-filter="medical" type="button">
-      মেডিকেল ভর্তি
-    </button>
-    <button class="mhi-filter" data-filter="hsc" type="button">
-      HSC তথ্য
-    </button>
-    <button class="mhi-filter" data-filter="board" type="button">
-      শিক্ষা বোর্ড
-    </button>
+  <div class="mhi-filters">
+    <button class="mhi-filter active" data-filter="all"
+            type="button" aria-pressed="true">সব তথ্য</button>
+    <button class="mhi-filter" data-filter="medical"
+            type="button" aria-pressed="false">মেডিকেল ভর্তি</button>
+    <button class="mhi-filter" data-filter="hsc"
+            type="button" aria-pressed="false">HSC তথ্য</button>
+    <button class="mhi-filter" data-filter="board"
+            type="button" aria-pressed="false">শিক্ষা বোর্ড</button>
   </div>
 
-  <!-- MEDICAL INFORMATION -->
+  <!-- MEDICAL ADMISSION -->
   <div class="mhi-heading">
-    <span class="mhi-heading-icon">🩺</span>
-    <h3>Medical Admission Information</h3>
+    <span class="mhi-icon">🩺</span>
+    <div>
+      <h3>Medical Admission Information</h3>
+      <p>MBBS, BDS এবং স্বাস্থ্য শিক্ষা-সংক্রান্ত সরকারি উৎস</p>
+    </div>
   </div>
 
   <div class="mhi-grid">
 
     <article class="mhi-item" data-category="medical">
       <div class="mhi-card">
-        <span class="mhi-label">OFFICIAL NOTICE</span>
+        <span class="mhi-tag">OFFICIAL NOTICES</span>
         <h4>MBBS &amp; BDS ভর্তি বিজ্ঞপ্তি</h4>
-        <p>
-          সরকারি বিজ্ঞপ্তি, আবেদনের নিয়ম, যোগ্যতা,
-          ভর্তি নির্দেশনা এবং প্রকাশিত নোটিশ দেখুন।
-        </p>
-        <a class="mhi-link"
-           href="https://dgme.gov.bd/pages/notices"
-           target="_blank" rel="noopener noreferrer">
-          DGME Official Notices ↗
-        </a>
+        <p>ভর্তি যোগ্যতা, আবেদনের সময়সীমা ও সরকারি নির্দেশনা যাচাই করুন।</p>
+        <a class="mhi-link" href="https://dgme.gov.bd/"
+           target="_blank" rel="noopener noreferrer">DGME Official Website ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="medical">
       <div class="mhi-card">
-        <span class="mhi-label">RESULT PORTAL</span>
+        <span class="mhi-tag">RESULT PORTAL</span>
         <h4>MBBS ভর্তি পরীক্ষার ফলাফল</h4>
-        <p>
-          মেডিকেল ভর্তি পরীক্ষার ফলাফল ও সংশ্লিষ্ট
-          নির্দেশনার জন্য অফিসিয়াল রেজাল্ট পোর্টাল।
-        </p>
-        <a class="mhi-link"
-           href="https://result.dghs.gov.bd/mbbs/"
-           target="_blank" rel="noopener noreferrer">
-          MBBS Result Portal ↗
-        </a>
+        <p>মেডিকেল ভর্তি পরীক্ষার ফলাফল প্রকাশিত হলে সংশ্লিষ্ট পোর্টালে দেখুন।</p>
+        <a class="mhi-link" href="https://result.dghs.gov.bd/mbbs/"
+           target="_blank" rel="noopener noreferrer">MBBS Result Portal ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="medical">
       <div class="mhi-card">
-        <span class="mhi-label">HEALTH EDUCATION</span>
-        <h4>স্বাস্থ্য শিক্ষা অধিদপ্তর</h4>
-        <p>
-          মেডিকেল শিক্ষাসংক্রান্ত সরকারি তথ্য, বিজ্ঞপ্তি
-          ও অন্যান্য নির্দেশনা যাচাই করুন।
-        </p>
-        <a class="mhi-link"
-           href="https://dgme.gov.bd/"
-           target="_blank" rel="noopener noreferrer">
-          Official Website ↗
-        </a>
+        <span class="mhi-tag">DENTAL ADMISSION</span>
+        <h4>BDS ভর্তি তথ্য</h4>
+        <p>ডেন্টাল ভর্তি পরীক্ষা ও নির্দেশনার সর্বশেষ তথ্য সরকারি উৎসে যাচাই করুন।</p>
+        <a class="mhi-link" href="https://dgme.gov.bd/"
+           target="_blank" rel="noopener noreferrer">Official Information ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="medical">
       <div class="mhi-card">
-        <span class="mhi-label">ADMISSION GUIDE</span>
+        <span class="mhi-tag">PREPARATION</span>
         <h4>মেডিকেল ভর্তি প্রস্তুতি</h4>
-        <p>
-          ভর্তি যোগ্যতা, সিলেবাস, প্রস্তুতি, বিষয়ভিত্তিক
-          গাইডলাইন ও প্রশ্নব্যাংক সম্পর্কে তথ্য।
-          নিয়ম পরিবর্তন হলে সর্বশেষ সরকারি বিজ্ঞপ্তি দেখুন।
-        </p>
-        <a class="mhi-link"
-           href="https://dgme.gov.bd/pages/notices"
-           target="_blank" rel="noopener noreferrer">
-          Official Admission Notices ↗
-        </a>
+        <p>সিলেবাস, পরীক্ষার নিয়ম ও যোগ্যতার জন্য বর্তমান শিক্ষাবর্ষের বিজ্ঞপ্তি দেখুন।</p>
+        <a class="mhi-link" href="https://dgme.gov.bd/"
+           target="_blank" rel="noopener noreferrer">Official Source ↗</a>
       </div>
     </article>
 
@@ -1596,127 +1571,93 @@ box-shadow: none;
 
   <!-- HSC INFORMATION -->
   <div class="mhi-heading">
-    <span class="mhi-heading-icon">🎓</span>
-    <h3>HSC Board Information</h3>
+    <span class="mhi-icon">🎓</span>
+    <div>
+      <h3>HSC Board Information</h3>
+      <p>HSC ফলাফল, রুটিন, সিলেবাস এবং কলেজ ভর্তি</p>
+    </div>
   </div>
 
   <div class="mhi-grid">
 
     <article class="mhi-item" data-category="hsc">
       <div class="mhi-card">
-        <span class="mhi-label">HSC RESULT</span>
+        <span class="mhi-tag">HSC RESULT</span>
         <h4>HSC ও সমমান পরীক্ষার ফলাফল</h4>
-        <p>
-          HSC এবং অন্যান্য বোর্ড পরীক্ষার ফলাফল
-          সরকারি রেজাল্ট ওয়েবসাইটে যাচাই করুন।
-        </p>
-        <a class="mhi-link"
-           href="https://educationboardresults.gov.bd/v2/home"
-           target="_blank" rel="noopener noreferrer">
-          Check Official Result ↗
-        </a>
+        <p>HSC এবং অন্যান্য বোর্ড পরীক্ষার ফলাফল সরকারি পোর্টালে যাচাই করুন।</p>
+        <a class="mhi-link" href="https://educationboardresults.gov.bd/v2/home"
+           target="_blank" rel="noopener noreferrer">Check Official Result ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="hsc">
       <div class="mhi-card">
-        <span class="mhi-label">ROUTINE &amp; NOTICE</span>
-        <h4>HSC রুটিন ও পরীক্ষার বিজ্ঞপ্তি</h4>
-        <p>
-          পরীক্ষার রুটিন, সময়সূচি, স্থগিত পরীক্ষা
-          এবং সংশ্লিষ্ট বোর্ডের নোটিশ দেখুন।
-        </p>
-        <a class="mhi-link"
-           href="https://dhakaeducationboard.gov.bd/index.php/site/product/hsccorner"
-           target="_blank" rel="noopener noreferrer">
-          Dhaka Board HSC Corner ↗
-        </a>
+        <span class="mhi-tag">ROUTINE &amp; NOTICE</span>
+        <h4>HSC রুটিন ও বিজ্ঞপ্তি</h4>
+        <p>পরীক্ষার সময়সূচি ও বোর্ডের নোটিশ দেখুন।</p>
+        <a class="mhi-link" href="https://dhakaeducationboard.gov.bd/"
+           target="_blank" rel="noopener noreferrer">Education Board ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="hsc">
       <div class="mhi-card">
-        <span class="mhi-label">SYLLABUS &amp; MARKS</span>
+        <span class="mhi-tag">SYLLABUS</span>
         <h4>HSC সিলেবাস ও মানবণ্টন</h4>
-        <p>
-          বিষয়ভিত্তিক সিলেবাস, পরীক্ষার মানবণ্টন
-          এবং শিক্ষা বোর্ডের প্রকাশিত নির্দেশনা।
-        </p>
-        <a class="mhi-link"
-           href="https://shed.gov.bd/pages/static-pages/694146bfa31054345f0fcbab"
-           target="_blank" rel="noopener noreferrer">
-          Official Board Directory ↗
-        </a>
+        <p>সিলেবাস, মানবণ্টন এবং পরীক্ষার নিয়মের পরিবর্তন সরকারি নোটিশে যাচাই করুন।</p>
+        <a class="mhi-link" href="https://shed.gov.bd/"
+           target="_blank" rel="noopener noreferrer">Official Education Source ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="hsc">
       <div class="mhi-card">
-        <span class="mhi-label">RE-SCRUTINY</span>
+        <span class="mhi-tag">RE-SCRUTINY</span>
         <h4>HSC ফল পুনর্নিরীক্ষণ</h4>
-        <p>
-          ফল পুনর্নিরীক্ষণের বিজ্ঞপ্তি, আবেদন পদ্ধতি
-          ও সময়সীমার জন্য নিজের বোর্ডের নোটিশ দেখুন।
-        </p>
-        <a class="mhi-link"
-           href="https://dhakaeducationboard.gov.bd/"
-           target="_blank" rel="noopener noreferrer">
-          Education Board Website ↗
-        </a>
+        <p>আবেদনের নিয়ম, সময়সীমা ও ফলাফল প্রকাশের তথ্য বোর্ডের নোটিশে দেখুন।</p>
+        <a class="mhi-link" href="https://dhakaeducationboard.gov.bd/"
+           target="_blank" rel="noopener noreferrer">Board Notices ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="hsc">
       <div class="mhi-card">
-        <span class="mhi-label">COLLEGE ADMISSION</span>
+        <span class="mhi-tag">COLLEGE ADMISSION</span>
         <h4>একাদশ শ্রেণিতে ভর্তি</h4>
-        <p>
-          কলেজ ভর্তি বিজ্ঞপ্তি, আবেদন, নিশ্চায়ন
-          ও সংশ্লিষ্ট সরকারি নির্দেশনা দেখুন।
-        </p>
-        <a class="mhi-link"
-           href="https://www.xiclassadmission.gov.bd/"
-           target="_blank" rel="noopener noreferrer">
-          XI Admission Portal ↗
-        </a>
+        <p>কলেজ ভর্তি আবেদন, নিশ্চায়ন ও নির্দেশনা দেখুন।</p>
+        <a class="mhi-link" href="https://www.xiclassadmission.gov.bd/"
+           target="_blank" rel="noopener noreferrer">XI Admission Portal ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="hsc">
       <div class="mhi-card">
-        <span class="mhi-label">BOARD SERVICES</span>
-        <h4>রেজিস্ট্রেশন ও অন্যান্য সেবা</h4>
-        <p>
-          ফরম পূরণ, রেজিস্ট্রেশন, প্রবেশপত্র,
-          সংশোধন ও অন্যান্য বোর্ড-সংক্রান্ত তথ্য।
-        </p>
-        <a class="mhi-link"
-           href="https://shed.gov.bd/pages/static-pages/694146bfa31054345f0fcbab"
-           target="_blank" rel="noopener noreferrer">
-          Find Your Education Board ↗
-        </a>
+        <span class="mhi-tag">BOARD SERVICES</span>
+        <h4>রেজিস্ট্রেশন ও বোর্ড সেবা</h4>
+        <p>ফরম পূরণ, রেজিস্ট্রেশন, প্রবেশপত্র ও অন্যান্য সেবার নোটিশ দেখুন।</p>
+        <a class="mhi-link" href="https://shed.gov.bd/"
+           target="_blank" rel="noopener noreferrer">Official Website ↗</a>
       </div>
     </article>
 
   </div>
 
-  <!-- OFFICIAL WEBSITE DIRECTORY -->
+  <!-- EDUCATION BOARD LINKS -->
   <div class="mhi-heading">
-    <span class="mhi-heading-icon">🌐</span>
-    <h3>Official Education Board Websites</h3>
+    <span class="mhi-icon">🌐</span>
+    <div>
+      <h3>Official Education Board Websites</h3>
+      <p>নিজের শিক্ষা বোর্ড নির্বাচন করে সরকারি সাইটে প্রবেশ করুন</p>
+    </div>
   </div>
-
-  <p class="mhi-status">
-    নিজের শিক্ষা বোর্ড নির্বাচন করে সরাসরি অফিসিয়াল ওয়েবসাইটে প্রবেশ করুন।
-  </p>
 
   <div class="mhi-grid">
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>ঢাকা শিক্ষা বোর্ড</h4>
-        <p>HSC, SSC, রুটিন, ফলাফল ও বোর্ড বিজ্ঞপ্তি।</p>
+        <p>পরীক্ষা, রুটিন, ফলাফল ও বিজ্ঞপ্তি।</p>
         <a class="mhi-link" href="https://dhakaeducationboard.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1724,9 +1665,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>রাজশাহী শিক্ষা বোর্ড</h4>
-        <p>রাজশাহী বোর্ডের পরীক্ষা ও শিক্ষা সংক্রান্ত তথ্য।</p>
+        <p>পরীক্ষা ও শিক্ষা-সংক্রান্ত তথ্য।</p>
         <a class="mhi-link" href="https://rajshahieducationboard.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1734,9 +1675,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>কুমিল্লা শিক্ষা বোর্ড</h4>
-        <p>কুমিল্লা বোর্ডের নোটিশ ও পরীক্ষা-সংক্রান্ত তথ্য।</p>
+        <p>নোটিশ ও পরীক্ষা-সংক্রান্ত তথ্য।</p>
         <a class="mhi-link" href="https://comillaboard.portal.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1744,9 +1685,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>চট্টগ্রাম শিক্ষা বোর্ড</h4>
-        <p>চট্টগ্রাম বোর্ডের সরকারি বিজ্ঞপ্তি ও সেবা।</p>
+        <p>বোর্ডের নোটিশ ও শিক্ষা সেবা।</p>
         <a class="mhi-link" href="https://bise-ctg.portal.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1754,9 +1695,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>যশোর শিক্ষা বোর্ড</h4>
-        <p>যশোর বোর্ডের নোটিশ, ফলাফল ও পরীক্ষা তথ্য।</p>
+        <p>নোটিশ, ফলাফল ও পরীক্ষার তথ্য।</p>
         <a class="mhi-link" href="https://www.jessoreboard.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1764,9 +1705,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>বরিশাল শিক্ষা বোর্ড</h4>
-        <p>বরিশাল বোর্ডের পরীক্ষা ও অন্যান্য তথ্য।</p>
+        <p>পরীক্ষা ও অন্যান্য বোর্ড-তথ্য।</p>
         <a class="mhi-link" href="https://barisalboard.portal.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1774,19 +1715,19 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>সিলেট শিক্ষা বোর্ড</h4>
-        <p>সিলেট বোর্ডের ফলাফল ও সরকারি নোটিশ।</p>
-        <a class="mhi-link" href="https://www.bise-sylhet.gov.bd/"
+        <p>ফলাফল ও সরকারি নোটিশ।</p>
+        <a class="mhi-link" href="https://www.sylhetboard.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
     </article>
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>দিনাজপুর শিক্ষা বোর্ড</h4>
-        <p>দিনাজপুর বোর্ডের পরীক্ষা ও শিক্ষা তথ্য।</p>
+        <p>পরীক্ষা, ফলাফল ও বিজ্ঞপ্তি।</p>
         <a class="mhi-link" href="https://dinajpureducationboard.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1794,9 +1735,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">GENERAL BOARD</span>
+        <span class="mhi-tag">GENERAL BOARD</span>
         <h4>ময়মনসিংহ শিক্ষা বোর্ড</h4>
-        <p>ময়মনসিংহ বোর্ডের নোটিশ ও ফলাফল।</p>
+        <p>বোর্ডের নোটিশ ও ফলাফল।</p>
         <a class="mhi-link" href="https://www.mymensingheducationboard.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1804,9 +1745,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">MADRASAH BOARD</span>
+        <span class="mhi-tag">MADRASAH BOARD</span>
         <h4>বাংলাদেশ মাদ্রাসা শিক্ষা বোর্ড</h4>
-        <p>আলিম ও মাদ্রাসা শিক্ষা-সংক্রান্ত তথ্য ও বিজ্ঞপ্তি।</p>
+        <p>দাখিল, আলিম ও মাদ্রাসা শিক্ষা-সংক্রান্ত তথ্য।</p>
         <a class="mhi-link" href="https://bmeb.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1814,9 +1755,9 @@ box-shadow: none;
 
     <article class="mhi-item" data-category="board">
       <div class="mhi-card">
-        <span class="mhi-label">TECHNICAL BOARD</span>
+        <span class="mhi-tag">TECHNICAL BOARD</span>
         <h4>বাংলাদেশ কারিগরি শিক্ষা বোর্ড</h4>
-        <p>কারিগরি শিক্ষা ও HSC ভোকেশনাল-সংক্রান্ত তথ্য।</p>
+        <p>কারিগরি ও ভোকেশনাল শিক্ষার তথ্য।</p>
         <a class="mhi-link" href="https://bteb.gov.bd/"
            target="_blank" rel="noopener noreferrer">Visit Official Site ↗</a>
       </div>
@@ -1828,84 +1769,150 @@ box-shadow: none;
     কোনো তথ্য পাওয়া যায়নি। অন্য শব্দ দিয়ে সার্চ করুন।
   </div>
 
-  <!-- OFFICIAL SOURCE NOTICE -->
   <div class="mhi-notice">
-    <strong>⚠️ গুরুত্বপূর্ণ:</strong>
-    ভর্তি, পরীক্ষার তারিখ, যোগ্যতা, আবেদন ফি ও ফলাফলের
-    মতো পরিবর্তনশীল তথ্যের জন্য সংশ্লিষ্ট সরকারি বিজ্ঞপ্তিই
-    চূড়ান্ত বলে বিবেচনা করুন। কোনো তথ্য প্রকাশের আগে
-    অফিসিয়াল উৎস থেকে যাচাই করুন।
+    <strong>গুরুত্বপূর্ণ:</strong>
+    ভর্তি, পরীক্ষার তারিখ, যোগ্যতা, ফি ও ফলাফলের মতো
+    পরিবর্তনশীল তথ্যের জন্য সর্বশেষ সরকারি বিজ্ঞপ্তি যাচাই করুন।
+    এই পেজের লিংক নিজে থেকে নতুন খবর সংগ্রহ করে না।
   </div>
 
-  <div class="mhi-footer">
+  <p class="mhi-footer">
     Medical Admission • HSC Information • Official Education Boards
-  </div>
+  </p>
 
-  <!-- SEARCH AND FILTER SCRIPT -->
-  <script type="text/javascript">
-  //<![CDATA[
-  (function () {
-    var root = document.getElementById("medical-hsc-info");
-    if (!root) return;
-
-    var search = root.querySelector("#mhi-search");
-    var filters = root.querySelectorAll(".mhi-filter");
-    var items = root.querySelectorAll(".mhi-item");
-    var empty = root.querySelector("#mhi-empty");
-    var activeFilter = "all";
-
-    function updateItems() {
-      var query = search.value.toLowerCase().trim();
-      var visible = 0;
-
-      items.forEach(function (item) {
-        var category = item.getAttribute("data-category");
-        var text = item.textContent.toLowerCase();
-
-        var categoryMatch =
-          activeFilter === "all" || category === activeFilter;
-
-        var searchMatch =
-          !query || text.indexOf(query) !== -1;
-
-        var show = categoryMatch && searchMatch;
-        item.style.display = show ? "" : "none";
-
-        if (show) visible++;
-      });
-
-      empty.style.display = visible ? "none" : "block";
-    }
-
-    search.addEventListener("input", updateItems);
-
-    filters.forEach(function (button) {
-      button.addEventListener("click", function () {
-        activeFilter = button.getAttribute("data-filter");
-
-        filters.forEach(function (filter) {
-          var selected = filter === button;
-          filter.classList.toggle("active", selected);
-          filter.setAttribute("aria-pressed", selected ? "true" : "false");
-        });
-
-        updateItems();
-      });
-
-      button.setAttribute(
-        "aria-pressed",
-        button.classList.contains("active") ? "true" : "false"
-      );
-    });
-
-    updateItems();
-  })();
-  //]]>
-  </script>
+</div>
 
 </section>
 
-<!-- END: MEDICAL ADMISSION + HSC INFO SECTION -->
+<script>
+(function () {
+  var page = document.getElementById('medical-hsc-info-page');
+  var navLink = document.getElementById('mhi-nav-link');
+
+  if (!page || !navLink || page.dataset.initialized === 'true') return;
+  page.dataset.initialized = 'true';
+
+  /* ---------- ADD BUTTON TO EXISTING NAVBAR ---------- */
+  var contactLink = Array.from(
+    document.querySelectorAll('nav a, nav button, header a, header button')
+  ).find(function (el) {
+    return /contact/i.test((el.innerText || el.textContent || '').trim());
+  });
+
+  if (contactLink && contactLink.parentElement) {
+    contactLink.parentElement.insertBefore(navLink, contactLink);
+  } else {
+    var nav = document.querySelector('nav, .navbar, .nav-links');
+    if (nav) nav.appendChild(navLink);
+  }
+
+  navLink.hidden = false;
+
+  /* ---------- PAGE SWITCHING ---------- */
+  function showMedicalPage() {
+    /*
+      Works when app pages are sibling elements inside
+      #app-page-container and use data-app-page.
+      Keep the existing navbar outside that container.
+    */
+    var container =
+      page.closest('#app-page-container') ||
+      page.parentElement;
+
+    if (container) {
+      container.querySelectorAll('[data-app-page]').forEach(function (view) {
+        view.hidden = view !== page;
+      });
+    }
+
+    page.hidden = false;
+    navLink.classList.add('active');
+    navLink.setAttribute('aria-current', 'page');
+
+    history.replaceState(null, '', '#medical-hsc-info');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navLink.addEventListener('click', function (event) {
+    event.preventDefault();
+    showMedicalPage();
+  });
+
+  /*
+    When another registered navbar button is clicked,
+    hide this page before the website's existing router runs.
+  */
+  document.addEventListener('click', function (event) {
+    var otherLink = event.target.closest(
+      '[data-page-link], nav a, nav button'
+    );
+
+    if (!otherLink || otherLink === navLink) return;
+
+    page.hidden = true;
+    navLink.classList.remove('active');
+    navLink.removeAttribute('aria-current');
+  }, true);
+
+  if (location.hash === '#medical-hsc-info') {
+    showMedicalPage();
+  }
+
+  /* ---------- SEARCH & CATEGORY FILTERS ---------- */
+  var search = page.querySelector('#mhi-search');
+  var filters = page.querySelectorAll('[data-filter]');
+  var items = page.querySelectorAll('.mhi-item');
+  var empty = page.querySelector('#mhi-empty');
+  var activeCategory = 'all';
+
+  function updateCards() {
+    var query = (search.value || '').toLowerCase().trim();
+    var visible = 0;
+
+    items.forEach(function (item) {
+      var category = item.getAttribute('data-category');
+      var text = (item.textContent || '').toLowerCase();
+
+      var matchesCategory =
+        activeCategory === 'all' || category === activeCategory;
+
+      var matchesSearch = !query || text.indexOf(query) !== -1;
+      var show = matchesCategory && matchesSearch;
+
+      item.style.display = show ? '' : 'none';
+
+      if (show) visible++;
+    });
+
+    empty.style.display = visible ? 'none' : 'block';
+  }
+
+  search.addEventListener('input', updateCards);
+
+  filters.forEach(function (button) {
+    button.addEventListener('click', function () {
+      activeCategory = button.getAttribute('data-filter');
+
+      filters.forEach(function (other) {
+        var selected = other === button;
+        other.classList.toggle('active', selected);
+        other.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+
+      updateCards();
+    });
+  });
+
+  updateCards();
+})();
+</script>
+
+<!-- ======================================================
+     END: MEDICAL & HSC INFO — SINGLE HTML CODE
+     ====================================================== -->
+
+
+
 
 
         
