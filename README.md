@@ -140,6 +140,9 @@ The website displays the following subject-wise distribution:
 
 The displayed examination guidelines specify 100 MCQs, 60 minutes, and a passing score of 40. Always check the latest official admission circular for the applicable examination year.
 
+ ## Wiki is Available ,Check it out!
+
+ 
 ## 🔒 Copyright & License
 
 **Copyright (c) 2026 Rakib Hasan. All Rights Reserved.**
