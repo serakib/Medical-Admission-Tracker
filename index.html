@@ -86,15 +86,6 @@
                     <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
-
-
-<!-- যোগাযোগ বাটন -->
-                    <a href="#contact" onclick="app.showView('home')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-medical-600 dark:text-medical-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        <i class="fa-solid fa-envelope ml-1"></i> যোগাযোগ
-                    </a>
-
-
-
                 </nav>
 <!-- Auth Button Container -->
 <div class="auth-btn-target">
@@ -321,125 +312,6 @@
             <div class="section-toolbar"><span id="question-bank-count">0 questions</span><span>Answer দেখানো/লুকানো যাবে</span></div>
             <div id="question-bank-list" class="bank-list"></div>
         </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <!-- PORTFOLIO EXACT GET IN TOUCH SECTION (Only on Home View) -->
-            <section id="contact" class="py-16 px-6 max-w-7xl mx-auto">
-                <div class="text-center contact-title-wrap" data-aos="fade-up">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Get in <span class="gradient-text">Touch</span></h2>
-                    <div class="w-16 h-1 bg-medical-600 mx-auto rounded-full mt-4"></div>
-                </div>
-
-                <div class="contact-reference-wrap" data-aos="fade-up">
-                    <form id="contactForm" onsubmit="event.preventDefault(); alert('ধন্যবাদ! আপনার মেসেজটি সফলভাবে সংরক্ষিত হয়েছে।');">
-                        <div class="contact-reference-grid">
-                            <input type="text" id="form-name" required placeholder="Your Name" aria-label="Your Name">
-                            <input type="email" id="form-email" required placeholder="Your Email" aria-label="Your Email">
-                            <textarea id="form-message" required placeholder="How can I Help you?" aria-label="Message"></textarea>
-                          
-                            <button type="submit" id="submit-btn" class="contact-send-btn btn-gradient text-white font-bold flex items-center justify-center gap-3">
-                                <i class="fa-solid fa-paper-plane"></i><span>Send Message</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="contact-social-row" data-aos="fade-up">
-                    <a href="mailto:rakibhasandcg27@gmail.com" class="contact-social-card" aria-label="Email">
-                        <i class="fa-solid fa-envelope"></i><span>Gmail</span>
-                    </a>
-                    <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" class="contact-social-card" aria-label="Facebook">
-                        <i class="fa-brands fa-facebook-f"></i><span>Facebook</span>
-                    </a>
-                    <a href="https://github.com/serakib" target="_blank" class="contact-social-card" aria-label="GitHub">
-                        <i class="fa-brands fa-github"></i><span>GitHub</span>
-                    </a>
-                </div>
-            </section>
-
-            <!-- Portfolio Footer Integration (Only on Home View) -->
-            <footer class="site-footer">
-                <div class="footer-inner">
-                    <div class="footer-brand">
-                        <div class="footer-brand-title"><span class="footer-dot"></span><span>MD. RAKIB HASAN</span></div>
-                        <p>Student developer building small web projects and learning something new every day.</p>
-                        <div class="footer-built">Built by <strong>MD. RAKIB HASAN</strong></div>
-                    </div>
-                    <div class="footer-links">
-                        <h4>Quick Links</h4>
-                        <a href="#view-home" onclick="app.showView('home')">হোম</a>
-                        <a href="#view-question-bank" onclick="app.openQuestionBank('view')">প্রশ্ন ব্যাংক</a>
-                        <a href="#view-practice" onclick="app.openQuestionBank('practice')">প্র্যাকটিস</a>
-                        <a href="#view-setup" onclick="app.setupExamQuick('model')">মডেল টেস্ট</a>
-                        <a href="#view-previous" onclick="app.showPreviousYears()">বিগত বছর</a>
-                        <a href="#view-leaderboard" onclick="app.showView('leaderboard'); app.loadLeaderboard()">Leaderboard</a>
-                        <a href="#view-profile" onclick="app.openProfile()">Profile</a>
-                        <a href="#view-syllabus" onclick="app.showView('syllabus')">সিলেবাস</a>
-                        <a href="#contact" onclick="app.showView('home')">যোগাযোগ</a>
-                    </div>
-                    <div class="footer-contact">
-                        <h4>Contact</h4>
-                        <a href="mailto:rakibhasandcg27@gmail.com"><i class="fa-solid fa-envelope"></i> rakibhasandcg27@gmail.com</a>
-                        <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>
-                        <a href="https://github.com/serakib" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <span>© 2026 <span>MD. RAKIB HASAN</span> — All Rights Reserved.</span>
-                    <div class="footer-legal">
-                        <button onclick="openModal('privacyModal')">Privacy Policy</button>
-                        <button onclick="openModal('termsModal')">Terms of Service</button>
-                        <button onclick="openModal('cookieModal')">Cookie Policy</button>
-                    </div>
-                </div>
-            </footer>
-        </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         <!-- VIEW: PRACTICE -->
         <section id="view-practice" class="view-section hidden max-w-4xl mx-auto space-y-5">
@@ -964,7 +836,29 @@
 
    
 
-
+    <footer class="site-footer desktop-canvas">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-brand-title"><span class="footer-dot"></span><span id="footer-name"></span></div>
+                <p>Student developer building small web projects and learning something new every day.</p>
+                <div class="footer-built">Built by <strong id="footer-built-name"></strong></div>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="#home">Home</a><a href="#question-bank">Question Bank</a><a href="#practice">Practice</a><a href="#model-test">Model Test</a><a href="#previous-year">Previous Year</a><a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a><a href="#syllabus">Syllabus</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <a href="mailto:rakibhasandcg27@gmail.com"><i class="fa-solid fa-envelope"></i> rakibhasandcg27@gmail.com</a>
+                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>
+                <a href="https://github.com/serakib" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 <span id="footer-bottom-name"></span> — All Rights Reserved.</span>
+            <div class="footer-legal"><button onclick="openModal('privacyModal')">Privacy Policy</button><button onclick="openModal('termsModal')">Terms of Service</button><button onclick="openModal('cookieModal')">Cookie Policy</button></div>
+        </div>
+    </footer>
 
    <script type="module" src="script.js"></script>
 </body>
