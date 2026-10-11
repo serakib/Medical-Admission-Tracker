@@ -712,10 +712,17 @@
                 <div class="footer-built">Built by <strong>MD. RAKIB HASAN</strong></div>
             </div>
             <div class="footer-links">
-                <h4>Quick Links</h4>
-                <a href="#view-home">হোম</a>
-                <a href="#contact">যোগাযোগ</a>
-            </div>
+    <h4>Quick Links</h4>
+    <a href="#home" onclick="app.showView('home')">হোম</a>
+    <a href="#question-bank" onclick="app.openQuestionBank('view')">প্রশ্ন ব্যাংক</a>
+    <a href="#practice" onclick="app.openQuestionBank('practice')">প্র্যাকটিস</a>
+    <a href="#model-test" onclick="app.setupExamQuick('model')">মডেল টেস্ট</a>
+    <a href="#previous-year" onclick="app.setupExamQuick('previous')">বিগত বছর</a>
+    <a href="#leaderboard" onclick="app.showView('leaderboard'); app.loadLeaderboard()">Leaderboard</a>
+    <a href="#profile" onclick="app.openProfile()">Profile</a>
+    <a href="#syllabus" onclick="app.showView('syllabus')">সিলেবাস</a>
+    <a href="#contact">যোগাযোগ</a>
+</div>
             <div class="footer-contact">
                 <h4>Contact</h4>
                 <a href="mailto:rakibhasandcg27@gmail.com"><i class="fa-solid fa-envelope"></i> rakibhasandcg27@gmail.com</a>
