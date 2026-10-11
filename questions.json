@@ -6270,7 +6270,1587 @@
 "explanation": "পাকস্থলীর চীফ বা জাইমোজেনিক কোষ থেকে নিষ্ক্রিয় পেপসিনোজেন নিঃসৃত হয়, যা পরবর্তীতে HCl এর উপস্থিতিতে সক্রিয় পেপসিনে পরিণত হয়।",
 "source": "Medical Admission Question Practice",
 "difficulty": "Hard"
-}
+},
+
+
+
+
+
+
+
+{
+    "id": "bio_083",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোন ছত্রাক খাদ্য হিসেবে ব্যবহার হয়?",
+    "options": {
+      "A": "Mucor pusillus",
+      "B": "Aspergillus flavus",
+      "C": "Agaricus campestris",
+      "D": "Saccharomyces"
+    },
+    "correctAnswer": "C",
+    "explanation": "Agaricus bisporus এবং A. campestris প্রজাতির মাশরুম সবজি হিসেবে ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_084",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোন হেপাটাইটিস ভাইরাস দূষিত পানি ও খাদ্যের মাধ্যমে সংক্রমণ ঘটায়?",
+    "options": {
+      "A": "Hepatitis D Virus",
+      "B": "Hepatitis A Virus",
+      "C": "Hepatitis C Virus",
+      "D": "Hepatitis B Virus"
+    },
+    "correctAnswer": "B",
+    "explanation": "HAV ও HEV ভাইরাস পানিবাহিত এবং বাকিরা রক্তের মাধ্যমে ছড়ায়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_085",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি নিউক্লিয়াসের জন্য সঠিক?",
+    "options": {
+      "A": "কোষের কার্যাবলী নিয়ন্ত্রণ করে",
+      "B": "ক্ষুদ্রাকৃতির নিউক্লিওলাস",
+      "C": "কোন ঝিল্লি দ্বারা আবদ্ধ থাকে না",
+      "D": "নিউক্লিওপ্লাজমে অবস্থান করে"
+    },
+    "correctAnswer": "A",
+    "explanation": "নিউক্লিয়াস কোষের সব ধরনের জৈবিক কাজ নিয়ন্ত্রণ করে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_086",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "ব্যাকটেরিয়া সম্পর্কে কোনটি সঠিক?",
+    "options": {
+      "A": "এনজাইম সমৃদ্ধ",
+      "B": "প্রতিলিপির মাধ্যমে বংশবৃদ্ধি করে",
+      "C": "অকোষী",
+      "D": "জীবন্ত আশ্রয় আবশ্যক"
+    },
+    "correctAnswer": "A",
+    "explanation": "প্রতিটি ব্যাকটেরিয়া কোষ কমপক্ষে একটি রেস্ট্রিকশন এনজাইম উৎপন্ন করে থাকে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_087",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি প্লাজমিডের বৈশিষ্ট্য?",
+    "options": {
+      "A": "এক ব্যাকটেরিয়া থেকে অন্য ব্যাকটেরিয়া স্থানান্তর সক্ষম",
+      "B": "অ্যান্টিমাইক্রোবিয়াল রেজিস্ট্যান্সের বিরুদ্ধে কোন ভূমিকা নেই",
+      "C": "100μm পর্যন্ত লম্বা হতে পারে",
+      "D": "কোষের ক্রোমোজোমের মত"
+    },
+    "correctAnswer": "A",
+    "explanation": "প্লাজমিড কনজুগেশনের মাধ্যমে সহজেই অন্য ব্যাকটেরিয়াতে সঞ্চালিত হতে পারে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_088",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "সোমাটিক এমব্রায়োজেনেসিস পদ্ধতিতে সর্বপ্রথম কোন উদ্ভিদ উৎপাদন করা হয়?",
+    "options": {
+      "A": "গাজর",
+      "B": "পেঁপে",
+      "C": "বেল",
+      "D": "বেগুন"
+    },
+    "correctAnswer": "A",
+    "explanation": "সোমাটিক এমব্রায়োজেনেসিস পদ্ধতিতে সর্বপ্রথম গাজর উদ্ভিদ উৎপাদন করা হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আলিম)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_089",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "অ্যাথলেটস ফুট (Athlete's foot) এর কারণ কি?",
+    "options": {
+      "A": "ছত্রাক ও ভাইরাসের সংক্রমণ",
+      "B": "ভাইরাস ও ব্যাকটেরিয়ার সংক্রমণ",
+      "C": "ঘাতজনিত ক্ষত",
+      "D": "ছত্রাক ও ব্যাকটেরিয়ার সংক্রমণ"
+    },
+    "correctAnswer": "D",
+    "explanation": "ছত্রাক ও ব্যাকটেরিয়ার আক্রমণে athlete's foot বা moccasin foot রোগ হয়ে থাকে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজিবুর)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_090",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি উদ্ভিদেরে রোগ সৃষ্টকারী ভাইরাস?",
+    "options": {
+      "A": "ইয়েলো ফিভার ভাইরাস",
+      "B": "টুয়ো ভাইরাস",
+      "C": "ফুট অ্যান্ড মাউথ ভাইরাস",
+      "D": "ফ্লাভি ভাইরাস"
+    },
+    "correctAnswer": "B",
+    "explanation": "ধানে টুয়ো রোগ সৃষ্টকারী ভাইরাস-টুয়ো ভাইরাস।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_091",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি জাতক লিপিড?",
+    "options": {
+      "A": "স্টেরয়েড",
+      "B": "লিপোপ্রোটিন",
+      "C": "ফসফোলিপিড",
+      "D": "মোম"
+    },
+    "correctAnswer": "A",
+    "explanation": "উদ্ভুত/জাতক লিপিড— স্টেরয়েডস, টারপিনস, রাবার।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_092",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি গাঠনিক প্রোটিন?",
+    "options": {
+      "A": "ফেরিটিন",
+      "B": "হিমোগ্লোবিন",
+      "C": "মায়োগ্লোবিন",
+      "D": "কোলাজেন"
+    },
+    "correctAnswer": "D",
+    "explanation": "গাঠনিক প্রোটিন- কেরাটিন, কোলাজেন, কনড্রিন।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_093",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "“পিরানহা” কোন প্রাণীভৌগোলিক অঞ্চলের প্রাণী?",
+    "options": {
+      "A": "ওরিয়েন্টাল",
+      "B": "ইথিওপিয়ান",
+      "C": "নিওট্রপিক্যাল",
+      "D": "নিআর্কটিক"
+    },
+    "correctAnswer": "C",
+    "explanation": "“পিরানহা” নিউট্রপিক্যাল অঞ্চলভুক্ত প্রাণী।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজিবুর)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_094",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "দেহকোষের ক্ষেত্রে কোনটি সঠিক?",
+    "options": {
+      "A": "মিয়োসিস পদ্ধতিতে কোষ বৃদ্ধি করে",
+      "B": "মিউটেশনের মাধ্যমে সন্তানে সঞ্চারিত হয়",
+      "C": "হ্যাপ্লয়েড সংখ্যক ক্রোমোজোম থাকে",
+      "D": "দেহের বিভিন্ন কোষে বিভেদিত হতে পারে"
+    },
+    "correctAnswer": "D",
+    "explanation": "দেহকোষ বিভিন্ন কোষে বিভেদিত হতে পারে। যেমন- এপিথেলিয়াল কোষ, পেশিকোষ, স্নায়ুকোষ, কোলেনকাইমা কোষ, জাইলেম কোষ ইত্যাদি।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আলিম)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_095",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "সেলুলোজ সম্পর্কে কোনটি সঠিক?",
+    "options": {
+      "A": "সহজে হজম হয়",
+      "B": "শাখাভিত্তিক পলিমার",
+      "C": "মলের বেশিরভাগ",
+      "D": "খাদ্যের প্রধান উপাদান"
+    },
+    "correctAnswer": "C",
+    "explanation": "সেলুলোজ সহজে হজম হয় না, অশাখাভিত্তিক পলিমার এবং উদ্ভিদের কোষ প্রাচীরের প্রধান গাঠনিক উপাদান।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_096",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "এনজাইমের বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "রাসায়নিক বিক্রিয়ার ফলে পরিবর্তন হয়",
+      "B": "আমিষ দিয়ে গঠিত",
+      "C": "ভিটামিন থেকে পাওয়া যায়",
+      "D": "আণবিক ওজন 500 Daltons এর কম"
+    },
+    "correctAnswer": "B",
+    "explanation": "এনজাইম হলো প্রধানত প্রোটিনধর্মী। বিজ্ঞানী সামনার বলেন— Enzymes are Protein",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_097",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "মাইটোটিক মেটাফেজে কোনটি সঠিক নয়?",
+    "options": {
+      "A": "ক্রোমোজোম সেন্ট্রোমিয়ারে বিভক্ত হয়",
+      "B": "ক্রোমোজোমে লুপ সৃষ্টি হয়",
+      "C": "ক্রোমোজোমগুলো এককভাবে থাকে",
+      "D": "ক্রোমোজোম অপরিবর্তিত থাকে"
+    },
+    "correctAnswer": "B",
+    "explanation": "ম্যায়োসিস প্রোফেজ-১ এর উপঅধাপ ডিপ্লোটিনে ক্রোমোজোমে লুপ সৃষ্টি হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_098",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি জীবগোষ্ঠীর ঘনত্ব নির্ণায়ক বৈশিষ্ট্য নয়?",
+    "options": {
+      "A": "অভিব্ৰয়াগ",
+      "B": "অভিবাসন",
+      "C": "জন্মহার ও মৃত্যুর হার",
+      "D": "প্রজাতি বৈচিত্র্য"
+    },
+    "correctAnswer": "D",
+    "explanation": "জীবগোষ্ঠীর ঘনত্ব নির্ভর করে জীবের জন্মহার, মৃত্যুহার, অভিব্ৰয়াগ এবং অভিবাসনের উপর।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আলিম)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_099",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোনটি জীববৈচিত্র্য সংরক্ষণের জন্য এক্স সিটু কনজারভেশন নয়?",
+    "options": {
+      "A": "বোটানিক্যাল গার্ডেন",
+      "B": "টিস্যু কালচার",
+      "C": "ইকোপार्क",
+      "D": "পশু পালন"
+    },
+    "correctAnswer": "C",
+    "explanation": "জীববৈচিত্র্য সংরক্ষণের জন্য ইন সিটু কনজারভেশন— ইকোপার্ক।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাসান)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_100",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "ডায়াটম বিষয়ে কোনটি সঠিক?",
+    "options": {
+      "A": "সবুজ বর্ণের হয়",
+      "B": "জলজ বাস্তুতন্ত্রের উৎপাদক",
+      "C": "সামুদ্রিক শৈবাল (moss) হিসেবে পরিচিত",
+      "D": "ঔষধি গুণ আছে"
+    },
+    "correctAnswer": "B",
+    "explanation": "সোনালি-হলুদ শৈবাল বা ডায়াটম জলজ বাস্তুতন্ত্রের অন্যতম উৎপাদক।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আলিম)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_101",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "মুখে খাওয়ার পোলিও ভ্যাকসিনটি কোন ধরনের ভ্যাকসিন?",
+    "options": {
+      "A": "নিষ্ক্রিয় টিকা",
+      "B": "জীবন্ত জীবন্ত টিকা",
+      "C": "উপএকক টিকা",
+      "D": "অনুবজী টিকা"
+    },
+    "correctAnswer": "B",
+    "explanation": "জীবন্ত জীবন্ত টিকা (Live Attenuated Vaccine) এর উদাহরণ: মুখে খাওয়ার পোলিও ভ্যাকসিন, (OPV→Oral Polio Vaccine), মাম্পস, জলাতঙ্ক, যক্ষ্মা, প্লেগ, টাইফয়েড।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: মাজেদা)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_102",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "নিচের কোনটি ম্যাক্রোফেজের কাজ নয়?",
+    "options": {
+      "A": "বিভিন্ন ধরনের কোষবিষ তৈরি করা",
+      "B": "বিভিন্ন ধরনের অ্যান্টিবডি তৈরি করা",
+      "C": "জীর্ণ কোষকে অপসারণ করা",
+      "D": "রিয়াক্টিভ অক্সিজেন ইন্টারমিডিয়েট তৈরি করা"
+    },
+    "correctAnswer": "B",
+    "explanation": "অ্যান্টিবডি তৈরি করা লিম্ফোসাইটের কাজ।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল / মেঘনাদ)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_103",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "অঙ্গুশ্বসন-",
+    "options": {
+      "A": "কোষ ও রক্তে সংগঠিত হয়",
+      "B": "নির্দিষ্ট পরিমাণ শক্তি উৎপন্ন করে",
+      "C": "এনজাইম দ্বারা প্রভাবিত হয় না",
+      "D": "একটি ভৌত রাসায়নিক প্রক্রিয়া"
+    },
+    "correctAnswer": "A",
+    "explanation": "অন্তঃশ্বসন দেহকোষ ও রক্তে সংগঠিত হয়, নির্দিষ্ট পরিমাণ শক্তি উৎপন্ন করে, এনজাইম দ্বারা প্রভাবিত হয়। এবং এটি একটি জৈব রাসায়নিক প্রক্রিয়া।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_104",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "Mollusca এর ক্ষেত্রে কোনটি সঠিক?",
+    "options": {
+      "A": "নরম কিউটিকুলার এপিডার্মিস দ্বারা আবৃত",
+      "B": "নরম ও অখণ্ডিত",
+      "C": "প্রতি খন্ডে নেফ্রিডিয়া বিদ্যমান থাকে",
+      "D": "দেহভ্যন্তরে কেন্দ্রীয় গহ্বর বিদ্যমান"
+    },
+    "correctAnswer": "B",
+    "explanation": "Mollusca নরম মাংসল, অখণ্ডিত। Annilida নরম কিউটিকুলে আবৃত এবং এর প্রতিটি খণ্ডে নেফ্রিডিয়া থাকে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_105",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "গ্লুকাগন-",
+    "options": {
+      "A": "রক্তে সুগার কমায়",
+      "B": "অগ্ন্যাশয়ের ডেল্টা কোষ থেকে নিঃসৃত হয়",
+      "C": "একটি পলিপেপটাইড এনজাইম",
+      "D": "ইনসুলিনের সাথে বিপরীতভাবে সম্পর্কিত"
+    },
+    "correctAnswer": "D",
+    "explanation": "গ্লুকাগন একটি পলিপেপটাইড হরমোন, অগ্ন্যাশয়ের α কোষ থেকে নিঃসৃত হয়, রক্তে সুগার বৃদ্ধি করে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_106",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "মানবদেহে কোনটি লুপ্তপ্রায় অঙ্গ?",
+    "options": {
+      "A": "থাইরয়েড গ্ল্যান্ড",
+      "B": "থাইমাস",
+      "C": "স্ক্যাপুলা",
+      "D": "ক্যানাইন দাঁত"
+    },
+    "correctAnswer": "B",
+    "explanation": "মানবদেহের লুপ্তপ্রায় অঙ্গগুলো হলো থাইমাস গ্রন্থি, আ্কেল দাঁত, কর্তন দাঁত, পুচ্ছাস্থি, গায়ের লোম, উপলম্ব ইত্যাদি।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_107",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "কোন উদ্দীপনা অ্যানিমোট্যাক্সিসকে প্রভাবিত করে?",
+    "options": {
+      "A": "বায়ুপ্রবাহ",
+      "B": "আর্দ্রতা",
+      "C": "মহাকর্ষণ",
+      "D": "তাপ"
+    },
+    "correctAnswer": "A",
+    "explanation": "বায়ু প্রবাহের প্রতি প্রাণীর সাড়া→ অ্যানিমোট্যাক্সিস",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_108",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "মায়োফাইব্রিলে কি ধরনের আমিষ থাকে?",
+    "options": {
+      "A": "অ্যাকটিন এবং মায়োসিন",
+      "B": "অ্যাকটিন এবং জিলেটিন",
+      "C": "মায়োসিন এবং ইলাস্টিন",
+      "D": "কোলাজেন এবং মায়োসিন"
+    },
+    "correctAnswer": "A",
+    "explanation": "মায়োফাইব্রিলেগুলো অ্যাকটিন ও মায়োসিন নামক প্রোটিন দিয়ে নির্মিত।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_109",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "অন্ত্রের প্রথম প্রতিরক্ষার স্তর কোনটি?",
+    "options": {
+      "A": "পাকস্থলির অ্যাসিড, মাইক্রোবায়োম ও মলত্যাগ",
+      "B": "সিলিয়া, কমপ্লিমেন্ট তন্ত্র ও সাইটোকাইনস",
+      "C": "ত্বক, ফ্যাগোসাইটস ও কমপ্লিমেন্ট তন্ত্র",
+      "D": "লালা, পাকস্থলির এনজাইম ও ফ্যাগোসাইটস"
+    },
+    "correctAnswer": "A",
+    "explanation": "অন্ত্রের প্রথম প্রতিরক্ষা স্তর এর উপাদান→ পাকস্থলির অ্যাসিড ও এনজাইম, মাইক্রোবায়োম, মলত্যাগ ও বমি।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_110",
+    "year": "2022-23",
+    "subject": "biology",
+    "question": "বুকের দুধের কোন উপাদানটি নবজাতকের প্রতিরোধক্ষয় কার্যকর?",
+    "options": {
+      "A": "সহজপাচ্য আমিষ",
+      "B": "ইমিউনোগ্লোবিন-এ",
+      "C": "পলিস্যাকারয়েড ফ্যাটি অ্যাসিড",
+      "D": "গ্যালাকটোজ"
+    },
+    "correctAnswer": "B",
+    "explanation": "ইমিউনোগ্লোবিন-এ মায়ের দুধের মাধ্যমে শিশুদের প্রবেশ করে এবং প্রাকৃতিক সক্রিয় প্রতিরক্ষা দান করে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: আজমল)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_068",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "সেমি মাইক্রো পদ্ধতিতে ব্যবহৃত H₂S গ্যাসের উৎস কোনটি?",
+    "options": {
+      "A": "H₂NCSNH₂ + H₂O",
+      "B": "FeS + লঘু H₂SO₄",
+      "C": "FeSO₄ + লঘু H₂SO₄",
+      "D": "CH₃CSNH₂ + H₂O"
+    },
+    "correctAnswer": "D",
+    "explanation": "সেমাইক্রো পদ্ধতিতে বিকারক হিসেবে H₂S গ্যাস এর পরিবর্তে থায়ো এসিটামাইড (CH₃CSNH₂) ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_069",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "STP তে এক মোল SO₂ গ্যাসের আয়তন কত?",
+    "options": {
+      "A": "22.40 L",
+      "B": "24.78 L",
+      "C": "2400.00 L",
+      "D": "223.00 L"
+    },
+    "correctAnswer": "A",
+    "explanation": "STP তে এক মোল SO₂ গ্যাসের আয়তন 22.4L",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_070",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কোন যৌগে নাইট্রাইল কার্যকরী মূলক বিদ্যমান?",
+    "options": {
+      "A": "CCl₃NO₂",
+      "B": "CH₃NH₂",
+      "C": "CH₃CN",
+      "D": "NH₄CNO"
+    },
+    "correctAnswer": "C",
+    "explanation": "CN হলো নাইট্রাইল মূলক। CH₃CN যৌগটিতে নাইট্রাইল মূলক বিদ্যমান।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_071",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কোন অঞ্চলের IR বর্ণালীর সাহায্যে কার্বনিল মূলক শনাক্তকরণ করা যায়?",
+    "options": {
+      "A": "(1100-1400) cm⁻¹",
+      "B": "(3300-3600) cm⁻¹",
+      "C": "(2800-3000) cm⁻¹",
+      "D": "(1660-1860) cm⁻¹"
+    },
+    "correctAnswer": "D",
+    "explanation": "(1660-1860) cm⁻¹ অঞ্চলের IR বর্ণালীর সাহায্যে কার্বনিল মূলক শনাক্তকরণ করা যায়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_072",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি কলয়েড ইমালশন নয়?",
+    "options": {
+      "A": "দধি",
+      "B": "দুধ",
+      "C": "মাখন",
+      "D": "শ্যাম্পু"
+    },
+    "correctAnswer": "A",
+    "explanation": "দধি কলয়েড ইমালশন নয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_073",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কোন প্রক্রিয়ায় দুধ থেকে ছানা (curdled milk) তৈরি করে?",
+    "options": {
+      "A": "অক্সিডেশন",
+      "B": "ফারমেন্টেশন",
+      "C": "কোয়াগুলেশন",
+      "D": "আর্দ্র বিশ্লেষণ"
+    },
+    "correctAnswer": "C",
+    "explanation": "কোয়াগুলেশন প্রক্রিয়ায় দুধ থেকে ছানা (curdled milk) তৈরি করা হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_074",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "নিচের বিক্রিয়াটিতে বিজারক কোনটি? CuSO₄+KI → Cu₂I₂+I₂+K₂SO₄",
+    "options": {
+      "A": "Cu²⁺",
+      "B": "I₂",
+      "C": "I⁻",
+      "D": "K⁺"
+    },
+    "correctAnswer": "C",
+    "explanation": "CuSO₄+KI → Cu₂I₂+I₂+K₂SO₄ এখানে KI এ I এর জারণ সংখ্যা -1 থেকে বৃদ্ধি পেয়ে I₂ তে 0 হয় ফলে এখানে I⁻ হলো বিজারক।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_075",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "H₂ ফুয়েল সেলের emf কত?",
+    "options": {
+      "A": "1.10V",
+      "B": "1.23V",
+      "C": "2.03V",
+      "D": "0.76V"
+    },
+    "correctAnswer": "B",
+    "explanation": "H₂ ফুয়েল সেলের emf 1.23V",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_076",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "ক্রোমিক এসিড দ্বারা ব্যুরেট পরিষ্কার করাকালীন কিরূপ বিক্রিয়া ঘটে?",
+    "options": {
+      "A": "প্রতিস্থাপন",
+      "B": "নিষ্ক্রিয়করণ",
+      "C": "বিজারণপদ",
+      "D": "জারণ"
+    },
+    "correctAnswer": "D",
+    "explanation": "ক্রোমিক এসিড দ্বারা ব্যুরেট পরিষ্কার করাকালীন জারণ ঘটে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_077",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কোনটি অপ্রতিসম অ্যালকিন?",
+    "options": {
+      "A": "CH₂ = CH₂",
+      "B": "ClCH = CHCl",
+      "C": "CH = CH – CH₃",
+      "D": "CH₃-CH = CHCH₃"
+    },
+    "correctAnswer": "C",
+    "explanation": "CH = CH – CH₃ অপ্রতিসম অ্যালকিন। এখানে দ্বিবন্ধন বরাবর বন্ধন অঞ্চলে উৎপন্ন যৌগমূলক দুইটি ভিন্ন রকম হয় যেমন- -CH₃, -CHCH₃।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_078",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কোন যৌগ অ্যালডল ঘনীভবন বিক্রিয়া দেয়?",
+    "options": {
+      "A": "CH₃CH₂CHO",
+      "B": "Cl₃C-CHO",
+      "C": "H-CHO",
+      "D": "C₆H₅CHO"
+    },
+    "correctAnswer": "A",
+    "explanation": "α - H যুক্ত অ্যালডিহাইড ও কিটোন অ্যালডল ঘনীভবন বিক্রিয়া দেয়। যেমন- CH₃CH₂CHO।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_079",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কারেন্সি নোটে সিকিউরিটির উপায় হিসেবে কোন বিশেষ রাসায়নিক পদার্থ ব্যবহৃত হয়?",
+    "options": {
+      "A": "সোডিয়াম নাইট্র্রেট",
+      "B": "সিলভার আয়োডাইড",
+      "C": "ফসফরাস",
+      "D": "সিলভার নাইট্রেট"
+    },
+    "correctAnswer": "C",
+    "explanation": "কারেন্সি নোটে সিকিউরিটির উপায় হিসেবে ফসফরাস ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_080",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "সমআয়তনের 0.1M NaOH এবং 0.1M H₂SO₄ মিশ্রণের প্রকৃতি কিরূপ হবে?",
+    "options": {
+      "A": "উভধর্মী",
+      "B": "নিরপেক্ষ",
+      "C": "অম্লীয়",
+      "D": "ক্ষারীয়"
+    },
+    "correctAnswer": "C",
+    "explanation": "H₂SO₄ দ্বিক্ষারকীয় এসিড হওয়ায় কার্যকরী [H⁺] এর ঘনমাত্রা = 0.1×2 = 0.2 M. যা 0.1 NaOH এর চেয়ে বেশি। ফলে মিশ্রণটি অম্লীয় হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_081",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "পর্যায় সারণিতে Pb মৌলের পর্যায় ও গ্রুপ কত?",
+    "options": {
+      "A": "পর্যায় - 6, গ্রুপ - 12",
+      "B": "পর্যায় - 5, গ্রুপ - 14",
+      "C": "পর্যায় - 6, গ্রুপ - 14",
+      "D": "পর্যায় - 7, গ্রুপ - 13"
+    },
+    "correctAnswer": "C",
+    "explanation": "Pb (82) = ....4f¹⁴5d¹⁰6s²6p² এখানে প্রধান কোয়ান্টাম সংখ্যা n = 6, তাই পর্যায় 6 এবং গ্রুপ হবে (10+4 = 14)",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_082",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "অম্লধর্মী মাটির pH বাড়াতে কোন রাসায়নিক ব্যবহার করা হয়?",
+    "options": {
+      "A": "ফসফেট সার (টি.এস.পি)",
+      "B": "CaCO₃",
+      "C": "KNO₃",
+      "D": "NH₄NO₃"
+    },
+    "correctAnswer": "B",
+    "explanation": "অম্লধর্মী মাটির pH বাড়াতে চুন এবং ক্যালসিয়াম ও ম্যাগনেসিয়াম প্রভৃতির কার্বনেট ব্যবহৃত হয়। যেমন- CaCO₃",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_083",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "তড়িৎ চুম্বকীয় বিকিরণ অঞ্চলে তরঙ্গদৈর্ঘ্য নিচের কোনটির সবচাইতে বেশি?",
+    "options": {
+      "A": "অতিবেগুনি রশ্মি অঞ্চল",
+      "B": "রেডিও ওয়েভস অঞ্চল",
+      "C": "দৃশ্যমান অঞ্চল",
+      "D": "অবলোহিত অঞ্চল"
+    },
+    "correctAnswer": "B",
+    "explanation": "তড়িৎ চুম্বকীয় বিকিরণে রেডিও ওয়েভস অঞ্চল এর তরঙ্গদৈর্ঘ্য (1 mm-10 km) সবচেয়ে বেশি।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_084",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি বিক্রিয়া হারের একক?",
+    "options": {
+      "A": "mol L⁻¹s⁻¹",
+      "B": "mol Ls⁻¹",
+      "C": "mol L⁻¹s",
+      "D": "mol⁻¹ L⁻¹s⁻¹"
+    },
+    "correctAnswer": "A",
+    "explanation": "বিক্রিয়া হারের একক mol L⁻¹s⁻¹",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_085",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি কিটো-ইনল টটোমারিতা প্রদর্শন করে?",
+    "options": {
+      "A": "মিথোক্সি প্রোপেন",
+      "B": "পেন্টন-2-য়ান",
+      "C": "প্রোপানল-1",
+      "D": "প্রোপানোন"
+    },
+    "correctAnswer": "D",
+    "explanation": "কার্বনিল মূলক (-CO-) যুক্ত অ্যালডিহাইড ও কিটোন যৌগ কিটো-ইনল টটোমারিতা প্রদর্শন করে। যেমন- প্রোপানোন।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_086",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "1.032g O₂ এবং 0.573g CO₂ এর মিশ্রণের CO₂ এর মোল ভগ্নাংশ কত?",
+    "options": {
+      "A": "0.1677",
+      "B": "0.287",
+      "C": "0.713",
+      "D": "0.8323"
+    },
+    "correctAnswer": "B",
+    "explanation": "CO₂ এর মোল ভগ্নাংশ = (CO₂ এর মোল সংখ্যা / মিশ্রণের মোট মোল সংখ্যা) = 0.013 / 0.452 = 0.287",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_087",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "বেনজিনে কার্বন-কার্বন বন্ধন দৈর্ঘ্য কত?",
+    "options": {
+      "A": "0.134 nm",
+      "B": "0.195 nm",
+      "C": "0.139 nm",
+      "D": "0.123 nm"
+    },
+    "correctAnswer": "C",
+    "explanation": "বেনজিনে-কার্বন-কার্বন বন্ধন দৈর্ঘ্য 0.139 nm.",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_088",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "Ca(OCl)Cl যৌগে Cl এর oxidation number কত?",
+    "options": {
+      "A": "-1, -1",
+      "B": "+1, -2",
+      "C": "+1, -1",
+      "D": "-1, +2"
+    },
+    "correctAnswer": "C",
+    "explanation": "OCl মূলকে Cl এর O.N. +1 এবং Ca(OCl)Cl এ Cl এর O.N. -1",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_089",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "অসম্পৃক্ত জৈব যৌগ শনাক্তকরণে ব্যবহৃত বিকারক কোনটি?",
+    "options": {
+      "A": "BaCl₂ দ্রবণ",
+      "B": "NaHCO₃ দ্রবণ",
+      "C": "Br₂ দ্রবণ",
+      "D": "FeCl₃ দ্রবণ"
+    },
+    "correctAnswer": "C",
+    "explanation": "অসম্পৃক্ত জৈব যৌগ শনাক্তকরণে Br₂ দ্রবণ এবং বেয়ার পরীক্ষা ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_090",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "পাকস্থলীর পাচক রসে H⁺ আয়নের মোলার ঘনমাত্রা কত, যখন pH এর মান 1.4?",
+    "options": {
+      "A": "0.004M",
+      "B": "4.0M",
+      "C": "0.4M",
+      "D": "0.04M"
+    },
+    "correctAnswer": "D",
+    "explanation": "[H⁺] = antilog (-pH) = 10⁻ᵖᴴ = 10⁻¹°⁴ = 0.04M",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_091",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "কোন বিক্রিয়ায় অ্যালডিহাইড মূলক মিথিলিন মূলকে পরিণত হয়?",
+    "options": {
+      "A": "গ্রিগনার্ড বিক্রিয়ায়",
+      "B": "উর্টজ বিক্রিয়ায়",
+      "C": "ক্লিমেনসেন বিজারণে",
+      "D": "ডিকার্বক্সিলেশনে"
+    },
+    "correctAnswer": "C",
+    "explanation": "ক্লিমেনসেন বিজারণ বিক্রিয়ায় অ্যালডিহাইড মূলক সরাসরি মিথিলিন মূলকে পরিণত হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_092",
+    "year": "2022-23",
+    "subject": "chemistry",
+    "question": "-CONH- কোন শ্রেণীর বন্ধন?",
+    "options": {
+      "A": "পেপটাইড",
+      "B": "β- গ্লাইকোসাইড",
+      "C": "α- গ্লাইকোসাইড",
+      "D": "এস্টার"
+    },
+    "correctAnswer": "A",
+    "explanation": "-CONH- পেপটাইড বন্ধন",
+    "source": "Medical Admission Test 2022-23 (মূল বই: হাজারী ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_062",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "কোন কণা “ঈশ্বর কণা” নামে পরিচিত?",
+    "options": {
+      "A": "লেপটন কণা",
+      "B": "হিগস বোসন কণা",
+      "C": "বোসন কণা",
+      "D": "মেসন কণা"
+    },
+    "correctAnswer": "B",
+    "explanation": "১৯৯৩ সালে হিগস বোসন কণাকে ঈশ্বর কণা বা God particle নামে অভিহিত করা হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_063",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "নিচের কোনটির উপর রোধ নির্ভর করে না?",
+    "options": {
+      "A": "উপাদান",
+      "B": "প্রস্থচ্ছেদের ক্ষেত্রফল",
+      "C": "তড়িৎ প্রবাহ",
+      "D": "পরিবাহকের দৈর্ঘ্য"
+    },
+    "correctAnswer": "C",
+    "explanation": "পরিবাহীর রোধ চারটি বিষয়ের উপর নির্ভর করে- ১. পরিবাহীর দৈর্ঘ্য; ২. পরিবাহীর প্রস্থচ্ছেদের ক্ষেত্রফল; ৩. পরিবাহীর উপাদান; ৪. পরিবাহীর তাপমাত্রা।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_064",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "মহাবিশ্বে কোনটির সংখ্যা সবচেয়ে বেশী?",
+    "options": {
+      "A": "ডার্ক এনার্জি বস্তুসমূহ",
+      "B": "নীহারিকা সমূহ",
+      "C": "কৃষ্ণ গহ্বর সমূহ",
+      "D": "গ্যালাক্সি সমূহ"
+    },
+    "correctAnswer": "A",
+    "explanation": "মহাবিশ্বে অদৃশ্য ভরের পরিমাণ দৃশ্যমান ভরের প্রায় দশগুণ।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_065",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "নিচের কোনটি নিউটনীয় বা চিরায়ত বলবিদ্যায় অপরিবর্তনীয় নয়?",
+    "options": {
+      "A": "বেগ",
+      "B": "কাল",
+      "C": "ভর",
+      "D": "স্থান"
+    },
+    "correctAnswer": "A",
+    "explanation": "চিরায়ত বলবিদ্যায় তিনটি মৌলিক রাশির ধারণা করা হয়েছে। এগুলো হলো- স্থান, সময় বা কাল এবং ভর।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: তপন ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_066",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "সূচন কম্পাঙ্কের আলোর জন্য ধাতু থেকে নির্গত ইলেকট্রনের বেগ কত?",
+    "options": {
+      "A": "সর্বোচ্চ",
+      "B": "শূন্য",
+      "C": "সর্বনিম্ন",
+      "D": "অসীম"
+    },
+    "correctAnswer": "B",
+    "explanation": "সূচন কম্পাঙ্কের আলোর জন্য ধাতু থেকে নির্গত ইলেকট্রনের বেগ শূন্য।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_067",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "1kg ভরের দুটি বস্তুকে 1 মিটার দূরত্বের ব্যবধানে স্থাপন করলে এদের মধ্যবর্তী আকর্ষণ বল হবে-",
+    "options": {
+      "A": "6.673 × 10⁻¹¹ N",
+      "B": "6.673 × 10²² N",
+      "C": "6.673 × 10⁻³⁰ N",
+      "D": "6.673 × 10¹⁵ N"
+    },
+    "correctAnswer": "A",
+    "explanation": "F = G (m₁m₂ / R²)",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_068",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "সমোষ্ণ প্রক্রিয়ায় কোনটি স্থির থাকে?",
+    "options": {
+      "A": "তাপমাত্রা",
+      "B": "তাপ",
+      "C": "চাপ",
+      "D": "আয়তন"
+    },
+    "correctAnswer": "A",
+    "explanation": "তাপমাত্রা স্থির রেখে কোনো গ্যাসের চাপ ও আয়তনের পরিবর্তনকে সমোষ্ণ পরিবর্তন বলে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_069",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "তাপবিদ্যার প্রথম সূত্র কোন দুটির মধ্যে সম্পর্ক স্থাপন করে?",
+    "options": {
+      "A": "তাপ ও কাজ",
+      "B": "কাজ ও ক্ষমতা",
+      "C": "তাপ ও বল",
+      "D": "বল ও শক্তি"
+    },
+    "correctAnswer": "A",
+    "explanation": "তাপগতিবিদ্যার প্রথম সূত্র তাপ ও কাজের মধ্যে সম্পর্ক স্থাপন করে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_070",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "একক ভরের দুটি বস্তুকা একক দূরত্বে যে বল দ্বারা পরস্পরকে আকর্ষণ করে সেটি হলো-",
+    "options": {
+      "A": "প্লঙ্কের ধ্রুবক",
+      "B": "মহাকর্ষীয় ধ্রুবক",
+      "C": "অভিকর্ষজ ত্বরণ",
+      "D": "একক বল"
+    },
+    "correctAnswer": "B",
+    "explanation": "একক ভরবিশিষ্ট দুটি বস্তুকা একক দূরত্ব থেকে যে পরিমাণ বল দ্বারা পরস্পরকে আকর্ষণ করে তার সংখ্যাগত মানকে মহাকর্ষীয় ধ্রুবক বলে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: তপন ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_071",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "তড়িৎচুম্বকীয় আবেশের ক্ষেত্রে আবিষ্ট তড়িচ্চালক বল নির্ভর করে না-",
+    "options": {
+      "A": "চৌম্বক আবেশের উপর",
+      "B": "কুণ্ডলী পাক সংখ্যার উপর",
+      "C": "কুণ্ডলীর রোদের উপর",
+      "D": "সময়ের উপর"
+    },
+    "correctAnswer": "C",
+    "explanation": "E = N (dφ/dt) ; φ = BA",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_072",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "তরল ও কঠিন পদার্থের মধ্যকার স্পর্শকোণের মান কত হলে তরল পদার্থ কঠিন পদার্থকে ভেজাবে না?",
+    "options": {
+      "A": "120°",
+      "B": "0°",
+      "C": "40°",
+      "D": "60°"
+    },
+    "correctAnswer": "A",
+    "explanation": "যেসব ক্ষেত্রে তরল কঠিন পদার্থকে ভিজায় না সেক্ষেত্রে স্পর্শ কোণ স্থূলকোণ হবে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: তপন ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_073",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "নিচের কোন তত্ত্ব দ্বারা চিড়ের মধ্য দিয়ে আলো বেঁকে যাওয়ার ঘটনা ব্যাখ্যা করা যায়?",
+    "options": {
+      "A": "কোয়ান্টাম তত্ত্ব",
+      "B": "তরঙ্গ তত্ত্ব",
+      "C": "দ্বৈতনীতি",
+      "D": "কণা তত্ত্ব"
+    },
+    "correctAnswer": "B",
+    "explanation": "তরঙ্গ তত্ত্ব দ্বারা অপবর্তন ব্যাখ্যা করা যায়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_074",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "ভূপৃষ্ঠ হতে ১০০০ কিলোমিটার উঁচুতে অভিকর্ষজ ত্বরণের মান কত?",
+    "options": {
+      "A": "8.1 ms⁻²",
+      "B": "3.8 ms⁻²",
+      "C": "7.33 ms⁻²",
+      "D": "9.8 ms⁻²"
+    },
+    "correctAnswer": "C",
+    "explanation": "gh = GM / (R+h)²",
+    "source": "Medical Admission Test 2022-23 (মূল বই: তপন ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_075",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "ভূ-চৌম্বক ক্ষেত্রের অনুভূমিক উপাংশের মান শূন্য হয়-",
+    "options": {
+      "A": "নিরক্ষীয় অঞ্চলে",
+      "B": "90° অক্ষাংশে",
+      "C": "মেরু অঞ্চলে",
+      "D": "60° অক্ষাংশে"
+    },
+    "correctAnswer": "C",
+    "explanation": "পৃথিবীর চুম্বক মেরুতে ভূ-চৌম্বক ক্ষেত্রের অনুভূমিক প্রাবল্য নেই, অর্থাৎ শূন্য।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_076",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "কোনটি চার্জ প্রবাহের হার পরিমাপের একক?",
+    "options": {
+      "A": "ভোল্ট",
+      "B": "কুলম্ব",
+      "C": "অ্যাম্পিয়ার",
+      "D": "ওয়াট"
+    },
+    "correctAnswer": "C",
+    "explanation": "চার্জ প্রবাহের হার পরিমাপের একক অ্যাম্পিয়ার।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_077",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "মিটার ব্রিজ নিচের কোনটির ভিত্তিতে কাজ করে?",
+    "options": {
+      "A": "অ্যাম্পিয়ারের সূত্র",
+      "B": "কারশফের সূত্র",
+      "C": "হুইটস্টোন ব্রিজ নীতি",
+      "D": "ফার্মেটের নীতি"
+    },
+    "correctAnswer": "C",
+    "explanation": "মিটার ব্রিজ হুইটস্টোন ব্রিজ নীতির ভিত্তিতে কাজ করে।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_078",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "কোন কণার বিনিময়ের মাধ্যমে তড়িৎ চৌম্বক বল কার্যকর হয়?",
+    "options": {
+      "A": "বোসন",
+      "B": "নিউটন",
+      "C": "ফোটন",
+      "D": "প্রোটিন"
+    },
+    "correctAnswer": "C",
+    "explanation": "ভরহীন, চার্জহীন ফোটন নামক কণার বিনিময়ের মাধ্যমে তড়িৎ চৌম্বক বল কার্যকর হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_079",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "100m দীর্ঘ একটি ট্রেন 45Kmh⁻¹ বেগে চলে 1Km দীর্ঘ একটি ব্রিজ অতিক্রম করে। ব্রিজটি অতিক্রম করতে ট্রেনটির কত সময় লাগবে?",
+    "options": {
+      "A": "88 সেকেন্ড",
+      "B": "18 সেকেন্ড",
+      "C": "80 সেকেন্ড",
+      "D": "24 সেকেন্ড"
+    },
+    "correctAnswer": "A",
+    "explanation": "S = vt ⇒ t = S/v = (1000+100) / 12.5 = 88 sec",
+    "source": "Medical Admission Test 2022-23 (মূল বই: তপন ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_080",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "কোন নীতিতে আলোকীয় তত্ত্বের ভেতর দিয়ে আলো সঞ্চালিত হয়?",
+    "options": {
+      "A": "পূর্ণ অভ্যন্তরীণ প্রতিফলন",
+      "B": "বিচ্ছুরণ",
+      "C": "ব্যতিচার",
+      "D": "অপবর্তন"
+    },
+    "correctAnswer": "A",
+    "explanation": "আলোকরাশি এক স্থান হতে অন্য স্থানে পূর্ণ অভ্যন্তরীণ প্রতিফলনের মাধ্যমে পাঠাতে পারে তাকে আলোকবাহী তত্ত্ব বা অপটিক্যাল ফাইবার বলা হয়।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ২য় পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_081",
+    "year": "2022-23",
+    "subject": "physics",
+    "question": "জড়তার ভ্রামকের একক কোনটি?",
+    "options": {
+      "A": "Kg m²",
+      "B": "Kg m",
+      "C": "Kg m⁻²",
+      "D": "Kg m⁻¹"
+    },
+    "correctAnswer": "A",
+    "explanation": "জড়তার ভ্রামকের একক kgm²।",
+    "source": "Medical Admission Test 2022-23 (মূল বই: ইসহাক ১ম পত্র)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_046",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "Which of the following can be used as a ‘modal’ as well as ‘main’ verb?",
+    "options": {
+      "A": "do",
+      "B": "need",
+      "C": "could",
+      "D": "mind"
+    },
+    "correctAnswer": "B",
+    "explanation": "Need modal verb এবং main verb উভয়ই হতে পারে। Modal verb - He need not go. Main verb- He needs to go.",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_047",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "What kind of pronoun are “who, what, and which”?",
+    "options": {
+      "A": "demonstrative",
+      "B": "personal",
+      "C": "relative",
+      "D": "reflexive"
+    },
+    "correctAnswer": "C",
+    "explanation": "Who, what, which interrogative sentence এ interrogative pronoun কিন্তু complex sentence এ relative pronoun।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_048",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "The word ‘recalcitrant’ means-",
+    "options": {
+      "A": "mutinous",
+      "B": "compliant",
+      "C": "docile",
+      "D": "amenable"
+    },
+    "correctAnswer": "A",
+    "explanation": "Recalcitrant (adjective, অবাধ্য) এবং mutinous (adjective, বিদ্রোহী) সমার্থক।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_049",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "The flight is leaving shortly. Here ‘shortly’ is-",
+    "options": {
+      "A": "a subject",
+      "B": "an adverbial",
+      "C": "a complement",
+      "D": "an adjective"
+    },
+    "correctAnswer": "B",
+    "explanation": "Verb কে when দ্বারা প্রশ্ন করলে উত্তর দেয় adverb. -কখন leave করছে? -shortly (शीघ्रই) তাই shortly adverb",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_050",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "I have no kith and kin in this town. It is a-",
+    "options": {
+      "A": "prepositional phrase",
+      "B": "conjunctional phrase",
+      "C": "adjective phrase",
+      "D": "noun phrase"
+    },
+    "correctAnswer": "D",
+    "explanation": "Kith and kin অর্থ আত্মীয় স্বজন এবং বাক্যটিতে ব্যবহৃত হয়েছে noun phrase হিসাবে।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_051",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "The antonym of ‘harbinger’ is-",
+    "options": {
+      "A": "educator",
+      "B": "messenger",
+      "C": "follower",
+      "D": "leader"
+    },
+    "correctAnswer": "C",
+    "explanation": "Harbinger অর্থ অগ্রদূত এবং শব্দটির antonym follower - অনুসারী।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_052",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "Father loves me. Here ‘loves’ is an example of-",
+    "options": {
+      "A": "intransitive verb",
+      "B": "simple verb",
+      "C": "auxillary verb",
+      "D": "transitive verb"
+    },
+    "correctAnswer": "D",
+    "explanation": "যে verb এর object থাকে তাকে transitive verb বলে। প্রশ্নের বাক্যটিতে love verb এর object, me তাই love, transitive verb.",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_053",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "Complete the following sentence: Do you know when-",
+    "options": {
+      "A": "the results will be published?",
+      "B": "are the results published?",
+      "C": "the results will publish?",
+      "D": "will the results publish?"
+    },
+    "correctAnswer": "A",
+    "explanation": "Do you know when the results will be published? - তুমি কি জানো কখন ফল প্রকাশিত হবে? বাক্যটিতে future tense এবং passive voice বসবে।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_054",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "The man who sat next to me is an architect. It is a-",
+    "options": {
+      "A": "compound sentence",
+      "B": "complex-compound sentence",
+      "C": "simple sentence",
+      "D": "complex sentence"
+    },
+    "correctAnswer": "D",
+    "explanation": "Relative pronoun দিয়ে একটি বাক্যাযুক্ত থাকলে complex sentence হয়। বাক্যটিতে who, relative pronoun.",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_055",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "We want to take legal action against the hoddlum. In this sentence 'to' is a/an-",
+    "options": {
+      "A": "adverb",
+      "B": "conjunction",
+      "C": "preposition",
+      "D": "infinitive marker"
+    },
+    "correctAnswer": "D",
+    "explanation": "want এর পর infinitive বসেছে এবং infinitive marker হিসেবে \"to\" বসেছে।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_056",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "\"There is no mother but loves her child\". Here 'but' is-",
+    "options": {
+      "A": "conjunction",
+      "B": "adjective",
+      "C": "negative relative",
+      "D": "adverb"
+    },
+    "correctAnswer": "C",
+    "explanation": "but মূলত who does not এর পরিবর্তে বসেছে। তাই but, negative relative pronoun.",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_057",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "Choose the correct sentence –",
+    "options": {
+      "A": "I am very better today",
+      "B": "The goods are of inferior qualities",
+      "C": "He gave me some advice",
+      "D": "He requested of my help"
+    },
+    "correctAnswer": "C",
+    "explanation": "Advice uncountable noun এবং uncountable noun এর পূর্বে some বসতে পারে কিন্তু advice এর plural বসবে না।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_058",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "Which sentence uses inchoative verb?",
+    "options": {
+      "A": "It is dark",
+      "B": "It is growing dark",
+      "C": "He is weak",
+      "D": "He was king"
+    },
+    "correctAnswer": "B",
+    "explanation": "যে verb দিয়ে কোন কিছু হওয়া বা ঘটার process বুঝায় তাকে inchoative verb বলে। It is growing dark- এখানে is growing দিয়ে dark হওয়ার process বুঝাচ্ছে।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_059",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "An ‘elegy’ is a –",
+    "options": {
+      "A": "satire",
+      "B": "limerick",
+      "C": "poem of lamentation",
+      "D": "hymn"
+    },
+    "correctAnswer": "C",
+    "explanation": "Elegy অর্থ শোকের কবিতা। তাই সঠিক উত্তর C- poem of lamentation",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_060",
+    "year": "2022-23",
+    "subject": "english",
+    "question": "Which one is a masculine noun?",
+    "options": {
+      "A": "miss",
+      "B": "spring",
+      "C": "death",
+      "D": "liberty"
+    },
+    "correctAnswer": "C",
+    "explanation": "Death – masculine. Miss, Liberty, Spring - Feminine",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_036",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "মুক্তিযুদ্ধ ভিত্তিক উপন্যাস কোনটি?",
+    "options": {
+      "A": "মা",
+      "B": "লালসালু",
+      "C": "জীবিতডাসের হাসি",
+      "D": "সারেং বৌ"
+    },
+    "correctAnswer": "A",
+    "explanation": "মুক্তিযুদ্ধ বিষয়ক উপন্যাস ‘মা’। রচয়িতা— আনিসুল হক।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_037",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "বীরশ্রেষ্ঠ ল্যান্স নায়েক নূর মোহাম্মদ শেখ কোন সেক্টরে মুক্তিযুদ্ধে অংশগ্রহণ করেন?",
+    "options": {
+      "A": "৮ নং সেক্টর",
+      "B": "৭ নং সেক্টর",
+      "C": "৬ নং সেক্টর",
+      "D": "৯ নং সেক্টর"
+    },
+    "correctAnswer": "A",
+    "explanation": "বীরশ্রেষ্ঠ ল্যান্স নায়েক নূর মোহাম্মদ শেখ ৮ নং সেক্টরে যুদ্ধ করেন। তিনি ইস্ট পাকিস্তান রাইফেলস (ইপিআর) এ কর্মরত ছিলেন।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_038",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "বঙ্গবন্ধুর অনুরোধে ভারতীয় মিত্রবাহিনী কবে বাংলাদেশ ত্যাগ করে?",
+    "options": {
+      "A": "১৭ এপ্রিল ১৯৭২",
+      "B": "৭ নভেম্বর ১৯৭২",
+      "C": "১২ মার্চ ১৯৭২",
+      "D": "২৬ মার্চ ১৯৭২"
+    },
+    "correctAnswer": "C",
+    "explanation": "ভারত-বাংলাদেশ যৌথ বাহিনী গঠিত হয় ২১ নভেম্বর ১৯৭১ সালে। যুদ্ধ শেষে বঙ্গবন্ধুর অনুরোধে ১২ মার্চ, ১৯৭২ সালে ভারতীয় বাহিনী বাংলাদেশ ত্যাগ করে।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_039",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "বাংলার সবচেয়ে প্রাচীন জনপদ কোনটি?",
+    "options": {
+      "A": "হরিকেল",
+      "B": "পুণ্ড্র",
+      "C": "গৌড়",
+      "D": "তাম্রলিপ্ত"
+    },
+    "correctAnswer": "B",
+    "explanation": "প্রাচীন বাংলায় মোট ১৬টি জনপদ ছিল যার মধ্যে সবচেয়ে প্রাচীন জনপদ ছিল পুণ্ড্র। পুণ্ড্র জনপদের রাজধানী পুণ্ড্রনগর।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_040",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "বাংলাদেশকে স্বীকৃতি প্রদানকারী প্রথম ইউরোপীয় দেশ কোনটি?",
+    "options": {
+      "A": "পোল্যান্ড",
+      "B": "স্পেন",
+      "C": "ফ্রান্স",
+      "D": "পূর্ব জার্মানি"
+    },
+    "correctAnswer": "D",
+    "explanation": "১ম ইউরোপীয় দেশ হিসেবে পূর্ব জার্মানি ১১ জানুয়ারি ১৯৭২ সালে বাংলাদেশকে স্বীকৃতি দেয়।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_041",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "পাকিসস্তানী সেনাবাহিনীর হাতে শহীদদের মধ্যে কে দার্শনিক ছিলেন?",
+    "options": {
+      "A": "ড. গোবিন্দ চন্দ্র দেব",
+      "B": "গিয়াসউদ্দিন আহমেদ",
+      "C": "রাশিদুল হাসান",
+      "D": "মুনীর চৌধুরী"
+    },
+    "correctAnswer": "A",
+    "explanation": "পাকিসস্তানী সেনাবাহিনীর হাতে শহীদদের মধ্যে দার্শনিক ছিলেন ড. গোবিন্দ চন্দ্র দেব (জি.সি. দেব)। তিনি ঢাকা বিশ্ববিদ্যালয়ের দর্শন বিভাগের শিক্ষক ছিলেন।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_042",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "স্বাধীনতার পর প্রথম ডাকটিকিটে কোন ছবি ছিল?",
+    "options": {
+      "A": "সোনা মসজিদ",
+      "B": "কেন্দ্রীয় শহীদ মিনার",
+      "C": "জাতীয় স্মৃতিসৌধ",
+      "D": "লালবাগ কেল্লা"
+    },
+    "correctAnswer": "B",
+    "explanation": "স্বাধীনতার পর ২১ শে ফেব্রুয়ারি, ১৯৭২ সালে বিপি চিপোনিশ এর ডিজাইন করা ডাক টিকিট প্রকাশিত হয়। যাতে কেন্দ্রীয় শহীদ মিনারের ছবি ছিল।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_043",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "“আমার ভাইয়ের রক্তে রাঙানো একুশে ফেব্রুয়ারি”– এ গানের প্রথম সুরকার কে?",
+    "options": {
+      "A": "আবদুল গাফফার চৌধুরী",
+      "B": "আলতাফ মাহমুদ",
+      "C": "আসাদ চৌধুরী",
+      "D": "আব্দুল লতিফ"
+    },
+    "correctAnswer": "D",
+    "explanation": "ভাষা আন্দোলন কে নিয়ে লেখা ‘আমার ভাইয়ের রক্তে রাঙানো একুশে ফেব্রুয়ারি’ গানটির ১ম সুরকার ছিলেন আব্দুল লতিফ; বর্তমান সুরকার আলতাফ মাহমুদ।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_044",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "১৯৬৬ সালে ঘোষিত ছয় দফা দাবীর কয়টি দফা অর্থনীতি বিষয়ক ছিল?",
+    "options": {
+      "A": "8",
+      "B": "৫",
+      "C": "৩",
+      "D": "৬"
+    },
+    "correctAnswer": "C",
+    "explanation": "বাঙালি জাতির মুক্তির সনদ ছয় দফার মধ্যে ৩, ৪ ও ৫ নং দফা ছিল অর্থনীতি বিষয়ক।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_045",
+    "year": "2022-23",
+    "subject": "gk",
+    "question": "ইউরোপীয় বণিকদের মধ্যে প্রথম বাংলায় কারা এসেছিলেন?",
+    "options": {
+      "A": "পর্তুগিজ",
+      "B": "ব্রিটিশ",
+      "C": "ফরাসি",
+      "D": "স্প্যানিয়ার্ড"
+    },
+    "correctAnswer": "A",
+    "explanation": "ইউরোপীয় বণিকদের মধ্যে সর্বপ্রথম ১৫১৭ সালে বাংলায় আসে পর্তুগীজরা।",
+    "source": "Medical Admission Test 2022-23",
+    "difficulty": "medium"
+  }
+
+
+  
+
+  
 
    
 ]
