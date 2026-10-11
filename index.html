@@ -50,6 +50,33 @@
 
     <link rel="stylesheet" href="./style.css">
 
+    <!-- Portfolio Footer Styles -->
+    <style>
+        .site-footer{margin-top:0;padding:46px 34px 20px;background:rgba(5,9,18,.94);border-top:1px solid rgba(255,255,255,.08);color:#95a1b8}
+        .footer-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.45fr .75fr 1fr;gap:70px;padding-bottom:38px}
+        .footer-brand-title{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:800;color:#e9e8f8;letter-spacing:.04em}
+        .footer-dot{width:9px;height:9px;border-radius:50%;background:#8a70ff;box-shadow:0 0 12px rgba(138,112,255,.75)}
+        .footer-brand p{max-width:480px;margin:16px 0;color:#8491a8;line-height:1.7;font-size:.92rem}
+        .footer-built{font-size:.85rem;color:#718097;margin-top:18px}
+        .footer-built strong{color:#00d9ff}
+        .footer-links,.footer-contact{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+        .footer-links h4,.footer-contact h4{margin:0 0 8px;color:#00e0ff;text-transform:uppercase;letter-spacing:.16em;font-size:.78rem}
+        .footer-links a,.footer-contact a{color:#96a2b9;text-decoration:none;transition:color .2s,transform .2s;font-size:.9rem}
+        .footer-links a:hover,.footer-contact a:hover{color:#a895ff;transform:translateX(2px)}
+        .footer-contact i{width:20px;text-align:center;margin-right:6px}
+        .footer-bottom{max-width:1280px;margin:0 auto;border-top:1px solid rgba(255,255,255,.08);padding-top:18px;display:flex;justify-content:space-between;align-items:center;gap:18px;font-size:.75rem;color:#68758b}
+        .footer-legal{display:flex;gap:18px}
+        .footer-legal button{background:none;border:0;color:#718097;cursor:pointer;padding:0;font-size:.75rem}
+        .footer-legal button:hover{color:#a895ff}
+        @media(max-width:760px){.site-footer{padding:34px 20px 18px}.footer-inner{grid-template-columns:1fr 1fr;gap:32px}.footer-brand{grid-column:1/-1}.footer-bottom{flex-direction:column;align-items:flex-start}.footer-legal{flex-wrap:wrap;gap:12px}}
+        
+        /* Policy modal styling from portfolio */
+        .policy-modal { position:fixed !important; inset:0 !important; z-index:100000 !important; background:rgba(0,0,0,.62) !important; backdrop-filter:blur(9px) !important; -webkit-backdrop-filter:blur(9px) !important; display:none; align-items:flex-end !important; justify-content:center !important; padding:18px !important; }
+        .policy-modal.flex { display:flex !important; }
+        .policy-card { width:min(560px,100%) !important; max-height:min(55vh,420px) !important; overflow-y:auto !important; border:1px solid rgba(109,92,231,.42) !important; border-radius:24px !important; background:rgba(12,16,27,.96) !important; box-shadow:0 24px 80px rgba(0,0,0,.48),0 0 35px rgba(109,92,231,.10) !important; padding:22px !important; }
+        .policy-cancel { min-width:105px !important; border:1px solid rgba(255,255,255,.14) !important; background:rgba(255,255,255,.05) !important; color:#e5e7eb !important; }
+        .policy-cancel:hover { background:rgba(255,255,255,.10) !important; }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
 
@@ -836,16 +863,24 @@
 
    
 
-    <footer class="site-footer desktop-canvas">
+    <!-- Portfolio Footer Integration -->
+    <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <div class="footer-brand-title"><span class="footer-dot"></span><span id="footer-name"></span></div>
+                <div class="footer-brand-title"><span class="footer-dot"></span><span>MD. RAKIB HASAN</span></div>
                 <p>Student developer building small web projects and learning something new every day.</p>
-                <div class="footer-built">Built by <strong id="footer-built-name"></strong></div>
+                <div class="footer-built">Built by <strong>MD. RAKIB HASAN</strong></div>
             </div>
             <div class="footer-links">
                 <h4>Quick Links</h4>
-                <a href="#home">Home</a><a href="#question-bank">Question Bank</a><a href="#practice">Practice</a><a href="#model-test">Model Test</a><a href="#previous-year">Previous Year</a><a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a><a href="#syllabus">Syllabus</a>
+                <a href="#home">Home</a>
+                <a href="#view-question-bank" onclick="app.openQuestionBank('view')">Question Bank</a>
+                <a href="#view-practice" onclick="app.openQuestionBank('practice')">Practice</a>
+                <a href="#view-setup" onclick="app.setupExamQuick('model')">Model Test</a>
+                <a href="#view-previous" onclick="app.showPreviousYears()">Previous Year</a>
+                <a href="#view-leaderboard" onclick="app.showView('leaderboard'); app.loadLeaderboard()">Leaderboard</a>
+                <a href="#view-profile" onclick="app.openProfile()">Profile</a>
+                <a href="#view-syllabus" onclick="app.showView('syllabus')">Syllabus</a>
             </div>
             <div class="footer-contact">
                 <h4>Contact</h4>
@@ -855,10 +890,63 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>© 2026 <span id="footer-bottom-name"></span> — All Rights Reserved.</span>
-            <div class="footer-legal"><button onclick="openModal('privacyModal')">Privacy Policy</button><button onclick="openModal('termsModal')">Terms of Service</button><button onclick="openModal('cookieModal')">Cookie Policy</button></div>
+            <span>© 2026 <span>MD. RAKIB HASAN</span> — All Rights Reserved.</span>
+            <div class="footer-legal">
+                <button onclick="openModal('privacyModal')">Privacy Policy</button>
+                <button onclick="openModal('termsModal')">Terms of Service</button>
+                <button onclick="openModal('cookieModal')">Cookie Policy</button>
+            </div>
         </div>
     </footer>
+
+    <!-- Policy Modals -->
+    <div id="privacyModal" class="policy-modal">
+        <div class="policy-card">
+            <h3 class="text-xl font-bold text-white mb-4">Privacy Policy</h3>
+            <p class="text-xs text-slate-300 leading-relaxed mb-4">Your privacy is important to us. This site uses third-party cookies to serve relevant advertisements based on web traffic. No personal information submitted via contact forms is shared with external vendors.</p>
+            <button onclick="closeModal('privacyModal')" class="policy-cancel px-5 py-2 text-xs font-bold rounded-xl">Cancel</button>
+        </div>
+    </div>
+
+    <div id="termsModal" class="policy-modal">
+        <div class="policy-card">
+            <h3 class="text-xl font-bold text-white mb-4">Terms of Service</h3>
+            <p class="text-xs text-slate-300 leading-relaxed mb-4">By accessing this website, you agree to comply with general internet browsing guidelines. All portfolio code, designs, and content are intellectual property of MD. RAKIB HASAN.</p>
+            <button onclick="closeModal('termsModal')" class="policy-cancel px-5 py-2 text-xs font-bold rounded-xl">Cancel</button>
+        </div>
+    </div>
+
+    <div id="cookieModal" class="policy-modal">
+        <div class="policy-card">
+            <h3 class="text-xl font-bold text-white mb-4">Cookie Policy</h3>
+            <p class="text-xs text-slate-300 leading-relaxed mb-4">This website uses standard browser storage and cookies to record visit statistics and deliver personalized advertisement scripts.</p>
+            <button onclick="closeModal('cookieModal')" class="policy-cancel px-5 py-2 text-xs font-bold rounded-xl">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Modal Scripts -->
+    <script>
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+        document.addEventListener('click', (event) => {
+            const modal = event.target.closest('.policy-modal');
+            if (modal && event.target === modal) closeModal(modal.id);
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            document.querySelectorAll('.policy-modal.flex').forEach(modal => closeModal(modal.id));
+        });
+    </script>
 
    <script type="module" src="script.js"></script>
 </body>
