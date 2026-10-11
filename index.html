@@ -406,7 +406,46 @@ box-shadow: none;
 
 
 
-<!-- Medical & HSC Info View -->
+
+
+
+
+
+
+
+
+        
+        <!-- Mobile Drawer Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="app.showView('home'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-house ml-2"></i> হোম
+            </button>
+            <button onclick="app.openQuestionBank('view'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-book-medical ml-2"></i> প্রশ্ন ব্যাংক</button>
+            <button onclick="app.openQuestionBank('practice'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-bullseye ml-2"></i> প্র্যাকটিস</button>
+            <button onclick="app.setupExamQuick('model'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-clipboard-check ml-2"></i> মডেল টেস্ট
+            </button>
+            <button onclick="app.showPreviousYears(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-clock-rotate-left ml-2"></i> বিগত বছরের প্রশ্ন
+            </button>
+            <button onclick="app.showView('leaderboard'); app.loadLeaderboard(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-trophy ml-2"></i> Leaderboard</button>
+            <button onclick="app.openProfile(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-user-circle ml-2"></i> Profile</button>
+            <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
+            </button>
+            <button onclick="app.showView('home'); app.toggleMobileMenu(); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 100)" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-envelope ml-2"></i> Contact
+            </button>
+            
+        </div>
+    </header>
+
+    <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Medical & HSC Info View -->
 <section id="view-medical-hsc-info" class="view-section hidden p-4">
     <div class="max-w-5xl mx-auto space-y-6">
         <header>
@@ -490,84 +529,6 @@ box-shadow: none;
 </section>
 
 
-
-
-
-
-
-
-
-
-
-        
-<!-- Feature View Switching -->
-<script>
-/*
-  IMPORTANT:
-  Existing app.showView() function থাকলে এই function
-  duplicate করবেন না। আপনার existing function-এ নতুন
-  view ID দুটো register করুন।
-*/
-
-function showNewFeatureView(viewName) {
-    const allowedViews = {
-        "medical-hsc-info": "view-medical-hsc-info",
-        "student-life-support": "view-student-life-support"
-    };
-
-    const targetId = allowedViews[viewName];
-    if (!targetId) return false;
-
-    const target = document.getElementById(targetId);
-    if (!target) return false;
-
-    document.querySelectorAll(".app-view").forEach(view => {
-        view.classList.add("hidden");
-    });
-
-    target.classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    return true;
-}
-</script>
-
-
-
-
-
-
-
-        
-        <!-- Mobile Drawer Menu -->
-        <div id="mobileMenu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 pt-2 pb-4 space-y-1">
-            <button onclick="app.showView('home'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-house ml-2"></i> হোম
-            </button>
-            <button onclick="app.openQuestionBank('view'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-book-medical ml-2"></i> প্রশ্ন ব্যাংক</button>
-            <button onclick="app.openQuestionBank('practice'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-bullseye ml-2"></i> প্র্যাকটিস</button>
-            <button onclick="app.setupExamQuick('model'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-clipboard-check ml-2"></i> মডেল টেস্ট
-            </button>
-            <button onclick="app.showPreviousYears(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-clock-rotate-left ml-2"></i> বিগত বছরের প্রশ্ন
-            </button>
-            <button onclick="app.showView('leaderboard'); app.loadLeaderboard(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-trophy ml-2"></i> Leaderboard</button>
-            <button onclick="app.openProfile(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-user-circle ml-2"></i> Profile</button>
-            <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
-            </button>
-            <button onclick="app.showView('home'); app.toggleMobileMenu(); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 100)" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-envelope ml-2"></i> Contact
-            </button>
-            
-        </div>
-    </header>
-
-    <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
-
-    <!-- Main Dynamic Content Wrapper -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         <!-- VIEW 1: HOME / DASHBOARD -->
         <section id="view-home" class="view-section space-y-8">
@@ -1403,9 +1364,9 @@ function showNewFeatureView(viewName) {
 
 
 
-<script type="module" src=".js/app-views-fix.js"></script>
+<script type="module" src="./js/app-views-fix.js"></script>
 
-    <script type="module" src=".js/student-ai.js" ></script>
+    <script type="module" src="./js/student-ai.js" ></script>
 
     <script type="module" src="script.js"></script>
 </body>
