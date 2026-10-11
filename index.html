@@ -354,7 +354,17 @@ box-shadow: none;
                     <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
-                    
+                    <!-- NAV BUTTON: JavaScript এটি existing navbar-এ যোগ করবে -->
+<a href="#medical-hsc-info"
+   id="mhi-nav-link"
+   class="nav-link mhi-nav-link"
+   data-page-link="medical-hsc-info"
+   aria-label="Medical and HSC Information"
+   hidden>
+  <span>▣</span>
+  <span>Medical &amp; HSC Info</span>
+</a>
+
                     
                     <button onclick="app.showView('home'); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 80)" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-envelope ml-1"></i> Contact
