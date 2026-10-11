@@ -9204,6 +9204,220 @@
     "explanation": "'only if you are a student' অংশটি শর্ত প্রকাশ করে মেইন ক্লজকে মডিফাই করছে, তাই এটি একটি Adverbial Clause of condition ।",
     "source": "Medical Admission Test 2021-22",
     "difficulty": "hard"
+  },
+
+
+
+  {
+    "id": "eng_111",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Select the sentence with a noun as a premodifier-",
+    "options": {
+      "A": "No passenger flight departed on that day",
+      "B": "We enjoyed a fabulous outing in the evening",
+      "C": "We booked a spacious room",
+      "D": "We had a pleasant journey this time"
+    },
+    "correctAnswer": "A",
+    "explanation": "'passenger' শব্দটি একটি noun যা অন্য একটি noun 'flight'-এর পূর্বে বসে premodifier হিসেবে কাজ করছে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_112",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Which of the following is not a noun?",
+    "options": {
+      "A": "softly",
+      "B": "livelihood",
+      "C": "responsibility",
+      "D": "friendliness"
+    },
+    "correctAnswer": "A",
+    "explanation": "'softly' শব্দটি একটি Adverb। বাকিগুলো (livelihood, responsibility, friendliness) সবকটি Noun।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_113",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Choose the sentence with incorrect use of a phrase -",
+    "options": {
+      "A": "I don't want to hear a long description, I just want the bottom line",
+      "B": "When I come home late, my wife gives me the third degree",
+      "C": "Don't sell yourself short, you are a good doctor",
+      "D": "Now that the construction is almost finished, you can pull out all the stops and take it easy"
+    },
+    "correctAnswer": "D",
+    "explanation": "'pull out all the stops' অর্থ সর্বাত্মক চেষ্টা করা, যা 'take it easy' (স্বাভাবিক/আরামপ্রদ থাকা) এর সাথে সামঞ্জস্যপূর্ণ নয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "hard"
+  },
+
+
+
+  {
+    "id": "gk_46",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "বাংলাদেশের প্রথম শিক্ষা কমিশন কোনটি?",
+    "options": {
+      "A": "ড. মফিজ উদ্দিন আহমদ শিক্ষা কমিশন",
+      "B": "ড. এম শামসুল হক শিক্ষা কমিশন",
+      "C": "ড. কুদরত-এ-খুদা শিক্ষা কমিশন",
+      "D": "ড. মজিদ খান শিক্ষা কমিশন"
+    },
+    "correctAnswer": "C",
+    "explanation": "বাংলাদেশের প্রথম শিক্ষা কমিশন হলো ১৯৭২ সালে গঠিত 'ড. কুদরত-এ-খুদা শিক্ষা কমিশন'।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_47",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "আয়তন অনুযায়ী বাংলাদেশের বৃহত্তম ও ক্ষুদ্রতম জেলা কোন দুটি?",
+    "options": {
+      "A": "ঢাকা ও বগুড়া",
+      "B": "নোয়াখালী ও সাতক্ষীরা",
+      "C": "চট্টগ্রাম ও পঞ্চগড়",
+      "D": "রাঙ্গামাটি ও নারায়ণগঞ্জ"
+    },
+    "correctAnswer": "D",
+    "explanation": "বাংলাদেশের আয়তনে বৃহত্তম জেলা রাঙ্গামাটি এবং ক্ষুদ্রতম জেলা নারায়ণগঞ্জ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_48",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "মুজিব বর্ষের ক্ষণ গণনা শুরু হয় কোন তারিখ থেকে?",
+    "options": {
+      "A": "২৫ মার্চ ২০২০",
+      "B": "১ জানুয়ারি ২০২০",
+      "C": "১৭ জানুয়ারি ২০২০",
+      "D": "১০ জানুয়ারি ২০২০"
+    },
+    "correctAnswer": "D",
+    "explanation": "বঙ্গবন্ধুর স্বদেশ প্রত্যাবর্তন দিবস ১০ জানুয়ারি ২০২০ তারিখ থেকে মুজিব বর্ষের ক্ষণ গণনা শুরু হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_49",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "ঢাকা বিশ্ববিদ্যালয় কর্তৃপক্ষ কত তারিখে বঙ্গবন্ধুর বহিষ্কারাদেশ প্রত্যাহার করে নেন?",
+    "options": {
+      "A": "৭ মার্চ ২০১০",
+      "B": "১৭ মার্চ ২০১০",
+      "C": "১৫ আগস্ট ২০১০",
+      "D": "১৪ আগস্ট ২০১০"
+    },
+    "correctAnswer": "D",
+    "explanation": "২০০-১০ সালের ১৪ আগস্ট ঢাকা বিশ্ববিদ্যালয় কর্তৃপক্ষ বঙ্গবন্ধুর বহিষ্কারাদেশ আনুষ্ঠানিকভাবে প্রত্যাহার করে নেয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "hard"
+  },
+  {
+    "id": "gk_50",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "বঙ্গবন্ধু শেখ মুজিবুর রহমানকে \"Poet of politics\" উপাধি দেয় কোন পত্রিকা?",
+    "options": {
+      "A": "দি টাইমস",
+      "B": "দি হিন্দু",
+      "C": "দি শিকাগো পোস্ট",
+      "D": "দি নিউজউইক"
+    },
+    "correctAnswer": "D",
+    "explanation": "মার্কিন যুক্তরাষ্ট্রের 'নিউজউইক' (Newsweek) পত্রিকা ১৯৭১ সালের ৫ এপ্রিল সংখ্যায় বঙ্গবন্ধুকে 'Poet of Politics' বা রাজনীতির কবি হিসেবে আখ্যায়িত করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_51",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "বাংলাদেশের সংবিধানের মূলনীতি কয়টি?",
+    "options": {
+      "A": "দশ",
+      "B": "ছয়",
+      "C": "চার",
+      "D": "আট"
+    },
+    "correctAnswer": "C",
+    "explanation": "বাংলাদেশের মূল সংবিধানের মূলনীতি ৪টি: জাতীয়তাবাদ, সমাজতন্ত্র, গণতন্ত্র ও ধর্মনিরপেক্ষতা।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_52",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "৭ মার্চের ভাষণ আসলে ছিল স্বাধীনতার মূল দলিল - উক্তিটি কার?",
+    "options": {
+      "A": "চে গুয়েভারা",
+      "B": "মোস্তফা কামাল আতাতুর্ক",
+      "C": "নেলসন ম্যান্ডেলা",
+      "D": "মহাত্মা গান্ধী"
+    },
+    "correctAnswer": "C",
+    "explanation": "দক্ষিণ আফ্রিকার মহান নেতা নেলসন ম্যান্ডেলা এই উক্তিটি করেছিলেন।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_53",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "বাংলাদেশের সর্ববৃহৎ গণহত্যাটি কোথায় হয়?",
+    "options": {
+      "A": "আসামদিয়া",
+      "B": "মোহাম্মদপুর বিধবাপল্লী",
+      "C": "চুকনগর",
+      "D": "রায়েরবাজার"
+    },
+    "correctAnswer": "C",
+    "explanation": "১৯৭১ সালের ২০ মে খুলনার ডুমুরিয়া উপজেলার চুকনগরে বাংলাদেশের একক বৃহত্তম গণহত্যাটি ঘটেছিল।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_54",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "বাংলাদেশের পতাকা প্রথম উত্তোলন করা হয় কত তারিখে?",
+    "options": {
+      "A": "২ মার্চ ১৯৭১",
+      "B": "২ জানুয়ারি ১৯৭১",
+      "C": "২ আগস্ট ১৯৭১",
+      "D": "২ এপ্রিল ১৯৭১"
+    },
+    "correctAnswer": "A",
+    "explanation": "১৯৭১ সালের ২ মার্চ ঢাকা বিশ্ববিদ্যালয়ের বটতলায় আ স ম আবদুর রব প্রথম স্বাধীন বাংলাদেশের পতাকা উত্তোলন করেন।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_55",
+    "year": "2021-22",
+    "subject": "gk",
+    "question": "এম এ হান্নান প্রথমবার কোথা হতে স্বাধীনতার ঘোষণাপত্র পাঠ করেন?",
+    "options": {
+      "A": "চট্টগ্রামের আগ্রাবাদ বেতার কেন্দ্র",
+      "B": "ঢাকাস্থ বেতার কেন্দ্র",
+      "C": "ত্রিপুরার রামগড়স্থ বেতার কেন্দ্র",
+      "D": "চট্টগ্রামের কালুরঘাট বেতার কেন্দ্র"
+    },
+    "correctAnswer": "D",
+    "explanation": "এম এ হান্নান ২৬ মার্চ ১৯৭১ সালে চট্টগ্রাম কালুরঘাট স্বাধীন বাংলা বেতার কেন্দ্র থেকে বঙ্গবন্ধুর পক্ষে স্বাধীনতার ঘোষণাপত্র পাঠ করেন।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
   }
   
 
