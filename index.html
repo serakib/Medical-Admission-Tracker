@@ -358,25 +358,17 @@ box-shadow: none;
 
 
 
-          
-<!-- Medical & HSC Info Navbar Button -->
-<a href="#medical-hsc-info"
-   id="mhi-nav-link"
-   class="nav-link"
-   aria-label="Medical and HSC Information">
-  <span class="nav-icon">🏥</span>
-  <span>Medical &amp; HSC Info</span>
-</a>
+<!-- Medical & HSC Info Feature -->
+<div id="medical-hsc-info" class="feature-page" hidden>
+  <h2>🏥 Medical &amp; HSC Info</h2>
+  <p>এখানে Medical ও HSC সংক্রান্ত তথ্য দেখানো হবে।</p>
+</div>
 
-<!-- Student Life Support Navbar Button -->
-<a href="#student-life-support"
-   id="sls-nav-link"
-   class="nav-link"
-   aria-label="Student Life Support">
-  <span class="nav-icon">🤝</span>
-  <span>Student Life Support</span>
-</a>
-
+<!-- Student Life Support Feature -->
+<div id="student-life-support" class="feature-page" hidden>
+  <h2>🤝 Student Life Support</h2>
+  <p>এখানে Student Life Support AI দেখানো হবে।</p>
+</div>
 
 
 
@@ -1681,6 +1673,46 @@ box-shadow: none;
         initMedicalContactForm();
     }
 })();
+</script>
+
+
+
+
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const buttons = {
+    "mhi-nav-link": "medical-hsc-info",
+    "sls-nav-link": "student-life-support"
+  };
+
+  const pages = document.querySelectorAll(".feature-page");
+
+  function showFeature(id) {
+    pages.forEach(page => {
+      page.hidden = page.id !== id;
+    });
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.classList.remove("active");
+    });
+
+    const activeButton = Object.keys(buttons).find(
+      key => buttons[key] === id
+    );
+
+    if (activeButton) {
+      document.getElementById(activeButton)?.classList.add("active");
+    }
+  }
+
+  Object.entries(buttons).forEach(([buttonId, pageId]) => {
+    document.getElementById(buttonId)?.addEventListener("click", function (event) {
+      event.preventDefault();
+      showFeature(pageId);
+    });
+  });
+});
 </script>
 
     <script src="student-ai.js" defer></script>
