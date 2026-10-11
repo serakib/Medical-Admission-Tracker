@@ -9418,6 +9418,1612 @@
     "explanation": "এম এ হান্নান ২৬ মার্চ ১৯৭১ সালে চট্টগ্রাম কালুরঘাট স্বাধীন বাংলা বেতার কেন্দ্র থেকে বঙ্গবন্ধুর পক্ষে স্বাধীনতার ঘোষণাপত্র পাঠ করেন।",
     "source": "Medical Admission Test 2021-22",
     "difficulty": "easy"
+  },
+
+
+
+
+  {
+    "id": "eng_114",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Which pair of words is synonymous?",
+    "options": {
+      "A": "Clutter and Consistent",
+      "B": "Acclimatize and Accustom",
+      "C": "Apartheid and Apprehend",
+      "D": "Philanthropic and Pessimistic"
+    },
+    "correctAnswer": "B",
+    "explanation": "'Acclimatize' এবং 'Accustom' উভয় শব্দের অর্থই খাপ খাইয়ে নেওয়া বা অভ্যস্ত হওয়া।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_115",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Fill up the blank with appropriate word. I am glad _________ your glorious result in the examination.",
+    "options": {
+      "A": "of",
+      "B": "for",
+      "C": "at",
+      "D": "to"
+    },
+    "correctAnswer": "C",
+    "explanation": "কোনো ঘটনার খবর বা ফলাফলে আনন্দিত হওয়া বোঝাতে Appropriate Preposition 'glad at' ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_116",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Which one of the following is antonym of 'Laud'?",
+    "options": {
+      "A": "Adore",
+      "B": "Inept",
+      "C": "Latch",
+      "D": "Abhor"
+    },
+    "correctAnswer": "D",
+    "explanation": "'Laud' অর্থ প্রশংসা করা, আর 'Abhor' অর্থ তীব্র ঘৃণা করা। তাই এটি 'Laud'-এর বিপরীত শব্দ।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_117",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Masculine gender for 'bee' is-",
+    "options": {
+      "A": "Drake",
+      "B": "Dam",
+      "C": "Drone",
+      "D": "Doe"
+    },
+    "correctAnswer": "C",
+    "explanation": "'Bee' (স্ত্রী মৌমাছি)-এর Masculine gender হলো 'Drone' (পুরুষ মৌমাছি)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_118",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Antonym of 'bizarre' is-",
+    "options": {
+      "A": "Fexible",
+      "B": "Horrible",
+      "C": "Messy",
+      "D": "Normal"
+    },
+    "correctAnswer": "D",
+    "explanation": "'Bizarre' অর্থ অদ্ভুত বা অস্বাভাবিক, যার বিপরীত শব্দ হলো 'Normal' (স্বাভাবিক)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_119",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Choose the correct spelling:",
+    "options": {
+      "A": "Sovereinity",
+      "B": "Sovereignty",
+      "C": "Sovreinty",
+      "D": "Sovreignty"
+    },
+    "correctAnswer": "B",
+    "explanation": "সার্বভৌমত্ব ইংরেজি শব্দের সঠিক বানানটি হলো 'Sovereignty'।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_120",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Choose the correct words to fill up the blank of the sentence \"I have not heard from him _________\".",
+    "options": {
+      "A": "since long",
+      "B": "for a long time",
+      "C": "for long",
+      "D": "long since"
+    },
+    "correctAnswer": "B",
+    "explanation": "দীর্ঘ সময় ধরে নির্দেশ করতে Present Perfect Tense-এ 'for a long time' ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_121",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Choose the correct sentence:",
+    "options": {
+      "A": "You must cut off your expenditure",
+      "B": "You must cut down your expenditure",
+      "C": "You must cut up your expenditure",
+      "D": "You must cut out your expenditure"
+    },
+    "correctAnswer": "B",
+    "explanation": "খরচ কমানো বোঝাতে সঠিক Phrase হলো 'cut down' (Cut down expenditure)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_122",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Are you an early riser? Here 'early' is:",
+    "options": {
+      "A": "Adverb",
+      "B": "Verb",
+      "C": "Noun",
+      "D": "Adjective"
+    },
+    "correctAnswer": "D",
+    "explanation": "এখানে 'early' শব্দটি Noun 'riser'-কে মডিফাই করায় এটি একটি Adjective।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_123",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Fill up the blank with the appropriate option: \"_____________ the word in the dictionary\".",
+    "options": {
+      "A": "look over",
+      "B": "look after",
+      "C": "look up",
+      "D": "look to"
+    },
+    "correctAnswer": "C",
+    "explanation": "অভিধানে কোনো শব্দের অর্থ খোঁজা বোঝাতে Phrase 'look up' ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_124",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Fill up the blank with appropriate word: A good teacher discovers the treasure hidden ________ each student.",
+    "options": {
+      "A": "inside",
+      "B": "in",
+      "C": "within",
+      "D": "with"
+    },
+    "correctAnswer": "B",
+    "explanation": "কাউকে ঘিরে বা সত্তার ভেতরে প্রকাশ করতে সাধারণ Preposition 'in' বসে (hidden in each student)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_125",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Choose the correct spelling:",
+    "options": {
+      "A": "Entrepronor",
+      "B": "Entrepreneor",
+      "C": "Entrepreneur",
+      "D": "Enterpreneur"
+    },
+    "correctAnswer": "C",
+    "explanation": "উদ্যোক্তা ইংরেজি শব্দের সঠিক বানানটি হলো 'Entrepreneur'।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_126",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "The correct passive voice of the sentence 'Who taught you grammar?' is:",
+    "options": {
+      "A": "By whom you taught grammar?",
+      "B": "By whom grammar was taught you?",
+      "C": "By whom was you taught grammar?",
+      "D": "By whom were you taught grammar?"
+    },
+    "correctAnswer": "D",
+    "explanation": "Interrogative sentence 'Who' দিয়ে শুরু হলে Passive করার নিয়ম: By whom + auxiliary verb (were) + subject (you) + v3 (taught) + object (grammar)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_127",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Synonym of 'unwavering' is-",
+    "options": {
+      "A": "Unreliable",
+      "B": "Steady",
+      "C": "Urgent",
+      "D": "Ensure"
+    },
+    "correctAnswer": "B",
+    "explanation": "'Unwavering' অর্থ অটল, দৃঢ় বা অবিচল, যার সমার্থক শব্দ হলো 'Steady'।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_128",
+    "year": "2020-21",
+    "subject": "english",
+    "question": "Which of the following sentence is the present perfect tense of \"I have just seen Mahia\"?",
+    "options": {
+      "A": "I see Mahia now.",
+      "B": "I saw Mahia just now.",
+      "C": "I have just saw Mahia",
+      "D": "I just saw Mahia."
+    },
+    "correctAnswer": null,
+    "explanation": "প্রদত্ত প্রশ্নটিতে 'I have just seen Mahia' বাক্যটি নিজেই Present Perfect Tense-এ রয়েছে। প্রদত্ত অপশনগুলোর কোনোটিই সঠিক নয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "hard"
+  },
+  {
+    "id": "gk_56",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "বাংলাদেশের কবে প্রথম জাতীয় সংসদ নির্বাচন অনুষ্ঠিত হয়?",
+    "options": {
+      "A": "৬ এপ্রিল ১৯৭৩",
+      "B": "৭ মার্চ ১৯৭৩",
+      "C": "২৮ ফেব্রুয়ারি ১৯৭৩",
+      "D": "১৯ এপ্রিল ১৯৭৩"
+    },
+    "correctAnswer": "B",
+    "explanation": "স্বাধীন বাংলাদেশের প্রথম জাতীয় সংসদ নির্বাচন ১৯৭৩ সালের ৭ মার্চ অনুষ্ঠিত হয়েছিল।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_57",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "একমাত্র বিদেশি যিনি মুক্তিযুদ্ধে সাহায্যের জন্য বীরপ্রতীক উপাধি পেয়েছেন-",
+    "options": {
+      "A": "উইলিয়াম ওডারল্যান্ড",
+      "B": "আন্দ্রে মালরো",
+      "C": "রবিশংকর",
+      "D": "ডেভিড নালিন"
+    },
+    "correctAnswer": "A",
+    "explanation": "ডাচ-অস্ট্রেলীয় নাগরিক ডব্লিউ এ এস ওডারল্যান্ড (উইলিয়াম ওডারল্যান্ড) একমাত্র বিদেশী যিনি বাংলাদেশে 'বীরপ্রতীক' খেতাবে ভূষিত হন।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_58",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "মুক্তিযুদ্ধকালে পাকিস্তানি জাহাজের উপর মুক্তিযোদ্ধাদের অভিযানের নাম কি ছিল?",
+    "options": {
+      "A": "অপারেশন জ্যাকপট",
+      "B": "অপারেশন মেঘদূত",
+      "C": "অপারেশন ইভটিং লাইট",
+      "D": "অপারেশন সার্চলাইট"
+    },
+    "correctAnswer": "A",
+    "explanation": "১৯৭১ সালের ১৫ আগস্ট নৌ-কমান্ডোদের দ্বারা চালিত সমুদ্র ও নদী বন্দরসমূহে পাকিস্তানি জাহাজের ওপর বিশেষ অভিযানের নাম ছিল 'অপারেশন জ্যাকপট'।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_59",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "রাজশাহী বিশ্ববিদ্যালয়ের ভাস্কর্য \"সাবাশ বাংলাদেশ\" এর ভাস্কর কে?",
+    "options": {
+      "A": "মৃণাল হক",
+      "B": "রূপম রায়",
+      "C": "নভেরা আহমেদ",
+      "D": "নিতুন কুন্ডু"
+    },
+    "correctAnswer": "D",
+    "explanation": "রাজশাহী বিশ্ববিদ্যালয়ে অবস্থিত বিখ্যাত মুক্তিযুদ্ধভিত্তিক ভাস্কর্য 'সাবাশ বাংলাদেশ'-এর স্থপতি বা ভাস্কর হলেন নিতুন কুন্ডু।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_60",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "'সাভার জাতীয় স্মৃতিসৌধ'-এর স্থপতি কে?",
+    "options": {
+      "A": "সৈয়দ মইনুল হোসেন",
+      "B": "মাজহারুল ইসলাম",
+      "C": "মৃণাল হক",
+      "D": "আবদুর রাজ্জাক"
+    },
+    "correctAnswer": "A",
+    "explanation": "সাভারে অবস্থিত বাংলাদেশের জাতীয় স্মৃতিসৌধের প্রধান স্থপতি হলেন সৈয়দ মইনুল হোসেন।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_61",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "কোন দেশ প্রথম বাংলাদেশকে স্বীকৃতি দেয়?",
+    "options": {
+      "A": "নেপাল",
+      "B": "ভুটান",
+      "C": "যুক্তরাজ্য",
+      "D": "ভারত"
+    },
+    "correctAnswer": "B",
+    "explanation": "১৯৭১ সালের ৬ ডিসেম্বর প্রথম দেশ হিসেবে ভুটান স্বাধীন ও সার্বভৌম বাংলাদেশকে স্বীকৃতি প্রদান করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_62",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "মুক্তিযুদ্ধের সময় ১০ নং সেক্টর কোনটা ছিল?",
+    "options": {
+      "A": "টাঙ্গাইল-ময়মনসিংহ",
+      "B": "রংপুর-ঠাকুরগাঁও",
+      "C": "নৌ-কমান্ডো",
+      "D": "বরিশাল-পটুয়াখালী"
+    },
+    "correctAnswer": "C",
+    "explanation": "মুক্তিযুদ্ধের সময় ১০ নম্বর সেক্টর ছিল নৌ-কমান্ডো সেক্টর, যার নিজস্ব ভৌগোলিক কোনো সীমানা ছিল না।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_63",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "ইউনেস্কো কোন তারিখে ২১ শে ফেব্রুয়ারীকে আন্তর্জাতিক মাতৃভাষা দিবস হিসাবে স্বীকৃতি দেয়?",
+    "options": {
+      "A": "২১ ফেব্রুয়ারী ২০০৪",
+      "B": "১৭ নভেম্বর ১৯৯৯",
+      "C": "২২ সেপ্টেম্বর ১৯৯৮",
+      "D": "২৬ মার্চ ১৯৯৭"
+    },
+    "correctAnswer": "B",
+    "explanation": "১৯৯৯ সালের ১৭ নভেম্বর প্যারিসে ইউনেস্কোর ৩০তম সাধারণ অধিবেশনে ২১শে ফেব্রুয়ারিকে 'আন্তর্জাতিক মাতৃভাষা দিবস' হিসেবে স্বীকৃতি দেওয়া হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "gk_64",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "পদ্মা সেতুর দৈর্ঘ্য কত?",
+    "options": {
+      "A": "৬.০০ কিলোমিটার",
+      "B": "৫.৯৫ কিলোমিটার",
+      "C": "৬.১৫ কিলোমিটার",
+      "D": "৬.৪০ কিলোমিটার"
+    },
+    "correctAnswer": "C",
+    "explanation": "মূল পদ্মা সেতুর দৈর্ঘ্য ৬.১৫ কিলোমিটার (৬,১৫০ মিটার)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "gk_65",
+    "year": "2020-21",
+    "subject": "gk",
+    "question": "স্বাধীনতার পর মুক্তিযুদ্ধের প্রথম ভাস্কর্য কোনটি?",
+    "options": {
+      "A": "মোদের গরব",
+      "B": "অপরাজেয় বাংলা",
+      "C": "সাবাশ বাংলাদেশ",
+      "D": "জাগ্রত চৌরঙ্গী"
+    },
+    "correctAnswer": "D",
+    "explanation": "১৯৭৩ সালে গাজীপুরের জয়দেবপুরে নির্মিত 'জাগ্রত চৌরঙ্গী' স্বাধীন বাংলাদেশের প্রথম মুক্তিযুদ্ধভিত্তিক ভাস্কর্য।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+
+
+  {
+    "id": "phy_100",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "যদি কোন বস্তু ভূমির উপরে তোলা হয়, তবে কোন শক্তির বিপরীতে কাজটি করা হলো?",
+    "options": {
+      "A": "রাসায়নিক শক্তি (Chemical force)",
+      "B": "মধ্যাকর্ষণ শক্তি (Gravitational force)",
+      "C": "ঘর্ষণমূলক শক্তি (Frictional force)",
+      "D": "তড়িৎ চৌম্বকীয় শক্তি (Electromagnetic force)"
+    },
+    "correctAnswer": "B",
+    "explanation": "কোনো বস্তুকে ভূমির উপরে তুলতে অভিকর্ষ বল বা মধ্যাকর্ষণ শক্তির বিপরীতে কাজ করতে হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_101",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "একটি সাধারণ সুরেলা দোলনের (simple harmonic oscillation) জন্য, কৌণিক স্থানচ্যুতি (angular displacement) নিচের কোনটির চেয়ে বেশি হতে পারে না?",
+    "options": {
+      "A": "3°",
+      "B": "4°",
+      "C": "6°",
+      "D": "5°"
+    },
+    "correctAnswer": "B",
+    "explanation": "সরল দোলকের কৌণিক বিস্তার সাধারণত 4° এর মধ্যে রাখা হয় যেন এটি সরল ছন্দিত গতি মেনে চলে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_102",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "নিউট্রন তারকা সংকুচিত হয়ে কি হয়?",
+    "options": {
+      "A": "রক্তিম দৈত্য (Red giant)",
+      "B": "কৃষ্ণ গহ্বর (Black hole)",
+      "C": "সুপারনোভা (Supernova)",
+      "D": "শ্বেতবামন (White dwarf)"
+    },
+    "correctAnswer": "B",
+    "explanation": "নিউট্রন তারকা আরও সংকুচিত হয়ে অত্যধিক ঘনত্বের কৃষ্ণ গহ্বর (Black hole) তৈরি করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_103",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "100 ডিগ্রি সেলসিয়াসে পানির বাষ্পের চাপ হয়-",
+    "options": {
+      "A": "760 mm Hg",
+      "B": "55 mm Hg",
+      "C": "355 mm Hg",
+      "D": "1489 mm Hg"
+    },
+    "correctAnswer": "A",
+    "explanation": "100°C তাপমাত্রায় পানির স্ফুটনাঙ্ক অর্জিত হয় এবং সম্পৃক্ত বাষ্পচাপ বায়ুমণ্ডলীয় চাপের সমান (760 mm Hg) হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_104",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "আলোর দ্রুতিতে চলমান কোন কণার (particle) ভর কত?",
+    "options": {
+      "A": "শূন্য",
+      "B": "দ্বিগুণ",
+      "C": "অর্ধেক",
+      "D": "অসীম"
+    },
+    "correctAnswer": "D",
+    "explanation": "আপেক্ষিকতার তত্ত্ব অনুযায়ী, কোনো বস্তু আলোর দ্রুতিতে চললে তার আপেক্ষিক ভর অসীম হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_105",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "শিশিরাঙ্ক বলতে কি বোঝায়?",
+    "options": {
+      "A": "তাপ",
+      "B": "আপেক্ষিক আর্দ্রতা",
+      "C": "তাপমাত্রা",
+      "D": "আর্দ্রতা"
+    },
+    "correctAnswer": "C",
+    "explanation": "শিশিরাঙ্ক হলো এমন একটি তাপমাত্রা যে তাপমাত্রায় নির্দিষ্ট আয়তনের বায়ু জলীয় বাষ্প দ্বারা সম্পৃক্ত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_106",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "একটি 2 কেজি ভরের বস্তু 10 মিটার উচ্চতা থেকে পড়লে, ভূমি স্পর্শ করার পূর্ব মুহূর্তে এর গতিশক্তি কত হবে?",
+    "options": {
+      "A": "95.0 J",
+      "B": "74.4 J",
+      "C": "19.6 J",
+      "D": "39.2 J"
+    },
+    "correctAnswer": null,
+    "explanation": "গতিশক্তি = mgh = 2 × 9.8 × 10 = 196 J। প্রদত্ত অপশনগুলোর মধ্যে সঠিক উত্তর নেই।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_107",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "10 কেজি বস্তু (object) যদি 12 ms⁻¹ এ চলে, তবে এর ভরবেগ (momentum) হবে-",
+    "options": {
+      "A": "120 kgms⁻¹",
+      "B": "1.2 kgms⁻¹",
+      "C": "12 kgms⁻¹",
+      "D": "10 kgms⁻¹"
+    },
+    "correctAnswer": "A",
+    "explanation": "ভরবেগ p = m × v = 10 × 12 = 120 kgms⁻¹।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_108",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "বস্তুর কোন বৈশিষ্ট্যটি পাইরোমিটারে ব্যবহৃত হয়?",
+    "options": {
+      "A": "অপটিক্যাল বৈশিষ্ট্য",
+      "B": "দৈর্ঘ্য প্রসারণ বৈশিষ্ট্য",
+      "C": "বিকিরণ বৈশিষ্ট্য",
+      "D": "বৈদ্যুতিক বৈশিষ্ট্য"
+    },
+    "correctAnswer": "C",
+    "explanation": "পাইরোমিটার হলো এমন যন্ত্র যা বস্তুর তাপিয় বিকিরণ বৈশিষ্ট্য ব্যবহার করে উচ্চ তাপমাত্রা পরিমাপ করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_109",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "একটি বস্তুর ভর পৃথিবীতে 75 কেজি। চাঁদে বস্তুটির ভর কি হবে?",
+    "options": {
+      "A": "70 kg",
+      "B": "280 kg",
+      "C": "14 kg",
+      "D": "75 kg"
+    },
+    "correctAnswer": "D",
+    "explanation": "বস্তুর ভর স্থানভেদে পরিবর্তিত হয় না, সর্বদা ধ্রুব থাকে। তাই চাঁদেও ভর 75 kg থাকবে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_110",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "কোন রশির সর্বাধিক অনুপ্রবেশ ক্ষমতা রয়েছে?",
+    "options": {
+      "A": "X-ray",
+      "B": "Beta",
+      "C": "Alpha",
+      "D": "Gamma"
+    },
+    "correctAnswer": "D",
+    "explanation": "গামা (Gamma) রশির তরঙ্গদৈর্ঘ্য অত্যন্ত ছোট হওয়ায় এর ভেদন বা অনুপ্রবেশ ক্ষমতা সর্বাধিক।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_111",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "স্থির তাপমাত্রার ক্ষেত্রে সমস্ত গ্যাসের অণুগুলির জন্য কোন প্যারামিটার ধ্রুব (constant)?",
+    "options": {
+      "A": "ভর",
+      "B": "গতিবেগ শক্তি",
+      "C": "আয়তন",
+      "D": "গতিবেগ"
+    },
+    "correctAnswer": "B",
+    "explanation": "গ্যাসের অণুগুলোর গড় গতিশক্তি কেবল পরম তাপমাত্রার ওপর নির্ভর করে। তাপমাত্রা স্থির থাকলে গড় গতিশক্তি ধ্রুব থাকে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_112",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "বল (force) এবং স্থানচ্যুতি করার মধ্যে কোনটি যদি 0° হয়, তবে কাজের পরিমাণ হবে-",
+    "options": {
+      "A": "সর্বোচ্চ",
+      "B": "অসীমতা",
+      "C": "শূন্য",
+      "D": "নূন্যতম"
+    },
+    "correctAnswer": "A",
+    "explanation": "কাজ W = Fs cos θ। যদি θ = 0° হয়, cos 0° = 1, ফলে কাজ সর্বোচ্চ হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_113",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "নিচের কোনটি এসি-কে ডিসি-তে রূপান্তরিত করে?",
+    "options": {
+      "A": "ডায়োড (Diode)",
+      "B": "ভোল্টমিটার (Voltmeter)",
+      "C": "অ্যামিটার (Ammeter)",
+      "D": "ট্রানজিস্টর (Transistor)"
+    },
+    "correctAnswer": "A",
+    "explanation": "ডায়োড রেকটিফায়ার বা একমুখী কারক হিসেবে কাজ করে পর্যায়বৃত্ত প্রবাহ (AC)-কে একমুখী প্রবাহে (DC) রূপান্তর করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_114",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "ধুলা মেঘে (dust cloud) কত শতাংশ হাইড্রোজেন থাকে?",
+    "options": {
+      "A": "65%",
+      "B": "70%",
+      "C": "60%",
+      "D": "75%"
+    },
+    "correctAnswer": "D",
+    "explanation": "মহাজাগতিক ধূলিমেঘে বা নেবুলায় প্রধানত হাইড্রোজেন (প্রায় ৭৫%) এবং হিলিয়াম থাকে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_115",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "15 ওয়াট (Watt) শক্তি অর্থ-",
+    "options": {
+      "A": "3 J work in 5 sec",
+      "B": "1 J work in 15 sec",
+      "C": "5 J work in 3 sec",
+      "D": "15 J work in 1 sec"
+    },
+    "correctAnswer": "D",
+    "explanation": "ক্ষমতা P = W/t। 15 Watt মানে হলো প্রতি সেকেন্ডে 15 Joule কাজ সম্পাদন করা (15 J in 1 sec)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_116",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "কোন তীব্রতার মাত্রাকে কানের শ্রবণসীমা (threshold of audibility of ear) বলে?",
+    "options": {
+      "A": "10 dB",
+      "B": "0 dB",
+      "C": "2 dB",
+      "D": "1 dB"
+    },
+    "correctAnswer": "B",
+    "explanation": "মানুষের কানের শ্রবণসীমার প্রমাণ তীব্রতা স্তরের সর্বনিম্ন মাত্রা হলো 0 dB (10⁻¹² W/m²)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_117",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "Scalar quantity এবং magnitude of gradient এর মধ্যে সম্পর্কটি হল-",
+    "options": {
+      "A": "Equal",
+      "B": "Opposite",
+      "C": "Proportional",
+      "D": "Disproportional"
+    },
+    "correctAnswer": "A",
+    "explanation": "গ্র্যাডিয়েন্টের মান (magnitude of gradient) নির্দেশ করে স্কেলার ক্ষেত্রের সর্বাধিক পরিবর্তনের হার, যা সমমানের সমান।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_118",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "একটি '200V-40 W' বাল্বের মধ্য দিয়ে কি পরিমাণ তড়িৎ প্রবাহিত হবে?",
+    "options": {
+      "A": "0.05 A",
+      "B": "0.5 A",
+      "C": "0.02 A",
+      "D": "0.2 A"
+    },
+    "correctAnswer": "D",
+    "explanation": "প্রবাহমাত্রা I = P / V = 40 / 200 = 0.2 A।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "phy_119",
+    "year": "2020-21",
+    "subject": "physics",
+    "question": "সূর্যোদয়ের দিকে ১২ মিটার যাওয়ার পরে, এক ব্যক্তি উত্তর দিকে ৫ মিটার চলে গেল। তার স্থানচ্যুতি কি হবে?",
+    "options": {
+      "A": "17 m",
+      "B": "17.67 m",
+      "C": "16.67 m",
+      "D": "13 m"
+    },
+    "correctAnswer": "D",
+    "explanation": "স্থানচ্যুতি (সরণ) s = √(12² + 5²) = √(144 + 25) = √169 = 13 m।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_118",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "হাইড্রোকার্বন জ্বালানী এবং কয়লার অসম্পূর্ণ জ্বলন থেকে কোন গ্যাস উৎপাদিত হয়?",
+    "options": {
+      "A": "SO₂",
+      "B": "CO",
+      "C": "CO₂",
+      "D": "SO₃"
+    },
+    "correctAnswer": "B",
+    "explanation": "অক্সিজেনের স্বল্পতায় বা অসম্পূর্ণ দহনে বিষাক্ত কার্বন মনোক্সাইড (CO) গ্যাস তৈরি হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_119",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "দুধে নিচের কোন disaccharide টি থাকে?",
+    "options": {
+      "A": "Sucrose",
+      "B": "Cellulose",
+      "C": "Lactose",
+      "D": "Maltose"
+    },
+    "correctAnswer": "C",
+    "explanation": "ল্যাকটোজ (Lactose) হলো দুধে প্রাপ্ত প্রধান ডাইস্যাকারাইড শর্করা।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_120",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "শুকনো (dry) H₂ গ্যাসের চাপ কত হবে?",
+    "options": {
+      "A": "105 kPa",
+      "B": "101.325 kPa",
+      "C": "101.75 kPa",
+      "D": "108.25 kPa"
+    },
+    "correctAnswer": "B",
+    "explanation": "আদর্শ বায়ুমণ্ডলীয় চাপে শুষ্ক H₂ গ্যাসের চাপ 1 atm = 101.325 kPa।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_121",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোন অক্সাইড পানিতে মিশালে সবচেয়ে বেশি অম্লীয় দ্রবণ তৈরি করে?",
+    "options": {
+      "A": "CO",
+      "B": "SiO₂",
+      "C": "P₂O₅",
+      "D": "CO₂"
+    },
+    "correctAnswer": "C",
+    "explanation": "P₂O₅ পানির সাথে বিক্রিয়া করে তীব্র ফসফোরিক এসিড (H₃PO₄) তৈরি করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_122",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "এক mol CH₃OH-এ কতটা পরমাণু থাকে?",
+    "options": {
+      "A": "12.0 × 10²³",
+      "B": "6",
+      "C": "6.0 × 10²³",
+      "D": "3.6 × 10²⁴"
+    },
+    "correctAnswer": "D",
+    "explanation": "১ অণু CH₃OH-এ ৬টি পরমাণু বিদ্যমান। সুতরাং ১ মোল-এ মোট পরমাণু = 6 × 6.023 × 10²³ ≈ 3.614 × 10²⁴।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_123",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "মানবদেহের রক্তে কোন বাফার দ্রবণ (buffer solution) থাকে?",
+    "options": {
+      "A": "NaHCO₃ and H₂CO₃",
+      "B": "NH₄Cl and NH₄OH",
+      "C": "CH₃COONa and CH₃COOH",
+      "D": "Na₂HPO₄ and H₃PO₄"
+    },
+    "correctAnswer": "A",
+    "explanation": "মানবদেহের রক্তের প্রধান বাফার সিস্টেম হলো বাইকার্বোনেট বাফার (NaHCO₃ এবং H₂CO₃)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_124",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোনটির গলনাঙ্ক (melting point) সবচাইতে কম?",
+    "options": {
+      "A": "AgCl",
+      "B": "AgF",
+      "C": "AgBr",
+      "D": "AgI"
+    },
+    "correctAnswer": "D",
+    "explanation": "ফাজানের নীতি অনুযায়ী, অ্যানায়নের আকার বৃদ্ধির কারণে AgI-এ সমযোজী বৈশিষ্ট্য সর্বাধিক, তাই এর গলনাঙ্ক সর্বনিম্ন।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "hard"
+  },
+  {
+    "id": "chem_125",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "দুটি পরমাণুর মধ্যে সমান সংখ্যক ইলেকট্রন দিয়ে কি বন্ধন গঠিত হয়?",
+    "options": {
+      "A": "Ionic bond",
+      "B": "Metallic bond",
+      "C": "Covalent bond",
+      "D": "Hydrogen bond"
+    },
+    "correctAnswer": "C",
+    "explanation": "পরমাণুসমূহের মধ্যে সমান সংখ্যক ইলেকট্রন শেয়ারের মাধ্যমে সমযোজী বন্ধন (Covalent bond) গঠিত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_126",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "ফুট প্রিজারভেটিভ হিসাবে ব্যবহৃত সাইট্রিক এসিডের pH কত?",
+    "options": {
+      "A": "4.74",
+      "B": "4.50",
+      "C": "3.14",
+      "D": "3.01"
+    },
+    "correctAnswer": "C",
+    "explanation": "খাদ্য সংরক্ষক সাইট্রিক এসিডের সাধারণ pH মাত্রা প্রায় 3.14।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_127",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "ডায়নামাইট তৈরি করতে নিচের কোনটি ব্যবহার করা হয়?",
+    "options": {
+      "A": "Nitrotoluene",
+      "B": "Nitroglycerine",
+      "C": "Nitrophenol",
+      "D": "Nitrobenzene"
+    },
+    "correctAnswer": "B",
+    "explanation": "আলফ্রেড নোবেল গ্লিসারিল ট্রাইনাইট্রেট বা নাইট্রোগ্লিসারিন ব্যবহার করে ডাইনামাইট আবিষ্কার করেন।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_128",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "500 ml 0.5 M NaOH দ্রবণ থেকে কত ml 0.1 M NaOH দ্রবণ প্রস্তুত করা যায়?",
+    "options": {
+      "A": "5000 ml",
+      "B": "2500 ml",
+      "C": "1350 ml",
+      "D": "2000 ml"
+    },
+    "correctAnswer": "B",
+    "explanation": "লঘুকরণ সূত্র V₁S₁ = V₂S₂ থেকে: V₂ = (500 × 0.5) / 0.1 = 2500 ml।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_129",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "কোন উপাদান কয়লার জন্য সবচেয়ে ক্ষতিকারক?",
+    "options": {
+      "A": "Nitrogen",
+      "B": "Silicon",
+      "C": "Sulphur",
+      "D": "Carbon"
+    },
+    "correctAnswer": "C",
+    "explanation": "সালফার কয়লা দহনে SO₂ গ্যাস উৎপন্ন করে, যা পরিবেশের মারাত্মক ক্ষতি ও এসিড বৃষ্টির জন্য দায়ী।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_130",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "সমযোজী বন্ধনে (covalent bond) ইলেকট্রনগুলির জন্য নিচের কোন উপাদানটির সর্বাধিক আকর্ষণ আছে?",
+    "options": {
+      "A": "Ge",
+      "B": "Se",
+      "C": "Br",
+      "D": "As"
+    },
+    "correctAnswer": "C",
+    "explanation": "প্রদত্ত মৌলগুলোর মধ্যে ব্রোমিন (Br)-এর তড়িৎ ঋণাত্মকতা সবচেয়ে বেশি, ফলে এটি ইলেকট্রন জোড়কে বেশি আকর্ষণ করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_131",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোন পরমাণুর d অরবিটালে ইলেকট্রন আছে?",
+    "options": {
+      "A": "Ca",
+      "B": "Sc",
+      "C": "Ar",
+      "D": "K"
+    },
+    "correctAnswer": "B",
+    "explanation": "স্ক্যান্ডিয়াম (Sc - 21) এর ইলেকট্রন বিন্যাস হলো [Ar] 3d¹ 4s², অর্থাৎ এর d অরবিটালে ১টি ইলেকট্রন বিদ্যমান।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_132",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি পারমাণবিক ব্যাসের নিকটতম?",
+    "options": {
+      "A": "1 × 10⁻⁵ cm",
+      "B": "1 × 10⁻¹⁰ cm",
+      "C": "1 × 10⁻¹³ cm",
+      "D": "1 × 10⁻⁸ cm"
+    },
+    "correctAnswer": "D",
+    "explanation": "পরমাণুর ব্যাসার্ধ প্রায় 1 Å (10⁻¹⁰ m = 10⁻⁸ cm)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_133",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোন আয়নটির আকার সবচেয়ে ছোট?",
+    "options": {
+      "A": "Be²⁺",
+      "B": "Na⁺",
+      "C": "Mg²⁺",
+      "D": "Ca²⁺"
+    },
+    "correctAnswer": "A",
+    "explanation": "Be²⁺ আয়নে চার্জ ঘনত্ব অনেক বেশি এবং এর ক্যাটায়নিক ব্যাসার্ধ দেওয়া অপশনগুলোর মধ্যে সর্বনিম্ন।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_134",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি ঋণাত্মক প্রভাবক (negative catalyst)?",
+    "options": {
+      "A": "SO₃",
+      "B": "Glycerine",
+      "C": "SO₂",
+      "D": "Na"
+    },
+    "correctAnswer": "B",
+    "explanation": "গ্লিসারিন হাইড্রোজেন পারঅক্সাইডের বিয়োজন ধীর করে দেয়, তাই এটি ঋণাত্মক প্রভাবক।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_135",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিম্নলিখিত কোন গ্যাস photochemical ধোঁয়াশার (smog) জন্য দায়ী নয়?",
+    "options": {
+      "A": "Hydrocarbon",
+      "B": "O₃",
+      "C": "NO₂",
+      "D": "CFC"
+    },
+    "correctAnswer": "D",
+    "explanation": "CFC প্রধানত ওজন স্তর ক্ষয়ের জন্য দায়ী, ফটোক্যামিক্যাল স্মোগ গঠনে প্রত্যক্ষ ভূমিকা রাখে না।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_136",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "পৃথিবীর ভূত্বকে সবচেয়ে বেশি পরিমাণে বিদ্যমান ধাতুটি হল-",
+    "options": {
+      "A": "Cu",
+      "B": "Fe",
+      "C": "Na",
+      "D": "Al"
+    },
+    "correctAnswer": "D",
+    "explanation": "পৃথিবীর ভূত্বকে তৃতীয় প্রাচুর্যময় উপাদান এবং সর্বাধিক প্রাপ্ত ধাতু হলো অ্যালুমিনিয়াম (Al)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_137",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি কম বিক্রিয়াশীল ধাতু?",
+    "options": {
+      "A": "Chromium",
+      "B": "Silver",
+      "C": "Platinum",
+      "D": "Gold"
+    },
+    "correctAnswer": "D",
+    "explanation": "প্রদত্ত অপশনগুলোর মধ্যে সোনা (Gold - Au) সবচেয়ে নিষ্ক্রিয় বা কম বিক্রিয়াশীল নোবেল মেটাল।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_138",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "0.1 M HCl দ্রবণ প্রস্তুতের জন্য ঘনকৃত HCl পরিমাপ করতে কোনটি ব্যবহৃত হয়?",
+    "options": {
+      "A": "Wash bottle",
+      "B": "Measuring cylinder",
+      "C": "Volumetric flask",
+      "D": "Pipette"
+    },
+    "correctAnswer": "B",
+    "explanation": "ল্যাবরেটরিতে ঘন এসিড আয়তন মেপে দ্রবণ বানানোর সময় প্রাথমিক মাপের জন্য মেজারিং সিলিন্ডার ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_139",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "তড়িৎচুম্বকীয় বর্ণালীতে (electromagnetic spectrum) নিচের কোনটির তরঙ্গদৈর্ঘ্য সবচেয়ে বেশি?",
+    "options": {
+      "A": "UV-ray",
+      "B": "X-ray",
+      "C": "TV-waves",
+      "D": "Infrared ray"
+    },
+    "correctAnswer": "C",
+    "explanation": "টিভি ওয়েভ (রেডিও ওয়েভের অন্তর্ভুক্ত) এর তরঙ্গদৈর্ঘ্য সবচেয়ে বেশি।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "chem_140",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোন দ্রবণের pH সর্বাধিক?",
+    "options": {
+      "A": "0.01 M HCl",
+      "B": "0.01 M HNO₃",
+      "C": "0.01 M H₂SO₄",
+      "D": "0.01 M H₂CO₃"
+    },
+    "correctAnswer": "D",
+    "explanation": "H₂CO₃ মৃদু এসিড হওয়ায় এটি আংশিক বিয়োজিত হয় এবং এতে [H⁺] কম থাকায় pH এর মান বেশি হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_141",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি উত্তপ্ত লোহার উপস্থিতিতে অ্যাসিটিলিন দ্বারা উৎপাদিত হয়?",
+    "options": {
+      "A": "Neoprene",
+      "B": "Ethane",
+      "C": "Cyclohexane",
+      "D": "Benzene"
+    },
+    "correctAnswer": "D",
+    "explanation": "লোহা নলে ৪৫০°C তাপমাত্রায় অ্যাসিটিলিন (C₂H₂) পলিমারকরণ হয়ে বেঞ্জিন (C₆H₆) উৎপন্ন করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_142",
+    "year": "2020-21",
+    "subject": "chemistry",
+    "question": "প্রতিক্রিয়ার অ্যাক্টিভেশন শক্তি নির্ধারণে কোনটি কার্যতঃ সহায়ক হবে?",
+    "options": {
+      "A": "Concentration of reactant",
+      "B": "Nature of reactant",
+      "C": "Temperature",
+      "D": "Collision rate"
+    },
+    "correctAnswer": "C",
+    "explanation": "আরহেনিয়াস সমীকরণ অনুসারে তাপমাত্রা (Temperature) পরিবর্তনের মাধ্যমে সক্রিয়ণ শক্তি (Activation energy) হিসাব করা যায়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_141",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "শেওলাগুলোর (algae) অযৌন প্রজনন কোনটি দ্বারা সম্পন্ন হয়?",
+    "options": {
+      "A": "Rhizoid",
+      "B": "Fragmentation",
+      "C": "Tuber",
+      "D": "Spore"
+    },
+    "correctAnswer": "D",
+    "explanation": "শৈবালের প্রধান অযৌন প্রজনন একক হলো স্পোর (Spore)।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_142",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোনটি ভাইরাস বৃদ্ধিতে বাধা দেয়?",
+    "options": {
+      "A": "Interferon",
+      "B": "Lactorine",
+      "C": "Lysozyme",
+      "D": "Defensin"
+    },
+    "correctAnswer": "A",
+    "explanation": "ইনটারফেরন (Interferon) হলো বিশেষ গ্লাইকোপ্রোটিন যা ভাইরাসের বংশবৃদ্ধি প্রতিরোধ করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_143",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "Alveolus থেকে অক্সিজেন রক্তে কিভাবে প্রবেশ করে?",
+    "options": {
+      "A": "Osmosis",
+      "B": "Respiration",
+      "C": "Transpiration",
+      "D": "Diffusion"
+    },
+    "correctAnswer": "D",
+    "explanation": "অ্যালভিওলাস থেকে রক্তে গ্যাসের বিনিময় ব্যাপন (Diffusion) প্রক্রিয়ায় ঘটে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_144",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোনটি Exocrine গ্রন্থি নয়?",
+    "options": {
+      "A": "Thyroid gland",
+      "B": "Pancreas",
+      "C": "Liver",
+      "D": "Salivary gland"
+    },
+    "correctAnswer": "A",
+    "explanation": "থাইরয়েড একটি অন্তঃখরা বা এন্ডোক্রাইন (Endocrine) গ্রন্থি।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_145",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কম তাপমাত্রায় কোনটি সংরক্ষণ করা যায়?",
+    "options": {
+      "A": "Bulb",
+      "B": "Seed",
+      "C": "Flower",
+      "D": "Rhizome"
+    },
+    "correctAnswer": "B",
+    "explanation": "বীজ ব্যাংকগুলোতে স্বল্প ও দীর্ঘমেয়াদে কম তাপমাত্রায় বীজ (Seed) সংরক্ষণ করা হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_146",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "নিচের কোনটিতে কুঁড়ি সৃষ্টি (budding) হয়?",
+    "options": {
+      "A": "Home",
+      "B": "Hibiscus rosa-sinensis",
+      "C": "Rose",
+      "D": "Lemon"
+    },
+    "correctAnswer": "C",
+    "explanation": "গোলাপের (Rose) অঙ্গজ প্রজননে কুঁড়ি সংযোজন বা 'Budding' পদ্ধতি বহুল ব্যবহৃত।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_147",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোনটি হাড়ের সাথে পেশি সংযুক্ত করে?",
+    "options": {
+      "A": "Myofibril",
+      "B": "Ligament",
+      "C": "Synovium",
+      "D": "Tendon"
+    },
+    "correctAnswer": "D",
+    "explanation": "টেন্ডন (Tendon) শক্ত সংযোজক কলা যা পেশিকে হাড়ের সাথে যুক্ত রাখে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_148",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোনটি আমিষ পরিপাককারী (digesting) এনজাইম?",
+    "options": {
+      "A": "Lipase",
+      "B": "Pepsin",
+      "C": "Lactase",
+      "D": "Isomaltase"
+    },
+    "correctAnswer": "B",
+    "explanation": "পেপসিন (Pepsin) পাকস্থলীতে প্রোটিন ভেঙে প্রোটিওজ ও পেপটোনে পরিণত করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_149",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "উদ্ভিদ দ্বারা কোন anion টি সবচেয়ে দ্রুত শোষিত হয়?",
+    "options": {
+      "A": "NO₃⁻",
+      "B": "HCO₃⁻",
+      "C": "SO₄²⁻",
+      "D": "OH⁻"
+    },
+    "correctAnswer": "A",
+    "explanation": "উদ্ভিদ মূল দিয়ে অ্যানায়নের মধ্যে নাইট্রেট (NO₃⁻) সবচেয়ে দ্রুত শোষণ করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_150",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোন প্রোটিন পানিতে অদ্রবণীয়?",
+    "options": {
+      "A": "গ্লুটেলিন (Glutelin)",
+      "B": "প্রোটামিন (Protamine)",
+      "C": "হিস্টোন (Histone)",
+      "D": "অ্যালবুমিন (Albumin)"
+    },
+    "correctAnswer": "A",
+    "explanation": "গ্লুটেলিন পানি ও নিরপেক্ষ লবণ দ্রবণে অদ্রবণীয়, কিন্তু লঘু এসিড ও ক্ষারে দ্রবণীয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_151",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "ছত্রাক কোষ প্রাচীরের প্রধান উপাদান কোনটি?",
+    "options": {
+      "A": "Chitin",
+      "B": "Cellulose",
+      "C": "Glycogen",
+      "D": "Starch"
+    },
+    "correctAnswer": "A",
+    "explanation": "ছত্রাকের কোষ প্রাচীর কাইটিন (Chitin) নামক জটিল পলিস্যাকারাইড দিয়ে গঠিত।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_152",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "নেমাটোসিস্টের (Nematocyst) ভেতরে বিষাক্ত তরল পদার্থের নাম কী?",
+    "options": {
+      "A": "Hypnotoxin",
+      "B": "Toxin",
+      "C": "Hemocyanin",
+      "D": "Hemozoin"
+    },
+    "correctAnswer": "A",
+    "explanation": "হাইড্লার নেমাটোসিস্টের অভ্যন্তরে প্রোটিন ও ফেনল নির্মিত বিষাক্ত তরলকে হিপনোটক্সিন বলে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_153",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "ঘাসফড়িং এর রক্ত কণিকার নাম কী?",
+    "options": {
+      "A": "Leukocyte",
+      "B": "Erythrocyte",
+      "C": "Thrombocyte",
+      "D": "Hemocyte"
+    },
+    "correctAnswer": "D",
+    "explanation": "ঘাসফড়িং-এর রক্তরস বর্ণহীন এবং এতে বিদ্যমান রক্তকণিকাকে হিমোসাইট (Hemocyte) বলে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_154",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "ক্ষুদ্রান্ত্রের কোন স্তরে পানপাত্র সেল (Goblet cell) পাওয়া যায়?",
+    "options": {
+      "A": "Serosa",
+      "B": "Muscularis mucosa",
+      "C": "Mucosa",
+      "D": "Submucosa"
+    },
+    "correctAnswer": "C",
+    "explanation": "ক্ষুদ্রান্ত্রের মিউকোসা (Mucosa) স্তরের এপিথেলিয়ামে মিউকাস ক্ষরণকারী গবলেট সেল থাকে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_155",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "রক্ত হলো-",
+    "options": {
+      "A": "কিছুটা অম্লীয়",
+      "B": "নিরপেক্ষ",
+      "C": "সামান্য ক্ষারীয়",
+      "D": "শক্তিশালী (strongly) অম্লীয়"
+    },
+    "correctAnswer": "C",
+    "explanation": "মানুষের রক্তের pH গড়ে ৭.৪০ (৭.৩৫ - ৭.৪৫), তাই এটি সামান্য ক্ষারীয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_156",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "মাথার খুলিতে কয়টি হাড় রয়েছে?",
+    "options": {
+      "A": "23",
+      "B": "33",
+      "C": "29",
+      "D": "17"
+    },
+    "correctAnswer": "C",
+    "explanation": "করোটিকা, মুখমণ্ডলীয়, কর্ণাস্থি ও হাইওয়েড মিলে মানুষের মাথার খুলি বা করোটিতে মোট ২৯টি অস্থি থাকে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_157",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোনটি attenuated টিকা?",
+    "options": {
+      "A": "Diphtheria vaccine",
+      "B": "BCG vaccine",
+      "C": "Hepatitis B vaccine",
+      "D": "Tetanus vaccine"
+    },
+    "correctAnswer": "B",
+    "explanation": "BCG হলো একটি জীবন্ত কিন্তু দুর্বলীকৃত (Live attenuated) ব্যাকটেরিয়াল ভ্যাকসিন।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_158",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোন কোষ ম্যাক্রোফেজে (macrophages) রূপান্তরিত হয়?",
+    "options": {
+      "A": "Eosinophil",
+      "B": "Monocyte",
+      "C": "Basophil",
+      "D": "Lymphocyte"
+    },
+    "correctAnswer": "B",
+    "explanation": "রক্তের মনোসাইট (Monocyte) কৈশিকনালী অতিক্রম করে টিস্যুতে প্রবেশ করলে তা ম্যাক্রোফেজে পরিণত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_159",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোন পদ্ধতিতে Hydra লম্বা দূরত্ব অতিক্রম করে?",
+    "options": {
+      "A": "ডিগবাজি (summersaulting)",
+      "B": "হামাগুড়ি (looping)",
+      "C": "সাঁতার",
+      "D": "গ্লাইডিং (gliding)"
+    },
+    "correctAnswer": "B",
+    "explanation": "লুপিং বা হামাগুড়ি চলনের মাধ্যমে হাইড্রা ধীর গতিতে দীর্ঘ দূরত্ব অতিক্রম করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_160",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোষের কোথায় ক্রেবস চক্র (Krebs cycle) সংঘটিত হয়?",
+    "options": {
+      "A": "Cytoplasm",
+      "B": "Ribosome",
+      "C": "Mitochondria",
+      "D": "Chloroplast"
+    },
+    "correctAnswer": "C",
+    "explanation": "শসনের ক্রেবস চক্র কোষের মাইটোকন্ড্রিয়ার ম্যাট্রিক্সে সম্পন্ন হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_161",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোন এনজাইম অগ্ন্যাশয়ে নাই?",
+    "options": {
+      "A": "Ptyalin",
+      "B": "Maltase",
+      "C": "Trypsin",
+      "D": "Amylase"
+    },
+    "correctAnswer": "A",
+    "explanation": "টায়ালিন (Ptyalin) মুখগহ্বরের লালাগ্রন্থি থেকে নিঃসৃত হয়, অগ্ন্যাশয়ে তা থাকে না।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_162",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "ভ্রূণে লোহিত রক্তকণিকাসমূহ নিচের কোথায় তৈরি হয়?",
+    "options": {
+      "A": "থাইমাস",
+      "B": "অগ্ন্যাশয়",
+      "C": "প্লীহা",
+      "D": "অস্থি মজ্জা"
+    },
+    "correctAnswer": "C",
+    "explanation": "ভ্রূণাবস্থায় যকৃৎ ও প্লীহায় লোহিত রক্তকণিকা প্রস্তুত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_163",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "প্রশ্বাস বায়ুতে কার্বন ডাইঅক্সাইড (CO₂) এর পরিমাণ কত?",
+    "options": {
+      "A": "5.2%",
+      "B": "13.7%",
+      "C": "20.0%",
+      "D": "0.4%"
+    },
+    "correctAnswer": null,
+    "explanation": "প্রশ্বাস বায়ুতে CO₂ এর পরিমাণ প্রায় 0.04%। প্রদত্ত অপশনে সঠিক উত্তর অনুপস্থিত।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "hard"
+  },
+  {
+    "id": "bio_164",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "প্রাণিজগতের বৃহত্তম Phylum কোনটি?",
+    "options": {
+      "A": "Arthropoda",
+      "B": "Porifera",
+      "C": "Mollusca",
+      "D": "Annelida"
+    },
+    "correctAnswer": "A",
+    "explanation": "আর্থ্রোপোডা (Arthropoda) হলো প্রাণীজগতের বৃহত্তম পর্ব।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_165",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "লিভারের কোন লোবটি পিত্তথলির সাথে সংযুক্ত থাকে?",
+    "options": {
+      "A": "Right lobe",
+      "B": "Quadrate lobe",
+      "C": "Left lobe",
+      "D": "Caudate lobe"
+    },
+    "correctAnswer": "A",
+    "explanation": "যকৃতের ডান খণ্ড বা ডান লোবের (Right lobe) নিচে পিত্তথলি অবস্থান করে।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_166",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "মানুষের সোমাটিক কোষে কয়টি অটোসোম থাকে?",
+    "options": {
+      "A": "23",
+      "B": "22",
+      "C": "44",
+      "D": "46"
+    },
+    "correctAnswer": "C",
+    "explanation": "মানুষের দেহকোষে মোট ৪৬টি ক্রোমোজোমের মধ্যে ৪৪টি (২২ জোড়া) অটোসোম।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_167",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "গ্রোথ হরমোন কোথায় তৈরি হয়?",
+    "options": {
+      "A": "Thalamus",
+      "B": "Hypothalamus",
+      "C": "Adrenal gland",
+      "D": "Pituitary gland"
+    },
+    "correctAnswer": "D",
+    "explanation": "পিটুইটারি গ্রন্থির অগ্রভাগ থেকে গ্রোথ হরমোন (GH/STH) নিঃসৃত হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_168",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "নীচের কোনটি ফসফোলিপিড (Phospholipid)?",
+    "options": {
+      "A": "কিউটিন (Cutin)",
+      "B": "টারপিন (Terpene)",
+      "C": "সুবেরিন (Suberin)",
+      "D": "লেসিথিন (Lecithin)"
+    },
+    "correctAnswer": "D",
+    "explanation": "লেসিথিন হলো একটি অত্যন্ত গুরুত্বপূর্ণ যৌগিক ফসফোলিপিড।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_169",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "কোন প্রক্রিয়াতে ইনসুলিন তৈরি করা হয়?",
+    "options": {
+      "A": "টিস্যু কালচার (Tissue culture)",
+      "B": "এক্সপ্লান্ট কালচার (Explant culture)",
+      "C": "রিকম্বিনেন্ট ডিএনএ টেকনোলজি (Recombinant DNA technology)",
+      "D": "ন্যানো টেকনোলজি (Nanotechnology)"
+    },
+    "correctAnswer": "C",
+    "explanation": "রিকম্বিনেন্ট ডিএনএ প্রযুক্তির মাধ্যমে ই-কোলাই ব্যাকটেরিয়া ব্যবহার করে বাণিজ্যিক ইনসুলিন তৈরি করা হয়।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bio_170",
+    "year": "2020-21",
+    "subject": "biology",
+    "question": "Golgi complex কোনটি সংশ্লেষ (synthesis) করে না?",
+    "options": {
+      "A": "Sperm",
+      "B": "Ribosome",
+      "C": "Lysosome",
+      "D": "Enzyme"
+    },
+    "correctAnswer": "B",
+    "explanation": "রাইবোজোম নিউক্লিওলাসে তৈরি হয়; গলগি বডি রাইবোজোম সংশ্লেষ করে না।",
+    "source": "Medical Admission Test 2020-21",
+    "difficulty": "medium"
   }
   
 
