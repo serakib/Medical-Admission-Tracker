@@ -358,6 +358,24 @@ box-shadow: none;
 
 
 
+<!-- Medical & HSC Info Navbar Button -->
+<button
+    onclick="app.showView('medical-hsc-info')"
+    class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+    type="button">
+    <i class="fa-solid fa-hospital ml-1"></i>
+    Medical &amp; HSC Info
+</button>
+
+<!-- Student Life Support Navbar Button -->
+<button
+    onclick="app.showView('student-life-support')"
+    class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+    type="button">
+    <i class="fa-solid fa-hands-helping ml-1"></i>
+    Student Life Support
+</button>
+
 
 
 
@@ -381,6 +399,167 @@ box-shadow: none;
             </div>
         </div>
 
+
+
+
+
+
+
+<!-- Medical & HSC Info View -->
+<div id="view-medical-hsc-info" class="app-view hidden p-4">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+
+        <div>
+            <h1 class="text-2xl font-bold">
+                🏥 Medical &amp; HSC Information
+            </h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">
+                Medical admission, HSC preparation এবং প্রয়োজনীয় তথ্য।
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2">
+                    📚 HSC Preparation
+                </h2>
+                <p>HSC syllabus, subject-wise preparation ও revision-এর তথ্য এখানে যুক্ত করুন।</p>
+            </div>
+
+            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2">
+                    🩺 Medical Admission
+                </h2>
+                <p>Medical admission requirements, eligibility ও admission updates এখানে যুক্ত করুন।</p>
+            </div>
+
+            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2">
+                    📝 Exam Resources
+                </h2>
+                <p>Practice questions, preparation tips ও study resources এখানে যুক্ত করুন।</p>
+            </div>
+
+            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold mb-2">
+                    📢 Important Updates
+                </h2>
+                <p>প্রকাশিত official notices এবং admission circular-এর তথ্য এখানে দেখান।</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+        
+<!-- Student Life Support View -->
+<div id="view-student-life-support" class="app-view hidden p-4">
+
+    <div class="max-w-3xl mx-auto space-y-6">
+
+        <div>
+            <h1 class="text-2xl font-bold">
+                🤝 Student Life Support
+            </h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">
+                পড়াশোনা, সময় ব্যবস্থাপনা ও শিক্ষার্থীদের দৈনন্দিন সহায়তা।
+            </p>
+        </div>
+
+        <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+            <h2 class="text-lg font-semibold mb-3">
+                💬 Student Support AI
+            </h2>
+
+            <p class="mb-4">
+                পড়াশোনা, exam preparation অথবা time management সম্পর্কে প্রশ্ন করুন।
+            </p>
+
+            <form id="student-ai-form" class="space-y-3">
+                <label for="student-ai-question" class="block font-medium">
+                    আপনার প্রশ্ন
+                </label>
+
+                <textarea
+                    id="student-ai-question"
+                    rows="4"
+                    maxlength="3000"
+                    required
+                    placeholder="আপনার প্রশ্ন এখানে লিখুন..."
+                    class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent"></textarea>
+
+                <button
+                    type="submit"
+                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                    প্রশ্ন পাঠান
+                </button>
+            </form>
+
+            <div
+                id="student-ai-status"
+                role="status"
+                aria-live="polite"
+                class="mt-4 whitespace-pre-wrap"></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+        
+<!-- Feature View Switching -->
+<script>
+/*
+  IMPORTANT:
+  Existing app.showView() function থাকলে এই function
+  duplicate করবেন না। আপনার existing function-এ নতুন
+  view ID দুটো register করুন।
+*/
+
+function showNewFeatureView(viewName) {
+    const allowedViews = {
+        "medical-hsc-info": "view-medical-hsc-info",
+        "student-life-support": "view-student-life-support"
+    };
+
+    const targetId = allowedViews[viewName];
+    if (!targetId) return false;
+
+    const target = document.getElementById(targetId);
+    if (!target) return false;
+
+    document.querySelectorAll(".app-view").forEach(view => {
+        view.classList.add("hidden");
+    });
+
+    target.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    return true;
+}
+</script>
+
+
+
+
+
+
+
+        
         <!-- Mobile Drawer Menu -->
         <div id="mobileMenu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 pt-2 pb-4 space-y-1">
             <button onclick="app.showView('home'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
