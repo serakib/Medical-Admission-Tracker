@@ -1679,41 +1679,6 @@ box-shadow: none;
 
 
 
-    <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const buttons = {
-    "mhi-nav-link": "medical-hsc-info",
-    "sls-nav-link": "student-life-support"
-  };
-
-  const pages = document.querySelectorAll(".feature-page");
-
-  function showFeature(id) {
-    pages.forEach(page => {
-      page.hidden = page.id !== id;
-    });
-
-    document.querySelectorAll(".nav-link").forEach(link => {
-      link.classList.remove("active");
-    });
-
-    const activeButton = Object.keys(buttons).find(
-      key => buttons[key] === id
-    );
-
-    if (activeButton) {
-      document.getElementById(activeButton)?.classList.add("active");
-    }
-  }
-
-  Object.entries(buttons).forEach(([buttonId, pageId]) => {
-    document.getElementById(buttonId)?.addEventListener("click", function (event) {
-      event.preventDefault();
-      showFeature(pageId);
-    });
-  });
-});
-</script>
 
     <script src="student-ai.js" defer></script>
 
