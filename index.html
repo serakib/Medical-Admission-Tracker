@@ -405,112 +405,91 @@ box-shadow: none;
 
 
 
+
 <!-- Medical & HSC Info View -->
-<div id="view-medical-hsc-info" class="app-view hidden p-4">
-
+<section id="view-medical-hsc-info" class="view-section hidden p-4">
     <div class="max-w-5xl mx-auto space-y-6">
-
-        <div>
-            <h1 class="text-2xl font-bold">
-                🏥 Medical &amp; HSC Information
+        <header>
+            <h1 class="text-2xl md:text-3xl font-bold">
+                <i class="fa-solid fa-hospital text-emerald-500"></i>
+                Medical &amp; HSC Information
             </h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">
-                Medical admission, HSC preparation এবং প্রয়োজনীয় তথ্য।
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+                মেডিকেল ভর্তি, HSC পরীক্ষা, ফলাফল ও প্রয়োজনীয় শিক্ষা-সংক্রান্ত তথ্য।
             </p>
-        </div>
+        </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-bold mb-2">📚 HSC Preparation</h2>
+                <p>HSC syllabus, revision এবং প্রস্তুতির তথ্য।</p>
+            </article>
 
-            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2">
-                    📚 HSC Preparation
-                </h2>
-                <p>HSC syllabus, subject-wise preparation ও revision-এর তথ্য এখানে যুক্ত করুন।</p>
-            </div>
+            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-bold mb-2">🩺 Medical Admission</h2>
+                <p>মেডিকেল ভর্তি যোগ্যতা ও admission circular-এর তথ্য।</p>
+                <a class="text-emerald-500 underline"
+                   href="https://dgme.gov.bd/" target="_blank"
+                   rel="noopener noreferrer">Official DGME Website</a>
+            </article>
 
-            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2">
-                    🩺 Medical Admission
-                </h2>
-                <p>Medical admission requirements, eligibility ও admission updates এখানে যুক্ত করুন।</p>
-            </div>
+            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-bold mb-2">📝 Education Boards</h2>
+                <p>বোর্ড পরীক্ষা ও ফলাফল-সংক্রান্ত তথ্য।</p>
+                <a class="text-emerald-500 underline"
+                   href="https://educationboard.gov.bd/" target="_blank"
+                   rel="noopener noreferrer">Education Board Website</a>
+            </article>
 
-            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2">
-                    📝 Exam Resources
-                </h2>
-                <p>Practice questions, preparation tips ও study resources এখানে যুক্ত করুন।</p>
-            </div>
-
-            <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-semibold mb-2">
-                    📢 Important Updates
-                </h2>
-                <p>প্রকাশিত official notices এবং admission circular-এর তথ্য এখানে দেখান।</p>
-            </div>
-
+            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-bold mb-2">📢 Important Notices</h2>
+                <p>ভর্তি ও পরীক্ষার সময়সীমা সংশ্লিষ্ট official notice থেকে যাচাই করুন।</p>
+            </article>
         </div>
     </div>
-</div>
+</section>
 
-
-
-
-
-
-
-        
 <!-- Student Life Support View -->
-<div id="view-student-life-support" class="app-view hidden p-4">
-
-    <div class="max-w-3xl mx-auto space-y-6">
-
-        <div>
-            <h1 class="text-2xl font-bold">
-                🤝 Student Life Support
+<section id="view-student-life-support" class="view-section hidden p-4">
+    <div class="max-w-3xl mx-auto space-y-5">
+        <header>
+            <h1 class="text-2xl md:text-3xl font-bold">
+                <i class="fa-solid fa-hands-helping text-emerald-500"></i>
+                Student Life Support
             </h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-2">
-                পড়াশোনা, সময় ব্যবস্থাপনা ও শিক্ষার্থীদের দৈনন্দিন সহায়তা।
+            <p class="mt-2 text-gray-600 dark:text-gray-300">
+                পড়াশোনা, পরীক্ষার প্রস্তুতি ও সময় ব্যবস্থাপনায় AI সহায়তা।
             </p>
-        </div>
+        </header>
 
-        <div class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-semibold mb-3">
-                💬 Student Support AI
-            </h2>
+        <div class="p-4 md:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div id="sls-chat-messages"
+                 class="space-y-3 mb-4"
+                 aria-live="polite">
+                <p class="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                    আসসালামু আলাইকুম! পড়াশোনা বা student life সম্পর্কে কী জানতে চান?
+                </p>
+            </div>
 
-            <p class="mb-4">
-                পড়াশোনা, exam preparation অথবা time management সম্পর্কে প্রশ্ন করুন।
-            </p>
-
-            <form id="student-ai-form" class="space-y-3">
-                <label for="student-ai-question" class="block font-medium">
-                    আপনার প্রশ্ন
+            <form id="sls-chat-form" class="space-y-3">
+                <label for="sls-question" class="block font-medium">
+                    আপনার প্রশ্ন লিখুন
                 </label>
-
-                <textarea
-                    id="student-ai-question"
-                    rows="4"
-                    maxlength="3000"
+                <textarea id="sls-question" rows="3" maxlength="3000"
                     required
-                    placeholder="আপনার প্রশ্ন এখানে লিখুন..."
-                    class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent"></textarea>
+                    class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent"
+                    placeholder="যেমন: HSC পরীক্ষার প্রস্তুতি কীভাবে নেব?"></textarea>
 
-                <button
-                    type="submit"
-                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-                    প্রশ্ন পাঠান
+                <button type="submit"
+                    class="px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+                    <i class="fa-solid fa-paper-plane"></i> Send
                 </button>
             </form>
-
-            <div
-                id="student-ai-status"
-                role="status"
-                aria-live="polite"
-                class="mt-4 whitespace-pre-wrap"></div>
         </div>
     </div>
-</div>
+</section>
+
+
 
 
 
@@ -1426,7 +1405,7 @@ function showNewFeatureView(viewName) {
 
 
 
-    <script src="student-ai.js" defer></script>
+    <script type="module" src="student-ai.js" ></script>
 
     <script type="module" src="script.js"></script>
 </body>
