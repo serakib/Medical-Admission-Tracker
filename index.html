@@ -50,7 +50,7 @@
 
     <link rel="stylesheet" href="./style.css">
 
-    <!-- Portfolio Exact Contact & Footer Styles -->
+    <!-- Portfolio & Medical Styles -->
     <style>
         .gradient-text {
             background: linear-gradient(135deg, #3a86ff 0%, #00f2fe 100%);
@@ -146,7 +146,7 @@
                     <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
-                    <!-- নেভবারে যোগাযোগ বাটন -->
+                    <!-- যোগাযোগ বাটন -->
                     <a href="#contact" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-medical-600 dark:text-medical-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-envelope ml-1"></i> যোগাযোগ
                     </a>
@@ -459,7 +459,7 @@
             </div>
         </section>
 
-        <!-- VIEW: LIVE EXAM VIEW -->
+        <!-- VIEW 3: LIVE EXAM VIEW -->
         <section id="view-exam" class="view-section hidden space-y-4">
             <div class="sticky top-16 z-30 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md p-4 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center space-x-3 space-x-reverse">
@@ -518,7 +518,7 @@
             </div>
         </section>
 
-        <!-- VIEW: RESULT DASHBOARD -->
+        <!-- VIEW 4: RESULT DASHBOARD -->
         <section id="view-result" class="view-section hidden max-w-4xl mx-auto space-y-8">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-10 shadow-lg border border-gray-200 dark:border-gray-700 space-y-8 text-center">
                 <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-medical-100 dark:bg-medical-900/50 text-medical-700 dark:text-medical-300 font-bold text-sm">
@@ -566,7 +566,7 @@
             </div>
         </section>
 
-        <!-- VIEW: REVIEW ANSWERS -->
+        <!-- VIEW 5: REVIEW ANSWERS -->
         <section id="view-review" class="view-section hidden space-y-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                 <div>
@@ -578,7 +578,7 @@
             <div id="review-list-container" class="space-y-6"></div>
         </section>
 
-        <!-- VIEW: PROFILE & PROGRESS -->
+        <!-- VIEW 6: PROFILE & PROGRESS -->
         <section id="view-profile" class="view-section hidden space-y-6 max-w-6xl mx-auto">
             <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
                 <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -633,10 +633,35 @@
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
-                    <div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2></div>
-                    <button onclick="app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button>
+                    <div>
+                        <span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Only Challenge Quiz points are counted.</p>
+                    </div>
+                    <button onclick="app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold">
+                        <i class="fa-solid fa-rotate ml-1"></i> Refresh
+                    </button>
                 </div>
-                <div id="leaderboard-body"></div>
+                <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
+                <div id="leaderboard-podium" class="leaderboard-podium"></div>
+                <div id="leaderboard-me" class="leaderboard-me hidden"></div>
+                <div class="leaderboard-table-wrap">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-right border-b border-gray-200 dark:border-gray-700">
+                                    <th class="py-3 px-3">Rank</th>
+                                    <th class="py-3 px-3">Student</th>
+                                    <th class="py-3 px-3">College</th>
+                                    <th class="py-3 px-3">Quizzes</th>
+                                    <th class="py-3 px-3">Accuracy</th>
+                                    <th class="py-3 px-3">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -683,7 +708,7 @@
                         <textarea id="form-message" required placeholder="How can I Help you?" aria-label="Message"></textarea>
                       
                         <button type="submit" id="submit-btn" class="contact-send-btn btn-gradient text-white font-bold flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-paper-plane"></i><span>Push Execute</span>
+                            <i class="fa-solid fa-paper-plane"></i><span>Send Message</span>
                         </button>
                     </div>
                 </form>
@@ -703,6 +728,41 @@
 
     </main>
 
+    <!-- Floating Bottom-Right Theme Toggle Button -->
+    <button id="theme-toggle" onclick="app.toggleTheme()" title="Toggle Theme" style="
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(20, 20, 30, 0.7);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+    " onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    </button>
+
     <!-- Portfolio Footer Integration -->
     <footer class="site-footer">
         <div class="footer-inner">
@@ -712,17 +772,17 @@
                 <div class="footer-built">Built by <strong>MD. RAKIB HASAN</strong></div>
             </div>
             <div class="footer-links">
-    <h4>Quick Links</h4>
-    <a href="#home" onclick="app.showView('home')">হোম</a>
-    <a href="#question-bank" onclick="app.openQuestionBank('view')">প্রশ্ন ব্যাংক</a>
-    <a href="#practice" onclick="app.openQuestionBank('practice')">প্র্যাকটিস</a>
-    <a href="#model-test" onclick="app.setupExamQuick('model')">মডেল টেস্ট</a>
-    <a href="#previous-year" onclick="app.setupExamQuick('previous')">বিগত বছর</a>
-    <a href="#leaderboard" onclick="app.showView('leaderboard'); app.loadLeaderboard()">Leaderboard</a>
-    <a href="#profile" onclick="app.openProfile()">Profile</a>
-    <a href="#syllabus" onclick="app.showView('syllabus')">সিলেবাস</a>
-    <a href="#contact">যোগাযোগ</a>
-</div>
+                <h4>Quick Links</h4>
+                <a href="#view-home" onclick="app.showView('home')">হোম</a>
+                <a href="#view-question-bank" onclick="app.openQuestionBank('view')">প্রশ্ন ব্যাংক</a>
+                <a href="#view-practice" onclick="app.openQuestionBank('practice')">প্র্যাকটিস</a>
+                <a href="#view-setup" onclick="app.setupExamQuick('model')">মডেল টেস্ট</a>
+                <a href="#view-previous" onclick="app.showPreviousYears()">বিগত বছর</a>
+                <a href="#view-leaderboard" onclick="app.showView('leaderboard'); app.loadLeaderboard()">Leaderboard</a>
+                <a href="#view-profile" onclick="app.openProfile()">Profile</a>
+                <a href="#view-syllabus" onclick="app.showView('syllabus')">সিলেবাস</a>
+                <a href="#contact">যোগাযোগ</a>
+            </div>
             <div class="footer-contact">
                 <h4>Contact</h4>
                 <a href="mailto:rakibhasandcg27@gmail.com"><i class="fa-solid fa-envelope"></i> rakibhasandcg27@gmail.com</a>
