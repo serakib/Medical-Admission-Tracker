@@ -8761,6 +8761,449 @@
     "explanation": "পর্যায়কাল T ∝ √L। ফলে সময়কাল T দ্বিগুণ করতে কার্যকর দৈর্ঘ্য L কে 2² = 4 গুণ বাড়াতে হবে।",
     "source": "Medical Admission Test 2021-22",
     "difficulty": "medium"
+  },
+
+
+
+
+  {
+    "id": "phy_084",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "10 কেজি ভরের একটি স্থির বস্তুর উপর 100 N বল প্রয়োগ করলে ত্বরণ হবে-",
+    "options": {
+      "A": "10 m/sec²",
+      "B": "0.1m/sce²",
+      "C": "100 m/sec²",
+      "D": "1000 m/sec²"
+    },
+    "correctAnswer": "A",
+    "explanation": "নিউটন এর দ্বিতীয় সূত্রানুসারে F = ma, সুতরাং ত্বরণ a = F / m = 100 N / 10 kg = 10 m/s²।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_085",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কোনটি যান্ত্রিক ত্রুটি নয়?",
+    "options": {
+      "A": "লেভেল ত্রুটি",
+      "B": "সূচক ত্রুটি",
+      "C": "শূন্য ত্রুটি",
+      "D": "পিচট ত্রুটি"
+    },
+    "correctAnswer": "B",
+    "explanation": "সূচক ত্রুটি পরিমাপকের মানবীয় পর্যবেক্ষণ সংক্রান্ত ত্রুটি, এটি যন্ত্রের নিজস্ব গঠনগত যান্ত্রিক ত্রুটির অন্তর্ভুক্ত নয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_086",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কোনটি এসআই (SI) একক নয়?",
+    "options": {
+      "A": "কিলোগ্রাম",
+      "B": "কেলভিন",
+      "C": "মিটার",
+      "D": "লিটার"
+    },
+    "correctAnswer": "D",
+    "explanation": "লিটার আয়তনের এক বিশেষ প্রচলিত একক, কিন্তু SI পদ্ধতিতে আয়তনের মৌলিক একক হলো ঘনমিটার (m³)।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_087",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "নিচের কোনটির উপর বস্তুর জড়তার ভ্রামক নির্ভর করে?",
+    "options": {
+      "A": "কৌণিক ভরবেগ",
+      "B": "রৈখিক বেগ",
+      "C": "কৌণিক বেগ",
+      "D": "ভর ও ঘূর্ণন অক্ষের অবস্থান"
+    },
+    "correctAnswer": "D",
+    "explanation": "জড়তার ভ্রামক (I = ∑mr²) বস্তুর মোট ভর এবং ঘূর্ণন অক্ষ হতে বস্তু কণাগুলোর দূরত্বের বিতরণের ওপর নির্ভর করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_088",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "স্বাভাবিক তাপমাত্রা ও চাপে অক্সিজেন অণুর গড় বর্গবেগের বর্গমূল কত?",
+    "options": {
+      "A": "461 m/sec",
+      "B": "261 m/sec",
+      "C": "361 m/sec",
+      "D": "161 m/sec"
+    },
+    "correctAnswer": "A",
+    "explanation": "NTP তে অক্সিজেন অণুর RMS বেগ C = √(3RT/M) হিসেব করলে দাঁড়ায় প্রায় 461 m/s।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+
+
+
+
+  {
+    "id": "phy_089",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "বল ও স্মরণের মধ্যবর্তী কোণ 0° হলে কাজের পরিমাণ হবে -",
+    "options": {
+      "A": "সর্বনিম্ন",
+      "B": "অসীম",
+      "C": "সর্বোচ্চ",
+      "D": "শূন্য"
+    },
+    "correctAnswer": "C",
+    "explanation": "কাজ W = Fs cosθ। এখানে θ = 0° হলে cos(0°) = 1 হয়, ফলে কাজের মান সর্বোচ্চ (W = Fs) হয়[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_090",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "ডায়োড বিমুখী বায়্যাস (reversed biased) হলে নিঃশেষিত স্তর (depletion layer)-",
+    "options": {
+      "A": "একই থাকে",
+      "B": "বৃদ্ধি পাবে",
+      "C": "হ্রাস পায়",
+      "D": "বিলুপ্ত হয়"
+    },
+    "correctAnswer": "B",
+    "explanation": "p-n জংশন ডায়োডে রিভার্স বা বিমুখী বায়্যাস প্রয়োগ করলে ডিপ্লেশন লেয়ার বা নিঃশেষিত স্তর আরও প্রশস্ত বা বৃদ্ধি পায়[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_091",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "পদার্থবিজ্ঞানী আবদুস সালাম ও স্টিফেন ওয়াইনবার্গ কোন দুই দিককে একীভূত করেছিলেন?",
+    "options": {
+      "A": "দুর্বল নিউক্লীয় বল ও সবল নিউক্লীয় বল",
+      "B": "সবল নিউক্লীয় বল ও তড়িৎচৌম্বক বল",
+      "C": "তড়িৎচৌম্বক ও দুর্বল নিউক্লীয় বল",
+      "D": "বিশ্বজনীন মহাকর্ষ বল ও তড়িৎচৌম্বক বল"
+    },
+    "correctAnswer": "C",
+    "explanation": "আবদুস সালাম এবং স্টিফেন ওয়াইনবার্গ ও শেলডন গ্ল্যাশো তড়িৎচৌম্বক বল ও দুর্বল নিউক্লীয় বলকে একীভূত করে তড়িৎ-দুর্বল বল (Electroweak force) তত্ত্ব দেন[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_092",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কোন রঙের আলোর তরঙ্গ দৈর্ঘ্য সবচেয়ে কম?",
+    "options": {
+      "A": "হলুদ",
+      "B": "নীল",
+      "C": "বেগুনী",
+      "D": "লাল"
+    },
+    "correctAnswer": "C",
+    "explanation": "দৃশ্যমান আলোর বর্ণালীতে লাল আলোর তরঙ্গদৈর্ঘ্য সর্বাধিক এবং বেগুনী আলোর তরঙ্গদৈর্ঘ্য সর্বনিম্ন হয়[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_093",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "তাপগতিবিদ্যার কোন সূত্রকে ভিত্তি করে থার্মোমিটার তৈরি করা হয়?",
+    "options": {
+      "A": "তৃতীয় সূত্র",
+      "B": "প্রথম সূত্র",
+      "C": "শূন্যতম সূত্র (zeroth)",
+      "D": "দ্বিতীয় সূত্র"
+    },
+    "correctAnswer": "C",
+    "explanation": "তাপগতিবিদ্যার শূন্যতম সূত্র (Zeroth Law) তাপমাত্রা পরিমাপের এবং থার্মোমিটার তৈরির মূল ভিত্তি[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_094",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "আলোর অপবর্তন কোন কারণে ঘটে?",
+    "options": {
+      "A": "প্রতিসরণ",
+      "B": "সমবর্তন",
+      "C": "ব্যতিচার",
+      "D": "প্রতিফলন"
+    },
+    "correctAnswer": "C",
+    "explanation": "আলোর অপবর্তন মূলত তরঙ্গধর্মের সাথে সম্পর্কিত এবং এটি ব্যতিচারেরই একটি বিশেষ রূপ হিসেবে গণ্য হয়[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_095",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কিলোওয়াট - ঘণ্টার সাথে জুলের সম্পর্ক কোনটি?",
+    "options": {
+      "A": "1 kWh = 1000 J",
+      "B": "1 kWh = 6000 J",
+      "C": "1 kWh = 3.6 × 10⁶ J",
+      "D": "1 kWh = 3600 J"
+    },
+    "correctAnswer": "C",
+    "explanation": "১ কিলোওয়াট ঘণ্টা (kWh) = 1000 W × 3600 s = 3.6 × 10⁶ J[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_096",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কোন বিজ্ঞানী শক্তির ক্ষুদ্রতম এককের নাম দেন 'কোয়ান্টাম'?",
+    "options": {
+      "A": "ম্যাক্স প্ল্যাঙ্ক",
+      "B": "আইনস্টাইন",
+      "C": "আবদুল কাদের",
+      "D": "ম্যাক্সওয়েল"
+    },
+    "correctAnswer": "A",
+    "explanation": "বিজ্ঞানী ম্যাক্স প্ল্যাঙ্ক কোয়ান্টাম তত্ত্বের প্রবক্তা এবং তিনি শক্তির অবিচ্ছিন্ন বিকিরণের পরিবর্তে গুচ্ছ বা প্যাকেট আকারে নির্গমনের নাম দেন কোয়ান্টাম[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_097",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কোনটি তড়িৎ চুম্বকীয় তরঙ্গ নয়?",
+    "options": {
+      "A": "রেডিও ওয়েভ",
+      "B": "এক্সরে",
+      "C": "মাইক্রোওয়েভ",
+      "D": "আল্ট্রাসাউন্ড"
+    },
+    "correctAnswer": "D",
+    "explanation": "আল্ট্রাসাউন্ড বা শব্দোত্তর তরঙ্গ হলো যান্ত্রিক তরঙ্গ, এটি কোনো তড়িৎ চুম্বকীয় তরঙ্গ নয়[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_098",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "নিচের কোন যন্ত্রের সাহায্যে বিভব পার্থক্য ও তড়িৎ চালক শক্তি নির্ণয় করা যায়?",
+    "options": {
+      "A": "গ্যালভানোমিটার",
+      "B": "পোটেনশিওমিটার",
+      "C": "অ্যামমিটার",
+      "D": "ও'ম মিটার"
+    },
+    "correctAnswer": "B",
+    "explanation": "পোটেনশিওমিটার অত্যন্ত নিখুঁতভাবে কোষের তড়িৎ চালক শক্তি এবং যেকোনো দুই বিন্দুর বিভব পার্থক্য পরিমাপ করতে পারে[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_099",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "একটি 220V - 40W বাল্বের মধ্য দিয়ে কি পরিমাণ তড়িৎ প্রবাহিত হবে?",
+    "options": {
+      "A": "2.0 A",
+      "B": "5.0 A",
+      "C": "0.5 A",
+      "D": "0.2 A"
+    },
+    "correctAnswer": "D",
+    "explanation": "ক্ষমতা P = VI, সুতরাং তড়িৎ প্রবাহ I = P / V = 40W / 220V ≈ 0.1818 A (প্রায় 0.2 A)[cite: 5].",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+
+
+
+  {
+    "id": "eng_100",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "The teacher has repeated herself twice. Here 'twice' is-",
+    "options": {
+      "A": "noun",
+      "B": "adverb",
+      "C": "adjective",
+      "D": "preposition"
+    },
+    "correctAnswer": "B",
+    "explanation": "এখানে 'twice' শব্দটি 'repeated' ভার্বকে মডিফাই করায় এটি একটি Adverb of frequency/number ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_101",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Which of the following sentences contain an incorrect appropriate preposition?",
+    "options": {
+      "A": "He was charged with theft",
+      "B": "Clothed with shame, she left the place",
+      "C": "He complied with my request",
+      "D": "Early rising is conducive with health"
+    },
+    "correctAnswer": "D",
+    "explanation": "'Conducive' শব্দটির পর সঠিক Preposition হিসেবে 'to' বসে (Conducive to health) ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_102",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Synonym for polite is-",
+    "options": {
+      "A": "rich",
+      "B": "courteous",
+      "C": "kindness",
+      "D": "brilliant"
+    },
+    "correctAnswer": "B",
+    "explanation": "'Polite' শব্দের অর্থ ভদ্র বা বিনয়ী, যার সমার্থক শব্দ 'courteous' ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_103",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Antonym of \"deceive\" is-",
+    "options": {
+      "A": "trick",
+      "B": "mislead",
+      "C": "cheat",
+      "D": "advise"
+    },
+    "correctAnswer": "D",
+    "explanation": "'Deceive' মানে প্রতারণা করা বা বিভ্রান্ত করা; দেওয়া বিকল্পগুলোর মধ্যে 'advise' (পরামর্শ দেওয়া/সঠিক পথ দেখানো) বিপরীত ধারণা প্রকাশ করে ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_104",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Select the correct tense \"I had been studying English for five years before I moved to the USA\".",
+    "options": {
+      "A": "Present perfect continuous",
+      "B": "Future continuous",
+      "C": "Past perfect continuous",
+      "D": "Present continuous"
+    },
+    "correctAnswer": "C",
+    "explanation": "অতীতের একটি কাজের পূর্বে অপর একটি কাজ নির্দিষ্ট সময় ধরে চলছিল বোঝাতে Past Perfect Continuous Tense হয় (had been + verb-ing) ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_105",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Identify the tense of the sentence \"She will be starting her new job from tomorrow\".",
+    "options": {
+      "A": "Future continuous",
+      "B": "Present continuous",
+      "C": "Present simple",
+      "D": "Future perfect"
+    },
+    "correctAnswer": "A",
+    "explanation": "ভবিষ্যতে কোনো কাজ চলতে থাকবে বোঝালে Future Continuous Tense হয় (will be + verb-ing) ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_106",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Select the complex sentence with an adverb clause from below-",
+    "options": {
+      "A": "You may criticize what I do",
+      "B": "I am sure that I will pass",
+      "C": "He is so weak, that he cannot walk",
+      "D": "I have no money that I can spare"
+    },
+    "correctAnswer": "B",
+    "explanation": "এখানে প্রদত্ত বিকল্পগুলোর মধ্যে নির্ধারিত উত্তরপত্র অনুযায়ী সঠিক গঠন নির্দেশিত হয়েছে ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_107",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Which of the following is the meaning of the phrase \"read between the lines\"?",
+    "options": {
+      "A": "read what is categorically stated",
+      "B": "understand what is implied not what is explicitly stated",
+      "C": "understand the inner meaning",
+      "D": "read what is implied"
+    },
+    "correctAnswer": "B",
+    "explanation": "'Read between the lines' বাক্যাংশের অর্থ হলো অন্তর্নিহিত বা পরোক্ষ অর্থ অনুধাবন করা ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_108",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Fill in the blank with appropriate word \"I am very proud ______ you\".",
+    "options": {
+      "A": "to",
+      "B": "in",
+      "C": "of",
+      "D": "for"
+    },
+    "correctAnswer": "C",
+    "explanation": "'Proud' শব্দটির পর Appropriate Preposition হিসেবে 'of' ব্যবহৃত হয় (proud of someone) ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "easy"
+  },
+  {
+    "id": "eng_109",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "What is the 'noun' form of the word 'beneficial'?",
+    "options": {
+      "A": "beneficiary",
+      "B": "beneficient",
+      "C": "beneficialness",
+      "D": "benefit"
+    },
+    "correctAnswer": "D",
+    "explanation": "'Beneficial' (Adjective) এর মূল Noun রূপ হলো 'benefit' ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "eng_110",
+    "year": "2021-22",
+    "subject": "english",
+    "question": "Which of the following sentences contain an adverb clause?",
+    "options": {
+      "A": "I have no money that I can spare",
+      "B": "He is a man who is rich",
+      "C": "The house in which we live at present suits us",
+      "D": "You can be allowed here only if you are a student"
+    },
+    "correctAnswer": "D",
+    "explanation": "'only if you are a student' অংশটি শর্ত প্রকাশ করে মেইন ক্লজকে মডিফাই করছে, তাই এটি একটি Adverbial Clause of condition ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "hard"
   }
   
 
