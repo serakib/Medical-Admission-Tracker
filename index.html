@@ -85,7 +85,7 @@
         .contact-social-card:hover{transform:translateY(-3px);border-color:rgba(0,245,212,.45);color:#fff;box-shadow:0 10px 28px rgba(0,245,212,.12),inset 0 1px 0 rgba(255,255,255,.08);}
 
         /* Portfolio Footer Styles */
-        .site-footer{margin-top:auto;padding:46px 34px 20px;background:rgba(5,9,18,.94);border-top:1px solid rgba(255,255,255,.08);color:#95a1b8}
+        .site-footer{margin-top:0;padding:46px 34px 20px;background:rgba(5,9,18,.94);border-top:1px solid rgba(255,255,255,.08);color:#95a1b8}
         .footer-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.45fr .75fr 1fr;gap:70px;padding-bottom:38px}
         .footer-brand-title{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:800;color:#e9e8f8;letter-spacing:.04em}
         .footer-dot{width:9px;height:9px;border-radius:50%;background:#8a70ff;box-shadow:0 0 12px rgba(138,112,255,.75)}
@@ -147,9 +147,9 @@
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
                     <!-- যোগাযোগ বাটন -->
-                    <button onclick="app.showView('contact')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-medical-600 dark:text-medical-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <a href="#contact" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-medical-600 dark:text-medical-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-envelope ml-1"></i> যোগাযোগ
-                    </button>
+                    </a>
                 </nav>
 
                 <!-- Auth Button Container -->
@@ -182,9 +182,9 @@
             <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
             </button>
-            <button onclick="app.showView('contact'); app.toggleMobileMenu();" class="w-full text-right block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700 text-medical-600 dark:text-medical-400">
+            <a href="#contact" onclick="app.toggleMobileMenu();" class="w-full text-right block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700 text-medical-600 dark:text-medical-400">
                 <i class="fa-solid fa-envelope ml-2"></i> যোগাযোগ
-            </button>
+            </a>
         </div>
     </header>
 
@@ -325,31 +325,6 @@
                         <div class="font-bold text-gray-900 dark:text-white">সাধারণ জ্ঞান</div>
                         <div id="count-subject-gk" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
                     </button>
-                </div>
-            </div>
-
-            <!-- Home Page এ যোগাযোগ সেকশন -->
-            <div id="home-contact-wrapper" class="pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div class="text-center contact-title-wrap mb-10">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Get in <span class="gradient-text">Touch</span></h2>
-                    <div class="w-16 h-1 bg-medical-600 mx-auto rounded-full mt-4"></div>
-                </div>
-                <div class="contact-reference-wrap">
-                    <form id="homeContactForm" onsubmit="event.preventDefault(); alert('ধন্যবাদ! আপনার মেসেজটি সফলভাবে সংরক্ষিত হয়েছে।');">
-                        <div class="contact-reference-grid">
-                            <input type="text" id="home-form-name" required placeholder="Your Name" aria-label="Your Name">
-                            <input type="email" id="home-form-email" required placeholder="Your Email" aria-label="Your Email">
-                            <textarea id="home-form-message" required placeholder="How can I Help you?" aria-label="Message"></textarea>
-                            <button type="submit" class="contact-send-btn btn-gradient text-white font-bold flex items-center justify-center gap-3">
-                                <i class="fa-solid fa-paper-plane"></i><span>Send Message</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="contact-social-row">
-                    <a href="mailto:rakibhasandcg27@gmail.com" class="contact-social-card" aria-label="Email"><i class="fa-solid fa-envelope"></i><span>Gmail</span></a>
-                    <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" class="contact-social-card" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i><span>Facebook</span></a>
-                    <a href="https://github.com/serakib" target="_blank" class="contact-social-card" aria-label="GitHub"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
                 </div>
             </div>
         </section>
@@ -718,29 +693,36 @@
             </div>
         </section>
 
-        <!-- VIEW: CONTACT (Independent Page View) -->
-        <section id="view-contact" class="view-section hidden max-w-5xl mx-auto space-y-8 py-6">
-            <div class="text-center contact-title-wrap mb-10">
+        <!-- PORTFOLIO EXACT GET IN TOUCH SECTION -->
+        <section id="contact" class="py-16 px-6 max-w-7xl mx-auto">
+            <div class="text-center contact-title-wrap" data-aos="fade-up">
                 <h2 class="text-3xl md:text-4xl font-bold mb-3">Get in <span class="gradient-text">Touch</span></h2>
                 <div class="w-16 h-1 bg-medical-600 mx-auto rounded-full mt-4"></div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">আপনার যেকোনো প্রশ্ন বা মতামতের জন্য আমাদের সাথে যোগাযোগ করুন।</p>
             </div>
-            <div class="contact-reference-wrap">
-                <form id="standaloneContactForm" onsubmit="event.preventDefault(); alert('ধন্যবাদ! আপনার মেসেজটি সফলভাবে সংরক্ষিত হয়েছে।');">
+
+            <div class="contact-reference-wrap" data-aos="fade-up">
+                <form id="contactForm" onsubmit="event.preventDefault(); alert('ধন্যবাদ! আপনার মেসেজটি সফলভাবে সংরক্ষিত হয়েছে।');">
                     <div class="contact-reference-grid">
-                        <input type="text" id="contact-form-name" required placeholder="Your Name" aria-label="Your Name">
-                        <input type="email" id="contact-form-email" required placeholder="Your Email" aria-label="Your Email">
-                        <textarea id="contact-form-message" required placeholder="How can I Help you?" aria-label="Message"></textarea>
-                        <button type="submit" class="contact-send-btn btn-gradient text-white font-bold flex items-center justify-center gap-3">
+                        <input type="text" id="form-name" required placeholder="Your Name" aria-label="Your Name">
+                        <input type="email" id="form-email" required placeholder="Your Email" aria-label="Your Email">
+                        <textarea id="form-message" required placeholder="How can I Help you?" aria-label="Message"></textarea>
+                      
+                        <button type="submit" id="submit-btn" class="contact-send-btn btn-gradient text-white font-bold flex items-center justify-center gap-3">
                             <i class="fa-solid fa-paper-plane"></i><span>Send Message</span>
                         </button>
                     </div>
                 </form>
             </div>
-            <div class="contact-social-row">
-                <a href="mailto:rakibhasandcg27@gmail.com" class="contact-social-card" aria-label="Email"><i class="fa-solid fa-envelope"></i><span>Gmail</span></a>
-                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" class="contact-social-card" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i><span>Facebook</span></a>
-                <a href="https://github.com/serakib" target="_blank" class="contact-social-card" aria-label="GitHub"><i class="fa-brands fa-github"></i><span>GitHub</span></a>
+            <div class="contact-social-row" data-aos="fade-up">
+                <a href="mailto:rakibhasandcg27@gmail.com" class="contact-social-card" aria-label="Email">
+                    <i class="fa-solid fa-envelope"></i><span>Gmail</span>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" class="contact-social-card" aria-label="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i><span>Facebook</span>
+                </a>
+                <a href="https://github.com/serakib" target="_blank" class="contact-social-card" aria-label="GitHub">
+                    <i class="fa-brands fa-github"></i><span>GitHub</span>
+                </a>
             </div>
         </section>
 
@@ -781,7 +763,7 @@
       </svg>
     </button>
 
-    <!-- Portfolio Footer Integration (Only visible on Home & Contact View) -->
+    <!-- Portfolio Footer Integration -->
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-brand">
@@ -799,7 +781,7 @@
                 <a href="#view-leaderboard" onclick="app.showView('leaderboard'); app.loadLeaderboard()">Leaderboard</a>
                 <a href="#view-profile" onclick="app.openProfile()">Profile</a>
                 <a href="#view-syllabus" onclick="app.showView('syllabus')">সিলেবাস</a>
-                <a href="#view-contact" onclick="app.showView('contact')">যোগাযোগ</a>
+                <a href="#contact">যোগাযোগ</a>
             </div>
             <div class="footer-contact">
                 <h4>Contact</h4>
