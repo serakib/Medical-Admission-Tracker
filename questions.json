@@ -7845,11 +7845,923 @@
     "explanation": "ইউরোপীয় বণিকদের মধ্যে সর্বপ্রথম ১৫১৭ সালে বাংলায় আসে পর্তুগীজরা।",
     "source": "Medical Admission Test 2022-23",
     "difficulty": "medium"
-  }
+  },
+
 
 
   
-
+{
+    "id": "bio_111",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "উদ্ভিদ কোষের অভ্যন্তরে pH রক্ষা করে কোনটি?",
+    "options": {
+      "A": "গ্লাইঅক্সিজোম",
+      "B": "নিউক্লিওপ্লাজম",
+      "C": "সাইটোপ্লাজম",
+      "D": "কোষ গহ্বর"
+    },
+    "correctAnswer": "D",
+    "explanation": "কোষ গহ্বর কোষের অভ্যন্তরে পানির ভারসাম্য এবং pH রক্ষা করতে সাহায্য করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_112",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোন পদ্ধতিতে নিষেক ছাড়াই ভ্রূণ সৃষ্টি হয়?",
+    "options": {
+      "A": "apogamy",
+      "B": "oogenesis",
+      "C": "cytogenesis",
+      "D": "sporogenesis"
+    },
+    "correctAnswer": "A",
+    "explanation": "নিষেক ছাড়া স্পোরোফাইট কোষ হতে সরাসরি ভ্রূণ বা উদ্ভিদ সৃষ্টির প্রক্রিয়াকে অপোগ্যামি (apogamy) বলে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_113",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "সালোকসংশ্লেষণ প্রক্রিয়ায় এক অণু গ্লুকোজের সঙ্গে কত অণু অক্সিজেন তৈরি হয়?",
+    "options": {
+      "A": "12",
+      "B": "6",
+      "C": "4",
+      "D": "2"
+    },
+    "correctAnswer": "B",
+    "explanation": "সালোকসংশ্লেষণের সামগ্রিক সমীকরণ অনুযায়ী, ১ অণু C₆H₁₂O₆ তৈরির সময় ৬ অণু O₂ উৎপন্ন হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_114",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোনটি বংশগতির বাহক?",
+    "options": {
+      "A": "লাইসোজোম",
+      "B": "অ্যাক্রোজোম",
+      "C": "রাইবোজোম",
+      "D": "ক্রোমোজোম"
+    },
+    "correctAnswer": "D",
+    "explanation": "ক্রোমোজোম জীবের বংশগত বৈশিষ্ট্য বহন করে এক বংশধর থেকে অন্য বংশধরে নিয়ে যায়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_115",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোষ চক্রের কোন দশায় DNA সংশ্লেষণ ঘটে?",
+    "options": {
+      "A": "M দশায়",
+      "B": "G₂ দশায়",
+      "C": "S দশায়",
+      "D": "G₁ দশায়"
+    },
+    "correctAnswer": "C",
+    "explanation": "ইন্টারফেজ পর্যায়ের S (Synthesis) দশায় DNA অনুলিপন বা সংশ্লেষণ সম্পন্ন হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_116",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "টিস্যু কালচার এর মাধ্যমে বাণিজ্যিকভাবে বাংলাদেশে কোনটি প্রজনন করা হয়?",
+    "options": {
+      "A": "গম",
+      "B": "স্ট্রবেরি",
+      "C": "ভুট্টা",
+      "D": "ধান"
+    },
+    "correctAnswer": "B",
+    "explanation": "বাংলাদেশে টিস্যু কালচার প্রযুক্তির মাধ্যমে চন্দ্রমল্লিকা, গ্ল্যাডিওলাস, স্ট্রবেরি ইত্যাদি দ্রুত বাণিজ্যিকভাবে বংশবৃদ্ধি করা হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_117",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "জবা ফুলের (China rose) অমরাবিন্যাস কোনটি?",
+    "options": {
+      "A": "প্রান্তীয়",
+      "B": "বহুপ্রান্তীয়",
+      "C": " অক্ষীয়",
+      "D": "মূলীয়"
+    },
+    "correctAnswer": "C",
+    "explanation": "মালভেসি (Malvaceae) গোত্রের অন্তর্ভুক্ত জবা ফুলের অমরাবিন্যাস অক্ষীয় (Axile)।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_118",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "অক্সিজেনের অনুপস্থিতিতে কোষের মধ্যে শ্বসনের কোন ধাপ ঘটে?",
+    "options": {
+      "A": "glycolysis",
+      "B": "oxidative phosphorylation",
+      "C": "electron transport",
+      "D": "citric acid cycle"
+    },
+    "correctAnswer": "A",
+    "explanation": "গ্লাইকোলাইসিস হলো শ্বসনের সাধারণ ধাপ যা অবাত ও সবাত উভয় শ্বসনেই অক্সিজেনের উপস্থিতি ছাড়াই ঘটে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_119",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "বায়ুমণ্ডলের কোন ভৌত অবস্থা পরিবর্তনে উদ্ভিদের প্রস্বেদন বৃদ্ধি পায়?",
+    "options": {
+      "A": "আলোর স্বল্পতা",
+      "B": "বায়ুচাপ বৃদ্ধি",
+      "C": "তাপমাত্রা হ্রাস",
+      "D": "আর্দ্রতা হ্রাস"
+    },
+    "correctAnswer": "D",
+    "explanation": "বায়ুমণ্ডলের আপেক্ষিক আর্দ্রতা কমে গেলে বা শুষ্ক হলে প্রস্বেদনের হার বৃদ্ধি পায়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_120",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "উদ্ভিদ দ্বারা সবচেয়ে দ্রুত শোষিত হয় কোন আয়নটি?",
+    "options": {
+      "A": "Ca⁺⁺",
+      "B": "K⁺",
+      "C": "Fe⁺⁺⁺",
+      "D": "Mg⁺⁺"
+    },
+    "correctAnswer": "B",
+    "explanation": "উদ্ভিদ মূলরোমের মাধ্যমে ক্যাটায়নের মধ্যে K⁺ এবং অ্যানায়নের মধ্যে NO₃⁻ সবচেয়ে দ্রুত শোষণ করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_121",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "নিচের কোন প্রোটিন পানিতে অদ্রবণীয়?",
+    "options": {
+      "A": "অ্যালবুমিন",
+      "B": "হিস্টোন",
+      "C": "গ্লুটেলিন",
+      "D": "প্রোটামিন"
+    },
+    "correctAnswer": "C",
+    "explanation": "গ্লুটেলিন সাধারণ পানি ও নিরপেক্ষ লবণের দ্রবণে অদ্রবণীয় কিন্তু লঘু এসিড ও ক্ষারে দ্রবণীয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_122",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোন পদ্ধতিতে কোভিড ১৯ ভ্যাকসিন প্রস্তুত করা হয় না?",
+    "options": {
+      "A": "এমআরএনএ (mRNA)",
+      "B": "উপএকক (subunit vaccine)",
+      "C": "বিষভিত্তিক (toxoid)",
+      "D": "নিষ্ক্রিয় (inactivated)"
+    },
+    "correctAnswer": "C",
+    "explanation": "টক্সয়েড বা বিষভিত্তিক ভ্যাকসিন ব্যাকটেরিয়াজাত বিষের ক্ষেত্রে ব্যবহৃত হয়, এটি কোভিড-১৯ ভাইরাসের ভ্যাকসিনে ব্যবহৃত হয় না।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_123",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "পাতার গ্রাউন্ড টিস্যুকে বলা হয়-",
+    "options": {
+      "A": "এপিথেম (epithem)",
+      "B": "কর্টেক্স (cortex)",
+      "C": "মেসোফিল (mesophyll)",
+      "D": "ক্যাম্বিয়াম (cambium)"
+    },
+    "correctAnswer": "C",
+    "explanation": "পাতার ঊর্ধ্ব ও নিম্ন ত্বকের মধ্যবর্তী স্থানে অবস্থিত ক্লোরোপ্লাস্টযুক্ত গ্রাউন্ড টিস্যুকে মেসোফিল বলে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_124",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "নিচের কোন খনিজ লবণের অভাবে গাছের পাতা ও ফুল ঝরে পড়ে?",
+    "options": {
+      "A": "লৌহ",
+      "B": "জিংক",
+      "C": "ফসফরাস",
+      "D": "ক্যালসিয়াম"
+    },
+    "correctAnswer": "C",
+    "explanation": "ফসফরাসের অভাবে উদ্ভিদের পাতা ও ফুল ঝরে পড়ে এবং মৃত অঞ্চল সৃষ্টি হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_125",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোন ধরনের আলো পাতার পত্ররন্ধ্র খোলা ত্বরান্বিত করে?",
+    "options": {
+      "A": "নীল",
+      "B": "লাল",
+      "C": "হলুদ",
+      "D": "কমলা"
+    },
+    "correctAnswer": "A",
+    "explanation": "নীল আলো রক্ষীকোষের ফটোসেপ্টরকে উদ্দীপিত করে পত্ররন্ধ্র খুলতে সর্বাধিক কার্যকর ভূমিকা পালন করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_126",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "Cycas এর কোন প্রজাতির পাতা চর্মরোগ উপশমে ব্যবহৃত হয়?",
+    "options": {
+      "A": "Cycas circinalis",
+      "B": "Cycas indica",
+      "C": "Cycas pectinata",
+      "D": "Cycas revoluta"
+    },
+    "correctAnswer": "A",
+    "explanation": "Cycas circinalis এর কচি পাতা ও রস চর্মরোগ এবং ক্ষতের উপশমে চিকিৎসায় ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_127",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "মানবদেহের ক্ষত নিরাময়ে কোনটি অপরিহার্য?",
+    "options": {
+      "A": "মাইটোসিস (mitosis)",
+      "B": "মিয়োসিস (meiosis)",
+      "C": "অ্যামাইটোসিস (amitosis)",
+      "D": "সিনপসিস (synopsis)"
+    },
+    "correctAnswer": "A",
+    "explanation": "মাইটোসিস কোষ বিভাজনের মাধ্যমে ক্ষতিগ্রস্ত স্থান নতুন কোষ দ্বারা পূর্ণ হয়ে ক্ষত নিরাময় হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_128",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোন রক্ত কণিকা “cell-mediated immunity” এর সাথে সম্পৃক্ত?",
+    "options": {
+      "A": "নিউট্রোফিল (neutrophil)",
+      "B": "ইওসিনোফিল (eosinophil)",
+      "C": "বেসোফিল (basophil)",
+      "D": "টি-লিম্ফোসাইট (T-lymphocyte)"
+    },
+    "correctAnswer": "D",
+    "explanation": "টি-লিম্ফোসাইট কোষভিত্তিক অনাক্রম্যতা বা Cell-mediated immunity প্রদানের প্রধান কারিগর।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_129",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "ঘাসফড়িং এর কোন গ্রন্থি থেকে জুভেনাইল হরমোন ক্ষরিত হয়?",
+    "options": {
+      "A": "কর্পোরা কারডিয়াকা",
+      "B": "কর্পোরা অ্যালাটা",
+      "C": "প্রোথোরাসিক গ্রন্থি",
+      "D": "ইন্টারসেরিব্রাল গ্রন্থিকোষ"
+    },
+    "correctAnswer": "B",
+    "explanation": "কর্পোরা অ্যালাটা (Corpora allata) গ্রন্থি জুভেনাইল হরমোন নিঃসরণ করে যা লাভাল দশা বজায় রাখে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_130",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "ক্ষুদ্রান্ত্রের কোন স্তরে গবলেট কোষ থাকে?",
+    "options": {
+      "A": "সেরোসা",
+      "B": "মিউকোসা",
+      "C": "মাসকুলারিস মিউকোসা",
+      "D": "সাবমিউকোসা"
+    },
+    "correctAnswer": "B",
+    "explanation": "ক্ষুদ্রান্ত্রের মিউকোসা স্তরের এপিথেলিয়ামে গবলেট কোষ থাকে যা মিউকাস ক্ষরণ করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_131",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "মানুষের হৃদপিণ্ডের কোন প্রকোষ্ঠের প্রাচীর সবচেয়ে পুরু?",
+    "options": {
+      "A": "ডান অলিন্দ",
+      "B": "বাম অলিন্দ",
+      "C": "ডান নিলয়",
+      "D": "বাম নিলয়"
+    },
+    "correctAnswer": "D",
+    "explanation": "বাম নিলয় সারা শরীরে সিস্টেমিক সংবহনের মাধ্যমে রক্ত পাম্প করে, তাই এর পেশী প্রাচীর সবচেয়ে পুরু।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_132",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোনটি autosomal recessive disorder?",
+    "options": {
+      "A": "রাতকানা",
+      "B": "হিমোফিলিয়া",
+      "C": "লাল-সবুজ বর্ণান্ধতা",
+      "D": "থ্যালাসেমিয়া"
+    },
+    "correctAnswer": "D",
+    "explanation": "থ্যালাসেমিয়া হলো ১৬ ও ১১ নম্বর অটোজোমে মিউটেশনের কারণে সৃষ্ট অটোজোমাল রিসিভ ডিজিজ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_133",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোন এনজাইম আমিষ পরিপাকে সাহায্য করে?",
+    "options": {
+      "A": "ট্রিপসিন",
+      "B": "ল্যাকটেজ",
+      "C": "লাইপেজ",
+      "D": "অ্যামাইলেজ"
+    },
+    "correctAnswer": "A",
+    "explanation": "ট্রিপসিন হলো অগ্ন্যাশয় রসে থাকা একটি প্রোটিওলাইটিক এনজাইম যা প্রোটিনকে প্রোটিওজ ও পেপ্টোনে পরিণত করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_134",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "ভ্রূণ অবস্থায় মাতৃগর্ভে কখন প্রথম হৃদস্পন্দন শুরু হয়?",
+    "options": {
+      "A": "অষ্টম সপ্তাহ",
+      "B": "ষষ্ঠ সপ্তাহ",
+      "C": "দশম সপ্তাহ",
+      "D": "দ্বাদশ সপ্তাহ"
+    },
+    "correctAnswer": "B",
+    "explanation": "গর্ভধারণের প্রায় ৬ষ্ঠ সপ্তাহে (বা জন্মপূর্ব ৪র্থ সপ্তাহে) মানব ভ্রূণে প্রথম হৃদস্পন্দন শুরু হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_135",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কোন এনজাইম লালা গ্রন্থিতে পাওয়া যায়?",
+    "options": {
+      "A": "অ্যামাইলেজ",
+      "B": "ট্রিপসিন",
+      "C": "পেপসিন",
+      "D": "টায়ালিন"
+    },
+    "correctAnswer": "D",
+    "explanation": "মানুষের লালারসে টায়ালিন (সালাইভারি অ্যামাইলেজ) নামক এনজাইম থাকে যা শ্বেতসার পরিপাকে সাহায্য করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_136",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "কেঁচো কোন অঙ্গের মাধ্যমে শ্বাসপ্রশ্বাস নেয়?",
+    "options": {
+      "A": "ফুলকা",
+      "B": "হৃদপিণ্ড",
+      "C": "ত্বক",
+      "D": "ফুসফুস"
+    },
+    "correctAnswer": "C",
+    "explanation": "কেঁচোর কোনো নির্দিষ্ট শসনঅঙ্গ নেই, এটি সিক্ত ও ভেজা ত্বকের মাধ্যমে ব্যাপন প্রক্রিয়ায় গ্যাসীয় বিনিময় ঘটায়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_137",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "প্রজাপতি এর প্রতিসাম্যতা কোন ধরনের?",
+    "options": {
+      "A": "অরীয়",
+      "B": "দ্বিঅরীয়",
+      "C": "অপ্রতিসাম্য",
+      "D": "দ্বিপার্শ্বীয়"
+    },
+    "correctAnswer": "D",
+    "explanation": "প্রজাপতিকে কেন্দ্রীয় অক্ষ বরাবর একটিমাত্র তলে সমদ্বিখণ্ডিত করা যায়, তাই এটি দ্বিপার্শ্বীয় প্রতিসাম্য।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_138",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "রক্তে অক্সিজেনের মাত্রা (O₂ saturation) ও হৃদস্পন্দন পরিমাপক যন্ত্রের নাম-",
+    "options": {
+      "A": "ব্যারোমিটার",
+      "B": "থার্মোমিটার",
+      "C": "স্ফিগমোম্যানোমিটার",
+      "D": "পালস অক্সিমিটার"
+    },
+    "correctAnswer": "D",
+    "explanation": "পালস অক্সিমিটার ব্যবহার করে অনাগ্রাসী পদ্ধতিতে রক্তে অক্সিজেনের স্যাচুরেশন ও পালস রেট পরিমাপ করা হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_139",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "মাতৃদুগ্ধে কোন ধরনের immunoglobulin থাকে?",
+    "options": {
+      "A": "IgM",
+      "B": "IgE",
+      "C": "IgD",
+      "D": "IgA"
+    },
+    "correctAnswer": "D",
+    "explanation": "মায়ের বুকের শালদুধে (Colostrum) সিক্রেটরি IgA প্রচুর পরিমাণে বিদ্যমান থাকে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bio_140",
+    "year": "2021-22",
+    "subject": "biology",
+    "question": "মানবদেহের কোন অঙ্গে সবচেয়ে বেশি মাত্রায় রক্ত প্রবাহিত হয়?",
+    "options": {
+      "A": "বৃক্ক",
+      "B": "যকৃত",
+      "C": "মস্তিষ্ক",
+      "D": "অন্ত্র"
+    },
+    "correctAnswer": "B",
+    "explanation": "যকৃতে প্রতি মিনিটে প্রায় ১৫০০ মিলি (মোট কার্ডিয়াক আউটপুটের প্রায় ২৫%) রক্ত প্রবাহিত হয়, যা সর্বাধিক।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_093",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "নিচের কোন বিক্রিয়ায় সাম্যাবস্থার উপর চাপের প্রভাব নাই?",
+    "options": {
+      "A": "H₂(g) + I₂(g) → 2HI (g)",
+      "B": "2SO₂(g) + O₂(g) → 2SO₃(g)",
+      "C": "CaCO₃ (s) → CaO (g) + CO₂(g)",
+      "D": "N₂O₄(g) → 2NO₂(g)"
+    },
+    "correctAnswer": "A",
+    "explanation": "যে বিক্রিয়ায় গ্যাসীয় বিক্রিয়ক ও উৎপাদের মোল সংখ্যার পরিবর্তন (Δn) শূন্য, তাতে চাপের কোনো প্রভাব নেই।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_094",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "একটি দ্রাবকে তিনটি পদার্থের দ্রাব্যতা ১২, ২৫ ও ৩২, কোন পদ্ধতিতে এই তিনটি পদার্থকে পৃথক করা যাবে?",
+    "options": {
+      "A": "কেলাসন (crystallization)",
+      "B": "আংশিক কেলাসন (fractional crystallization)",
+      "C": "আংশিক পাতন (fractional distillation)",
+      "D": "দ্রাবক নিষ্কাশন (Solvent extraction)"
+    },
+    "correctAnswer": "B",
+    "explanation": "একই দ্রাবকে দ্রবণীয় ভিন্ন দ্রাব্যতার কঠিন পদার্থের মিশ্রণকে পৃথক করতে আংশিক কেলাসন পদ্ধতি ব্যবহার করা হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_095",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "অ্যামিনো এসিড ও কার্বোহাইড্রেট মিশ্রণকে আলাদা করতে কোন ক্রোমাটোগ্রাফি পদ্ধতি সবচেয়ে ভালো?",
+    "options": {
+      "A": "পাতলা স্তর ক্রোমাটোগ্রাফি (thin layer chromatography)",
+      "B": "কাগজ ক্রোমাটোগ্রাফি (paper chromatography)",
+      "C": "কলাম ক্রোমাটোগ্রাফি (column chromatography)",
+      "D": "গ্যাস ক্রোমাটোগ্রাফি (gas chromatography)"
+    },
+    "correctAnswer": "B",
+    "explanation": "অ্যামিনো এসিড, শর্করা ও উদ্ভিদ রঞ্জক পৃথকীকরণে পেপার ক্রোমাটোগ্রাফি অত্যন্ত কার্যকর।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_096",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "কোনটির আয়নীকরণ শক্তির মান সর্বনিম্ন?",
+    "options": {
+      "A": "Mg",
+      "B": "Cs",
+      "C": "Na",
+      "D": "Ca"
+    },
+    "correctAnswer": "B",
+    "explanation": "পর্যায় সারণির ১ম গ্রুপের নিচের দিকে অবস্থিত সিজিয়াম (Cs) এর পারমাণবিক ব্যাসার্ধ অনেক বেশি হওয়ায় এর আয়নীকরণ শক্তি সর্বনিম্ন।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_097",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "25°C উষ্ণতায় পানির আয়নিক গুণফল কত?",
+    "options": {
+      "A": "1.0 × 10⁻⁷",
+      "B": "1.0 × 10⁻¹⁴",
+      "C": "1.0 × 10¹⁴",
+      "D": "1.0 × 10⁷"
+    },
+    "correctAnswer": "B",
+    "explanation": "25°C বা 298K তাপমাত্রায় পানির আয়নিক গুণফল (Kw) = [H⁺][OH⁻] = 1.0 × 10⁻¹⁴ mol²L⁻²।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_098",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "1000 ml পানিতে 58.5 g NaCl দ্রবীভূত হলো। এই দ্রবণকে কি বলা হয়?",
+    "options": {
+      "A": "1 molar দ্রবণ",
+      "B": "half strength দ্রবণ",
+      "C": "5.85 M দ্রবণ",
+      "D": "58.5 g percent দ্রবণ"
+    },
+    "correctAnswer": "A",
+    "explanation": "NaCl এর আণবিক ভর 58.5 g। 1 লিটার (1000 ml) দ্রবণে 1 মোল (58.5 g) দ্রবীভূত থাকলে তা 1 মোলার দ্রবণ।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_099",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "পরমাণু (atom) থেকে ধনাত্মক আয়নে পরিণত হতে যে শক্তির প্রয়োজন হয়, তাকে কি বলে?",
+    "options": {
+      "A": "ইলেকট্রন আসক্তি",
+      "B": "আয়নীকরণ শক্তি",
+      "C": "তড়িৎ ঋণাত্মকতা",
+      "D": "আয়নিক পটেনশিয়াল"
+    },
+    "correctAnswer": "B",
+    "explanation": "গ্যাসীয় অবস্থায় কোনো মৌলের ১ মোল বিচ্ছিন্ন পরমাণু থেকে ১ মোল ইলেকট্রন অপসারণ করে এক একক ধনাত্মক আয়নে পরিণত করতে প্রয়োজনীয় শক্তিকে আয়নীকরণ বিভব বা শক্তি বলে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_100",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "নিচের কোনটি দিয়ে ক্ষারীয় বাফার দ্রবণ তৈরি করা যায়?",
+    "options": {
+      "A": "NH₄Cl এবং NH₄OH",
+      "B": "Na₂SO₄ এবং H₂SO₄",
+      "C": "CH₃COOH এবং CH₃COONa",
+      "D": "NaOH এবং NaCl"
+    },
+    "correctAnswer": "A",
+    "explanation": "মৃদু ক্ষার (NH₄OH) এবং মৃদু ক্ষারের সাথে তীব্র এসিডের লবণ (NH₄Cl) মিলে ক্ষারীয় বাফার গঠিত হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_101",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "কোন যৌগটি অধিক সমযোজী?",
+    "options": {
+      "A": "CaCl₂",
+      "B": "MgCl₂",
+      "C": "AlCl₃",
+      "D": "FeCl₃"
+    },
+    "correctAnswer": "D",
+    "explanation": "ফাজানের নীতি অনুযায়ী ক্যাটায়নের চার্জ বৃদ্ধির সাথে পোলারায়ন বাড়ে; Fe³⁺ এর উচ্চ চার্জ ঘনত্বের কারণে FeCl₃ সবচেয়ে সমযোজী বৈশিষ্ট্য প্রদর্শন করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_102",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "স্থির তাপমাত্রায় যখন দুটি বিক্রিয়াহীন গ্যাস মিশ্রিত করা হয় তখন মিশ্রণের মোট চাপ হবে-",
+    "options": {
+      "A": "মিশ্রিত গ্যাস দুটির আংশিক চাপের গড়",
+      "B": "গ্যাস দুটির আংশিক চাপের যোগফল",
+      "C": "দুটি গ্যাসের আংশিক চাপের মধ্যে যেটি বেশি",
+      "D": "গ্যাস দুটির আংশিক চাপের গুণক"
+    },
+    "correctAnswer": "B",
+    "explanation": "ডাল্টনের আংশিক চাপ সূত্রানুযায়ী পরস্পর বিক্রিয়াহীন গ্যাস মিশ্রণের মোট চাপ উপাদান গ্যাসসমূহের আংশিক চাপের যোগফলের সমান।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_103",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "নিচের সংযোজিত এসিড ও ক্ষারের কোন বিক্রিয়াটি সঠিক?",
+    "options": {
+      "A": "HCl + H₂O → H₂Cl + HO⁻",
+      "B": "HCl + NH₃ → NH₄⁺ + Cl⁻",
+      "C": "H₂SO₄ + H₂O → H₄O⁺ + SO₄⁻",
+      "D": "NH₄ + H₂O → H₄O⁺ + NH₃"
+    },
+    "correctAnswer": "B",
+    "explanation": "ব্রনস্টেড-লাউরি মতবাদ অনুসারে, HCl প্রোটন দান করে Cl⁻ অনুবন্ধী ক্ষারে এবং NH₃ প্রোটন গ্রহণ করে NH₄⁺ অনুবন্ধী এসিডে পরিণত হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_104",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "সূর্যের UV বিকিরণের ক্ষতিকর প্রভাব থেকে সুরক্ষা দেয়-",
+    "options": {
+      "A": "স্ট্র্যাটমণ্ডলে (stratosphere) থাকা ওজনস্তর (O₃)",
+      "B": "অয়নমণ্ডল (ionosphere) ও ট্রোপোমণ্ডল (troposphere) এ থাকা ওজনস্তর (O₃)",
+      "C": "আয়নমণ্ডলে (ionosphere) থাকা ওজনস্তর (O₃)",
+      "D": "ট্রোপোমণ্ডলে (troposphere) থাকা মেঘমালা"
+    },
+    "correctAnswer": "A",
+    "explanation": "বায়ুমণ্ডলের স্ট্র্যাটোস্ফিয়ারে বিদ্যমান ওজোনোস্ফিয়ার বা ওজন স্তর সূর্যের ক্ষতিকর অতিবেগুনি রশ্নি শোষণ করে পৃথিবীর সুরক্ষা ছাতা হিসেবে কাজ করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_105",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "নিচের কোন মূলকটি বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক?",
+    "options": {
+      "A": "-Br",
+      "B": "-NO₂",
+      "C": "-CHO",
+      "D": "-CH"
+    },
+    "correctAnswer": "A",
+    "explanation": "হ্যালোজেন মূলক (-Br) নিঃসঙ্গ ইলেকট্রন যুগল থাকার কারণে বেনজিন বলয়ে অর্থো-প্যারা নির্দেশক হিসেবে কাজ করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_106",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "R-CH₂Br + NaOH (aqua) = উৎপাদ নিচের কোন কৌশলের মাধ্যমে উপরের বিক্রিয়াটি ঘটে?",
+    "options": {
+      "A": "ইলেকট্রোফিলিক প্রতিস্থাপন",
+      "B": "অপসারণ বিক্রিয়া",
+      "C": "কেন্দ্রাকর্ষী প্রতিস্থাপন",
+      "D": "সংযোজন বিক্রিয়া"
+    },
+    "correctAnswer": "C",
+    "explanation": "জলীয় ক্ষারের সাথে অ্যালকাইল হ্যালাইডের বিক্রিয়া নিউক্লিওফিলিক বা কেন্দ্রাকর্ষী প্রতিস্থাপন (S_N) কৌশলে সম্পন্ন হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_107",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "কোন বিক্রিয়কটি ইথানল ও ইথানয়িক এসিড উভয়ের সাথেই বিক্রিয়া করে?",
+    "options": {
+      "A": "H⁺, K₂Cr₂O₇",
+      "B": "NaOH",
+      "C": "Na",
+      "D": "Na₂CO₃"
+    },
+    "correctAnswer": "C",
+    "explanation": "সোডিয়াম (Na) ধাতু অ্যালকোহল ও কার্বক্সিলিক এসিড উভয়ের সঙ্গেই বিক্রিয়া করে বুদ্বুদ আকারে H₂ গ্যাস নির্গত করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_108",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "তীব্র এসিড ও মৃদু ক্ষার টাইট্রেশনে উপযুক্ত নির্দেশক কোনটি?",
+    "options": {
+      "A": "ফেনফথ্যালিন",
+      "B": "লিটমাস",
+      "C": "থাইমল ব্লু",
+      "D": "মিথাইল অরেঞ্জ"
+    },
+    "correctAnswer": "D",
+    "explanation": "তীব্র এসিড ও দুর্বল ক্ষার প্রশমনে দ্রবণটি অম্লীয় পরিসরে (pH 3.1 - 4.4) থাকে, তাই মিথাইল অরেঞ্জ বা মিথাইল রেড নির্দেশক ব্যবহৃত হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_109",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "জ্যামিতিক সমাণুতার শর্ত কোনটি?",
+    "options": {
+      "A": "অ্যালকানল",
+      "B": "চক্রিক অ্যারিন",
+      "C": "হেটেরো যৌগ",
+      "D": "প্রতিস্থাপিত অ্যালকিন"
+    },
+    "correctAnswer": "D",
+    "explanation": "মুক্ত আবর্তনে বাধা থাকায় প্রতিস্থাপিত অ্যালকিন (যেমন- abC=Cab) জ্যামিতিক (সিস-ট্রান্স) সমাণুতা প্রদর্শন করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_110",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "নিম্নের কোনটি মিঠা পানির সর্ববৃহৎ উৎস?",
+    "options": {
+      "A": "ভূগর্ভস্থ পানি",
+      "B": "দক্ষিণ মেরুর বরফ",
+      "C": "উত্তর মেরুর বরফ",
+      "D": "নদীর পানি"
+    },
+    "correctAnswer": "C",
+    "explanation": "পৃথিবীর মোট স্বাদু বা মিঠা পানির সবচেয়ে বড় সংচিতি থাকে মেরু অঞ্চলের বরফপ্রবাহ ও হিমবাহ সমূহে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_111",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "হেক্সিন-৩ (hexene-3) কোন প্রকারের সমাণুতা প্রদর্শন করে?",
+    "options": {
+      "A": "সিস-ট্রান্স (cis-trans) সমাণুতা",
+      "B": "এনানসিওমার (enantiomer)",
+      "C": "আলোক (optical) সমাণুতা",
+      "D": "কার্যকরীমূলক (functional group) সমাণুতা"
+    },
+    "correctAnswer": "A",
+    "explanation": "হেক্সিন-৩ (CH₃-CH₂-CH=CH-CH₂-CH₃) এর দ্বিবন্ধনযুক্ত কার্বনে একই সমতলে ভিন্ন গ্রুপ থাকায় তা সিস-ট্রান্স সমাণুতা দেখায়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_112",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "CGS system এ পরিবাহিতা (conductance) এর একক কি?",
+    "options": {
+      "A": "rad",
+      "B": "ampere",
+      "C": "ohm",
+      "D": "volt"
+    },
+    "correctAnswer": "Blank",
+    "explanation": "পরিবাহিতার একক হলো ohm⁻¹ বা mho (বা SI এককে Siemens)। প্রদত্ত অপশনগুলোর কোনোটি সঠিক উত্তর নয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_113",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "কোন বিবরণটি সঠিক?",
+    "options": {
+      "A": "যেসব পদার্থ ইলেকট্রন গ্রহণ ও দান করে না, সেটি ক্ষারক",
+      "B": "যেসব পদার্থ প্রোটন গ্রহণ করে, সেটি ক্ষারক",
+      "C": "যেসব পদার্থ ইলেকট্রন গ্রহণ ও দান করে, সেটি ক্ষারক",
+      "D": "যেসব পদার্থ প্রোটন দান করে, সেটি ক্ষারক"
+    },
+    "correctAnswer": "B",
+    "explanation": "ব্রনস্টেড-লাউরীর তত্ত্বানুযায়ী, প্রোটন গ্রাহী পদার্থসমূহকে ক্ষারক বলা হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_114",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "ইথানয়িক অ্যানহাইড্রাইডের সংকেত কোনটি?",
+    "options": {
+      "A": "CH₃ – CO – CH₂CO – CH₃",
+      "B": "CH₃CH₂ – O – CH₂CH₃",
+      "C": "CH₃ – COO – COO – CH₃",
+      "D": "CH₃COO – COCH₃"
+    },
+    "correctAnswer": "D",
+    "explanation": "দুই অণু ইথানয়িক এসিড হতে এক অণু পানি অপসারিত হয়ে ইথানয়িক অ্যানহাইড্রাইড (CH₃CO-O-COCH₃) গঠিত হয়।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_115",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "কোন যৌগটি কার্বিল অ্যামিন (carbyl amine) বিক্রিয়া দেয়?",
+    "options": {
+      "A": "R₃N",
+      "B": "C₆H₅NH-R",
+      "C": "R₂NH",
+      "D": "R-NH₂"
+    },
+    "correctAnswer": "D",
+    "explanation": "প্রাথমিক অ্যামিন (R-NH₂) ক্লোরোফর্ম ও ক্ষারের সাথে উত্তপ্ত করলে তীব্র দুর্গন্ধযুক্ত কার্বিল অ্যামিন বা আইসোসায়ানাইড উৎপন্ন করে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_116",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "10% Na₂CO₃ দ্রবণের মোলার ঘনমাত্রা কত?",
+    "options": {
+      "A": "10 mol/L",
+      "B": "0.9434 mol/Kg",
+      "C": "9.434 mol/L",
+      "D": "0.9434 M"
+    },
+    "correctAnswer": "D",
+    "explanation": "Molar concentration (M) = (10 × x) / Molar Mass = (10 × 10) / 106 = 0.9434 M।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "chem_117",
+    "year": "2021-22",
+    "subject": "chemistry",
+    "question": "ভূপৃষ্ঠের পানিতে দ্রবীভূত অক্সিজেন (DO) বিষয়ে কোন বাক্যটি সঠিক?",
+    "options": {
+      "A": "জৈব বর্জ্য থাকলে DO বেশি হয়",
+      "B": "জীবাণু উপস্থিতি DO বাড়িয়ে দেয়",
+      "C": "DO 8.0 - 6.0 পিপিএম থাকা প্রয়োজন",
+      "D": "DO 8.0 পিপিএম এর নিচে থাকা প্রয়োজন"
+    },
+    "correctAnswer": "C",
+    "explanation": "পানীয় জল ও জলজ প্রাণীর অনুকূল পরিবেশের জন্য পানিতে দ্রবীভূত অক্সিজেনের (DO) আদর্শ মান হলো 6.0 – 8.0 ppm।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_082",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "কোন নিত্যতার সূত্র জেট ইঞ্জিন বা রকেটের কার্যনীতির ভিত্তি?",
+    "options": {
+      "A": "ভর",
+      "B": "শক্তি",
+      "C": "কৌণিক ভরবেগ",
+      "D": "রৈখিক ভরবেগ"
+    },
+    "correctAnswer": "D",
+    "explanation": "রকেটের নির্গমন গ্যাস ও রকেটের গতির মূল নীতি রৈখিক ভরবেগের সংরক্ষণ সূত্র (Conservation of linear momentum) মেনে চলে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  },
+  {
+    "id": "phy_083",
+    "year": "2021-22",
+    "subject": "physics",
+    "question": "একটি সরল দোলকের সময়কাল দ্বিগুণ করতে হলে এর দৈর্ঘ্য অবশ্যই-",
+    "options": {
+      "A": "২ গুণ বাড়াতে হবে",
+      "B": "১/২ কমাতে হবে",
+      "C": "১/২ বাড়াতে হবে",
+      "D": "৪ গুণ বাড়াতে হবে"
+    },
+    "correctAnswer": "D",
+    "explanation": "পর্যায়কাল T ∝ √L। ফলে সময়কাল T দ্বিগুণ করতে কার্যকর দৈর্ঘ্য L কে 2² = 4 গুণ বাড়াতে হবে।",
+    "source": "Medical Admission Test 2021-22",
+    "difficulty": "medium"
+  }
   
 
    
