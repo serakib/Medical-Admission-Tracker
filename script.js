@@ -1385,3 +1385,63 @@ window.handleLogout = function() {
         });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== NEW VIEW NAVIGATION LOGIC ===== */
+
+app.showView = function (viewName) {
+    const viewIds = {
+        home: "view-home",
+        exam: "view-exam",
+        result: "view-result",
+        review: "view-review",
+        profile: "view-profile",
+        leaderboard: "view-leaderboard",
+        syllabus: "view-syllabus",
+
+        "medical-hsc-info": "view-medical-hsc-info",
+        "student-life-support": "view-student-life-support"
+    };
+
+    const targetId = viewIds[viewName];
+    if (!targetId) {
+        console.warn("Unknown view:", viewName);
+        return;
+    }
+
+    const target = document.getElementById(targetId);
+    if (!target) {
+        console.error("View not found:", targetId);
+        return;
+    }
+
+    document.querySelectorAll(".view-section").forEach(function (view) {
+        view.classList.add("hidden");
+    });
+
+    target.classList.remove("hidden");
+
+    document.querySelectorAll(".nav-btn").forEach(function (button) {
+        button.classList.remove("active");
+    });
+
+    document.querySelectorAll(".nav-btn").forEach(function (button) {
+        const handler = button.getAttribute("onclick") || "";
+        if (handler.includes("showView('" + viewName + "')")) {
+            button.classList.add("active");
+        }
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
