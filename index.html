@@ -50,6 +50,120 @@
 
     <link rel="stylesheet" href="./style.css">
 
+    <!-- Portfolio Match Styles for Contact & Footer -->
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #3a86ff 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #3a86ff 0%, #00d2ff 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 10px 25px -5px rgba(58, 134, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Portfolio Contact Reference Grid Style */
+        #view-contact .contact-reference-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.55fr .95fr;
+            gap: 8px;
+            align-items: center;
+        }
+        #view-contact .contact-reference-grid input,
+        #view-contact .contact-reference-grid textarea {
+            width: 100%;
+            background: rgba(24, 22, 39, .78);
+            border: 1px solid rgba(126, 102, 255, .55);
+            border-radius: 24px;
+            color: #fff;
+            outline: none;
+            box-shadow: inset 0 0 0 1px rgba(255, 100, 180, .04);
+        }
+        #view-contact .contact-reference-grid input {
+            height: 110px;
+            padding: 0 36px;
+            font-size: 1.05rem;
+        }
+        #view-contact .contact-reference-grid textarea {
+            height: 245px;
+            padding: 28px 36px;
+            resize: none;
+            font-size: 1.05rem;
+        }
+        #view-contact .contact-reference-grid input:focus,
+        #view-contact .contact-reference-grid textarea:focus {
+            border-color: #8a70ff;
+            box-shadow: 0 0 24px rgba(109, 92, 231, .13);
+        }
+        #view-contact .contact-send-btn {
+            height: 100px;
+            border-radius: 999px;
+            font-size: 1.05rem;
+        }
+        #view-contact .contact-reference-wrap {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .contact-social-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 22px auto 0;
+        }
+        .contact-social-card {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            min-width: 130px;
+            padding: 12px 20px;
+            border-radius: 999px;
+            border: 1px solid rgba(138, 112, 255, .28);
+            background: rgba(18, 18, 31, .62);
+            color: #b9c4d8;
+            text-decoration: none;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 8px 24px rgba(0, 0, 0, .14);
+            transition: .22s ease;
+        }
+        .contact-social-card i {
+            font-size: 1rem;
+            color: #9b8cff;
+        }
+        .contact-social-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 245, 212, .45);
+            color: #fff;
+            box-shadow: 0 10px 28px rgba(0, 245, 212, .12), inset 0 1px 0 rgba(255, 255, 255, .08);
+        }
+
+        @media (max-width: 767px) {
+            #view-contact .contact-reference-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            #view-contact .contact-reference-grid input {
+                height: 56px;
+                padding: 0 18px;
+                font-size: .9rem;
+            }
+            #view-contact .contact-reference-grid textarea {
+                height: 150px;
+                padding: 16px 18px;
+                font-size: .9rem;
+            }
+            #view-contact .contact-send-btn {
+                height: 56px;
+                font-size: .9rem;
+            }
+        }
+    </style>
+
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
 
@@ -86,17 +200,19 @@
                     <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
+                    <button onclick="app.showView('contact')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-envelope ml-1"></i> যোগাযোগ
+                    </button>
                 </nav>
-<!-- Auth Button Container -->
-<div class="auth-btn-target">
-  <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-    </svg>
-    <span>Log In / Sign up</span>
-  </button>
-</div>
-     
+
+                <!-- Auth Button Container -->
+                <div class="auth-btn-target">
+                  <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span>Log In / Sign up</span>
+                  </button>
                 </div>
             </div>
         </div>
@@ -119,7 +235,9 @@
             <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
             </button>
-            
+            <button onclick="app.showView('contact'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-envelope ml-2"></i> যোগাযোগ
+            </button>
         </div>
     </header>
 
@@ -289,13 +407,13 @@
                     </button>
                 </div>
             </div>
-        <div class="profile-home-shortcut mt-6">
-            <button onclick="app.openProfile()" class="profile-shortcut-card">
-                <span class="profile-shortcut-icon"><i class="fa-solid fa-user-graduate"></i></span>
-                <span class="profile-shortcut-copy"><b>আমার Profile</b><small>Progress, Accuracy, Attempt History ও Question Coverage দেখুন</small></span>
-                <i class="fa-solid fa-chevron-left profile-shortcut-arrow"></i>
-            </button>
-        </div>
+            <div class="profile-home-shortcut mt-6">
+                <button onclick="app.openProfile()" class="profile-shortcut-card">
+                    <span class="profile-shortcut-icon"><i class="fa-solid fa-user-graduate"></i></span>
+                    <span class="profile-shortcut-copy"><b>আমার Profile</b><small>Progress, Accuracy, Attempt History ও Question Coverage দেখুন</small></span>
+                    <i class="fa-solid fa-chevron-left profile-shortcut-arrow"></i>
+                </button>
+            </div>
         </section>
 
         <!-- VIEW: QUESTION BANK -->
@@ -317,8 +435,8 @@
         <section id="view-practice" class="view-section hidden max-w-4xl mx-auto space-y-5">
             <div class="section-hero"><div><span class="eyebrow">Practice Lab</span><h2>Practice</h2><p>No leaderboard points. Learn, answer, improve.</p></div><div class="practice-score-chip"><span>Marks</span><strong id="practice-score">0</strong></div></div>
             <div class="practice-timer-box" style="font-weight: bold; color: #e74c3c;">
-    সময় বাকি: <span id="practice-timer">10:00</span>
-</div>
+                সময় বাকি: <span id="practice-timer">10:00</span>
+            </div>
             <div class="section-toolbar"><span id="practice-progress">Question 1 of 10</span><button class="ghost-btn" onclick="app.openQuestionBank('view')">Question Bank</button></div>
             
             <div id="practice-question"></div>
@@ -632,9 +750,9 @@
                 </div>
 
                 <!-- লাল রঙের See Wrong Questions বাটন -->
-        <button id="wrong-btn" onclick="toggleWrongQuestions()" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">
-            See Wrong Questions
-        </button>
+                <button id="wrong-btn" onclick="toggleWrongQuestions()" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                    See Wrong Questions
+                </button>
                 
                 <button onclick="app.showView('result')" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-xs font-bold rounded-xl transition">
                     ফলাফলে ফিরে যান
@@ -642,7 +760,7 @@
             </div>
 
             <!-- ভুল প্রশ্নগুলো প্রদর্শনের জন্য কন্টেইনার -->
-<div id="wrong-questions-container"></div>
+            <div id="wrong-questions-container"></div>
 
             <!-- Review Questions List Dynamic -->
             <div id="review-list-container" class="space-y-6">
@@ -661,14 +779,14 @@
                 </div>
                
                <!-- Auth Button Container -->
-<div class="auth-btn-target">
-  <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-    </svg>
-    <span>Log In / Sign up</span>
-  </button>
-</div>
+               <div class="auth-btn-target">
+                 <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                   </svg>
+                   <span>Log In / Sign up</span>
+                 </button>
+               </div>
             </div>
             <div class="profile-stat-grid">
                 <div class="profile-stat-card"><span>Questions Practiced</span><strong id="profile-seen-count">0</strong><small>unique questions</small></div>
@@ -754,7 +872,8 @@
                 <div class="leaderboard-table-wrap"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-right border-b border-gray-200 dark:border-gray-700"><th class="py-3 px-3">Rank</th><th class="py-3 px-3">Student</th><th class="py-3 px-3">College</th><th class="py-3 px-3">Quizzes</th><th class="py-3 px-3">Accuracy</th><th class="py-3 px-3">Points</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div></div>
             </div>
         </section>
-<!-- VIEW 7: SYLLABUS & INFO -->
+
+        <!-- VIEW 7: SYLLABUS & INFO -->
         <section id="view-syllabus" class="view-section hidden space-y-6 max-w-4xl mx-auto">
             <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-3">
@@ -762,7 +881,7 @@
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Marks Distribution (Fixed for Dark Mode) -->
+                    <!-- Marks Distribution -->
                     <div class="p-5 rounded-2xl bg-medical-50 dark:bg-gray-900/80 border border-medical-200 dark:border-gray-700 space-y-3">
                         <h3 class="font-bold text-medical-800 dark:text-medical-400 text-base">১০০ নম্বরের বিষয়ভিত্তিক মান বণ্টন</h3>
                         <ul class="text-sm space-y-2 text-gray-700 dark:text-gray-200">
@@ -793,59 +912,95 @@
                 </div>
             </div>
         </section>
-       
 
-</main>
+        <!-- VIEW 8: CONTACT SECTION (MATCHING PORTFOLIO) -->
+        <section id="view-contact" class="view-section hidden max-w-7xl mx-auto space-y-8 py-6">
+            <div class="text-center contact-title-wrap">
+                <h2 class="text-3xl md:text-4xl font-bold mb-3">Get in <span class="gradient-text">Touch</span></h2>
+                <div class="w-16 h-1 bg-medical-600 mx-auto rounded-full mt-4"></div>
+            </div>
 
-    <!-- Floating Bottom-Right Theme Toggle Button (Exact Design) -->
-<button id="theme-toggle" onclick="app.toggleTheme()" title="Toggle Theme" style="
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(20, 20, 30, 0.7);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  outline: none;
-" onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';">
-  
-  <!-- Sun / Gear Icon matching screenshot -->
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="5"></circle>
-    <line x1="12" y1="1" x2="12" y2="3"></line>
-    <line x1="12" y1="21" x2="12" y2="23"></line>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-    <line x1="1" y1="12" x2="3" y2="12"></line>
-    <line x1="21" y1="12" x2="23" y2="12"></line>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-  </svg>
-</button>
+            <div class="contact-reference-wrap">
+                <form id="contactForm" onsubmit="event.preventDefault(); alert('ধন্যবাদ! আপনার মেসেজটি পাঠানো হয়েছে।');">
+                    <div class="contact-reference-grid">
+                        <input type="text" id="form-name" required placeholder="Your Name" aria-label="Your Name">
+                        <input type="email" id="form-email" required placeholder="Your Email" aria-label="Your Email">
+                        <textarea id="form-message" required placeholder="How can I Help you?" aria-label="Message"></textarea>
+                      
+                        <button type="submit" id="submit-btn" class="contact-send-btn btn-gradient text-white font-bold flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-paper-plane"></i><span>Send Message</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="contact-social-row">
+                <a href="mailto:rakibhasandcg27@gmail.com" class="contact-social-card" aria-label="Email">
+                    <i class="fa-solid fa-envelope"></i><span>Gmail</span>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" class="contact-social-card" aria-label="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i><span>Facebook</span>
+                </a>
+                <a href="https://github.com/serakib" target="_blank" class="contact-social-card" aria-label="GitHub">
+                    <i class="fa-brands fa-github"></i><span>GitHub</span>
+                </a>
+            </div>
+        </section>
 
-   
+    </main>
 
-    <footer class="site-footer desktop-canvas">
+    <!-- Floating Theme Toggle Button -->
+    <button id="theme-toggle" onclick="app.toggleTheme()" title="Toggle Theme" style="
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(20, 20, 30, 0.7);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+    ">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    </button>
+
+    <!-- Footer (Matching Portfolio) -->
+    <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-brand">
-                <div class="footer-brand-title"><span class="footer-dot"></span><span id="footer-name"></span></div>
+                <div class="footer-brand-title"><span class="footer-dot"></span><span>MD. RAKIB HASAN</span></div>
                 <p>Student developer building small web projects and learning something new every day.</p>
-                <div class="footer-built">Built by <strong id="footer-built-name"></strong></div>
+                <div class="footer-built">Built by <strong>MD. RAKIB HASAN</strong></div>
             </div>
             <div class="footer-links">
                 <h4>Quick Links</h4>
-                <a href="#home">Home</a><a href="#question-bank">Question Bank</a><a href="#practice">Practice</a><a href="#model-test">Model Test</a><a href="#previous-year">Previous Year</a><a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a><a href="#syllabus">Syllabus</a>
+                <a href="#" onclick="app.showView('home')">Home</a>
+                <a href="#" onclick="app.openQuestionBank('view')">Question Bank</a>
+                <a href="#" onclick="app.openQuestionBank('practice')">Practice</a>
+                <a href="#" onclick="app.setupExamQuick('model')">Model Test</a>
+                <a href="#" onclick="app.showPreviousYears()">Previous Year</a>
+                <a href="#" onclick="app.showView('leaderboard')">Leaderboard</a>
+                <a href="#" onclick="app.openProfile()">Profile</a>
+                <a href="#" onclick="app.showView('syllabus')">Syllabus</a>
             </div>
             <div class="footer-contact">
                 <h4>Contact</h4>
@@ -855,11 +1010,15 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>© 2026 <span id="footer-bottom-name"></span> — All Rights Reserved.</span>
-            <div class="footer-legal"><button onclick="openModal('privacyModal')">Privacy Policy</button><button onclick="openModal('termsModal')">Terms of Service</button><button onclick="openModal('cookieModal')">Cookie Policy</button></div>
+            <span>© 2026 MD. RAKIB HASAN — All Rights Reserved.</span>
+            <div class="footer-legal">
+                <button onclick="alert('Privacy Policy Clicked')">Privacy Policy</button>
+                <button onclick="alert('Terms of Service Clicked')">Terms of Service</button>
+                <button onclick="alert('Cookie Policy Clicked')">Cookie Policy</button>
+            </div>
         </div>
     </footer>
 
-   <script type="module" src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
