@@ -113,6 +113,10 @@
                     <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
+                    !-- নেভবারে নতুন যোগাযোগ বাটন -->
+                    <a href="#medical-contact" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-medical-600 dark:text-medical-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-envelope ml-1"></i> যোগাযোগ
+                    </a>
                 </nav>
 <!-- Auth Button Container -->
 <div class="auth-btn-target">
@@ -861,7 +865,52 @@
   </svg>
 </button>
 
-   
+
+<!-- PORTFOLIO STYLE GET IN TOUCH / CONTACT SECTION -->
+        <section id="medical-contact" class="py-12 px-6 max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-3">Contact<span class="gradient-text">(Get in Touch)</span></h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm md:text-base">মেডিকেল প্রস্তুতি সংক্রান্ত যেকোনো প্রশ্ন বা সহায়তার জন্য মেসেজ পাঠান</p>
+                <div class="w-16 h-1 bg-medical-600 mx-auto rounded-full mt-4"></div>
+            </div>
+
+            <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-lg border border-gray-200 dark:border-gray-700">
+                <form id="contactForm" onsubmit="event.preventDefault(); alert('সফলভাবে মেসেজ পাঠানো হয়েছে!');">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Enter Your Name</label>
+                            <input type="text" id="form-name" required placeholder="Wright your name here." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Enter Your E-mail</label>
+                            <input type="email" id="form-email" required placeholder="example@gmail.com" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Type your Message </label>
+                        <textarea id="form-message" required rows="4" placeholder="How can I help you?" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></textarea>
+                    </div>
+                    <button type="submit" id="submit-btn" class="w-full py-4 rounded-xl btn-gradient text-white font-bold flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-paper-plane"></i><span>Push execution</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="flex justify-center gap-4 flex-wrap mt-8">
+                <a href="mailto:rakibhasandcg27@gmail.com" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold shadow-sm hover:border-medical-500 transition">
+                    <i class="fa-solid fa-envelope text-medical-600"></i> Gmail
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold shadow-sm hover:border-medical-500 transition">
+                    <i class="fa-brands fa-facebook-f text-blue-600"></i> Facebook
+                </a>
+                <a href="https://github.com/serakib" target="_blank" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold shadow-sm hover:border-medical-500 transition">
+                    <i class="fa-brands fa-github text-gray-800 dark:text-white"></i> GitHub
+                </a>
+            </div>
+        </section>
+
+    
+    
 
     <!-- Portfolio Footer Integration -->
     <footer class="site-footer">
