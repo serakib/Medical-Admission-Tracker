@@ -1384,6 +1384,69 @@ box-shadow: none;
     }
 })();
 </script>
+
+
+
+
+
+
+<!-- =================== এআই ফ্লোটিং বাটন =================== -->
+<style>
+  /* এআই বাটনের ডিজাইন */
+  .ai-float-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6); /* প্রিমিয়াম পার্পল গ্রেডিয়েন্ট */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+    z-index: 9999;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    animation: floatPulse 2s infinite;
+  }
+
+  /* হোভার করলে বাটন বড় হবে */
+  .ai-float-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6);
+  }
+
+  /* বাটনের ভেতরের লেখা/আইকন */
+  .ai-float-btn span {
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: sans-serif;
+  }
+
+  /* পালস (Pulse) অ্যানিমেশন */
+  @keyframes floatPulse {
+    0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  }
+</style>
+
+<!-- বাটনটিতে ক্লিক করলে chat.html পেজে চলে যাবে -->
+<a href="chat.html" class="ai-float-btn" title="Ask AI Assistant">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    <circle cx="9" cy="10" r="1" fill="white"></circle>
+    <circle cx="15" cy="10" r="1" fill="white"></circle>
+  </svg>
+</a>
+<!-- =================== এআই ফ্লোটিং বাটন শেষ =================== -->
+
+
+
+    
 <script src="./js/feature-navigation.js" defer></script>
     <script src="./js/student-ai.js" defer></script>
     <script type="module" src="./script.js"></script>
