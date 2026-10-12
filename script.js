@@ -1391,20 +1391,3 @@ window.handleLogout = function() {
 
 
 
-async function sendToAI(userText) {
-  try {
-    const res = await fetch("https://medical-admission-tracker.asrafuldcg.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userText })
-    });
-
-    const data = await res.json();
-    
-    // AI-এর উত্তরটি আপনার ওয়েবসাইটের নির্দিষ্ট রেসপন্স বক্সে দেখিয়ে দিন
-    console.log(data.reply);
-    return data.reply;
-  } catch (err) {
-    console.error("Fetch Error:", err);
-  }
-}
