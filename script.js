@@ -1391,7 +1391,34 @@ window.handleLogout = function() {
 
 
 
+async function askAI() {
+  const inputElement = document.getElementById("userPrompt");
+  const userMessage = inputElement.value.trim();
 
+  if (!userMessage) return;
+
+  // আপনার ইউজার ইন্টারফেসে ইউজারের বার্তাটি দেখানোর কোড লিখুন
+  
+  try {
+    const response = await fetch("https://medical-admission-tracker.asrafuldcg.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message: userMessage })
+    });
+
+    const data = await response.json();
+
+    if (data.reply) {
+      // AI এর উত্তরটি আপনার UI-এর রেসপন্স বক্সে দেখান
+      console.log("AI Answer:", data.reply);
+      // উদাহরণ: document.getElementById("aiResponseBox").innerText = data.reply;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
 
 
 
