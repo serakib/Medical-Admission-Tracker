@@ -1390,16 +1390,112 @@ box-shadow: none;
 
 
 
-<!-- =================== এআই ফ্লোটিং বাটন =================== -->
+<!-- =================== ফ্লোটিং বাটন সেকশন =================== -->
+<!-- এই কন্টেইনারটি ডান নিচের কোণায় সব বাটনকে একটি নির্দিষ্ট দূরত্বে সাজিয়ে রাখবে -->
+<div class="floating-btn-container">
+
+    <!-- ১. থিম টগল বাটন -->
+    <!-- এই বাটনটি এআই বাটনের উপরে থাকবে -->
+    <button class="theme-toggle-btn" onclick="toggleTheme()" title="ডার্ক/লাইট মোড পরিবর্তন করুন">
+        <!-- সূর্য আইকন (লাইট মোডের জন্য) -->
+        <svg class="sun-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <!-- চাঁদ আইকন (ডার্ক মোডের জন্য) -->
+        <svg class="moon-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <!-- ২. এআই অ্যাসিস্ট্যান্ট বাটন -->
+    <!-- এই বাটনটি সবার নিচে থাকবে এবং ক্লিক করলে chat.html পেজে নিয়ে যাবে -->
+    <a href="https://serakib.github.io/Ai-Assisstant/" class="ai-float-btn" title="Ask AI Assistant">
+        <!-- চ্যাট বাবল আইকন -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <circle cx="9" cy="10" r="1" fill="white"></circle>
+            <circle cx="15" cy="10" r="1" fill="white"></circle>
+        </svg>
+        <!-- হোভার করলে এই টেক্সটটি দেখাবে -->
+        <span class="ai-btn-tooltip">AI অ্যাসিস্ট্যান্টের সাথে কথা বলুন</span>
+    </a>
+
+</div>
+
 <style>
-  /* এআই বাটনের ডিজাইন */
-  .ai-float-btn {
+/* =================== ফ্লোটিং বাটন কন্টেইনার =================== */
+.floating-btn-container {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 30px; /* নিচ থেকে দূরত্ব */
+    right: 30px;  /* ডানদিক থেকে দূরত্ব */
+    display: flex;
+    flex-direction: column-reverse; /* বাটনগুলো নিচ থেকে উপরে সাজানো হবে */
+    align-items: flex-end; /* ডানদিকে অ্যালাইন */
+    gap: 15px; /* বাটন দুটির মাঝে দূরত্ব */
+    z-index: 9999; /* সবার উপরে থাকবে */
+}
+
+/* =================== থিম টগল বাটনের স্টাইল =================== */
+.theme-toggle-btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background-color: #1E293B; /* ডার্ক মোডে সুন্দর দেখাবে */
+    color: #F3F4F6;
+    border: 1px solid #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    position: relative; /* আইকন পজিশনিংয়ের জন্য */
+}
+
+/* হোভার করলে বাটন একটু বড় হবে */
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+/* আইকনগুলোর অবস্থান */
+.theme-toggle-btn .sun-icon,
+.theme-toggle-btn .moon-icon {
+    position: absolute;
+    transition: all 0.4s ease;
+}
+/* ডিফল্টভাবে সূর্য আইকন দেখাবে, চাঁদ আইকন লুকানো থাকবে */
+.theme-toggle-btn .sun-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+.theme-toggle-btn .moon-icon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+}
+/* বডিতে dark-mode ক্লাস থাকলে আইকন পরিবর্তন হবে */
+body.dark-mode .theme-toggle-btn .sun-icon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+}
+body.dark-mode .theme-toggle-btn .moon-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+/* =================== এআই অ্যাসিস্ট্যান্ট বাটনের স্টাইল =================== */
+.ai-float-btn {
     width: 65px;
     height: 65px;
-    background: linear-gradient(135deg, #6366F1, #8B5CF6); /* প্রিমিয়াম পার্পল গ্রেডিয়েন্ট */
+    background: linear-gradient(135deg, #6366F1, #8B5CF6); /* প্রিমিয়াম পার্পল গ্রেডিয়েন্ট */
     color: white;
     border-radius: 50%;
     display: flex;
@@ -1407,43 +1503,65 @@ box-shadow: none;
     justify-content: center;
     box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
     cursor: pointer;
-    z-index: 9999;
     text-decoration: none;
     transition: all 0.3s ease;
-    animation: floatPulse 2s infinite;
-  }
+    position: relative; /* টুলটিপ পজিশনিংয়ের জন্য */
+    animation: floatPulse 2s infinite; /* পালস অ্যানিমেশন */
+}
 
-  /* হোভার করলে বাটন বড় হবে */
-  .ai-float-btn:hover {
+/* হোভার করলে বাটন বড় হবে */
+.ai-float-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6);
-  }
+}
 
-  /* বাটনের ভেতরের লেখা/আইকন */
-  .ai-float-btn span {
-    font-weight: 700;
-    font-size: 1.1rem;
-    font-family: sans-serif;
-  }
-
-  /* পালস (Pulse) অ্যানিমেশন */
-  @keyframes floatPulse {
+/* পালস অ্যানিমেশন */
+@keyframes floatPulse {
     0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
     70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
     100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-  }
+}
+
+/* =================== হোভার টুলটিপ (টেক্সট) =================== */
+.ai-btn-tooltip {
+    position: absolute;
+    right: 75px; /* বাটনের ডানদিক থেকে দূরত্ব */
+    top: 50%;
+    transform: translateY(-50%) scale(0.8); /* শুরুতে একটু ছোট */
+    background: linear-gradient(135deg, #6366F1, #8B5CF6); /* বাটনের মতো গ্রেডিয়েন্ট */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0; /* শুরুতে অদৃশ্য */
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* স্মুথ অ্যানিমেশন */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    pointer-events: none; /* টুলটিপে ক্লিক করা যাবে না */
+}
+
+/* হোভার করলে টুলটিপ দেখাবে */
+.ai-float-btn:hover .ai-btn-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) scale(1); /* স্বাভাবিক সাইজ */
+}
 </style>
 
-<!-- বাটনটিতে ক্লিক করলে chat.html পেজে চলে যাবে -->
-<a href="chat.html" class="ai-float-btn" title="Ask AI Assistant">
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-    <circle cx="9" cy="10" r="1" fill="white"></circle>
-    <circle cx="15" cy="10" r="1" fill="white"></circle>
-  </svg>
-</a>
-<!-- =================== এআই ফ্লোটিং বাটন শেষ =================== -->
-
+<script>
+// থিম টগল ফাংশন (আপনার আগের কোডে এই ফাংশনটি থাকলে সেটি ব্যবহার করুন)
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+}
+// পেজ লোড হওয়ার সময় আগের থিম চেক করা
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+}
+</script>
+<!-- =================== ফ্লোটিং বাটন সেকশন শেষ =================== -->
 
 
     
