@@ -542,7 +542,7 @@ box-shadow: none;
         <label for="sls-question" class="block text-sm font-bold">আপনার প্রশ্ন</label>
         <div class="flex items-end gap-2 sm:gap-3">
           <textarea id="sls-question" rows="2" maxlength="3000" required class="min-w-0 flex-1 resize-y rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" placeholder="এখানে লিখুন… (Enter পাঠাবে, Shift+Enter নতুন লাইন)"></textarea>
-          <button id="sls-send" type="submit" class="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 sm:px-5 py-3 font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-paper-plane"></i><span>পাঠান</span></button>
+          <button id="userPrompt" type="submit" onclick="askAI()" class="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 sm:px-5 py-3 font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-paper-plane"></i><span>পাঠান</span></button>
         </div>
         <p class="text-xs leading-5 text-gray-500 dark:text-gray-400">আপনার প্রশ্ন AI service-এ পাঠানো হবে। password, ফোন নম্বর, ঠিকানা বা অন্য গোপন তথ্য লিখবেন না। এই chat browser-এ স্থায়ীভাবে সংরক্ষণ হয় না।</p>
         <p id="sls-status" class="text-xs text-gray-500 dark:text-gray-400" role="status" aria-live="polite"></p>
