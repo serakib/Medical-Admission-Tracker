@@ -1,69 +1,47 @@
 export default {
   async fetch(request, env, ctx) {
-    // CORS Headers (আপনার ওয়েবসাইট থেকে রিকোয়েস্ট অ্যালাউ করার জন্য)
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "https://serakib.github.io", // চাইলে আপনার সাইটের লিংক বসাতে পারেন: "https://serakib.github.io"
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
     };
 
-    // Preflight (OPTIONS) রিকোয়েস্ট হ্যান্ডেল করা
-    if (request.method === "OPTIONS") {
+    // Preflight check
+    if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // শুধু POST রিকোয়েস্ট গ্রহণ করা হবে
-    if (request.method !== "POST") {
-      return new Response(JSON.stringify({ error: "Only POST requests allowed" }), {
+    if (request.method !== 'POST') {
+      return new Response(JSON.stringify({ error: 'Only POST allowed' }), {
         status: 405,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     try {
-      const { prompt } = await request.json();
+      const { message } = await request.json();
 
-      if (!prompt) {
-        return new Response(JSON.stringify({ error: "Prompt is required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
-        });
-      }
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
 
-      // Cloudflare Environment Variable থেকে Gemini API Key নেওয়া
-      const apiKey = env.GEMINI_API_KEY;
-
-      if (!apiKey) {
-        return new Response(JSON.stringify({ error: "API Key not configured in Worker" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
-        });
-      }
-
-      // Gemini API-তে রিকোয়েস্ট পাঠানো
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-          })
-        }
-      );
-
-      const data = await geminiResponse.json();
-
-      // উত্তরটি আপনার ওয়েবসাইটে ফেরত পাঠানো
-      return new Response(JSON.stringify(data), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      const response = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: message }] }]
+        })
       });
 
-    } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+      const data = await response.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "উত্তর পাওয়া যায়নি।";
+
+      return new Response(JSON.stringify({ reply }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message }), {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
   }
