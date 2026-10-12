@@ -1391,34 +1391,20 @@ window.handleLogout = function() {
 
 
 
-async function askAI() {
-  const inputElement = document.getElementById("userPrompt");
-  const userMessage = inputElement.value.trim();
-
-  if (!userMessage) return;
-
-  // আপনার ইউজার ইন্টারফেসে ইউজারের বার্তাটি দেখানোর কোড লিখুন
-  
+async function sendToAI(userText) {
   try {
-    const response = await fetch("https://medical-admission-tracker.asrafuldcg.workers.dev/", {
+    const res = await fetch("https://medical-admission-tracker.asrafuldcg.workers.dev/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message: userMessage })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userText })
     });
 
-    const data = await response.json();
-
-    if (data.reply) {
-      // AI এর উত্তরটি আপনার UI-এর রেসপন্স বক্সে দেখান
-      console.log("AI Answer:", data.reply);
-      // উদাহরণ: document.getElementById("aiResponseBox").innerText = data.reply;
-    }
-  } catch (error) {
-    console.error("Error:", error);
+    const data = await res.json();
+    
+    // AI-এর উত্তরটি আপনার ওয়েবসাইটের নির্দিষ্ট রেসপন্স বক্সে দেখিয়ে দিন
+    console.log(data.reply);
+    return data.reply;
+  } catch (err) {
+    console.error("Fetch Error:", err);
   }
 }
-
-
-
