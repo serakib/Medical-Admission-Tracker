@@ -200,16 +200,14 @@ class MedicalExamApp {
     }
 
     /* ====================================================
-     * EVENT BINDING (sidebars, buttons, inputs)
+     * EVENT BINDING
      * ==================================================== */
     bindEvents() {
         const $ = (id) => document.getElementById(id);
 
-        // Sidebar hamburger
         const toggleBtn = $('sidebarToggle');
         if (toggleBtn) toggleBtn.addEventListener('click', () => this.toggleSidebar());
 
-        // Theme toggle
         const themeBtn = $('theme-toggle');
         if (themeBtn) themeBtn.addEventListener('click', () => this.toggleTheme());
 
@@ -224,7 +222,7 @@ class MedicalExamApp {
             }
         });
 
-        // Exam mode cards (find by icon class)
+        // Exam mode cards
         const modeMap = [
             { sel: '.fa-shuffle', mode: 'random' },
             { sel: '.fa-laptop-code', mode: 'model' },
@@ -238,7 +236,7 @@ class MedicalExamApp {
             }
         });
 
-        // Subject cards (home)
+        // Subject cards
         ['biology', 'chemistry', 'physics', 'english', 'gk'].forEach(sub => {
             const el = $(`count-subject-${sub}`);
             if (el) {
@@ -277,7 +275,6 @@ class MedicalExamApp {
             if (btn) btn.addEventListener('click', () => this.setSetupMode(m));
         });
 
-        // Setup question count buttons
         document.querySelectorAll('#view-setup .q-count-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const n = parseInt(btn.textContent, 10);
@@ -285,7 +282,6 @@ class MedicalExamApp {
             });
         });
 
-        // Setup duration buttons
         document.querySelectorAll('#view-setup .time-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const n = parseInt(btn.textContent.replace(/[^0-9]/g, ''), 10);
@@ -293,25 +289,17 @@ class MedicalExamApp {
             });
         });
 
-        // Setup subject/year selects
         const setupSubject = $('setup-subject');
         if (setupSubject) setupSubject.addEventListener('change', () => {
             this.setup.subject = setupSubject.value;
         });
-        const setupYear = $('setup-year');
-        if (setupYear) setupYear.addEventListener('change', () => {
-            // year read during shuffle
-        });
 
-        // Setup start button
         const startConfig = $('btn-start-exam-config');
         if (startConfig) startConfig.addEventListener('click', () => this.startExamWithConfig());
 
-        // Exam intro start
         const examIntroStart = $('exam-intro-start');
         if (examIntroStart) examIntroStart.addEventListener('click', () => this.beginPreparedExam());
 
-        // Exam controls
         const submitBtn = $('btn-submit-exam');
         if (submitBtn) submitBtn.addEventListener('click', () => this.confirmSubmitExam());
         const markReviewBtn = $('btn-mark-review');
@@ -323,7 +311,6 @@ class MedicalExamApp {
         const nextBtn = $('btn-next-q');
         if (nextBtn) nextBtn.addEventListener('click', () => this.nextQuestion());
 
-        // OMR container (event delegation)
         const omr = $('omrContainer');
         if (omr && !omr.dataset.bound) {
             omr.dataset.bound = '1';
@@ -336,22 +323,18 @@ class MedicalExamApp {
             });
         }
 
-        // Review answers button
         const reviewBtn = $('btn-review-answers');
         if (reviewBtn) reviewBtn.addEventListener('click', () => this.showReviewAnswersView());
 
-        // Analytics refresh
         const refreshAna = $('btn-refresh-analytics');
         if (refreshAna) refreshAna.addEventListener('click', () => {
             const history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
             this.renderAdvancedAnalytics(history);
         });
 
-        // Leaderboard refresh
         const refreshLb = $('btn-refresh-lb');
         if (refreshLb) refreshLb.addEventListener('click', () => this.loadLeaderboard());
 
-        // Leaderboard filter buttons
         document.querySelectorAll('.lb-filter-btn').forEach(b => {
             b.addEventListener('click', () => {
                 const crit = b.dataset.lbFilter;
@@ -368,7 +351,6 @@ class MedicalExamApp {
             this.filterLeaderboard('college', lbCollegeSel.value);
         });
 
-        // Reset coverage button (profile)
         document.querySelectorAll('#view-profile button').forEach(btn => {
             const t = (btn.textContent || '').trim();
             if (t.includes('ইতিহাস মুছুন')) btn.addEventListener('click', () => this.clearStorageHistory());
@@ -561,7 +543,6 @@ class MedicalExamApp {
 
     setAuthState(user) {
         this.authUser = user || null;
-        // Auth button containers may exist in HTML with class .auth-btn-target
         document.querySelectorAll('.auth-btn-target').forEach(container => {
             if (user) {
                 container.innerHTML = `
@@ -1135,7 +1116,7 @@ class MedicalExamApp {
         this.markQuestionsSeen(cfg.questions);
         this.renderQuestion();
         this.renderPalette();
-        this.initOMRSimulation();     // <-- NEW
+        this.initOMRSimulation();
         this.showView('exam');
         this.startTimer();
     }
@@ -1252,7 +1233,7 @@ class MedicalExamApp {
     }
 
     /* ====================================================
-     * OMR SIMULATION — init + UI updates
+     * OMR SIMULATION
      * ==================================================== */
     initOMRSimulation() {
         const c = document.getElementById('omrContainer');
@@ -1318,7 +1299,7 @@ class MedicalExamApp {
         this.markQuestionCoveredIfCorrect(question, optIdx);
         this.renderQuestion();
         this.renderPalette();
-        this.initOMRSimulation();     // <-- sync OMR bubbles
+        this.initOMRSimulation();
     }
 
     clearOptionSelection() { return; }
@@ -1383,7 +1364,7 @@ class MedicalExamApp {
 
         /* ===== SECURITY: Time validation check ===== */
         const elapsedSeconds = Math.max(0, Math.round(this.examState.timeUsedSeconds));
-        const minReasonable = Math.max(5, totalQuestions * 2); // at least 2s per question
+        const minReasonable = Math.max(5, totalQuestions * 2);
         if (!autoSubmitted && elapsedSeconds < minReasonable) {
             const flag = {
                 timestamp: Date.now(),
@@ -1404,7 +1385,6 @@ class MedicalExamApp {
             console.warn('[SECURITY] Suspicious fast completion flagged:', flag);
         }
 
-        // Result UI
         const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
         setTxt('res-score-main', `${totalScore.toFixed(2)} / ${totalQuestions}`);
         setTxt('res-percentage', `${(totalQuestions ? (totalScore / totalQuestions) * 100 : 0).toFixed(1)}%`);
@@ -1552,21 +1532,27 @@ class MedicalExamApp {
             });
         }
 
-        // NEW: trigger advanced analytics
         this.renderAdvancedAnalytics(history);
     }
 
     /* ====================================================
-     * SMART ANALYTICS
+     * SMART ANALYTICS — Unique count only (answer দেওয়া প্রশ্ন)
      * ==================================================== */
     renderAdvancedAnalytics(history) {
         if (!Array.isArray(history)) history = [];
-        const totalQ = history.reduce((sum, h) => sum + (Number(h.total) || 0), 0);
+
+        /* ===== FIXED: Unique questions that user has ANSWERED (bubble filled) =====
+         * Skip করা বা শুধু দেখা প্রশ্ন count হবে না।
+         * getPracticedQuestionIds() — selectOption() / OMR bubble এ যে প্রশ্নে
+         *   answer দেওয়া হয়েছে সেটাই এখানে save হয়। */
+        const totalQ = this.getPracticedQuestionIds().size;
+
         const attempts = history.length;
 
-        // Average velocity (seconds per question)
+        // Average velocity (seconds per question) — based on attempts
         let velocity = 0;
-        if (totalQ > 0) {
+        let historyTotalQ = history.reduce((sum, h) => sum + (Number(h.total) || 0), 0);
+        if (historyTotalQ > 0) {
             let totalSeconds = 0;
             history.forEach(h => {
                 const parts = String(h.timeUsed || '0:00').split(':');
@@ -1574,14 +1560,13 @@ class MedicalExamApp {
                 const secs = parseInt(parts[1] || '0', 10) || 0;
                 totalSeconds += mins * 60 + secs;
             });
-            velocity = Math.round(totalSeconds / totalQ);
+            velocity = Math.round(totalSeconds / historyTotalQ);
         }
 
         // Velocity KPI
         const velEl = document.getElementById('analytics-velocity');
         if (velEl) velEl.innerHTML = `${velocity}s<span class="text-base font-bold text-gray-400 ml-1">/প্রশ্ন</span>`;
 
-        // Velocity bar — 36s = good, >72s = critical
         const bar = document.getElementById('analytics-velocity-bar');
         if (bar) {
             const pct = Math.max(0, Math.min(100, (1 - velocity / 72) * 100));
@@ -1593,7 +1578,6 @@ class MedicalExamApp {
                     : 'linear-gradient(90deg, #ef4444, #f97316)';
         }
 
-        // Velocity note
         const noteEl = document.getElementById('analytics-velocity-note');
         if (noteEl) {
             if (attempts === 0) {
@@ -1607,11 +1591,11 @@ class MedicalExamApp {
             }
         }
 
-        // Total questions solved
+        /* ===== UPDATED: totalQ now shows unique answered count ===== */
         const totEl = document.getElementById('analytics-total-attempts');
         if (totEl) totEl.textContent = String(totalQ);
 
-        // Subject-wise stats
+        // Subject-wise stats — based on history attempts
         const subjStats = {};
         history.forEach(h => {
             const s = String(h.subject || 'all').toLowerCase();
@@ -1623,7 +1607,6 @@ class MedicalExamApp {
             subjStats[s].correct += (acc / 100) * tot;
         });
 
-        // Weak topics alert
         const weakEl = document.getElementById('analytics-weak-topics');
         if (weakEl) {
             const weakList = Object.entries(subjStats)
@@ -1651,7 +1634,6 @@ class MedicalExamApp {
             }
         }
 
-        // Subject-wise accuracy bars
         const barsEl = document.getElementById('analytics-subject-bars');
         if (barsEl) {
             const subjects = ['biology', 'chemistry', 'physics', 'english', 'gk'];
@@ -1934,19 +1916,14 @@ class MedicalExamApp {
         el.className = `mb-4 rounded-xl p-3 text-sm ${error ? 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;
     }
 
-    /* ====================================================
-     * NEW: LEADERBOARD FILTER
-     * ==================================================== */
     filterLeaderboard(criteria, collegeName) {
         this.leaderboardFilter = criteria || 'all';
         this.leaderboardCollege = collegeName || '';
 
-        // Update buttons UI
         document.querySelectorAll('.lb-filter-btn').forEach(b => {
             b.classList.toggle('is-active', b.dataset.lbFilter === criteria);
         });
 
-        // College select
         const collegeSel = document.getElementById('leaderboard-college-select');
         if (collegeSel) {
             if (criteria === 'college') {
@@ -1963,7 +1940,6 @@ class MedicalExamApp {
             }
         }
 
-        // Note
         const note = document.getElementById('leaderboard-filter-note');
         if (note) {
             if (criteria === 'weekly') note.textContent = 'শুধু গত ৭ দিনের পয়েন্ট';
@@ -1971,7 +1947,6 @@ class MedicalExamApp {
             else note.textContent = 'সর্বকালীন পয়েন্ট';
         }
 
-        // Filter rows
         let rows = this.getLocalLeaderboardRows();
         const now = Date.now();
         const weekMs = 7 * 24 * 60 * 60 * 1000;
@@ -1992,7 +1967,7 @@ class MedicalExamApp {
 window.app = new MedicalExamApp();
 
 /* ============================================================
- * GLOBAL HELPERS (used by student-ai.js / external scripts)
+ * GLOBAL HELPERS
  * ============================================================ */
 let isWrongFiltered = false;
 let originalQuestionStates = new Map();
@@ -2061,10 +2036,6 @@ window.handleSubmit = async function () {
     }
 };
 
-/* Firestore-side auth state listener is already handled inside initAuth().
- * The following global listener also updates any `.auth-btn-target` element
- * to be safe if someone injects auth UI dynamically.
- */
 onAuthStateChanged(auth, (user) => {
     document.querySelectorAll('.auth-btn-target').forEach(container => {
         if (user) {
@@ -2083,5 +2054,4 @@ onAuthStateChanged(auth, (user) => {
     });
 });
 
-/* Mark module loaded */
-console.log('[MedicalExamApp] engine loaded.');
+console.log('[MedicalExamApp] engine loaded — unique question counter active.');
