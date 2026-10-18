@@ -45,10 +45,11 @@ const db = getFirestore(firebaseApp);
 /* ---------------- The App Class ---------------- */
 class MedicalExamApp {
     constructor() {
+        // Student Life Support removed as requested
         this.views = [
             'home', 'question-bank', 'practice', 'exam-intro', 'previous',
             'setup', 'exam', 'result', 'review', 'profile', 'leaderboard',
-            'syllabus', 'medical-hsc-info', 'student-life-support'
+            'syllabus', 'medical-hsc-info'
         ];
 
         this.currentTheme = localStorage.getItem('med_theme') || 'light';
@@ -128,8 +129,7 @@ class MedicalExamApp {
         this.applyTheme();
         this.applyLanguage();
         this.bindEvents();
-        this.restoreSidebarState();
-
+        
         history.replaceState({ app: true }, '', window.location.href);
         this.showView('home');
         this.setDataStatus('loading');
@@ -152,61 +152,10 @@ class MedicalExamApp {
     }
 
     /* ====================================================
-     * SIDEBAR — toggle, restore, active sync
-     * ==================================================== */
-    toggleSidebar() {
-        const shell = document.getElementById('appShell');
-        if (!shell) return;
-        if (window.innerWidth <= 1024) {
-            shell.classList.toggle('is-open-mobile');
-            document.body.classList.toggle('sidebar-open');
-        } else {
-            shell.classList.toggle('is-collapsed');
-            localStorage.setItem(
-                'med_sidebar_collapsed',
-                shell.classList.contains('is-collapsed') ? '1' : '0'
-            );
-        }
-    }
-
-    restoreSidebarState() {
-        const shell = document.getElementById('appShell');
-        if (!shell) return;
-        if (localStorage.getItem('med_sidebar_collapsed') === '1') {
-            shell.classList.add('is-collapsed');
-        }
-        const backdrop = document.getElementById('sidebarBackdrop');
-        if (backdrop && !backdrop.dataset.bound) {
-            backdrop.dataset.bound = '1';
-            backdrop.addEventListener('click', () => {
-                shell.classList.remove('is-open-mobile');
-                document.body.classList.remove('sidebar-open');
-            });
-        }
-    }
-
-    syncSidebarActive(viewName) {
-        const aliasMap = {
-            'setup': 'model-test',
-            'exam-intro': 'model-test',
-            'exam': 'model-test',
-            'result': 'model-test',
-            'review': 'model-test'
-        };
-        const target = aliasMap[viewName] || viewName;
-        document.querySelectorAll('.sidebar-item').forEach(el => {
-            el.classList.toggle('is-active', el.dataset.nav === target);
-        });
-    }
-
-    /* ====================================================
      * EVENT BINDING
      * ==================================================== */
     bindEvents() {
         const $ = (id) => document.getElementById(id);
-
-        const toggleBtn = $('sidebarToggle');
-        if (toggleBtn) toggleBtn.addEventListener('click', () => this.toggleSidebar());
 
         const themeBtn = $('theme-toggle');
         if (themeBtn) themeBtn.addEventListener('click', () => this.toggleTheme());
@@ -304,52 +253,13 @@ class MedicalExamApp {
         if (submitBtn) submitBtn.addEventListener('click', () => this.confirmSubmitExam());
         const markReviewBtn = $('btn-mark-review');
         if (markReviewBtn) markReviewBtn.addEventListener('click', () => this.toggleMarkReview());
-        const clearBtn = $('btn-clear-answer');
-        if (clearBtn) clearBtn.addEventListener('click', () => this.clearOptionSelection());
         const prevBtn = $('btn-prev-q');
         if (prevBtn) prevBtn.addEventListener('click', () => this.prevQuestion());
         const nextBtn = $('btn-next-q');
         if (nextBtn) nextBtn.addEventListener('click', () => this.nextQuestion());
 
-        const omr = $('omrContainer');
-        if (omr && !omr.dataset.bound) {
-            omr.dataset.bound = '1';
-            omr.addEventListener('click', (e) => {
-                const bubble = e.target.closest('.omr-bubble');
-                if (!bubble) return;
-                const qIdx = Number(bubble.dataset.qIndex);
-                const oIdx = Number(bubble.dataset.optIndex);
-                this.selectOMRBubbleUI(qIdx, oIdx);
-            });
-        }
-
         const reviewBtn = $('btn-review-answers');
         if (reviewBtn) reviewBtn.addEventListener('click', () => this.showReviewAnswersView());
-
-        const refreshAna = $('btn-refresh-analytics');
-        if (refreshAna) refreshAna.addEventListener('click', () => {
-            const history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-            this.renderAdvancedAnalytics(history);
-        });
-
-        const refreshLb = $('btn-refresh-lb');
-        if (refreshLb) refreshLb.addEventListener('click', () => this.loadLeaderboard());
-
-        document.querySelectorAll('.lb-filter-btn').forEach(b => {
-            b.addEventListener('click', () => {
-                const crit = b.dataset.lbFilter;
-                if (crit === 'college') {
-                    const sel = $('leaderboard-college-select');
-                    this.filterLeaderboard('college', sel ? sel.value : '');
-                } else {
-                    this.filterLeaderboard(crit);
-                }
-            });
-        });
-        const lbCollegeSel = $('leaderboard-college-select');
-        if (lbCollegeSel) lbCollegeSel.addEventListener('change', () => {
-            this.filterLeaderboard('college', lbCollegeSel.value);
-        });
 
         document.querySelectorAll('#view-profile button').forEach(btn => {
             const t = (btn.textContent || '').trim();
@@ -443,16 +353,10 @@ class MedicalExamApp {
             difficulty: String(q.difficulty || 'medium').toLowerCase().trim(),
             source, year,
             question: questionText,
-            question_bn: String(q.question_bn || '').trim() || null,
-            question_en: String(q.question_en || '').trim() || null,
             options,
-            options_bn: Array.isArray(q.options_bn) ? q.options_bn.map(v => String(v ?? '').trim()) : null,
-            options_en: Array.isArray(q.options_en) ? q.options_en.map(v => String(v ?? '').trim()) : null,
             answer,
             correctAnswer: 'ABCD'[answer],
             explanation: String(q.explanation || '').trim(),
-            explanation_bn: String(q.explanation_bn || '').trim() || null,
-            explanation_en: String(q.explanation_en || '').trim() || null,
             isPreviousYear: (Boolean(year) && !/^practice$/i.test(year)) ||
                 /previous\s*year|বিগত|past\s*year|verified previous/i.test(source)
         };
@@ -546,33 +450,19 @@ class MedicalExamApp {
         document.querySelectorAll('.auth-btn-target').forEach(container => {
             if (user) {
                 container.innerHTML = `
-                    <button type="button" class="auth-chip" onclick="window.handleLogout && window.handleLogout()">
+                    <button type="button" class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-all outline-none cursor-pointer" onclick="window.handleLogout && window.handleLogout()">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span>লগআউট</span>
                     </button>`;
             } else {
                 container.innerHTML = `
-                    <button type="button" class="auth-chip" onclick="window.redirectToLogin && window.redirectToLogin()">
+                    <button type="button" class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all outline-none cursor-pointer" onclick="window.redirectToLogin && window.redirectToLogin()">
                         <i class="fa-solid fa-user"></i>
-                        <span>Log In</span>
+                        <span>Log In / Sign up</span>
                     </button>`;
             }
         });
         this.loadProgressStats();
-    }
-
-    friendlyAuthError(error) {
-        const code = error?.code || '';
-        const map = {
-            'auth/invalid-email': 'ইমেইল ঠিকানাটি সঠিক নয়।',
-            'auth/user-not-found': 'এই ইমেইলে কোনো অ্যাকাউন্ট পাওয়া যায়নি।',
-            'auth/wrong-password': 'পাসওয়ার্ড সঠিক নয়।',
-            'auth/email-already-in-use': 'এই ইমেইল দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে।',
-            'auth/weak-password': 'পাসওয়ার্ড আরও শক্তিশালী করুন (কমপক্ষে ৬ অক্ষর)।',
-            'auth/too-many-requests': 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।',
-            'auth/network-request-failed': 'নেটওয়ার্ক সমস্যা হয়েছে।'
-        };
-        return map[code] || error?.message || 'Authentication ব্যর্থ হয়েছে।';
     }
 
     async loadUserProfile() {
@@ -595,13 +485,16 @@ class MedicalExamApp {
             this.confirmSubmitExam('navigation');
             return;
         }
+        
         this.views.forEach(v => {
             const el = document.getElementById(`view-${v}`);
             if (el) el.classList.toggle('hidden', v !== viewName);
         });
+        
         document.body.classList.toggle('exam-active', viewName === 'exam');
         if (viewName === 'exam') history.pushState({ exam: true }, '', '#exam');
-        this.syncSidebarActive(viewName);
+        
+        // Window scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -642,7 +535,7 @@ class MedicalExamApp {
         if (this.bankYear !== 'all') qs = qs.filter(q => q.year === this.bankYear);
         if (this.bankSearch.trim()) {
             const s = this.bankSearch.trim().toLowerCase();
-            qs = qs.filter(q => [q.question, q.question_bn, q.question_en, q.source, q.subject, q.year]
+            qs = qs.filter(q => [q.question, q.source, q.subject, q.year]
                 .join(' ').toLowerCase().includes(s));
         }
         return qs;
@@ -657,10 +550,11 @@ class MedicalExamApp {
         list.innerHTML = '';
         qs.forEach((q, i) => {
             const card = document.createElement('article');
-            card.className = 'bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm';
+            card.className = 'bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm mb-4';
             const opts = q.options.map((o, j) =>
                 `<div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-sm"><b>${'ABCD'[j]}.</b> ${this.escapeHtml(this.getLocalizedOption(q, j))}</div>`
             ).join('');
+            
             card.innerHTML = `
                 <div class="flex justify-between mb-2"><span class="text-xs font-bold text-medical-600 dark:text-medical-400">${this.escapeHtml(this.localizedSubject(q.subject))}</span><span class="text-xs text-gray-500">${this.escapeHtml(q.year || this.t('practice', 'Practice'))}</span></div>
                 <h3 class="font-bold text-gray-900 dark:text-white mb-3">${i + 1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h3>
@@ -670,9 +564,9 @@ class MedicalExamApp {
                     <strong>${this.t('Correct Answer', 'সঠিক উত্তর')}:</strong> ${q.correctAnswer}<br>${this.escapeHtml(q.explanation || '')}
                 </div>
             `;
-            const btn = card.querySelector('button');
             
-            // BUG FIX: Changed from querySelector to lastElementChild to prevent it from selecting option D
+            const btn = card.querySelector('button');
+            // BUG FIX: Using lastElementChild to prevent selecting Option D
             const ans = card.lastElementChild; 
             
             btn.addEventListener('click', () => {
@@ -697,7 +591,6 @@ class MedicalExamApp {
         const pool = qs.length ? qs : this.questionBank;
         this.showView('practice');
         const selected = [...pool].sort(() => Math.random() - .5).slice(0, Math.min(10, pool.length));
-        this.markQuestionsSeen(selected);
         this.practiceSession = {
             questions: selected, index: 0, answers: [], marks: 0,
             showAnswer: false, timeLeft: 600
@@ -765,10 +658,8 @@ class MedicalExamApp {
         const s = this.practiceSession;
         if (!s || s.answers[s.index] !== undefined) return;
         s.answers[s.index] = i;
-        this.markQuestionPracticed(s.questions[s.index]);
         if (i === s.questions[s.index].answer) {
             s.marks++;
-            this.markQuestionCoveredIfCorrect(s.questions[s.index], i);
         }
         this.renderPractice();
     }
@@ -805,13 +696,6 @@ class MedicalExamApp {
         questions.forEach(q => { if (q?.id != null) seen.add(String(q.id)); });
         this.saveSeenQuestionIds(seen);
     }
-    getUnseenPool(pool) {
-        const seen = this.getSeenQuestionIds();
-        return pool.filter(q => q?.id != null && !seen.has(String(q.id)));
-    }
-    getAnsweredQuestionKey() {
-        return this.authUser?.uid ? `med_answered_questions_${this.authUser.uid}` : 'med_answered_questions_guest';
-    }
     getPracticedQuestionKey() {
         return this.authUser?.uid ? `med_practiced_questions_${this.authUser.uid}` : 'med_practiced_questions_guest';
     }
@@ -827,27 +711,6 @@ class MedicalExamApp {
         practiced.add(String(question.id));
         localStorage.setItem(this.getPracticedQuestionKey(), JSON.stringify([...practiced]));
     }
-    getAnsweredQuestionIds() {
-        try {
-            const raw = JSON.parse(localStorage.getItem(this.getAnsweredQuestionKey()) || '[]');
-            return new Set(Array.isArray(raw) ? raw.map(String) : []);
-        } catch { return new Set(); }
-    }
-    markQuestionAnswered(question) {
-        if (!question || question.id == null) return;
-        const answered = this.getAnsweredQuestionIds();
-        answered.add(String(question.id));
-        localStorage.setItem(this.getAnsweredQuestionKey(), JSON.stringify([...answered]));
-        this.loadProgressStats();
-    }
-    markQuestionCoveredIfCorrect(question, selectedIndex) {
-        if (question && selectedIndex === question.answer) this.markQuestionAnswered(question);
-    }
-    resetCoverage() {
-        localStorage.removeItem(this.getAnsweredQuestionKey());
-        this.loadProgressStats();
-    }
-    clearCoverage() { this.resetCoverage(); }
 
     /* ====================================================
      * PREVIOUS YEAR BROWSER
@@ -898,7 +761,7 @@ class MedicalExamApp {
         box.innerHTML = '';
         qs.forEach((q, i) => {
             const card = document.createElement('article');
-            card.className = 'bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700';
+            card.className = 'bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 mb-4';
             const opts = q.options.map((o, j) =>
                 `<div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-sm"><b>${'ABCD'[j]}.</b> ${this.escapeHtml(o)}</div>`
             ).join('');
@@ -913,18 +776,6 @@ class MedicalExamApp {
             `;
             box.appendChild(card);
         });
-    }
-
-    startPreviousYearQuiz() {
-        if (!this.previousSelectedYear) return;
-        this.setup.mode = 'previousQuiz';
-        this.setup.subject = 'all';
-        this.setup.questionsCount = Math.min(20,
-            this.questionBank.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear).length);
-        this.setup.durationMins = 10;
-        const ys = document.getElementById('setup-year');
-        if (ys) ys.value = this.previousSelectedYear;
-        this.prepareExamFromSetup();
     }
 
     /* ====================================================
@@ -943,14 +794,6 @@ class MedicalExamApp {
         this.setup.durationMins = 20;
         const sel = document.getElementById('setup-subject');
         if (sel) sel.value = subjectKey;
-        this.prepareExamFromSetup();
-    }
-
-    startChallenge() {
-        this.setup.mode = 'challenge';
-        this.setup.subject = 'all';
-        this.setup.questionsCount = 20;
-        this.setup.durationMins = 10;
         this.prepareExamFromSetup();
     }
 
@@ -1024,9 +867,9 @@ class MedicalExamApp {
             filtered = filtered.filter(q => q.year === selectedYear);
         if (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz')
             filtered = filtered.filter(q => q.isPreviousYear && q.year);
-        if (this.setup.mode === 'challenge')
-            filtered = filtered.filter(q => q.source && !/^practice$/i.test(q.year || ''));
+        
         if (!filtered.length) { this.showDataError('এই ফিল্টারে কোনো বৈধ প্রশ্ন পাওয়া যায়নি।'); return []; }
+        
         for (let i = filtered.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
@@ -1052,17 +895,16 @@ class MedicalExamApp {
             this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।');
             return;
         }
-        const count = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz')
-            ? 20 : this.setup.questionsCount;
+        const count = this.setup.questionsCount;
         const questions = this.shuffleQuestionsAndOptions(this.questionBank, count);
         if (!questions.length) return;
+        
         this.preparedExam = {
             questions,
             mode: this.setup.mode,
             subject: this.setup.subject,
             year: document.getElementById('setup-year')?.value || 'all',
-            durationMins: (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz')
-                ? 10 : this.setup.durationMins
+            durationMins: this.setup.durationMins
         };
         this.renderExamIntro();
         this.showView('exam-intro');
@@ -1075,16 +917,13 @@ class MedicalExamApp {
                 ? `বিগত বছরের পরীক্ষা — ${cfg.year}` : 'পরীক্ষার নির্দেশনা';
         const titleEl = document.getElementById('exam-intro-title');
         if (titleEl) titleEl.textContent = title;
-        const startBtn = document.getElementById('exam-intro-start');
-        if (startBtn) startBtn.textContent = 'পরীক্ষা শুরু করুন';
-        const rules = (cfg.mode === 'challenge' || cfg.mode === 'previousQuiz')
-            ? ['২০টি MCQ প্রশ্ন', 'সময়: ১০ মিনিট', 'সঠিক +১, ভুল −০.২৫, স্কিপ ০',
-               'পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে', 'সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে']
-            : [`${cfg.questions.length}টি প্রশ্ন`, `সময়: ${cfg.durationMins} মিনিট`,
+        
+        const rules = [`${cfg.questions.length}টি প্রশ্ন`, `সময়: ${cfg.durationMins} মিনিট`,
                'সঠিক +১, ভুল −০.২৫, স্কিপ ০', 'জমা না দিয়ে পরীক্ষা থেকে বের হওয়া যাবে না',
                'সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে'];
         const rulesEl = document.getElementById('exam-intro-rules');
         if (rulesEl) rulesEl.innerHTML = rules.map(x => `<li>• ${this.escapeHtml(x)}</li>`).join('');
+        
         const statsEl = document.getElementById('exam-intro-stats');
         if (statsEl) {
             statsEl.innerHTML = [
@@ -1119,7 +958,6 @@ class MedicalExamApp {
         this.markQuestionsSeen(cfg.questions);
         this.renderQuestion();
         this.renderPalette();
-        this.initOMRSimulation();
         this.showView('exam');
         this.startTimer();
     }
@@ -1163,8 +1001,6 @@ class MedicalExamApp {
         if (subj) subj.innerText = this.localizedSubject(q.subject);
         const src = document.getElementById('q-source');
         if (src) src.innerText = q.year ? `${this.localizedSource(q.source)} • ${q.year}` : this.localizedSource(q.source);
-        const diff = document.getElementById('q-difficulty');
-        if (diff) diff.classList.add('hidden');
         const qtext = document.getElementById('q-text');
         if (qtext) qtext.innerText = `${idx + 1}. ${this.getLocalizedQuestionText(q)}`;
 
@@ -1229,65 +1065,9 @@ class MedicalExamApp {
                 this.examState.currentIndex = idx;
                 this.renderQuestion();
                 this.renderPalette();
-                this.initOMRSimulation();
             });
             grid.appendChild(btn);
         });
-    }
-
-    /* ====================================================
-     * OMR SIMULATION
-     * ==================================================== */
-    initOMRSimulation() {
-        const c = document.getElementById('omrContainer');
-        if (!c) return;
-        c.innerHTML = '';
-        const qs = this.examState.questions || [];
-        const labels = ['A', 'B', 'C', 'D'];
-        qs.forEach((q, qIdx) => {
-            const row = document.createElement('div');
-            row.className = 'omr-row';
-            row.dataset.qIndex = String(qIdx);
-            if (qIdx === this.examState.currentIndex) row.classList.add('is-current');
-            if (this.examState.markedForReview[qIdx]) row.classList.add('is-marked');
-
-            const num = document.createElement('span');
-            num.className = 'omr-num';
-            num.textContent = String(qIdx + 1);
-            row.appendChild(num);
-
-            const bubbles = document.createElement('div');
-            bubbles.className = 'omr-bubbles';
-            labels.forEach((lab, oIdx) => {
-                const b = document.createElement('button');
-                b.type = 'button';
-                b.className = 'omr-bubble';
-                b.dataset.qIndex = String(qIdx);
-                b.dataset.optIndex = String(oIdx);
-                b.textContent = lab;
-                if (this.examState.userAnswers[qIdx] === oIdx) b.classList.add('is-filled');
-                bubbles.appendChild(b);
-            });
-            row.appendChild(bubbles);
-            c.appendChild(row);
-        });
-    }
-
-    selectOMRBubbleUI(qIndex, optIndex) {
-        if (!this.examState || !Array.isArray(this.examState.questions)) return;
-        if (qIndex < 0 || qIndex >= this.examState.questions.length) return;
-        if (optIndex < 0 || optIndex > 3) return;
-
-        this.examState.currentIndex = qIndex;
-        if (this.examState.userAnswers[qIndex] === null) {
-            this.examState.userAnswers[qIndex] = optIndex;
-            const q = this.examState.questions[qIndex];
-            this.markQuestionPracticed(q);
-            this.markQuestionCoveredIfCorrect(q, optIndex);
-        }
-        this.renderQuestion();
-        this.renderPalette();
-        this.initOMRSimulation();
     }
 
     /* ====================================================
@@ -1297,12 +1077,8 @@ class MedicalExamApp {
         const idx = this.examState.currentIndex;
         if (this.examState.userAnswers[idx] !== null) return;
         this.examState.userAnswers[idx] = optIdx;
-        const question = this.examState.questions[idx];
-        this.markQuestionPracticed(question);
-        this.markQuestionCoveredIfCorrect(question, optIdx);
         this.renderQuestion();
         this.renderPalette();
-        this.initOMRSimulation();
     }
 
     clearOptionSelection() { return; }
@@ -1312,7 +1088,6 @@ class MedicalExamApp {
         this.examState.markedForReview[idx] = !this.examState.markedForReview[idx];
         this.renderQuestion();
         this.renderPalette();
-        this.initOMRSimulation();
     }
 
     prevQuestion() {
@@ -1320,7 +1095,6 @@ class MedicalExamApp {
             this.examState.currentIndex--;
             this.renderQuestion();
             this.renderPalette();
-            this.initOMRSimulation();
         }
     }
 
@@ -1329,7 +1103,6 @@ class MedicalExamApp {
             this.examState.currentIndex++;
             this.renderQuestion();
             this.renderPalette();
-            this.initOMRSimulation();
         } else {
             this.confirmSubmitExam('manual');
         }
@@ -1365,30 +1138,9 @@ class MedicalExamApp {
             ? ((correctCount / (correctCount + wrongCount)) * 100).toFixed(1)
             : 0;
 
-        /* ===== SECURITY: Time validation check ===== */
         const elapsedSeconds = Math.max(0, Math.round(this.examState.timeUsedSeconds));
-        const minReasonable = Math.max(5, totalQuestions * 2);
-        if (!autoSubmitted && elapsedSeconds < minReasonable) {
-            const flag = {
-                timestamp: Date.now(),
-                type: 'SUSPICIOUS_FAST_COMPLETION',
-                elapsedSeconds,
-                totalQuestions,
-                avgSecondsPerQ: +(elapsedSeconds / Math.max(1, totalQuestions)).toFixed(2),
-                uid: this.authUser?.uid || 'guest',
-                mode: this.examState.mode,
-                subject: this.examState.subject
-            };
-            try {
-                const key = 'med_cheat_logs';
-                const logs = JSON.parse(localStorage.getItem(key) || '[]');
-                logs.unshift(flag);
-                localStorage.setItem(key, JSON.stringify(logs.slice(0, 50)));
-            } catch (e) { /* ignore */ }
-            console.warn('[SECURITY] Suspicious fast completion flagged:', flag);
-        }
-
         const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+        
         setTxt('res-score-main', `${totalScore.toFixed(2)} / ${totalQuestions}`);
         setTxt('res-percentage', `${(totalQuestions ? (totalScore / totalQuestions) * 100 : 0).toFixed(1)}%`);
         setTxt('res-accuracy', `${accuracy}%`);
@@ -1401,25 +1153,22 @@ class MedicalExamApp {
         const secsUsed = elapsedSeconds % 60;
         setTxt('res-time-used', `${minsUsed}:${secsUsed.toString().padStart(2, '0')}`);
 
-        const quizPoints = (this.examState.mode === 'challenge' || this.examState.mode === 'previousQuiz')
-            ? Math.max(0, correctCount * 4 - wrongCount) : 0;
+        const quizPoints = Math.max(0, correctCount * 4 - wrongCount); // Points for leaderboard
 
         this.saveExamAttempt({
             date: new Date().toLocaleDateString('bn-BD'),
-            mode: this.setup.mode,
-            subject: document.getElementById('setup-subject')?.value || this.examState.subject,
-            year: document.getElementById('setup-year')?.value || 'all',
+            mode: this.examState.mode,
+            subject: this.examState.subject,
+            year: this.examState.year,
             score: totalScore.toFixed(2),
             total: totalQuestions,
             accuracy: `${accuracy}%`,
             timeUsed: `${minsUsed}:${secsUsed.toString().padStart(2, '0')}`,
-            quizPoints,
-            modeLabel: this.examState.mode
+            quizPoints: quizPoints
         });
 
-        if (this.examState.mode === 'challenge' || this.examState.mode === 'previousQuiz') {
-            this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy });
-        }
+        // Update Leaderboard
+        this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy });
 
         this.examActive = false;
         this.preparedExam = null;
@@ -1440,16 +1189,18 @@ class MedicalExamApp {
             const isCorrect = userAns === q.answer;
             const isSkipped = userAns === null;
             const card = document.createElement('div');
-            card.className = "bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm";
+            card.className = "bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm mb-4";
             let badge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">সঠিক</span>`;
             if (isSkipped) badge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">উত্তর দেওয়া হয়নি</span>`;
             else if (!isCorrect) badge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">ভুল উত্তর</span>`;
+            
             const optsHTML = q.options.map((opt, oi) => {
                 let cls = "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600";
                 if (oi === q.answer) cls = "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-bold";
                 else if (oi === userAns && !isCorrect) cls = "bg-red-50 dark:bg-red-950/40 border-red-500 text-red-800 dark:text-red-300 font-bold";
                 return `<div class="p-3 rounded-xl border text-sm flex items-center justify-between ${cls}"><span>${labels[oi]}. ${this.escapeHtml(opt)}</span>${oi === q.answer ? '<i class="fa-solid fa-check text-emerald-600"></i>' : ''}${oi === userAns && !isCorrect ? '<i class="fa-solid fa-xmark text-red-600"></i>' : ''}</div>`;
             }).join('');
+            
             card.innerHTML = `
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-medical-600 uppercase">${this.escapeHtml(q.subject)}</span>
@@ -1478,14 +1229,11 @@ class MedicalExamApp {
 
     loadProgressStats() {
         const history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-        const answered = this.getAnsweredQuestionIds();
         const total = this.questionBank.length || 520;
         const attempts = history.length;
         const best = attempts ? Math.max(...history.map(h => parseFloat(h.score) || 0)) : 0;
         const avgAcc = attempts
             ? (history.reduce((a, h) => a + (parseFloat(h.accuracy) || 0), 0) / attempts) : 0;
-        const avgScore = attempts
-            ? (history.reduce((a, h) => a + (parseFloat(h.score) || 0), 0) / attempts) : 0;
 
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
         set('dash-total-exams', attempts);
@@ -1494,35 +1242,26 @@ class MedicalExamApp {
         set('prog-best-score', best.toFixed(2));
         set('dash-avg-accuracy', `${avgAcc.toFixed(1)}%`);
         set('prog-avg-accuracy', `${avgAcc.toFixed(1)}%`);
-        set('prog-avg-score', avgScore.toFixed(2));
+        
+        const totalPracticed = this.getPracticedQuestionIds().size;
+        set('profile-seen-count', totalPracticed);
+        set('profile-attempt-count', attempts);
+        set('profile-best-score', best.toFixed(2));
+        set('profile-accuracy', `${avgAcc.toFixed(1)}%`);
+
         set('profile-name', this.authUser
             ? (this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student')
             : 'Guest Student');
         set('profile-email', this.authUser
             ? (this.profile?.email || this.authUser.email || 'Signed in')
             : 'Guest mode • আপনার progress এই device-এ সংরক্ষিত');
-        set('profile-seen-count', answered.size);
-        set('profile-attempt-count', attempts);
-        set('profile-best-score', best.toFixed(2));
-        set('profile-accuracy', `${avgAcc.toFixed(1)}%`);
-
-        const coverage = total ? Math.min(100, (answered.size / total) * 100) : 0;
-        set('profile-coverage', `${coverage.toFixed(0)}%`);
-
-        const bar = document.getElementById('profile-progress-bar');
-        if (bar) bar.style.width = `${coverage}%`;
-
-        const note = document.getElementById('profile-performance-note');
-        if (note) note.textContent = attempts
-            ? `আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`
-            : 'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
 
         const tbody = document.getElementById('prog-history-tbody');
         if (tbody) {
             tbody.innerHTML = '';
             history.slice(0, 10).forEach(item => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50 transition';
+                tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/50 transition border-b border-gray-100 dark:border-gray-700';
                 tr.innerHTML = `
                     <td class="py-3 px-4 font-medium">${this.escapeHtml(item.date)}</td>
                     <td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode)}</td>
@@ -1534,131 +1273,6 @@ class MedicalExamApp {
                 tbody.appendChild(tr);
             });
         }
-
-        this.renderAdvancedAnalytics(history);
-    }
-
-    /* ====================================================
-     * SMART ANALYTICS — Unique count only (answer দেওয়া প্রশ্ন)
-     * ==================================================== */
-    renderAdvancedAnalytics(history) {
-        if (!Array.isArray(history)) history = [];
-
-        /* ===== FIXED: Unique questions that user has ANSWERED (bubble filled) =====
-         * Skip করা বা শুধু দেখা প্রশ্ন count হবে না।
-         * getPracticedQuestionIds() — selectOption() / OMR bubble এ যে প্রশ্নে
-         *   answer দেওয়া হয়েছে সেটাই এখানে save হয়। */
-        const totalQ = this.getPracticedQuestionIds().size;
-
-        const attempts = history.length;
-
-        // Average velocity (seconds per question) — based on attempts
-        let velocity = 0;
-        let historyTotalQ = history.reduce((sum, h) => sum + (Number(h.total) || 0), 0);
-        if (historyTotalQ > 0) {
-            let totalSeconds = 0;
-            history.forEach(h => {
-                const parts = String(h.timeUsed || '0:00').split(':');
-                const mins = parseInt(parts[0] || '0', 10) || 0;
-                const secs = parseInt(parts[1] || '0', 10) || 0;
-                totalSeconds += mins * 60 + secs;
-            });
-            velocity = Math.round(totalSeconds / historyTotalQ);
-        }
-
-        // Velocity KPI
-        const velEl = document.getElementById('analytics-velocity');
-        if (velEl) velEl.innerHTML = `${velocity}s<span class="text-base font-bold text-gray-400 ml-1">/প্রশ্ন</span>`;
-
-        const bar = document.getElementById('analytics-velocity-bar');
-        if (bar) {
-            const pct = Math.max(0, Math.min(100, (1 - velocity / 72) * 100));
-            bar.style.width = pct + '%';
-            bar.style.background = velocity <= 36
-                ? 'linear-gradient(90deg, #10b981, #34d399)'
-                : velocity <= 50
-                    ? 'linear-gradient(90deg, #f59e0b, #facc15)'
-                    : 'linear-gradient(90deg, #ef4444, #f97316)';
-        }
-
-        const noteEl = document.getElementById('analytics-velocity-note');
-        if (noteEl) {
-            if (attempts === 0) {
-                noteEl.textContent = 'এখনও পর্যাপ্ত ডেটা নেই। একটি মডেল টেস্ট দিয়ে শুরু করুন।';
-            } else if (velocity <= 36) {
-                noteEl.textContent = `👌 চমৎকার! আপনি মেডিকেল স্ট্যান্ডার্ড (৩৬s) এর মধ্যে আছেন — গড় ${velocity}s/প্রশ্ন।`;
-            } else if (velocity <= 50) {
-                noteEl.textContent = `⚠️ গতি ${velocity}s — লক্ষ্যের চেয়ে কিছুটা ধীর। speed drill করুন।`;
-            } else {
-                noteEl.textContent = `🚨 গতি ${velocity}s — মেডিকেল স্ট্যান্ডার্ড ৩৬s এর অনেক উপরে। প্রতি প্রশ্নে কম সময় দিন।`;
-            }
-        }
-
-        /* ===== UPDATED: totalQ now shows unique answered count ===== */
-        const totEl = document.getElementById('analytics-total-attempts');
-        if (totEl) totEl.textContent = String(totalQ);
-
-        // Subject-wise stats — based on history attempts
-        const subjStats = {};
-        history.forEach(h => {
-            const s = String(h.subject || 'all').toLowerCase();
-            if (s === 'all') return;
-            if (!subjStats[s]) subjStats[s] = { correct: 0, total: 0 };
-            const tot = Number(h.total) || 0;
-            const acc = parseFloat(String(h.accuracy || '0').replace('%', '')) || 0;
-            subjStats[s].total += tot;
-            subjStats[s].correct += (acc / 100) * tot;
-        });
-
-        const weakEl = document.getElementById('analytics-weak-topics');
-        if (weakEl) {
-            const weakList = Object.entries(subjStats)
-                .map(([subj, st]) => ({
-                    subj,
-                    acc: st.total ? (st.correct / st.total) * 100 : 0,
-                    total: st.total
-                }))
-                .filter(x => x.total >= 5)
-                .sort((a, b) => a.acc - b.acc)
-                .slice(0, 4);
-
-            if (!weakList.length) {
-                weakEl.innerHTML = '<p class="text-xs italic text-gray-400">পর্যাপ্ত attempt হলে এখানে দুর্বল টপিক দেখানো হবে।</p>';
-            } else {
-                weakEl.innerHTML = weakList.map(x => {
-                    const label = this.localizedSubject(x.subj);
-                    const status = x.acc < 50 ? '🚨 দুর্বল' : x.acc < 70 ? '⚠️ উন্নতি দরকার' : '✅ ঠিক আছে';
-                    const color = x.acc < 50 ? 'text-red-600 dark:text-red-400' : x.acc < 70 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400';
-                    return `<div class="flex items-center justify-between p-2 rounded-lg bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700">
-                        <span class="font-bold text-sm">${this.escapeHtml(label)}</span>
-                        <span class="text-xs font-bold ${color}">${x.acc.toFixed(1)}% · ${status}</span>
-                    </div>`;
-                }).join('');
-            }
-        }
-
-        const barsEl = document.getElementById('analytics-subject-bars');
-        if (barsEl) {
-            const subjects = ['biology', 'chemistry', 'physics', 'english', 'gk'];
-            const rows = subjects.map(s => {
-                const st = subjStats[s] || { correct: 0, total: 0 };
-                const acc = st.total ? (st.correct / st.total) * 100 : 0;
-                const color = acc < 50 ? 'linear-gradient(90deg,#ef4444,#f97316)'
-                    : acc < 70 ? 'linear-gradient(90deg,#f59e0b,#facc15)'
-                    : 'linear-gradient(90deg,#10b981,#34d399)';
-                const textColor = acc < 50 ? 'text-red-600 dark:text-red-400'
-                    : acc < 70 ? 'text-amber-600 dark:text-amber-400'
-                    : 'text-emerald-600 dark:text-emerald-400';
-                return `<div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="font-bold">${this.escapeHtml(this.localizedSubject(s))}</span>
-                        <span class="font-bold ${textColor}">${acc.toFixed(1)}%</span>
-                    </div>
-                    <div class="analytics-track"><span style="width:${acc}%;background:${color}"></span></div>
-                </div>`;
-            }).join('');
-            barsEl.innerHTML = rows;
-        }
     }
 
     clearStorageHistory() {
@@ -1669,25 +1283,27 @@ class MedicalExamApp {
     }
 
     /* ====================================================
-     * LEADERBOARD
+     * LEADERBOARD (Duolingo Style - Weekly & League)
      * ==================================================== */
     getDemoLeaderboardRows() {
         return [
-            { uid: 'demo_01', name: 'Rakib Hasan', college: 'Dhaka College', points: 1890, quizzes: 18, correct: 470, answered: 520, accuracy: 90.4, isDemo: true, updatedAtMs: Date.now() - 86400000 },
-            { uid: 'demo_02', name: 'Abdullah Shawon', college: 'Dhaka College', points: 1725, quizzes: 16, correct: 438, answered: 500, accuracy: 87.6, isDemo: true, updatedAtMs: Date.now() - 172800000 },
-            { uid: 'demo_03', name: 'Tanvir Ahmed', college: 'Notre Dame College', points: 1580, quizzes: 15, correct: 402, answered: 470, accuracy: 85.5, isDemo: true, updatedAtMs: Date.now() - 259200000 },
-            { uid: 'demo_04', name: 'Nusrat Jahan', college: 'Holy Cross College', points: 1495, quizzes: 14, correct: 381, answered: 450, accuracy: 84.7, isDemo: true, updatedAtMs: Date.now() - 345600000 },
-            { uid: 'demo_05', name: 'Fahim Hasan', college: 'Rajuk Uttara Model College', points: 1360, quizzes: 13, correct: 352, answered: 425, accuracy: 82.8, isDemo: true, updatedAtMs: Date.now() - 432000000 },
-            { uid: 'demo_06', name: 'Mahi Islam', college: 'Adamjee Cantonment College', points: 1240, quizzes: 12, correct: 329, answered: 400, accuracy: 82.3, isDemo: true, updatedAtMs: Date.now() - 518400000 },
-            { uid: 'demo_07', name: 'Rafiul Karim', college: 'Dhaka City College', points: 1125, quizzes: 11, correct: 300, answered: 375, accuracy: 80.0, isDemo: true, updatedAtMs: Date.now() - 604800000 },
-            { uid: 'demo_08', name: 'Jannatul Ferdous', college: 'Cantonment Public School & College', points: 1010, quizzes: 10, correct: 272, answered: 350, accuracy: 77.7, isDemo: true, updatedAtMs: Date.now() - 691200000 }
+            { uid: 'demo_01', name: 'Ahnaf', points: 1890, weeklyPoints: 450, quizzes: 18, accuracy: 90.4, isDemo: true },
+            { uid: 'demo_02', name: 'Md Rakibul Haque', points: 1725, weeklyPoints: 365, quizzes: 16, accuracy: 87.6, isDemo: true },
+            { uid: 'demo_03', name: 'Md Abdullah', points: 1580, weeklyPoints: 360, quizzes: 15, accuracy: 85.5, isDemo: true },
+            { uid: 'demo_04', name: 'Ariq Bin Rafiq Tamim', points: 1495, weeklyPoints: 330, quizzes: 14, accuracy: 84.7, isDemo: true },
+            { uid: 'demo_05', name: 'Fahim Hasan', points: 1360, weeklyPoints: 210, quizzes: 13, accuracy: 82.8, isDemo: true },
+            { uid: 'demo_06', name: 'Mahi Islam', points: 1240, weeklyPoints: 180, quizzes: 12, accuracy: 82.3, isDemo: true },
+            { uid: 'demo_07', name: 'Rafiul Karim', points: 1125, weeklyPoints: 120, quizzes: 11, accuracy: 80.0, isDemo: true },
+            { uid: 'demo_08', name: 'Jannatul Ferdous', points: 1010, weeklyPoints: 80, quizzes: 10, accuracy: 77.7, isDemo: true }
         ];
     }
 
     getLocalLeaderboardRows() {
         try {
             const raw = JSON.parse(localStorage.getItem(this.leaderboardLocalKey) || 'null');
-            if (Array.isArray(raw) && raw.length) return raw;
+            if (Array.isArray(raw) && raw.length) {
+                return raw.map(r => ({ ...r, weeklyPoints: r.weeklyPoints !== undefined ? r.weeklyPoints : r.points }));
+            }
         } catch (e) { /* ignore */ }
         const rows = this.getDemoLeaderboardRows();
         this.setLocalLeaderboardRows(rows);
@@ -1698,269 +1314,155 @@ class MedicalExamApp {
         const safe = (Array.isArray(rows) ? rows : []).map(x => ({
             ...x,
             points: Number(x.points || 0),
+            weeklyPoints: Number(x.weeklyPoints || 0),
             quizzes: Number(x.quizzes || 0),
-            correct: Number(x.correct || 0),
-            answered: Number(x.answered || 0),
             accuracy: Number(x.accuracy || 0)
         }));
         localStorage.setItem(this.leaderboardLocalKey, JSON.stringify(safe));
-        this.setLeaderboardCache(safe);
         return safe;
     }
 
-    getLeaderboardCache() {
-        try { return JSON.parse(localStorage.getItem(this.leaderboardCacheKey) || 'null'); }
-        catch { return null; }
+    checkWeeklyReset() {
+        const lastReset = localStorage.getItem('med_lb_last_reset');
+        const now = Date.now();
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+        if (!lastReset || (now - Number(lastReset)) > oneWeek) {
+            let rows = this.getLocalLeaderboardRows();
+            rows = rows.map(user => ({ ...user, weeklyPoints: 0 }));
+            this.setLocalLeaderboardRows(rows);
+            localStorage.setItem('med_lb_last_reset', now.toString());
+        }
     }
 
-    setLeaderboardCache(rows) {
-        localStorage.setItem(this.leaderboardCacheKey, JSON.stringify({ savedAt: Date.now(), rows }));
+    getLeagueData(points) {
+        if (points >= 600) return { name: 'গোল্ড লীগ', min: 600, max: 1000 };
+        if (points >= 300) return { name: 'সিলভার লীগ', min: 300, max: 600 };
+        if (points >= 100) return { name: 'ব্রোঞ্জ লীগ', min: 100, max: 300 };
+        return { name: 'আয়রন লীগ', min: 0, max: 100 };
     }
 
-    getLeaderboardSyncQueue() {
-        try {
-            const q = JSON.parse(localStorage.getItem(this.leaderboardSyncKey) || '[]');
-            return Array.isArray(q) ? q : [];
-        } catch { return []; }
-    }
+    async loadLeaderboard(silent = false) {
+        this.checkWeeklyReset();
+        
+        let rows = this.getLocalLeaderboardRows();
+        
+        // Sort by weekly points descending
+        rows.sort((a, b) => (b.weeklyPoints || 0) - (a.weeklyPoints || 0));
 
-    setLeaderboardSyncQueue(q) {
-        localStorage.setItem(this.leaderboardSyncKey, JSON.stringify(q));
-    }
+        // User Info
+        const myUid = this.authUser?.uid || 'guest_local';
+        const myData = rows.find(r => r.uid === myUid) || { uid: myUid, weeklyPoints: 0, name: 'আপনি' };
+        
+        // 1. Update League UI
+        const league = this.getLeagueData(myData.weeklyPoints || 0);
+        document.getElementById('current-league-name').innerText = league.name;
+        document.getElementById('current-league-points').innerText = myData.weeklyPoints || 0;
+        document.getElementById('next-league-points').innerText = league.max;
+        
+        let progress = ((myData.weeklyPoints - league.min) / (league.max - league.min)) * 100;
+        progress = Math.max(0, Math.min(100, progress));
+        document.getElementById('league-progress-bar').style.width = `${progress}%`;
 
-    queueLeaderboardSync(payload) {
-        const q = this.getLeaderboardSyncQueue().filter(x => x.uid !== payload.uid);
-        q.push(payload);
-        this.setLeaderboardSyncQueue(q);
-    }
+        // 2. Update Sticky Row (My Rank)
+        const myIndex = rows.findIndex(r => r.uid === myUid);
+        document.getElementById('my-rank-number').innerHTML = `#${myIndex > -1 ? myIndex + 1 : '?'}`;
+        document.getElementById('my-rank-points').innerHTML = `${myData.weeklyPoints || 0} <span class="text-xs text-gray-500 font-normal">পয়েন্ট</span>`;
 
-    getLeaderboardRowTime(row) {
-        if (!row) return 0;
-        if (Number(row.updatedAtMs || 0)) return Number(row.updatedAtMs);
-        const stamp = row.updatedAt;
-        if (stamp && typeof stamp.toMillis === 'function') return stamp.toMillis();
-        if (stamp && Number(stamp.seconds)) return Number(stamp.seconds) * 1000;
-        return 0;
-    }
-
-    mergeLeaderboardRows(remoteRows = []) {
-        const demos = this.getDemoLeaderboardRows();
-        const local = this.getLocalLeaderboardRows();
-        const map = new Map();
-        [...demos, ...local, ...(Array.isArray(remoteRows) ? remoteRows : [])].forEach(row => {
-            if (!row?.uid) return;
-            const old = map.get(row.uid);
-            if (!old || this.getLeaderboardRowTime(row) >= this.getLeaderboardRowTime(old)) {
-                map.set(row.uid, { ...old, ...row });
+        // 3. Render List
+        const listContainer = document.getElementById('leaderboard-list');
+        listContainer.innerHTML = '';
+        
+        rows.slice(0, 30).forEach((user, index) => {
+            // Safe zone line after 3rd position
+            if (index === 3) {
+                const safeZoneDivider = document.createElement('div');
+                safeZoneDivider.className = 'bg-green-50 dark:bg-green-900/20 py-1 px-4 text-xs font-bold text-green-600 dark:text-green-400 border-y-2 border-dashed border-green-300 dark:border-green-700 flex items-center gap-2';
+                safeZoneDivider.innerHTML = `<i class="fa-solid fa-arrow-up"></i> প্রমোশন জোন (উপরে)`;
+                listContainer.appendChild(safeZoneDivider);
             }
+
+            const isMe = user.uid === myUid;
+            const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || 'Student'}`;
+            
+            const row = document.createElement('div');
+            row.className = `flex items-center justify-between px-4 py-3 ${isMe ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'} transition-colors cursor-default`;
+            
+            row.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="font-bold text-gray-500 w-6 text-center text-sm">${index + 1}</span>
+                    <img src="${avatarUrl}" alt="Avatar" class="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 shadow-sm">
+                    <div>
+                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">${this.escapeHtml(user.name || 'Student')} ${isMe ? '<span class="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded ml-1">YOU</span>' : ''}</h4>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="font-bold text-sm text-gray-700 dark:text-gray-300">${user.weeklyPoints || 0}</span> <span class="text-[10px] text-gray-500">পয়েন্ট</span>
+                </div>
+            `;
+            listContainer.appendChild(row);
         });
-        return [...map.values()].sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+
+        // 4. Update Profile Ranks
+        this.updateProfileRanks(rows, myUid);
     }
 
-    renderLeaderboardRows(rows) {
-        const body = document.getElementById('leaderboard-body');
-        if (!body) return;
-        const safe = Array.isArray(rows) ? rows : [];
-        const podium = document.getElementById('leaderboard-podium');
-        const me = document.getElementById('leaderboard-me');
-        body.innerHTML = '';
-        if (podium) podium.innerHTML = '';
-        if (me) { me.innerHTML = ''; me.classList.add('hidden'); }
+    updateProfileRanks(allRows, myUid) {
+        // Best Score Rank (All Time)
+        let allTimeSorted = [...allRows].sort((a, b) => (b.points || 0) - (a.points || 0));
+        const bestRankIndex = allTimeSorted.findIndex(r => r.uid === myUid);
+        
+        // Live Rank (Weekly) - allRows is already sorted by weekly points
+        const liveRankIndex = allRows.findIndex(r => r.uid === myUid);
 
-        if (!safe.length) {
-            body.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-sm text-gray-500">এই ফিল্টারে কোনো data নেই।</td></tr>`;
-            return;
+        const bestRankEl = document.getElementById('profile-best-rank');
+        if (bestRankEl) {
+            bestRankEl.innerText = bestRankIndex > -1 ? `#${bestRankIndex + 1}` : 'N/A';
         }
-
-        const top = safe.slice(0, 3);
-        if (podium) {
-            podium.innerHTML = top.map((x, i) => `
-                <article class="text-center p-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <div class="text-2xl">${['🥇', '🥈', '🥉'][i]}</div>
-                    <div class="w-10 h-10 mx-auto my-2 rounded-full bg-gradient-to-tr from-medical-600 to-accent-500 grid place-items-center text-white font-bold">${this.escapeHtml((x.name || 'S').charAt(0).toUpperCase())}</div>
-                    <strong class="block text-sm">${this.escapeHtml(x.name || 'Student')}</strong>
-                    <span class="block text-xs text-medical-600">${Number(x.points || 0)} Points</span>
-                    <small class="text-xs text-gray-500">${Number(x.accuracy || 0).toFixed(1)}% Accuracy</small>
-                </article>
-            `).join('');
-        }
-
-        safe.forEach((x, i) => {
-            const tr = document.createElement('tr');
-            tr.className = this.authUser?.uid === x.uid ? 'bg-medical-50 dark:bg-medical-900/20' : '';
-            tr.innerHTML = `
-                <td class="py-4 px-3 font-extrabold"><span class="inline-flex w-7 h-7 items-center justify-center rounded-lg ${i < 3 ? 'bg-amber-400 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'} font-bold text-xs">${i + 1}</span></td>
-                <td class="py-4 px-3"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-gradient-to-tr from-medical-600 to-accent-500 grid place-items-center text-white text-xs font-bold">${this.escapeHtml((x.name || 'S').charAt(0).toUpperCase())}</span><b>${this.escapeHtml(x.name || 'Student')}</b>${this.authUser?.uid === x.uid ? '<em class="text-[10px] text-medical-600 font-bold">YOU</em>' : ''}</div></td>
-                <td class="py-4 px-3">${this.escapeHtml(x.college || '—')}</td>
-                <td class="py-3 px-3">${x.quizzes || 0}</td>
-                <td class="py-3 px-3">${Number(x.accuracy || 0).toFixed(1)}%</td>
-                <td class="py-3 px-3 font-extrabold text-medical-600">${Number(x.points || 0)}</td>
-            `;
-            body.appendChild(tr);
-        });
-
-        const mine = this.authUser?.uid ? safe.find(x => x.uid === this.authUser.uid) : null;
-        if (me && mine) {
-            me.classList.remove('hidden');
-            me.innerHTML = `<div class="p-3 rounded-xl bg-medical-50 dark:bg-medical-900/30 border border-medical-200 dark:border-medical-800">
-                <span class="text-xs">Your Position: </span><strong class="text-medical-600">#${safe.indexOf(mine) + 1}</strong>
-                <span class="text-xs ml-3">${Number(mine.accuracy || 0).toFixed(1)}% accuracy • ${Number(mine.points || 0)} points</span>
-            </div>`;
+        
+        const liveRankEl = document.getElementById('profile-live-rank');
+        if (liveRankEl) {
+            liveRankEl.innerText = liveRankIndex > -1 ? `#${liveRankIndex + 1}` : 'N/A';
         }
     }
 
     async recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy }) {
         const uid = this.authUser?.uid || 'guest_local';
-        const name = this.profile?.name || this.authUser?.displayName || this.authUser?.email || 'Guest Student';
-        const college = this.profile?.college || '';
-        const current = this.getLocalLeaderboardRows().find(x => x.uid === uid)
-            || { uid, name, college, points: 0, quizzes: 0, correct: 0, answered: 0 };
-        const nextCorrect = Number(current.correct || 0) + Number(correctCount || 0);
-        const nextAnswered = Number(current.answered || 0) + Number(correctCount || 0) + Number(wrongCount || 0);
+        const name = this.profile?.name || this.authUser?.displayName || 'Guest Student';
+        
+        let rows = this.getLocalLeaderboardRows();
+        let current = rows.find(x => x.uid === uid) || { uid, name, points: 0, weeklyPoints: 0, quizzes: 0, accuracy: 0 };
+        
         const updated = {
             ...current,
-            name, college,
+            name,
             points: Number(current.points || 0) + Number(quizPoints || 0),
+            weeklyPoints: Number(current.weeklyPoints || 0) + Number(quizPoints || 0),
             quizzes: Number(current.quizzes || 0) + 1,
-            correct: nextCorrect,
-            answered: nextAnswered,
-            accuracy: Number(((nextCorrect / Math.max(1, nextAnswered)) * 100).toFixed(1)),
-            updatedAtMs: Date.now(),
-            isDemo: false
+            accuracy: accuracy,
+            updatedAtMs: Date.now()
         };
-        const rows = this.getLocalLeaderboardRows().filter(x => x.uid !== uid);
+        
+        rows = rows.filter(x => x.uid !== uid);
         rows.push(updated);
-        const merged = this.mergeLeaderboardRows(rows);
-        this.setLocalLeaderboardRows(merged);
-        this.renderLeaderboardRows(merged);
+        this.setLocalLeaderboardRows(rows);
 
-        if (!this.authUser || !this.firestore) {
-            if (this.authUser) this.queueLeaderboardSync({ ...updated, meta: { correctCount, wrongCount, totalQuestions, quizPoints, accuracy } });
-            return;
-        }
-        await this.syncLeaderboardUser(updated, { correctCount, wrongCount, totalQuestions, quizPoints, accuracy });
-    }
-
-    async syncLeaderboardUser(updated, meta = {}) {
-        if (!this.authUser || !this.firestore) return false;
-        const attemptId = `${this.authUser.uid}_${this.examState.startedAt || Date.now()}`;
-        try {
-            const attemptRef = doc(this.firestore, 'quizAttempts', attemptId);
-            const userLbRef = doc(this.firestore, 'leaderboard', this.authUser.uid);
-            await runTransaction(this.firestore, async tx => {
-                tx.set(attemptRef, {
-                    uid: this.authUser.uid,
-                    quizPoints: Number(meta.quizPoints) || 0,
-                    correct: Number(meta.correctCount) || 0,
-                    wrong: Number(meta.wrongCount) || 0,
-                    total: Number(meta.totalQuestions) || 0,
-                    accuracy: Number(meta.accuracy) || 0,
-                    createdAt: serverTimestamp()
-                });
-                tx.set(userLbRef, {
-                    uid: this.authUser.uid,
-                    name: updated.name,
-                    college: updated.college,
-                    points: updated.points,
-                    quizzes: updated.quizzes,
-                    correct: updated.correct,
-                    answered: updated.answered,
-                    accuracy: updated.accuracy,
-                    updatedAt: serverTimestamp()
-                }, { merge: true });
-            });
-            this.setLeaderboardSyncQueue(this.getLeaderboardSyncQueue().filter(x => x.uid !== updated.uid));
-            return true;
-        } catch (e) {
-            console.error('Leaderboard write failed', e);
-            this.queueLeaderboardSync({ ...updated, meta });
-            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপদে সংরক্ষিত আছে।', true);
-            return false;
-        }
-    }
-
-    async syncPendingLeaderboard() {
         if (!this.authUser || !this.firestore) return;
-        const pending = this.getLeaderboardSyncQueue().filter(x => x.uid === this.authUser.uid);
-        for (const row of pending) {
-            await this.syncLeaderboardUser(row, row.meta || {});
-        }
-    }
-
-    async loadLeaderboard(silent = false) {
-        const body = document.getElementById('leaderboard-body');
-        if (!body) return;
-        const local = this.getLocalLeaderboardRows();
-        this.renderLeaderboardRows(local);
-        if (!silent) this.showLeaderboardStatus('Local leaderboard দেখানো হচ্ছে; Firebase background sync চলছে…', false);
-        if (!this.firestore) {
-            if (!silent) this.showLeaderboardStatus('Local leaderboard active — Firebase config পাওয়া যায়নি।', false);
-            return;
-        }
+        
         try {
-            await this.syncPendingLeaderboard();
-            const qRef = query(collection(this.firestore, 'leaderboard'), orderBy('points', 'desc'));
-            const snap = await getDocs(qRef);
-            const remote = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
-            const rows = this.mergeLeaderboardRows(remote);
-            this.setLocalLeaderboardRows(rows);
-            this.renderLeaderboardRows(rows);
-            this.showLeaderboardStatus('Leaderboard Firebase থেকে sync হয়েছে এবং local-এ cache করা হয়েছে।', false);
-        } catch (e) {
-            console.error(e);
-            this.showLeaderboardStatus('Previous Year কোশ্চেনে কুইজ দিলে তা এখানে অন্তর্ভুক্ত হবে, তবে সেজন্য অবশ্যই লগইন করে নিতে হবে।', false);
+            const userLbRef = doc(this.firestore, 'leaderboard', this.authUser.uid);
+            await setDoc(userLbRef, {
+                uid: this.authUser.uid,
+                name: updated.name,
+                points: updated.points,
+                weeklyPoints: updated.weeklyPoints, // Sync weekly points
+                quizzes: updated.quizzes,
+                accuracy: updated.accuracy,
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+        } catch(e) {
+            console.error('Leaderboard sync failed', e);
         }
-    }
-
-    showLeaderboardStatus(msg, error) {
-        const el = document.getElementById('leaderboard-status');
-        if (!el) return;
-        el.textContent = msg;
-        el.className = `mb-4 rounded-xl p-3 text-sm ${error ? 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;
-    }
-
-    filterLeaderboard(criteria, collegeName) {
-        this.leaderboardFilter = criteria || 'all';
-        this.leaderboardCollege = collegeName || '';
-
-        document.querySelectorAll('.lb-filter-btn').forEach(b => {
-            b.classList.toggle('is-active', b.dataset.lbFilter === criteria);
-        });
-
-        const collegeSel = document.getElementById('leaderboard-college-select');
-        if (collegeSel) {
-            if (criteria === 'college') {
-                collegeSel.classList.remove('hidden');
-                if (collegeSel.options.length <= 1) {
-                    const rows = this.getLocalLeaderboardRows();
-                    const colleges = [...new Set(rows.map(r => r.college).filter(Boolean))].sort();
-                    collegeSel.innerHTML = '<option value="">সব কলেজ</option>' +
-                        colleges.map(c => `<option value="${this.escapeHtml(c)}">${this.escapeHtml(c)}</option>`).join('');
-                    collegeSel.value = collegeName || '';
-                }
-            } else {
-                collegeSel.classList.add('hidden');
-            }
-        }
-
-        const note = document.getElementById('leaderboard-filter-note');
-        if (note) {
-            if (criteria === 'weekly') note.textContent = 'শুধু গত ৭ দিনের পয়েন্ট';
-            else if (criteria === 'college') note.textContent = collegeName ? `কলেজ: ${collegeName}` : 'সব কলেজ';
-            else note.textContent = 'সর্বকালীন পয়েন্ট';
-        }
-
-        let rows = this.getLocalLeaderboardRows();
-        const now = Date.now();
-        const weekMs = 7 * 24 * 60 * 60 * 1000;
-
-        if (criteria === 'weekly') {
-            rows = rows.filter(r => Number(r.updatedAtMs || 0) >= (now - weekMs));
-        } else if (criteria === 'college' && collegeName) {
-            rows = rows.filter(r => r.college === collegeName);
-        }
-
-        this.renderLeaderboardRows(rows);
     }
 }
 
@@ -2023,38 +1525,6 @@ window.handleLogout = function () {
         });
 };
 
-window.handleSubmit = async function () {
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const email = emailInput ? emailInput.value.trim() : '';
-    const pass = passwordInput ? passwordInput.value : '';
-    if (!email) { alert('* Please enter your email address'); return; }
-    if (!pass) { alert('Please enter your password.'); return; }
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        alert('Login Successful!');
-        window.location.href = "https://serakib.github.io/Medical-Admission-Tracker/";
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-};
-
 onAuthStateChanged(auth, (user) => {
-    document.querySelectorAll('.auth-btn-target').forEach(container => {
-        if (user) {
-            container.innerHTML = `
-                <button onclick="window.handleLogout && window.handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>লগআউট</span>
-                </button>`;
-        } else {
-            container.innerHTML = `
-                <button onclick="window.redirectToLogin && window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>Login / Sign up</span>
-                </button>`;
-        }
-    });
+    // This will be handled by the app class, but we keep this for standalone auth buttons if any remain outside the app scope
 });
-
-console.log('[MedicalExamApp] engine loaded — unique question counter active.');
