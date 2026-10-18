@@ -31,10 +31,94 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main Style.css -->
     <link rel="stylesheet" href="./style.css">
 
-    <!-- Custom Styles -->
+    <!-- ==================== ORIGINAL CUSTOM CSS ==================== -->
+    <style id="medical-contact-styles">
+        #contact.medical-contact-section { max-width: 100%; padding: 2.75rem 0 1.25rem; scroll-margin-top: 88px; }
+        #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
+        #contact .medical-contact-title h2 { margin: 0; color: #111827; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 800; line-height: 1.25; }
+        #contact .medical-contact-title h2 span { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        #contact .medical-contact-underline { width: 4rem; height: 4px; margin: 1rem auto 0; border-radius: 99px; background: linear-gradient(90deg, #059669, #0284c7); }
+        #contact .contact-reference-wrap { border: 0; background: transparent; box-shadow: none; }
+        #contact .contact-reference-grid { display: grid; grid-template-columns: 1fr 1fr 1.45fr .9fr; align-items: center; gap: 10px; }
+        #contact .contact-reference-grid input, #contact .contact-reference-grid textarea { display: block; width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(5,150,105,.28); border-radius: 20px; background: rgba(255,255,255,.94); color: #172033; padding: 18px 20px; font: inherit; font-size: .95rem; outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+        #contact .contact-reference-grid input { min-height: 78px; }
+        #contact .contact-reference-grid textarea { min-height: 150px; resize: vertical; }
+        #contact .contact-reference-grid input::placeholder, #contact .contact-reference-grid textarea::placeholder { color: #7b8798; opacity: 1; }
+        #contact .contact-reference-grid input:focus, #contact .contact-reference-grid textarea:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.12); }
+        #contact .contact-send-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 76px; padding: 16px; border: 0; border-radius: 999px; color: #fff; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #059669, #0284c7); box-shadow: 0 10px 24px rgba(5,150,105,.18); transition: transform .2s ease, box-shadow .2s ease; }
+        #contact .contact-send-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(5,150,105,.24); }
+        #contact .contact-send-btn:disabled { opacity: .7; cursor: wait; transform: none; }
+        #contact .contact-social-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px auto 0; }
+        #contact .contact-social-card { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-width: 130px; padding: 12px 20px; border-radius: 999px; border: 1px solid rgba(5,150,105,.24); background: rgba(255,255,255,.62); color: #334155; text-decoration: none; font-weight: 600; box-shadow: 0 8px 24px rgba(15,23,42,.05); transition: .22s ease; }
+        #contact .contact-social-card i { color: #059669; }
+        #contact .contact-social-card:hover { transform: translateY(-3px); border-color: rgba(2,132,199,.5); color: #0369a1; box-shadow: 0 10px 26px rgba(2,132,199,.12); }
+        html.dark #contact .medical-contact-title h2, body.dark #contact .medical-contact-title h2 { color: #f8fafc; }
+        html.dark #contact .contact-reference-wrap, body.dark #contact .contact-reference-wrap { background: transparent; border: 0; box-shadow: none; }
+        html.dark #contact .contact-reference-grid input, html.dark #contact .contact-reference-grid textarea, body.dark #contact .contact-reference-grid input, body.dark #contact .contact-reference-grid textarea { background: rgba(17,24,39,.82); color: #f8fafc; border-color: rgba(16,185,129,.32); }
+        html.dark #contact .contact-reference-grid input::placeholder, html.dark #contact .contact-reference-grid textarea::placeholder, body.dark #contact .contact-reference-grid input::placeholder, body.dark #contact .contact-reference-grid textarea::placeholder { color: #9ca3af; }
+        html.dark #contact .contact-social-card, body.dark #contact .contact-social-card { background: rgba(17,24,39,.72); color: #d1d5db; border-color: rgba(16,185,129,.22); }
+        
+        /* Footer */
+        #view-home > .medical-home-footer { position: relative; width: 100%; max-width: 100%; box-sizing: border-box; margin-top: 3rem; padding: 0 24px 20px; overflow: hidden; color: #dbe7f2; background: radial-gradient(circle at 8% 0%, rgba(16,185,129,.15), transparent 32%), radial-gradient(circle at 92% 20%, rgba(14,165,233,.13), transparent 30%), linear-gradient(135deg, #071d22 0%, #0b1b2c 58%, #091827 100%); border-top: 1px solid rgba(16,185,129,.28); box-shadow: 0 -18px 45px rgba(15,23,42,.07); }
+        #view-home .medical-footer-accent { height: 3px; width: 100%; margin-bottom: 34px; background: linear-gradient(90deg, #10b981 0%, #06b6d4 52%, #0ea5e9 100%); box-shadow: 0 0 18px rgba(16,185,129,.24); }
+        #view-home .medical-footer-inner { width: 100%; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(170px, .75fr) minmax(220px, .9fr); gap: 48px; padding: 0 4px 30px; }
+        #view-home .medical-footer-brand-mark { display: inline-flex; align-items: center; gap: 12px; color: #f8fafc; font-weight: 800; font-size: 1.12rem; letter-spacing: -.01em; }
+        #view-home .medical-footer-logo-icon { display: inline-flex; width: 42px; height: 42px; flex: 0 0 42px; align-items: center; justify-content: center; border: 1px solid rgba(52,211,153,.34); border-radius: 14px; color: #6ee7b7; background: rgba(16,185,129,.12); box-shadow: inset 0 0 18px rgba(16,185,129,.06); }
+        #view-home .medical-footer-description { max-width: 440px; margin: 16px 0 17px; color: #9eb1c4; font-size: .91rem; line-height: 1.85; }
+        #view-home .medical-footer-credit { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; color: #8ea5b8; font-size: .82rem; }
+        #view-home .medical-footer-credit strong { color: #6ee7b7; font-weight: 700; }
+        #view-home .medical-footer-heading { margin: 5px 0 19px; color: #6ee7b7; font-size: .78rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+        #view-home .medical-footer-links, #view-home .medical-footer-contact-list { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+        #view-home .medical-footer-link, #view-home .medical-footer-contact-link { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; padding: 0; border: 0; background: transparent; color: #a9bbcb; font: inherit; font-size: .9rem; text-align: left; text-decoration: none; overflow-wrap: anywhere; cursor: pointer; transition: color .2s ease, transform .2s ease; }
+        #view-home .medical-footer-link:hover, #view-home .medical-footer-contact-link:hover { color: #ffffff; transform: translateX(3px); }
+        #view-home .medical-footer-link i, #view-home .medical-footer-contact-link i { width: 18px; color: #34d399; text-align: center; }
+        #view-home .medical-footer-bottom { width: 100%; max-width: 1280px; margin: 0 auto; padding: 18px 4px 0; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid rgba(148,163,184,.15); color: #8195a8; font-size: .78rem; }
+        #view-home .medical-footer-bottom-note { display: inline-flex; align-items: center; gap: 7px; }
+        #view-home .medical-footer-bottom-note i { color: #34d399; }
+        
+        @media (max-width: 900px) {
+            #view-home .medical-footer-inner { grid-template-columns: minmax(0, 1fr) minmax(170px, .8fr); gap: 34px; }
+            #view-home .medical-footer-brand { grid-column: 1 / -1; }
+            #contact .contact-reference-grid { grid-template-columns: 1fr 1fr; }
+            #contact .contact-reference-grid textarea { min-height: 130px; }
+            #contact .contact-send-btn { min-height: 58px; }
+        }
+        @media (max-width: 560px) {
+            #view-home > .medical-home-footer { padding: 0 18px 18px; margin-top: 2rem; }
+            #view-home .medical-footer-accent { margin-bottom: 25px; }
+            #view-home .medical-footer-inner { grid-template-columns: minmax(0, 1fr); gap: 27px; padding-bottom: 24px; }
+            #view-home .medical-footer-brand { grid-column: auto; }
+            #view-home .medical-footer-heading { margin-bottom: 14px; }
+            #view-home .medical-footer-bottom { align-items: flex-start; flex-direction: column; }
+            #contact.medical-contact-section { padding-top: 1.75rem; }
+            #contact .medical-contact-title { margin-bottom: 1.25rem; }
+            #contact .contact-reference-wrap { padding: 10px; border-radius: 20px; }
+            #contact .contact-reference-grid { grid-template-columns: 1fr; gap: 9px; }
+            #contact .contact-reference-grid input { min-height: 56px; }
+            #contact .contact-reference-grid textarea { min-height: 120px; }
+            #contact .contact-social-row { gap: 8px; }
+            #contact .contact-social-card { min-width: 0; flex: 1 1 90px; padding: 10px 12px; font-size: .9rem; }
+        }
+    </style>
+
+    <style id="medical-tracker-feature-styles">
+        #view-medical-hsc-info { width:100%; min-width:0; }
+        #view-medical-hsc-info a { -webkit-tap-highlight-color:transparent; }
+        #view-medical-hsc-info article { min-width:0; }
+    </style>
+
+    <!-- ==================== NEW SIDEBAR LAYOUT CSS ==================== -->
     <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+
         /* Sidebar Active State */
         .nav-link { transition: all 0.2s ease; border-left: 4px solid transparent; }
         .nav-link:hover { background-color: #f3f4f6; color: #4f46e5; }
@@ -52,20 +136,6 @@
             .main-content { margin-left: 16rem; transition: margin-left 0.3s ease; }
             .main-content.expanded { margin-left: 0; }
         }
-
-        /* Contact Form Styles */
-        #contact.medical-contact-section { max-width: 100%; padding: 2.75rem 0 1.25rem; }
-        #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
-        #contact .medical-contact-title h2 { margin: 0; color: #111827; font-size: 2.35rem; font-weight: 800; }
-        #contact .medical-contact-title h2 span { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #contact .medical-contact-underline { width: 4rem; height: 4px; margin: 1rem auto 0; border-radius: 99px; background: linear-gradient(90deg, #059669, #0284c7); }
-        #contact .contact-reference-grid { display: grid; grid-template-columns: 1fr 1fr 1.45fr .9fr; align-items: center; gap: 10px; }
-        #contact .contact-reference-grid input, #contact .contact-reference-grid textarea { display: block; width: 100%; border: 1px solid rgba(5,150,105,.28); border-radius: 20px; background: rgba(255,255,255,.94); color: #172033; padding: 18px 20px; font-size: .95rem; outline: none; }
-        #contact .contact-send-btn { width: 100%; min-height: 76px; border: 0; border-radius: 999px; color: #fff; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #059669, #0284c7); }
-        html.dark #contact .medical-contact-title h2 { color: #f8fafc; }
-        html.dark #contact .contact-reference-grid input, html.dark #contact .contact-reference-grid textarea { background: rgba(17,24,39,.82); color: #f8fafc; border-color: rgba(16,185,129,.32); }
-        @media (max-width: 900px) { #contact .contact-reference-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 560px) { #contact .contact-reference-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 h-screen overflow-hidden flex">
@@ -173,19 +243,27 @@
         <!-- Dynamic Main Content -->
         <main class="flex-1 overflow-y-auto w-full bg-gray-50 dark:bg-gray-900">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
-                <div id="question-data-status" class="hidden" role="status"></div>
+                <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
 
                 <!-- ========================================== -->
                 <!-- VIEW 1: HOME -->
                 <!-- ========================================== -->
                 <section id="view-home" class="view-section space-y-8">
+                    <!-- Hero Banner -->
                     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-medical-800 via-medical-700 to-accent-700 text-white p-6 sm:p-10 shadow-xl">
+                        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
                         <div class="relative z-10 max-w-2xl space-y-4">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/30">
                                 <i class="fa-solid fa-graduation-cap ml-1"></i> Class XI & XII Students, Medical Admission Journey
                             </span>
-                            <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি গ্রহণ করুন ঘরে বসেই!</h2>
-                            <p class="text-gray-100 text-sm sm:text-base leading-relaxed">জীববিজ্ঞান, রসায়ন, পদার্থবিজ্ঞান, ইংরেজি এবং সাধারণ জ্ঞানের মানসম্মত প্রশ্ন ও রিয়েল-টাইম নেগেটিভ মার্কিং সহ Unlimited মডেল টেস্ট দিন।</p>
+                            <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">
+                                মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি গ্রহণ করুন ঘরে বসেই!
+                            </h2>
+                            <p class="text-gray-100 text-sm sm:text-base leading-relaxed">
+                                জীববিজ্ঞান, রসায়ন, পদার্থবিজ্ঞান, ইংরেজি এবং সাধারণ জ্ঞানের মানসম্মত প্রশ্ন ও রিয়েল-টাইম নেগেটিভ মার্কিং সহ Unlimited মডেল টেস্ট দিন।
+                            </p>
                             <div class="pt-2 flex flex-wrap gap-3">
                                 <button onclick="window.app.openSetupView()" class="px-6 py-3 rounded-xl bg-white text-medical-800 font-bold hover:bg-medical-50 transition shadow-lg flex items-center">
                                     <i class="fa-solid fa-play ml-2 text-medical-600"></i> পরীক্ষা শুরু করুন
@@ -197,28 +275,51 @@
                         </div>
                     </div>
 
+                    <!-- Quick Stats Row -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-medical-100 dark:bg-medical-900/50 text-medical-600 dark:text-medical-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-clipboard-check"></i></div>
-                            <div><div id="dash-total-exams" class="text-xl font-bold text-gray-900 dark:text-white">0</div><div class="text-xs text-gray-500 dark:text-gray-400">মোট সম্পন্ন পরীক্ষা</div></div>
+                            <div class="w-12 h-12 rounded-xl bg-medical-100 dark:bg-medical-900/50 text-medical-600 dark:text-medical-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <div id="dash-total-exams" class="text-xl font-bold text-gray-900 dark:text-white">0</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">মোট সম্পন্ন পরীক্ষা</div>
+                            </div>
                         </div>
                         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-trophy"></i></div>
-                            <div><div id="dash-best-score" class="text-xl font-bold text-gray-900 dark:text-white">0.00</div><div class="text-xs text-gray-500 dark:text-gray-400">সর্বোচ্চ স্কোর</div></div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <div id="dash-best-score" class="text-xl font-bold text-gray-900 dark:text-white">0.00</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">সর্বোচ্চ স্কোর</div>
+                            </div>
                         </div>
                         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-bullseye"></i></div>
-                            <div><div id="dash-avg-accuracy" class="text-xl font-bold text-gray-900 dark:text-white">0%</div><div class="text-xs text-gray-500 dark:text-gray-400">গড় নির্ভুলতা</div></div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+                            <div>
+                                <div id="dash-avg-accuracy" class="text-xl font-bold text-gray-900 dark:text-white">0%</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">গড় নির্ভুলতা</div>
+                            </div>
                         </div>
                         <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-database"></i></div>
-                            <div><div id="dash-total-questions" class="text-xl font-bold text-gray-900 dark:text-white">100+</div><div class="text-xs text-gray-500 dark:text-gray-400">প্রশ্ন ব্যাংকের মোট প্রশ্ন</div></div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div>
+                                <div id="dash-total-questions" class="text-xl font-bold text-gray-900 dark:text-white">100+</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">প্রশ্ন ব্যাংকের মোট প্রশ্ন</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Exam Modes -->
+                    <!-- Exam Mode Selection Cards -->
                     <div class="space-y-4">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa-solid fa-layer-group text-medical-600 ml-2"></i> পরীক্ষার মোড বেছে নিন</h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                            <i class="fa-solid fa-layer-group text-medical-600 ml-2"></i> পরীক্ষার মোড বেছে নিন
+                        </h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div onclick="window.app.setupExamQuick('random')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                                 <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-shuffle"></i></div>
@@ -241,7 +342,7 @@
                         </div>
                     </div>
 
-                    <!-- Subject Breakdown -->
+                    <!-- Subject-wise Breakdown -->
                     <div class="space-y-4">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa-solid fa-book text-medical-600 ml-2"></i> বিষয়ভিত্তিক প্র্যাকটিস</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -278,7 +379,7 @@
                         </button>
                     </div>
 
-                    <!-- Contact Section -->
+                    <!-- CONTACT FORM -->
                     <section id="contact" class="medical-contact-section" aria-labelledby="medical-contact-heading">
                         <div class="medical-contact-title">
                             <h2 id="medical-contact-heading">Get in <span>Touch</span></h2>
@@ -302,6 +403,48 @@
                             <a href="https://github.com/serakib" class="contact-social-card" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span></a>
                         </div>
                     </section>
+
+                    <!-- FOOTER -->
+                    <footer class="medical-home-footer" aria-label="Medical Admission Tester footer">
+                        <div class="medical-footer-accent" aria-hidden="true"></div>
+                        <div class="medical-footer-inner">
+                            <div class="medical-footer-brand">
+                                <div class="medical-footer-brand-mark">
+                                    <span class="medical-footer-logo-icon" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
+                                    <span>মেডিকেল ভর্তি পরীক্ষা</span>
+                                </div>
+                                <p class="medical-footer-description">
+                                    মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি, প্রশ্ন অনুশীলন ও নিজের অগ্রগতি যাচাই—সবকিছু এক জায়গায়। নিয়মিত অনুশীলন করুন, আত্মবিশ্বাসের সঙ্গে এগিয়ে যান।
+                                </p>
+                                <div class="medical-footer-credit"><span>পরিকল্পনা ও নির্মাণে</span><strong>MD. Rakib Hasan</strong></div>
+                            </div>
+
+                            <div class="medical-footer-navigation">
+                                <h3 class="medical-footer-heading">Quick Navigation</h3>
+                                <div class="medical-footer-links">
+                                    <button type="button" class="medical-footer-link" onclick="window.app.showView('home'); window.scrollTo({top:0,behavior:'smooth'});"><i class="fa-solid fa-house" aria-hidden="true"></i><span>হোম</span></button>
+                                    <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('view')"><i class="fa-solid fa-book-medical" aria-hidden="true"></i><span>প্রশ্ন ব্যাংক</span></button>
+                                    <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('practice')"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
+                                    <button type="button" class="medical-footer-link" onclick="window.app.setupExamQuick('model')"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>মডেল টেস্ট</span></button>
+                                    <button type="button" class="medical-footer-link" onclick="window.app.showPreviousYears()"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>বিগত বছরের প্রশ্ন</span></button>
+                                </div>
+                            </div>
+
+                            <div class="medical-footer-contact">
+                                <h3 class="medical-footer-heading">Get in Touch</h3>
+                                <div class="medical-footer-contact-list">
+                                    <a class="medical-footer-contact-link" href="mailto:mdrakibasfyia@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>mdrakibasfyia@gmail.com</span></a>
+                                    <a class="medical-footer-contact-link" href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i><span>Facebook</span></a>
+                                    <a class="medical-footer-contact-link" href="https://github.com/serakib" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span></a>
+                                    <button type="button" class="medical-footer-link" onclick="var c=document.getElementById('contact'); if(c){c.scrollIntoView({behavior:'smooth',block:'start'});}"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Contact Form</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="medical-footer-bottom">
+                            <span>© 2026 MD. Rakib Hasan. সর্বস্বত্ব সংরক্ষিত।</span>
+                            <span class="medical-footer-bottom-note"><i class="fa-solid fa-heart" aria-hidden="true"></i> <span>শেখা, অনুশীলন ও উন্নতির পথে</span></span>
+                        </div>
+                    </footer>
                 </section>
 
                 <!-- ========================================== -->
@@ -578,7 +721,7 @@
                             <div class="relative max-w-3xl">
                                 <span class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/20 px-3 py-1 text-xs font-bold tracking-wide"><i class="fa-solid fa-book-medical"></i> STUDENT RESOURCE HUB</span>
                                 <h2 class="mt-4 text-2xl sm:text-4xl font-extrabold leading-tight">Medical &amp; HSC Information</h2>
-                                <p class="mt-3 max-w-2xl text-sm sm:text-base leading-7 text-emerald-50">HSC প্রস্তুতি, পাঠ্যবই, বোর্ডের তথ্য এবং মেডিকেল ভর্তি-সংক্রান্ত official source—এক জায়গায়।</p>
+                                <p class="mt-3 max-w-2xl text-sm sm:text-base leading-7 text-emerald-50">HSC প্রস্তুতি, পাঠ্যবই, বোর্ডের তথ্য এবং মেডিকেল ভর্তি-সংক্রান্ত official source—এক জায়গায়।</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
