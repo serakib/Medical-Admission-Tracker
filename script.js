@@ -671,7 +671,10 @@ class MedicalExamApp {
                 </div>
             `;
             const btn = card.querySelector('button');
-            const ans = card.querySelector('div.hidden, div:last-child');
+            
+            // BUG FIX: Changed from querySelector to lastElementChild to prevent it from selecting option D
+            const ans = card.lastElementChild; 
+            
             btn.addEventListener('click', () => {
                 ans.classList.toggle('hidden');
                 btn.textContent = ans.classList.contains('hidden')
