@@ -50,274 +50,6 @@
 
     <link rel="stylesheet" href="./style.css">
 
-
-    <!-- Home-only Contact section styling (inspired by the portfolio Contact UI) -->
-    <style id="medical-contact-styles">
-        #contact.medical-contact-section {
-            max-width: 100%;
-            padding: 2.75rem 0 1.25rem;
-            scroll-margin-top: 88px;
-        }
-        #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
-        #contact .medical-contact-title h2 {
-            margin: 0;
-            color: #111827;
-            font-size: clamp(1.7rem, 3vw, 2.35rem);
-            font-weight: 800;
-            line-height: 1.25;
-        }
-        #contact .medical-contact-title h2 span {
-            background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        #contact .medical-contact-underline {
-            width: 4rem; height: 4px; margin: 1rem auto 0; border-radius: 99px;
-            background: linear-gradient(90deg, #059669, #0284c7);
-        }
-        #contact .contact-reference-wrap {
-           border: 0;
-background: transparent;
-box-shadow: none;
-        }
-        #contact .contact-reference-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1.45fr .9fr;
-            align-items: center; gap: 10px;
-        }
-        #contact .contact-reference-grid input,
-        #contact .contact-reference-grid textarea {
-            display: block; width: 100%; min-width: 0; box-sizing: border-box;
-            border: 1px solid rgba(5,150,105,.28); border-radius: 20px;
-            background: rgba(255,255,255,.94); color: #172033;
-            padding: 18px 20px; font: inherit; font-size: .95rem;
-            outline: none; transition: border-color .2s ease, box-shadow .2s ease;
-        }
-        #contact .contact-reference-grid input { min-height: 78px; }
-        #contact .contact-reference-grid textarea { min-height: 150px; resize: vertical; }
-        #contact .contact-reference-grid input::placeholder,
-        #contact .contact-reference-grid textarea::placeholder { color: #7b8798; opacity: 1; }
-        #contact .contact-reference-grid input:focus,
-        #contact .contact-reference-grid textarea:focus {
-            border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.12);
-        }
-        #contact .contact-send-btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; min-height: 76px; padding: 16px; border: 0; border-radius: 999px;
-            color: #fff; font-weight: 800; cursor: pointer;
-            background: linear-gradient(135deg, #059669, #0284c7);
-            box-shadow: 0 10px 24px rgba(5,150,105,.18); transition: transform .2s ease, box-shadow .2s ease;
-        }
-        #contact .contact-send-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(5,150,105,.24); }
-        #contact .contact-send-btn:disabled { opacity: .7; cursor: wait; transform: none; }
-        #contact .contact-social-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px auto 0; }
-        #contact .contact-social-card {
-            display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-            min-width: 130px; padding: 12px 20px; border-radius: 999px;
-            border: 1px solid rgba(5,150,105,.24); background: rgba(255,255,255,.62);
-            color: #334155; text-decoration: none; font-weight: 600;
-            box-shadow: 0 8px 24px rgba(15,23,42,.05); transition: .22s ease;
-        }
-        #contact .contact-social-card i { color: #059669; }
-        #contact .contact-social-card:hover {
-            transform: translateY(-3px); border-color: rgba(2,132,199,.5);
-            color: #0369a1; box-shadow: 0 10px 26px rgba(2,132,199,.12);
-        }
-        /* In dark mode, retain the portfolio's dark glass contact treatment. */
-        html.dark #contact .medical-contact-title h2,
-        body.dark #contact .medical-contact-title h2 { color: #f8fafc; }
-        html.dark #contact .contact-reference-wrap,
-        body.dark #contact .contact-reference-wrap {
-            background: transparent;
-    border: 0;
-    box-shadow: none;
-        }
-        html.dark #contact .contact-reference-grid input,
-        html.dark #contact .contact-reference-grid textarea,
-        body.dark #contact .contact-reference-grid input,
-        body.dark #contact .contact-reference-grid textarea {
-            background: rgba(17,24,39,.82); color: #f8fafc; border-color: rgba(16,185,129,.32);
-        }
-        html.dark #contact .contact-reference-grid input::placeholder,
-        html.dark #contact .contact-reference-grid textarea::placeholder,
-        body.dark #contact .contact-reference-grid input::placeholder,
-        body.dark #contact .contact-reference-grid textarea::placeholder { color: #9ca3af; }
-        html.dark #contact .contact-social-card,
-        body.dark #contact .contact-social-card {
-            background: rgba(17,24,39,.72); color: #d1d5db; border-color: rgba(16,185,129,.22);
-        }
-        /* Fresh, Home-only medical footer (replaces the previous portfolio footer). */
-        #view-home > .medical-home-footer {
-            position: relative;
-            width: 100vw;
-            max-width: 100vw;
-            box-sizing: border-box;
-            margin-top: 3rem;
-            margin-left: calc((100% - 100vw) / 2);
-            padding: 0 24px 20px;
-            overflow: hidden;
-            color: #dbe7f2;
-            background:
-                radial-gradient(circle at 8% 0%, rgba(16,185,129,.15), transparent 32%),
-                radial-gradient(circle at 92% 20%, rgba(14,165,233,.13), transparent 30%),
-                linear-gradient(135deg, #071d22 0%, #0b1b2c 58%, #091827 100%);
-            border-top: 1px solid rgba(16,185,129,.28);
-            box-shadow: 0 -18px 45px rgba(15,23,42,.07);
-        }
-        #view-home .medical-footer-accent {
-            height: 3px;
-            width: 100%;
-            margin-bottom: 34px;
-            background: linear-gradient(90deg, #10b981 0%, #06b6d4 52%, #0ea5e9 100%);
-            box-shadow: 0 0 18px rgba(16,185,129,.24);
-        }
-        #view-home .medical-footer-inner {
-            width: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: minmax(0, 1.35fr) minmax(170px, .75fr) minmax(220px, .9fr);
-            gap: 48px;
-            padding: 0 4px 30px;
-        }
-        #view-home .medical-footer-brand-mark {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            color: #f8fafc;
-            font-weight: 800;
-            font-size: 1.12rem;
-            letter-spacing: -.01em;
-        }
-        #view-home .medical-footer-logo-icon {
-            display: inline-flex;
-            width: 42px;
-            height: 42px;
-            flex: 0 0 42px;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(52,211,153,.34);
-            border-radius: 14px;
-            color: #6ee7b7;
-            background: rgba(16,185,129,.12);
-            box-shadow: inset 0 0 18px rgba(16,185,129,.06);
-        }
-        #view-home .medical-footer-description {
-            max-width: 440px;
-            margin: 16px 0 17px;
-            color: #9eb1c4;
-            font-size: .91rem;
-            line-height: 1.85;
-        }
-        #view-home .medical-footer-credit {
-            display: inline-flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
-            color: #8ea5b8;
-            font-size: .82rem;
-        }
-        #view-home .medical-footer-credit strong { color: #6ee7b7; font-weight: 700; }
-        #view-home .medical-footer-heading {
-            margin: 5px 0 19px;
-            color: #6ee7b7;
-            font-size: .78rem;
-            font-weight: 800;
-            letter-spacing: .13em;
-            text-transform: uppercase;
-        }
-        #view-home .medical-footer-links,
-        #view-home .medical-footer-contact-list {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        #view-home .medical-footer-link,
-        #view-home .medical-footer-contact-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            max-width: 100%;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            color: #a9bbcb;
-            font: inherit;
-            font-size: .9rem;
-            text-align: left;
-            text-decoration: none;
-            overflow-wrap: anywhere;
-            cursor: pointer;
-            transition: color .2s ease, transform .2s ease;
-        }
-        #view-home .medical-footer-link:hover,
-        #view-home .medical-footer-contact-link:hover {
-            color: #ffffff;
-            transform: translateX(3px);
-        }
-        #view-home .medical-footer-link i,
-        #view-home .medical-footer-contact-link i {
-            width: 18px;
-            color: #34d399;
-            text-align: center;
-        }
-        #view-home .medical-footer-bottom {
-            width: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 18px 4px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            border-top: 1px solid rgba(148,163,184,.15);
-            color: #8195a8;
-            font-size: .78rem;
-        }
-        #view-home .medical-footer-bottom-note {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-        #view-home .medical-footer-bottom-note i { color: #34d399; }
-        @media (max-width: 900px) {
-            #view-home .medical-footer-inner {
-                grid-template-columns: minmax(0, 1fr) minmax(170px, .8fr);
-                gap: 34px;
-            }
-            #view-home .medical-footer-brand { grid-column: 1 / -1; }
-        }
-        @media (max-width: 560px) {
-            #view-home > .medical-home-footer { padding: 0 18px 18px; margin-top: 2rem; }
-            #view-home .medical-footer-accent { margin-bottom: 25px; }
-            #view-home .medical-footer-inner {
-                grid-template-columns: minmax(0, 1fr);
-                gap: 27px;
-                padding-bottom: 24px;
-            }
-            #view-home .medical-footer-brand { grid-column: auto; }
-            #view-home .medical-footer-heading { margin-bottom: 14px; }
-            #view-home .medical-footer-bottom { align-items: flex-start; flex-direction: column; }
-        }
-        @media (max-width: 900px) {
-            #contact .contact-reference-grid { grid-template-columns: 1fr 1fr; }
-            #contact .contact-reference-grid textarea { min-height: 130px; }
-            #contact .contact-send-btn { min-height: 58px; }
-        }
-        @media (max-width: 560px) {
-            #contact.medical-contact-section { padding-top: 1.75rem; }
-            #contact .medical-contact-title { margin-bottom: 1.25rem; }
-            #contact .contact-reference-wrap { padding: 10px; border-radius: 20px; }
-            #contact .contact-reference-grid { grid-template-columns: 1fr; gap: 9px; }
-            #contact .contact-reference-grid input { min-height: 56px; }
-            #contact .contact-reference-grid textarea { min-height: 120px; }
-            #contact .contact-social-row { gap: 8px; }
-            #contact .contact-social-card { min-width: 0; flex: 1 1 90px; padding: 10px 12px; font-size: .9rem; }
-            #view-home > footer.site-footer.desktop-canvas { padding-left: 16px; padding-right: 16px; }
-        }
-    </style>
-
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
 
@@ -354,36 +86,6 @@ box-shadow: none;
                     <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
                     </button>
-                    
-
-
-
-<!-- Medical & HSC Info Navbar Button -->
-<button
-    onclick="app.showView('medical-hsc-info')"
-    class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-    type="button">
-    <i class="fa-solid fa-hospital ml-1"></i>
-    Medical &amp; HSC Info
-</button>
-
-<!-- Student Life Support Navbar Button -->
-<button
-    onclick="app.showView('student-life-support')"
-    class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-    type="button">
-    <i class="fa-solid fa-hands-helping ml-1"></i>
-    Student Life Support
-</button>
-
-
-
-
-                    
-                    
-                    <button onclick="app.showView('home'); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 80)" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        <i class="fa-solid fa-envelope ml-1"></i> Contact
-                    </button>
                 </nav>
 <!-- Auth Button Container -->
 <div class="auth-btn-target">
@@ -399,22 +101,6 @@ box-shadow: none;
             </div>
         </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
         <!-- Mobile Drawer Menu -->
         <div id="mobileMenu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 pt-2 pb-4 space-y-1">
             <button onclick="app.showView('home'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -433,9 +119,6 @@ box-shadow: none;
             <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
             </button>
-            <button onclick="app.showView('home'); app.toggleMobileMenu(); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 100)" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fa-solid fa-envelope ml-2"></i> Contact
-            </button>
             
         </div>
     </header>
@@ -444,91 +127,6 @@ box-shadow: none;
 
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        <!-- Medical & HSC Info View -->
-<section id="view-medical-hsc-info" class="view-section hidden p-4">
-    <div class="max-w-5xl mx-auto space-y-6">
-        <header>
-            <h1 class="text-2xl md:text-3xl font-bold">
-                <i class="fa-solid fa-hospital text-emerald-500"></i>
-                Medical &amp; HSC Information
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-300">
-                মেডিকেল ভর্তি, HSC পরীক্ষা, ফলাফল ও প্রয়োজনীয় শিক্ষা-সংক্রান্ত তথ্য।
-            </p>
-        </header>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-bold mb-2">📚 HSC Preparation</h2>
-                <p>HSC syllabus, revision এবং প্রস্তুতির তথ্য।</p>
-            </article>
-
-            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-bold mb-2">🩺 Medical Admission</h2>
-                <p>মেডিকেল ভর্তি যোগ্যতা ও admission circular-এর তথ্য।</p>
-                <a class="text-emerald-500 underline"
-                   href="https://dgme.gov.bd/" target="_blank"
-                   rel="noopener noreferrer">Official DGME Website</a>
-            </article>
-
-            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-bold mb-2">📝 Education Boards</h2>
-                <p>বোর্ড পরীক্ষা ও ফলাফল-সংক্রান্ত তথ্য।</p>
-                <a class="text-emerald-500 underline"
-                   href="https://educationboard.gov.bd/" target="_blank"
-                   rel="noopener noreferrer">Education Board Website</a>
-            </article>
-
-            <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-bold mb-2">📢 Important Notices</h2>
-                <p>ভর্তি ও পরীক্ষার সময়সীমা সংশ্লিষ্ট official notice থেকে যাচাই করুন।</p>
-            </article>
-        </div>
-    </div>
-</section>
-
-<!-- Student Life Support View -->
-<section id="view-student-life-support" class="view-section hidden p-4">
-    <div class="max-w-3xl mx-auto space-y-5">
-        <header>
-            <h1 class="text-2xl md:text-3xl font-bold">
-                <i class="fa-solid fa-hands-helping text-emerald-500"></i>
-                Student Life Support
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-300">
-                পড়াশোনা, পরীক্ষার প্রস্তুতি ও সময় ব্যবস্থাপনায় AI সহায়তা।
-            </p>
-        </header>
-
-        <div class="p-4 md:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div id="sls-chat-messages"
-                 class="space-y-3 mb-4"
-                 aria-live="polite">
-                <p class="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
-                    আসসালামু আলাইকুম! পড়াশোনা বা student life সম্পর্কে কী জানতে চান?
-                </p>
-            </div>
-
-            <form id="sls-chat-form" class="space-y-3">
-                <label for="sls-question" class="block font-medium">
-                    আপনার প্রশ্ন লিখুন
-                </label>
-                <textarea id="sls-question" rows="3" maxlength="3000"
-                    required
-                    class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent"
-                    placeholder="যেমন: HSC পরীক্ষার প্রস্তুতি কীভাবে নেব?"></textarea>
-
-                <button type="submit"
-                    class="px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
-                    <i class="fa-solid fa-paper-plane"></i> Send
-                </button>
-            </form>
-        </div>
-    </div>
-</section>
-
-
 
         <!-- VIEW 1: HOME / DASHBOARD -->
         <section id="view-home" class="view-section space-y-8">
@@ -558,10 +156,6 @@ box-shadow: none;
                 </div>
             </div>
 
-
-
-
-            
             <!-- Quick Stats Row -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
@@ -702,80 +296,6 @@ box-shadow: none;
                 <i class="fa-solid fa-chevron-left profile-shortcut-arrow"></i>
             </button>
         </div>
-
-            <!-- CONTACT: visible only while the Home view is active -->
-            <section id="contact" class="medical-contact-section" aria-labelledby="medical-contact-heading">
-                <div class="medical-contact-title">
-                    <h2 id="medical-contact-heading">Get in <span>Touch</span></h2>
-                    <div class="medical-contact-underline"></div>
-                </div>
-                <div class="contact-reference-wrap">
-                    <form id="medical-contact-form">
-                        <div class="contact-reference-grid">
-                            <input type="text" id="medical-contact-name" name="name" required maxlength="120" placeholder="Your Name" aria-label="Your Name" autocomplete="name">
-                            <input type="email" id="medical-contact-email" name="email" required maxlength="254" placeholder="Your Email" aria-label="Your Email" autocomplete="email">
-                            <textarea id="medical-contact-message" name="message" required maxlength="5000" placeholder="How can I help you?" aria-label="Message"></textarea>
-                            <button type="submit" id="medical-contact-submit" class="contact-send-btn">
-                                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Push Execute</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="contact-social-row" aria-label="Contact links">
-                    <a href="mailto:mdrakibasfyia@gmail.com" class="contact-social-card" aria-label="Gmail">
-                        <i class="fa-solid fa-envelope" aria-hidden="true"></i><span>Gmail</span>
-                    </a>
-                    <a href="https://www.facebook.com/profile.php?id=61579557960701" class="contact-social-card" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                        <i class="fa-brands fa-facebook-f" aria-hidden="true"></i><span>Facebook</span>
-                    </a>
-                    <a href="https://github.com/serakib" class="contact-social-card" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                        <i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span>
-                    </a>
-                </div>
-            </section>
-
-            <!-- NEW FOOTER: Home view only -->
-            <footer class="medical-home-footer" aria-label="Medical Admission Tester footer">
-                <div class="medical-footer-accent" aria-hidden="true"></div>
-                <div class="medical-footer-inner">
-                    <div class="medical-footer-brand">
-                        <div class="medical-footer-brand-mark">
-                            <span class="medical-footer-logo-icon" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
-                            <span>মেডিকেল ভর্তি পরীক্ষা</span>
-                        </div>
-                        <p class="medical-footer-description">
-                            মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি, প্রশ্ন অনুশীলন ও নিজের অগ্রগতি যাচাই—সবকিছু এক জায়গায়। নিয়মিত অনুশীলন করুন, আত্মবিশ্বাসের সঙ্গে এগিয়ে যান।
-                        </p>
-                        <div class="medical-footer-credit"><span>পরিকল্পনা ও নির্মাণে</span><strong>MD. Rakib Hasan</strong></div>
-                    </div>
-
-                    <div class="medical-footer-navigation">
-                        <h3 class="medical-footer-heading">Quick Navigation</h3>
-                        <div class="medical-footer-links">
-                            <button type="button" class="medical-footer-link" onclick="app.showView('home'); window.scrollTo({top:0,behavior:'smooth'});"><i class="fa-solid fa-house" aria-hidden="true"></i><span>হোম</span></button>
-                            <button type="button" class="medical-footer-link" onclick="app.openQuestionBank('view')"><i class="fa-solid fa-book-medical" aria-hidden="true"></i><span>প্রশ্ন ব্যাংক</span></button>
-                            <button type="button" class="medical-footer-link" onclick="app.openQuestionBank('practice')"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
-                            <button type="button" class="medical-footer-link" onclick="app.setupExamQuick('model')"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>মডেল টেস্ট</span></button>
-                            <button type="button" class="medical-footer-link" onclick="app.showPreviousYears()"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>বিগত বছরের প্রশ্ন</span></button>
-                        </div>
-                    </div>
-
-                    <div class="medical-footer-contact">
-                        <h3 class="medical-footer-heading">Get in Touch</h3>
-                        <div class="medical-footer-contact-list">
-                            <a class="medical-footer-contact-link" href="mailto:mdrakibasfyia@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>mdrakibasfyia@gmail.com</span></a>
-                            <a class="medical-footer-contact-link" href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i><span>Facebook</span></a>
-                            <a class="medical-footer-contact-link" href="https://github.com/serakib" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span></a>
-                            <button type="button" class="medical-footer-link" onclick="var c=document.getElementById('contact'); if(c){c.scrollIntoView({behavior:'smooth',block:'start'});}"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Contact Form</span></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="medical-footer-bottom">
-                    <span>© 2026 MD. Rakib Hasan. সর্বস্বত্ব সংরক্ষিত।</span>
-                    <span class="medical-footer-bottom-note"><i class="fa-solid fa-heart" aria-hidden="true"></i> <span>শেখা, অনুশীলন ও উন্নতির পথে</span></span>
-                </div>
-            </footer>
-
         </section>
 
         <!-- VIEW: QUESTION BANK -->
@@ -1273,8 +793,7 @@ box-shadow: none;
                 </div>
             </div>
         </section>
-
-   
+       
 
 </main>
 
@@ -1315,62 +834,32 @@ box-shadow: none;
   </svg>
 </button>
 
-
    
-<script id="medical-contact-form-handler">
-(function () {
-    const endpoint = 'https://script.google.com/macros/s/AKfycbxsSQIqoWW1w7tDGGlzYPCYWawC-vrLq7kiXBmt-bDAM_wlLsP5u13Ra8t5eKOUk065BA/exec';
-    function initMedicalContactForm() {
-        const form = document.getElementById('medical-contact-form');
-        if (!form || form.dataset.handlerReady === '1') return;
-        form.dataset.handlerReady = '1';
-        form.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const button = document.getElementById('medical-contact-submit');
-            if (!button) return;
-            const originalHTML = button.innerHTML;
-            button.disabled = true;
-            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>Sending...</span>';
-            const formData = {
-                name: document.getElementById('medical-contact-name').value.trim(),
-                email: document.getElementById('medical-contact-email').value.trim(),
-                message: document.getElementById('medical-contact-message').value.trim()
-            };
-            try {
-                await fetch(endpoint, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(formData)
-                });
-                alert('Thank you! Your message has been submitted.');
-                form.reset();
-            } catch (error) {
-                alert('Something went wrong. Please try again later.');
-            } finally {
-                button.disabled = false;
-                button.innerHTML = originalHTML;
-            }
-        });
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMedicalContactForm, { once: true });
-    } else {
-        initMedicalContactForm();
-    }
-})();
-</script>
 
+    <footer class="site-footer desktop-canvas">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-brand-title"><span class="footer-dot"></span><span id="footer-name"></span></div>
+                <p>Student developer building small web projects and learning something new every day.</p>
+                <div class="footer-built">Built by <strong id="footer-built-name"></strong></div>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="#home">Home</a><a href="#question-bank">Question Bank</a><a href="#practice">Practice</a><a href="#model-test">Model Test</a><a href="#previous-year">Previous Year</a><a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a><a href="#syllabus">Syllabus</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <a href="mailto:rakibhasandcg27@gmail.com"><i class="fa-solid fa-envelope"></i> rakibhasandcg27@gmail.com</a>
+                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>
+                <a href="https://github.com/serakib" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 <span id="footer-bottom-name"></span> — All Rights Reserved.</span>
+            <div class="footer-legal"><button onclick="openModal('privacyModal')">Privacy Policy</button><button onclick="openModal('termsModal')">Terms of Service</button><button onclick="openModal('cookieModal')">Cookie Policy</button></div>
+        </div>
+    </footer>
 
-
-
-<!-- Must be a classic script, before app modules: exposes `app` to legacy inline onclick handlers. -->
-<script src="./js/app-global-fix.js"></script>
-
-<script type="module" src="./js/app-views-fix.js"></script>
-
-  
-
-    <script type="module" src="script.js"></script>
+   <script type="module" src="script.js"></script>
 </body>
 </html>
