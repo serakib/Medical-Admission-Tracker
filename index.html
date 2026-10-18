@@ -50,6 +50,291 @@
 
     <link rel="stylesheet" href="./style.css">
 
+
+    <!-- Home-only Contact section styling (inspired by the portfolio Contact UI) -->
+    <style id="medical-contact-styles">
+        #contact.medical-contact-section {
+            max-width: 100%;
+            padding: 2.75rem 0 1.25rem;
+            scroll-margin-top: 88px;
+        }
+        #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
+        #contact .medical-contact-title h2 {
+            margin: 0;
+            color: #111827;
+            font-size: clamp(1.7rem, 3vw, 2.35rem);
+            font-weight: 800;
+            line-height: 1.25;
+        }
+        #contact .medical-contact-title h2 span {
+            background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #contact .medical-contact-underline {
+            width: 4rem; height: 4px; margin: 1rem auto 0; border-radius: 99px;
+            background: linear-gradient(90deg, #059669, #0284c7);
+        }
+        #contact .contact-reference-wrap {
+           border: 0;
+background: transparent;
+box-shadow: none;
+        }
+        #contact .contact-reference-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1.45fr .9fr;
+            align-items: center; gap: 10px;
+        }
+        #contact .contact-reference-grid input,
+        #contact .contact-reference-grid textarea {
+            display: block; width: 100%; min-width: 0; box-sizing: border-box;
+            border: 1px solid rgba(5,150,105,.28); border-radius: 20px;
+            background: rgba(255,255,255,.94); color: #172033;
+            padding: 18px 20px; font: inherit; font-size: .95rem;
+            outline: none; transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        #contact .contact-reference-grid input { min-height: 78px; }
+        #contact .contact-reference-grid textarea { min-height: 150px; resize: vertical; }
+        #contact .contact-reference-grid input::placeholder,
+        #contact .contact-reference-grid textarea::placeholder { color: #7b8798; opacity: 1; }
+        #contact .contact-reference-grid input:focus,
+        #contact .contact-reference-grid textarea:focus {
+            border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+        }
+        #contact .contact-send-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; min-height: 76px; padding: 16px; border: 0; border-radius: 999px;
+            color: #fff; font-weight: 800; cursor: pointer;
+            background: linear-gradient(135deg, #059669, #0284c7);
+            box-shadow: 0 10px 24px rgba(5,150,105,.18); transition: transform .2s ease, box-shadow .2s ease;
+        }
+        #contact .contact-send-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(5,150,105,.24); }
+        #contact .contact-send-btn:disabled { opacity: .7; cursor: wait; transform: none; }
+        #contact .contact-social-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px auto 0; }
+        #contact .contact-social-card {
+            display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+            min-width: 130px; padding: 12px 20px; border-radius: 999px;
+            border: 1px solid rgba(5,150,105,.24); background: rgba(255,255,255,.62);
+            color: #334155; text-decoration: none; font-weight: 600;
+            box-shadow: 0 8px 24px rgba(15,23,42,.05); transition: .22s ease;
+        }
+        #contact .contact-social-card i { color: #059669; }
+        #contact .contact-social-card:hover {
+            transform: translateY(-3px); border-color: rgba(2,132,199,.5);
+            color: #0369a1; box-shadow: 0 10px 26px rgba(2,132,199,.12);
+        }
+        /* In dark mode, retain the portfolio's dark glass contact treatment. */
+        html.dark #contact .medical-contact-title h2,
+        body.dark #contact .medical-contact-title h2 { color: #f8fafc; }
+        html.dark #contact .contact-reference-wrap,
+        body.dark #contact .contact-reference-wrap {
+            background: transparent;
+    border: 0;
+    box-shadow: none;
+        }
+        html.dark #contact .contact-reference-grid input,
+        html.dark #contact .contact-reference-grid textarea,
+        body.dark #contact .contact-reference-grid input,
+        body.dark #contact .contact-reference-grid textarea {
+            background: rgba(17,24,39,.82); color: #f8fafc; border-color: rgba(16,185,129,.32);
+        }
+        html.dark #contact .contact-reference-grid input::placeholder,
+        html.dark #contact .contact-reference-grid textarea::placeholder,
+        body.dark #contact .contact-reference-grid input::placeholder,
+        body.dark #contact .contact-reference-grid textarea::placeholder { color: #9ca3af; }
+        html.dark #contact .contact-social-card,
+        body.dark #contact .contact-social-card {
+            background: rgba(17,24,39,.72); color: #d1d5db; border-color: rgba(16,185,129,.22);
+        }
+        /* Fresh, Home-only medical footer (replaces the previous portfolio footer). */
+        #view-home > .medical-home-footer {
+            position: relative;
+            width: 100vw;
+            max-width: 100vw;
+            box-sizing: border-box;
+            margin-top: 3rem;
+            margin-left: calc((100% - 100vw) / 2);
+            padding: 0 24px 20px;
+            overflow: hidden;
+            color: #dbe7f2;
+            background:
+                radial-gradient(circle at 8% 0%, rgba(16,185,129,.15), transparent 32%),
+                radial-gradient(circle at 92% 20%, rgba(14,165,233,.13), transparent 30%),
+                linear-gradient(135deg, #071d22 0%, #0b1b2c 58%, #091827 100%);
+            border-top: 1px solid rgba(16,185,129,.28);
+            box-shadow: 0 -18px 45px rgba(15,23,42,.07);
+        }
+        #view-home .medical-footer-accent {
+            height: 3px;
+            width: 100%;
+            margin-bottom: 34px;
+            background: linear-gradient(90deg, #10b981 0%, #06b6d4 52%, #0ea5e9 100%);
+            box-shadow: 0 0 18px rgba(16,185,129,.24);
+        }
+        #view-home .medical-footer-inner {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(170px, .75fr) minmax(220px, .9fr);
+            gap: 48px;
+            padding: 0 4px 30px;
+        }
+        #view-home .medical-footer-brand-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #f8fafc;
+            font-weight: 800;
+            font-size: 1.12rem;
+            letter-spacing: -.01em;
+        }
+        #view-home .medical-footer-logo-icon {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(52,211,153,.34);
+            border-radius: 14px;
+            color: #6ee7b7;
+            background: rgba(16,185,129,.12);
+            box-shadow: inset 0 0 18px rgba(16,185,129,.06);
+        }
+        #view-home .medical-footer-description {
+            max-width: 440px;
+            margin: 16px 0 17px;
+            color: #9eb1c4;
+            font-size: .91rem;
+            line-height: 1.85;
+        }
+        #view-home .medical-footer-credit {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            color: #8ea5b8;
+            font-size: .82rem;
+        }
+        #view-home .medical-footer-credit strong { color: #6ee7b7; font-weight: 700; }
+        #view-home .medical-footer-heading {
+            margin: 5px 0 19px;
+            color: #6ee7b7;
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+        #view-home .medical-footer-links,
+        #view-home .medical-footer-contact-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        #view-home .medical-footer-link,
+        #view-home .medical-footer-contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: #a9bbcb;
+            font: inherit;
+            font-size: .9rem;
+            text-align: left;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+            cursor: pointer;
+            transition: color .2s ease, transform .2s ease;
+        }
+        #view-home .medical-footer-link:hover,
+        #view-home .medical-footer-contact-link:hover {
+            color: #ffffff;
+            transform: translateX(3px);
+        }
+        #view-home .medical-footer-link i,
+        #view-home .medical-footer-contact-link i {
+            width: 18px;
+            color: #34d399;
+            text-align: center;
+        }
+        #view-home .medical-footer-bottom {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 18px 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            border-top: 1px solid rgba(148,163,184,.15);
+            color: #8195a8;
+            font-size: .78rem;
+        }
+        #view-home .medical-footer-bottom-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+        #view-home .medical-footer-bottom-note i { color: #34d399; }
+        @media (max-width: 900px) {
+            #view-home .medical-footer-inner {
+                grid-template-columns: minmax(0, 1fr) minmax(170px, .8fr);
+                gap: 34px;
+            }
+            #view-home .medical-footer-brand { grid-column: 1 / -1; }
+        }
+        @media (max-width: 560px) {
+            #view-home > .medical-home-footer { padding: 0 18px 18px; margin-top: 2rem; }
+            #view-home .medical-footer-accent { margin-bottom: 25px; }
+            #view-home .medical-footer-inner {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 27px;
+                padding-bottom: 24px;
+            }
+            #view-home .medical-footer-brand { grid-column: auto; }
+            #view-home .medical-footer-heading { margin-bottom: 14px; }
+            #view-home .medical-footer-bottom { align-items: flex-start; flex-direction: column; }
+        }
+        @media (max-width: 900px) {
+            #contact .contact-reference-grid { grid-template-columns: 1fr 1fr; }
+            #contact .contact-reference-grid textarea { min-height: 130px; }
+            #contact .contact-send-btn { min-height: 58px; }
+        }
+        @media (max-width: 560px) {
+            #contact.medical-contact-section { padding-top: 1.75rem; }
+            #contact .medical-contact-title { margin-bottom: 1.25rem; }
+            #contact .contact-reference-wrap { padding: 10px; border-radius: 20px; }
+            #contact .contact-reference-grid { grid-template-columns: 1fr; gap: 9px; }
+            #contact .contact-reference-grid input { min-height: 56px; }
+            #contact .contact-reference-grid textarea { min-height: 120px; }
+            #contact .contact-social-row { gap: 8px; }
+            #contact .contact-social-card { min-width: 0; flex: 1 1 90px; padding: 10px 12px; font-size: .9rem; }
+            #view-home > footer.site-footer.desktop-canvas { padding-left: 16px; padding-right: 16px; }
+        }
+    </style>
+
+
+<style id="medical-tracker-feature-styles">
+  #view-medical-hsc-info, #view-student-life-support { width:100%; min-width:0; }
+  #view-medical-hsc-info a, #view-student-life-support button { -webkit-tap-highlight-color:transparent; }
+  #view-medical-hsc-info article { min-width:0; }
+  .sls-message { max-width: min(90%, 760px); border-radius: 16px; padding: 12px 14px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; font-size: 14px; }
+  .sls-assistant-message { margin-right:auto; color:#1f2937; background:#f1f5f9; border-bottom-left-radius:5px; }
+  .sls-user-message { margin-left:auto; color:#fff; background:#059669; border-bottom-right-radius:5px; }
+  html.dark .sls-assistant-message, body.dark .sls-assistant-message { color:#e5e7eb; background:#1f2937; }
+  .sls-message-label { display:block; margin-bottom:4px; opacity:.7; font-size:11px; font-weight:800; letter-spacing:.02em; }
+  .sls-prompt { border:1px solid rgba(5,150,105,.35); color:#047857; background:rgba(16,185,129,.06); border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; transition:background .18s,border-color .18s; }
+  .sls-prompt:hover { background:rgba(16,185,129,.14); border-color:#059669; }
+  html.dark .sls-prompt, body.dark .sls-prompt { color:#a7f3d0; background:rgba(16,185,129,.08); border-color:rgba(52,211,153,.28); }
+  .sls-prompt:focus-visible, #sls-clear:focus-visible, #sls-send:focus-visible { outline:3px solid rgba(16,185,129,.45); outline-offset:2px; }
+  @media(max-width:480px) { .sls-message { max-width:96%; font-size:13px; } #view-student-life-support #sls-send { padding:11px 12px; } }
+</style>
+
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
 
@@ -58,7 +343,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo & Title -->
-                <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="app.showView('home')">
+                <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="window.app.showView('home')">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-medical-600 to-accent-500 flex items-center justify-center text-white shadow-md">
                         <i class="fa-solid fa-stethoscope text-xl"></i>
                     </div>
@@ -70,26 +355,44 @@
 
                 <!-- Desktop Navigation Links -->
                 <nav class="hidden md:flex items-center space-x-1 space-x-reverse">
-                    <button onclick="app.showView('home')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <button onclick="window.app.showView('home')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-house ml-1"></i> হোম
                     </button>
-                    <button onclick="app.openQuestionBank('view')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-book-medical ml-1"></i> প্রশ্ন ব্যাংক</button>
-                    <button onclick="app.openQuestionBank('practice')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-bullseye ml-1"></i> প্র্যাকটিস</button>
-                    <button onclick="app.setupExamQuick('model')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <button onclick="window.app.openQuestionBank('view')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-book-medical ml-1"></i> প্রশ্ন ব্যাংক</button>
+                    <button onclick="window.app.openQuestionBank('practice')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-bullseye ml-1"></i> প্র্যাকটিস</button>
+                    <button onclick="window.app.setupExamQuick('model')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-clipboard-check ml-1"></i> মডেল টেস্ট
                     </button>
-                    <button onclick="app.setupExamQuick('previous')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <button onclick="window.app.setupExamQuick('previous')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-clock-rotate-left ml-1"></i> বিগত বছর
                     </button>
-                    <button onclick="app.showView('leaderboard'); app.loadLeaderboard()" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-trophy ml-1"></i> Leaderboard</button>
-                    <button onclick="app.openProfile()" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-user-circle ml-1"></i> Profile</button>
-                    <button onclick="app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <button onclick="window.app.showView('leaderboard'); window.app.loadLeaderboard()" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-trophy ml-1"></i> Leaderboard</button>
+                    <button onclick="window.app.openProfile()" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"><i class="fa-solid fa-user-circle ml-1"></i> Profile</button>
+                    <button onclick="window.app.showView('syllabus')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                         <i class="fa-solid fa-book-open ml-1"></i> সিলেবাস
+                    </button>
+                    
+
+
+
+<!-- Medical & HSC Info Navbar Button -->
+<button data-feature-view="medical-hsc-info" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition" type="button" aria-controls="view-medical-hsc-info"><i class="fa-solid fa-hospital ml-1"></i> Medical &amp; HSC Info</button>
+
+<!-- Student Life Support Navbar Button -->
+<button data-feature-view="student-life-support" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition" type="button" aria-controls="view-student-life-support"><i class="fa-solid fa-hands-helping ml-1"></i> Student Life Support</button>
+
+
+
+
+                    
+                    
+                    <button onclick="window.app.showView('home'); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 80)" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-envelope ml-1"></i> Contact
                     </button>
                 </nav>
 <!-- Auth Button Container -->
 <div class="auth-btn-target">
-  <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+  <button onclick="window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
     </svg>
@@ -101,23 +404,37 @@
             </div>
         </div>
 
+
+
+
+
+
+
+
+        <!-- New feature pages are placed inside <main> below. -->
+
         <!-- Mobile Drawer Menu -->
         <div id="mobileMenu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 pt-2 pb-4 space-y-1">
-            <button onclick="app.showView('home'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button onclick="window.app.showView('home'); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-house ml-2"></i> হোম
             </button>
-            <button onclick="app.openQuestionBank('view'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-book-medical ml-2"></i> প্রশ্ন ব্যাংক</button>
-            <button onclick="app.openQuestionBank('practice'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-bullseye ml-2"></i> প্র্যাকটিস</button>
-            <button onclick="app.setupExamQuick('model'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button onclick="window.app.openQuestionBank('view'); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-book-medical ml-2"></i> প্রশ্ন ব্যাংক</button>
+            <button onclick="window.app.openQuestionBank('practice'); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-bullseye ml-2"></i> প্র্যাকটিস</button>
+            <button onclick="window.app.setupExamQuick('model'); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-clipboard-check ml-2"></i> মডেল টেস্ট
             </button>
-            <button onclick="app.showPreviousYears(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button onclick="window.app.showPreviousYears(); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-clock-rotate-left ml-2"></i> বিগত বছরের প্রশ্ন
             </button>
-            <button onclick="app.showView('leaderboard'); app.loadLeaderboard(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-trophy ml-2"></i> Leaderboard</button>
-            <button onclick="app.openProfile(); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-user-circle ml-2"></i> Profile</button>
-            <button onclick="app.showView('syllabus'); app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button onclick="window.app.showView('leaderboard'); window.app.loadLeaderboard(); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-trophy ml-2"></i> Leaderboard</button>
+            <button onclick="window.app.openProfile(); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fa-solid fa-user-circle ml-2"></i> Profile</button>
+            <button onclick="window.app.showView('syllabus'); window.app.toggleMobileMenu();" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fa-solid fa-book-open ml-2"></i> মান বণ্টন ও নিয়মাবলী
+            </button>
+            <button data-feature-view="medical-hsc-info" type="button" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700" aria-controls="view-medical-hsc-info"><i class="fa-solid fa-hospital ml-2"></i> Medical &amp; HSC Info</button>
+            <button data-feature-view="student-life-support" type="button" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700" aria-controls="view-student-life-support"><i class="fa-solid fa-hands-helping ml-2"></i> Student Life Support</button>
+            <button onclick="window.app.showView('home'); window.app.toggleMobileMenu(); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 100)" class="w-full text-right px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-envelope ml-2"></i> Contact
             </button>
             
         </div>
@@ -127,6 +444,115 @@
 
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+<!-- Medical & HSC Info View: kept inside <main> so the app view switcher can display it. -->
+<section id="view-medical-hsc-info" class="view-section hidden p-2 sm:p-4" aria-labelledby="medical-info-title" aria-hidden="true">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 via-teal-700 to-sky-800 p-6 sm:p-9 text-white shadow-xl">
+      <div class="absolute -right-4 -top-7 text-white/10 text-9xl pointer-events-none"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="relative max-w-3xl">
+        <span class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/20 px-3 py-1 text-xs font-bold tracking-wide"><i class="fa-solid fa-book-medical"></i> STUDENT RESOURCE HUB</span>
+        <h2 id="medical-info-title" class="mt-4 text-2xl sm:text-4xl font-extrabold leading-tight">Medical &amp; HSC Information</h2>
+        <p class="mt-3 max-w-2xl text-sm sm:text-base leading-7 text-emerald-50">HSC প্রস্তুতি, পাঠ্যবই, বোর্ডের তথ্য এবং মেডিকেল ভর্তি-সংক্রান্ত official source—এক জায়গায়। ভর্তি-তারিখ বা যোগ্যতার মতো পরিবর্তনশীল তথ্য সর্বশেষ সরকারি বিজ্ঞপ্তি থেকে যাচাই করুন।</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <article class="rounded-2xl border border-emerald-200 dark:border-emerald-900/70 bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 grid place-items-center text-xl"><i class="fa-solid fa-book-open"></i></div>
+        <h3 class="mt-4 font-extrabold text-lg">HSC Books &amp; Syllabus</h3>
+        <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300 flex-1">বোর্ডের বই, syllabus এবং chapter অনুযায়ী পড়ার উপকরণ খুঁজুন।</p>
+        <a class="mt-4 inline-flex items-center justify-between gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-3 text-sm font-bold text-white" href="https://nctb.gov.bd/pages/ebooks" target="_blank" rel="noopener noreferrer">NCTB e-Books <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </article>
+      <article class="rounded-2xl border border-sky-200 dark:border-sky-900/70 bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
+        <div class="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 grid place-items-center text-xl"><i class="fa-solid fa-stethoscope"></i></div>
+        <h3 class="mt-4 font-extrabold text-lg">Medical Admission</h3>
+        <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300 flex-1">ভর্তি বিজ্ঞপ্তি, যোগ্যতা, আবেদন ও ফলাফল সম্পর্কিত official তথ্য যাচাই করুন।</p>
+        <a class="mt-4 inline-flex items-center justify-between gap-2 rounded-xl bg-sky-600 hover:bg-sky-700 px-4 py-3 text-sm font-bold text-white" href="https://portal.dgme.gov.bd/public" target="_blank" rel="noopener noreferrer">DGME Portal <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </article>
+      <article class="rounded-2xl border border-violet-200 dark:border-violet-900/70 bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
+        <div class="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 grid place-items-center text-xl"><i class="fa-solid fa-building-columns"></i></div>
+        <h3 class="mt-4 font-extrabold text-lg">Education Boards</h3>
+        <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300 flex-1">বোর্ড-সম্পর্কিত নোটিশ ও শিক্ষা-সংক্রান্ত তথ্য সরকারি উৎসে দেখুন।</p>
+        <a class="mt-4 inline-flex items-center justify-between gap-2 rounded-xl bg-violet-600 hover:bg-violet-700 px-4 py-3 text-sm font-bold text-white" href="https://educationboard.gov.bd/" target="_blank" rel="noopener noreferrer">Board Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </article>
+      <article class="rounded-2xl border border-amber-200 dark:border-amber-900/70 bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 grid place-items-center text-xl"><i class="fa-solid fa-bell"></i></div>
+        <h3 class="mt-4 font-extrabold text-lg">Official Notices</h3>
+        <p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300 flex-1">সার্কুলার, আবেদনের সময়সীমা ও পরীক্ষার নিয়ম অনুমান না করে মূল বিজ্ঞপ্তি থেকে পড়ুন।</p>
+        <a class="mt-4 inline-flex items-center justify-between gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3 text-sm font-bold text-white" href="https://dgme.gov.bd/" target="_blank" rel="noopener noreferrer">DGME Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </article>
+    </div>
+
+    <section class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 sm:p-7 shadow-sm" aria-labelledby="hsc-plan-title">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 shrink-0 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 grid place-items-center text-lg"><i class="fa-solid fa-list-check"></i></div>
+        <div><h3 id="hsc-plan-title" class="text-xl font-extrabold">HSC + Medical প্রস্তুতির ছোট Checklist</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">প্রতিদিনের কাজ সাজানোর জন্য—নিজের syllabus ও সময় অনুযায়ী বদলে নিন।</p></div>
+      </div>
+      <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label class="flex gap-3 items-start rounded-xl bg-gray-50 dark:bg-gray-900/60 p-4"><input class="mt-1 accent-emerald-600" type="checkbox"><span><strong class="block">১. Concept বুঝে পড়া</strong><span class="text-sm text-gray-600 dark:text-gray-300">Biology, Chemistry ও Physics-এর একটি নির্দিষ্ট topic বুঝে নিন।</span></span></label>
+        <label class="flex gap-3 items-start rounded-xl bg-gray-50 dark:bg-gray-900/60 p-4"><input class="mt-1 accent-emerald-600" type="checkbox"><span><strong class="block">২. Active recall</strong><span class="text-sm text-gray-600 dark:text-gray-300">বই বন্ধ করে গুরুত্বপূর্ণ তথ্য নিজেকে প্রশ্ন করুন।</span></span></label>
+        <label class="flex gap-3 items-start rounded-xl bg-gray-50 dark:bg-gray-900/60 p-4"><input class="mt-1 accent-emerald-600" type="checkbox"><span><strong class="block">৩. MCQ practice</strong><span class="text-sm text-gray-600 dark:text-gray-300">প্রশ্ন সমাধানের পর ভুলের কারণ ও সঠিক concept লিখুন।</span></span></label>
+        <label class="flex gap-3 items-start rounded-xl bg-gray-50 dark:bg-gray-900/60 p-4"><input class="mt-1 accent-emerald-600" type="checkbox"><span><strong class="block">৪. Weekly revision</strong><span class="text-sm text-gray-600 dark:text-gray-300">সপ্তাহের ভুল প্রশ্নগুলো পুনরায় সমাধান করুন ও বিশ্রামের সময় রাখুন।</span></span></label>
+      </div>
+      <p class="mt-4 text-xs leading-5 text-gray-500 dark:text-gray-400"><i class="fa-solid fa-circle-info mr-1"></i> এই পেজ একটি resource hub; এখানে live admission date বা eligibility স্বয়ংক্রিয়ভাবে যাচাই হয় না। সিদ্ধান্ত নেওয়ার আগে official notice মিলিয়ে নিন।</p>
+    </section>
+  </div>
+</section>
+
+<!-- Student Life Support View -->
+<section id="view-student-life-support" class="view-section hidden p-2 sm:p-4" aria-labelledby="student-life-title" aria-hidden="true">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-800 p-6 sm:p-8 text-white shadow-xl">
+      <div class="relative z-10 max-w-2xl">
+        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs font-bold"><i class="fa-solid fa-hands-helping"></i> STUDENT LIFE SUPPORT</span>
+        <h2 id="student-life-title" class="mt-4 text-2xl sm:text-4xl font-extrabold">পড়াশোনা ও Student Life Guide</h2>
+        <p class="mt-3 text-sm sm:text-base leading-7 text-teal-50">পড়ার রুটিন, পরীক্ষার চাপ, মনোযোগ, সময় ব্যবস্থাপনা বা ভবিষ্যৎ পরিকল্পনা নিয়ে বাংলায় বা Banglish-এ প্রশ্ন করুন।</p>
+      </div>
+      <div class="absolute -right-4 -bottom-8 text-white/10 text-9xl pointer-events-none"><i class="fa-solid fa-compass"></i></div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"><i class="fa-solid fa-calendar-check text-emerald-600 text-xl"></i><h3 class="mt-2 font-bold">Study plan</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">বাস্তবসম্মত দৈনিক ও সাপ্তাহিক routine</p></div>
+      <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"><i class="fa-solid fa-brain text-sky-600 text-xl"></i><h3 class="mt-2 font-bold">Focus &amp; revision</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">মনে রাখা, practice ও ভুল বিশ্লেষণ</p></div>
+      <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"><i class="fa-solid fa-route text-violet-600 text-xl"></i><h3 class="mt-2 font-bold">Next steps</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">বিষয়, career ও admission-এর পরিকল্পনা</p></div>
+    </div>
+
+    <section class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm" aria-label="Student Support AI chat">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-5">
+        <div class="flex items-center gap-3">
+          <div class="grid place-items-center w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xl"><i class="fa-solid fa-comments"></i></div>
+          <div><h3 class="font-extrabold text-lg">Student Support AI</h3><p class="text-xs text-gray-500 dark:text-gray-400">বাংলা / Banglish · practical study support</p></div>
+        </div>
+        <button id="sls-clear" type="button" class="rounded-xl border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700"><i class="fa-solid fa-rotate-left mr-1"></i> নতুন করে শুরু</button>
+      </div>
+
+      <div id="sls-chat-messages" class="sls-chat-messages space-y-3 p-4 sm:p-5 max-h-[430px] overflow-y-auto" aria-live="polite" aria-relevant="additions text" aria-label="AI conversation">
+        <div class="sls-message sls-assistant-message"><span class="sls-message-label">Student Guide</span><p>আসসালামু আলাইকুম! 😊 আপনার কোন বিষয়ে সহায়তা দরকার—পড়ার routine, revision, exam pressure, নাকি career planning?</p></div>
+      </div>
+
+      <div class="px-4 sm:px-5 pb-4 flex flex-wrap gap-2" aria-label="Suggested questions">
+        <button type="button" class="sls-prompt" data-sls-prompt="HSC-এর পড়া ও মেডিকেল প্রস্তুতি একসঙ্গে চালানোর একটি realistic weekly routine বানিয়ে দাও।">📅 Study routine</button>
+        <button type="button" class="sls-prompt" data-sls-prompt="আমি পড়তে বসলে মনোযোগ ধরে রাখতে পারি না। ছোট ছোট বাস্তবসম্মত পদক্ষেপ বলো।">🎯 মনোযোগ</button>
+        <button type="button" class="sls-prompt" data-sls-prompt="MCQ-তে ভুল কমাতে কীভাবে practice ও ভুলের খাতা তৈরি করব?">📝 MCQ practice</button>
+        <button type="button" class="sls-prompt" data-sls-prompt="পরীক্ষা নিয়ে চাপ লাগছে। পড়াশোনা আর বিশ্রামের balance কীভাবে করব?">🌿 Exam pressure</button>
+      </div>
+
+      <form id="sls-chat-form" class="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-5 space-y-3">
+        <label for="sls-question" class="block text-sm font-bold">আপনার প্রশ্ন</label>
+        <div class="flex items-end gap-2 sm:gap-3">
+          <textarea id="sls-question" rows="2" maxlength="3000" required class="min-w-0 flex-1 resize-y rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" placeholder="এখানে লিখুন… (Enter পাঠাবে, Shift+Enter নতুন লাইন)"></textarea>
+          <button id="userPrompt" type="submit" onclick="askAI()" class="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 sm:px-5 py-3 font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-paper-plane"></i><span>পাঠান</span></button>
+        </div>
+        <p class="text-xs leading-5 text-gray-500 dark:text-gray-400">আপনার প্রশ্ন AI service-এ পাঠানো হবে। password, ফোন নম্বর, ঠিকানা বা অন্য গোপন তথ্য লিখবেন না। এই chat browser-এ স্থায়ীভাবে সংরক্ষণ হয় না।</p>
+        <p id="sls-status" class="text-xs text-gray-500 dark:text-gray-400" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <p class="text-xs text-gray-500 dark:text-gray-400 leading-5"><i class="fa-solid fa-circle-info mr-1"></i> AI ভুল তথ্য দিতে পারে; ভর্তি-সংক্রান্ত তারিখ বা নিয়ম official notice থেকে যাচাই করুন। গুরুতর ব্যক্তিগত সমস্যায় বিশ্বস্ত অভিভাবক/শিক্ষক বা উপযুক্ত পেশাদারের সঙ্গে কথা বলুন।</p>
+  </div>
+</section>
+
+
 
         <!-- VIEW 1: HOME / DASHBOARD -->
         <section id="view-home" class="view-section space-y-8">
@@ -146,16 +572,20 @@
                         জীববিজ্ঞান, রসায়ন, পদার্থবিজ্ঞান, ইংরেজি এবং সাধারণ জ্ঞানের মানসম্মত প্রশ্ন ও রিয়েল-টাইম নেগেটিভ মার্কিং সহ Unlimited মডেল টেস্ট দিন।
                     </p>
                     <div class="pt-2 flex flex-wrap gap-3">
-                        <button onclick="app.openSetupView()" class="px-6 py-3 rounded-xl bg-white text-medical-800 font-bold hover:bg-medical-50 transition shadow-lg flex items-center">
+                        <button onclick="window.app.openSetupView()" class="px-6 py-3 rounded-xl bg-white text-medical-800 font-bold hover:bg-medical-50 transition shadow-lg flex items-center">
                             <i class="fa-solid fa-play ml-2 text-medical-600"></i> পরীক্ষা শুরু করুন
                         </button>
-                        <button onclick="app.setupExamQuick('previous')" class="px-5 py-3 rounded-xl bg-medical-900/50 hover:bg-medical-900/80 text-white font-medium border border-white/20 transition flex items-center">
+                        <button onclick="window.app.setupExamQuick('previous')" class="px-5 py-3 rounded-xl bg-medical-900/50 hover:bg-medical-900/80 text-white font-medium border border-white/20 transition flex items-center">
                             <i class="fa-solid fa-bookmark ml-2"></i> বিগত বছর (Verified)
                         </button>
                     </div>
                 </div>
             </div>
 
+
+
+
+            
             <!-- Quick Stats Row -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
@@ -203,7 +633,7 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Random Mixed -->
-                    <div onclick="app.setupExamQuick('random')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
+                    <div onclick="window.app.setupExamQuick('random')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                         <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-shuffle"></i>
                         </div>
@@ -217,7 +647,7 @@
                     </div>
 
                     <!-- Model Test -->
-                    <div onclick="app.setupExamQuick('model')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
+                    <div onclick="window.app.setupExamQuick('model')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                         <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-laptop-code"></i>
                         </div>
@@ -231,7 +661,7 @@
                     </div>
 
                     <!-- Previous Year Practice -->
-                    <div onclick="app.showPreviousYears()" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
+                    <div onclick="window.app.showPreviousYears()" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                         <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-clock-rotate-left"></i>
                         </div>
@@ -252,35 +682,35 @@
                     <i class="fa-solid fa-book text-medical-600 ml-2"></i> বিষয়ভিত্তিক প্র্যাকটিস
                 </h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <button onclick="app.startSubjectExam('biology')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                    <button onclick="window.app.startSubjectExam('biology')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                         <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center justify-center text-sm font-bold mb-2">
                             <i class="fa-solid fa-dna"></i>
                         </div>
                         <div class="font-bold text-gray-900 dark:text-white">জীববিজ্ঞান</div>
                         <div id="count-subject-biology" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
                     </button>
-                    <button onclick="app.startSubjectExam('chemistry')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                    <button onclick="window.app.startSubjectExam('chemistry')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                         <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300 flex items-center justify-center text-sm font-bold mb-2">
                             <i class="fa-solid fa-flask"></i>
                         </div>
                         <div class="font-bold text-gray-900 dark:text-white">রসায়ন</div>
                         <div id="count-subject-chemistry" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
                     </button>
-                    <button onclick="app.startSubjectExam('physics')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                    <button onclick="window.app.startSubjectExam('physics')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                         <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 flex items-center justify-center text-sm font-bold mb-2">
                             <i class="fa-solid fa-atom"></i>
                         </div>
                         <div class="font-bold text-gray-900 dark:text-white">পদার্থবিজ্ঞান</div>
                         <div id="count-subject-physics" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
                     </button>
-                    <button onclick="app.startSubjectExam('english')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                    <button onclick="window.app.startSubjectExam('english')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                         <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300 flex items-center justify-center text-sm font-bold mb-2">
                             <i class="fa-solid fa-language"></i>
                         </div>
                         <div class="font-bold text-gray-900 dark:text-white">ইংরেজি</div>
                         <div id="count-subject-english" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
                     </button>
-                    <button onclick="app.startSubjectExam('gk')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                    <button onclick="window.app.startSubjectExam('gk')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                         <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-300 flex items-center justify-center text-sm font-bold mb-2">
                             <i class="fa-solid fa-globe"></i>
                         </div>
@@ -290,24 +720,98 @@
                 </div>
             </div>
         <div class="profile-home-shortcut mt-6">
-            <button onclick="app.openProfile()" class="profile-shortcut-card">
+            <button onclick="window.app.openProfile()" class="profile-shortcut-card">
                 <span class="profile-shortcut-icon"><i class="fa-solid fa-user-graduate"></i></span>
                 <span class="profile-shortcut-copy"><b>আমার Profile</b><small>Progress, Accuracy, Attempt History ও Question Coverage দেখুন</small></span>
                 <i class="fa-solid fa-chevron-left profile-shortcut-arrow"></i>
             </button>
         </div>
+
+            <!-- CONTACT: visible only while the Home view is active -->
+            <section id="contact" class="medical-contact-section" aria-labelledby="medical-contact-heading">
+                <div class="medical-contact-title">
+                    <h2 id="medical-contact-heading">Get in <span>Touch</span></h2>
+                    <div class="medical-contact-underline"></div>
+                </div>
+                <div class="contact-reference-wrap">
+                    <form id="medical-contact-form">
+                        <div class="contact-reference-grid">
+                            <input type="text" id="medical-contact-name" name="name" required maxlength="120" placeholder="Your Name" aria-label="Your Name" autocomplete="name">
+                            <input type="email" id="medical-contact-email" name="email" required maxlength="254" placeholder="Your Email" aria-label="Your Email" autocomplete="email">
+                            <textarea id="medical-contact-message" name="message" required maxlength="5000" placeholder="How can I help you?" aria-label="Message"></textarea>
+                            <button type="submit" id="medical-contact-submit" class="contact-send-btn">
+                                <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Push Execute</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="contact-social-row" aria-label="Contact links">
+                    <a href="mailto:mdrakibasfyia@gmail.com" class="contact-social-card" aria-label="Gmail">
+                        <i class="fa-solid fa-envelope" aria-hidden="true"></i><span>Gmail</span>
+                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=61579557960701" class="contact-social-card" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook-f" aria-hidden="true"></i><span>Facebook</span>
+                    </a>
+                    <a href="https://github.com/serakib" class="contact-social-card" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                        <i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- NEW FOOTER: Home view only -->
+            <footer class="medical-home-footer" aria-label="Medical Admission Tester footer">
+                <div class="medical-footer-accent" aria-hidden="true"></div>
+                <div class="medical-footer-inner">
+                    <div class="medical-footer-brand">
+                        <div class="medical-footer-brand-mark">
+                            <span class="medical-footer-logo-icon" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
+                            <span>মেডিকেল ভর্তি পরীক্ষা</span>
+                        </div>
+                        <p class="medical-footer-description">
+                            মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি, প্রশ্ন অনুশীলন ও নিজের অগ্রগতি যাচাই—সবকিছু এক জায়গায়। নিয়মিত অনুশীলন করুন, আত্মবিশ্বাসের সঙ্গে এগিয়ে যান।
+                        </p>
+                        <div class="medical-footer-credit"><span>পরিকল্পনা ও নির্মাণে</span><strong>MD. Rakib Hasan</strong></div>
+                    </div>
+
+                    <div class="medical-footer-navigation">
+                        <h3 class="medical-footer-heading">Quick Navigation</h3>
+                        <div class="medical-footer-links">
+                            <button type="button" class="medical-footer-link" onclick="window.app.showView('home'); window.scrollTo({top:0,behavior:'smooth'});"><i class="fa-solid fa-house" aria-hidden="true"></i><span>হোম</span></button>
+                            <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('view')"><i class="fa-solid fa-book-medical" aria-hidden="true"></i><span>প্রশ্ন ব্যাংক</span></button>
+                            <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('practice')"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
+                            <button type="button" class="medical-footer-link" onclick="window.app.setupExamQuick('model')"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>মডেল টেস্ট</span></button>
+                            <button type="button" class="medical-footer-link" onclick="window.app.showPreviousYears()"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>বিগত বছরের প্রশ্ন</span></button>
+                        </div>
+                    </div>
+
+                    <div class="medical-footer-contact">
+                        <h3 class="medical-footer-heading">Get in Touch</h3>
+                        <div class="medical-footer-contact-list">
+                            <a class="medical-footer-contact-link" href="mailto:mdrakibasfyia@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>mdrakibasfyia@gmail.com</span></a>
+                            <a class="medical-footer-contact-link" href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i><span>Facebook</span></a>
+                            <a class="medical-footer-contact-link" href="https://github.com/serakib" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span></a>
+                            <button type="button" class="medical-footer-link" onclick="var c=document.getElementById('contact'); if(c){c.scrollIntoView({behavior:'smooth',block:'start'});}"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Contact Form</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="medical-footer-bottom">
+                    <span>© 2026 MD. Rakib Hasan. সর্বস্বত্ব সংরক্ষিত।</span>
+                    <span class="medical-footer-bottom-note"><i class="fa-solid fa-heart" aria-hidden="true"></i> <span>শেখা, অনুশীলন ও উন্নতির পথে</span></span>
+                </div>
+            </footer>
+
         </section>
 
         <!-- VIEW: QUESTION BANK -->
         <section id="view-question-bank" class="view-section hidden space-y-6">
             <div class="section-hero">
                 <div><span class="eyebrow">Study Library</span><h2>Question Bank</h2><p>শুধু পড়ুন, answer দেখুন, filter করুন—কোনো exam শুরু হবে না।</p></div>
-                <button onclick="app.showView('home')" class="ghost-btn"><i class="fa-solid fa-arrow-right"></i> Home</button>
+                <button onclick="window.app.showView('home')" class="ghost-btn"><i class="fa-solid fa-arrow-right"></i> Home</button>
             </div>
             <div class="filter-bar">
-                <div class="filter-field grow"><i class="fa-solid fa-magnifying-glass"></i><input id="question-bank-search" placeholder="প্রশ্ন, subject, year বা source খুঁজুন..." oninput="app.bankSearch=this.value;app.renderQuestionBank()"></div>
-                <select id="question-bank-subject" onchange="app.bankSubject=this.value;app.renderQuestionBank()"><option value="all">সব বিষয়</option><option value="biology">জীববিজ্ঞান</option><option value="chemistry">রসায়ন</option><option value="physics">পদার্থবিজ্ঞান</option><option value="english">ইংরেজি</option><option value="gk">সাধারণ জ্ঞান</option></select>
-                <select id="question-bank-year" onchange="app.bankYear=this.value;app.renderQuestionBank()"><option value="all">সব বছর</option><option value="2024-2025">2024-25</option><option value="2023-2024">2023-24</option><option value="2022-23">2022-23</option><option value="2021-22">2021-22</option><option value="2020-21">2020-21</option><option value="practice">Practice</option></select>
+                <div class="filter-field grow"><i class="fa-solid fa-magnifying-glass"></i><input id="question-bank-search" placeholder="প্রশ্ন, subject, year বা source খুঁজুন..." oninput="window.app.bankSearch=this.value;window.app.renderQuestionBank()"></div>
+                <select id="question-bank-subject" onchange="window.app.bankSubject=this.value;window.app.renderQuestionBank()"><option value="all">সব বিষয়</option><option value="biology">জীববিজ্ঞান</option><option value="chemistry">রসায়ন</option><option value="physics">পদার্থবিজ্ঞান</option><option value="english">ইংরেজি</option><option value="gk">সাধারণ জ্ঞান</option></select>
+                <select id="question-bank-year" onchange="window.app.bankYear=this.value;window.app.renderQuestionBank()"><option value="all">সব বছর</option><option value="2024-2025">2024-25</option><option value="2023-2024">2023-24</option><option value="2022-23">2022-23</option><option value="2021-22">2021-22</option><option value="2020-21">2020-21</option><option value="practice">Practice</option></select>
             </div>
             <div class="section-toolbar"><span id="question-bank-count">0 questions</span><span>Answer দেখানো/লুকানো যাবে</span></div>
             <div id="question-bank-list" class="bank-list"></div>
@@ -319,10 +823,10 @@
             <div class="practice-timer-box" style="font-weight: bold; color: #e74c3c;">
     সময় বাকি: <span id="practice-timer">10:00</span>
 </div>
-            <div class="section-toolbar"><span id="practice-progress">Question 1 of 10</span><button class="ghost-btn" onclick="app.openQuestionBank('view')">Question Bank</button></div>
+            <div class="section-toolbar"><span id="practice-progress">Question 1 of 10</span><button class="ghost-btn" onclick="window.app.openQuestionBank('view')">Question Bank</button></div>
             
             <div id="practice-question"></div>
-            <div class="practice-nav"><button class="ghost-btn" onclick="app.prevPractice()"><i class="fa-solid fa-arrow-right"></i> Previous</button><button class="primary-btn" onclick="app.nextPractice()">Next <i class="fa-solid fa-arrow-left"></i></button></div>
+            <div class="practice-nav"><button class="ghost-btn" onclick="window.app.prevPractice()"><i class="fa-solid fa-arrow-right"></i> Previous</button><button class="primary-btn" onclick="window.app.nextPractice()">Next <i class="fa-solid fa-arrow-left"></i></button></div>
         </section>
 
         <!-- VIEW: EXAM INTRO / INSTRUCTIONS -->
@@ -334,7 +838,7 @@
                         <h2 id="exam-intro-title" class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Medical Challenge</h2>
                         <p id="exam-intro-subtitle" class="mt-2 text-sm text-gray-500 dark:text-gray-400">Please read the instructions before starting.</p>
                     </div>
-                    <button onclick="app.showView('home')" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500" aria-label="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <button onclick="window.app.showView('home')" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500" aria-label="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
                 <div id="exam-intro-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6"></div>
                 <div class="rounded-2xl bg-gray-50 dark:bg-gray-700/40 p-5 space-y-3">
@@ -342,8 +846,8 @@
                     <ul id="exam-intro-rules" class="text-sm text-gray-600 dark:text-gray-300 space-y-2 leading-relaxed"></ul>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button onclick="app.showView('home')" class="flex-1 py-3.5 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
-                    <button onclick="app.beginPreparedExam()" class="flex-[2] py-3.5 rounded-xl bg-gradient-to-r from-medical-600 to-accent-600 text-white font-extrabold shadow-lg hover:opacity-95"><i class="fa-solid fa-play ml-2"></i><span id="exam-intro-start">Start Exam</span></button>
+                    <button onclick="window.app.showView('home')" class="flex-1 py-3.5 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                    <button onclick="window.app.beginPreparedExam()" class="flex-[2] py-3.5 rounded-xl bg-gradient-to-r from-medical-600 to-accent-600 text-white font-extrabold shadow-lg hover:opacity-95"><i class="fa-solid fa-play ml-2"></i><span id="exam-intro-start">Start Exam</span></button>
                 </div>
             </div>
         </section>
@@ -352,13 +856,13 @@
         <section id="view-previous" class="view-section hidden space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Previous Year Question Bank</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Previous Year Questions</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">No exam required. Read the paper, reveal answers, or start a quiz for the selected year.</p></div>
-                <button onclick="app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Home</button>
+                <button onclick="window.app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Home</button>
             </div>
             <div id="previous-year-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
             <div id="previous-browser" class="hidden space-y-4">
                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-3 sm:items-center justify-between sticky top-2 z-20">
                     <div><h3 id="previous-selected-year" class="font-extrabold text-gray-900 dark:text-white"></h3><p id="previous-count" class="text-xs text-gray-500"></p></div>
-                    <div class="flex flex-wrap gap-2"><button onclick="app.togglePreviousAnswers()" id="previous-answer-toggle" class="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-bold">Show Answers</button><button onclick="app.startPreviousYearQuiz()" class="px-3 py-2 rounded-xl bg-medical-600 text-white text-xs font-bold"><i class="fa-solid fa-play ml-1"></i> Quiz This Year</button></div>
+                    <div class="flex flex-wrap gap-2"><button onclick="window.app.togglePreviousAnswers()" id="previous-answer-toggle" class="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-bold">Show Answers</button><button onclick="window.app.startPreviousYearQuiz()" class="px-3 py-2 rounded-xl bg-medical-600 text-white text-xs font-bold"><i class="fa-solid fa-play ml-1"></i> Quiz This Year</button></div>
                 </div>
                 <div id="previous-question-list" class="space-y-4"></div>
             </div>
@@ -372,7 +876,7 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">পরীক্ষার সেটআপ নির্বাচন করুন</h2>
                         <p class="text-xs text-gray-500 dark:text-gray-400">আপনার পছন্দমতো বিষয়, প্রশ্ন সংখ্যা এবং সময় নির্ধারণ করুন</p>
                     </div>
-                    <button onclick="app.showView('home')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <button onclick="window.app.showView('home')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                 </div>
@@ -381,13 +885,13 @@
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">পরীক্ষার টাইপ</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" id="setup-mode-random" onclick="app.setSetupMode('random')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <button type="button" id="setup-mode-random" onclick="window.app.setSetupMode('random')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
                            Random(Mixed)
                         </button>
-                        <button type="button" id="setup-mode-model" onclick="app.setSetupMode('model')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <button type="button" id="setup-mode-model" onclick="window.app.setSetupMode('model')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
                            Model Test
                         </button>
-                        <button type="button" id="setup-mode-previous" onclick="app.setSetupMode('previous')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <button type="button" id="setup-mode-previous" onclick="window.app.setSetupMode('previous')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
                             Previous Year
                         </button>
                     </div>
@@ -418,11 +922,11 @@
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">প্রশ্নের সংখ্যা</label>
                     <div class="grid grid-cols-5 gap-2">
-                        <button type="button" onclick="app.setSetupQuestions(20)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20</button>
-                        <button type="button" onclick="app.setSetupQuestions(30)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30</button>
-                        <button type="button" onclick="app.setSetupQuestions(50)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">50</button>
-                        <button type="button" onclick="app.setSetupQuestions(75)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">75</button>
-                        <button type="button" onclick="app.setSetupQuestions(100)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">100</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(20)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(30)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(50)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">50</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(75)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">75</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(100)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">100</button>
                     </div>
                 </div>
 
@@ -430,11 +934,11 @@
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">সময়সীমা (মিনিট)</label>
                     <div class="grid grid-cols-5 gap-2">
-                        <button type="button" onclick="app.setSetupDuration(20)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20 মি.</button>
-                        <button type="button" onclick="app.setSetupDuration(30)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30 মি.</button>
-                        <button type="button" onclick="app.setSetupDuration(50)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">50 মি.</button>
-                        <button type="button" onclick="app.setSetupDuration(60)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">60 মি.</button>
-                        <button type="button" onclick="app.setSetupDuration(90)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">90 মি.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(20)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20 মি.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(30)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30 মি.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(50)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">50 মি.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(60)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">60 মি.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(90)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">90 মি.</button>
                     </div>
                 </div>
 
@@ -449,7 +953,7 @@
                 </div>
 
                 <!-- Start Action Button -->
-                <button onclick="app.startExamWithConfig()" class="w-full py-4 rounded-xl bg-gradient-to-r from-medical-600 to-accent-600 text-white font-bold text-base shadow-lg hover:from-medical-700 hover:to-accent-700 transition flex items-center justify-center">
+                <button onclick="window.app.startExamWithConfig()" class="w-full py-4 rounded-xl bg-gradient-to-r from-medical-600 to-accent-600 text-white font-bold text-base shadow-lg hover:from-medical-700 hover:to-accent-700 transition flex items-center justify-center">
                     <i class="fa-solid fa-paper-plane ml-2"></i> পরীক্ষা শুরু করুন
                 </button>
             </div>
@@ -476,7 +980,7 @@
                 </div>
 
                 <!-- Submit Early Button -->
-                <button id="btn-submit-exam" onclick="app.confirmSubmitExam()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm transition flex items-center">
+                <button id="btn-submit-exam" onclick="window.app.confirmSubmitExam()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm transition flex items-center">
                     <i class="fa-solid fa-circle-check ml-1"></i> পরীক্ষা জমা দিন
                 </button>
             </div>
@@ -509,19 +1013,19 @@
                         <!-- Question Actions Footer -->
                         <div class="pt-6 border-t border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
                             <div class="flex items-center space-x-2 space-x-reverse">
-                                <button id="btn-mark-review" onclick="app.toggleMarkReview()" class="px-3 py-2 rounded-xl border border-amber-400 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 font-semibold text-xs transition flex items-center">
+                                <button id="btn-mark-review" onclick="window.app.toggleMarkReview()" class="px-3 py-2 rounded-xl border border-amber-400 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 font-semibold text-xs transition flex items-center">
                                     <i class="fa-regular fa-bookmark ml-1"></i> রিভিউর জন্য চিহ্নিত করুন
                                 </button>
-                                <button id="btn-clear-answer" onclick="app.clearOptionSelection()" class="px-3 py-2 rounded-xl text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold text-xs transition">
+                                <button id="btn-clear-answer" onclick="window.app.clearOptionSelection()" class="px-3 py-2 rounded-xl text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold text-xs transition">
                                     No Problem,Continue Study,Insha Allah,You can do it,Go ahead.
                                 </button>
                             </div>
 
                             <div class="flex items-center space-x-2 space-x-reverse">
-                                <button id="btn-prev-q" onclick="app.prevQuestion()" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-xs sm:text-sm text-gray-800 dark:text-gray-200 transition">
+                                <button id="btn-prev-q" onclick="window.app.prevQuestion()" class="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-xs sm:text-sm text-gray-800 dark:text-gray-200 transition">
                                     <i class="fa-solid fa-arrow-right ml-1"></i> পূর্ববর্তী
                                 </button>
-                                <button id="btn-next-q" onclick="app.nextQuestion()" class="px-5 py-2 rounded-xl bg-medical-600 hover:bg-medical-700 font-bold text-xs sm:text-sm text-white transition">
+                                <button id="btn-next-q" onclick="window.app.nextQuestion()" class="px-5 py-2 rounded-xl bg-medical-600 hover:bg-medical-700 font-bold text-xs sm:text-sm text-white transition">
                                     পরবর্তী <i class="fa-solid fa-arrow-left mr-1"></i>
                                 </button>
                             </div>
@@ -613,10 +1117,10 @@
 
                 <!-- Action Buttons -->
                 <div class="pt-4 flex flex-wrap justify-center gap-4">
-                    <button id="btn-review-answers" onclick="app.showReviewAnswersView()" class="px-6 py-3 rounded-xl bg-medical-600 hover:bg-medical-700 text-white font-bold text-sm shadow-md transition flex items-center">
+                    <button id="btn-review-answers" onclick="window.app.showReviewAnswersView()" class="px-6 py-3 rounded-xl bg-medical-600 hover:bg-medical-700 text-white font-bold text-sm shadow-md transition flex items-center">
                         <i class="fa-solid fa-list-check ml-2"></i> উত্তর ও ব্যাখ্যা পর্যালোচনা করুন
                     </button>
-                    <button onclick="app.openSetupView()" class="px-6 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-sm text-gray-800 dark:text-gray-200 transition flex items-center">
+                    <button onclick="window.app.openSetupView()" class="px-6 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-sm text-gray-800 dark:text-gray-200 transition flex items-center">
                         <i class="fa-solid fa-rotate-right ml-2"></i> নতুন পরীক্ষা দিন
                     </button>
                 </div>
@@ -636,7 +1140,7 @@
             See Wrong Questions
         </button>
                 
-                <button onclick="app.showView('result')" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-xs font-bold rounded-xl transition">
+                <button onclick="window.app.showView('result')" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-xs font-bold rounded-xl transition">
                     ফলাফলে ফিরে যান
                 </button>
             </div>
@@ -662,7 +1166,7 @@
                
                <!-- Auth Button Container -->
 <div class="auth-btn-target">
-  <button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
+  <button onclick="window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
     </svg>
@@ -682,7 +1186,7 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">আমার অগ্রগতি ও পারফরম্যান্স পরিসংখ্যান</h2>
                         <p class="text-xs text-gray-500 dark:text-gray-400">আপনার সংরক্ষিত সকল পরীক্ষার ইতিহাস ও সাবজেক্টওয়াইজ দক্ষতা</p>
                     </div>
-                    <button onclick="app.clearStorageHistory()" class="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline">
+                    <button onclick="window.app.clearStorageHistory()" class="text-xs font-semibold text-red-600 dark:text-red-400 hover:underline">
                         <i class="fa-solid fa-trash ml-1"></i> ইতিহাস মুছুন
                     </button>
                 </div>
@@ -747,7 +1251,7 @@
         <!-- VIEW: LEADERBOARD -->
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Only Challenge Quiz points are counted.</p></div><button onclick="app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Only Challenge Quiz points are counted.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
                 <div id="leaderboard-podium" class="leaderboard-podium"></div>
                 <div id="leaderboard-me" class="leaderboard-me hidden"></div>
@@ -793,12 +1297,13 @@
                 </div>
             </div>
         </section>
-       
+
+   
 
 </main>
 
     <!-- Floating Bottom-Right Theme Toggle Button (Exact Design) -->
-<button id="theme-toggle" onclick="app.toggleTheme()" title="Toggle Theme" style="
+<button id="theme-toggle" onclick="window.app.toggleTheme()" title="Toggle Theme" style="
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -834,32 +1339,137 @@
   </svg>
 </button>
 
+
    
+<script id="medical-contact-form-handler">
+(function () {
+    const endpoint = 'https://script.google.com/macros/s/AKfycbxsSQIqoWW1w7tDGGlzYPCYWawC-vrLq7kiXBmt-bDAM_wlLsP5u13Ra8t5eKOUk065BA/exec';
+    function initMedicalContactForm() {
+        const form = document.getElementById('medical-contact-form');
+        if (!form || form.dataset.handlerReady === '1') return;
+        form.dataset.handlerReady = '1';
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const button = document.getElementById('medical-contact-submit');
+            if (!button) return;
+            const originalHTML = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>Sending...</span>';
+            const formData = {
+                name: document.getElementById('medical-contact-name').value.trim(),
+                email: document.getElementById('medical-contact-email').value.trim(),
+                message: document.getElementById('medical-contact-message').value.trim()
+            };
+            try {
+                await fetch(endpoint, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(formData)
+                });
+                alert('Thank you! Your message has been submitted.');
+                form.reset();
+            } catch (error) {
+                alert('Something went wrong. Please try again later.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            }
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMedicalContactForm, { once: true });
+    } else {
+        initMedicalContactForm();
+    }
+})();
+</script>
 
-    <footer class="site-footer desktop-canvas">
-        <div class="footer-inner">
-            <div class="footer-brand">
-                <div class="footer-brand-title"><span class="footer-dot"></span><span id="footer-name"></span></div>
-                <p>Student developer building small web projects and learning something new every day.</p>
-                <div class="footer-built">Built by <strong id="footer-built-name"></strong></div>
-            </div>
-            <div class="footer-links">
-                <h4>Quick Links</h4>
-                <a href="#home">Home</a><a href="#question-bank">Question Bank</a><a href="#practice">Practice</a><a href="#model-test">Model Test</a><a href="#previous-year">Previous Year</a><a href="#leaderboard">Leaderboard</a><a href="#profile">Profile</a><a href="#syllabus">Syllabus</a>
-            </div>
-            <div class="footer-contact">
-                <h4>Contact</h4>
-                <a href="mailto:rakibhasandcg27@gmail.com"><i class="fa-solid fa-envelope"></i> rakibhasandcg27@gmail.com</a>
-                <a href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>
-                <a href="https://github.com/serakib" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <span>© 2026 <span id="footer-bottom-name"></span> — All Rights Reserved.</span>
-            <div class="footer-legal"><button onclick="openModal('privacyModal')">Privacy Policy</button><button onclick="openModal('termsModal')">Terms of Service</button><button onclick="openModal('cookieModal')">Cookie Policy</button></div>
-        </div>
-    </footer>
 
-   <script type="module" src="script.js"></script>
+
+
+
+
+<!-- =================== AI Floating Button =================== -->
+<a href="https://serakib.github.io/Ai-Assisstant/" class="ai-float-btn" title="Ask AI Assistant">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <circle cx="9" cy="10" r="1" fill="white"></circle>
+        <circle cx="15" cy="10" r="1" fill="white"></circle>
+    </svg>
+    <!-- হোভার করলে টেক্সট দেখাবে -->
+    <span class="ai-btn-tooltip">AI অ্যাসিস্ট্যান্টের সাথে কথা বলুন</span>
+</a>
+
+<style>
+    /* এআই ফ্লোটিং বাটনের স্টাইল */
+    .ai-float-btn {
+        position: fixed;
+        bottom: 110px; /* 👈 আপনার ডার্ক মোড বাটনের ঠিক উপরে বসানোর জন্য (প্রয়োজনে কম/বেশি করুন) */
+        right: 30px;   /* 👈 আপনার ডার্ক মোড বাটনের ডান দিকের সাথে মিল রাখতে */
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, #6366F1, #8B5CF6); /* পার্পল গ্রেডিয়েন্ট */
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        cursor: pointer;
+        z-index: 9999; /* সবার উপরে থাকবে */
+        text-decoration: none;
+        transition: all 0.3s ease;
+        animation: floatPulse 2s infinite;
+    }
+
+    /* হোভার করলে বাটন বড় হবে */
+    .ai-float-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6);
+    }
+
+    /* পালস অ্যানিমেশন */
+    @keyframes floatPulse {
+        0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
+
+    /* হোভার করলে ডান দিকে টেক্সট (Tooltip) দেখাবে */
+    .ai-btn-tooltip {
+        position: absolute;
+        right: 80px;
+        top: 50%;
+        transform: translateY(-50%) scale(0.8);
+        background: linear-gradient(135deg, #6366F1, #8B5CF6);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        pointer-events: none;
+        font-family: sans-serif;
+    }
+
+    /* মাউস হোভার করলে টুলটিপ দেখাবে */
+    .ai-float-btn:hover .ai-btn-tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(-50%) scale(1);
+    }
+</style>
+<!-- =================== AI Floating Button End =================== -->
+
+
+    
+<script src="./js/feature-navigation.js" defer></script>
+    <script src="./js/student-ai.js" defer></script>
+    <script type="module" src="./script.js"></script>
 </body>
 </html>
