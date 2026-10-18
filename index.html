@@ -210,9 +210,7 @@
             <button class="sidebar-item" onclick="window.app.showView('medical-hsc-info')">
                 <span class="sidebar-icon" style="background:#6366f1;"><i class="fa-solid fa-hospital"></i></span> Medical Info
             </button>
-            <button class="sidebar-item" onclick="window.app.showView('student-life-support')">
-                <span class="sidebar-icon" style="background:#0ea5e9;"><i class="fa-solid fa-hands-helping"></i></span> Student Support
-            </button>
+            
         </nav>
 
         <div class="p-4 m-3 bg-[var(--bg-body)] border border-[var(--border-color)] rounded-xl flex items-center gap-3 cursor-pointer hover:bg-opacity-80 transition" onclick="window.app.openProfile()">
@@ -319,53 +317,7 @@
                 </div>
             </section>
 
-            <!-- Student Life Support -->
-            <section id="view-student-life-support" class="view-section hidden p-2 sm:p-4">
-                <div class="max-w-4xl mx-auto space-y-6">
-                    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-teal-900 to-emerald-800 p-6 sm:p-8 text-white shadow-xl">
-                        <div class="relative z-10 max-w-2xl">
-                            <span class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs font-bold"><i class="fa-solid fa-hands-helping"></i> STUDENT LIFE SUPPORT</span>
-                            <h2 id="student-life-title" class="mt-4 text-2xl sm:text-4xl font-extrabold">পড়াশোনা ও Student Life Guide</h2>
-                            <p class="mt-3 text-sm sm:text-base leading-7 text-teal-50">পড়ার রুটিন, পরীক্ষার চাপ, মনোযোগ, সময় ব্যবস্থাপনা বা ভবিষ্যৎ পরিকল্পনা নিয়ে বাংলায় বা Banglish-এ প্রশ্ন করুন।</p>
-                        </div>
-                        <div class="absolute -right-4 -bottom-8 text-white/10 text-9xl pointer-events-none"><i class="fa-solid fa-compass"></i></div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"><i class="fa-solid fa-calendar-check text-emerald-600 text-xl"></i><h3 class="mt-2 font-bold">Study plan</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">বাস্তবসম্মত দৈনিক ও সাপ্তাহিক routine</p></div>
-                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"><i class="fa-solid fa-brain text-sky-600 text-xl"></i><h3 class="mt-2 font-bold">Focus &amp; revision</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">মনে রাখা, practice ও ভুল বিশ্লেষণ</p></div>
-                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"><i class="fa-solid fa-route text-violet-600 text-xl"></i><h3 class="mt-2 font-bold">Next steps</h3><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">বিষয়, career ও admission-এর পরিকল্পনা</p></div>
-                    </div>
-                    <section class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm" aria-label="Student Support AI chat">
-                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-5">
-                            <div class="flex items-center gap-3">
-                                <div class="grid place-items-center w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xl"><i class="fa-solid fa-comments"></i></div>
-                                <div><h3 class="font-extrabold text-lg">Student Support AI</h3><p class="text-xs text-gray-500 dark:text-gray-400">বাংলা / Banglish · practical study support</p></div>
-                            </div>
-                            <button id="sls-clear" type="button" class="rounded-xl border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700"><i class="fa-solid fa-rotate-left mr-1"></i> নতুন করে শুরু</button>
-                        </div>
-                        <div id="sls-chat-messages" class="sls-chat-messages space-y-3 p-4 sm:p-5 max-h-[430px] overflow-y-auto" aria-live="polite" aria-relevant="additions text" aria-label="AI conversation">
-                            <div class="sls-message sls-assistant-message"><span class="sls-message-label">Student Guide</span><p>আসসালামু আলাইকুম! 😊 আপনার কোন বিষয়ে সহায়তা দরকার—পড়ার routine, revision, exam pressure, নাকি career planning?</p></div>
-                        </div>
-                        <div class="px-4 sm:px-5 pb-4 flex flex-wrap gap-2" aria-label="Suggested questions">
-                            <button type="button" class="sls-prompt" data-sls-prompt="HSC-এর পড়া ও মেডিকেল প্রস্তুতি একসঙ্গে চালানোর একটি realistic weekly routine বানিয়ে দাও।">📅 Study routine</button>
-                            <button type="button" class="sls-prompt" data-sls-prompt="আমি পড়তে বসলে মনোযোগ ধরে রাখতে পারি না। ছোট ছোট বাস্তবসম্মত পদক্ষেপ বলো।">🎯 মনোযোগ</button>
-                            <button type="button" class="sls-prompt" data-sls-prompt="MCQ-তে ভুল কমাতে কীভাবে practice ও ভুলের খাতা তৈরি করব?">📝 MCQ practice</button>
-                            <button type="button" class="sls-prompt" data-sls-prompt="পরীক্ষা নিয়ে চাপ লাগছে। পড়াশোনা আর বিশ্রামের balance কীভাবে করব?">🌿 Exam pressure</button>
-                        </div>
-                        <form id="sls-chat-form" class="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-5 space-y-3">
-                            <label for="sls-question" class="block text-sm font-bold">আপনার প্রশ্ন</label>
-                            <div class="flex items-end gap-2 sm:gap-3">
-                                <textarea id="sls-question" rows="2" maxlength="3000" required class="min-w-0 flex-1 resize-y rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20" placeholder="এখানে লিখুন… (Enter পাঠাবে, Shift+Enter নতুন লাইন)"></textarea>
-                                <button id="userPrompt" type="submit" onclick="askAI()" class="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 sm:px-5 py-3 font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-paper-plane"></i><span>পাঠান</span></button>
-                            </div>
-                            <p class="text-xs leading-5 text-gray-500 dark:text-gray-400">আপনার প্রশ্ন AI service-এ পাঠানো হবে। password, ফোন নম্বর, ঠিকানা বা অন্য গোপন তথ্য লিখবেন না। এই chat browser-এ স্থায়ীভাবে সংরক্ষণ হয় না।</p>
-                            <p id="sls-status" class="text-xs text-gray-500 dark:text-gray-400" role="status" aria-live="polite"></p>
-                        </form>
-                    </section>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 leading-5"><i class="fa-solid fa-circle-info mr-1"></i> AI ভুল তথ্য দিতে পারে; ভর্তি-সংক্রান্ত তারিখ বা নিয়ম official notice থেকে যাচাই করুন। গুরুতর ব্যক্তিগত সমস্যায় বিশ্বস্ত অভিভাবক/শিক্ষক বা উপযুক্ত পেশাদারের সঙ্গে কথা বলুন।</p>
-                </div>
-            </section>
-
+         
             <!-- HOME / DASHBOARD -->
             <section id="view-home" class="view-section space-y-8">
                 <!-- Hero Banner -->
@@ -1135,7 +1087,7 @@
 </script>
 
 <script src="./js/feature-navigation.js" defer></script>
-<script src="./js/student-ai.js" defer></script>
+
 <script type="module" src="./script.js"></script>
 </body>
 </html>
