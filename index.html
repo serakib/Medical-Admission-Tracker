@@ -32,6 +32,54 @@
 
     <link rel="stylesheet" href="./style.css">
 
+    <!-- ========================================== -->
+    <!-- ✅ SIDEBAR DESIGN (Matching your Screenshot) -->
+    <!-- ========================================== -->
+    <style>
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .nav-btn i {
+            width: 24px;
+            font-size: 18px;
+            color: #6b7280;
+            text-align: center;
+        }
+        .nav-btn:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+        .nav-btn:hover i {
+            color: #111827;
+        }
+        .nav-btn.active {
+            background-color: #ecfdf5;
+            color: #059669;
+        }
+        .nav-btn.active i {
+            color: #059669;
+        }
+        
+        /* Dark mode for sidebar */
+        html.dark .nav-btn { color: #d1d5db; }
+        html.dark .nav-btn i { color: #9ca3af; }
+        html.dark .nav-btn:hover { background-color: #374151; color: #ffffff; }
+        html.dark .nav-btn:hover i { color: #ffffff; }
+        html.dark .nav-btn.active { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
+        html.dark .nav-btn.active i { color: #34d399; }
+    </style>
+
     <style id="medical-contact-styles">
         #contact.medical-contact-section { max-width: 100%; padding: 2.75rem 0 1.25rem; scroll-margin-top: 88px; }
         #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
@@ -105,65 +153,58 @@
         #view-medical-hsc-info article { min-width: 0; }
     </style>
 
-    <!-- ✅ Answer & Explanation readability improvements for Question Bank / Review / Previous / Wrong Questions -->
+    <!-- ========================================== -->
+    <!-- ✅ ANSWER & EXPLANATION FIX (Force Visible) -->
+    <!-- ========================================== -->
     <style id="answer-explanation-styles">
-        #question-bank-list,
-        #review-list-container,
-        #previous-question-list,
-        #wrong-questions-container,
-        #practice-question {
-            line-height: 1.7;
-        }
-        #question-bank-list > *,
-        #review-list-container > *,
-        #previous-question-list > *,
-        #wrong-questions-container > *,
-        #practice-question > * {
-            overflow-wrap: anywhere;
-            word-break: break-word;
-        }
-        #question-bank-list .answer,
-        #question-bank-list .correct-answer,
-        #question-bank-list .bank-answer,
-        #question-bank-list .explanation,
-        #question-bank-list .bank-explanation,
-        #review-list-container .answer,
+        /* Force all possible answer and explanation containers to be highly visible */
+        #question-bank-list .answer, 
+        #question-bank-list .bank-answer, 
+        #question-bank-list .correct-answer, 
+        #question-bank-list .answer-box,
+        #review-list-container .answer, 
         #review-list-container .correct-answer,
-        #review-list-container .explanation,
-        #previous-question-list .answer,
-        #previous-question-list .correct-answer,
-        #previous-question-list .explanation,
-        #wrong-questions-container .answer,
-        #wrong-questions-container .correct-answer,
-        #wrong-questions-container .explanation,
-        #practice-question .answer,
-        #practice-question .correct-answer,
-        #practice-question .explanation {
-            margin-top: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.6rem;
-            line-height: 1.75;
-            font-size: 0.925rem;
-        }
-        #question-bank-list .answer,
-        #question-bank-list .correct-answer,
-        #question-bank-list .bank-answer,
-        #review-list-container .answer,
-        #review-list-container .correct-answer,
+        #review-list-container .answer-box,
         #previous-question-list .answer,
         #previous-question-list .correct-answer,
         #wrong-questions-container .answer,
         #wrong-questions-container .correct-answer,
         #practice-question .answer,
         #practice-question .correct-answer {
-            background: rgba(16, 185, 129, 0.10);
-            color: #065f46;
-            border-left: 3px solid #10b981;
+            display: block !important;
+            margin-top: 15px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            border-left: 4px solid #10b981 !important;
+            color: #065f46 !important;
         }
-        html.dark #question-bank-list .answer,
-        html.dark #question-bank-list .correct-answer,
-        html.dark #question-bank-list .bank-answer,
-        html.dark #review-list-container .answer,
+
+        #question-bank-list .explanation, 
+        #question-bank-list .bank-explanation, 
+        #question-bank-list .explanation-box,
+        #review-list-container .explanation,
+        #previous-question-list .explanation,
+        #wrong-questions-container .explanation,
+        #practice-question .explanation {
+            display: block !important;
+            margin-top: 10px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+            background-color: rgba(14, 165, 233, 0.1) !important;
+            border-left: 4px solid #0ea5e9 !important;
+            color: #0c4a6e !important;
+        }
+
+        /* Dark Mode Adjustments */
+        html.dark #question-bank-list .answer, 
+        html.dark #question-bank-list .bank-answer, 
+        html.dark #question-bank-list .correct-answer, 
+        html.dark #review-list-container .answer, 
         html.dark #review-list-container .correct-answer,
         html.dark #previous-question-list .answer,
         html.dark #previous-question-list .correct-answer,
@@ -171,33 +212,24 @@
         html.dark #wrong-questions-container .correct-answer,
         html.dark #practice-question .answer,
         html.dark #practice-question .correct-answer {
-            background: rgba(16, 185, 129, 0.15);
-            color: #6ee7b7;
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #6ee7b7 !important;
         }
-        #question-bank-list .explanation,
-        #question-bank-list .bank-explanation,
-        #review-list-container .explanation,
-        #previous-question-list .explanation,
-        #wrong-questions-container .explanation,
-        #practice-question .explanation {
-            background: rgba(14, 165, 233, 0.08);
-            color: #0c4a6e;
-            border-left: 3px solid #0ea5e9;
-        }
-        html.dark #question-bank-list .explanation,
+
+        html.dark #question-bank-list .explanation, 
         html.dark #question-bank-list .bank-explanation,
         html.dark #review-list-container .explanation,
         html.dark #previous-question-list .explanation,
         html.dark #wrong-questions-container .explanation,
         html.dark #practice-question .explanation {
-            background: rgba(14, 165, 233, 0.15);
-            color: #7dd3fc;
+            background-color: rgba(14, 165, 233, 0.15) !important;
+            color: #7dd3fc !important;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex transition-colors duration-200">
 
-    <!-- ✅ Mobile Sidebar Toggle (visible only on mobile) -->
+    <!-- ✅ Mobile Sidebar Toggle -->
     <button id="sidebar-toggle" class="md:hidden fixed top-3 left-3 z-50 p-2.5 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200" onclick="window.toggleSidebar()" aria-label="Toggle sidebar">
         <i class="fa-solid fa-bars text-lg"></i>
     </button>
@@ -205,7 +237,9 @@
     <!-- ✅ Mobile Overlay -->
     <div id="sidebar-overlay" class="md:hidden fixed inset-0 bg-black/50 z-30 hidden" onclick="window.closeSidebar()"></div>
 
-    <!-- ✅ SIDEBAR (replaces top header) -->
+    <!-- ========================================== -->
+    <!-- ✅ SIDEBAR (Updated to match screenshot)    -->
+    <!-- ========================================== -->
     <aside id="main-sidebar" class="fixed md:sticky top-0 left-0 h-screen w-64 shrink-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto -translate-x-full md:translate-x-0 transition-transform duration-300">
         <div class="flex flex-col h-full">
 
@@ -225,37 +259,37 @@
                 </button>
             </div>
 
-            <!-- Navigation Links -->
+            <!-- Navigation Links (Icon on Left, Text on Right) -->
             <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
-                <button onclick="window.app.showView('home'); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-house ml-2"></i> হোম
+                <button onclick="window.app.showView('home'); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-house"></i> হোম
                 </button>
-                <button onclick="window.app.openQuestionBank('view'); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-book-medical ml-2"></i> প্রশ্ন ব্যাংক
+                <button onclick="window.app.openQuestionBank('view'); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-book-medical"></i> প্রশ্ন ব্যাংক
                 </button>
-                <button onclick="window.app.openQuestionBank('practice'); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-bullseye ml-2"></i> প্র্যাকটিস
+                <button onclick="window.app.openQuestionBank('practice'); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-bullseye"></i> প্র্যাকটিস
                 </button>
-                <button onclick="window.app.setupExamQuick('model'); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-clipboard-check ml-2"></i> মডেল টেস্ট
+                <button onclick="window.app.setupExamQuick('model'); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-clipboard-check"></i> মডেল টেস্ট
                 </button>
-                <button onclick="window.app.setupExamQuick('previous'); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-clock-rotate-left ml-2"></i> বিগত বছর
+                <button onclick="window.app.setupExamQuick('previous'); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-clock-rotate-left"></i> বিগত বছর
                 </button>
-                <button onclick="window.app.showView('leaderboard'); window.app.loadLeaderboard(); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-trophy ml-2"></i> Leaderboard
+                <button onclick="window.app.showView('leaderboard'); window.app.loadLeaderboard(); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-trophy"></i> Leaderboard
                 </button>
-                <button onclick="window.app.openProfile(); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-user-circle ml-2"></i> Profile
+                <button onclick="window.app.openProfile(); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-user-circle"></i> Profile
                 </button>
-                <button onclick="window.app.showView('syllabus'); window.closeSidebar();" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-book-open ml-2"></i> সিলেবাস
+                <button onclick="window.app.showView('syllabus'); window.closeSidebar();" class="nav-btn">
+                    <i class="fa-solid fa-book-open"></i> সিলেবাস
                 </button>
-                <button data-feature-view="medical-hsc-info" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition" type="button" aria-controls="view-medical-hsc-info">
-                    <i class="fa-solid fa-hospital ml-2"></i> Medical &amp; HSC Info
+                <button data-feature-view="medical-hsc-info" class="nav-btn" type="button" aria-controls="view-medical-hsc-info">
+                    <i class="fa-solid fa-hospital"></i> Medical &amp; HSC Info
                 </button>
-                <button onclick="window.app.showView('home'); window.closeSidebar(); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 80)" class="nav-btn w-full text-right px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fa-solid fa-envelope ml-2"></i> Contact
+                <button onclick="window.app.showView('home'); window.closeSidebar(); setTimeout(function(){ var section = document.getElementById('contact'); if(section) section.scrollIntoView({behavior:'smooth', block:'start'}); }, 80)" class="nav-btn">
+                    <i class="fa-solid fa-envelope"></i> Contact
                 </button>
             </nav>
 
@@ -272,7 +306,7 @@
         </div>
     </aside>
 
-    <!-- ✅ Main Content Wrapper (grows alongside sidebar) -->
+    <!-- ✅ Main Content Wrapper -->
     <div class="flex-grow min-w-0">
         <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
@@ -817,7 +851,7 @@
         </svg>
     </button>
 
-    <!-- ✅ Sidebar open/close helper (minimal) -->
+    <!-- ✅ Sidebar open/close helper -->
     <script>
     (function(){
         window.openSidebar = function(){
@@ -903,7 +937,7 @@
         .ai-float-btn:hover .ai-btn-tooltip { opacity:1; visibility:visible; transform:translateY(-50%) scale(1); }
     </style>
 
-    <!-- ✅ Preserved scripts (student-ai.js removed with the section) -->
+    <!-- ✅ Preserved scripts -->
     <script src="./js/feature-navigation.js" defer></script>
     <script type="module" src="./script.js"></script>
 </body>
