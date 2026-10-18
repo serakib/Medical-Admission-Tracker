@@ -20,7 +20,9 @@
                 extend: {
                     colors: {
                         medical: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
-                        accent: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }
+                        accent: { 50: '#f0f9ff', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
+                        darkBg: '#131f24',
+                        darkCard: '#202f36',
                     },
                     fontFamily: { sans: ['Noto Sans Bengali', 'Noto Sans', 'sans-serif'] }
                 }
@@ -32,86 +34,10 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Main Style.css -->
+    <!-- Main Style.css (External) -->
     <link rel="stylesheet" href="./style.css">
 
-    <!-- ==================== ORIGINAL CUSTOM CSS ==================== -->
-    <style id="medical-contact-styles">
-        #contact.medical-contact-section { max-width: 100%; padding: 2.75rem 0 1.25rem; scroll-margin-top: 88px; }
-        #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
-        #contact .medical-contact-title h2 { margin: 0; color: #111827; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 800; line-height: 1.25; }
-        #contact .medical-contact-title h2 span { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        #contact .medical-contact-underline { width: 4rem; height: 4px; margin: 1rem auto 0; border-radius: 99px; background: linear-gradient(90deg, #059669, #0284c7); }
-        #contact .contact-reference-wrap { border: 0; background: transparent; box-shadow: none; }
-        #contact .contact-reference-grid { display: grid; grid-template-columns: 1fr 1fr 1.45fr .9fr; align-items: center; gap: 10px; }
-        #contact .contact-reference-grid input, #contact .contact-reference-grid textarea { display: block; width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(5,150,105,.28); border-radius: 20px; background: rgba(255,255,255,.94); color: #172033; padding: 18px 20px; font: inherit; font-size: .95rem; outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
-        #contact .contact-reference-grid input { min-height: 78px; }
-        #contact .contact-reference-grid textarea { min-height: 150px; resize: vertical; }
-        #contact .contact-reference-grid input::placeholder, #contact .contact-reference-grid textarea::placeholder { color: #7b8798; opacity: 1; }
-        #contact .contact-reference-grid input:focus, #contact .contact-reference-grid textarea:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.12); }
-        #contact .contact-send-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 76px; padding: 16px; border: 0; border-radius: 999px; color: #fff; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #059669, #0284c7); box-shadow: 0 10px 24px rgba(5,150,105,.18); transition: transform .2s ease, box-shadow .2s ease; }
-        #contact .contact-send-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(5,150,105,.24); }
-        #contact .contact-send-btn:disabled { opacity: .7; cursor: wait; transform: none; }
-        #contact .contact-social-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px auto 0; }
-        #contact .contact-social-card { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-width: 130px; padding: 12px 20px; border-radius: 999px; border: 1px solid rgba(5,150,105,.24); background: rgba(255,255,255,.62); color: #334155; text-decoration: none; font-weight: 600; box-shadow: 0 8px 24px rgba(15,23,42,.05); transition: .22s ease; }
-        #contact .contact-social-card i { color: #059669; }
-        #contact .contact-social-card:hover { transform: translateY(-3px); border-color: rgba(2,132,199,.5); color: #0369a1; box-shadow: 0 10px 26px rgba(2,132,199,.12); }
-        html.dark #contact .medical-contact-title h2, body.dark #contact .medical-contact-title h2 { color: #f8fafc; }
-        html.dark #contact .contact-reference-wrap, body.dark #contact .contact-reference-wrap { background: transparent; border: 0; box-shadow: none; }
-        html.dark #contact .contact-reference-grid input, html.dark #contact .contact-reference-grid textarea, body.dark #contact .contact-reference-grid input, body.dark #contact .contact-reference-grid textarea { background: rgba(17,24,39,.82); color: #f8fafc; border-color: rgba(16,185,129,.32); }
-        html.dark #contact .contact-reference-grid input::placeholder, html.dark #contact .contact-reference-grid textarea::placeholder, body.dark #contact .contact-reference-grid input::placeholder, body.dark #contact .contact-reference-grid textarea::placeholder { color: #9ca3af; }
-        html.dark #contact .contact-social-card, body.dark #contact .contact-social-card { background: rgba(17,24,39,.72); color: #d1d5db; border-color: rgba(16,185,129,.22); }
-        
-        /* Footer */
-        #view-home > .medical-home-footer { position: relative; width: 100%; max-width: 100%; box-sizing: border-box; margin-top: 3rem; padding: 0 24px 20px; overflow: hidden; color: #dbe7f2; background: radial-gradient(circle at 8% 0%, rgba(16,185,129,.15), transparent 32%), radial-gradient(circle at 92% 20%, rgba(14,165,233,.13), transparent 30%), linear-gradient(135deg, #071d22 0%, #0b1b2c 58%, #091827 100%); border-top: 1px solid rgba(16,185,129,.28); box-shadow: 0 -18px 45px rgba(15,23,42,.07); }
-        #view-home .medical-footer-accent { height: 3px; width: 100%; margin-bottom: 34px; background: linear-gradient(90deg, #10b981 0%, #06b6d4 52%, #0ea5e9 100%); box-shadow: 0 0 18px rgba(16,185,129,.24); }
-        #view-home .medical-footer-inner { width: 100%; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(170px, .75fr) minmax(220px, .9fr); gap: 48px; padding: 0 4px 30px; }
-        #view-home .medical-footer-brand-mark { display: inline-flex; align-items: center; gap: 12px; color: #f8fafc; font-weight: 800; font-size: 1.12rem; letter-spacing: -.01em; }
-        #view-home .medical-footer-logo-icon { display: inline-flex; width: 42px; height: 42px; flex: 0 0 42px; align-items: center; justify-content: center; border: 1px solid rgba(52,211,153,.34); border-radius: 14px; color: #6ee7b7; background: rgba(16,185,129,.12); box-shadow: inset 0 0 18px rgba(16,185,129,.06); }
-        #view-home .medical-footer-description { max-width: 440px; margin: 16px 0 17px; color: #9eb1c4; font-size: .91rem; line-height: 1.85; }
-        #view-home .medical-footer-credit { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; color: #8ea5b8; font-size: .82rem; }
-        #view-home .medical-footer-credit strong { color: #6ee7b7; font-weight: 700; }
-        #view-home .medical-footer-heading { margin: 5px 0 19px; color: #6ee7b7; font-size: .78rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-        #view-home .medical-footer-links, #view-home .medical-footer-contact-list { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-        #view-home .medical-footer-link, #view-home .medical-footer-contact-link { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; padding: 0; border: 0; background: transparent; color: #a9bbcb; font: inherit; font-size: .9rem; text-align: left; text-decoration: none; overflow-wrap: anywhere; cursor: pointer; transition: color .2s ease, transform .2s ease; }
-        #view-home .medical-footer-link:hover, #view-home .medical-footer-contact-link:hover { color: #ffffff; transform: translateX(3px); }
-        #view-home .medical-footer-link i, #view-home .medical-footer-contact-link i { width: 18px; color: #34d399; text-align: center; }
-        #view-home .medical-footer-bottom { width: 100%; max-width: 1280px; margin: 0 auto; padding: 18px 4px 0; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid rgba(148,163,184,.15); color: #8195a8; font-size: .78rem; }
-        #view-home .medical-footer-bottom-note { display: inline-flex; align-items: center; gap: 7px; }
-        #view-home .medical-footer-bottom-note i { color: #34d399; }
-        
-        @media (max-width: 900px) {
-            #view-home .medical-footer-inner { grid-template-columns: minmax(0, 1fr) minmax(170px, .8fr); gap: 34px; }
-            #view-home .medical-footer-brand { grid-column: 1 / -1; }
-            #contact .contact-reference-grid { grid-template-columns: 1fr 1fr; }
-            #contact .contact-reference-grid textarea { min-height: 130px; }
-            #contact .contact-send-btn { min-height: 58px; }
-        }
-        @media (max-width: 560px) {
-            #view-home > .medical-home-footer { padding: 0 18px 18px; margin-top: 2rem; }
-            #view-home .medical-footer-accent { margin-bottom: 25px; }
-            #view-home .medical-footer-inner { grid-template-columns: minmax(0, 1fr); gap: 27px; padding-bottom: 24px; }
-            #view-home .medical-footer-brand { grid-column: auto; }
-            #view-home .medical-footer-heading { margin-bottom: 14px; }
-            #view-home .medical-footer-bottom { align-items: flex-start; flex-direction: column; }
-            #contact.medical-contact-section { padding-top: 1.75rem; }
-            #contact .medical-contact-title { margin-bottom: 1.25rem; }
-            #contact .contact-reference-wrap { padding: 10px; border-radius: 20px; }
-            #contact .contact-reference-grid { grid-template-columns: 1fr; gap: 9px; }
-            #contact .contact-reference-grid input { min-height: 56px; }
-            #contact .contact-reference-grid textarea { min-height: 120px; }
-            #contact .contact-social-row { gap: 8px; }
-            #contact .contact-social-card { min-width: 0; flex: 1 1 90px; padding: 10px 12px; font-size: .9rem; }
-        }
-    </style>
-
-    <style id="medical-tracker-feature-styles">
-        #view-medical-hsc-info { width:100%; min-width:0; }
-        #view-medical-hsc-info a { -webkit-tap-highlight-color:transparent; }
-        #view-medical-hsc-info article { min-width:0; }
-    </style>
-
-    <!-- ==================== NEW SIDEBAR LAYOUT CSS ==================== -->
+    <!-- ==================== ALL CUSTOM CSS ==================== -->
     <style>
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -124,26 +50,66 @@
         .nav-link:hover { background-color: #f3f4f6; color: #4f46e5; }
         .dark .nav-link:hover { background-color: #1f2937; color: #818cf8; }
         .nav-link.active { background-color: #eef2ff; color: #4338ca; border-left-color: #4338ca; font-weight: 700; }
-        .dark .nav-link.active { background-color: rgba(67, 56, 202, 0.2); color: #818cf8; border-left-color: #818cf8; }
+        .dark .nav-link.active { background-color: rgba(16, 185, 129, 0.1); color: #10b981; border-left-color: #10b981; }
 
         /* Sidebar Transitions */
         #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .sidebar-collapsed { transform: translateX(-100%); }
-        
         @media (min-width: 768px) {
             #sidebar:not(.desktop-hidden) { transform: translateX(0); }
             .desktop-hidden { transform: translateX(-100%); }
             .main-content { margin-left: 16rem; transition: margin-left 0.3s ease; }
             .main-content.expanded { margin-left: 0; }
         }
+
+        /* Duolingo Leaderboard Styles */
+        .league-banner { background: linear-gradient(180deg, #2c3e46 0%, #202f36 100%); border-radius: 16px 16px 0 0; }
+        .progress-bar-bg { background-color: #37464f; height: 16px; border-radius: 8px; }
+        .progress-bar-fill { background-color: #ffc800; height: 100%; border-radius: 8px; }
+        .rank-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid #37464f; }
+        .rank-row:hover { background-color: #2c3e46; }
+        .rank-number { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+        .rank-points { font-size: 0.8rem; color: #8fa1a9; font-weight: 600; }
+
+        /* Contact Form */
+        #contact.medical-contact-section { max-width: 100%; padding: 2.75rem 0 1.25rem; scroll-margin-top: 88px; }
+        #contact .medical-contact-title { text-align: center; margin-bottom: 2rem; }
+        #contact .medical-contact-title h2 { margin: 0; color: #111827; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 800; line-height: 1.25; }
+        #contact .medical-contact-title h2 span { background: linear-gradient(135deg, #059669 0%, #0284c7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        #contact .medical-contact-underline { width: 4rem; height: 4px; margin: 1rem auto 0; border-radius: 99px; background: linear-gradient(90deg, #059669, #0284c7); }
+        #contact .contact-reference-wrap { border: 0; background: transparent; box-shadow: none; }
+        #contact .contact-reference-grid { display: grid; grid-template-columns: 1fr 1fr 1.45fr .9fr; align-items: center; gap: 10px; }
+        #contact .contact-reference-grid input, #contact .contact-reference-grid textarea { display: block; width: 100%; border: 1px solid rgba(5,150,105,.28); border-radius: 20px; background: rgba(255,255,255,.94); color: #172033; padding: 18px 20px; font-size: .95rem; outline: none; transition: border-color .2s ease; }
+        #contact .contact-reference-grid input:focus, #contact .contact-reference-grid textarea:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.12); }
+        #contact .contact-send-btn { width: 100%; min-height: 76px; border: 0; border-radius: 999px; color: #fff; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #059669, #0284c7); transition: transform .2s ease; }
+        #contact .contact-send-btn:hover { transform: translateY(-2px); }
+        #contact .contact-social-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px auto 0; }
+        #contact .contact-social-card { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-width: 130px; padding: 12px 20px; border-radius: 999px; border: 1px solid rgba(5,150,105,.24); background: rgba(255,255,255,.62); color: #334155; text-decoration: none; font-weight: 600; box-shadow: 0 8px 24px rgba(15,23,42,.05); }
+        html.dark #contact .medical-contact-title h2 { color: #f8fafc; }
+        html.dark #contact .contact-reference-grid input, html.dark #contact .contact-reference-grid textarea { background: rgba(17,24,39,.82); color: #f8fafc; border-color: rgba(16,185,129,.32); }
+        @media (max-width: 900px) { #contact .contact-reference-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 560px) { #contact .contact-reference-grid { grid-template-columns: 1fr; } }
+
+        /* Footer */
+        #view-home > .medical-home-footer { position: relative; width: 100%; max-width: 100%; box-sizing: border-box; margin-top: 3rem; padding: 0 24px 20px; overflow: hidden; color: #dbe7f2; background: radial-gradient(circle at 8% 0%, rgba(16,185,129,.15), transparent 32%), radial-gradient(circle at 92% 20%, rgba(14,165,233,.13), transparent 30%), linear-gradient(135deg, #071d22 0%, #0b1b2c 58%, #091827 100%); border-top: 1px solid rgba(16,185,129,.28); }
+        #view-home .medical-footer-accent { height: 3px; width: 100%; margin-bottom: 34px; background: linear-gradient(90deg, #10b981 0%, #06b6d4 52%, #0ea5e9 100%); }
+        #view-home .medical-footer-inner { width: 100%; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(170px, .75fr) minmax(220px, .9fr); gap: 48px; padding: 0 4px 30px; }
+        #view-home .medical-footer-brand-mark { display: inline-flex; align-items: center; gap: 12px; color: #f8fafc; font-weight: 800; font-size: 1.12rem; }
+        #view-home .medical-footer-logo-icon { display: inline-flex; width: 42px; height: 42px; flex: 0 0 42px; align-items: center; justify-content: center; border: 1px solid rgba(52,211,153,.34); border-radius: 14px; color: #6ee7b7; background: rgba(16,185,129,.12); }
+        #view-home .medical-footer-description { max-width: 440px; margin: 16px 0 17px; color: #9eb1c4; font-size: .91rem; line-height: 1.85; }
+        #view-home .medical-footer-heading { margin: 5px 0 19px; color: #6ee7b7; font-size: .78rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+        #view-home .medical-footer-links, #view-home .medical-footer-contact-list { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+        #view-home .medical-footer-link, #view-home .medical-footer-contact-link { display: inline-flex; align-items: center; gap: 10px; color: #a9bbcb; font-size: .9rem; text-decoration: none; background: none; border: none; cursor: pointer; transition: color .2s ease; }
+        #view-home .medical-footer-link:hover, #view-home .medical-footer-contact-link:hover { color: #ffffff; transform: translateX(3px); }
+        #view-home .medical-footer-bottom { width: 100%; max-width: 1280px; margin: 0 auto; padding: 18px 4px 0; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(148,163,184,.15); color: #8195a8; font-size: .78rem; }
+        @media (max-width: 900px) { #view-home .medical-footer-inner { grid-template-columns: 1fr 1fr; gap: 34px; } #view-home .medical-footer-brand { grid-column: 1 / -1; } }
+        @media (max-width: 560px) { #view-home .medical-footer-inner { grid-template-columns: 1fr; gap: 27px; } #view-home .medical-footer-bottom { flex-direction: column; align-items: flex-start; } }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 h-screen overflow-hidden flex">
+<body class="bg-gray-50 text-gray-800 dark:bg-darkBg dark:text-gray-100 h-screen overflow-hidden flex">
 
     <!-- ==================== SIDEBAR ==================== -->
-    <aside id="sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full fixed inset-y-0 left-0 z-50 shadow-2xl md:shadow-none sidebar-collapsed">
-        
-        <!-- Sidebar Header -->
+    <aside id="sidebar" class="w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-gray-700 flex flex-col h-full fixed inset-y-0 left-0 z-50 shadow-2xl md:shadow-none sidebar-collapsed">
         <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
             <div class="flex items-center gap-3 cursor-pointer" onclick="window.app.showView('home'); closeSidebarMobile();">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-medical-600 to-accent-500 flex items-center justify-center text-white shadow-md">
@@ -159,7 +125,6 @@
             </button>
         </div>
 
-        <!-- Sidebar Navigation -->
         <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
             <button onclick="window.app.showView('home'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg active">
                 <i class="fa-solid fa-house w-5 text-center"></i> হোম
@@ -167,7 +132,7 @@
             <button onclick="window.app.openQuestionBank('view'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg">
                 <i class="fa-solid fa-book-medical w-5 text-center"></i> প্রশ্ন ব্যাংক
             </button>
-            <button onclick="window.app.openQuestionBank('practice'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg">
+            <button onclick="window.app.showPracticeBrowser(); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg">
                 <i class="fa-solid fa-bullseye w-5 text-center"></i> প্র্যাকটিস
             </button>
             <button onclick="window.app.setupExamQuick('model'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg">
@@ -193,14 +158,10 @@
             </button>
         </nav>
 
-        <!-- Sidebar Footer (Profile & Auth) -->
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3 bg-gray-50 dark:bg-gray-800/50">
-            <!-- Profile Button -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3 bg-gray-50 dark:bg-darkCard">
             <button onclick="window.app.openProfile(); closeSidebarMobile();" class="w-full flex items-center justify-between p-2 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-medical-500 transition shadow-sm group">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center text-sm font-bold">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
+                    <div class="w-8 h-8 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center text-sm font-bold"><i class="fa-solid fa-user"></i></div>
                     <div class="text-left">
                         <span class="block text-xs font-bold text-gray-900 dark:text-white group-hover:text-medical-600">আমার প্রোফাইল</span>
                         <span class="block text-[10px] text-gray-500">Progress & Rank</span>
@@ -208,8 +169,6 @@
                 </div>
                 <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>
             </button>
-            
-            <!-- Auth Button Target -->
             <div class="auth-btn-target w-full">
                 <button onclick="window.redirectToLogin()" class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-lg hover:bg-emerald-100 transition-all">
                     <i class="fa-solid fa-right-to-bracket"></i> Log In / Sign up
@@ -218,168 +177,130 @@
         </div>
     </aside>
 
-    <!-- Overlay for Mobile -->
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity"></div>
 
     <!-- ==================== MAIN CONTENT ==================== -->
     <div id="main-content" class="main-content flex-1 flex flex-col h-full w-full overflow-hidden relative">
         
-        <!-- Top Header -->
-        <header class="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4 justify-between shrink-0">
+        <!-- TOP HEADER -->
+        <header class="h-16 bg-white dark:bg-darkBg border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 shrink-0 z-30">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="text-gray-600 dark:text-gray-300 hover:text-medical-600 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                <button onclick="toggleSidebar()" class="text-gray-600 dark:text-gray-300 hover:text-medical-600 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                     <i class="fa-solid fa-bars text-lg"></i>
                 </button>
                 <span class="font-bold text-gray-800 dark:text-gray-200 hidden sm:inline-block">মেডিকেল ভর্তি প্রস্তুতি</span>
             </div>
+            
             <div class="flex items-center gap-3">
-                <button id="theme-toggle" onclick="window.app.toggleTheme()" class="text-gray-500 hover:text-medical-600 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fa-solid fa-moon text-lg dark:hidden"></i>
-                    <i class="fa-solid fa-sun text-lg hidden dark:inline-block"></i>
+                <div class="hidden sm:flex items-center gap-1 text-yellow-500 font-bold px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full border border-yellow-500/30">
+                    <i class="fa-solid fa-star"></i> <span id="header-points">0</span>
+                </div>
+                <div class="relative hidden sm:block">
+                    <i class="fa-solid fa-bell text-gray-500 dark:text-gray-400 text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full font-bold">3</span>
+                </div>
+                <!-- DARK/LIGHT MODE TOGGLE -->
+                <button id="theme-toggle" onclick="toggleTheme()" class="text-gray-500 hover:text-yellow-500 p-2 rounded-full bg-gray-100 dark:bg-gray-800 transition">
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                    <i class="fa-solid fa-moon block dark:hidden"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Dynamic Main Content -->
-        <main class="flex-1 overflow-y-auto w-full bg-gray-50 dark:bg-gray-900">
+        <!-- MAIN VIEWS -->
+        <main class="flex-1 overflow-y-auto w-full bg-gray-50 dark:bg-darkBg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
-                <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
+                <div id="question-data-status" class="hidden" role="status"></div>
 
-                <!-- ========================================== -->
-                <!-- VIEW 1: HOME -->
-                <!-- ========================================== -->
+                <!-- ==================== HOME ==================== -->
                 <section id="view-home" class="view-section space-y-8">
-                    <!-- Hero Banner -->
+                    <!-- Hero -->
                     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-medical-800 via-medical-700 to-accent-700 text-white p-6 sm:p-10 shadow-xl">
-                        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
-                            <i class="fa-solid fa-user-doctor"></i>
-                        </div>
+                        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl"><i class="fa-solid fa-user-doctor"></i></div>
                         <div class="relative z-10 max-w-2xl space-y-4">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/30">
-                                <i class="fa-solid fa-graduation-cap ml-1"></i> Class XI & XII Students, Medical Admission Journey
+                                <i class="fa-solid fa-graduation-cap ml-1"></i> Class XI & XII Students
                             </span>
-                            <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">
-                                মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি গ্রহণ করুন ঘরে বসেই!
-                            </h2>
-                            <p class="text-gray-100 text-sm sm:text-base leading-relaxed">
-                                জীববিজ্ঞান, রসায়ন, পদার্থবিজ্ঞান, ইংরেজি এবং সাধারণ জ্ঞানের মানসম্মত প্রশ্ন ও রিয়েল-টাইম নেগেটিভ মার্কিং সহ Unlimited মডেল টেস্ট দিন।
-                            </p>
+                            <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি গ্রহণ করুন ঘরে বসেই!</h2>
+                            <p class="text-gray-100 text-sm sm:text-base leading-relaxed">জীববিজ্ঞান, রসায়ন, পদার্থবিজ্ঞান, ইংরেজি এবং সাধারণ জ্ঞানের মানসম্মত প্রশ্ন ও রিয়েল-টাইম নেগেটিভ মার্কিং সহ Unlimited মডেল টেস্ট দিন।</p>
                             <div class="pt-2 flex flex-wrap gap-3">
                                 <button onclick="window.app.openSetupView()" class="px-6 py-3 rounded-xl bg-white text-medical-800 font-bold hover:bg-medical-50 transition shadow-lg flex items-center">
                                     <i class="fa-solid fa-play ml-2 text-medical-600"></i> পরীক্ষা শুরু করুন
                                 </button>
-                                <button onclick="window.app.setupExamQuick('previous')" class="px-5 py-3 rounded-xl bg-medical-900/50 hover:bg-medical-900/80 text-white font-medium border border-white/20 transition flex items-center">
-                                    <i class="fa-solid fa-bookmark ml-2"></i> বিগত বছর (Verified)
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick Stats Row -->
+                    <!-- Stats -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-medical-100 dark:bg-medical-900/50 text-medical-600 dark:text-medical-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-clipboard-check"></i>
-                            </div>
-                            <div>
-                                <div id="dash-total-exams" class="text-xl font-bold text-gray-900 dark:text-white">0</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">মোট সম্পন্ন পরীক্ষা</div>
-                            </div>
+                        <div class="bg-white dark:bg-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
+                            <div class="w-12 h-12 rounded-xl bg-medical-100 dark:bg-medical-900/50 text-medical-600 dark:text-medical-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-clipboard-check"></i></div>
+                            <div><div id="dash-total-exams" class="text-xl font-bold text-gray-900 dark:text-white">0</div><div class="text-xs text-gray-500 dark:text-gray-400">মোট পরীক্ষা</div></div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-trophy"></i>
-                            </div>
-                            <div>
-                                <div id="dash-best-score" class="text-xl font-bold text-gray-900 dark:text-white">0.00</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">সর্বোচ্চ স্কোর</div>
-                            </div>
+                        <div class="bg-white dark:bg-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-trophy"></i></div>
+                            <div><div id="dash-best-score" class="text-xl font-bold text-gray-900 dark:text-white">0.00</div><div class="text-xs text-gray-500 dark:text-gray-400">সর্বোচ্চ স্কোর</div></div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-bullseye"></i>
-                            </div>
-                            <div>
-                                <div id="dash-avg-accuracy" class="text-xl font-bold text-gray-900 dark:text-white">0%</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">গড় নির্ভুলতা</div>
-                            </div>
+                        <div class="bg-white dark:bg-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-bullseye"></i></div>
+                            <div><div id="dash-avg-accuracy" class="text-xl font-bold text-gray-900 dark:text-white">0%</div><div class="text-xs text-gray-500 dark:text-gray-400">গড় নির্ভুলতা</div></div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
-                            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-database"></i>
-                            </div>
-                            <div>
-                                <div id="dash-total-questions" class="text-xl font-bold text-gray-900 dark:text-white">100+</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">প্রশ্ন ব্যাংকের মোট প্রশ্ন</div>
-                            </div>
+                        <div class="bg-white dark:bg-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4 space-x-reverse">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-database"></i></div>
+                            <div><div id="dash-total-questions" class="text-xl font-bold text-gray-900 dark:text-white">100+</div><div class="text-xs text-gray-500 dark:text-gray-400">প্রশ্ন ব্যাংক</div></div>
                         </div>
                     </div>
 
-                    <!-- Exam Mode Selection Cards -->
+                    <!-- Modes -->
                     <div class="space-y-4">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                            <i class="fa-solid fa-layer-group text-medical-600 ml-2"></i> পরীক্ষার মোড বেছে নিন
-                        </h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa-solid fa-layer-group text-medical-600 ml-2"></i> পরীক্ষার মোড বেছে নিন</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div onclick="window.app.setupExamQuick('random')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
+                            <div onclick="window.app.setupExamQuick('random')" class="group cursor-pointer bg-white dark:bg-darkCard rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                                 <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-shuffle"></i></div>
                                 <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Random Mixed</h4>
                                 <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">সবগুলো বিষয় বা নির্দিষ্ট বিষয়ের এলোমেলো প্রশ্নের মাধ্যমে ঝটপট রিভিশন টেস্ট নিন।</p>
-                                <span class="inline-flex items-center text-xs font-semibold text-medical-600 dark:text-medical-400 group-hover:underline">পরীক্ষা সেটআপ করুন <i class="fa-solid fa-arrow-left mr-1"></i></span>
                             </div>
-                            <div onclick="window.app.setupExamQuick('model')" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
+                            <div onclick="window.app.setupExamQuick('model')" class="group cursor-pointer bg-white dark:bg-darkCard rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                                 <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-laptop-code"></i></div>
                                 <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Full Model Test</h4>
                                 <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">প্রকৃত মেডিকেল ভর্তি পরীক্ষার স্টাইলে ৫০/৭৫/১০০ প্রশ্নের পূর্ণাঙ্গ সময়াবদ্ধ মডেল টেস্ট।</p>
-                                <span class="inline-flex items-center text-xs font-semibold text-medical-600 dark:text-medical-400 group-hover:underline">পরীক্ষা শুরু করুন <i class="fa-solid fa-arrow-left mr-1"></i></span>
                             </div>
-                            <div onclick="window.app.showPreviousYears()" class="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
+                            <div onclick="window.app.showPreviousYears()" class="group cursor-pointer bg-white dark:bg-darkCard rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 transition hover:border-medical-500">
                                 <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-clock-rotate-left"></i></div>
                                 <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Previous Year</h4>
                                 <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-4">বিগত বছরের যাচাইকৃত (Verified) মেডিকেল ভর্তি পরীক্ষার প্রশ্ন অনুশীলন করুন।</p>
-                                <span class="inline-flex items-center text-xs font-semibold text-medical-600 dark:text-medical-400 group-hover:underline">প্রশ্ন ব্যাংক খুলুন <i class="fa-solid fa-arrow-left mr-1"></i></span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Subject-wise Breakdown -->
+                    <!-- Subject -->
                     <div class="space-y-4">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa-solid fa-book text-medical-600 ml-2"></i> বিষয়ভিত্তিক প্র্যাকটিস</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                            <button onclick="window.app.startSubjectExam('biology')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                            <button onclick="window.app.startSubjectExam('biology')" class="p-4 bg-white dark:bg-darkCard rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                                 <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center justify-center text-sm font-bold mb-2"><i class="fa-solid fa-dna"></i></div>
-                                <div class="font-bold text-gray-900 dark:text-white">জীববিজ্ঞান</div><div id="count-subject-biology" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
+                                <div class="font-bold text-gray-900 dark:text-white">জীববিজ্ঞান</div>
                             </button>
-                            <button onclick="window.app.startSubjectExam('chemistry')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                            <button onclick="window.app.startSubjectExam('chemistry')" class="p-4 bg-white dark:bg-darkCard rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                                 <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-300 flex items-center justify-center text-sm font-bold mb-2"><i class="fa-solid fa-flask"></i></div>
-                                <div class="font-bold text-gray-900 dark:text-white">রসায়ন</div><div id="count-subject-chemistry" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
+                                <div class="font-bold text-gray-900 dark:text-white">রসায়ন</div>
                             </button>
-                            <button onclick="window.app.startSubjectExam('physics')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                            <button onclick="window.app.startSubjectExam('physics')" class="p-4 bg-white dark:bg-darkCard rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                                 <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-300 flex items-center justify-center text-sm font-bold mb-2"><i class="fa-solid fa-atom"></i></div>
-                                <div class="font-bold text-gray-900 dark:text-white">পদার্থবিজ্ঞান</div><div id="count-subject-physics" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
+                                <div class="font-bold text-gray-900 dark:text-white">পদার্থবিজ্ঞান</div>
                             </button>
-                            <button onclick="window.app.startSubjectExam('english')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                            <button onclick="window.app.startSubjectExam('english')" class="p-4 bg-white dark:bg-darkCard rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                                 <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300 flex items-center justify-center text-sm font-bold mb-2"><i class="fa-solid fa-language"></i></div>
-                                <div class="font-bold text-gray-900 dark:text-white">ইংরেজি</div><div id="count-subject-english" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
+                                <div class="font-bold text-gray-900 dark:text-white">ইংরেজি</div>
                             </button>
-                            <button onclick="window.app.startSubjectExam('gk')" class="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
+                            <button onclick="window.app.startSubjectExam('gk')" class="p-4 bg-white dark:bg-darkCard rounded-2xl border border-gray-200 dark:border-gray-700 text-right hover:border-medical-500 transition shadow-sm">
                                 <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-300 flex items-center justify-center text-sm font-bold mb-2"><i class="fa-solid fa-globe"></i></div>
-                                <div class="font-bold text-gray-900 dark:text-white">সাধারণ জ্ঞান</div><div id="count-subject-gk" class="text-xs text-gray-500 dark:text-gray-400 mt-1">০ টি প্রশ্ন</div>
+                                <div class="font-bold text-gray-900 dark:text-white">সাধারণ জ্ঞান</div>
                             </button>
                         </div>
                     </div>
-                    
-                    <div class="profile-home-shortcut mt-6">
-                        <button onclick="window.app.openProfile()" class="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:border-medical-500 transition">
-                            <div class="flex items-center gap-3">
-                                <span class="w-10 h-10 rounded-xl bg-medical-100 text-medical-600 flex items-center justify-center text-xl"><i class="fa-solid fa-user-graduate"></i></span>
-                                <span class="text-right"><b class="block text-gray-900 dark:text-white">আমার Profile</b><small class="text-gray-500">Progress, Accuracy, Attempt History দেখুন</small></span>
-                            </div>
-                            <i class="fa-solid fa-chevron-left text-gray-400"></i>
-                        </button>
-                    </div>
 
-                    <!-- CONTACT FORM -->
+                    <!-- Contact Form -->
                     <section id="contact" class="medical-contact-section" aria-labelledby="medical-contact-heading">
                         <div class="medical-contact-title">
                             <h2 id="medical-contact-heading">Get in <span>Touch</span></h2>
@@ -404,7 +325,7 @@
                         </div>
                     </section>
 
-                    <!-- FOOTER -->
+                    <!-- Footer -->
                     <footer class="medical-home-footer" aria-label="Medical Admission Tester footer">
                         <div class="medical-footer-accent" aria-hidden="true"></div>
                         <div class="medical-footer-inner">
@@ -413,30 +334,21 @@
                                     <span class="medical-footer-logo-icon" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
                                     <span>মেডিকেল ভর্তি পরীক্ষা</span>
                                 </div>
-                                <p class="medical-footer-description">
-                                    মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি, প্রশ্ন অনুশীলন ও নিজের অগ্রগতি যাচাই—সবকিছু এক জায়গায়। নিয়মিত অনুশীলন করুন, আত্মবিশ্বাসের সঙ্গে এগিয়ে যান।
-                                </p>
-                                <div class="medical-footer-credit"><span>পরিকল্পনা ও নির্মাণে</span><strong>MD. Rakib Hasan</strong></div>
+                                <p class="medical-footer-description">মেডিকেল ভর্তি পরীক্ষার প্রস্তুতি, প্রশ্ন অনুশীলন ও নিজের অগ্রগতি যাচাই—সবকিছু এক জায়গায়। নিয়মিত অনুশীলন করুন, আত্মবিশ্বাসের সঙ্গে এগিয়ে যান।</p>
                             </div>
-
                             <div class="medical-footer-navigation">
                                 <h3 class="medical-footer-heading">Quick Navigation</h3>
                                 <div class="medical-footer-links">
                                     <button type="button" class="medical-footer-link" onclick="window.app.showView('home'); window.scrollTo({top:0,behavior:'smooth'});"><i class="fa-solid fa-house" aria-hidden="true"></i><span>হোম</span></button>
                                     <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('view')"><i class="fa-solid fa-book-medical" aria-hidden="true"></i><span>প্রশ্ন ব্যাংক</span></button>
-                                    <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('practice')"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
-                                    <button type="button" class="medical-footer-link" onclick="window.app.setupExamQuick('model')"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>মডেল টেস্ট</span></button>
-                                    <button type="button" class="medical-footer-link" onclick="window.app.showPreviousYears()"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>বিগত বছরের প্রশ্ন</span></button>
+                                    <button type="button" class="medical-footer-link" onclick="window.app.showPracticeBrowser()"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
                                 </div>
                             </div>
-
                             <div class="medical-footer-contact">
                                 <h3 class="medical-footer-heading">Get in Touch</h3>
                                 <div class="medical-footer-contact-list">
                                     <a class="medical-footer-contact-link" href="mailto:mdrakibasfyia@gmail.com"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>mdrakibasfyia@gmail.com</span></a>
                                     <a class="medical-footer-contact-link" href="https://www.facebook.com/profile.php?id=61579557960701" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i><span>Facebook</span></a>
-                                    <a class="medical-footer-contact-link" href="https://github.com/serakib" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span></a>
-                                    <button type="button" class="medical-footer-link" onclick="var c=document.getElementById('contact'); if(c){c.scrollIntoView({behavior:'smooth',block:'start'});}"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Contact Form</span></button>
                                 </div>
                             </div>
                         </div>
@@ -447,75 +359,62 @@
                     </footer>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: QUESTION BANK -->
-                <!-- ========================================== -->
+                <!-- ==================== QUESTION BANK ==================== -->
                 <section id="view-question-bank" class="view-section hidden space-y-6">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-bold">Question Bank</h2>
-                        <button onclick="window.app.showView('home')" class="px-3 py-1.5 border rounded-lg text-sm">Home</button>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Question Bank</h2>
+                        <button onclick="window.app.showView('home')" class="px-3 py-1.5 border rounded-lg text-sm dark:border-gray-600">Home</button>
                     </div>
-                    <div class="filter-bar flex gap-2 flex-wrap">
-                        <input type="text" id="question-bank-search" placeholder="Search questions..." class="flex-1 min-w-[200px] border rounded-xl px-4 py-2 dark:bg-gray-700 dark:border-gray-600">
-                        <select id="question-bank-subject" class="border rounded-xl px-4 py-2 dark:bg-gray-700 dark:border-gray-600"><option value="all">সব বিষয়</option><option value="biology">জীববিজ্ঞান</option><option value="chemistry">রসায়ন</option><option value="physics">পদার্থবিজ্ঞান</option><option value="english">ইংরেজি</option><option value="gk">সাধারণ জ্ঞান</option></select>
-                        <select id="question-bank-year" class="border rounded-xl px-4 py-2 dark:bg-gray-700 dark:border-gray-600"><option value="all">সব বছর</option></select>
+                    <div class="flex flex-wrap gap-2">
+                        <input type="text" id="question-bank-search" placeholder="Search questions..." class="flex-1 min-w-[200px] border rounded-xl px-4 py-2 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white">
+                        <select id="question-bank-subject" class="border rounded-xl px-4 py-2 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white">
+                            <option value="all">সব বিষয়</option><option value="biology">জীববিজ্ঞান</option><option value="chemistry">রসায়ন</option><option value="physics">পদার্থবিজ্ঞান</option><option value="english">ইংরেজি</option><option value="gk">সাধারণ জ্ঞান</option>
+                        </select>
+                        <select id="question-bank-year" class="border rounded-xl px-4 py-2 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white">
+                            <option value="all">সব বছর</option>
+                        </select>
                     </div>
                     <div class="text-xs text-gray-500" id="question-bank-count">0 questions</div>
                     <div id="question-bank-list" class="space-y-4"></div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: PRACTICE (BROWSER + QUIZ MODE) -->
-                <!-- ========================================== -->
-                <section id="view-practice" class="view-section hidden space-y-6">
-                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <!-- ==================== PRACTICE ==================== -->
+                <section id="view-practice" class="view-section hidden space-y-4 max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700">
                         <div>
-                            <span class="text-xs font-bold text-medical-600 dark:text-medical-400">Practice Lab</span>
-                            <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Practice Questions</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Read questions, reveal answers, or start a timed practice session.</p>
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">প্র্যাকটিস প্রশ্ন</h2>
+                            <p class="text-xs text-gray-500">প্রশ্ন পড়ুন, উত্তর দেখুন অথবা কুইজ শুরু করুন।</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="window.app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Home</button>
-                            <button onclick="window.app.startPracticeQuiz()" class="px-4 py-2 rounded-xl bg-medical-600 text-white font-bold text-sm shadow-md"><i class="fa-solid fa-play mr-1"></i> Start Practice Quiz</button>
-                        </div>
+                        <button onclick="window.app.startPracticeQuiz()" class="bg-medical-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow hover:bg-medical-700">
+                            <i class="fa-solid fa-play mr-1"></i> Start Quiz
+                        </button>
                     </div>
                     
-                    <!-- Practice Browser Mode -->
-                    <div id="practice-browser" class="space-y-4">
-                        <!-- JS will inject practice questions here -->
-                    </div>
+                    <div id="practice-browser" class="space-y-3"></div>
 
-                    <!-- Practice Quiz Mode (Hidden by default) -->
                     <div id="practice-quiz-view" class="hidden space-y-4">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border flex justify-between items-center sticky top-2 z-20 shadow-sm">
-                            <div>
-                                <h3 class="font-extrabold text-gray-900 dark:text-white">Practice Quiz in Progress</h3>
-                                <p class="text-xs text-red-500 font-bold mt-1">Time Left: <span id="practice-timer">10:00</span></p>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Score: <span id="practice-score">0</span></span>
-                                <button onclick="window.app.finishPracticeQuiz()" class="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition">End Quiz</button>
-                            </div>
+                        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                            <span class="font-bold text-red-500">Time Left: <span id="practice-timer">10:00</span></span>
+                            <button onclick="window.app.finishPracticeQuiz()" class="text-xs bg-red-500 text-white px-3 py-1 rounded">End</button>
                         </div>
-                        
-                        <div id="practice-question" class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"></div>
-                        
+                        <div id="practice-question" class="bg-white dark:bg-darkCard p-6 rounded-xl border border-gray-200 dark:border-gray-700"></div>
                         <div class="flex justify-between mt-4">
-                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition" onclick="window.app.prevPractice()"><i class="fa-solid fa-arrow-right mr-1"></i> Previous</button>
-                            <button class="px-4 py-2 bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold transition" onclick="window.app.nextPractice()">Next <i class="fa-solid fa-arrow-left ml-1"></i></button>
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition" onclick="window.app.prevPractice()">Previous</button>
+                            <button class="px-4 py-2 bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold transition" onclick="window.app.nextPractice()">Next</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: PREVIOUS YEAR -->
-                <!-- ========================================== -->
+                <!-- ==================== PREVIOUS YEAR ==================== -->
                 <section id="view-previous" class="view-section hidden space-y-6">
-                    <div class="flex justify-between items-center"><h2 class="text-2xl font-extrabold">Previous Year Questions</h2><button onclick="window.app.showView('home')" class="px-4 py-2 border rounded-xl font-bold">Home</button></div>
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">Previous Year Questions</h2>
+                        <button onclick="window.app.showView('home')" class="px-4 py-2 border rounded-xl font-bold dark:border-gray-600">Home</button>
+                    </div>
                     <div id="previous-year-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
                     <div id="previous-browser" class="hidden space-y-4">
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border flex justify-between items-center sticky top-2 z-20">
-                            <div><h3 id="previous-selected-year" class="font-extrabold"></h3><p id="previous-count" class="text-xs text-gray-500"></p></div>
+                        <div class="bg-white dark:bg-darkCard rounded-2xl p-4 border dark:border-gray-700 flex justify-between items-center sticky top-2 z-20">
+                            <div><h3 id="previous-selected-year" class="font-extrabold text-gray-900 dark:text-white"></h3><p id="previous-count" class="text-xs text-gray-500"></p></div>
                             <div class="flex gap-2">
                                 <button onclick="window.app.togglePreviousAnswers()" id="previous-answer-toggle" class="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-bold">Show Answers</button>
                                 <button onclick="window.app.startPreviousYearQuiz()" class="px-3 py-2 rounded-xl bg-medical-600 text-white text-xs font-bold"><i class="fa-solid fa-play mr-1"></i> Quiz This Year</button>
@@ -525,227 +424,231 @@
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: PROFILE -->
-                <!-- ========================================== -->
-                <section id="view-profile" class="view-section hidden space-y-6 max-w-6xl mx-auto">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center text-3xl"><i class="fa-solid fa-user-graduate"></i></div>
-                        <div><h2 id="profile-name" class="text-xl font-bold">Guest Student</h2><p id="profile-email" class="text-sm text-gray-500">Guest mode</p></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border text-center shadow-sm"><span class="text-xs text-gray-500">Practiced</span><strong id="profile-seen-count" class="block text-xl font-black">0</strong></div>
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border text-center shadow-sm"><span class="text-xs text-gray-500">Attempts</span><strong id="profile-attempt-count" class="block text-xl font-black">0</strong></div>
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border text-center shadow-sm"><span class="text-xs text-gray-500">Best Score</span><strong id="profile-best-score" class="block text-xl font-black">0.00</strong></div>
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border text-center shadow-sm"><span class="text-xs text-gray-500">Accuracy</span><strong id="profile-accuracy" class="block text-xl font-black">0%</strong></div>
-                        
-                        <!-- RANK CARDS -->
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border-l-4 border-blue-500 text-center shadow-sm">
-                            <span class="text-xs text-gray-500">লাইভ র‍্যাংক (সাপ্তাহিক)</span>
-                            <strong id="profile-live-rank" class="block text-2xl font-black text-blue-600">N/A</strong>
+                <!-- ==================== LEADERBOARD (DUOLINGO STYLE) ==================== -->
+                <section id="view-leaderboard" class="view-section hidden max-w-3xl mx-auto">
+                    <div class="league-banner relative pt-8 pb-4 px-4 text-center">
+                        <div class="flex justify-center items-end gap-2 mb-3">
+                            <div class="w-12 h-12 rounded-full bg-gray-700 opacity-50 flex items-center justify-center text-xl"><i class="fa-solid fa-shield"></i></div>
+                            <div class="w-16 h-16 rounded-full bg-gray-600 opacity-60 flex items-center justify-center text-3xl"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="relative -top-4 w-28 h-28 rounded-full bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center text-5xl shadow-2xl border-4 border-gray-400 z-10">
+                                <i class="fa-solid fa-shield-cat text-gray-200"></i>
+                            </div>
+                            <div class="w-16 h-16 rounded-full bg-gray-600 opacity-60 flex items-center justify-center text-3xl"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="w-12 h-12 rounded-full bg-gray-700 opacity-50 flex items-center justify-center text-xl"><i class="fa-solid fa-shield"></i></div>
                         </div>
-                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border-l-4 border-yellow-500 text-center shadow-sm">
-                            <span class="text-xs text-gray-500">বেস্ট র‍্যাংক (সর্বকালীন)</span>
-                            <strong id="profile-best-rank" class="block text-2xl font-black text-yellow-600">N/A</strong>
+                        <h2 class="text-xl font-black text-gray-800 dark:text-white mb-6">আয়রন লীগ</h2>
+                        <div class="max-w-xl mx-auto flex items-center gap-3">
+                            <div class="relative w-10 h-10 flex items-center justify-center bg-yellow-100 border-4 border-yellow-400 rounded-full z-10 shrink-0">
+                                <i class="fa-solid fa-star text-yellow-500 text-sm"></i>
+                                <span class="absolute -top-2 -right-2 bg-gray-800 text-white text-[10px] font-bold px-1.5 rounded-full border border-gray-600">0</span>
+                            </div>
+                            <div class="flex-1 progress-bar-bg relative">
+                                <div class="progress-bar-fill" style="width: 0%;"></div>
+                                <div class="flex justify-between text-xs font-bold text-gray-500 mt-1"><span>0</span><span>100</span></div>
+                            </div>
                         </div>
                     </div>
+                    <div class="bg-white dark:bg-darkCard rounded-b-2xl shadow-xl overflow-hidden border border-t-0 border-gray-200 dark:border-gray-700">
+                        <div id="leaderboard-list"></div>
+                    </div>
+                </section>
 
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border space-y-6">
-                        <div class="flex justify-between items-center border-b pb-4"><h2 class="text-xl font-bold">সাম্প্রতিক পরীক্ষাসমূহ</h2><button onclick="window.app.clearStorageHistory()" class="text-xs text-red-600 hover:underline">ইতিহাস মুছুন</button></div>
+                <!-- ==================== PROFILE (DETAILS) ==================== -->
+                <section id="view-profile" class="view-section hidden space-y-6 max-w-5xl mx-auto">
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-gray-200 dark:border-gray-700 flex items-center gap-4 shadow-sm">
+                        <div class="w-20 h-20 rounded-full bg-medical-100 dark:bg-gray-700 flex items-center justify-center text-3xl text-medical-600 dark:text-medical-400">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            <h2 id="profile-name" class="text-2xl font-bold text-gray-900 dark:text-white">Guest Student</h2>
+                            <p class="text-sm text-gray-500">মেডিকেল অ্যাডমিশন অ্যাসপিরেন্ট</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                            <span class="text-xs text-gray-500 font-bold">মোট পরীক্ষা</span>
+                            <strong id="profile-attempts" class="block text-2xl font-black text-blue-500">0</strong>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                            <span class="text-xs text-gray-500 font-bold">সর্বোচ্চ স্কোর</span>
+                            <strong id="profile-best" class="block text-2xl font-black text-emerald-500">0.00</strong>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                            <span class="text-xs text-gray-500 font-bold">লাইভ র‍্যাংক</span>
+                            <strong id="profile-live-rank" class="block text-2xl font-black text-yellow-500">#?</strong>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                            <span class="text-xs text-gray-500 font-bold">বেস্ট র‍্যাংক</span>
+                            <strong id="profile-best-rank" class="block text-2xl font-black text-purple-500">#?</strong>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-darkCard rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">সাম্প্রতিক পরীক্ষাসমূহ</h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-right">
-                                <thead class="text-xs bg-gray-100 dark:bg-gray-700"><tr><th class="py-3 px-4">তারিখ</th><th class="py-3 px-4">মোড</th><th class="py-3 px-4">বিষয়</th><th class="py-3 px-4">স্কোর</th><th class="py-3 px-4">নির্ভুলতা</th></tr></thead>
-                                <tbody id="prog-history-tbody" class="divide-y"></tbody>
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-gray-500 bg-gray-50 dark:bg-gray-800 uppercase">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-l-lg">তারিখ</th>
+                                        <th class="px-4 py-3">পরীক্ষা</th>
+                                        <th class="px-4 py-3">স্কোর</th>
+                                        <th class="px-4 py-3 rounded-r-lg">নির্ভুলতা</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="profile-history-body" class="divide-y divide-gray-100 dark:divide-gray-700"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: LEADERBOARD -->
-                <!-- ========================================== -->
-                <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-3xl mx-auto">
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded-t-3xl p-6 text-center border-b relative overflow-hidden">
-                        <div class="flex justify-center items-end space-x-4 mb-3">
-                            <div class="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 opacity-50 flex items-center justify-center text-xl"><i class="fa-solid fa-shield"></i></div>
-                            <div class="w-16 h-16 rounded-full bg-gray-400 dark:bg-gray-500 opacity-60 flex items-center justify-center text-3xl"><i class="fa-solid fa-shield-halved"></i></div>
-                            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center text-5xl shadow-2xl border-4 border-gray-300 z-10 transform scale-110"><i class="fa-solid fa-shield-cat text-gray-200"></i></div>
-                            <div class="w-16 h-16 rounded-full bg-blue-200 dark:bg-blue-900 opacity-60 flex items-center justify-center text-3xl"><i class="fa-solid fa-shield-halved"></i></div>
-                            <div class="w-12 h-12 rounded-full bg-yellow-300 dark:bg-yellow-600 opacity-60 flex items-center justify-center text-xl"><i class="fa-solid fa-shield"></i></div>
-                        </div>
-                        <h2 id="current-league-name" class="text-xl font-black">আয়রন লীগ</h2>
-                        <div class="mt-4 max-w-md mx-auto relative">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-yellow-100 border-2 border-yellow-400 flex items-center justify-center text-yellow-600 z-10"><i class="fa-solid fa-star text-xs"></i></div>
-                                <div class="flex-1 h-3 bg-gray-300 dark:bg-gray-600 rounded-full overflow-hidden"><div id="league-progress-bar" class="h-full bg-yellow-400 rounded-full transition-all" style="width: 0%;"></div></div>
-                            </div>
-                            <div class="flex justify-between text-xs font-bold text-gray-500 mt-1 px-10"><span id="current-league-points">0</span><span id="next-league-points">100</span></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 border-y-2 border-yellow-400 px-4 py-3 flex items-center justify-between shadow-sm relative z-20">
-                        <div class="flex items-center gap-3">
-                            <span class="font-black text-gray-700 w-6 text-center text-lg" id="my-rank-number">#?</span>
-                            <div class="w-10 h-10 rounded-full bg-medical-600 flex items-center justify-center text-white font-bold"><i class="fa-solid fa-user"></i></div>
-                            <h4 class="font-bold text-sm">আপনি</h4>
-                        </div>
-                        <div class="font-black text-lg" id="my-rank-points">0 <span class="text-xs text-gray-500 font-normal">পয়েন্ট</span></div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 rounded-b-3xl shadow-sm border border-t-0 overflow-hidden">
-                        <div id="leaderboard-list" class="divide-y divide-gray-100 dark:divide-gray-700 relative"></div>
-                    </div>
-                    <div class="text-center text-xs text-gray-500"><i class="fa-solid fa-arrow-up text-green-500"></i> উপরের ৩ জন পরবর্তী লীগে উন্নীত হবে।</div>
-                </section>
-
-                <!-- ========================================== -->
-                <!-- VIEW: EXAM INTRO -->
-                <!-- ========================================== -->
-                <section id="view-exam-intro" class="view-section hidden max-w-3xl mx-auto space-y-6">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-5">
-                            <div><h2 id="exam-intro-title" class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Medical Challenge</h2><p id="exam-intro-subtitle" class="mt-2 text-sm text-gray-500">Please read the instructions before starting.</p></div>
-                            <button onclick="window.app.showView('home')" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-                        </div>
-                        <div id="exam-intro-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6"></div>
-                        <div class="rounded-2xl bg-gray-50 dark:bg-gray-700/40 p-5 space-y-3"><ul id="exam-intro-rules" class="text-sm text-gray-600 dark:text-gray-300 space-y-2"></ul></div>
-                        <div class="flex flex-col sm:flex-row gap-3 mt-6"><button onclick="window.app.showView('home')" class="flex-1 py-3.5 rounded-xl border font-bold">Cancel</button><button onclick="window.app.beginPreparedExam()" class="flex-[2] py-3.5 rounded-xl bg-medical-600 text-white font-extrabold shadow-lg"><i class="fa-solid fa-play ml-2"></i> Start Exam</button></div>
-                    </div>
-                </section>
-
-                <!-- ========================================== -->
-                <!-- VIEW: SETUP -->
-                <!-- ========================================== -->
+                <!-- ==================== SETUP ==================== -->
                 <section id="view-setup" class="view-section hidden max-w-2xl mx-auto space-y-6">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 shadow-md border dark:border-gray-700 space-y-6">
-                        <div class="border-b pb-4 flex justify-between items-center"><h2 class="text-2xl font-bold">পরীক্ষার সেটআপ</h2><button onclick="window.app.showView('home')" class="text-gray-500"><i class="fa-solid fa-xmark text-xl"></i></button></div>
-                        <div class="space-y-2"><label class="text-sm font-bold">পরীক্ষার টাইপ</label><div class="grid grid-cols-3 gap-2"><button id="setup-mode-random" onclick="window.app.setSetupMode('random')" class="py-2 border rounded-xl text-sm">Random</button><button id="setup-mode-model" onclick="window.app.setSetupMode('model')" class="py-2 border rounded-xl text-sm">Model Test</button><button id="setup-mode-previous" onclick="window.app.setSetupMode('previous')" class="py-2 border rounded-xl text-sm">Previous</button></div></div>
-                        <div class="space-y-2"><label class="text-sm font-bold">বিষয় নির্বাচন</label><select id="setup-subject" class="w-full border rounded-xl py-3 px-4 dark:bg-gray-700"><option value="all">সকল বিষয়</option><option value="biology">জীববিজ্ঞান</option><option value="chemistry">রসায়ন</option><option value="physics">পদার্থবিজ্ঞান</option><option value="english">ইংরেজি</option><option value="gk">সাধারণ জ্ঞান</option></select></div>
-                        <div class="space-y-2"><label class="text-sm font-bold">বছর নির্বাচন</label><select id="setup-year" class="w-full border rounded-xl py-3 px-4 dark:bg-gray-700"><option value="all">সব বছর</option></select></div>
-                        <div class="space-y-2"><label class="text-sm font-bold">প্রশ্নের সংখ্যা</label><div class="grid grid-cols-5 gap-2"><button onclick="window.app.setSetupQuestions(20)" class="q-count-btn py-2 border rounded-xl">20</button><button onclick="window.app.setSetupQuestions(30)" class="q-count-btn py-2 border rounded-xl">30</button><button onclick="window.app.setSetupQuestions(50)" class="q-count-btn py-2 border rounded-xl">50</button><button onclick="window.app.setSetupQuestions(75)" class="q-count-btn py-2 border rounded-xl">75</button><button onclick="window.app.setSetupQuestions(100)" class="q-count-btn py-2 border rounded-xl">100</button></div></div>
-                        <div class="space-y-2"><label class="text-sm font-bold">সময়সীমা</label><div class="grid grid-cols-5 gap-2"><button onclick="window.app.setSetupDuration(20)" class="time-btn py-2 border rounded-xl">20m</button><button onclick="window.app.setSetupDuration(30)" class="time-btn py-2 border rounded-xl">30m</button><button onclick="window.app.setSetupDuration(50)" class="time-btn py-2 border rounded-xl">50m</button><button onclick="window.app.setSetupDuration(60)" class="time-btn py-2 border rounded-xl">60m</button><button onclick="window.app.setSetupDuration(90)" class="time-btn py-2 border rounded-xl">90m</button></div></div>
-                        <button onclick="window.app.startExamWithConfig()" class="w-full py-4 bg-medical-600 text-white rounded-xl font-bold">পরীক্ষা শুরু করুন</button>
+                    <div class="bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-8 shadow-md border border-gray-200 dark:border-gray-700 space-y-6">
+                        <div class="border-b pb-4 flex justify-between items-center border-gray-200 dark:border-gray-700">
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">পরীক্ষার সেটআপ</h2>
+                            <button onclick="window.app.showView('home')" class="text-gray-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700 dark:text-gray-300">পরীক্ষার টাইপ</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button id="setup-mode-random" onclick="window.app.setSetupMode('random')" class="py-2 border rounded-xl text-sm dark:border-gray-600 dark:text-white">Random</button>
+                                <button id="setup-mode-model" onclick="window.app.setSetupMode('model')" class="py-2 border rounded-xl text-sm dark:border-gray-600 dark:text-white">Model Test</button>
+                                <button id="setup-mode-previous" onclick="window.app.setSetupMode('previous')" class="py-2 border rounded-xl text-sm dark:border-gray-600 dark:text-white">Previous</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700 dark:text-gray-300">বিষয় নির্বাচন</label>
+                            <select id="setup-subject" class="w-full border rounded-xl py-3 px-4 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="all">সকল বিষয়</option><option value="biology">জীববিজ্ঞান</option><option value="chemistry">রসায়ন</option><option value="physics">পদার্থবিজ্ঞান</option><option value="english">ইংরেজি</option><option value="gk">সাধারণ জ্ঞান</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700 dark:text-gray-300">বছর নির্বাচন</label>
+                            <select id="setup-year" class="w-full border rounded-xl py-3 px-4 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="all">সব বছর</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700 dark:text-gray-300">প্রশ্নের সংখ্যা</label>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button onclick="window.app.setSetupQuestions(20)" class="q-count-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">20</button>
+                                <button onclick="window.app.setSetupQuestions(30)" class="q-count-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">30</button>
+                                <button onclick="window.app.setSetupQuestions(50)" class="q-count-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">50</button>
+                                <button onclick="window.app.setSetupQuestions(75)" class="q-count-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">75</button>
+                                <button onclick="window.app.setSetupQuestions(100)" class="q-count-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">100</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700 dark:text-gray-300">সময়সীমা</label>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button onclick="window.app.setSetupDuration(20)" class="time-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">20m</button>
+                                <button onclick="window.app.setSetupDuration(30)" class="time-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">30m</button>
+                                <button onclick="window.app.setSetupDuration(50)" class="time-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">50m</button>
+                                <button onclick="window.app.setSetupDuration(60)" class="time-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">60m</button>
+                                <button onclick="window.app.setSetupDuration(90)" class="time-btn py-2 border rounded-xl dark:border-gray-600 dark:text-white">90m</button>
+                            </div>
+                        </div>
+                        <button onclick="window.app.startExamWithConfig()" class="w-full py-4 bg-medical-600 text-white rounded-xl font-bold shadow-lg">পরীক্ষা শুরু করুন</button>
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: LIVE EXAM -->
-                <!-- ========================================== -->
+                <!-- ==================== LIVE EXAM ==================== -->
                 <section id="view-exam" class="view-section hidden space-y-4">
-                    <div class="sticky top-0 z-30 bg-white/95 dark:bg-gray-800/95 p-4 rounded-2xl shadow-md border flex justify-between items-center">
-                        <span id="exam-progress-text" class="font-bold">প্রশ্ন: ১ / ৫০</span>
-                        <div id="timer-box" class="flex items-center px-4 py-2 rounded-xl bg-gray-100 font-bold"><i class="fa-regular fa-clock ml-2"></i><span id="exam-timer">00:00</span></div>
+                    <div class="sticky top-0 z-30 bg-white/95 dark:bg-darkCard/95 p-4 rounded-2xl shadow-md border dark:border-gray-700 flex justify-between items-center">
+                        <span id="exam-progress-text" class="font-bold text-gray-900 dark:text-white">প্রশ্ন: ১ / ৫০</span>
+                        <div id="timer-box" class="flex items-center px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold text-gray-900 dark:text-white"><i class="fa-regular fa-clock ml-2"></i><span id="exam-timer">00:00</span></div>
                         <button id="btn-submit-exam" onclick="window.app.confirmSubmitExam()" class="px-4 py-2 bg-red-600 text-white rounded-xl font-bold text-sm">জমা দিন</button>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         <div class="lg:col-span-3 space-y-6">
-                            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border space-y-6">
-                                <div class="flex justify-between text-xs font-semibold border-b pb-3"><span id="q-subject" class="text-medical-600">জীববিজ্ঞান</span><span id="q-source">Model Test</span></div>
-                                <div id="q-text" class="text-lg font-bold">প্রশ্ন লোড হচ্ছে...</div>
+                            <div class="bg-white dark:bg-darkCard rounded-3xl p-6 shadow-sm border dark:border-gray-700 space-y-6">
+                                <div class="flex justify-between text-xs font-semibold border-b dark:border-gray-700 pb-3"><span id="q-subject" class="text-medical-600">জীববিজ্ঞান</span><span id="q-source">Model Test</span></div>
+                                <div id="q-text" class="text-lg font-bold text-gray-900 dark:text-white">প্রশ্ন লোড হচ্ছে...</div>
                                 <div id="q-options" class="space-y-3 pt-2"></div>
-                                <div class="pt-6 border-t flex justify-between items-center">
-                                    <button id="btn-mark-review" onclick="window.app.toggleMarkReview()" class="px-3 py-2 border border-amber-400 text-amber-700 rounded-xl text-xs font-semibold">রিভিউ চিহ্নিত</button>
-                                    <div class="flex gap-2"><button id="btn-prev-q" onclick="window.app.prevQuestion()" class="px-4 py-2 bg-gray-100 rounded-xl text-sm font-bold">পূর্ববর্তী</button><button id="btn-next-q" onclick="window.app.nextQuestion()" class="px-5 py-2 bg-medical-600 text-white rounded-xl text-sm font-bold">পরবর্তী</button></div>
+                                <div class="pt-6 border-t dark:border-gray-700 flex justify-between items-center">
+                                    <button id="btn-mark-review" onclick="window.app.toggleMarkReview()" class="px-3 py-2 border border-amber-400 text-amber-700 dark:text-amber-400 rounded-xl text-xs font-semibold">রিভিউ চিহ্নিত</button>
+                                    <div class="flex gap-2"><button id="btn-prev-q" onclick="window.app.prevQuestion()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-sm font-bold dark:text-white">পূর্ববর্তী</button><button id="btn-next-q" onclick="window.app.nextQuestion()" class="px-5 py-2 bg-medical-600 text-white rounded-xl text-sm font-bold">পরবর্তী</button></div>
                                 </div>
                             </div>
                         </div>
                         <div class="lg:col-span-1 space-y-4">
-                            <div class="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border space-y-4">
-                                <h4 class="font-bold text-sm border-b pb-2">প্রশ্ন প্যালেট</h4>
+                            <div class="bg-white dark:bg-darkCard rounded-3xl p-5 shadow-sm border dark:border-gray-700 space-y-4">
+                                <h4 class="font-bold text-sm border-b dark:border-gray-700 pb-2 text-gray-900 dark:text-white">প্রশ্ন প্যালেট</h4>
                                 <div id="q-palette-grid" class="grid grid-cols-4 gap-2 max-h-72 overflow-y-auto"></div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: RESULT -->
-                <!-- ========================================== -->
+                <!-- ==================== RESULT ==================== -->
                 <section id="view-result" class="view-section hidden max-w-4xl mx-auto space-y-8">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-10 shadow-lg border text-center space-y-8">
-                        <div class="inline-flex px-4 py-1.5 rounded-full bg-medical-100 text-medical-700 font-bold text-sm"><i class="fa-solid fa-award ml-1.5"></i> পরীক্ষা সম্পন্ন!</div>
-                        <div class="max-w-md mx-auto p-6 rounded-2xl bg-medical-50 dark:bg-gray-700 border border-medical-200">
+                    <div class="bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border dark:border-gray-700 text-center space-y-8">
+                        <div class="inline-flex px-4 py-1.5 rounded-full bg-medical-100 dark:bg-medical-900/50 text-medical-700 dark:text-medical-300 font-bold text-sm"><i class="fa-solid fa-award ml-1.5"></i> পরীক্ষা সম্পন্ন!</div>
+                        <div class="max-w-md mx-auto p-6 rounded-2xl bg-medical-50 dark:bg-gray-800 border border-medical-200 dark:border-gray-700">
                             <div class="text-xs uppercase text-gray-500 mb-1">FINAL SCORE</div>
                             <div id="res-score-main" class="text-5xl font-black text-medical-700 dark:text-medical-400">0.00 / 0</div>
-                            <div class="flex justify-center gap-3 text-xs font-semibold mt-2"><span>শতকরা: <strong id="res-percentage">0%</strong></span><span>•</span><span>নির্ভুলতা: <strong id="res-accuracy">0%</strong></span></div>
+                            <div class="flex justify-center gap-3 text-xs font-semibold mt-2 text-gray-700 dark:text-gray-300"><span>শতকরা: <strong id="res-percentage">0%</strong></span><span>•</span><span>নির্ভুলতা: <strong id="res-accuracy">0%</strong></span></div>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30"><div class="text-xs text-emerald-700 font-bold">সঠিক</div><div id="res-correct" class="text-2xl font-black text-emerald-600">0</div></div>
-                            <div class="p-4 rounded-2xl bg-red-50 dark:bg-red-900/30"><div class="text-xs text-red-700 font-bold">ভুল</div><div id="res-wrong" class="text-2xl font-black text-red-600">0</div></div>
-                            <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/30"><div class="text-xs text-amber-700 font-bold">স্কিপ</div><div id="res-skipped" class="text-2xl font-black text-amber-600">0</div></div>
-                            <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/30"><div class="text-xs text-rose-700 font-bold">নেগেটিভ</div><div id="res-negative" class="text-2xl font-black text-rose-600">-0.00</div></div>
+                            <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30"><div class="text-xs text-emerald-700 dark:text-emerald-400 font-bold">সঠিক</div><div id="res-correct" class="text-2xl font-black text-emerald-600">0</div></div>
+                            <div class="p-4 rounded-2xl bg-red-50 dark:bg-red-900/30"><div class="text-xs text-red-700 dark:text-red-400 font-bold">ভুল</div><div id="res-wrong" class="text-2xl font-black text-red-600">0</div></div>
+                            <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/30"><div class="text-xs text-amber-700 dark:text-amber-400 font-bold">স্কিপ</div><div id="res-skipped" class="text-2xl font-black text-amber-600">0</div></div>
+                            <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/30"><div class="text-xs text-rose-700 dark:text-rose-400 font-bold">নেগেটিভ</div><div id="res-negative" class="text-2xl font-black text-rose-600">-0.00</div></div>
                         </div>
-                        <div class="flex justify-between text-xs text-gray-500 pt-4 border-t"><div>ব্যবহৃত সময়: <strong id="res-time-used">00:00</strong></div><div>সর্বোচ্চ স্কোর: <strong id="res-best-score">0.00</strong></div></div>
-                        <div class="pt-4 flex justify-center gap-4"><button id="btn-review-answers" onclick="window.app.showReviewAnswersView()" class="px-6 py-3 bg-medical-600 text-white rounded-xl font-bold">উত্তর পর্যালোচনা</button><button onclick="window.app.openSetupView()" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-xl font-bold">নতুন পরীক্ষা</button></div>
+                        <div class="flex justify-between text-xs text-gray-500 pt-4 border-t dark:border-gray-700"><div>ব্যবহৃত সময়: <strong id="res-time-used">00:00</strong></div><div>সর্বোচ্চ স্কোর: <strong id="res-best-score">0.00</strong></div></div>
+                        <div class="pt-4 flex justify-center gap-4"><button id="btn-review-answers" onclick="window.app.showReviewAnswersView()" class="px-6 py-3 bg-medical-600 text-white rounded-xl font-bold">উত্তর পর্যালোচনা</button><button onclick="window.app.openSetupView()" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-xl font-bold dark:text-white">নতুন পরীক্ষা</button></div>
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: REVIEW -->
-                <!-- ========================================== -->
+                <!-- ==================== REVIEW ==================== -->
                 <section id="view-review" class="view-section hidden space-y-6 max-w-4xl mx-auto">
-                    <div class="flex justify-between items-center bg-white dark:bg-gray-800 p-5 rounded-2xl border">
-                        <div><h2 class="text-xl font-bold">উত্তর পর্যালোচনা</h2><p class="text-xs text-gray-500">সঠিক ও ভুল উত্তরগুলোর বিশ্লেষণ</p></div>
-                        <button id="wrong-btn" onclick="toggleWrongQuestions()" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold;">See Wrong Questions</button>
-                        <button onclick="window.app.showView('result')" class="px-4 py-2 bg-gray-100 rounded-xl text-xs font-bold">ফিরে যান</button>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-darkCard p-5 rounded-2xl border dark:border-gray-700 gap-4">
+                        <div><h2 class="text-xl font-bold text-gray-900 dark:text-white">উত্তর পর্যালোচনা</h2><p class="text-xs text-gray-500">সঠিক ও ভুল উত্তরগুলোর বিশ্লেষণ</p></div>
+                        <div class="flex gap-2">
+                            <button id="wrong-btn" onclick="toggleWrongQuestions()" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 12px;">See Wrong Questions</button>
+                            <button onclick="window.app.showView('result')" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-xs font-bold dark:text-white">ফিরে যান</button>
+                        </div>
                     </div>
                     <div id="review-list-container" class="space-y-6"></div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: SYLLABUS -->
-                <!-- ========================================== -->
+                <!-- ==================== SYLLABUS ==================== -->
                 <section id="view-syllabus" class="view-section hidden space-y-6 max-w-4xl mx-auto">
-                    <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-3xl shadow-sm border space-y-6">
-                        <h2 class="text-2xl font-bold border-b pb-3">মেডিকেল ভর্তি পরীক্ষা মান বণ্টন</h2>
+                    <div class="bg-white dark:bg-darkCard p-6 sm:p-8 rounded-3xl shadow-sm border dark:border-gray-700 space-y-6">
+                        <h2 class="text-2xl font-bold border-b dark:border-gray-700 pb-3 text-gray-900 dark:text-white">মেডিকেল ভর্তি পরীক্ষা মান বণ্টন</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="p-5 rounded-2xl bg-medical-50 dark:bg-gray-900 border">
+                            <div class="p-5 rounded-2xl bg-medical-50 dark:bg-gray-800 border dark:border-gray-700">
                                 <h3 class="font-bold text-medical-800 dark:text-medical-400 mb-3">১০০ নম্বরের মান বণ্টন</h3>
-                                <ul class="text-sm space-y-2"><li class="flex justify-between"><span>জীববিজ্ঞান:</span> <strong>৩০</strong></li><li class="flex justify-between"><span>রসায়ন:</span> <strong>২৫</strong></li><li class="flex justify-between"><span>পদার্থবিজ্ঞান:</span> <strong>২০</strong></li><li class="flex justify-between"><span>ইংরেজি:</span> <strong>১৫</strong></li><li class="flex justify-between"><span>সাধারণ জ্ঞান:</span> <strong>১০</strong></li></ul>
+                                <ul class="text-sm space-y-2 text-gray-800 dark:text-gray-200"><li class="flex justify-between"><span>জীববিজ্ঞান:</span> <strong>৩০</strong></li><li class="flex justify-between"><span>রসায়ন:</span> <strong>২৫</strong></li><li class="flex justify-between"><span>পদার্থবিজ্ঞান:</span> <strong>২০</strong></li><li class="flex justify-between"><span>ইংরেজি:</span> <strong>১৫</strong></li><li class="flex justify-between"><span>সাধারণ জ্ঞান:</span> <strong>১০</strong></li></ul>
                             </div>
-                            <div class="p-5 rounded-2xl bg-blue-50 dark:bg-gray-900 border">
+                            <div class="p-5 rounded-2xl bg-blue-50 dark:bg-gray-800 border dark:border-gray-700">
                                 <h3 class="font-bold text-blue-800 dark:text-blue-400 mb-3">নিয়মাবলী</h3>
-                                <ul class="text-sm space-y-2"><li>• মোট ১০০টি MCQ</li><li>• সময় ১ ঘন্টা</li><li>• সঠিক উত্তরে +১.০০</li><li>• ভুল উত্তরে -০.২৫</li></ul>
+                                <ul class="text-sm space-y-2 text-gray-800 dark:text-gray-200"><li>• মোট ১০০টি MCQ</li><li>• সময় ১ ঘন্টা</li><li>• সঠিক উত্তরে +১.০০</li><li>• ভুল উত্তরে -০.২৫</li></ul>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- ========================================== -->
-                <!-- VIEW: MEDICAL & HSC INFO -->
-                <!-- ========================================== -->
-                <section id="view-medical-hsc-info" class="view-section hidden p-2 sm:p-4">
-                    <div class="max-w-6xl mx-auto space-y-6">
-                        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 via-teal-700 to-sky-800 p-6 sm:p-9 text-white shadow-xl">
-                            <div class="relative max-w-3xl">
-                                <span class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/20 px-3 py-1 text-xs font-bold tracking-wide"><i class="fa-solid fa-book-medical"></i> STUDENT RESOURCE HUB</span>
-                                <h2 class="mt-4 text-2xl sm:text-4xl font-extrabold leading-tight">Medical &amp; HSC Information</h2>
-                                <p class="mt-3 max-w-2xl text-sm sm:text-base leading-7 text-emerald-50">HSC প্রস্তুতি, পাঠ্যবই, বোর্ডের তথ্য এবং মেডিকেল ভর্তি-সংক্রান্ত official source—এক জায়গায়।</p>
-                            </div>
+                <!-- ==================== MEDICAL & HSC INFO ==================== -->
+                <section id="view-medical-hsc-info" class="view-section hidden max-w-5xl mx-auto space-y-6">
+                    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-sky-800 p-6 sm:p-9 text-white shadow-xl">
+                        <div class="relative z-10">
+                            <h2 class="text-2xl sm:text-4xl font-extrabold">Medical & HSC Info</h2>
+                            <p class="mt-3 text-sm sm:text-base text-emerald-50">সরকারি ওয়েবসাইট, বই এবং ভর্তি সংক্রান্ত সব তথ্য এক জায়গায়।</p>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                            <article class="rounded-2xl border bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
-                                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 grid place-items-center text-xl"><i class="fa-solid fa-book-open"></i></div>
-                                <h3 class="mt-4 font-extrabold text-lg">HSC Books</h3>
-                                <a class="mt-4 inline-flex items-center justify-between rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-3 text-sm font-bold text-white" href="https://nctb.gov.bd/pages/ebooks" target="_blank">NCTB e-Books <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                            </article>
-                            <article class="rounded-2xl border bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
-                                <div class="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 grid place-items-center text-xl"><i class="fa-solid fa-stethoscope"></i></div>
-                                <h3 class="mt-4 font-extrabold text-lg">Medical Admission</h3>
-                                <a class="mt-4 inline-flex items-center justify-between rounded-xl bg-sky-600 hover:bg-sky-700 px-4 py-3 text-sm font-bold text-white" href="https://portal.dgme.gov.bd/public" target="_blank">DGME Portal <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                            </article>
-                            <article class="rounded-2xl border bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
-                                <div class="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 grid place-items-center text-xl"><i class="fa-solid fa-building-columns"></i></div>
-                                <h3 class="mt-4 font-extrabold text-lg">Education Boards</h3>
-                                <a class="mt-4 inline-flex items-center justify-between rounded-xl bg-violet-600 hover:bg-violet-700 px-4 py-3 text-sm font-bold text-white" href="https://educationboard.gov.bd/" target="_blank">Board Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                            </article>
-                            <article class="rounded-2xl border bg-white dark:bg-gray-800 p-5 shadow-sm flex flex-col">
-                                <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 grid place-items-center text-xl"><i class="fa-solid fa-bell"></i></div>
-                                <h3 class="mt-4 font-extrabold text-lg">Official Notices</h3>
-                                <a class="mt-4 inline-flex items-center justify-between rounded-xl bg-amber-600 hover:bg-amber-700 px-4 py-3 text-sm font-bold text-white" href="https://dgme.gov.bd/" target="_blank">DGME Website <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                            </article>
-                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <article class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard p-6 shadow-sm flex flex-col">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-book-open"></i></div>
+                            <h3 class="font-extrabold text-lg text-gray-900 dark:text-white">HSC Books & Syllabus</h3>
+                            <p class="text-sm text-gray-500 mt-2 mb-4 flex-1">বোর্ডের বই এবং সিলেবাস ডাউনলোড করুন।</p>
+                            <a href="https://nctb.gov.bd/pages/ebooks" target="_blank" class="w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg">NCTB e-Books</a>
+                        </article>
+                        <article class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-darkCard p-6 shadow-sm flex flex-col">
+                            <div class="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-900/40 text-sky-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-stethoscope"></i></div>
+                            <h3 class="font-extrabold text-lg text-gray-900 dark:text-white">Medical Admission</h3>
+                            <p class="text-sm text-gray-500 mt-2 mb-4 flex-1">ভর্তি বিজ্ঞপ্তি, আবেদন ও ফলাফল চেক করুন।</p>
+                            <a href="https://portal.dgme.gov.bd/public" target="_blank" class="w-full text-center bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 rounded-lg">DGME Portal</a>
+                        </article>
                     </div>
                 </section>
 
@@ -753,7 +656,139 @@
         </main>
     </div>
 
-    <!-- =================== CONTACT FORM SCRIPT =================== -->
+    <!-- =================== SCRIPTS =================== -->
+    <script>
+        // Sidebar Logic
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (window.innerWidth < 768) {
+                sidebar.classList.toggle('sidebar-collapsed');
+                overlay.classList.toggle('hidden');
+            } else {
+                sidebar.classList.toggle('desktop-hidden');
+                document.getElementById('main-content').classList.toggle('expanded');
+            }
+        }
+
+        function closeSidebarMobile() {
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('sidebar-collapsed');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
+        }
+
+        // DARK MODE LOGIC
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Apply saved theme on load
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Fallback App object to make buttons work if script.js fails to load
+        window.app = window.app || {
+            showView: function(viewName) {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                const el = document.getElementById(`view-${viewName}`);
+                if (el) el.classList.remove('hidden');
+                
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(`'${viewName}'`)) {
+                        link.classList.add('active');
+                    }
+                });
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            },
+            loadLeaderboard: function() {
+                const list = document.getElementById('leaderboard-list');
+                if(!list) return;
+                list.innerHTML = `
+                    <div class="rank-row">
+                        <div class="flex items-center gap-3">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ahnaf" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700">
+                            <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">Ahnaf</h4>
+                        </div>
+                        <div class="text-right">
+                            <div class="rank-number text-yellow-500">1</div>
+                            <div class="rank-points">401 পয়েন্ট</div>
+                        </div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="flex items-center gap-3">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rakib" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700">
+                            <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">Md Rakibul Haque</h4>
+                        </div>
+                        <div class="text-right">
+                            <div class="rank-number text-gray-400">2</div>
+                            <div class="rank-points">365 পয়েন্ট</div>
+                        </div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="flex items-center gap-3">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Abdullah" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700">
+                            <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">Md Abdullah</h4>
+                        </div>
+                        <div class="text-right">
+                            <div class="rank-number text-orange-500">3</div>
+                            <div class="rank-points">360 পয়েন্ট</div>
+                        </div>
+                    </div>
+                `;
+            },
+            openProfile: function() {
+                this.showView('profile');
+                document.getElementById('profile-attempts').innerText = '0';
+                document.getElementById('profile-best').innerText = '0.00';
+            },
+            showPracticeBrowser: function() {
+                this.showView('practice');
+                document.getElementById('practice-browser').classList.remove('hidden');
+                document.getElementById('practice-quiz-view').classList.add('hidden');
+                document.getElementById('practice-browser').innerHTML = `
+                    <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <h3 class="font-bold text-lg text-gray-800 dark:text-white">১. মানুষের হৃদপিণ্ডের কোন প্রকোষ্ঠের প্রাচীর সবচেয়ে বেশি পুরু?</h3>
+                        <div class="mt-2 space-y-2 text-gray-800 dark:text-gray-200">
+                            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded">A. ডান অলিন্দ</div>
+                            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded">B. বাম অলিন্দ</div>
+                            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded">C. ডান নিলয়</div>
+                            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded">D. বাম নিলয়</div>
+                        </div>
+                        <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="mt-3 text-sm text-medical-500 font-bold">উত্তর দেখুন</button>
+                        <div class="mt-2 p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded text-emerald-700 dark:text-emerald-300 text-sm hidden">
+                            <b>সঠিক উত্তর: D</b><br>পুরো শরীরে রক্ত পাম্প করতে বাম নিলয়কে সবচেয়ে বেশি চাপ দিতে হয়।
+                        </div>
+                    </div>
+                `;
+            },
+            startPracticeQuiz: function() {
+                document.getElementById('practice-browser').classList.add('hidden');
+                document.getElementById('practice-quiz-view').classList.remove('hidden');
+            },
+            finishPracticeQuiz: function() {
+                this.showPracticeBrowser();
+            },
+            setupExamQuick: function(mode) { this.showView('setup'); },
+            openSetupView: function() { this.showView('setup'); },
+            openQuestionBank: function(mode) { this.showView('question-bank'); },
+            showPreviousYears: function() { this.showView('previous'); },
+            startSubjectExam: function(sub) { this.showView('setup'); }
+        };
+    </script>
+    
+    <!-- Contact Form Script -->
     <script id="medical-contact-form-handler">
     (function () {
         const endpoint = 'https://script.google.com/macros/s/AKfycbxsSQIqoWW1w7tDGGlzYPCYWawC-vrLq7kiXBmt-bDAM_wlLsP5u13Ra8t5eKOUk065BA/exec';
@@ -767,7 +802,7 @@
                 if (!button) return;
                 const originalHTML = button.innerHTML;
                 button.disabled = true;
-                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>Sending...</span>';
+                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Sending...</span>';
                 const formData = {
                     name: document.getElementById('medical-contact-name').value.trim(),
                     email: document.getElementById('medical-contact-email').value.trim(),
@@ -777,74 +812,15 @@
                     await fetch(endpoint, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(formData) });
                     alert('Thank you! Your message has been submitted.');
                     form.reset();
-                } catch (error) { alert('Something went wrong. Please try again later.'); } finally { button.disabled = false; button.innerHTML = originalHTML; }
+                } catch (error) { alert('Something went wrong.'); } finally { button.disabled = false; button.innerHTML = originalHTML; }
             });
         }
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMedicalContactForm, { once: true });
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMedicalContactForm);
         else initMedicalContactForm();
     })();
     </script>
 
-    <!-- AI Floating Button -->
-    <a href="https://serakib.github.io/Ai-Assisstant/" class="ai-float-btn" title="Ask AI Assistant" style="position: fixed; bottom: 80px; right: 24px; z-index: 9999; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); cursor: pointer; text-decoration: none; transition: all 0.3s ease; animation: floatPulse 2s infinite;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            <circle cx="9" cy="10" r="1" fill="white"></circle>
-            <circle cx="15" cy="10" r="1" fill="white"></circle>
-        </svg>
-    </a>
-    <style>
-        @keyframes floatPulse {
-            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-        }
-    </style>
-
-    <!-- =================== SIDEBAR SCRIPTS =================== -->
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            const mainContent = document.getElementById('main-content');
-            
-            if (window.innerWidth < 768) {
-                sidebar.classList.toggle('sidebar-collapsed');
-                overlay.classList.toggle('hidden');
-            } else {
-                sidebar.classList.toggle('desktop-hidden');
-                mainContent.classList.toggle('expanded');
-            }
-        }
-
-        function closeSidebarMobile() {
-            if (window.innerWidth < 768) {
-                document.getElementById('sidebar').classList.add('sidebar-collapsed');
-                document.getElementById('sidebar-overlay').classList.add('hidden');
-            }
-        }
-
-        // Active Link Highlighting based on view
-        const originalShowView = window.app ? window.app.showView : null;
-        setTimeout(() => {
-            if (window.app && window.app.showView) {
-                const original = window.app.showView.bind(window.app);
-                window.app.showView = function(viewName, force) {
-                    original(viewName, force);
-                    document.querySelectorAll('.nav-link').forEach(link => {
-                        link.classList.remove('active');
-                        const onclickAttr = link.getAttribute('onclick');
-                        if (onclickAttr && (onclickAttr.includes(`'${viewName}'`) || onclickAttr.includes(`"${viewName}"`) || (viewName === 'practice' && onclickAttr.includes('practice')))) {
-                            link.classList.add('active');
-                        }
-                    });
-                };
-                window.app.showView('home'); // Init active state
-            }
-        }, 500);
-    </script>
-
-    <!-- Existing JS Includes -->
+    <!-- External JS -->
     <script src="./js/feature-navigation.js" defer></script>
     <script src="./js/student-ai.js" defer></script>
     <script type="module" src="./script.js"></script>
