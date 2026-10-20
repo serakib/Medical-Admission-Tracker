@@ -93,13 +93,19 @@
         #view-home .medical-footer-bottom { width: 100%; max-width: 1280px; margin: 0 auto; padding: 18px 4px 0; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(148,163,184,.15); color: #8195a8; font-size: .78rem; }
         @media (max-width: 900px) { #view-home .medical-footer-inner { grid-template-columns: 1fr 1fr; gap: 34px; } #view-home .medical-footer-brand { grid-column: 1 / -1; } }
         @media (max-width: 560px) { #view-home .medical-footer-inner { grid-template-columns: 1fr; gap: 27px; } #view-home .medical-footer-bottom { flex-direction: column; align-items: flex-start; } }
+
+        /* AI Floating Button Animation */
+        @keyframes floatPulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-darkBg dark:text-gray-100 h-screen overflow-hidden flex transition-colors duration-200">
 
     <!-- ==================== SIDEBAR ==================== -->
     <aside id="sidebar" class="w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-darkBorder flex flex-col h-full fixed inset-y-0 left-0 z-50 shadow-2xl md:shadow-none sidebar-collapsed">
-        <!-- Logo -->
         <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-darkBorder shrink-0">
             <div class="flex items-center gap-3 cursor-pointer" onclick="app.showView('home'); closeSidebarMobile();">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-medical-600 to-accent-500 flex items-center justify-center text-white shadow-md">
@@ -115,7 +121,6 @@
             </button>
         </div>
 
-        <!-- Navigation -->
         <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
             <button onclick="app.showView('home'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg active">
                 <i class="fa-solid fa-house w-5 text-center"></i> হোম
@@ -123,7 +128,6 @@
             <button onclick="app.openQuestionBank('view'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg">
                 <i class="fa-solid fa-book-medical w-5 text-center"></i> প্রশ্ন ব্যাংক
             </button>
-            <!-- PRACTICE NAV -->
             <button onclick="app.openQuestionBank('practice'); closeSidebarMobile();" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-r-lg">
                 <i class="fa-solid fa-bullseye w-5 text-center"></i> প্র্যাকটিস
             </button>
@@ -150,7 +154,6 @@
             </button>
         </nav>
 
-        <!-- Footer (Profile & Auth) -->
         <div class="p-4 border-t border-gray-200 dark:border-darkBorder space-y-3 bg-gray-50 dark:bg-darkCard">
             <button onclick="app.openProfile(); closeSidebarMobile();" class="w-full flex items-center justify-between p-2 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-medical-500 transition shadow-sm group">
                 <div class="flex items-center gap-2">
@@ -170,13 +173,11 @@
         </div>
     </aside>
 
-    <!-- Overlay for Mobile Sidebar -->
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity"></div>
 
     <!-- ==================== MAIN CONTENT ==================== -->
     <div id="main-content" class="main-content flex-1 flex flex-col h-full w-full overflow-hidden relative">
         
-        <!-- Top Header (Clean) -->
         <header class="h-16 bg-white dark:bg-darkBg border-b border-gray-200 dark:border-darkBorder flex items-center justify-between px-4 shrink-0 z-30">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="text-gray-600 dark:text-gray-300 hover:text-medical-600 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
@@ -186,12 +187,11 @@
             </div>
         </header>
 
-        <!-- Dynamic Main Content Area -->
         <main class="flex-1 overflow-y-auto w-full bg-gray-50 dark:bg-darkBg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
                 <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
 
-                <!-- ==================== VIEW: MEDICAL & HSC INFO ==================== -->
+                <!-- Medical & HSC Info View -->
                 <section id="view-medical-hsc-info" class="view-section hidden p-4">
                     <div class="max-w-5xl mx-auto space-y-6">
                         <header>
@@ -219,9 +219,8 @@
                     </div>
                 </section>
 
-                <!-- ==================== VIEW 1: HOME / DASHBOARD ==================== -->
+                <!-- VIEW 1: HOME / DASHBOARD -->
                 <section id="view-home" class="view-section space-y-8">
-                    <!-- Hero Banner -->
                     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-medical-800 via-medical-700 to-accent-700 text-white p-6 sm:p-10 shadow-xl">
                         <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl"><i class="fa-solid fa-user-doctor"></i></div>
                         <div class="relative z-10 max-w-2xl space-y-4">
@@ -241,7 +240,6 @@
                         </div>
                     </div>
 
-                    <!-- Quick Stats -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-white dark:bg-darkCard p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-darkBorder flex items-center space-x-4 space-x-reverse">
                             <div class="w-12 h-12 rounded-xl bg-medical-100 dark:bg-medical-900/50 text-medical-600 dark:text-medical-400 flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-clipboard-check"></i></div>
@@ -261,7 +259,6 @@
                         </div>
                     </div>
 
-                    <!-- Exam Modes -->
                     <div class="space-y-4">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa-solid fa-layer-group text-medical-600 ml-2"></i> পরীক্ষার মোড বেছে নিন</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -283,7 +280,6 @@
                         </div>
                     </div>
 
-                    <!-- Subjects -->
                     <div class="space-y-4">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center"><i class="fa-solid fa-book text-medical-600 ml-2"></i> বিষয়ভিত্তিক প্র্যাকটিস</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -325,7 +321,6 @@
                         </button>
                     </div>
 
-                    <!-- Contact -->
                     <section id="contact" class="medical-contact-section" aria-labelledby="medical-contact-heading">
                         <div class="medical-contact-title">
                             <h2 id="medical-contact-heading">Get in <span>Touch</span></h2>
@@ -350,7 +345,6 @@
                         </div>
                     </section>
 
-                    <!-- Footer -->
                     <footer class="medical-home-footer" aria-label="Medical Admission Tester footer">
                         <div class="medical-footer-accent" aria-hidden="true"></div>
                         <div class="medical-footer-inner">
@@ -385,7 +379,7 @@
                     </footer>
                 </section>
 
-                <!-- ==================== QUESTION BANK ==================== -->
+                <!-- VIEW: QUESTION BANK -->
                 <section id="view-question-bank" class="view-section hidden space-y-6">
                     <div class="section-hero">
                         <div><span class="eyebrow text-xs font-bold text-medical-600">Study Library</span><h2 class="text-2xl font-bold text-gray-900 dark:text-white">Question Bank</h2><p class="text-sm text-gray-500">শুধু পড়ুন, answer দেখুন, filter করুন—কোনো exam শুরু হবে না।</p></div>
@@ -400,9 +394,8 @@
                     <div id="question-bank-list" class="bank-list space-y-4"></div>
                 </section>
 
-                <!-- ==================== PRACTICE (BROWSER + QUIZ) ==================== -->
+                <!-- VIEW: PRACTICE (Browser + Quiz) -->
                 <section id="view-practice" class="view-section hidden max-w-4xl mx-auto space-y-5">
-                    <!-- Browser Header -->
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-darkBorder gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900 dark:text-white">প্র্যাকটিস প্রশ্ন</h2>
@@ -414,12 +407,10 @@
                         </div>
                     </div>
                     
-                    <!-- Browser Mode (Loads first) -->
                     <div id="practice-browser" class="space-y-4">
                         <!-- JS will inject browser cards here -->
                     </div>
 
-                    <!-- Quiz Mode (Hidden initially, starts when Start Quiz clicked) -->
                     <div id="practice-quiz-view" class="hidden space-y-4">
                         <div class="bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-darkBorder flex justify-between items-center">
                             <div class="flex items-center gap-2 text-red-500 font-bold"><i class="fa-regular fa-clock"></i> <span id="practice-timer">10:00</span></div>
@@ -434,7 +425,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== PREVIOUS YEAR ==================== -->
+                <!-- VIEW: PREVIOUS YEAR -->
                 <section id="view-previous" class="view-section hidden space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Previous Year Question Bank</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Previous Year Questions</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">No exam required. Read the paper, reveal answers, or start a quiz for the selected year.</p></div>
@@ -450,7 +441,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== EXAM SETUP ==================== -->
+                <!-- VIEW: EXAM SETUP -->
                 <section id="view-setup" class="view-section hidden max-w-2xl mx-auto space-y-6">
                     <div class="bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-8 shadow-md border border-gray-200 dark:border-darkBorder space-y-6">
                         <div class="border-b border-gray-100 dark:border-darkBorder pb-4 flex justify-between items-center">
@@ -467,7 +458,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== EXAM INTRO ==================== -->
+                <!-- VIEW: EXAM INTRO -->
                 <section id="view-exam-intro" class="view-section hidden max-w-3xl mx-auto space-y-6">
                     <div class="bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-200 dark:border-darkBorder">
                         <div class="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-darkBorder pb-5">
@@ -480,7 +471,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== LIVE EXAM ==================== -->
+                <!-- VIEW: LIVE EXAM -->
                 <section id="view-exam" class="view-section hidden space-y-4">
                     <div class="sticky top-0 z-30 bg-white/95 dark:bg-darkCard/95 backdrop-blur-md p-4 rounded-2xl shadow-md border border-gray-200 dark:border-darkBorder flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center space-x-3 space-x-reverse"><span id="exam-mode-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-medical-100 dark:bg-medical-900/50 text-medical-700 dark:text-medical-300">মডেল টেস্ট</span><span id="exam-progress-text" class="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300">প্রশ্ন: ১ / ৫০</span></div>
@@ -508,7 +499,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== RESULT ==================== -->
+                <!-- VIEW: RESULT -->
                 <section id="view-result" class="view-section hidden max-w-4xl mx-auto space-y-8">
                     <div class="bg-white dark:bg-darkCard rounded-3xl p-6 sm:p-10 shadow-lg border border-gray-200 dark:border-darkBorder space-y-8 text-center">
                         <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-medical-100 dark:bg-medical-900/50 text-medical-700 dark:text-medical-300 font-bold text-sm"><i class="fa-solid fa-award ml-1.5 text-medical-600"></i> পরীক্ষা সম্পন্ন হয়েছে!</div>
@@ -528,7 +519,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== REVIEW ==================== -->
+                <!-- VIEW: REVIEW -->
                 <section id="view-review" class="view-section hidden space-y-6 max-w-4xl mx-auto">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-darkCard p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-darkBorder gap-4">
                         <div><h2 class="text-xl font-bold text-gray-900 dark:text-white">উত্তর পর্যালোচনা</h2><p class="text-xs text-gray-500">সঠিক ও ভুল উত্তরগুলোর বিশ্লেষণ</p></div>
@@ -538,7 +529,7 @@
                     <div id="review-list-container" class="space-y-6"></div>
                 </section>
 
-                <!-- ==================== PROFILE ==================== -->
+                <!-- VIEW: PROFILE -->
                 <section id="view-profile" class="view-section hidden space-y-6 max-w-6xl mx-auto">
                     <div class="profile-hero bg-white dark:bg-darkCard p-6 rounded-3xl shadow-sm border border-gray-200 dark:border-darkBorder flex items-center gap-4">
                         <div class="profile-avatar w-16 h-16 rounded-full bg-medical-100 text-medical-600 flex items-center justify-center text-3xl"><i class="fa-solid fa-user-graduate"></i></div>
@@ -546,13 +537,11 @@
                         <div class="auth-btn-target"><button onclick="redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100"><span>Log In / Sign up</span></button></div>
                     </div>
 
-                    <!-- Stats Grid (Added Live and Best Rank) -->
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div class="profile-stat-card bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-darkBorder text-center"><span class="text-xs text-gray-500">Questions Practiced</span><strong id="profile-seen-count" class="block text-xl font-black text-gray-900 dark:text-white">0</strong></div>
                         <div class="profile-stat-card bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-darkBorder text-center"><span class="text-xs text-gray-500">Total Attempts</span><strong id="profile-attempt-count" class="block text-xl font-black text-gray-900 dark:text-white">0</strong></div>
                         <div class="profile-stat-card bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-darkBorder text-center"><span class="text-xs text-gray-500">Best Score</span><strong id="profile-best-score" class="block text-xl font-black text-gray-900 dark:text-white">0.00</strong></div>
                         <div class="profile-stat-card bg-white dark:bg-darkCard p-4 rounded-xl border border-gray-200 dark:border-darkBorder text-center"><span class="text-xs text-gray-500">Average Accuracy</span><strong id="profile-accuracy" class="block text-xl font-black text-gray-900 dark:text-white">0%</strong></div>
-                        <!-- New Ranks -->
                         <div class="profile-stat-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 text-center shadow-sm">
                             <span class="text-xs text-gray-500">লাইভ র‍্যাংক (সাপ্তাহিক)</span>
                             <strong id="profile-live-rank" class="block text-2xl font-black text-blue-600 dark:text-blue-400">N/A</strong>
@@ -585,7 +574,7 @@
                     </div>
                 </section>
 
-                <!-- ==================== LEADERBOARD (Duolingo Style) ==================== -->
+                <!-- VIEW: LEADERBOARD (Duolingo Style) -->
                 <section id="view-leaderboard" class="view-section hidden max-w-3xl mx-auto">
                     <div class="league-banner relative pt-8 pb-4 px-4 text-center">
                         <div class="flex justify-center items-end gap-2 mb-3">
@@ -615,7 +604,7 @@
                     <div class="text-center text-xs text-gray-500 mt-4"><i class="fa-solid fa-arrow-up text-green-500"></i> উপরের ৩ জন পরবর্তী লীগে উন্নীত হবে।</div>
                 </section>
 
-                <!-- ==================== SYLLABUS ==================== -->
+                <!-- VIEW: SYLLABUS -->
                 <section id="view-syllabus" class="view-section hidden space-y-6 max-w-4xl mx-auto">
                     <div class="bg-white dark:bg-darkCard p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-darkBorder space-y-6">
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-darkBorder pb-3">মেডিকেল ভর্তি পরীক্ষা মান বণ্টন ও নির্দেশনা</h2>
@@ -641,16 +630,21 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="p-4 bg-gray-50 dark:bg-gray-800/30 rounded-2xl text-xs text-gray-600 dark:text-gray-300 space-y-1 border border-gray-200 dark:border-gray-700">
-                            <p class="font-bold text-gray-800 dark:text-gray-100">তথ্যসূত্র:</p>
-                            <p>এই ওয়েব অ্যাপ্লিকেশনটি বাংলাদেশের দ্বাদশ শ্রেণীর (HSC) জাতীয় শিক্ষাক্রম ও মেডিকেল ভর্তি পরীক্ষার প্রশ্ন প্যাটার্ন অনুযায়ী তৈরি।</p>
-                        </div>
                     </div>
                 </section>
 
             </div>
         </main>
     </div>
+
+    <!-- ==================== FLOATING AI BUTTON ==================== -->
+    <a href="https://serakib.github.io/Ai-Assisstant/" class="ai-float-btn" title="Ask AI Assistant" style="position: fixed; bottom: 85px; right: 24px; z-index: 9999; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); cursor: pointer; text-decoration: none; transition: all 0.3s ease; animation: floatPulse 2s infinite;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <circle cx="9" cy="10" r="1" fill="white"></circle>
+            <circle cx="15" cy="10" r="1" fill="white"></circle>
+        </svg>
+    </a>
 
     <!-- ==================== FLOATING THEME TOGGLE ==================== -->
     <button id="theme-toggle" onclick="app.toggleTheme()" title="Toggle Theme" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; width: 48px; height: 48px; border-radius: 50%; background: rgba(20, 20, 30, 0.7); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); outline: none;" onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';">
@@ -689,9 +683,8 @@
     })();
     </script>
 
-    <!-- ==================== YOUR EXISTING JS FILES ==================== -->
+    <!-- ==================== UI LOGIC (SIDEBAR) ==================== -->
     <script>
-        // Simple Sidebar Toggle Logic (Placed here just for UI interaction)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -711,6 +704,7 @@
         }
     </script>
 
+    <!-- ==================== YOUR EXISTING JS FILES ==================== -->
     <script src="./js/app-global-fix.js"></script>
     <script type="module" src="./js/app-views-fix.js"></script>
     <script type="module" src="./js/student-ai.js"></script>
