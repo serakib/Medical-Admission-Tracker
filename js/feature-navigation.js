@@ -16,9 +16,10 @@
   }
 
   function markActive(viewName) {
-    document.querySelectorAll('.nav-btn, [data-feature-view]').forEach(function (el) {
+    document.querySelectorAll('.nav-btn, [data-feature-view], [data-nav-view]').forEach(function (el) {
       var handler = el.getAttribute('onclick') || '';
       var active = el.getAttribute('data-feature-view') === viewName ||
+        el.getAttribute('data-nav-view') === viewName ||
         handler.indexOf("showView('" + viewName + "')") !== -1 ||
         handler.indexOf('showView("' + viewName + '")') !== -1;
       el.classList.toggle('active', active);
