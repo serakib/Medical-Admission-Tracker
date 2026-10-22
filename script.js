@@ -46,7 +46,7 @@ let QUESTION_BANK = [];
 
 class MedicalExamApp {
     constructor() {
-        this.views = ['home', 'question-bank', 'practice', 'exam-intro', 'previous', 'setup', 'exam', 'result', 'review', 'profile', 'leaderboard', 'syllabus', 'medical-hsc-info'];
+        this.views = ['home', 'question-bank', 'practice', 'exam-intro', 'previous', 'setup', 'exam', 'result', 'review', 'profile', 'account', 'leaderboard', 'syllabus', 'medical-hsc-info'];
         this.currentTheme = localStorage.getItem('med_theme') || 'light';
         this.language = 'bn';
         this.previousSelectedYear = null;
@@ -326,6 +326,7 @@ class MedicalExamApp {
 
         const accountEmail = document.getElementById('auth-account-email');
         if (accountEmail) accountEmail.textContent = user?.email || user?.displayName || 'Guest';
+        this.renderAccountProfile();
 
         this.loadProgressStats();
         // Recompute rank for the current signed-in user rather than the previous guest session.
@@ -855,6 +856,7 @@ class MedicalExamApp {
         this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
         localStorage.setItem('med_theme', this.currentTheme);
         this.applyTheme();
+        this.renderAccountProfile();
     }
 
     applyTheme() {
@@ -879,6 +881,41 @@ class MedicalExamApp {
 
     openProfile() {
         this.showProfile();
+    }
+
+    openAccountProfile() {
+        this.showView('account');
+        this.renderAccountProfile();
+    }
+
+    renderAccountProfile() {
+        const user = this.authUser || null;
+        const name = document.getElementById('account-profile-name');
+        const email = document.getElementById('account-profile-email');
+        const status = document.getElementById('account-profile-status');
+        const theme = document.getElementById('account-theme-status');
+        if (name) name.textContent = user?.displayName || (user?.email ? user.email.split('@')[0] : 'Guest Student');
+        if (email) email.textContent = user?.email || 'Guest mode · Sign in to connect your account';
+        if (status) {
+            status.textContent = user ? 'Signed in' : 'Guest account';
+            status.className = user
+                ? 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
+                : 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100';
+        }
+        if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
+    }
+
+    openAccountAuth(mode = 'login') {
+        const modal = document.getElementById('authModal');
+        if (modal) {
+            this.openAuthModal(mode);
+            return;
+        }
+        if (typeof window.redirectToLogin === 'function') {
+            window.redirectToLogin();
+            return;
+        }
+        console.warn('Account sign-in UI is not available in this build.');
     }
 
     showView(viewName, force = false) {
