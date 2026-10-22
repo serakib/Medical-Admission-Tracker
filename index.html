@@ -353,11 +353,49 @@ main{max-width:none!important;width:100%!important;padding-left:clamp(16px,2.5vw
         <button data-feature-view="medical-hsc-info" type="button" aria-controls="view-medical-hsc-info" onclick="window.app.showView('medical-hsc-info');closeAppSidebar()"><i class="fa-solid fa-hospital"></i><span>Medical Info</span></button>
         <button onclick="window.app.showView('home');closeAppSidebar();setTimeout(function(){var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},100)" type="button"><i class="fa-solid fa-envelope"></i><span>Contact</span></button>
       </nav>
-      <div class="sidebar-bottom">
-        <button class="sidebar-action profile-action" onclick="window.app.openProfile();closeAppSidebar()" type="button"><i class="fa-solid fa-user-circle"></i><span>Profile</span></button>
-        <button class="sidebar-action login-action" onclick="window.redirectToLogin()" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
+      <div class="sidebar-bottom gemini-sidebar-bottom">
+        <div class="gemini-profile-bar">
+          <button id="account-switcher-trigger" class="gemini-profile-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" onclick="window.app.toggleAccountSwitcher()">
+            <span id="sidebar-profile-avatar" class="gemini-avatar">G</span>
+            <span class="gemini-profile-copy"><strong id="sidebar-profile-name">Guest</strong><small id="sidebar-profile-email">Not signed in</small></span>
+          </button>
+          <button id="settings-activity-trigger" class="gemini-settings-trigger" type="button" aria-label="Settings & Activity" title="Settings & Activity" aria-haspopup="dialog" aria-expanded="false" onclick="window.app.toggleSettingsActivity()"><i class="fa-solid fa-gear"></i></button>
+        </div>
+        <button class="sidebar-action login-action gemini-login-action" onclick="window.redirectToLogin()" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
     </aside>
+    <div id="account-switcher-layer" class="gemini-modal-layer hidden" onclick="if(event.target===this)window.app.closeAccountSwitcher()" aria-hidden="true">
+      <section id="account-switcher-modal" class="gemini-account-modal" role="dialog" aria-modal="true" aria-labelledby="account-switcher-title">
+        <header class="gemini-modal-header">
+          <div><strong id="account-switcher-title">Accounts</strong><small id="account-switcher-current-email">Not signed in</small></div>
+          <button type="button" class="gemini-icon-button" aria-label="Close account switcher" onclick="window.app.closeAccountSwitcher()"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="gemini-account-list" id="gemini-account-list">
+          <div class="gemini-account-row">
+            <span id="switcher-account-avatar" class="gemini-avatar">G</span>
+            <span class="gemini-account-copy"><strong id="switcher-account-name">Guest</strong><small id="switcher-account-email">Not signed in</small></span>
+            <span id="switcher-current-check" class="gemini-current-check"><i class="fa-solid fa-check"></i></span>
+          </div>
+          <div id="switcher-remove-wrap" class="gemini-remove-wrap hidden"><button type="button" class="gemini-menu-item gemini-danger-item" onclick="window.app.removeCurrentAccount()"><i class="fa-solid fa-user-minus"></i><span>Remove account from this session</span></button></div>
+        </div>
+        <div class="gemini-modal-divider"></div>
+        <button type="button" class="gemini-menu-item" onclick="window.app.addAccountFromSwitcher()"><i class="fa-solid fa-plus"></i><span>Add another account</span></button>
+        <button type="button" id="switcher-signout-button" class="gemini-menu-item" onclick="window.app.signOutFromSwitcher()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sign out</span></button>
+        <button type="button" class="gemini-manage-button" onclick="window.app.manageAccountProfile()"><i class="fa-solid fa-user-gear"></i><span>Manage your profile</span></button>
+        <p class="gemini-account-note">এই অ্যাপে একবারে একটি Firebase account সক্রিয় থাকে। Remove করলে Firebase account delete হবে না।</p>
+      </section>
+    </div>
+    <div id="settings-activity-layer" class="gemini-modal-layer hidden" onclick="if(event.target===this)window.app.closeSettingsActivity()" aria-hidden="true">
+      <section class="gemini-settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-activity-title">
+        <header class="gemini-modal-header">
+          <div><strong id="settings-activity-title">Settings &amp; Activity</strong><small>Personalize your study space</small></div>
+          <button type="button" class="gemini-icon-button" aria-label="Close settings" onclick="window.app.closeSettingsActivity()"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <button type="button" class="gemini-menu-item" onclick="window.app.toggleAccountTheme()"><i class="fa-solid fa-circle-half-stroke"></i><span>Switch light / dark theme</span></button>
+        <button type="button" class="gemini-menu-item" onclick="window.app.openProfileFromSettings()"><i class="fa-solid fa-chart-line"></i><span>Profile &amp; learning activity</span></button>
+        <button type="button" class="gemini-menu-item" onclick="window.app.openAccountLogin()"><i class="fa-solid fa-user-lock"></i><span>Login &amp; account settings</span></button>
+      </section>
+    </div>
     <script>
 function closeAppSidebar(){
   var s=document.getElementById('app-sidebar'),o=document.getElementById('sidebar-overlay'),t=document.getElementById('sidebar-toggle');
