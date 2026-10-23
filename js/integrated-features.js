@@ -412,17 +412,17 @@
 
   function startSelectedPractice(questions) {
     const qs = (questions || []).filter(Boolean);
-    if (!qs.length) { alert('Practice করার জন্য আগে প্রশ্ন নির্বাচন করুন।'); return; }
+    if (!qs.length) { alert('পরীক্ষা দেওয়ার জন্য আগে ভালো প্রশ্নগুলো নির্বাচন করুন।'); return; }
     if (app.practiceTimerInterval) { clearInterval(app.practiceTimerInterval); app.practiceTimerInterval = null; }
-    app.practiceSession = { questions: qs, index: 0, answers: [], marks: 0, showAnswer: false, timeLeft: Math.max(300, qs.length * 30) };
-    if (app.markQuestionsSeen) app.markQuestionsSeen(qs);
-    const browser = document.getElementById('practice-browser');
-    const quiz = document.getElementById('practice-quiz-view');
-    if (browser) browser.hidden = true;
-    if (quiz) quiz.hidden = false;
-    app.showView('practice');
-    app.renderPractice();
-    app.startPracticeTimer();
+    app.preparedExam = {
+      questions: app.shuffleQuestionsAndOptions(qs, qs.length),
+      mode: 'selected',
+      subject: 'all',
+      year: 'all',
+      durationMins: Number(app.setup.durationMins || 30)
+    };
+    app.renderExamIntro();
+    app.showView('exam-intro');
   }
   function updateBankSelectionToolbar() {
     const toolbar = document.getElementById('enhanced-bank-selection-toolbar');
