@@ -581,4 +581,62 @@
     renderReviewPanel();
     renderAccountList();
   });
+
+  /* Leaderboard period views use saved rows; Friends stays honest until friend links exist. */
+  const leaderboardPeriodKey = 'med_leaderboard_period_v1';
+  let leaderboardPeriod = ['weekly', 'all-time', 'friends'].includes(localStorage.getItem(leaderboardPeriodKey))
+    ? localStorage.getItem(leaderboardPeriodKey) : 'weekly';
+  let latestLeaderboardRows = [];
+  const periodTabs = document.getElementById('leaderboard-period-tabs');
+  const periodNote = document.getElementById('leaderboard-period-note');
+  const originalRenderLeaderboardRows = typeof app.renderLeaderboardRows === 'function'
+    ? app.renderLeaderboardRows.bind(app) : null;
+  function paintLeaderboardPeriodTabs() {
+    document.querySelectorAll('[data-leaderboard-period]').forEach(button => {
+      const active = button.dataset.leaderboardPeriod === leaderboardPeriod;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    if (periodNote) {
+      const friends = leaderboardPeriod === 'friends';
+      periodNote.classList.toggle('hidden', !friends);
+      periodNote.textContent = friends
+        ? 'Friends leaderboard চালু করতে account-to-account friend system ও privacy controls প্রয়োজন। সেটি যুক্ত না হওয়া পর্যন্ত অন্যদের private data দেখানো হচ্ছে না।'
+        : '';
+    }
+  }
+  if (originalRenderLeaderboardRows) {
+    app.renderLeaderboardRows = function(rows) {
+      latestLeaderboardRows = Array.isArray(rows) ? rows.slice() : [];
+      paintLeaderboardPeriodTabs();
+      if (leaderboardPeriod === 'friends') {
+        const body = document.getElementById('leaderboard-body');
+        const podium = document.getElementById('leaderboard-podium');
+        const me = document.getElementById('leaderboard-me');
+        if (body) body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">Friends leaderboard-এর জন্য friend connections প্রয়োজন।</td></tr>';
+        if (podium) podium.replaceChildren();
+        if (me) { me.replaceChildren(); me.classList.add('hidden'); }
+        return;
+      }
+      const week = typeof this.getCurrentWeekKey === 'function' ? this.getCurrentWeekKey() : '';
+      const viewRows = latestLeaderboardRows.map(row => ({
+        ...row,
+        points: leaderboardPeriod === 'weekly'
+          ? Number(row.weekKey === week ? row.weeklyPoints : 0)
+          : Number(row.points || 0)
+      }));
+      return originalRenderLeaderboardRows(viewRows);
+    };
+  }
+  if (periodTabs) {
+    periodTabs.addEventListener('click', event => {
+      const button = event.target.closest('[data-leaderboard-period]');
+      if (!button) return;
+      leaderboardPeriod = button.dataset.leaderboardPeriod;
+      try { localStorage.setItem(leaderboardPeriodKey, leaderboardPeriod); } catch (_) {}
+      paintLeaderboardPeriodTabs();
+      if (originalRenderLeaderboardRows) app.renderLeaderboardRows(latestLeaderboardRows);
+    });
+    paintLeaderboardPeriodTabs();
+  }
 })();
