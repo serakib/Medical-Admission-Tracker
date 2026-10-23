@@ -304,7 +304,7 @@
       countOptions.classList.remove('hidden');
       countOptions.querySelectorAll('[data-count],button').forEach(btn => {
         const raw = btn.dataset.count ?? btn.dataset.questions ?? btn.value ?? btn.textContent;
-        const n = Number(String(raw).match(/\\d+/)?.[0]);
+        const n = Number(String(raw).match(/\d+/)?.[0]);
         if (!n) return;
         const allowed = fixedModel ? [50, 100] : [20, 30, 50, 75, 100];
         btn.hidden = !allowed.includes(n);
