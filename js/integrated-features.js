@@ -472,7 +472,25 @@
     let bankStatusFilter = toolbar.dataset.statusFilter || 'all';
     toolbar.innerHTML = `<div class="enhanced-actions" role="group" aria-label="Question status filter"><button type="button" data-bank-filter="all" class="${bankStatusFilter==='all'?'active':''}">All Questions</button><button type="button" data-bank-filter="reviewed" class="${bankStatusFilter==='reviewed'?'active':''}">Reviewed</button><button type="button" data-bank-filter="wrong" class="${bankStatusFilter==='wrong'?'active':''}">Wrong Answer</button></div><strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Start Exam with Selected</button></div>`;
     toolbar.querySelectorAll('[data-bank-filter]').forEach(btn => btn.onclick = () => { toolbar.dataset.statusFilter = btn.dataset.bankFilter; this.renderQuestionBank(); });
-    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => { Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).forEach(card => { const input=card.querySelector('.enhanced-bank-select'); if(input) selectedBankKeys.add(input.dataset.qkey); }); this.renderQuestionBank(); };
+    toolbar.querySelector('#enhanced-bank-select-visible').textContent =
+      Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).every(card => {
+        const input = card.querySelector('.enhanced-bank-select');
+        return input && selectedBankKeys.has(input.dataset.qkey);
+      }) ? 'Unselect All (Visible)' : 'Select All (Visible)';
+    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => {
+      const visibleCards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
+      const allSelected = visibleCards.length > 0 && visibleCards.every(card => {
+        const input = card.querySelector('.enhanced-bank-select');
+        return input && selectedBankKeys.has(input.dataset.qkey);
+      });
+      visibleCards.forEach(card => {
+        const input = card.querySelector('.enhanced-bank-select');
+        if (!input) return;
+        if (allSelected) selectedBankKeys.delete(input.dataset.qkey);
+        else selectedBankKeys.add(input.dataset.qkey);
+      });
+      this.renderQuestionBank();
+    };
     toolbar.querySelector('#enhanced-bank-clear-selection').onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
     toolbar.querySelector('#enhanced-bank-practice-selected').onclick = () => startSelectedPractice(this.questionBank.filter(q => selectedBankKeys.has(qKey(q))));
     const cards = Array.from(list.querySelectorAll(':scope > article'));
