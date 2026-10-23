@@ -17,7 +17,7 @@
     chemistry: ['chemistry'],
     physics: ['physics'],
     english: ['english'],
-    general: ['general', 'gk', 'aptitude', 'human', 'iq', 'mental ability']
+    general: ['general', 'gk', 'aptitude', 'human', 'iq', 'mental ability', 'general knowledge']
   };
   const safeParse = (raw, fallback) => { try { const v = JSON.parse(raw); return v ?? fallback; } catch (_) { return fallback; } };
   const escape = value => app.escapeHtml ? app.escapeHtml(value) : String(value ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -249,26 +249,17 @@
 
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
-    originalSetSetupQuestions(count);
-    if ([10,20,30].includes(Number(count))) {
-      this.setup.questionsCount = Number(count);
-      this.setup.durationMins = Number(count) / 2;
-      const durationLabel = document.querySelector('#view-setup label');
-      const durationBlock = document.querySelector('#view-setup .time-btn')?.parentElement?.parentElement;
-      if (durationLabel && durationBlock) {
-        durationLabel.textContent = 'সময়সীমা (মিনিট) — Medical Test';
-        durationBlock.querySelectorAll('.time-btn').forEach(btn => {
-          const value = Number(count)/2;
-          btn.textContent = value + ' মি.';
-          btn.onclick = () => { this.setup.durationMins = value; this.updateSetupUI(); };
-        });
-      }
-      this.updateSetupUI();
-    }
+    const allowed = [10, 20, 30];
+    const chosen = allowed.includes(Number(count)) ? Number(count) : 20;
+    this.setup.questionsCount = chosen;
+    this.setup.durationMins = chosen / 2;
+    originalSetSetupQuestions(chosen);
+    this.setup.durationMins = chosen / 2;
+    this.updateSetupUI();
   };
-  const originalSetSetupDuration = app.setSetupDuration.bind(app);
   app.setSetupDuration = function(mins) {
-    this.setup.durationMins = Number(this.setup.questionsCount)/2;
+    const expected = Number(this.setup.questionsCount || 20) / 2;
+    this.setup.durationMins = expected;
     this.updateSetupUI();
   };
 
@@ -337,6 +328,15 @@
   };
 
   // Mark any question as reviewed from the existing practice quiz.
+  const originalAnswerPractice = app.answerPractice.bind(app);
+  app.answerPractice = function(index) {
+    const session = this.practiceSession;
+    const q = session?.questions?.[session.index];
+    originalAnswerPractice(index);
+    if (q && Number(index) !== correctIndex(q)) markWrong(q);
+    renderReviewPanel();
+  };
+
   const originalRenderPractice = app.renderPractice.bind(app);
   app.renderPractice = function() {
     originalRenderPractice();
