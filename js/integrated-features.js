@@ -419,7 +419,7 @@
       mode: 'selected',
       subject: 'all',
       year: 'all',
-      durationMins: Number(app.setup.durationMins || 30)
+      durationMins: Math.max(1, Math.round(qs.length * 0.5))
     };
     app.renderExamIntro();
     app.showView('exam-intro');

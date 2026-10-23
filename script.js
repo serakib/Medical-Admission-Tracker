@@ -1549,3 +1549,78 @@ window.handleLogout = function() {
         });
     }
 };
+
+
+/* Exam timing + student XP/points foundation.
+   Existing question data and scoring rules remain authoritative. */
+(() => {
+  'use strict';
+  const app = window.app;
+  if (!app || app.__examProgressFoundation) return;
+  app.__examProgressFoundation = true;
+  const accountKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
+  const readProgress = () => {
+    try {
+      const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+    } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
+  };
+  const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
+  const durationFor = count => Math.max(1, Math.round(Number(count || 0) * 0.5));
+  const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
+  app.setSetupQuestions = function(count) {
+    originalSetSetupQuestions(count);
+    if (this.setup.mode === 'model') {
+      this.setup.durationMins = durationFor(count);
+      const note = document.getElementById('model-test-fixed-note');
+      if (note) note.textContent = 'Model Test: ' + count + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
+      this.updateSetupUI();
+    }
+  };
+  const originalSetSetupMode = app.setSetupMode.bind(app);
+  app.setSetupMode = function(mode) {
+    originalSetSetupMode(mode);
+    const durationArea = document.querySelector('#view-setup .time-btn')?.closest('.space-y-2');
+    document.querySelectorAll('.q-count-btn').forEach(btn => { const n = Number(btn.textContent.trim()); btn.classList.toggle('hidden', mode === 'model' && ![50,100].includes(n)); });
+    const note = document.getElementById('model-test-fixed-note');
+    if (durationArea) durationArea.classList.toggle('hidden', mode === 'model');
+    if (note) {
+      note.classList.toggle('hidden', mode !== 'model');
+      if (mode === 'model') {
+        this.setup.questionsCount = [50,100].includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
+        this.setup.durationMins = durationFor(this.setup.questionsCount);
+        note.textContent = 'Model Test: ' + this.setup.questionsCount + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
+      }
+    }
+  };
+  const originalPrepare = app.prepareExamFromSetup.bind(app);
+  app.prepareExamFromSetup = function() {
+    if (this.setup.mode === 'model') {
+      this.setup.questionsCount = Number(this.setup.questionsCount) === 100 ? 100 : 50;
+      this.setup.durationMins = durationFor(this.setup.questionsCount);
+    } else if (this.setup.mode === 'random') {
+      this.setup.durationMins = durationFor(this.setup.questionsCount);
+    }
+    return originalPrepare();
+  };
+  const originalRenderAccountProfile = app.renderAccountProfile.bind(app);
+  app.renderAccountProfile = function() {
+    originalRenderAccountProfile();
+    const root = document.getElementById('view-account');
+    if (!root || root.querySelector('#account-progress-extra')) return;
+    const progress = readProgress();
+    const section = document.createElement('section');
+    section.id = 'account-progress-extra';
+    section.className = 'account-progress-extra';
+    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="account-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="account-xp">' + progress.xp + '</strong></div>';
+    const hero = root.querySelector('.profile-hero');
+    if (hero) hero.insertAdjacentElement('afterend', section);
+  };
+  window.addEventListener('load', () => {
+    const note = document.getElementById('model-test-fixed-note');
+    if (note && app.setup?.mode === 'model') {
+      note.classList.remove('hidden');
+      note.textContent = 'Model Test: ' + app.setup.questionsCount + ' questions · ' + durationFor(app.setup.questionsCount) + ' minutes (automatic)';
+    }
+  });
+})();
