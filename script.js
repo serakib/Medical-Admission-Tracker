@@ -1603,6 +1603,27 @@ window.handleLogout = function() {
     }
     return originalPrepare();
   };
+  const originalSubmitExamForProgress = app.submitExam.bind(app);
+  app.submitExam = function(autoSubmitted = false) {
+    const state = this.examState;
+    if (!state || state.submitted) return originalSubmitExamForProgress(autoSubmitted);
+    let correct = 0;
+    (state.questions || []).forEach((q, i) => { if (state.userAnswers?.[i] === q.answer) correct++; });
+    const attemptId = String(state.startedAt || Date.now());
+    const progress = readProgress();
+    const alreadyRewarded = progress.rewarded.includes(attemptId);
+    const result = originalSubmitExamForProgress(autoSubmitted);
+    if (!alreadyRewarded && state.submitted) {
+      progress.rankPoints += correct * 5;
+      progress.xp += Math.max(10, (state.questions?.length || 0) * 2) + correct * 2;
+      progress.completedExams += 1;
+      progress.rewarded.push(attemptId);
+      if (progress.rewarded.length > 500) progress.rewarded = progress.rewarded.slice(-500);
+      saveProgress(progress);
+      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, correct } }));
+    }
+    return result;
+  };
   const originalRenderAccountProfile = app.renderAccountProfile.bind(app);
   app.renderAccountProfile = function() {
     originalRenderAccountProfile();
