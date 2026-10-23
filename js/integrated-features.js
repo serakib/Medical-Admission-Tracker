@@ -316,11 +316,15 @@
       originalSetSetupQuestions(50);
     }
     this.setup.durationMins = Number(this.setup.questionsCount || 30) * (fixedModel ? 0.6 : 0.5);
+    const timeContainer = document.querySelector('.time-btn')?.parentElement?.parentElement;
+    if (timeContainer) {
+      timeContainer.hidden = true;
+      timeContainer.setAttribute('aria-hidden', 'true');
+    }
     document.querySelectorAll('.time-btn').forEach(btn => {
       btn.disabled = true;
       btn.setAttribute('aria-disabled', 'true');
       btn.title = 'সময় প্রশ্নসংখ্যা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত হয়';
-      btn.classList.add('opacity-50', 'cursor-not-allowed');
     });
     this.updateSetupUI();
   };
