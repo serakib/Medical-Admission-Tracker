@@ -903,24 +903,28 @@ function toggleAppSidebarCollapse(){
                 <!-- Question Count Options -->
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">প্রশ্নের সংখ্যা</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="window.app.setSetupQuestions(10)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">10</button>
+                    <div id="setup-question-count-options" class="grid grid-cols-5 gap-2">
                         <button type="button" onclick="window.app.setSetupQuestions(20)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20</button>
                         <button type="button" onclick="window.app.setSetupQuestions(30)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(50)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">50</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(75)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">75</button>
+                        <button type="button" onclick="window.app.setSetupQuestions(100)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">100</button>
                     </div>
                 </div>
 
                 <!-- Exam Duration Options -->
                 <div class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">সময়সীমা (মিনিট)</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="window.app.setSetupDuration(5)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">5 মি.</button>
-                        <button type="button" onclick="window.app.setSetupDuration(10)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">10 মি.</button>
-                        <button type="button" onclick="window.app.setSetupDuration(15)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">15 মি.</button>
+                    <div class="grid grid-cols-5 gap-2">
+                        <button type="button" onclick="window.app.setSetupDuration(20)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20 মি.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(30)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30 м.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(50)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">50 м.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(60)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">60 м.</button>
+                        <button type="button" onclick="window.app.setSetupDuration(90)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">90 м.</button>
                     </div>
                 </div>
 
-                <p id="model-test-fixed-note" class="hidden text-xs font-bold text-medical-700 dark:text-medical-300 rounded-xl border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 px-3 py-2">Model Test: 100 Questions · 100 Marks · 60 Minutes</p>
+                <p id="model-test-fixed-note" class="hidden text-xs font-bold text-medical-700 dark:text-medical-300 rounded-xl border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 px-3 py-2">Model Test: 100 Questions · 100 Marks (time can be selected below)</p>
 
                 <!-- Exam Rules Info Note -->
                 <div class="p-4 bg-medical-50 dark:bg-medical-900/30 rounded-2xl border border-medical-100 dark:border-medical-800/50 text-xs text-medical-800 dark:text-medical-300 space-y-1">
