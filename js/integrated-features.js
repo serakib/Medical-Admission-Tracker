@@ -639,4 +639,54 @@
     });
     paintLeaderboardPeriodTabs();
   }
+
+  /* Per-account avatar selection for the profile view. */
+  const avatarChoices = ['🩺', '🧑‍⚕️', '👨‍🎓', '👩‍🎓', '🧬', '🧠', '🦉', '🚀'];
+  const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+  const readAvatar = () => {
+    try {
+      const value = localStorage.getItem(avatarKey());
+      return avatarChoices.includes(value) ? value : '🩺';
+    } catch (_) { return '🩺'; }
+  };
+  function renderAvatarPicker() {
+    const root = document.getElementById('view-profile');
+    if (!root) return;
+    let picker = root.querySelector('#profile-avatar-picker');
+    if (!picker) {
+      picker = document.createElement('div');
+      picker.id = 'profile-avatar-picker';
+      picker.className = 'profile-avatar-picker';
+      picker.setAttribute('aria-label', 'Choose profile avatar');
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', picker);
+      else root.prepend(picker);
+    }
+    const current = readAvatar();
+    const avatar = root.querySelector('.profile-hero .profile-avatar');
+    if (avatar) {
+      avatar.textContent = current;
+      avatar.setAttribute('aria-label', 'Selected profile avatar ' + current);
+    }
+    picker.innerHTML = '<span class="profile-avatar-picker-label">Choose avatar</span>' + avatarChoices.map(value =>
+      '<button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar="' + value + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose avatar ' + value + '">' + value + '</button>'
+    ).join('');
+  }
+  document.addEventListener('click', event => {
+    const choice = event.target.closest('[data-profile-avatar]');
+    if (!choice) return;
+    const value = choice.dataset.profileAvatar;
+    if (!avatarChoices.includes(value)) return;
+    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
+    renderAvatarPicker();
+    if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
+  });
+  document.addEventListener('student-progress-updated', renderAvatarPicker);
+  window.addEventListener('load', renderAvatarPicker);
+  const originalShowViewForAvatar = app.showView.bind(app);
+  app.showView = function(viewName, force = false) {
+    const result = originalShowViewForAvatar(viewName, force);
+    if (viewName === 'profile') renderAvatarPicker();
+    return result;
+  };
 })();
