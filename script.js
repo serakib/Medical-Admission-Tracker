@@ -1581,6 +1581,7 @@ window.handleLogout = function() {
   app.setSetupMode = function(mode) {
     originalSetSetupMode(mode);
     const durationArea = document.querySelector('#view-setup .time-btn')?.closest('.space-y-2');
+    document.querySelectorAll('.q-count-btn').forEach(btn => { const n = Number(btn.textContent.trim()); btn.classList.toggle('hidden', mode === 'model' && ![50,100].includes(n)); });
     const note = document.getElementById('model-test-fixed-note');
     if (durationArea) durationArea.classList.toggle('hidden', mode === 'model');
     if (note) {
