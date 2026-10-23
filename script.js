@@ -1620,6 +1620,19 @@ window.handleLogout = function() {
       progress.rewarded.push(attemptId);
       if (progress.rewarded.length > 500) progress.rewarded = progress.rewarded.slice(-500);
       saveProgress(progress);
+      const resultRoot = document.getElementById('view-result');
+      if (resultRoot) {
+        let rewardCard = resultRoot.querySelector('#exam-reward-summary');
+        if (!rewardCard) {
+          rewardCard = document.createElement('section');
+          rewardCard.id = 'exam-reward-summary';
+          rewardCard.className = 'mt-4 grid grid-cols-2 gap-3';
+          const score = document.getElementById('res-score-main')?.closest('.result-card, .glass-card, section') || resultRoot.firstElementChild;
+          if (score?.parentElement) score.parentElement.insertBefore(rewardCard, score.nextSibling);
+          else resultRoot.prepend(rewardCard);
+        }
+        rewardCard.innerHTML = '<div class="rounded-xl border border-amber-300/50 bg-amber-50 dark:bg-amber-900/20 p-3"><div class="text-xs opacity-75">Rank Points earned</div><strong class="text-xl">+' + (correct * 5) + '</strong></div><div class="rounded-xl border border-sky-300/50 bg-sky-50 dark:bg-sky-900/20 p-3"><div class="text-xs opacity-75">XP earned</div><strong class="text-xl">+' + (Math.max(10, (state.questions?.length || 0) * 2) + correct * 2) + '</strong></div>';
+      }
       document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, correct } }));
     }
     return result;
