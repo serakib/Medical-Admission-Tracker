@@ -275,13 +275,10 @@
 
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
-    if (this.setup.mode === 'model') return;
     const allowed = [20, 30, 50, 75, 100];
     const chosen = allowed.includes(Number(count)) ? Number(count) : 30;
     this.setup.questionsCount = chosen;
-    this.setup.durationMins = chosen / 2;
     originalSetSetupQuestions(chosen);
-    this.setup.durationMins = chosen / 2;
     this.updateSetupUI();
   };
   app.setSetupDuration = function(mins) {
@@ -297,7 +294,7 @@
     const note = document.getElementById('model-test-fixed-note');
     if (note) note.classList.toggle('hidden', !fixedModel);
     const countOptions = document.getElementById('setup-question-count-options');
-    if (countOptions) countOptions.classList.toggle('hidden', fixedModel);
+    if (countOptions) countOptions.classList.remove('hidden');
     document.querySelectorAll('.time-btn').forEach(btn => {
       btn.disabled = false;
       btn.setAttribute('aria-disabled', 'false');
@@ -308,19 +305,18 @@
   const originalPrepareExam = app.prepareExamFromSetup.bind(app);
   app.prepareExamFromSetup = function() {
     if (!this.questionsLoaded || !this.questionBank.length) return originalPrepareExam();
-    const isFixedModel = this.setup.mode === 'model';
-    const count = isFixedModel ? 100 : (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : Number(this.setup.questionsCount || 30);
+    const isModelTest = this.setup.mode === 'model';
+    const count = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : Number(this.setup.questionsCount || 30);
     let pool = this.questionBank.slice();
     const year = document.getElementById('setup-year')?.value || 'all';
-    if (!isFixedModel && this.setup.subject && this.setup.subject !== 'all') pool = pool.filter(q => q.subject === this.setup.subject);
-    if (!isFixedModel && year !== 'all' && (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz')) pool = pool.filter(q => q.year === year || q.isPreviousYear);
+    if (!isModelTest && this.setup.subject && this.setup.subject !== 'all') pool = pool.filter(q => q.subject === this.setup.subject);
+    if (!isModelTest && year !== 'all' && (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz')) pool = pool.filter(q => q.year === year || q.isPreviousYear);
     if (!pool.length) { this.showDataError('এই নির্বাচন অনুযায়ী Question Bank-এ প্রশ্ন পাওয়া যায়নি।'); return; }
-    if (isFixedModel && pool.length < 100) { this.showDataError('১০০ নম্বরের Model Test-এর জন্য Question Bank-এ কমপক্ষে ১০০টি প্রশ্ন প্রয়োজন।'); return; }
-    const questions = isFixedModel || this.setup.subject === 'all'
+    const questions = isModelTest || this.setup.subject === 'all'
       ? chooseMedicalDistribution(pool, Math.min(count, pool.length))
       : pool.slice().sort(() => Math.random()-.5).slice(0, Math.min(count,pool.length));
     if (!questions.length) return originalPrepareExam();
-    if (isFixedModel) {
+    if (isModelTest) {
       this.setup.subject = 'all';
       const subjectSelect = document.getElementById('setup-subject');
       if (subjectSelect) subjectSelect.value = 'all';
@@ -332,8 +328,8 @@
     this.preparedExam = {
       questions: this.shuffleQuestionsAndOptions(questions, questions.length),
       mode: this.setup.mode,
-      subject: isFixedModel ? 'all' : this.setup.subject,
-      year: isFixedModel ? 'all' : year,
+      subject: isModelTest ? 'all' : this.setup.subject,
+      year: isModelTest ? 'all' : year,
       durationMins
     };
     this.renderExamIntro();
@@ -416,17 +412,17 @@
 
   function startSelectedPractice(questions) {
     const qs = (questions || []).filter(Boolean);
-    if (!qs.length) { alert('Practice করার জন্য আগে প্রশ্ন নির্বাচন করুন।'); return; }
+    if (!qs.length) { alert('পরীক্ষা দেওয়ার জন্য আগে ভালো প্রশ্নগুলো নির্বাচন করুন।'); return; }
     if (app.practiceTimerInterval) { clearInterval(app.practiceTimerInterval); app.practiceTimerInterval = null; }
-    app.practiceSession = { questions: qs, index: 0, answers: [], marks: 0, showAnswer: false, timeLeft: Math.max(300, qs.length * 30) };
-    if (app.markQuestionsSeen) app.markQuestionsSeen(qs);
-    const browser = document.getElementById('practice-browser');
-    const quiz = document.getElementById('practice-quiz-view');
-    if (browser) browser.hidden = true;
-    if (quiz) quiz.hidden = false;
-    app.showView('practice');
-    app.renderPractice();
-    app.startPracticeTimer();
+    app.preparedExam = {
+      questions: app.shuffleQuestionsAndOptions(qs, qs.length),
+      mode: 'selected',
+      subject: 'all',
+      year: 'all',
+      durationMins: Number(app.setup.durationMins || 30)
+    };
+    app.renderExamIntro();
+    app.showView('exam-intro');
   }
   function updateBankSelectionToolbar() {
     const toolbar = document.getElementById('enhanced-bank-selection-toolbar');
@@ -449,7 +445,7 @@
       list.parentElement.insertBefore(toolbar, list);
     }
     let bankStatusFilter = toolbar.dataset.statusFilter || 'all';
-    toolbar.innerHTML = `<div class="enhanced-actions" role="group" aria-label="Question status filter"><button type="button" data-bank-filter="all" class="${bankStatusFilter==='all'?'active':''}">All Questions</button><button type="button" data-bank-filter="reviewed" class="${bankStatusFilter==='reviewed'?'active':''}">Reviewed</button><button type="button" data-bank-filter="wrong" class="${bankStatusFilter==='wrong'?'active':''}">Wrong Answer</button></div><strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Practice Selected</button></div>`;
+    toolbar.innerHTML = `<div class="enhanced-actions" role="group" aria-label="Question status filter"><button type="button" data-bank-filter="all" class="${bankStatusFilter==='all'?'active':''}">All Questions</button><button type="button" data-bank-filter="reviewed" class="${bankStatusFilter==='reviewed'?'active':''}">Reviewed</button><button type="button" data-bank-filter="wrong" class="${bankStatusFilter==='wrong'?'active':''}">Wrong Answer</button></div><strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Start Exam with Selected</button></div>`;
     toolbar.querySelectorAll('[data-bank-filter]').forEach(btn => btn.onclick = () => { toolbar.dataset.statusFilter = btn.dataset.bankFilter; this.renderQuestionBank(); });
     toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => { Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).forEach(card => { const input=card.querySelector('.enhanced-bank-select'); if(input) selectedBankKeys.add(input.dataset.qkey); }); this.renderQuestionBank(); };
     toolbar.querySelector('#enhanced-bank-clear-selection').onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
