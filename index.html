@@ -369,7 +369,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
       <nav class="sidebar-nav">
         <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar()" type="button"><i class="fa-solid fa-house"></i><span>Home</span></button>
         <button data-nav-view="question-bank" onclick="window.app.openQuestionBank('view');closeAppSidebar()" type="button"><i class="fa-solid fa-book-medical"></i><span>Question Bank</span></button>
-        <button data-nav-view="practice" onclick="window.app.openPracticeBrowser();closeAppSidebar()" type="button"><i class="fa-solid fa-bullseye"></i><span>Practice</span></button>
+        <button data-nav-view="practice" onclick="window.app.openQuestionBank('view');closeAppSidebar()" type="button"><i class="fa-solid fa-bullseye"></i><span>Practice</span></button>
         <button data-nav-view="setup" onclick="window.app.setupExamQuick('model');closeAppSidebar()" type="button"><i class="fa-solid fa-clipboard-check"></i><span>Model Test</span></button>
         <button data-nav-view="previous" onclick="window.app.showPreviousYears();closeAppSidebar()" type="button"><i class="fa-solid fa-clock-rotate-left"></i><span>Previous Year</span></button>
         <button data-nav-view="leaderboard" onclick="window.app.showView('leaderboard');window.app.loadLeaderboard();closeAppSidebar()" type="button"><i class="fa-solid fa-trophy"></i><span>Leaderboard</span></button>
@@ -378,7 +378,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
         <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar();setTimeout(function(){var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},100)" type="button"><i class="fa-solid fa-envelope"></i><span>Contact</span></button>
       </nav>
       <div class="sidebar-bottom">
-        <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
+        <div class="sidebar-profile-row"><button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button><button id="question-palette-settings" class="sidebar-palette-settings" type="button" aria-label="Question Palette Settings" title="Question Palette Settings" onclick="window.openQuestionPaletteSettings()"><i class="fa-solid fa-sliders"></i><span class="sr-only">Question Palette Settings</span></button></div>
         <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
         <button class="sidebar-action login-action" onclick="window.redirectToLogin()" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
@@ -753,7 +753,7 @@ function toggleAppSidebarCollapse(){
                         <div class="medical-footer-links">
                             <button type="button" class="medical-footer-link" onclick="window.app.showView('home'); window.scrollTo({top:0,behavior:'smooth'});"><i class="fa-solid fa-house" aria-hidden="true"></i><span>হোম</span></button>
                             <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('view')"><i class="fa-solid fa-book-medical" aria-hidden="true"></i><span>প্রশ্ন ব্যাংক</span></button>
-                            <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('practice')"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
+                            <button type="button" class="medical-footer-link" onclick="window.app.openQuestionBank('view')"><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>প্র্যাকটিস</span></button>
                             <button type="button" class="medical-footer-link" onclick="window.app.setupExamQuick('model')"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i><span>মডেল টেস্ট</span></button>
                             <button type="button" class="medical-footer-link" onclick="window.app.showPreviousYears()"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>বিগত বছরের প্রশ্ন</span></button>
                         </div>
@@ -919,6 +919,8 @@ function toggleAppSidebarCollapse(){
                         <button type="button" onclick="window.app.setSetupDuration(15)" class="time-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">15 মি.</button>
                     </div>
                 </div>
+
+                <p id="model-test-fixed-note" class="hidden text-xs font-bold text-medical-700 dark:text-medical-300 rounded-xl border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 px-3 py-2">Model Test: 100 Questions · 100 Marks · 60 Minutes</p>
 
                 <!-- Exam Rules Info Note -->
                 <div class="p-4 bg-medical-50 dark:bg-medical-900/30 rounded-2xl border border-medical-100 dark:border-medical-800/50 text-xs text-medical-800 dark:text-medical-300 space-y-1">
