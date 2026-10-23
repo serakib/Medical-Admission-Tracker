@@ -326,7 +326,6 @@
       btn.setAttribute('aria-disabled', 'true');
       btn.title = 'সময় প্রশ্নসংখ্যা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত হয়';
     });
-    this.updateSetupUI();
   };
 
   const originalPrepareExam = app.prepareExamFromSetup.bind(app);
