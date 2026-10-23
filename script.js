@@ -1566,12 +1566,12 @@ window.handleLogout = function() {
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
-  const durationFor = count => Math.max(1, Math.round(Number(count || 0) * 0.5));
+  const durationFor = (count, mode = app.setup?.mode) => Math.max(1, Math.round(Number(count || 0) * (mode === 'model' ? 0.6 : 0.5)));
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
     originalSetSetupQuestions(count);
     if (this.setup.mode === 'model') {
-      this.setup.durationMins = durationFor(count);
+      this.setup.durationMins = durationFor(count, this.setup.mode);
       const note = document.getElementById('model-test-fixed-note');
       if (note) note.textContent = 'Model Test: ' + count + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
       this.updateSetupUI();
@@ -1588,7 +1588,7 @@ window.handleLogout = function() {
       note.classList.toggle('hidden', mode !== 'model');
       if (mode === 'model') {
         this.setup.questionsCount = [50,100].includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
-        this.setup.durationMins = durationFor(this.setup.questionsCount);
+        this.setup.durationMins = durationFor(this.setup.questionsCount, this.setup.mode);
         note.textContent = 'Model Test: ' + this.setup.questionsCount + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
       }
     }
@@ -1637,19 +1637,34 @@ window.handleLogout = function() {
     }
     return result;
   };
+  function renderProgressCards(root, sectionId, prefix) {
+    if (!root) return;
+    const progress = readProgress();
+    let section = root.querySelector('#' + sectionId);
+    if (!section) {
+      section = document.createElement('section');
+      section.id = sectionId;
+      section.className = 'account-progress-extra';
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', section);
+      else root.prepend(section);
+    }
+    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="' + prefix + '-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="' + prefix + '-xp">' + progress.xp + '</strong></div><div class="progress-extra-card"><span>Completed Exams</span><strong>' + progress.completedExams + '</strong></div>';
+  }
   const originalRenderAccountProfile = app.renderAccountProfile.bind(app);
   app.renderAccountProfile = function() {
     originalRenderAccountProfile();
-    const root = document.getElementById('view-account');
-    if (!root || root.querySelector('#account-progress-extra')) return;
-    const progress = readProgress();
-    const section = document.createElement('section');
-    section.id = 'account-progress-extra';
-    section.className = 'account-progress-extra';
-    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="account-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="account-xp">' + progress.xp + '</strong></div>';
-    const hero = root.querySelector('.profile-hero');
-    if (hero) hero.insertAdjacentElement('afterend', section);
+    renderProgressCards(document.getElementById('view-account'), 'account-progress-extra', 'account');
+    renderProgressCards(document.getElementById('view-profile'), 'profile-progress-extra', 'profile');
   };
+  document.addEventListener('student-progress-updated', () => {
+    renderProgressCards(document.getElementById('view-account'), 'account-progress-extra', 'account');
+    renderProgressCards(document.getElementById('view-profile'), 'profile-progress-extra', 'profile');
+  });
+  window.addEventListener('load', () => {
+    renderProgressCards(document.getElementById('view-account'), 'account-progress-extra', 'account');
+    renderProgressCards(document.getElementById('view-profile'), 'profile-progress-extra', 'profile');
+  });
   window.addEventListener('load', () => {
     const note = document.getElementById('model-test-fixed-note');
     if (note && app.setup?.mode === 'model') {
