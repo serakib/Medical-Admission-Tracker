@@ -98,3 +98,11 @@ html.dark .account-progress-extra .progress-extra-card span,body.dark .account-p
 html.dark .account-progress-extra .progress-extra-card strong,body.dark .account-progress-extra .progress-extra-card strong{color:#a5b4fc}
 #model-test-fixed-note{display:block}
 @media(max-width:480px){.account-progress-extra .progress-extra-card{padding:12px}.account-progress-extra .progress-extra-card strong{font-size:21px}}
+
+
+/* Accessible leaderboard period tabs. */
+.leaderboard-period-tab{border-color:rgba(148,163,184,.35);color:#64748b;background:transparent;transition:background-color .18s ease,color .18s ease,border-color .18s ease}
+.leaderboard-period-tab:hover{border-color:rgba(16,185,129,.55);color:#059669}
+.leaderboard-period-tab.is-active{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.65);color:#047857}
+.dark .leaderboard-period-tab{color:#cbd5e1}
+.dark .leaderboard-period-tab.is-active{color:#6ee7b7;background:rgba(16,185,129,.16)}
