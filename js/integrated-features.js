@@ -275,10 +275,11 @@
 
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
-    const allowed = [20, 30, 50, 75, 100];
-    const chosen = allowed.includes(Number(count)) ? Number(count) : 30;
+    const allowed = this.setup?.mode === 'model' ? [50, 100] : [20, 30, 50, 75, 100];
+    const chosen = allowed.includes(Number(count)) ? Number(count) : (this.setup?.mode === 'model' ? 50 : 30);
     this.setup.questionsCount = chosen;
     originalSetSetupQuestions(chosen);
+    this.setup.durationMins = this.setup.mode === 'model' ? chosen * 0.6 : chosen * 0.5;
     this.updateSetupUI();
   };
   app.setSetupDuration = function(mins) {
@@ -292,14 +293,36 @@
     originalSetSetupMode(mode);
     const fixedModel = mode === 'model';
     const note = document.getElementById('model-test-fixed-note');
-    if (note) note.classList.toggle('hidden', !fixedModel);
+    if (note) {
+      note.classList.toggle('hidden', !fixedModel);
+      note.textContent = fixedModel
+        ? 'Model Test: ৫০ প্রশ্নে ৩০ মিনিট, ১০০ প্রশ্নে ৬০ মিনিট। সময় স্বয়ংক্রিয়ভাবে নির্ধারিত হবে।'
+        : 'সময় প্রশ্নসংখ্যা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত হবে (প্রতি ২ প্রশ্নে ১ মিনিট)।';
+    }
     const countOptions = document.getElementById('setup-question-count-options');
-    if (countOptions) countOptions.classList.remove('hidden');
+    if (countOptions) {
+      countOptions.classList.remove('hidden');
+      countOptions.querySelectorAll('[data-count],button').forEach(btn => {
+        const raw = btn.dataset.count ?? btn.dataset.questions ?? btn.value ?? btn.textContent;
+        const n = Number(String(raw).match(/\\d+/)?.[0]);
+        if (!n) return;
+        const allowed = fixedModel ? [50, 100] : [20, 30, 50, 75, 100];
+        btn.hidden = !allowed.includes(n);
+        btn.disabled = !allowed.includes(n);
+      });
+    }
+    if (fixedModel && ![50, 100].includes(Number(this.setup.questionsCount))) {
+      this.setup.questionsCount = 50;
+      originalSetSetupQuestions(50);
+    }
+    this.setup.durationMins = Number(this.setup.questionsCount || 30) * (fixedModel ? 0.6 : 0.5);
     document.querySelectorAll('.time-btn').forEach(btn => {
-      btn.disabled = false;
-      btn.setAttribute('aria-disabled', 'false');
-      btn.title = '';
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'সময় প্রশ্নসংখ্যা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত হয়';
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
     });
+    this.updateSetupUI();
   };
 
   const originalPrepareExam = app.prepareExamFromSetup.bind(app);
@@ -323,7 +346,9 @@
       const yearSelect = document.getElementById('setup-year');
       if (yearSelect) yearSelect.value = 'all';
     }
-    const durationMins = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : Number(this.setup.durationMins || 30);
+    const durationMins = isModelTest
+      ? count * 0.6
+      : ((this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? Math.max(1, count * 0.5) : Math.max(1, count * 0.5));
     this.setup.durationMins = durationMins;
     this.preparedExam = {
       questions: this.shuffleQuestionsAndOptions(questions, questions.length),
