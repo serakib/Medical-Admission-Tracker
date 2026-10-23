@@ -57,3 +57,27 @@ table{border-collapse:separate;border-spacing:0}thead th{color:var(--muted);font
 .question-card.is-hidden {
     display: none !important;
 }
+
+
+/* Compact, accessible controls across desktop, tablet, and touch screens. */
+button, .primary-btn, .ghost-btn, .practice-start-btn {
+  max-width: 100%;
+}
+.q-count-btn, .time-btn {
+  padding: 7px 9px !important;
+  min-height: 34px;
+  font-size: 12px !important;
+}
+.primary-btn, .ghost-btn, .practice-start-btn {
+  padding: 8px 12px !important;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.nav-btn {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+@media (max-width: 767px) {
+  .q-count-btn, .time-btn { padding: 7px 6px !important; font-size: 12px !important; }
+  .primary-btn, .ghost-btn, .practice-start-btn { padding: 8px 10px !important; font-size: 12px; }
+}
