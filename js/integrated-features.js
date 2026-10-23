@@ -49,6 +49,32 @@
     const style = document.createElement('style');
     style.id = 'integrated-features-style';
     style.textContent = `
+      .sidebar-profile-row{display:flex;align-items:stretch;gap:7px;width:100%}
+      .sidebar-profile-row .profile-action{flex:1;min-width:0;margin-left:0}
+      .sidebar-palette-settings{display:grid;place-items:center;flex:0 0 46px;width:46px;min-height:46px;border:1px solid rgba(52,211,153,.28);border-radius:12px;background:rgba(16,185,129,.12);color:#a7f3d0;cursor:pointer}
+      .sidebar-palette-settings:hover{background:rgba(16,185,129,.22);color:#fff}
+      .palette-settings-overlay{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;padding:18px;background:rgba(2,6,23,.62)}
+      .palette-settings-overlay[hidden]{display:none!important}
+      .palette-settings-dialog{width:min(100%,420px);padding:22px;border:1px solid var(--line,#dbe4ee);border-radius:20px;background:var(--surface,#fff);color:var(--text,#1e293b);box-shadow:0 24px 80px rgba(0,0,0,.28)}
+      .palette-settings-dialog h3{font-weight:900;font-size:1.1rem;margin:0 0 7px}
+      .palette-settings-dialog p{font-size:.85rem;line-height:1.65;color:var(--muted,#64748b);margin:0 0 16px}
+      .palette-settings-choice{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line,#dbe4ee);border-radius:13px}
+      .palette-settings-choice input{width:18px;height:18px;accent-color:#059669}
+      .question-palette-subjects{display:block;max-height:18rem;overflow-y:auto;overflow-x:hidden;padding-right:.25rem}
+      .palette-subject-section{padding:10px;margin-bottom:10px;border:1px solid var(--line,#dbe4ee);border-radius:13px;background:var(--surface-2,rgba(148,163,184,.06))}
+      .palette-subject-heading{font-size:.76rem;font-weight:900;margin:0 0 8px;color:var(--text,#1e293b)}
+      .palette-subject-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+      .palette-subject-grid button{min-width:0}
+      .enhanced-bank-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0;padding:12px;border:1px solid var(--line,#dbe4ee);border-radius:15px;background:var(--surface,#fff)}
+      .enhanced-bank-toolbar .enhanced-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+      .enhanced-bank-toolbar button{padding:7px 10px;border:1px solid var(--line,#cbd5e1);border-radius:9px;font-size:12px;font-weight:800;background:var(--surface,#fff);color:var(--text,#1e293b)}
+      .enhanced-bank-toolbar .enhanced-practice-selected{background:#059669;color:#fff;border-color:#059669}
+      .enhanced-bank-select-row{display:flex;align-items:center;gap:7px;margin:12px 0 4px;font-size:12px;font-weight:800;color:var(--muted,#64748b)}
+      .enhanced-bank-select-row input{width:16px;height:16px;accent-color:#059669}
+      .enhanced-question-status{display:inline-flex;flex-wrap:wrap;gap:5px;margin-left:auto}
+      .enhanced-status-pill{display:inline-flex;align-items:center;padding:3px 7px;border-radius:99px;font-size:10px;font-weight:900;letter-spacing:.01em}
+      .enhanced-status-reviewed{color:#047857;background:rgba(16,185,129,.13);border:1px solid rgba(16,185,129,.22)}
+      .enhanced-status-wrong{color:#b91c1c;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.2)}
       .enhanced-panel{margin:14px 0;padding:14px;border:1px solid var(--line,#dbe4ee);border-radius:16px;background:var(--surface,#fff);color:var(--text,#1e293b)}
       .enhanced-panel h3{font-size:1rem;font-weight:800;margin:0 0 10px}
       .enhanced-actions,.enhanced-filters,.enhanced-card-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
@@ -249,6 +275,7 @@
 
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
+    if (this.setup.mode === 'model') return;
     const allowed = [10, 20, 30];
     const chosen = allowed.includes(Number(count)) ? Number(count) : 20;
     this.setup.questionsCount = chosen;
@@ -258,33 +285,118 @@
     this.updateSetupUI();
   };
   app.setSetupDuration = function(mins) {
+    if (this.setup.mode === 'model') return;
     const expected = Number(this.setup.questionsCount || 20) / 2;
     this.setup.durationMins = expected;
     this.updateSetupUI();
+  };
+  const originalSetSetupMode = app.setSetupMode.bind(app);
+  app.setSetupMode = function(mode) {
+    originalSetSetupMode(mode);
+    const fixedModel = mode === 'model';
+    const note = document.getElementById('model-test-fixed-note');
+    if (note) note.hidden = !fixedModel;
+    document.querySelectorAll('.q-count-btn,.time-btn').forEach(btn => {
+      btn.disabled = fixedModel;
+      btn.setAttribute('aria-disabled', String(fixedModel));
+      btn.title = fixedModel ? 'Model Test is fixed at 100 marks and 60 minutes' : '';
+    });
   };
 
   const originalPrepareExam = app.prepareExamFromSetup.bind(app);
   app.prepareExamFromSetup = function() {
     if (!this.questionsLoaded || !this.questionBank.length) return originalPrepareExam();
-    const count = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : Number(this.setup.questionsCount || 20);
+    const isFixedModel = this.setup.mode === 'model';
+    const count = isFixedModel ? 100 : (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : Number(this.setup.questionsCount || 20);
     let pool = this.questionBank.slice();
-    if (this.setup.subject && this.setup.subject !== 'all') pool = pool.filter(q => q.subject === this.setup.subject);
     const year = document.getElementById('setup-year')?.value || 'all';
-    if (year !== 'all' && (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz')) pool = pool.filter(q => q.year === year || q.isPreviousYear);
+    if (!isFixedModel && this.setup.subject && this.setup.subject !== 'all') pool = pool.filter(q => q.subject === this.setup.subject);
+    if (!isFixedModel && year !== 'all' && (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz')) pool = pool.filter(q => q.year === year || q.isPreviousYear);
     if (!pool.length) { this.showDataError('এই নির্বাচন অনুযায়ী Question Bank-এ প্রশ্ন পাওয়া যায়নি।'); return; }
-    const questions = this.setup.subject === 'all' ? chooseMedicalDistribution(pool, Math.min(count, pool.length)) : pool.slice().sort(() => Math.random()-.5).slice(0, Math.min(count,pool.length));
+    if (isFixedModel && pool.length < 100) { this.showDataError('১০০ নম্বরের Model Test-এর জন্য Question Bank-এ কমপক্ষে ১০০টি প্রশ্ন প্রয়োজন।'); return; }
+    const questions = isFixedModel || this.setup.subject === 'all'
+      ? chooseMedicalDistribution(pool, Math.min(count, pool.length))
+      : pool.slice().sort(() => Math.random()-.5).slice(0, Math.min(count,pool.length));
     if (!questions.length) return originalPrepareExam();
-    this.setup.durationMins = count / 2;
-    this.preparedExam = { questions: this.shuffleQuestionsAndOptions(questions, questions.length), mode: this.setup.mode, subject: this.setup.subject, year, durationMins: (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : count/2 };
+    if (isFixedModel) {
+      this.setup.subject = 'all';
+      const subjectSelect = document.getElementById('setup-subject');
+      if (subjectSelect) subjectSelect.value = 'all';
+      const yearSelect = document.getElementById('setup-year');
+      if (yearSelect) yearSelect.value = 'all';
+    }
+    const durationMins = isFixedModel ? 60 : (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : count / 2;
+    this.setup.durationMins = durationMins;
+    this.preparedExam = {
+      questions: this.shuffleQuestionsAndOptions(questions, questions.length),
+      mode: this.setup.mode,
+      subject: isFixedModel ? 'all' : this.setup.subject,
+      year: isFixedModel ? 'all' : year,
+      durationMins
+    };
     this.renderExamIntro();
     this.showView('exam-intro');
   };
 
+  const PALETTE_SETTING_KEY = 'med_palette_subject_separation_v1';
+  const selectedBankKeys = new Set();
+  const subjectSeparationEnabled = () => localStorage.getItem(PALETTE_SETTING_KEY) !== 'false';
+  function renderSubjectPalette() {
+    const grid = document.getElementById('q-palette-grid');
+    const questions = app.examState?.questions || [];
+    if (!grid || !questions.length) return;
+    const buttons = Array.from(grid.querySelectorAll(':scope > button'));
+    if (!buttons.length) return;
+    if (!subjectSeparationEnabled()) {
+      grid.className = 'grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1';
+      grid.replaceChildren(...buttons);
+      return;
+    }
+    grid.className = 'question-palette-subjects';
+    const groups = new Map();
+    buttons.forEach((button, index) => {
+      const q = questions[index];
+      if (!q) return;
+      const label = subjectLabel(q.subject);
+      if (!groups.has(label)) {
+        const section = document.createElement('section');
+        section.className = 'palette-subject-section';
+        const heading = document.createElement('h4');
+        heading.className = 'palette-subject-heading';
+        heading.textContent = label;
+        const inner = document.createElement('div');
+        inner.className = 'palette-subject-grid';
+        section.append(heading, inner);
+        groups.set(label, section);
+      }
+      groups.get(label).querySelector('.palette-subject-grid').appendChild(button);
+    });
+    grid.replaceChildren(...groups.values());
+  }
+  function ensurePaletteSettingsUI() {
+    const trigger = document.getElementById('question-palette-settings');
+    if (trigger) trigger.onclick = () => { const modal = document.getElementById('palette-settings-overlay'); if (modal) { const checkbox = modal.querySelector('#palette-subject-separation-toggle'); if (checkbox) checkbox.checked = subjectSeparationEnabled(); modal.hidden = false; } };
+    if (document.getElementById('palette-settings-overlay')) return;
+    const modal = document.createElement('div');
+    modal.id = 'palette-settings-overlay';
+    modal.className = 'palette-settings-overlay';
+    modal.hidden = true;
+    modal.innerHTML = `<section class="palette-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="palette-settings-title"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h3 id="palette-settings-title">Question Palette Settings</h3><button type="button" id="palette-settings-close" class="enhanced-small-btn" aria-label="Close settings">✕</button></div><p>Choose how questions are grouped during an exam. This only changes the palette layout, not question order, answers, or marks.</p><label class="palette-settings-choice"><input id="palette-subject-separation-toggle" type="checkbox"><span><strong>Subject-wise separation</strong><small style="display:block;color:var(--muted,#64748b);margin-top:3px">ON: separate Biology, Chemistry, Physics, English and GK boxes. OFF: use the original single palette.</small></span></label></section>`;
+    modal.addEventListener('click', event => { if (event.target === modal) modal.hidden = true; });
+    modal.querySelector('#palette-settings-close').onclick = () => { modal.hidden = true; };
+    modal.querySelector('#palette-subject-separation-toggle').checked = subjectSeparationEnabled();
+    modal.querySelector('#palette-subject-separation-toggle').onchange = event => {
+      localStorage.setItem(PALETTE_SETTING_KEY, event.target.checked ? 'true' : 'false');
+      if (app.examState?.questions?.length) app.renderPalette();
+    };
+    document.body.appendChild(modal);
+  }
+  ensurePaletteSettingsUI();
   const originalRenderPalette = app.renderPalette.bind(app);
-  app.renderPalette = function() { originalRenderPalette(); renderPaletteStats(); };
+  app.renderPalette = function() { originalRenderPalette(); renderPaletteStats(); renderSubjectPalette(); };
 
   const originalSelectOption = app.selectOption.bind(app);
-  app.selectOption = function(index) { originalSelectOption(index); renderPaletteStats(); };
+  app.selectOption = function(index) { originalSelectOption(index); renderPaletteStats(); renderSubjectPalette(); };
 
   const originalSubmitExam = app.submitExam.bind(app);
   app.submitExam = function(autoSubmitted) {
@@ -300,20 +412,74 @@
     return result;
   };
 
+  function startSelectedPractice(questions) {
+    const qs = (questions || []).filter(Boolean);
+    if (!qs.length) { alert('Practice করার জন্য আগে প্রশ্ন নির্বাচন করুন।'); return; }
+    if (app.practiceTimerInterval) { clearInterval(app.practiceTimerInterval); app.practiceTimerInterval = null; }
+    app.practiceSession = { questions: qs, index: 0, answers: [], marks: 0, showAnswer: false, timeLeft: Math.max(300, qs.length * 30) };
+    if (app.markQuestionsSeen) app.markQuestionsSeen(qs);
+    const browser = document.getElementById('practice-browser');
+    const quiz = document.getElementById('practice-quiz-view');
+    if (browser) browser.hidden = true;
+    if (quiz) quiz.hidden = false;
+    app.showView('practice');
+    app.renderPractice();
+    app.startPracticeTimer();
+  }
+  function updateBankSelectionToolbar() {
+    const toolbar = document.getElementById('enhanced-bank-selection-toolbar');
+    if (!toolbar) return;
+    const selected = selectedBankKeys.size;
+    const count = toolbar.querySelector('[data-selected-count]');
+    if (count) count.textContent = `${selected} selected`;
+  }
   const originalRenderQuestionBank = app.renderQuestionBank.bind(app);
   app.renderQuestionBank = function() {
     originalRenderQuestionBank();
     const qs = this.getFilteredBank();
-    const cards = document.querySelectorAll('#question-bank-list > article');
+    const list = document.getElementById('question-bank-list');
+    if (!list) return;
+    let toolbar = document.getElementById('enhanced-bank-selection-toolbar');
+    if (!toolbar) {
+      toolbar = document.createElement('section');
+      toolbar.id = 'enhanced-bank-selection-toolbar';
+      toolbar.className = 'enhanced-bank-toolbar';
+      list.parentElement.insertBefore(toolbar, list);
+    }
+    toolbar.innerHTML = `<strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Practice Selected</button></div>`;
+    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => { qs.forEach(q => selectedBankKeys.add(qKey(q))); this.renderQuestionBank(); };
+    toolbar.querySelector('#enhanced-bank-clear-selection').onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
+    toolbar.querySelector('#enhanced-bank-practice-selected').onclick = () => startSelectedPractice(this.questionBank.filter(q => selectedBankKeys.has(qKey(q))));
+    const cards = Array.from(list.querySelectorAll(':scope > article'));
     cards.forEach((card, i) => {
       const q = qs[i];
-      if (!q || card.querySelector('.enhanced-mark-reviewed')) return;
+      if (!q) return;
+      const record = getRecord(q);
+      const status = document.createElement('div');
+      status.className = 'enhanced-question-status';
+      if (record.reviewed) status.insertAdjacentHTML('beforeend', '<span class="enhanced-status-pill enhanced-status-reviewed">Reviewed</span>');
+      if (record.wrong) status.insertAdjacentHTML('beforeend', '<span class="enhanced-status-pill enhanced-status-wrong">Wrong Answer</span>');
+      const meta = card.querySelector('.bank-meta');
+      if (meta) meta.appendChild(status);
+      const selectRow = document.createElement('label');
+      selectRow.className = 'enhanced-bank-select-row';
+      selectRow.innerHTML = `<input type="checkbox" class="enhanced-bank-select" data-qkey="${escape(qKey(q))}" ${selectedBankKeys.has(qKey(q)) ? 'checked' : ''}><span>Select question</span>`;
+      card.insertBefore(selectRow, card.firstChild);
       const btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'enhanced-small-btn enhanced-mark-reviewed';
-      btn.dataset.qkey = qKey(q); btn.textContent = getRecord(q).reviewed ? 'Reviewed ✓' : 'Mark Reviewed';
-      btn.addEventListener('click', () => { markReviewed(q); btn.textContent = 'Reviewed ✓'; });
+      btn.type = 'button';
+      btn.className = 'enhanced-small-btn enhanced-mark-reviewed';
+      btn.dataset.qkey = qKey(q);
+      btn.textContent = record.reviewed ? 'Reviewed ✓' : 'Mark Reviewed';
+      btn.addEventListener('click', () => { markReviewed(q); this.renderQuestionBank(); });
       card.appendChild(btn);
     });
+    list.onchange = event => {
+      const input = event.target.closest('.enhanced-bank-select');
+      if (!input) return;
+      input.checked ? selectedBankKeys.add(input.dataset.qkey) : selectedBankKeys.delete(input.dataset.qkey);
+      updateBankSelectionToolbar();
+    };
+    updateBankSelectionToolbar();
   };
 
   const originalRenderPracticeBrowser = app.renderPracticeBrowser?.bind(app);
@@ -352,8 +518,17 @@
 
   // Keep live palette subject totals synchronized after navigation/answer changes.
   document.addEventListener('click', event => {
-    if (event.target.closest('#btn-prev-q,#btn-next-q,#btn-mark-review,#q-palette-grid button')) setTimeout(renderPaletteStats, 0);
+    if (event.target.closest('#btn-prev-q,#btn-next-q,#btn-mark-review,#q-palette-grid button')) setTimeout(() => { renderPaletteStats(); renderSubjectPalette(); }, 0);
   });
+  window.openQuestionPaletteSettings = function() {
+    ensurePaletteSettingsUI();
+    const modal = document.getElementById('palette-settings-overlay');
+    if (modal) {
+      const checkbox = modal.querySelector('#palette-subject-separation-toggle');
+      if (checkbox) checkbox.checked = subjectSeparationEnabled();
+      modal.hidden = false;
+    }
+  };
 
   window.addEventListener('load', () => {
     renderReviewPanel();
