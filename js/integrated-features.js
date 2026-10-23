@@ -276,8 +276,8 @@
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
     if (this.setup.mode === 'model') return;
-    const allowed = [10, 20, 30];
-    const chosen = allowed.includes(Number(count)) ? Number(count) : 20;
+    const allowed = [20, 30, 50, 75, 100];
+    const chosen = allowed.includes(Number(count)) ? Number(count) : 30;
     this.setup.questionsCount = chosen;
     this.setup.durationMins = chosen / 2;
     originalSetSetupQuestions(chosen);
@@ -285,9 +285,9 @@
     this.updateSetupUI();
   };
   app.setSetupDuration = function(mins) {
-    if (this.setup.mode === 'model') return;
-    const expected = Number(this.setup.questionsCount || 20) / 2;
-    this.setup.durationMins = expected;
+    const allowed = [20, 30, 50, 60, 90];
+    const chosen = allowed.includes(Number(mins)) ? Number(mins) : 30;
+    this.setup.durationMins = chosen;
     this.updateSetupUI();
   };
   const originalSetSetupMode = app.setSetupMode.bind(app);
@@ -295,11 +295,13 @@
     originalSetSetupMode(mode);
     const fixedModel = mode === 'model';
     const note = document.getElementById('model-test-fixed-note');
-    if (note) note.hidden = !fixedModel;
-    document.querySelectorAll('.q-count-btn,.time-btn').forEach(btn => {
-      btn.disabled = fixedModel;
-      btn.setAttribute('aria-disabled', String(fixedModel));
-      btn.title = fixedModel ? 'Model Test is fixed at 100 marks and 60 minutes' : '';
+    if (note) note.classList.toggle('hidden', !fixedModel);
+    const countOptions = document.getElementById('setup-question-count-options');
+    if (countOptions) countOptions.classList.toggle('hidden', fixedModel);
+    document.querySelectorAll('.time-btn').forEach(btn => {
+      btn.disabled = false;
+      btn.setAttribute('aria-disabled', 'false');
+      btn.title = '';
     });
   };
 
@@ -307,7 +309,7 @@
   app.prepareExamFromSetup = function() {
     if (!this.questionsLoaded || !this.questionBank.length) return originalPrepareExam();
     const isFixedModel = this.setup.mode === 'model';
-    const count = isFixedModel ? 100 : (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : Number(this.setup.questionsCount || 20);
+    const count = isFixedModel ? 100 : (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : Number(this.setup.questionsCount || 30);
     let pool = this.questionBank.slice();
     const year = document.getElementById('setup-year')?.value || 'all';
     if (!isFixedModel && this.setup.subject && this.setup.subject !== 'all') pool = pool.filter(q => q.subject === this.setup.subject);
@@ -325,7 +327,7 @@
       const yearSelect = document.getElementById('setup-year');
       if (yearSelect) yearSelect.value = 'all';
     }
-    const durationMins = isFixedModel ? 60 : (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : count / 2;
+    const durationMins = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : Number(this.setup.durationMins || 30);
     this.setup.durationMins = durationMins;
     this.preparedExam = {
       questions: this.shuffleQuestionsAndOptions(questions, questions.length),
@@ -446,8 +448,10 @@
       toolbar.className = 'enhanced-bank-toolbar';
       list.parentElement.insertBefore(toolbar, list);
     }
-    toolbar.innerHTML = `<strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Practice Selected</button></div>`;
-    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => { qs.forEach(q => selectedBankKeys.add(qKey(q))); this.renderQuestionBank(); };
+    let bankStatusFilter = toolbar.dataset.statusFilter || 'all';
+    toolbar.innerHTML = `<div class="enhanced-actions" role="group" aria-label="Question status filter"><button type="button" data-bank-filter="all" class="${bankStatusFilter==='all'?'active':''}">All Questions</button><button type="button" data-bank-filter="reviewed" class="${bankStatusFilter==='reviewed'?'active':''}">Reviewed</button><button type="button" data-bank-filter="wrong" class="${bankStatusFilter==='wrong'?'active':''}">Wrong Answer</button></div><strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Practice Selected</button></div>`;
+    toolbar.querySelectorAll('[data-bank-filter]').forEach(btn => btn.onclick = () => { toolbar.dataset.statusFilter = btn.dataset.bankFilter; this.renderQuestionBank(); });
+    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => { Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).forEach(card => { const input=card.querySelector('.enhanced-bank-select'); if(input) selectedBankKeys.add(input.dataset.qkey); }); this.renderQuestionBank(); };
     toolbar.querySelector('#enhanced-bank-clear-selection').onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
     toolbar.querySelector('#enhanced-bank-practice-selected').onclick = () => startSelectedPractice(this.questionBank.filter(q => selectedBankKeys.has(qKey(q))));
     const cards = Array.from(list.querySelectorAll(':scope > article'));
@@ -472,6 +476,7 @@
       btn.textContent = record.reviewed ? 'Reviewed ✓' : 'Mark Reviewed';
       btn.addEventListener('click', () => { markReviewed(q); this.renderQuestionBank(); });
       card.appendChild(btn);
+      card.hidden = bankStatusFilter === 'reviewed' ? !record.reviewed : bankStatusFilter === 'wrong' ? !record.wrong : false;
     });
     list.onchange = event => {
       const input = event.target.closest('.enhanced-bank-select');
