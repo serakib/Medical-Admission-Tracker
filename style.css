@@ -81,3 +81,9 @@ button, .primary-btn, .ghost-btn, .practice-start-btn {
   .q-count-btn, .time-btn { padding: 7px 6px !important; font-size: 12px !important; }
   .primary-btn, .ghost-btn, .practice-start-btn { padding: 8px 10px !important; font-size: 12px; }
 }
+
+
+/* Question Palette settings button sits beside Student Profile in the existing sidebar. */
+.sidebar-profile-row{display:flex;align-items:stretch;gap:7px;width:100%}.sidebar-profile-row .profile-action{flex:1;min-width:0;margin-left:0}.sidebar-palette-settings{display:grid;place-items:center;flex:0 0 46px;width:46px;min-height:46px;border:1px solid rgba(52,211,153,.28);border-radius:12px;background:rgba(16,185,129,.12);color:#a7f3d0;cursor:pointer}.sidebar-palette-settings:hover{background:rgba(16,185,129,.22);color:#fff}
+@media(min-width:768px){body.sidebar-collapsed .sidebar-profile-row{flex-direction:column;align-items:center}body.sidebar-collapsed .sidebar-profile-row .profile-action{width:100%;flex:0 0 auto}body.sidebar-collapsed .sidebar-profile-row .sidebar-palette-settings{width:100%;flex-basis:38px;min-height:38px}}
+@media(max-width:767px){.sidebar-profile-row{gap:6px}.sidebar-profile-row .sidebar-palette-settings{flex-basis:44px;width:44px;min-height:44px}}
