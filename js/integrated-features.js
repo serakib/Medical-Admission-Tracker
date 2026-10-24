@@ -595,66 +595,50 @@
     }
   });
 
-  /* Leaderboard period views use saved rows; Friends stays honest until friend links exist. */
+  /* Lifetime-only leaderboard; Friends filters to the signed-in user's college. */
   const leaderboardPeriodKey = 'med_leaderboard_period_v1';
-  let leaderboardPeriod = ['weekly', 'all-time', 'friends'].includes(localStorage.getItem(leaderboardPeriodKey))
-    ? localStorage.getItem(leaderboardPeriodKey) : 'weekly';
+  let leaderboardPeriod = ['all-time','friends'].includes(localStorage.getItem(leaderboardPeriodKey)) ? localStorage.getItem(leaderboardPeriodKey) : 'all-time';
+  try { localStorage.setItem(leaderboardPeriodKey,leaderboardPeriod); } catch (_) {}
   let latestLeaderboardRows = [];
   const periodTabs = document.getElementById('leaderboard-period-tabs');
   const periodNote = document.getElementById('leaderboard-period-note');
-  const originalRenderLeaderboardRows = typeof app.renderLeaderboardRows === 'function'
-    ? app.renderLeaderboardRows.bind(app) : null;
+  const originalRenderLeaderboardRows = typeof app.renderLeaderboardRows === 'function' ? app.renderLeaderboardRows.bind(app) : null;
+  const collegeKey = value => String(value || '').trim().toLocaleLowerCase().replace(/\s+/g,' ');
   function paintLeaderboardPeriodTabs() {
     document.querySelectorAll('[data-leaderboard-period]').forEach(button => {
-      const active = button.dataset.leaderboardPeriod === leaderboardPeriod;
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-selected', active ? 'true' : 'false');
+      const active=button.dataset.leaderboardPeriod===leaderboardPeriod;
+      button.classList.toggle('is-active',active);
+      button.setAttribute('aria-selected',active?'true':'false');
     });
-    if (periodNote) {
-      const friends = leaderboardPeriod === 'friends';
-      periodNote.classList.toggle('hidden', !friends);
-      periodNote.textContent = friends
-        ? 'Friends leaderboard চালু করতে account-to-account friend system ও privacy controls প্রয়োজন। সেটি যুক্ত না হওয়া পর্যন্ত অন্যদের private data দেখানো হচ্ছে না।'
-        : '';
-    }
+    if(periodNote){const friends=leaderboardPeriod==='friends';periodNote.classList.toggle('hidden',!friends);periodNote.textContent=friends?'Friends তালিকায় আপনার কলেজের শিক্ষার্থীরাই দেখানো হবে। আপনার প্রোফাইলে কলেজের নাম যোগ করুন.':'';}
   }
-  if (originalRenderLeaderboardRows) {
-    app.renderLeaderboardRows = function(rows) {
-      latestLeaderboardRows = Array.isArray(rows) ? rows.slice() : [];
+  if(originalRenderLeaderboardRows){
+    app.renderLeaderboardRows=function(rows){
+      latestLeaderboardRows=Array.isArray(rows)?rows.slice():[];
       paintLeaderboardPeriodTabs();
-      if (leaderboardPeriod === 'friends') {
-        const body = document.getElementById('leaderboard-body');
-        const podium = document.getElementById('leaderboard-podium');
-        const me = document.getElementById('leaderboard-me');
-        if (body) body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">Friends leaderboard-এর জন্য friend connections প্রয়োজন।</td></tr>';
-        if (podium) podium.replaceChildren();
-        if (me) { me.replaceChildren(); me.classList.add('hidden'); }
-        return;
+      let viewRows=latestLeaderboardRows.map(row=>({...row,points:Number(row.rankPoints??row.lifetimeRankPoints??row.points??0)}));
+      if(leaderboardPeriod==='friends'){
+        const own=viewRows.find(row=>row.uid&&row.uid===app.authUser?.uid);
+        const college=collegeKey(app.profile?.college||own?.college);
+        if(!college){
+          const body=document.getElementById('leaderboard-body'),podium=document.getElementById('leaderboard-podium'),me=document.getElementById('leaderboard-me');
+          if(body)body.innerHTML='<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">Friends ranking দেখতে Account Profile-এ আপনার কলেজের নাম যোগ করুন।</td></tr>';
+          if(podium)podium.replaceChildren();if(me){me.replaceChildren();me.classList.add('hidden');}return;
+        }
+        viewRows=viewRows.filter(row=>collegeKey(row.college)===college);
       }
-      const week = typeof this.getCurrentWeekKey === 'function' ? this.getCurrentWeekKey() : '';
-      const viewRows = latestLeaderboardRows.map(row => ({
-        ...row,
-        points: leaderboardPeriod === 'weekly'
-          ? (localStorage.getItem('med_weekly_reset_enabled_v1') === 'false'
-              ? Number(row.points || 0)
-              : Number(row.weekKey === week ? row.weeklyPoints : 0))
-          : Number(row.points || 0)
-      }));
       return originalRenderLeaderboardRows(viewRows);
     };
   }
-  if (periodTabs) {
-    periodTabs.addEventListener('click', event => {
-      const button = event.target.closest('[data-leaderboard-period]');
-      if (!button) return;
-      leaderboardPeriod = button.dataset.leaderboardPeriod;
-      try { localStorage.setItem(leaderboardPeriodKey, leaderboardPeriod); } catch (_) {}
-      paintLeaderboardPeriodTabs();
-      if (originalRenderLeaderboardRows) app.renderLeaderboardRows(latestLeaderboardRows);
+  if(periodTabs){
+    periodTabs.addEventListener('click',event=>{
+      const button=event.target.closest('[data-leaderboard-period]');if(!button)return;
+      const next=button.dataset.leaderboardPeriod;if(!['all-time','friends'].includes(next))return;
+      leaderboardPeriod=next;try{localStorage.setItem(leaderboardPeriodKey,next);}catch(_){}
+      paintLeaderboardPeriodTabs();if(originalRenderLeaderboardRows)app.renderLeaderboardRows(latestLeaderboardRows);
     });
     paintLeaderboardPeriodTabs();
   }
-
   /* Per-account avatar selection for the profile view. */
   const avatarChoices = ['🩺', '🧑‍⚕️', '👨‍⚕️', '👩‍⚕️', '👨‍🎓', '👩‍🎓', '🎓', '🧬', '🧠', '🦉', '🚀', '⚕️', '🧪', '🔬', '🏆', '🌟', '🦅', '🐺', '🦊', '🐼', '🐯', '🐉', '🦋', '🌙'];
   const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
