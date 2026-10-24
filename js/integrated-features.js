@@ -732,34 +732,10 @@
     return name + ' ' + ['V','IV','III','II','I'][level - 1];
   };
   function ensureStudentSettings() {
+    // App-wide preferences now live exclusively under the sidebar's App Settings.
     const root = document.getElementById('view-profile');
-    if (!root) return;
-    let panel = root.querySelector('#student-preferences-panel');
-    if (!panel) {
-      panel = document.createElement('section');
-      panel.id = 'student-preferences-panel';
-      panel.className = 'enhanced-panel';
-      panel.innerHTML = '<button type="button" id="student-settings-toggle" class="ghost-btn" aria-expanded="false" aria-controls="student-settings-content"><i class="fa-solid fa-gear" aria-hidden="true"></i> Settings</button><div id="student-settings-content" hidden style="margin-top:12px"><h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><button type="button" id="about-me-action">About Me</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion.</p><p id="about-me-copy" class="enhanced-empty" hidden>Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p></div>';
-      root.appendChild(panel);
-      panel.querySelector('#student-settings-toggle').addEventListener('click', () => {
-        const content = panel.querySelector('#student-settings-content');
-        const open = content.hidden;
-        content.hidden = !open;
-        panel.querySelector('#student-settings-toggle').setAttribute('aria-expanded', String(open));
-      });
-      panel.querySelector('#weekly-reset-setting').checked = localStorage.getItem('med_weekly_reset_enabled_v1') !== 'false';
-      panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
-        localStorage.setItem('med_weekly_reset_enabled_v1', e.target.checked ? 'true' : 'false');
-      });
-      panel.querySelector('#about-app-action').onclick = () => {
-        const copy = panel.querySelector('#about-app-copy');
-        copy.hidden = !copy.hidden;
-      };
-      panel.querySelector('#about-me-action').onclick = () => {
-        const copy = panel.querySelector('#about-me-copy');
-        copy.hidden = !copy.hidden;
-      };
-    }
+    const oldPanel = root && root.querySelector('#student-preferences-panel');
+    if (oldPanel) oldPanel.remove();
   }
   function ensureProfileRank() {
     const root = document.getElementById('view-profile');
