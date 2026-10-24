@@ -690,3 +690,98 @@
     return result;
   };
 })();
+
+
+/* Final checklist additions: settings, rank tiers, profile actions, and footer support links. */
+(() => {
+  'use strict';
+  const app = window.app;
+  if (!app || app.__studentChecklistExtras) return;
+  app.__studentChecklistExtras = true;
+  const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
+  const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
+  const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
+  const rankFor = points => {
+    const tiers = [
+      ['Bronze',0],['Bronze',100],['Bronze',250],['Bronze',450],['Bronze',700],
+      ['Silver',1000],['Silver',1400],['Silver',1850],['Silver',2350],['Silver',2900],
+      ['Gold',3500],['Gold',4200],['Gold',4950],['Gold',5750],['Gold',6600],
+      ['Platinum',7500],['Platinum',8500],['Platinum',9550],['Platinum',10650],['Platinum',11800],
+      ['Master',13000],['Master',14500],['Master',16100],['Master',17800],['Master',19600],
+      ['Pro',21500],['Pro',24000],['Pro',27000],['Pro',30500],['Pro',34500]
+    ];
+    let index = 0;
+    tiers.forEach((tier, i) => { if (points >= tier[1]) index = i; });
+    const [name] = tiers[index];
+    const level = Math.min(5, Math.floor(index % 5) + 1);
+    return name + ' ' + ['V','IV','III','II','I'][level - 1];
+  };
+  function ensureStudentSettings() {
+    const root = document.getElementById('view-profile');
+    if (!root || root.querySelector('#student-preferences-panel')) return;
+    const panel = document.createElement('section');
+    panel.id = 'student-preferences-panel';
+    panel.className = 'enhanced-panel';
+    panel.innerHTML = '<h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion. Built by Rakib Hasan.</p>';
+    const current = localStorage.getItem('med_weekly_reset_enabled_v1');
+    panel.querySelector('#weekly-reset-setting').checked = current !== 'false';
+    panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
+      localStorage.setItem('med_weekly_reset_enabled_v1', e.target.checked ? 'true' : 'false');
+      const note = panel.querySelector('.enhanced-empty');
+      if (note) note.textContent = e.target.checked ? 'Weekly reset preference saved on this device.' : 'Weekly reset preference disabled on this device.';
+    });
+    panel.querySelector('#about-app-action').onclick = () => {
+      const copy = panel.querySelector('#about-app-copy');
+      copy.hidden = !copy.hidden;
+    };
+    root.appendChild(panel);
+  }
+  function ensureProfileRank() {
+    const root = document.getElementById('view-profile');
+    if (!root) return;
+    let card = root.querySelector('#profile-rank-card');
+    if (!card) {
+      card = document.createElement('section');
+      card.id = 'profile-rank-card';
+      card.className = 'enhanced-panel';
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', card);
+      else root.prepend(card);
+    }
+    const progress = readProgress();
+    const xp = Math.max(0, Number(progress.xp) || 0);
+    const level = Math.floor(xp / 500) + 1;
+    const next = level * 500;
+    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Level ' + level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, next - xp) + ' XP to next level · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
+  }
+  function ensureLogoutState() {
+    const root = document.getElementById('view-profile');
+    if (!root) return;
+    const target = root.querySelector('.auth-btn-target');
+    if (!target) return;
+    const loggedIn = Boolean(app.authUser?.uid);
+    target.innerHTML = loggedIn
+      ? '<button type="button" id="profile-logout-action" class="ghost-btn">Log Out</button>'
+      : '<button type="button" id="profile-login-action" class="ghost-btn">Log In / Sign up</button>';
+    const logout = target.querySelector('#profile-logout-action');
+    if (logout) logout.onclick = () => { if (typeof window.handleLogout === 'function') window.handleLogout(); };
+    const login = target.querySelector('#profile-login-action');
+    if (login) login.onclick = () => { if (typeof window.redirectToLogin === 'function') window.redirectToLogin(); };
+  }
+  function renderChecklistExtras() {
+    ensureStudentSettings();
+    ensureProfileRank();
+    ensureLogoutState();
+  }
+  const oldShowView = app.showView.bind(app);
+  app.showView = function(name, force) {
+    const result = oldShowView(name, force);
+    if (name === 'profile') renderChecklistExtras();
+    return result;
+  };
+  document.addEventListener('student-progress-updated', renderChecklistExtras);
+  document.addEventListener('click', event => {
+    if (event.target.closest('[onclick*="showView(\\'profile\\'"]')) renderChecklistExtras();
+  });
+  window.addEventListener('load', renderChecklistExtras);
+})();
