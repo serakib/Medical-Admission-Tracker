@@ -1566,14 +1566,23 @@ window.handleLogout = function() {
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
-  const durationFor = (count, mode = app.setup?.mode) => Math.max(1, Math.round(Number(count || 0) * (mode === 'model' ? 0.6 : 0.5)));
+  const durationFor = (count) => Math.max(1, Math.round(Number(count || 0) * 0.5));
+  const modelCounts = [20, 30, 50, 75, 100];
+  const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count) + ' minutes (automatic) · Source: all Question Bank questions';
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
     originalSetSetupQuestions(count);
     if (this.setup.mode === 'model') {
-      this.setup.durationMins = durationFor(count, this.setup.mode);
+      const selectedCount = modelCounts.includes(Number(count)) ? Number(count) : 50;
+      this.setup.questionsCount = selectedCount;
+      this.setup.durationMins = durationFor(selectedCount);
+      this.setup.subject = 'all';
+      const subjectSelect = document.getElementById('setup-subject');
+      if (subjectSelect) subjectSelect.value = 'all';
+      const yearSelect = document.getElementById('setup-year');
+      if (yearSelect) yearSelect.value = 'all';
       const note = document.getElementById('model-test-fixed-note');
-      if (note) note.textContent = 'Model Test: ' + count + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
+      if (note) note.textContent = modelNoteText(selectedCount);
       this.updateSetupUI();
     }
   };
@@ -1581,22 +1590,48 @@ window.handleLogout = function() {
   app.setSetupMode = function(mode) {
     originalSetSetupMode(mode);
     const durationArea = document.querySelector('#view-setup .time-btn')?.closest('.space-y-2');
-    document.querySelectorAll('.q-count-btn').forEach(btn => { const n = Number(btn.textContent.trim()); btn.classList.toggle('hidden', mode === 'model' && ![50,100].includes(n)); });
+    const modeArea = document.getElementById('setup-mode-options');
+    const subjectArea = document.getElementById('setup-subject-area');
+    const yearArea = document.getElementById('setup-year-area');
+    const title = document.getElementById('setup-title');
+    const subtitle = document.getElementById('setup-subtitle');
+    const countLabel = document.getElementById('setup-question-count-label');
     const note = document.getElementById('model-test-fixed-note');
+    if (modeArea) modeArea.classList.toggle('hidden', mode === 'model');
+    if (subjectArea) subjectArea.classList.toggle('hidden', mode === 'model');
+    if (yearArea) yearArea.classList.toggle('hidden', mode === 'model');
     if (durationArea) durationArea.classList.toggle('hidden', mode === 'model');
+    if (title) title.textContent = mode === 'model' ? 'Model Test Setup' : 'পরীক্ষার সেটআপ নির্বাচন করুন';
+    if (subtitle) subtitle.textContent = mode === 'model'
+      ? 'Question Bank-এর সব প্রশ্ন থেকে নির্ধারিত মার্কস অনুযায়ী পরীক্ষা দিন। সময় স্বয়ংক্রিয়ভাবে নির্ধারিত হবে।'
+      : 'আপনার পছন্দমতো বিষয়, প্রশ্ন সংখ্যা এবং সময় নির্ধারণ করুন';
+    if (countLabel) countLabel.textContent = mode === 'model' ? 'মার্কস / প্রশ্নের সংখ্যা' : 'প্রশ্নের সংখ্যা';
+    document.querySelectorAll('.q-count-btn').forEach(btn => {
+      btn.classList.toggle('hidden', mode === 'model' && !modelCounts.includes(Number(btn.textContent.trim())));
+    });
     if (note) {
       note.classList.toggle('hidden', mode !== 'model');
       if (mode === 'model') {
-        this.setup.questionsCount = [50,100].includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
-        this.setup.durationMins = durationFor(this.setup.questionsCount, this.setup.mode);
-        note.textContent = 'Model Test: ' + this.setup.questionsCount + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
+        this.setup.questionsCount = modelCounts.includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
+        this.setup.subject = 'all';
+        this.setup.durationMins = durationFor(this.setup.questionsCount);
+        const subjectSelect = document.getElementById('setup-subject');
+        if (subjectSelect) subjectSelect.value = 'all';
+        const yearSelect = document.getElementById('setup-year');
+        if (yearSelect) yearSelect.value = 'all';
+        note.textContent = modelNoteText(this.setup.questionsCount);
       }
     }
   };
   const originalPrepare = app.prepareExamFromSetup.bind(app);
   app.prepareExamFromSetup = function() {
     if (this.setup.mode === 'model') {
-      this.setup.questionsCount = Number(this.setup.questionsCount) === 100 ? 100 : 50;
+      this.setup.questionsCount = modelCounts.includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
+      this.setup.subject = 'all';
+      const subjectSelect = document.getElementById('setup-subject');
+      if (subjectSelect) subjectSelect.value = 'all';
+      const yearSelect = document.getElementById('setup-year');
+      if (yearSelect) yearSelect.value = 'all';
       this.setup.durationMins = durationFor(this.setup.questionsCount);
     } else if (this.setup.mode === 'random') {
       this.setup.durationMins = durationFor(this.setup.questionsCount);
@@ -1637,7 +1672,7 @@ window.handleLogout = function() {
     const note = document.getElementById('model-test-fixed-note');
     if (note && app.setup?.mode === 'model') {
       note.classList.remove('hidden');
-      note.textContent = 'Model Test: ' + app.setup.questionsCount + ' questions · ' + durationFor(app.setup.questionsCount) + ' minutes (automatic)';
+      note.textContent = modelNoteText(app.setup.questionsCount);
     }
   });
 })();
