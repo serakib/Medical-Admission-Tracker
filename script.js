@@ -555,15 +555,6 @@ class MedicalExamApp {
         const mine=this.authUser?.uid ? safe.find(x=>x.uid===this.authUser.uid) : null;
         if(me && mine){ me.classList.remove('hidden'); me.innerHTML=`<div><span>Your Position</span><strong>#${safe.indexOf(mine)+1}</strong></div><div><b>${this.escapeHtml(mine.name||'Student')}</b><small>${Number(mine.accuracy||0).toFixed(1)}% accuracy • ${Number(mine.points||0)} points</small></div>`; }
     }
-    getCurrentWeekKey(date = new Date()){
-        const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
-        const day=d.getUTCDay()||7;
-        d.setUTCDate(d.getUTCDate()+4-day);
-        const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-        const week=Math.ceil((((d-yearStart)/86400000)+1)/7);
-        return `${d.getUTCFullYear()}-W${String(week).padStart(2,'0')}`;
-    }
-
     updateProfileRanks(rows=[]) {
         const liveEl=document.getElementById('profile-live-rank');
         const bestEl=document.getElementById('profile-best-rank');
@@ -588,9 +579,7 @@ class MedicalExamApp {
         const current=this.getLocalLeaderboardRows().find(x=>x.uid===uid)||{uid,name,college,points:0,quizzes:0,correct:0,answered:0};
         const nextCorrect=Number(current.correct||0)+Number(correctCount||0);
         const nextAnswered=Number(current.answered||0)+Number(correctCount||0)+Number(wrongCount||0);
-        const weekKey=this.getCurrentWeekKey();
-        const weeklyPoints=Number(current.weekKey===weekKey?current.weeklyPoints:0)+Number(quizPoints||0);
-        const updated={...current,name,college,points:Number(current.points||0)+Number(quizPoints||0),weeklyPoints,weekKey,quizzes:Number(current.quizzes||0)+1,correct:nextCorrect,answered:nextAnswered,accuracy:Number((nextCorrect/Math.max(1,nextAnswered)*100).toFixed(1)),updatedAtMs:Date.now(),isDemo:false};
+        const updated={...current,name,college,points:Number(current.points||0)+Number(quizPoints||0),quizzes:Number(current.quizzes||0)+1,correct:nextCorrect,answered:nextAnswered,accuracy:Number((nextCorrect/Math.max(1,nextAnswered)*100).toFixed(1)),updatedAtMs:Date.now(),isDemo:false};
         const rows=this.getLocalLeaderboardRows().filter(x=>x.uid!==uid);
         rows.push(updated);
         const merged=this.mergeLeaderboardRows(rows);
@@ -612,7 +601,7 @@ class MedicalExamApp {
             
             await runTransaction(this.firestore, async tx=>{
                 tx.set(attemptRef,{uid:this.authUser.uid,quizPoints:Number(meta.quizPoints)||0,correct:Number(meta.correctCount)||0,wrong:Number(meta.wrongCount)||0,total:Number(meta.totalQuestions)||0,accuracy:Number(meta.accuracy)||0,createdAt:serverTimestamp()});
-                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,weeklyPoints:updated.weeklyPoints||0,weekKey:updated.weekKey||this.getCurrentWeekKey(),quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
+                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
             });
             this.setLeaderboardSyncQueue(this.getLeaderboardSyncQueue().filter(x=>x.uid!==updated.uid));
             return true;
