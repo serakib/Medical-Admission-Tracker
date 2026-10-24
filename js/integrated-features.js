@@ -275,10 +275,11 @@
 
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
-    const allowed = [20, 30, 50, 75, 100];
-    const chosen = allowed.includes(Number(count)) ? Number(count) : 30;
+    const allowed = this.setup?.mode === 'model' ? [50, 100] : [20, 30, 50, 75, 100];
+    const chosen = allowed.includes(Number(count)) ? Number(count) : (this.setup?.mode === 'model' ? 50 : 30);
     this.setup.questionsCount = chosen;
     originalSetSetupQuestions(chosen);
+    this.setup.durationMins = this.setup.mode === 'model' ? chosen * 0.6 : chosen * 0.5;
     this.updateSetupUI();
   };
   app.setSetupDuration = function(mins) {
@@ -292,13 +293,38 @@
     originalSetSetupMode(mode);
     const fixedModel = mode === 'model';
     const note = document.getElementById('model-test-fixed-note');
-    if (note) note.classList.toggle('hidden', !fixedModel);
+    if (note) {
+      note.classList.toggle('hidden', !fixedModel);
+      note.textContent = fixedModel
+        ? 'Model Test: ৫০ প্রশ্নে ৩০ মিনিট, ১০০ প্রশ্নে ৬০ মিনিট। সময় স্বয়ংক্রিয়ভাবে নির্ধারিত হবে।'
+        : 'সময় প্রশ্নসংখ্যা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত হবে (প্রতি ২ প্রশ্নে ১ মিনিট)।';
+    }
     const countOptions = document.getElementById('setup-question-count-options');
-    if (countOptions) countOptions.classList.remove('hidden');
+    if (countOptions) {
+      countOptions.classList.remove('hidden');
+      countOptions.querySelectorAll('[data-count],button').forEach(btn => {
+        const raw = btn.dataset.count ?? btn.dataset.questions ?? btn.value ?? btn.textContent;
+        const n = Number(String(raw).match(/\d+/)?.[0]);
+        if (!n) return;
+        const allowed = fixedModel ? [50, 100] : [20, 30, 50, 75, 100];
+        btn.hidden = !allowed.includes(n);
+        btn.disabled = !allowed.includes(n);
+      });
+    }
+    if (fixedModel && ![50, 100].includes(Number(this.setup.questionsCount))) {
+      this.setup.questionsCount = 50;
+      originalSetSetupQuestions(50);
+    }
+    this.setup.durationMins = Number(this.setup.questionsCount || 30) * (fixedModel ? 0.6 : 0.5);
+    const timeContainer = document.querySelector('.time-btn')?.parentElement?.parentElement;
+    if (timeContainer) {
+      timeContainer.hidden = true;
+      timeContainer.setAttribute('aria-hidden', 'true');
+    }
     document.querySelectorAll('.time-btn').forEach(btn => {
-      btn.disabled = false;
-      btn.setAttribute('aria-disabled', 'false');
-      btn.title = '';
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+      btn.title = 'সময় প্রশ্নসংখ্যা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত হয়';
     });
   };
 
@@ -323,7 +349,9 @@
       const yearSelect = document.getElementById('setup-year');
       if (yearSelect) yearSelect.value = 'all';
     }
-    const durationMins = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : Number(this.setup.durationMins || 30);
+    const durationMins = isModelTest
+      ? count * 0.6
+      : ((this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? Math.max(1, count * 0.5) : Math.max(1, count * 0.5));
     this.setup.durationMins = durationMins;
     this.preparedExam = {
       questions: this.shuffleQuestionsAndOptions(questions, questions.length),
@@ -447,7 +475,25 @@
     let bankStatusFilter = toolbar.dataset.statusFilter || 'all';
     toolbar.innerHTML = `<div class="enhanced-actions" role="group" aria-label="Question status filter"><button type="button" data-bank-filter="all" class="${bankStatusFilter==='all'?'active':''}">All Questions</button><button type="button" data-bank-filter="reviewed" class="${bankStatusFilter==='reviewed'?'active':''}">Reviewed</button><button type="button" data-bank-filter="wrong" class="${bankStatusFilter==='wrong'?'active':''}">Wrong Answer</button></div><strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Start Exam with Selected</button></div>`;
     toolbar.querySelectorAll('[data-bank-filter]').forEach(btn => btn.onclick = () => { toolbar.dataset.statusFilter = btn.dataset.bankFilter; this.renderQuestionBank(); });
-    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => { Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).forEach(card => { const input=card.querySelector('.enhanced-bank-select'); if(input) selectedBankKeys.add(input.dataset.qkey); }); this.renderQuestionBank(); };
+    toolbar.querySelector('#enhanced-bank-select-visible').textContent =
+      Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).every(card => {
+        const input = card.querySelector('.enhanced-bank-select');
+        return input && selectedBankKeys.has(input.dataset.qkey);
+      }) ? 'Unselect All (Visible)' : 'Select All (Visible)';
+    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => {
+      const visibleCards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
+      const allSelected = visibleCards.length > 0 && visibleCards.every(card => {
+        const input = card.querySelector('.enhanced-bank-select');
+        return input && selectedBankKeys.has(input.dataset.qkey);
+      });
+      visibleCards.forEach(card => {
+        const input = card.querySelector('.enhanced-bank-select');
+        if (!input) return;
+        if (allSelected) selectedBankKeys.delete(input.dataset.qkey);
+        else selectedBankKeys.add(input.dataset.qkey);
+      });
+      this.renderQuestionBank();
+    };
     toolbar.querySelector('#enhanced-bank-clear-selection').onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
     toolbar.querySelector('#enhanced-bank-practice-selected').onclick = () => startSelectedPractice(this.questionBank.filter(q => selectedBankKeys.has(qKey(q))));
     const cards = Array.from(list.querySelectorAll(':scope > article'));
@@ -534,5 +580,263 @@
   window.addEventListener('load', () => {
     renderReviewPanel();
     renderAccountList();
+  });
+
+  /* Leaderboard period views use saved rows; Friends stays honest until friend links exist. */
+  const leaderboardPeriodKey = 'med_leaderboard_period_v1';
+  let leaderboardPeriod = ['weekly', 'all-time', 'friends'].includes(localStorage.getItem(leaderboardPeriodKey))
+    ? localStorage.getItem(leaderboardPeriodKey) : 'weekly';
+  let latestLeaderboardRows = [];
+  const periodTabs = document.getElementById('leaderboard-period-tabs');
+  const periodNote = document.getElementById('leaderboard-period-note');
+  const originalRenderLeaderboardRows = typeof app.renderLeaderboardRows === 'function'
+    ? app.renderLeaderboardRows.bind(app) : null;
+  function paintLeaderboardPeriodTabs() {
+    document.querySelectorAll('[data-leaderboard-period]').forEach(button => {
+      const active = button.dataset.leaderboardPeriod === leaderboardPeriod;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    if (periodNote) {
+      const friends = leaderboardPeriod === 'friends';
+      periodNote.classList.toggle('hidden', !friends);
+      periodNote.textContent = friends
+        ? 'Friends leaderboard চালু করতে account-to-account friend system ও privacy controls প্রয়োজন। সেটি যুক্ত না হওয়া পর্যন্ত অন্যদের private data দেখানো হচ্ছে না।'
+        : '';
+    }
+  }
+  if (originalRenderLeaderboardRows) {
+    app.renderLeaderboardRows = function(rows) {
+      latestLeaderboardRows = Array.isArray(rows) ? rows.slice() : [];
+      paintLeaderboardPeriodTabs();
+      if (leaderboardPeriod === 'friends') {
+        const body = document.getElementById('leaderboard-body');
+        const podium = document.getElementById('leaderboard-podium');
+        const me = document.getElementById('leaderboard-me');
+        if (body) body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">Friends leaderboard-এর জন্য friend connections প্রয়োজন।</td></tr>';
+        if (podium) podium.replaceChildren();
+        if (me) { me.replaceChildren(); me.classList.add('hidden'); }
+        return;
+      }
+      const week = typeof this.getCurrentWeekKey === 'function' ? this.getCurrentWeekKey() : '';
+      const viewRows = latestLeaderboardRows.map(row => ({
+        ...row,
+        points: leaderboardPeriod === 'weekly'
+          ? (localStorage.getItem('med_weekly_reset_enabled_v1') === 'false'
+              ? Number(row.points || 0)
+              : Number(row.weekKey === week ? row.weeklyPoints : 0))
+          : Number(row.points || 0)
+      }));
+      return originalRenderLeaderboardRows(viewRows);
+    };
+  }
+  if (periodTabs) {
+    periodTabs.addEventListener('click', event => {
+      const button = event.target.closest('[data-leaderboard-period]');
+      if (!button) return;
+      leaderboardPeriod = button.dataset.leaderboardPeriod;
+      try { localStorage.setItem(leaderboardPeriodKey, leaderboardPeriod); } catch (_) {}
+      paintLeaderboardPeriodTabs();
+      if (originalRenderLeaderboardRows) app.renderLeaderboardRows(latestLeaderboardRows);
+    });
+    paintLeaderboardPeriodTabs();
+  }
+
+  /* Per-account avatar selection for the profile view. */
+  const avatarChoices = ['🩺', '🧑‍⚕️', '👨‍🎓', '👩‍🎓', '🧬', '🧠', '🦉', '🚀'];
+  const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+  const readAvatar = () => {
+    try {
+      const value = localStorage.getItem(avatarKey());
+      return avatarChoices.includes(value) ? value : '🩺';
+    } catch (_) { return '🩺'; }
+  };
+  function renderAvatarPicker() {
+    const root = document.getElementById('view-profile');
+    if (!root) return;
+    let picker = root.querySelector('#profile-avatar-picker');
+    if (!picker) {
+      picker = document.createElement('div');
+      picker.id = 'profile-avatar-picker';
+      picker.className = 'profile-avatar-picker';
+      picker.setAttribute('aria-label', 'Choose profile avatar');
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', picker);
+      else root.prepend(picker);
+    }
+    const current = readAvatar();
+    const avatar = root.querySelector('.profile-hero .profile-avatar');
+    if (avatar) {
+      avatar.textContent = current;
+      avatar.setAttribute('aria-label', 'Selected profile avatar ' + current);
+    }
+    picker.innerHTML = '<span class="profile-avatar-picker-label">Choose avatar</span>' + avatarChoices.map(value =>
+      '<button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar="' + value + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose avatar ' + value + '">' + value + '</button>'
+    ).join('');
+  }
+  document.addEventListener('click', event => {
+    const choice = event.target.closest('[data-profile-avatar]');
+    if (!choice) return;
+    const value = choice.dataset.profileAvatar;
+    if (!avatarChoices.includes(value)) return;
+    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
+    renderAvatarPicker();
+    if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
+  });
+  document.addEventListener('student-progress-updated', renderAvatarPicker);
+  window.addEventListener('load', renderAvatarPicker);
+  const originalShowViewForAvatar = app.showView.bind(app);
+  app.showView = function(viewName, force = false) {
+    const result = originalShowViewForAvatar(viewName, force);
+    if (viewName === 'profile') renderAvatarPicker();
+    return result;
+  };
+})();
+
+
+/* Final checklist additions: settings, rank tiers, profile actions, and footer support links. */
+(() => {
+  'use strict';
+  const app = window.app;
+  if (!app || app.__studentChecklistExtras) return;
+  app.__studentChecklistExtras = true;
+  const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
+  const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
+  const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
+  const rankFor = points => {
+    const tiers = [
+      ['Bronze',0],['Bronze',100],['Bronze',250],['Bronze',450],['Bronze',700],
+      ['Silver',1000],['Silver',1400],['Silver',1850],['Silver',2350],['Silver',2900],
+      ['Gold',3500],['Gold',4200],['Gold',4950],['Gold',5750],['Gold',6600],
+      ['Platinum',7500],['Platinum',8500],['Platinum',9550],['Platinum',10650],['Platinum',11800],
+      ['Master',13000],['Master',14500],['Master',16100],['Master',17800],['Master',19600],
+      ['Pro',21500],['Pro',24000],['Pro',27000],['Pro',30500],['Pro',34500]
+    ];
+    let index = 0;
+    tiers.forEach((tier, i) => { if (points >= tier[1]) index = i; });
+    const [name] = tiers[index];
+    const level = Math.min(5, Math.floor(index % 5) + 1);
+    return name + ' ' + ['V','IV','III','II','I'][level - 1];
+  };
+  function ensureStudentSettings() {
+    const root = document.getElementById('view-profile');
+    if (!root || root.querySelector('#student-preferences-panel')) return;
+    const panel = document.createElement('section');
+    panel.id = 'student-preferences-panel';
+    panel.className = 'enhanced-panel';
+    panel.innerHTML = '<h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><button type="button" id="about-me-action">About Me</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion.</p><p id="about-me-copy" class="enhanced-empty" hidden>Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p>';
+    const current = localStorage.getItem('med_weekly_reset_enabled_v1');
+    panel.querySelector('#weekly-reset-setting').checked = current !== 'false';
+    panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
+      localStorage.setItem('med_weekly_reset_enabled_v1', e.target.checked ? 'true' : 'false');
+      const note = panel.querySelector('.enhanced-empty');
+      if (note) note.textContent = e.target.checked ? 'Weekly reset preference saved on this device.' : 'Weekly reset preference disabled on this device.';
+    });
+    panel.querySelector('#about-app-action').onclick = () => {
+      const copy = panel.querySelector('#about-app-copy');
+      copy.hidden = !copy.hidden;
+    };
+    panel.querySelector('#about-me-action').onclick = () => {
+      const copy = panel.querySelector('#about-me-copy');
+      copy.hidden = !copy.hidden;
+    };
+    root.appendChild(panel);
+  }
+  function ensureProfileRank() {
+    const root = document.getElementById('view-profile');
+    if (!root) return;
+    let card = root.querySelector('#profile-rank-card');
+    if (!card) {
+      card = document.createElement('section');
+      card.id = 'profile-rank-card';
+      card.className = 'enhanced-panel';
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', card);
+      else root.prepend(card);
+    }
+    const progress = readProgress();
+    const xp = Math.max(0, Number(progress.xp) || 0);
+    const level = Math.floor(xp / 500) + 1;
+    const next = level * 500;
+    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Level ' + level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, next - xp) + ' XP to next level · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
+  }
+  function ensureLogoutState() {
+    const root = document.getElementById('view-profile');
+    if (!root) return;
+    const target = root.querySelector('.auth-btn-target');
+    if (!target) return;
+    const loggedIn = Boolean(app.authUser?.uid);
+    target.innerHTML = loggedIn
+      ? '<button type="button" id="profile-logout-action" class="ghost-btn">Log Out</button>'
+      : '<button type="button" id="profile-login-action" class="ghost-btn">Log In / Sign up</button>';
+    const logout = target.querySelector('#profile-logout-action');
+    if (logout) logout.onclick = () => { if (typeof window.handleLogout === 'function') window.handleLogout(); };
+    const login = target.querySelector('#profile-login-action');
+    if (login) login.onclick = () => { if (typeof window.redirectToLogin === 'function') window.redirectToLogin(); };
+  }
+  function renderChecklistExtras() {
+    ensureStudentSettings();
+    ensureProfileRank();
+    ensureLogoutState();
+  }
+  const oldShowView = app.showView.bind(app);
+  app.showView = function(name, force) {
+    const result = oldShowView(name, force);
+    if (name === 'profile') renderChecklistExtras();
+    return result;
+  };
+  document.addEventListener('student-progress-updated', renderChecklistExtras);
+  window.addEventListener('load', renderChecklistExtras);
+})();
+
+
+/* Public leaderboard profile preview: exposes only fields already displayed in leaderboard. */
+(() => {
+  const app = window.app;
+  if (!app || app.__leaderProfilePreview) return;
+  app.__leaderProfilePreview = true;
+  const oldRender = typeof app.renderLeaderboardRows === 'function' ? app.renderLeaderboardRows.bind(app) : null;
+  if (!oldRender) return;
+  const esc = value => app.escapeHtml ? app.escapeHtml(value) : String(value ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  app.renderLeaderboardRows = function(rows) {
+    const result = oldRender(rows);
+    const body = document.getElementById('leaderboard-body');
+    const sorted = (Array.isArray(rows) ? rows.slice() : []).sort((a,b) => Number(b.points||0)-Number(a.points||0));
+    if (body) Array.from(body.querySelectorAll('tr.leader-row')).forEach((tr, i) => {
+      const row = sorted[i];
+      if (!row) return;
+      tr.dataset.publicName = String(row.name || 'Student');
+      tr.dataset.publicCollege = String(row.college || '—');
+      tr.dataset.publicQuizzes = String(Number(row.quizzes || 0));
+      tr.dataset.publicAccuracy = String(Number(row.accuracy || 0).toFixed(1));
+      tr.dataset.publicPoints = String(Number(row.points || 0));
+      tr.tabIndex = 0;
+      tr.setAttribute('role','button');
+      tr.setAttribute('aria-label','View public leaderboard profile for ' + String(row.name || 'Student'));
+      tr.style.cursor = 'pointer';
+    });
+    return result;
+  };
+  function openPreview(row) {
+    let modal = document.getElementById('leaderboard-public-profile');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'leaderboard-public-profile';
+      modal.className = 'palette-settings-overlay';
+      modal.innerHTML = '<section class="palette-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="leader-public-title"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="leader-public-title">Leaderboard Profile</h3><button type="button" class="enhanced-small-btn" data-close-public-profile>Close</button></div><div data-public-profile-content></div><p class="enhanced-empty">Only public leaderboard statistics are shown here.</p></section>';
+      modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('[data-close-public-profile]')) modal.hidden = true; });
+      document.body.appendChild(modal);
+    }
+    modal.querySelector('[data-public-profile-content]').innerHTML = '<div class="enhanced-panel"><h3>' + esc(row.dataset.publicName) + '</h3><p>College: ' + esc(row.dataset.publicCollege) + '</p><p>Quizzes: ' + esc(row.dataset.publicQuizzes) + '</p><p>Accuracy: ' + esc(row.dataset.publicAccuracy) + '%</p><p>Points in this view: ' + esc(row.dataset.publicPoints) + '</p></div>';
+    modal.hidden = false;
+  }
+  document.addEventListener('click', e => {
+    const row = e.target.closest('#leaderboard-body tr.leader-row');
+    if (row) openPreview(row);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const row = e.target.closest?.('#leaderboard-body tr.leader-row');
+    if (row) { e.preventDefault(); openPreview(row); }
   });
 })();

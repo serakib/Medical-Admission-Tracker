@@ -1562,16 +1562,16 @@ window.handleLogout = function() {
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
-  const durationFor = count => Math.max(1, Math.round(Number(count || 0) * 0.5));
+  const durationFor = (count, mode = app.setup?.mode) => Math.max(1, Math.round(Number(count || 0) * (mode === 'model' ? 0.6 : 0.5)));
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
     originalSetSetupQuestions(count);
     if (this.setup.mode === 'model') {
-      this.setup.durationMins = durationFor(count);
+      this.setup.durationMins = durationFor(count, this.setup.mode);
       const note = document.getElementById('model-test-fixed-note');
       if (note) note.textContent = 'Model Test: ' + count + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
       this.updateSetupUI();
@@ -1588,7 +1588,7 @@ window.handleLogout = function() {
       note.classList.toggle('hidden', mode !== 'model');
       if (mode === 'model') {
         this.setup.questionsCount = [50,100].includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
-        this.setup.durationMins = durationFor(this.setup.questionsCount);
+        this.setup.durationMins = durationFor(this.setup.questionsCount, this.setup.mode);
         note.textContent = 'Model Test: ' + this.setup.questionsCount + ' questions · ' + this.setup.durationMins + ' minutes (automatic)';
       }
     }
@@ -1603,19 +1603,77 @@ window.handleLogout = function() {
     }
     return originalPrepare();
   };
+  const originalSubmitExamForProgress = app.submitExam.bind(app);
+  app.submitExam = function(autoSubmitted = false) {
+    const state = this.examState;
+    if (!state || state.submitted) return originalSubmitExamForProgress(autoSubmitted);
+    let correct = 0;
+    (state.questions || []).forEach((q, i) => {
+      const raw = Number.isInteger(q?.answer) ? q.answer : (Number.isInteger(q?.correctAnswer) ? q.correctAnswer : 'ABCD'.indexOf(String(q?.correctAnswer || '').toUpperCase()));
+      if (state.userAnswers?.[i] === raw) correct++;
+    });
+    const attemptId = String(state.startedAt || Date.now());
+    const progress = readProgress();
+    const alreadyRewarded = progress.rewarded.includes(attemptId);
+    const result = originalSubmitExamForProgress(autoSubmitted);
+    if (!alreadyRewarded && state.submitted) {
+      progress.rankPoints += correct * 5;
+      progress.xp += Math.max(10, (state.questions?.length || 0) * 2) + correct * 2;
+      progress.completedExams += 1;
+      const today = new Date().toISOString().slice(0, 10);
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      if (progress.lastExamDate !== today) {
+        progress.streak = progress.lastExamDate === yesterday ? progress.streak + 1 : 1;
+        progress.lastExamDate = today;
+      }
+      progress.rewarded.push(attemptId);
+      if (progress.rewarded.length > 500) progress.rewarded = progress.rewarded.slice(-500);
+      saveProgress(progress);
+      const resultRoot = document.getElementById('view-result');
+      if (resultRoot) {
+        let rewardCard = resultRoot.querySelector('#exam-reward-summary');
+        if (!rewardCard) {
+          rewardCard = document.createElement('section');
+          rewardCard.id = 'exam-reward-summary';
+          rewardCard.className = 'mt-4 grid grid-cols-2 gap-3';
+          const score = document.getElementById('res-score-main')?.closest('.result-card, .glass-card, section') || resultRoot.firstElementChild;
+          if (score?.parentElement) score.parentElement.insertBefore(rewardCard, score.nextSibling);
+          else resultRoot.prepend(rewardCard);
+        }
+        rewardCard.innerHTML = '<div class="rounded-xl border border-amber-300/50 bg-amber-50 dark:bg-amber-900/20 p-3"><div class="text-xs opacity-75">Rank Points earned</div><strong class="text-xl">+' + (correct * 5) + '</strong></div><div class="rounded-xl border border-sky-300/50 bg-sky-50 dark:bg-sky-900/20 p-3"><div class="text-xs opacity-75">XP earned</div><strong class="text-xl">+' + (Math.max(10, (state.questions?.length || 0) * 2) + correct * 2) + '</strong></div>';
+      }
+      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, correct } }));
+    }
+    return result;
+  };
+  function renderProgressCards(root, sectionId, prefix) {
+    if (!root) return;
+    const progress = readProgress();
+    let section = root.querySelector('#' + sectionId);
+    if (!section) {
+      section = document.createElement('section');
+      section.id = sectionId;
+      section.className = 'account-progress-extra';
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', section);
+      else root.prepend(section);
+    }
+    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="' + prefix + '-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="' + prefix + '-xp">' + progress.xp + '</strong></div><div class="progress-extra-card"><span>Completed Exams</span><strong>' + progress.completedExams + '</strong></div><div class="progress-extra-card"><span>Study Streak</span><strong>' + (progress.streak || 0) + ' days</strong></div>';
+  }
   const originalRenderAccountProfile = app.renderAccountProfile.bind(app);
   app.renderAccountProfile = function() {
     originalRenderAccountProfile();
-    const root = document.getElementById('view-account');
-    if (!root || root.querySelector('#account-progress-extra')) return;
-    const progress = readProgress();
-    const section = document.createElement('section');
-    section.id = 'account-progress-extra';
-    section.className = 'account-progress-extra';
-    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="account-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="account-xp">' + progress.xp + '</strong></div>';
-    const hero = root.querySelector('.profile-hero');
-    if (hero) hero.insertAdjacentElement('afterend', section);
+    renderProgressCards(document.getElementById('view-account'), 'account-progress-extra', 'account');
+    renderProgressCards(document.getElementById('view-profile'), 'profile-progress-extra', 'profile');
   };
+  document.addEventListener('student-progress-updated', () => {
+    renderProgressCards(document.getElementById('view-account'), 'account-progress-extra', 'account');
+    renderProgressCards(document.getElementById('view-profile'), 'profile-progress-extra', 'profile');
+  });
+  window.addEventListener('load', () => {
+    renderProgressCards(document.getElementById('view-account'), 'account-progress-extra', 'account');
+    renderProgressCards(document.getElementById('view-profile'), 'profile-progress-extra', 'profile');
+  });
   window.addEventListener('load', () => {
     const note = document.getElementById('model-test-fixed-note');
     if (note && app.setup?.mode === 'model') {
