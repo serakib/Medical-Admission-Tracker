@@ -379,7 +379,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
       <div class="sidebar-bottom">
         <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
         <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
-        <button class="sidebar-action login-action" onclick="window.redirectToLogin()" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
+        <button id="sidebar-auth-action" class="sidebar-action login-action" onclick="window.redirectToLogin()" type="button" aria-label="Log In / Sign Up"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
     </aside>
     <script>
@@ -388,6 +388,7 @@ function toggleAccountSettings(){
   if(!content||!button)return;
   var open=content.classList.contains('hidden');
   content.classList.toggle('hidden',!open);
+  button.textContent=open?'Close Settings':'Open Settings';
   button.setAttribute('aria-expanded',String(open));
 }
 function toggleAccountSettingInfo(id){
