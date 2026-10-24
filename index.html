@@ -404,14 +404,7 @@ function toggleAccountSettingInfo(id){
   var item=document.getElementById(id);
   if(item)item.hidden=!item.hidden;
 }
-(function restoreWeeklyResetPreference(){
-  var input=document.getElementById('weekly-reset-setting');
-  if(!input)return;
-  try{input.checked=localStorage.getItem('med_weekly_reset_enabled_v1')!=='false';}catch(_e){input.checked=true;}
-  input.addEventListener('change',function(){
-    try{localStorage.setItem('med_weekly_reset_enabled_v1',input.checked?'true':'false');}catch(_e){}
-  });
-})();
+
 function closeAppSidebar(){
   var s=document.getElementById('app-sidebar'),o=document.getElementById('sidebar-overlay'),t=document.getElementById('sidebar-toggle');
   if(s)s.classList.remove('sidebar-open');
