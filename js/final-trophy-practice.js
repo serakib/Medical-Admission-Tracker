@@ -46,6 +46,10 @@
   };
 
   function lifetimePoints() {
+    const rankCard = document.getElementById('profile-rank-card');
+    const rankText = rankCard?.textContent || '';
+    const rankMatch = rankText.match(/([\\d,]+)\\s*lifetime Rank Points/i);
+    if (rankMatch) return Math.max(0, Number(rankMatch[1].replace(/,/g, '')) || 0);
     const keys = [
       'med_lifetime_rank_points_' + (app.authUser?.uid || 'guest'),
       'med_rank_points_lifetime_' + (app.authUser?.uid || 'guest'),
