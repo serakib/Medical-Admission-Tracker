@@ -1672,6 +1672,30 @@ window.handleLogout = function() {
       progress.rewarded.push(attemptId);
       if (progress.rewarded.length > 500) progress.rewarded = progress.rewarded.slice(-500);
       saveProgress(progress);
+      if (this.authUser?.uid) {
+        const uid = this.authUser.uid;
+        const oldRow = this.getLocalLeaderboardRows().find(row => row.uid === uid) || {};
+        const rankRow = {
+          ...oldRow, uid,
+          name: this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student',
+          college: this.profile?.college || oldRow.college || '',
+          rankPoints: progress.rankPoints,
+          weeklyRankPoints: progress.weeklyRankPoints,
+          xp: progress.xp,
+          level: Math.floor(progress.xp / 120) + 1,
+          updatedAtMs: Date.now()
+        };
+        const rows = this.mergeLeaderboardRows([...this.getLocalLeaderboardRows().filter(row => row.uid !== uid), rankRow]);
+        this.setLocalLeaderboardRows(rows);
+        this.renderLeaderboardRows(rows);
+        if (this.firestore) {
+          setDoc(doc(this.firestore, 'leaderboard', uid), {
+            uid, name: rankRow.name, college: rankRow.college,
+            rankPoints: progress.rankPoints, weeklyRankPoints: progress.weeklyRankPoints,
+            xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
+          }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
+        }
+      }
       document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, correct } }));
     }
     return result;
