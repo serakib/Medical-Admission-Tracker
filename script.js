@@ -1562,7 +1562,7 @@ window.handleLogout = function() {
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
@@ -1620,6 +1620,12 @@ window.handleLogout = function() {
       progress.rankPoints += correct * 5;
       progress.xp += Math.max(10, (state.questions?.length || 0) * 2) + correct * 2;
       progress.completedExams += 1;
+      const today = new Date().toISOString().slice(0, 10);
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      if (progress.lastExamDate !== today) {
+        progress.streak = progress.lastExamDate === yesterday ? progress.streak + 1 : 1;
+        progress.lastExamDate = today;
+      }
       progress.rewarded.push(attemptId);
       if (progress.rewarded.length > 500) progress.rewarded = progress.rewarded.slice(-500);
       saveProgress(progress);
@@ -1652,7 +1658,7 @@ window.handleLogout = function() {
       if (hero) hero.insertAdjacentElement('afterend', section);
       else root.prepend(section);
     }
-    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="' + prefix + '-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="' + prefix + '-xp">' + progress.xp + '</strong></div><div class="progress-extra-card"><span>Completed Exams</span><strong>' + progress.completedExams + '</strong></div>';
+    section.innerHTML = '<div class="progress-extra-card"><span>Rank Points</span><strong id="' + prefix + '-rank-points">' + progress.rankPoints + '</strong></div><div class="progress-extra-card"><span>XP · Level ' + (Math.floor(progress.xp / 500) + 1) + '</span><strong id="' + prefix + '-xp">' + progress.xp + '</strong></div><div class="progress-extra-card"><span>Completed Exams</span><strong>' + progress.completedExams + '</strong></div><div class="progress-extra-card"><span>Study Streak</span><strong>' + (progress.streak || 0) + ' days</strong></div>';
   }
   const originalRenderAccountProfile = app.renderAccountProfile.bind(app);
   app.renderAccountProfile = function() {
