@@ -733,27 +733,33 @@
   };
   function ensureStudentSettings() {
     const root = document.getElementById('view-profile');
-    if (!root || root.querySelector('#student-preferences-panel')) return;
-    const panel = document.createElement('section');
-    panel.id = 'student-preferences-panel';
-    panel.className = 'enhanced-panel';
-    panel.innerHTML = '<h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><button type="button" id="about-me-action">About Me</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion.</p><p id="about-me-copy" class="enhanced-empty" hidden>Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p>';
-    const current = localStorage.getItem('med_weekly_reset_enabled_v1');
-    panel.querySelector('#weekly-reset-setting').checked = current !== 'false';
-    panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
-      localStorage.setItem('med_weekly_reset_enabled_v1', e.target.checked ? 'true' : 'false');
-      const note = panel.querySelector('.enhanced-empty');
-      if (note) note.textContent = e.target.checked ? 'Weekly reset preference saved on this device.' : 'Weekly reset preference disabled on this device.';
-    });
-    panel.querySelector('#about-app-action').onclick = () => {
-      const copy = panel.querySelector('#about-app-copy');
-      copy.hidden = !copy.hidden;
-    };
-    panel.querySelector('#about-me-action').onclick = () => {
-      const copy = panel.querySelector('#about-me-copy');
-      copy.hidden = !copy.hidden;
-    };
-    root.appendChild(panel);
+    if (!root) return;
+    let panel = root.querySelector('#student-preferences-panel');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'student-preferences-panel';
+      panel.className = 'enhanced-panel';
+      panel.innerHTML = '<button type="button" id="student-settings-toggle" class="ghost-btn" aria-expanded="false" aria-controls="student-settings-content"><i class="fa-solid fa-gear" aria-hidden="true"></i> Settings</button><div id="student-settings-content" hidden style="margin-top:12px"><h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><button type="button" id="about-me-action">About Me</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion.</p><p id="about-me-copy" class="enhanced-empty" hidden>Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p></div>';
+      root.appendChild(panel);
+      panel.querySelector('#student-settings-toggle').addEventListener('click', () => {
+        const content = panel.querySelector('#student-settings-content');
+        const open = content.hidden;
+        content.hidden = !open;
+        panel.querySelector('#student-settings-toggle').setAttribute('aria-expanded', String(open));
+      });
+      panel.querySelector('#weekly-reset-setting').checked = localStorage.getItem('med_weekly_reset_enabled_v1') !== 'false';
+      panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
+        localStorage.setItem('med_weekly_reset_enabled_v1', e.target.checked ? 'true' : 'false');
+      });
+      panel.querySelector('#about-app-action').onclick = () => {
+        const copy = panel.querySelector('#about-app-copy');
+        copy.hidden = !copy.hidden;
+      };
+      panel.querySelector('#about-me-action').onclick = () => {
+        const copy = panel.querySelector('#about-me-copy');
+        copy.hidden = !copy.hidden;
+      };
+    }
   }
   function ensureProfileRank() {
     const root = document.getElementById('view-profile');
@@ -1007,4 +1013,53 @@
 
   // Covers initialization when a page is restored from browser history.
   syncFocusState();
+})();
+
+
+/* Exam rewards: each correct answer earns 20 XP and 10 Rank Points.
+   Rewards are recorded once per submitted attempt and never shown as a separate popup/card. */
+(() => {
+  'use strict';
+  const app = window.app;
+  if (!app || app.__correctAnswerRewardsInstalled) return;
+  app.__correctAnswerRewardsInstalled = true;
+  const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
+  const read = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(progressKey()) || 'null');
+      return value && typeof value === 'object' ? value : {};
+    } catch (_) { return {}; }
+  };
+  const write = value => {
+    try { localStorage.setItem(progressKey(), JSON.stringify(value)); }
+    catch (error) { console.warn('Could not save exam rewards locally.', error); }
+  };
+  const originalSubmit = app.submitExam.bind(app);
+  app.submitExam = function(...args) {
+    const state = this.examState;
+    if (!state || state.submitted) return originalSubmit(...args);
+    const attemptId = String(state.startedAt || state.deadlineAt || Date.now());
+    const questions = Array.isArray(state.questions) ? state.questions : [];
+    const answers = Array.isArray(state.userAnswers) ? state.userAnswers : [];
+    const correctCount = questions.reduce((total, question, index) => {
+      const correct = Number.isInteger(question?.answer) ? question.answer
+        : (Number.isInteger(question?.correctAnswer) ? question.correctAnswer
+          : 'ABCD'.indexOf(String(question?.correctAnswer || '').trim().toUpperCase()));
+      return total + (correct >= 0 && answers[index] === correct ? 1 : 0);
+    }, 0);
+    const result = originalSubmit(...args);
+    if (!state.submitted) return result;
+    const progress = read();
+    const rewarded = Array.isArray(progress.rewarded) ? progress.rewarded : [];
+    if (rewarded.includes(attemptId)) return result;
+    progress.rankPoints = Math.max(0, Number(progress.rankPoints) || 0) + correctCount * 10;
+    progress.xp = Math.max(0, Number(progress.xp) || 0) + correctCount * 20;
+    progress.completedExams = Math.max(0, Number(progress.completedExams) || 0) + 1;
+    progress.rewarded = [...rewarded, attemptId].slice(-500);
+    write(progress);
+    document.dispatchEvent(new CustomEvent('student-progress-updated', {
+      detail: { correctCount, xpEarned: correctCount * 20, rankPointsEarned: correctCount * 10 }
+    }));
+    return result;
+  };
 })();
