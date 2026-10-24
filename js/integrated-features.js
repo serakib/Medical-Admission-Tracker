@@ -582,6 +582,19 @@
     renderAccountList();
   });
 
+  // Keep account-scoped review history and remembered accounts in sync across views/tabs.
+  window.addEventListener('student-auth-state-changed', () => {
+    renderReviewPanel();
+    renderAccountList();
+    renderResultFilters();
+  });
+  window.addEventListener('storage', event => {
+    if (event.key === ACCOUNT_KEY || (event.key && event.key.startsWith('med_review_history_v2_'))) {
+      renderReviewPanel();
+      renderAccountList();
+    }
+  });
+
   /* Leaderboard period views use saved rows; Friends stays honest until friend links exist. */
   const leaderboardPeriodKey = 'med_leaderboard_period_v1';
   let leaderboardPeriod = ['weekly', 'all-time', 'friends'].includes(localStorage.getItem(leaderboardPeriodKey))
@@ -719,28 +732,10 @@
     return name + ' ' + ['V','IV','III','II','I'][level - 1];
   };
   function ensureStudentSettings() {
+    // App-wide preferences now live exclusively under the sidebar's App Settings.
     const root = document.getElementById('view-profile');
-    if (!root || root.querySelector('#student-preferences-panel')) return;
-    const panel = document.createElement('section');
-    panel.id = 'student-preferences-panel';
-    panel.className = 'enhanced-panel';
-    panel.innerHTML = '<h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><button type="button" id="about-me-action">About Me</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion.</p><p id="about-me-copy" class="enhanced-empty" hidden>Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p>';
-    const current = localStorage.getItem('med_weekly_reset_enabled_v1');
-    panel.querySelector('#weekly-reset-setting').checked = current !== 'false';
-    panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
-      localStorage.setItem('med_weekly_reset_enabled_v1', e.target.checked ? 'true' : 'false');
-      const note = panel.querySelector('.enhanced-empty');
-      if (note) note.textContent = e.target.checked ? 'Weekly reset preference saved on this device.' : 'Weekly reset preference disabled on this device.';
-    });
-    panel.querySelector('#about-app-action').onclick = () => {
-      const copy = panel.querySelector('#about-app-copy');
-      copy.hidden = !copy.hidden;
-    };
-    panel.querySelector('#about-me-action').onclick = () => {
-      const copy = panel.querySelector('#about-me-copy');
-      copy.hidden = !copy.hidden;
-    };
-    root.appendChild(panel);
+    const oldPanel = root && root.querySelector('#student-preferences-panel');
+    if (oldPanel) oldPanel.remove();
   }
   function ensureProfileRank() {
     const root = document.getElementById('view-profile');
@@ -840,3 +835,159 @@
     if (row) { e.preventDefault(); openPreview(row); }
   });
 })();
+
+
+/* Exam focus mode + last-10%-of-time warning.
+   Installed after the main app is initialized; does not replace the exam engine. */
+(() => {
+  'use strict';
+  const app = window.app;
+  if (!app || app.__examFocusHardeningInstalled) return;
+  app.__examFocusHardeningInstalled = true;
+
+  const style = document.createElement('style');
+  style.id = 'exam-focus-hardening-styles';
+  style.textContent = `
+    body.exam-focus-mode #app-sidebar,
+    body.exam-focus-mode #sidebar-overlay,
+    body.exam-focus-mode #sidebar-toggle,
+    body.exam-focus-mode #theme-toggle,
+    body.exam-focus-mode .ai-float-btn,
+    body.exam-focus-mode .student-profile-top-shortcut { display: none !important; }
+    body.exam-focus-mode main {
+      width: 100% !important;
+      max-width: none !important;
+      padding: 12px !important;
+      margin: 0 auto !important;
+    }
+    body.exam-focus-mode main > .view-section:not(#view-exam) { display: none !important; }
+    body.exam-focus-mode #view-exam { display: block !important; }
+    body.exam-focus-mode #view-exam > .sticky { top: 8px !important; }
+    #timer-box.exam-time-warning {
+      color: #fff7f7 !important;
+      background: #991b1b !important;
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 2px rgba(239,68,68,.18), 0 0 20px rgba(239,68,68,.28);
+      animation: examTimerUrgentPulse 1.05s ease-in-out infinite;
+    }
+    #timer-box.exam-time-warning #exam-timer,
+    #timer-box.exam-time-warning > i { color: #fff !important; }
+    #timer-warning-label {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      margin-inline-start: .65rem;
+      padding: .25rem .5rem;
+      border-radius: .5rem;
+      background: rgba(255,255,255,.16);
+      color: #fff;
+      font: 700 .72rem/1.2 system-ui, sans-serif;
+      white-space: nowrap;
+    }
+    @keyframes examTimerUrgentPulse {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(239,68,68,.16), 0 0 12px rgba(239,68,68,.22); }
+      50% { box-shadow: 0 0 0 4px rgba(239,68,68,.28), 0 0 24px rgba(239,68,68,.42); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #timer-box.exam-time-warning { animation: none !important; }
+    }
+    @media (max-width: 640px) {
+      body.exam-focus-mode main { padding: 8px !important; }
+      #timer-warning-label { font-size: .65rem; padding: .2rem .35rem; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  let warningInterval = null;
+  const timerBox = () => document.getElementById('timer-box');
+  function ensureWarningLabel() {
+    const box = timerBox();
+    if (!box || document.getElementById('timer-warning-label')) return;
+    const label = document.createElement('span');
+    label.id = 'timer-warning-label';
+    label.setAttribute('role', 'status');
+    label.setAttribute('aria-live', 'polite');
+    label.hidden = true;
+    label.textContent = '⚠ শেষ ১০% সময়!';
+    box.appendChild(label);
+  }
+
+  function syncFocusState() {
+    const examView = document.getElementById('view-exam');
+    const active = Boolean(app.examActive && !app.examState?.submitted && examView && !examView.classList.contains('hidden'));
+    document.body.classList.toggle('exam-focus-mode', active);
+    if (!active) clearWarningInterval();
+    return active;
+  }
+
+  function clearWarningInterval() {
+    if (warningInterval !== null) {
+      clearInterval(warningInterval);
+      warningInterval = null;
+    }
+    const box = timerBox();
+    const label = document.getElementById('timer-warning-label');
+    if (box) box.classList.remove('exam-time-warning');
+    if (label) label.hidden = true;
+  }
+
+  function updateTimeWarning() {
+    const state = app.examState;
+    const box = timerBox();
+    if (!box || !state || !state.startedAt || !state.deadlineAt || state.submitted) {
+      clearWarningInterval();
+      return;
+    }
+    ensureWarningLabel();
+    const totalSeconds = Math.max(1, Math.ceil((state.deadlineAt - state.startedAt) / 1000));
+    const remaining = Math.max(0, Number(state.timerSeconds) || 0);
+    const threshold = Math.max(1, Math.ceil(totalSeconds * 0.10));
+    const urgent = remaining > 0 && remaining <= threshold;
+    box.classList.toggle('exam-time-warning', urgent);
+    const label = document.getElementById('timer-warning-label');
+    if (label) label.hidden = !urgent;
+  }
+
+  const originalShowView = app.showView.bind(app);
+  app.showView = function(viewName, ...args) {
+    const result = originalShowView(viewName, ...args);
+    // The view DOM is updated synchronously. Checking the actual visible view
+    // also handles a navigation attempt cancelled by the existing confirmation.
+    syncFocusState();
+    return result;
+  };
+
+  const originalStartTimer = app.startTimer.bind(app);
+  app.startTimer = function(...args) {
+    const result = originalStartTimer(...args);
+    clearWarningInterval();
+    ensureWarningLabel();
+    updateTimeWarning();
+    warningInterval = setInterval(updateTimeWarning, 250);
+    return result;
+  };
+
+  const originalSubmitExam = app.submitExam.bind(app);
+  app.submitExam = function(...args) {
+    const result = originalSubmitExam(...args);
+    clearWarningInterval();
+    syncFocusState();
+    return result;
+  };
+
+  // Rebind account-scoped UI whenever Firebase changes the active user.
+  if (typeof app.setAuthState === 'function') {
+    const originalSetAuthState = app.setAuthState.bind(app);
+    app.setAuthState = function(user, ...args) {
+      const result = originalSetAuthState(user, ...args);
+      window.dispatchEvent(new CustomEvent('student-auth-state-changed', {
+        detail: { uid: user?.uid || null }
+      }));
+      return result;
+    };
+  }
+
+  // Covers initialization when a page is restored from browser history.
+  syncFocusState();
+})();
+

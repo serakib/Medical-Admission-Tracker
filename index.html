@@ -322,7 +322,7 @@ box-shadow: none;
 .app-sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:10000;display:flex;flex-direction:column;padding:20px 14px 16px;background:rgba(10,18,32,.97);color:#e5edf8;border-right:1px solid rgba(148,163,184,.18);box-shadow:12px 0 38px rgba(0,0,0,.18);backdrop-filter:blur(18px);overflow:hidden;transition:width .22s ease,padding .22s ease}
 .sidebar-head{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-bottom:12px;border-bottom:1px solid rgba(148,163,184,.16)}.sidebar-brand{display:flex;align-items:center;gap:11px;padding:8px 0 0;cursor:pointer;flex:1;min-width:0}.sidebar-collapse-toggle{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid rgba(148,163,184,.2);border-radius:10px;background:rgba(148,163,184,.08);color:#cbd5e1;cursor:pointer;transition:background .2s,color .2s}.sidebar-collapse-toggle:hover{background:rgba(16,185,129,.18);color:#fff}.sidebar-brand-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;color:#a7f3d0;background:linear-gradient(135deg,rgba(16,185,129,.24),rgba(14,165,233,.22));border:1px solid rgba(110,231,183,.25);font-size:20px;flex-shrink:0}.sidebar-brand strong{display:block;font-size:13px;line-height:1.5;color:#f8fafc}.sidebar-brand small{display:block;margin-top:3px;color:#93a4ba;font-size:10px;letter-spacing:.04em}
 .sidebar-nav{display:flex;flex-direction:column;gap:5px;padding:20px 0;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.sidebar-nav button,.sidebar-action{display:flex;align-items:center;gap:13px;width:100%;min-height:44px;padding:11px 13px;border:1px solid transparent;border-radius:12px;background:transparent;color:#cbd5e1;text-align:left;font-size:13px;font-weight:650;cursor:pointer;transition:background .2s,border-color .2s,color .2s,transform .2s}.sidebar-nav button i,.sidebar-action i{width:19px;text-align:center;color:#6ee7b7;font-size:15px}.sidebar-nav button:hover,.sidebar-action:hover{color:#fff;background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.16);transform:translateX(2px)}
-.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid rgba(148,163,184,.16);flex-shrink:0}.account-action{color:#e0e7ff;background:rgba(14,165,233,.10);border-color:rgba(56,189,248,.22)}.sidebar-action{justify-content:flex-start;min-height:46px}.profile-action{color:#f8fafc;background:rgba(16,185,129,.12);border-color:rgba(52,211,153,.25)}.login-action{color:#dbeafe;background:rgba(99,102,241,.13);border-color:rgba(129,140,248,.25)}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid rgba(148,163,184,.16);flex-shrink:0;max-height:48vh;overflow-y:auto;overscroll-behavior:contain}.account-action{color:#e0e7ff;background:rgba(14,165,233,.10);border-color:rgba(56,189,248,.22)}.sidebar-action{justify-content:flex-start;min-height:46px}.profile-action{color:#f8fafc;background:rgba(16,185,129,.12);border-color:rgba(52,211,153,.25)}.login-action{color:#dbeafe;background:rgba(99,102,241,.13);border-color:rgba(129,140,248,.25)}
 .sidebar-toggle{display:none;position:fixed;top:14px;left:14px;z-index:10002;width:44px;height:44px;border:1px solid rgba(148,163,184,.25);border-radius:13px;color:#fff;background:rgba(15,23,42,.9);font-size:24px;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}.sidebar-overlay{display:none}
 main{max-width:none!important;width:100%!important;padding-left:clamp(16px,2.5vw,36px)!important;padding-right:clamp(16px,2.5vw,36px)!important}
 .ai-float-btn{bottom:85px!important;right:24px!important;width:48px!important;height:48px!important}.ai-float-btn svg{width:23px;height:23px}.ai-btn-tooltip{right:58px!important}
@@ -377,12 +377,44 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
         <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar();setTimeout(function(){var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},100)" type="button"><i class="fa-solid fa-envelope"></i><span>Contact</span></button>
       </nav>
       <div class="sidebar-bottom">
-        <div class="sidebar-profile-row"><button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button><button id="question-palette-settings" class="sidebar-palette-settings" type="button" aria-label="Question Palette Settings" title="Question Palette Settings" onclick="window.openQuestionPaletteSettings()"><i class="fa-solid fa-sliders"></i><span class="sr-only">Question Palette Settings</span></button></div>
+        <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
         <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
+        <button id="app-settings-toggle" class="sidebar-action" type="button" aria-expanded="false" aria-controls="app-settings-content" onclick="toggleAppSettings()"><i class="fa-solid fa-gear"></i><span>App Settings</span><i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:.75rem"></i></button>
+        <div id="app-settings-content" hidden style="padding:6px 0 8px 12px;display:none;flex-direction:column;gap:6px">
+          <button id="question-palette-settings" class="sidebar-action" type="button" aria-label="Question Palette Settings" onclick="closeAppSidebar();window.openQuestionPaletteSettings()"><i class="fa-solid fa-sliders"></i><span>Question Palette Settings</span></button>
+          <button class="sidebar-action" type="button" onclick="window.app.toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i><span>Appearance / Theme</span></button>
+          <label class="sidebar-action" for="weekly-reset-setting" style="display:flex;align-items:center;gap:10px;cursor:pointer"><i class="fa-solid fa-calendar-week"></i><span style="flex:1">Weekly Leaderboard Reset</span><input id="weekly-reset-setting" type="checkbox" style="accent-color:#10b981;width:16px;height:16px"></label>
+          <button class="sidebar-action" type="button" onclick="toggleSidebarSettingInfo('about-app-copy')"><i class="fa-solid fa-circle-info"></i><span>About App</span></button>
+          <div id="about-app-copy" hidden class="sidebar-setting-info" style="padding:8px 12px;font-size:.82rem">Medical Admission Tracker — a student exam and progress companion.</div>
+          <button class="sidebar-action" type="button" onclick="toggleSidebarSettingInfo('about-me-copy')"><i class="fa-solid fa-user"></i><span>About Me</span></button>
+          <div id="about-me-copy" hidden class="sidebar-setting-info" style="padding:8px 12px;font-size:.82rem">Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></div>
+          <a class="sidebar-action" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-telegram"></i><span>Help &amp; Support</span></a>
+          <a class="sidebar-action" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-blog"></i><span>Student Blog</span></a>
+        </div>
         <button class="sidebar-action login-action" onclick="window.redirectToLogin()" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
     </aside>
     <script>
+function toggleAppSettings(){
+  var content=document.getElementById('app-settings-content'),button=document.getElementById('app-settings-toggle');
+  if(!content||!button)return;
+  var open=content.hidden;
+  content.hidden=!open;
+  content.style.display=open?'flex':'none';
+  button.setAttribute('aria-expanded',String(open));
+}
+function toggleSidebarSettingInfo(id){
+  var item=document.getElementById(id);
+  if(item)item.hidden=!item.hidden;
+}
+(function restoreWeeklyResetPreference(){
+  var input=document.getElementById('weekly-reset-setting');
+  if(!input)return;
+  try{input.checked=localStorage.getItem('med_weekly_reset_enabled_v1')!=='false';}catch(_e){input.checked=true;}
+  input.addEventListener('change',function(){
+    try{localStorage.setItem('med_weekly_reset_enabled_v1',input.checked?'true':'false');}catch(_e){}
+  });
+})();
 function closeAppSidebar(){
   var s=document.getElementById('app-sidebar'),o=document.getElementById('sidebar-overlay'),t=document.getElementById('sidebar-toggle');
   if(s)s.classList.remove('sidebar-open');
@@ -511,21 +543,7 @@ function toggleAppSidebarCollapse(){
                     <div class="flex-1 min-w-0"><h3>Manage your account</h3><p>সমর্থিত account details ও sign-in controls খুলুন।</p></div>
                     <button class="ghost-btn" type="button" onclick="window.app.openAccountAuth('account')">Manage</button>
                 </article>
-                <article class="account-action-card">
-                    <span class="account-action-icon"><i class="fa-solid fa-sliders"></i></span>
-                    <div class="flex-1 min-w-0"><h3>Settings</h3><p>App appearance ও supported preferences পরিবর্তন করুন।</p></div>
-                    <button class="ghost-btn" type="button" onclick="document.getElementById('account-settings-panel').scrollIntoView({behavior:'smooth',block:'start'})">Settings</button>
-                </article>
             </div>
-            <section id="account-settings-panel" class="profile-panel space-y-4" aria-labelledby="account-settings-title">
-                <div class="profile-panel-head"><div><span class="eyebrow">Preferences</span><h3 id="account-settings-title">App Settings</h3></div><i class="fa-solid fa-gear" aria-hidden="true"></i></div>
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div><strong class="block">Appearance</strong><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Light বা dark theme বেছে নিন।</p><p id="account-theme-status" class="text-sm font-bold mt-2">Light mode</p></div>
-                    <button class="primary-btn" type="button" onclick="window.app.toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> Toggle theme</button>
-                </div>
-                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-sm leading-6 text-gray-600 dark:text-gray-300"><i class="fa-solid fa-circle-info text-emerald-600 mr-1" aria-hidden="true"></i> এই অ্যাপে একবারে একটি Firebase account active থাকে। অন্য account দিয়ে sign in করলে active account পরিবর্তিত হবে। Password সংরক্ষণ করা হয় না।</div>
-                <div class="flex justify-end"><button class="ghost-btn" type="button" onclick="if(confirm('আপনি কি sign out করতে চান?')) window.app.logout()"><i class="fa-solid fa-right-from-bracket"></i> Log out</button></div>
-            </section>
         </section>
 
         <!-- VIEW 1: HOME / DASHBOARD -->
@@ -1467,8 +1485,6 @@ function toggleAppSidebarCollapse(){
 
     
 <script src="./js/feature-navigation.js" defer></script>
-<script src="./js/app-global-fix.js"></script>
-<script type="module" src="./js/app-views-fix.js"></script>
 <script type="module" src="./js/student-ai.js"></script>
 <script type="module" src="script.js"></script>
 <script type="module" src="./js/integrated-features.js"></script>
