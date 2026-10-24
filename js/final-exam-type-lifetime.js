@@ -91,6 +91,8 @@
     else if(type==='reviewed') pool=pool.filter(q=>Boolean(history[qKey(q)]?.reviewed));
     if(!pool.length){const labels={wrong:'Wrong Answer',skipped:'Skipped',reviewed:'Reviewed'};alert(type==='previous-year'?'এই বছরের জন্য কোনো বিগত বছরের প্রশ্ন পাওয়া যায়নি।':(labels[type]||'এই Exam Type')+' তালিকায় এখনো কোনো প্রশ্ন নেই।');return;}
     const limit=type==='previous-year'?pool.length:Number(this.setup.questionsCount||50);
+    if(type==='previous-year'){this.previousSelectedYear=year;this.setup.mode='previousQuiz';}
+    else {this.setup.mode='model';const ys=document.getElementById('setup-year');if(ys)ys.value='all';this.setup.subject='all';}
     const questions=this.shuffleQuestionsAndOptions(pool,Math.min(limit,pool.length));
     if(!questions.length)return;
     const actualCount=questions.length, durationMins=Math.max(1,Math.round(actualCount*.6));
