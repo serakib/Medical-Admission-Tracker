@@ -1069,14 +1069,20 @@ class MedicalExamApp {
 
     shuffleQuestionsAndOptions(pool, count) {
         let filtered = [...pool];
-        const subjectSelect = document.getElementById('setup-subject');
-        const selectedSubject = subjectSelect ? subjectSelect.value : this.setup.subject;
-        const yearSelect = document.getElementById('setup-year');
-        const selectedYear = yearSelect ? yearSelect.value : 'all';
-        if (selectedSubject && selectedSubject !== 'all') filtered = filtered.filter(q => q.subject === selectedSubject);
-        if (selectedYear && selectedYear !== 'all') filtered = filtered.filter(q => q.year === selectedYear);
-        if (this.setup.mode === 'previous' || this.setup.mode === 'previousQuiz') filtered = filtered.filter(q => q.isPreviousYear && q.year);
-        if (this.setup.mode === 'challenge') filtered = filtered.filter(q => q.source && !/^practice$/i.test(q.year || '') );
+        if (this.setup.mode === 'previousQuiz') {
+            // A Previous Year paper must use the selected year's full validated question set.
+            // Do not let stale setup dropdown filters silently reduce the paper.
+            filtered = filtered.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear);
+        } else {
+            const subjectSelect = document.getElementById('setup-subject');
+            const selectedSubject = subjectSelect ? subjectSelect.value : this.setup.subject;
+            const yearSelect = document.getElementById('setup-year');
+            const selectedYear = yearSelect ? yearSelect.value : 'all';
+            if (selectedSubject && selectedSubject !== 'all') filtered = filtered.filter(q => q.subject === selectedSubject);
+            if (selectedYear && selectedYear !== 'all') filtered = filtered.filter(q => q.year === selectedYear);
+            if (this.setup.mode === 'previous') filtered = filtered.filter(q => q.isPreviousYear && q.year);
+            if (this.setup.mode === 'challenge') filtered = filtered.filter(q => q.source && !/^practice$/i.test(q.year || '') );
+        }
         if (!filtered.length) { this.showDataError('এই ফিল্টারে কোনো বৈধ প্রশ্ন পাওয়া যায়নি।'); return []; }
         for (let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
         return filtered.slice(0,Math.min(count,filtered.length)).map(q=>{
@@ -1090,10 +1096,14 @@ class MedicalExamApp {
 
     prepareExamFromSetup() {
         if (!this.questionsLoaded || !this.questionBank.length) { this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।'); return; }
-        const count = this.setup.mode === 'previousQuiz' ? this.questionBank.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear).length : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
-        const questions = this.shuffleQuestionsAndOptions(this.questionBank, count);
+        const previousYearQuestions = this.setup.mode === 'previousQuiz'
+            ? this.questionBank.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear)
+            : null;
+        const count = this.setup.mode === 'previousQuiz' ? previousYearQuestions.length : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
+        const questions = this.shuffleQuestionsAndOptions(previousYearQuestions || this.questionBank, count);
         if (!questions.length) return;
-        this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: document.getElementById('setup-year')?.value || 'all', durationMins: this.setup.durationMins };
+        const examYear = this.setup.mode === 'previousQuiz' ? this.previousSelectedYear : (document.getElementById('setup-year')?.value || 'all');
+        this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: examYear, durationMins: this.setup.durationMins };
         this.renderExamIntro();
         this.showView('exam-intro');
     }
