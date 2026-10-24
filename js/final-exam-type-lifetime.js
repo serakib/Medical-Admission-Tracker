@@ -19,6 +19,8 @@
   function installExamTypeUI() {
     const setup=document.getElementById('view-setup'), counts=document.getElementById('setup-question-count-options');
     if(!setup || !counts) return;
+    const timeControl=setup.querySelector('.time-btn')?.closest('.space-y-2');
+    if(timeControl)timeControl.remove();
     let panel=document.getElementById('final-exam-type-panel');
     if(!panel) {
       panel=document.createElement('section'); panel.id='final-exam-type-panel';
