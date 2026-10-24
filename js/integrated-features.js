@@ -724,7 +724,7 @@
     const panel = document.createElement('section');
     panel.id = 'student-preferences-panel';
     panel.className = 'enhanced-panel';
-    panel.innerHTML = '<h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion. Built by Rakib Hasan.</p>';
+    panel.innerHTML = '<h3>Settings & Support</h3><label class="palette-settings-choice"><input id="weekly-reset-setting" type="checkbox"><span><strong>Weekly leaderboard reset</strong><small style="display:block;color:var(--muted);margin-top:3px">Weekly ranking starts a new week; lifetime XP and points remain unchanged.</small></span></label><div class="enhanced-actions" style="margin-top:12px"><button type="button" id="about-app-action">About App</button><button type="button" id="about-me-action">About Me</button><a class="enhanced-small-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer">Help & Support · Telegram</a><a class="enhanced-small-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Student Blog</a></div><p id="about-app-copy" class="enhanced-empty" hidden>Medical Admission Tracker — a student exam and progress companion.</p><p id="about-me-copy" class="enhanced-empty" hidden>Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p>';
     const current = localStorage.getItem('med_weekly_reset_enabled_v1');
     panel.querySelector('#weekly-reset-setting').checked = current !== 'false';
     panel.querySelector('#weekly-reset-setting').addEventListener('change', e => {
@@ -734,6 +734,10 @@
     });
     panel.querySelector('#about-app-action').onclick = () => {
       const copy = panel.querySelector('#about-app-copy');
+      copy.hidden = !copy.hidden;
+    };
+    panel.querySelector('#about-me-action').onclick = () => {
+      const copy = panel.querySelector('#about-me-copy');
       copy.hidden = !copy.hidden;
     };
     root.appendChild(panel);
