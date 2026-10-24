@@ -716,21 +716,8 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  const rankFor = points => {
-    const tiers = [
-      ['Bronze',0],['Bronze',100],['Bronze',250],['Bronze',450],['Bronze',700],
-      ['Silver',1000],['Silver',1400],['Silver',1850],['Silver',2350],['Silver',2900],
-      ['Gold',3500],['Gold',4200],['Gold',4950],['Gold',5750],['Gold',6600],
-      ['Platinum',7500],['Platinum',8500],['Platinum',9550],['Platinum',10650],['Platinum',11800],
-      ['Master',13000],['Master',14500],['Master',16100],['Master',17800],['Master',19600],
-      ['Pro',21500],['Pro',24000],['Pro',27000],['Pro',30500],['Pro',34500]
-    ];
-    let index = 0;
-    tiers.forEach((tier, i) => { if (points >= tier[1]) index = i; });
-    const [name] = tiers[index];
-    const level = Math.min(5, Math.floor(index % 5) + 1);
-    return name + ' ' + ['V','IV','III','II','I'][level - 1];
-  };
+  // Every 150 Rank Points advances one rank; every 120 XP advances one account level.
+  const rankFor = points => 'Rank ' + (Math.floor(Math.max(0, Number(points) || 0) / 150) + 1);
   function ensureStudentSettings() {
     // App-wide preferences now live exclusively under the sidebar's App Settings.
     const root = document.getElementById('view-profile');
@@ -751,9 +738,10 @@
     }
     const progress = readProgress();
     const xp = Math.max(0, Number(progress.xp) || 0);
-    const level = Math.floor(xp / 500) + 1;
-    const next = level * 500;
-    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Level ' + level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, next - xp) + ' XP to next level · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
+    const level = Math.floor(xp / 120) + 1;
+    const next = level * 120;
+    const levelProgress = Math.round((xp - ((level - 1) * 120)) / 120 * 100);
+    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Level ' + level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, next - xp) + ' XP to next level · ' + levelProgress + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
   }
   function ensureLogoutState() {
     const root = document.getElementById('view-profile');
