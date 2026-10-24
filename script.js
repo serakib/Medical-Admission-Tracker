@@ -1608,7 +1608,10 @@ window.handleLogout = function() {
     const state = this.examState;
     if (!state || state.submitted) return originalSubmitExamForProgress(autoSubmitted);
     let correct = 0;
-    (state.questions || []).forEach((q, i) => { if (state.userAnswers?.[i] === q.answer) correct++; });
+    (state.questions || []).forEach((q, i) => {
+      const raw = Number.isInteger(q?.answer) ? q.answer : (Number.isInteger(q?.correctAnswer) ? q.correctAnswer : 'ABCD'.indexOf(String(q?.correctAnswer || '').toUpperCase()));
+      if (state.userAnswers?.[i] === raw) correct++;
+    });
     const attemptId = String(state.startedAt || Date.now());
     const progress = readProgress();
     const alreadyRewarded = progress.rewarded.includes(attemptId);
