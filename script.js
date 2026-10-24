@@ -1549,7 +1549,7 @@ window.handleLogout = function() {
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), weeklyRankPoints: Math.max(0, Number(data.weeklyRankPoints) || 0), weekKey: String(data.weekKey || ''), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
@@ -1641,14 +1641,7 @@ window.handleLogout = function() {
     if (!alreadyRewarded && state.submitted) {
       progress.rankPoints += correct * 10;
       const now = new Date();
-      const weekDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-      weekDate.setUTCDate(weekDate.getUTCDate() + 4 - (weekDate.getUTCDay() || 7));
-      const yearStart = new Date(Date.UTC(weekDate.getUTCFullYear(), 0, 1));
-      const weekKey = weekDate.getUTCFullYear() + '-W' + String(Math.ceil((((weekDate - yearStart) / 86400000) + 1) / 7)).padStart(2, '0');
-      if (progress.weekKey !== weekKey && localStorage.getItem('med_weekly_reset_enabled_v1') !== 'false') { progress.weeklyRankPoints = 0; progress.weekKey = weekKey; }
-      if (!progress.weekKey) progress.weekKey = weekKey;
-      progress.weeklyRankPoints += correct * 10;
-      progress.xp += 20;
+            progress.xp += 20;
       progress.completedExams += 1;
       const today = new Date().toISOString().slice(0, 10);
       const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -1667,8 +1660,6 @@ window.handleLogout = function() {
           name: this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student',
           college: this.profile?.college || oldRow.college || '',
           rankPoints: progress.rankPoints,
-          weeklyRankPoints: progress.weeklyRankPoints,
-          rankWeekKey: progress.weekKey,
           xp: progress.xp,
           level: Math.floor(progress.xp / 120) + 1,
           updatedAtMs: Date.now()
@@ -1679,8 +1670,7 @@ window.handleLogout = function() {
         if (this.firestore) {
           setDoc(doc(this.firestore, 'leaderboard', uid), {
             uid, name: rankRow.name, college: rankRow.college,
-            rankPoints: progress.rankPoints, weeklyRankPoints: progress.weeklyRankPoints,
-            rankWeekKey: progress.weekKey, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
+            rankPoints: progress.rankPoints, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
           }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
         }
       }
