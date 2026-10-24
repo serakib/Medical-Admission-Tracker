@@ -479,7 +479,7 @@ class MedicalExamApp {
         if(!this.previousSelectedYear) return; const qs=this.questionBank.filter(q=>q.year===this.previousSelectedYear&&q.isPreviousYear); document.getElementById('previous-selected-year').textContent=this.t(`Previous Year ${this.previousSelectedYear}`,`বিগত বছর ${this.previousSelectedYear}`); document.getElementById('previous-count').textContent=this.t(`${qs.length} questions — read-only mode`,`${qs.length}টি প্রশ্ন — শুধু দেখার জন্য`); document.getElementById('previous-answer-toggle').textContent=this.previousShowAnswers?this.t('Hide Answers','উত্তর লুকান'):this.t('Show Answers','উত্তর দেখুন');
         const box=document.getElementById('previous-question-list'); box.innerHTML=''; qs.forEach((q,i)=>{ const card=document.createElement('article'); card.className='bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700'; const opts=q.options.map((o,j)=>`<div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-sm"><b>${'ABCD'[j]}.</b> ${this.escapeHtml(this.getLocalizedOption(q,j))}</div>`).join(''); card.innerHTML=`<div class="flex justify-between gap-3 mb-3"><span class="text-xs font-bold text-medical-600">${this.escapeHtml(q.subject)}</span><span class="text-xs text-gray-500">${this.escapeHtml(q.year)} • ${this.t('Previous Year','পূর্ববর্তী বছর')}</span></div><h3 class="font-bold text-gray-900 dark:text-white leading-relaxed">${i+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h3><div class="grid gap-2 mt-4">${opts}</div>${this.previousShowAnswers?`<div class="mt-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-sm text-emerald-800 dark:text-emerald-300"><b>${this.t('Correct Answer','সঠিক উত্তর')}:</b> ${q.correctAnswer}<br>${this.escapeHtml(q.explanation||'')}</div>`:''}`; box.appendChild(card); });
     }
-    startPreviousYearQuiz(){ if(!this.previousSelectedYear) return; this.setup.mode='previousQuiz'; this.setup.subject='all'; this.setup.questionsCount=Math.min(20,this.questionBank.filter(q=>q.year===this.previousSelectedYear&&q.isPreviousYear).length); this.setup.durationMins=10; const ys=document.getElementById('setup-year'); if(ys) ys.value=this.previousSelectedYear; this.prepareExamFromSetup(); }
+    startPreviousYearQuiz(){ if(!this.previousSelectedYear) return; this.setup.mode='previousQuiz'; this.setup.subject='all'; this.setup.questionsCount=this.questionBank.filter(q=>q.year===this.previousSelectedYear&&q.isPreviousYear).length; this.setup.durationMins=Math.max(1,Math.ceil(this.setup.questionsCount*0.6)); const ss=document.getElementById('setup-subject'); if(ss) ss.value='all'; const ys=document.getElementById('setup-year'); if(ys) ys.value=this.previousSelectedYear; this.prepareExamFromSetup(); }
 
     async loadUserProfile(){ if(!this.firestore||!this.authUser) return; try{ const snap=await getDoc(doc(this.firestore, 'students', this.authUser.uid)); this.profile=snap.exists()?snap.data():{name:this.authUser.displayName||'',email:this.authUser.email||''}; this.loadProgressStats(); }catch(e){console.warn('Profile load failed',e);} }
 
@@ -1090,10 +1090,10 @@ class MedicalExamApp {
 
     prepareExamFromSetup() {
         if (!this.questionsLoaded || !this.questionBank.length) { this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।'); return; }
-        const count = (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 20 : this.setup.questionsCount;
+        const count = this.setup.mode === 'previousQuiz' ? this.questionBank.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear).length : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
         const questions = this.shuffleQuestionsAndOptions(this.questionBank, count);
         if (!questions.length) return;
-        this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: document.getElementById('setup-year')?.value || 'all', durationMins: (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : this.setup.durationMins };
+        this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: document.getElementById('setup-year')?.value || 'all', durationMins: this.setup.durationMins };
         this.renderExamIntro();
         this.showView('exam-intro');
     }
@@ -1105,7 +1105,7 @@ class MedicalExamApp {
         document.getElementById('exam-intro-subtitle').textContent = this.t('Read the rules before you start. Your timer begins only after you press Start Exam.','শুরু করার আগে নিয়মগুলো পড়ে নিন। Start Exam চাপার পরই সময় গণনা শুরু হবে।');
         document.getElementById('exam-intro-start').textContent = this.t('Start Exam','পরীক্ষা শুরু করুন');
         const rules = (cfg.mode === 'challenge' || cfg.mode === 'previousQuiz')
-            ? [this.t('20 MCQ questions','২০টি MCQ প্রশ্ন'), this.t('Time limit: 10 minutes','সময়: ১০ মিনিট'), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('Leaving the exam requires submitting it first','পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')]
+            ? [this.t(`${cfg.questions.length} MCQ questions`,`${cfg.questions.length}টি MCQ প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('Leaving the exam requires submitting it first','পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')]
             : [this.t(`${cfg.questions.length} questions` ,`${cfg.questions.length}টি প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('You cannot leave without submitting the exam','জমা না দিয়ে পরীক্ষা থেকে বের হওয়া যাবে না'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')];
         document.getElementById('exam-intro-rules').innerHTML = rules.map(x => `<li>• ${this.escapeHtml(x)}</li>`).join('');
         document.getElementById('exam-intro-stats').innerHTML = [
@@ -1566,16 +1566,16 @@ window.handleLogout = function() {
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
-  const durationFor = (count) => Math.max(1, Math.round(Number(count || 0) * 0.5));
+  const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
-  const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count) + ' minutes (automatic) · Source: all Question Bank questions';
+  const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count, 0.6) + ' minutes (automatic) · Source: all Question Bank questions';
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
     originalSetSetupQuestions(count);
     if (this.setup.mode === 'model') {
       const selectedCount = modelCounts.includes(Number(count)) ? Number(count) : 50;
       this.setup.questionsCount = selectedCount;
-      this.setup.durationMins = durationFor(selectedCount);
+      this.setup.durationMins = durationFor(selectedCount, 0.6);
       this.setup.subject = 'all';
       const subjectSelect = document.getElementById('setup-subject');
       if (subjectSelect) subjectSelect.value = 'all';
@@ -1614,7 +1614,7 @@ window.handleLogout = function() {
       if (mode === 'model') {
         this.setup.questionsCount = modelCounts.includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
         this.setup.subject = 'all';
-        this.setup.durationMins = durationFor(this.setup.questionsCount);
+        this.setup.durationMins = durationFor(this.setup.questionsCount, 0.6);
         const subjectSelect = document.getElementById('setup-subject');
         if (subjectSelect) subjectSelect.value = 'all';
         const yearSelect = document.getElementById('setup-year');
@@ -1632,7 +1632,7 @@ window.handleLogout = function() {
       if (subjectSelect) subjectSelect.value = 'all';
       const yearSelect = document.getElementById('setup-year');
       if (yearSelect) yearSelect.value = 'all';
-      this.setup.durationMins = durationFor(this.setup.questionsCount);
+      this.setup.durationMins = durationFor(this.setup.questionsCount, 0.6);
     } else if (this.setup.mode === 'random') {
       this.setup.durationMins = durationFor(this.setup.questionsCount);
     }
