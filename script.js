@@ -1681,6 +1681,7 @@ window.handleLogout = function() {
           college: this.profile?.college || oldRow.college || '',
           rankPoints: progress.rankPoints,
           weeklyRankPoints: progress.weeklyRankPoints,
+          rankWeekKey: progress.weekKey,
           xp: progress.xp,
           level: Math.floor(progress.xp / 120) + 1,
           updatedAtMs: Date.now()
@@ -1692,7 +1693,7 @@ window.handleLogout = function() {
           setDoc(doc(this.firestore, 'leaderboard', uid), {
             uid, name: rankRow.name, college: rankRow.college,
             rankPoints: progress.rankPoints, weeklyRankPoints: progress.weeklyRankPoints,
-            xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
+            rankWeekKey: progress.weekKey, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
           }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
         }
       }
