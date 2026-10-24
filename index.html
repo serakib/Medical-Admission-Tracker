@@ -404,14 +404,7 @@ function toggleAccountSettingInfo(id){
   var item=document.getElementById(id);
   if(item)item.hidden=!item.hidden;
 }
-(function restoreWeeklyResetPreference(){
-  var input=document.getElementById('weekly-reset-setting');
-  if(!input)return;
-  try{input.checked=localStorage.getItem('med_weekly_reset_enabled_v1')!=='false';}catch(_e){input.checked=true;}
-  input.addEventListener('change',function(){
-    try{localStorage.setItem('med_weekly_reset_enabled_v1',input.checked?'true':'false');}catch(_e){}
-  });
-})();
+
 function closeAppSidebar(){
   var s=document.getElementById('app-sidebar'),o=document.getElementById('sidebar-overlay'),t=document.getElementById('sidebar-toggle');
   if(s)s.classList.remove('sidebar-open');
@@ -556,11 +549,7 @@ function toggleAppSidebarCollapse(){
                     <div><strong class="block">Appearance / Theme</strong><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Light বা dark theme বেছে নিন।</p></div>
                     <button class="ghost-btn" type="button" onclick="window.app.toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> Toggle theme</button>
                 </div>
-                <label class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4 cursor-pointer" for="weekly-reset-setting">
-                    <span><strong class="block">Weekly Leaderboard Reset</strong><small class="block mt-1 text-gray-500 dark:text-gray-400">Weekly ranking preference; lifetime XP and Rank Points remain unchanged.</small></span>
-                    <input id="weekly-reset-setting" type="checkbox" style="accent-color:#10b981;width:18px;height:18px">
-                </label>
-                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                     <button class="ghost-btn" type="button" onclick="toggleAccountSettingInfo('about-app-copy')"><i class="fa-solid fa-circle-info"></i> About App</button>
                     <p id="about-app-copy" hidden class="mt-3 text-sm text-gray-600 dark:text-gray-300">Medical Admission Tracker — a student exam and progress companion.</p>
                 </div>
@@ -840,24 +829,8 @@ function toggleAppSidebarCollapse(){
             <div id="question-bank-list" class="bank-list"></div>
         </section>
 
-        <!-- VIEW: PRACTICE -->
-        <section id="view-practice" class="view-section hidden max-w-4xl mx-auto space-y-5">
-          <div class="section-hero"><div><span class="eyebrow">Practice Lab</span><h2>Practice</h2><p>প্রথমে Browser Mode-এ প্রশ্ন দেখুন; চাইলে Start Quiz চাপুন।</p></div></div>
-          <div class="practice-mode-actions"><p class="text-sm text-gray-500 dark:text-gray-400">Browser Mode-এ প্রশ্ন পড়ুন ও উত্তর দেখুন। কুইজের timer শুরু হবে শুধু Start Quiz চাপলে।</p><button id="practice-start-btn" class="practice-start-btn" type="button" onclick="window.app.startPracticeFromBrowser()"><i class="fa-solid fa-play ml-2"></i> Start Quiz</button></div>
-          <div id="practice-browser" class="space-y-4">
-            <div class="rounded-2xl border border-emerald-200 dark:border-emerald-900/60 bg-white dark:bg-gray-800 p-5">
-              <div class="flex items-center gap-3"><span class="grid place-items-center w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"><i class="fa-solid fa-book-open text-lg"></i></span><div><h3 class="font-extrabold text-lg">Practice Browser</h3><p class="text-sm text-gray-500 dark:text-gray-400">প্রশ্ন ব্যাংকে বিষয়ভিত্তিক প্রশ্ন, অপশন এবং উত্তর দেখার সুবিধা ব্যবহার করুন।</p></div></div>
-              <div class="mt-4 flex flex-wrap items-center gap-3"><button class="primary-btn" type="button" onclick="window.app.openQuestionBank('view')"><i class="fa-solid fa-list ml-1"></i> প্রশ্ন ব্যাংক খুলুন</button><span id="practice-browser-count" class="text-xs font-bold text-gray-500 dark:text-gray-400" role="status" aria-live="polite">প্রশ্ন লোড হচ্ছে…</span></div>
-            </div>
-            <div id="practice-browser-list" class="bank-list" aria-live="polite">
-              <article class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5"><h3 class="font-bold text-gray-900 dark:text-white">প্রশ্ন লোড হচ্ছে</h3><p class="mt-2 text-sm text-gray-600 dark:text-gray-300">প্রশ্ন ব্যাংক প্রস্তুত হলেই এখানে প্রশ্ন, অপশন ও উত্তর দেখার বাটন আসবে।</p></article>
-            </div>
-          </div>
-          <div id="practice-quiz-view" hidden class="space-y-5">
-            <div class="section-toolbar"><div class="flex items-center gap-4"><span class="practice-score-chip"><span>Score</span><strong id="practice-score">0</strong></span><span id="practice-progress">Question 1 of 10</span></div><div class="practice-timer-box" style="font-weight:bold;color:#e74c3c;">সময় বাকি: <span id="practice-timer">10:00</span></div></div>
-            <div id="practice-question"></div><div class="practice-nav"><button class="ghost-btn" onclick="window.app.prevPractice()"><i class="fa-solid fa-arrow-right"></i> Previous</button><button class="primary-btn" onclick="window.app.nextPractice()">Next <i class="fa-solid fa-arrow-left"></i></button></div>
-          </div>
-        </section>
+        <!-- VIEW: PRACTICE (legacy route redirects directly to Model Test) -->
+        <section id="view-practice" class="view-section hidden" aria-hidden="true"></section>
 
         <!-- VIEW: EXAM INTRO / INSTRUCTIONS -->
         <section id="view-exam-intro" class="view-section hidden max-w-3xl mx-auto space-y-6">
@@ -1288,16 +1261,14 @@ function toggleAppSidebarCollapse(){
         <!-- VIEW: LEADERBOARD -->
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Challenge and previous-year quiz points build your ranking. Weekly points reset by week.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">All-time Rank Points determine the leaderboard. Friends shows students from your college.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
                 <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Leaderboard period">
-  <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="true" class="leaderboard-period-tab is-active px-4 py-2 rounded-xl text-sm font-bold border">Weekly</button>
   <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">All Time</button>
   <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">Friends</button>
 </div>
 <div id="leaderboard-period-note" class="hidden mb-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200" role="status"></div>
 
-                <div class="league-banner" aria-label="League progress"><div class="league-banner-title">Weekly League</div><div class="league-shields" aria-hidden="true"><span class="league-shield side"><i class="fa-solid fa-shield"></i></span><span class="league-shield center"><i class="fa-solid fa-trophy"></i></span><span class="league-shield side"><i class="fa-solid fa-shield-halved"></i></span></div><div class="league-progress-meta"><span>0</span><span>League progress</span><span>100</span></div><div class="league-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div></div>
                 <div id="leaderboard-podium" class="leaderboard-podium"></div>
                 <div id="leaderboard-me" class="leaderboard-me hidden"></div>
                 <div id="leaderboard-list" class="leaderboard-table-wrap"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-right border-b border-gray-200 dark:border-gray-700"><th class="py-3 px-3">Student</th><th class="py-3 px-3">College</th><th class="py-3 px-3">Quizzes</th><th class="py-3 px-3">Accuracy</th><th class="py-3 px-3">Rank / Points</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div></div>
@@ -1518,5 +1489,6 @@ function toggleAppSidebarCollapse(){
 <script type="module" src="script.js"></script>
 <script type="module" src="./js/integrated-features.js"></script>
 <script src="./js/final-trophy-practice.js" defer></script>
+    <script src="./js/final-exam-type-lifetime.js" defer></script>
 </body>
 </html>

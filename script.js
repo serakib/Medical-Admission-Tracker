@@ -555,42 +555,21 @@ class MedicalExamApp {
         const mine=this.authUser?.uid ? safe.find(x=>x.uid===this.authUser.uid) : null;
         if(me && mine){ me.classList.remove('hidden'); me.innerHTML=`<div><span>Your Position</span><strong>#${safe.indexOf(mine)+1}</strong></div><div><b>${this.escapeHtml(mine.name||'Student')}</b><small>${Number(mine.accuracy||0).toFixed(1)}% accuracy • ${Number(mine.points||0)} points</small></div>`; }
     }
-    getCurrentWeekKey(date = new Date()){
-        const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
-        const day=d.getUTCDay()||7;
-        d.setUTCDate(d.getUTCDate()+4-day);
-        const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-        const week=Math.ceil((((d-yearStart)/86400000)+1)/7);
-        return `${d.getUTCFullYear()}-W${String(week).padStart(2,'0')}`;
-    }
-
-    updateProfileRanks(rows=[]){
+    updateProfileRanks(rows=[]) {
         const liveEl=document.getElementById('profile-live-rank');
         const bestEl=document.getElementById('profile-best-rank');
         const uid=this.authUser?.uid||'guest_local';
-        const safe=Array.isArray(rows)?rows:[];
-        const weekKey=this.getCurrentWeekKey();
-        const weekly=safe.filter(row=>row.weekKey===weekKey&&Number(row.weeklyPoints||0)>0)
-            .sort((a,b)=>Number(b.weeklyPoints||0)-Number(a.weeklyPoints||0));
-        const liveIndex=weekly.findIndex(row=>row.uid===uid);
-        if(liveEl)liveEl.textContent=liveIndex>=0?`#${liveIndex+1}`:'—';
-        const myWeekly=weekly.find(row=>row.uid===uid);
-        const progress=Math.max(0,Math.min(100,Math.round(Number(myWeekly?.weeklyPoints||0)/10)));
-        const progressBar=document.querySelector('.league-progress span');
-        const progressTrack=document.querySelector('.league-progress[role="progressbar"]');
-        if(progressBar)progressBar.style.width=`${progress}%`;
-        if(progressTrack)progressTrack.setAttribute('aria-valuenow',String(progress));
-        const progressText=document.querySelector('.league-progress-meta span:nth-child(2)');
-        if(progressText)progressText.textContent=`Weekly progress • ${progress}%`;
-        const currentIndex=safe.findIndex(row=>row.uid===uid);
-        const bestKey=`med_best_rank_${uid}`;
-        let best=Number(localStorage.getItem(bestKey)||0);
-        if(currentIndex>=0){
-            const currentRank=currentIndex+1;
-            if(!best||currentRank<best)best=currentRank;
-            localStorage.setItem(bestKey,String(best));
-        }
-        if(bestEl)bestEl.textContent=best?`#${best}`:'—';
+        const safe=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>Number(b.rankPoints??b.points??0)-Number(a.rankPoints??a.points??0));
+        const index=safe.findIndex(row=>row.uid===uid);
+        if(liveEl)liveEl.textContent=index>=0?'#'+(index+1):'—';
+        if(bestEl)bestEl.textContent=index>=0?'#'+(index+1):'—';
+        const mine=safe.find(row=>row.uid===uid);
+        const points=Math.max(0,Number(mine?.rankPoints??mine?.points??0));
+        const progress=Math.max(0,Math.min(100,Math.round((points%150)/150*100)));
+        const bar=document.querySelector('.league-progress span');
+        const track=document.querySelector('.league-progress[role="progressbar"]');
+        if(bar)bar.style.width=progress+'%';
+        if(track)track.setAttribute('aria-valuenow',String(progress));
     }
 
     async recordLeaderboardResult({correctCount,wrongCount,totalQuestions,quizPoints,accuracy}){
@@ -600,9 +579,7 @@ class MedicalExamApp {
         const current=this.getLocalLeaderboardRows().find(x=>x.uid===uid)||{uid,name,college,points:0,quizzes:0,correct:0,answered:0};
         const nextCorrect=Number(current.correct||0)+Number(correctCount||0);
         const nextAnswered=Number(current.answered||0)+Number(correctCount||0)+Number(wrongCount||0);
-        const weekKey=this.getCurrentWeekKey();
-        const weeklyPoints=Number(current.weekKey===weekKey?current.weeklyPoints:0)+Number(quizPoints||0);
-        const updated={...current,name,college,points:Number(current.points||0)+Number(quizPoints||0),weeklyPoints,weekKey,quizzes:Number(current.quizzes||0)+1,correct:nextCorrect,answered:nextAnswered,accuracy:Number((nextCorrect/Math.max(1,nextAnswered)*100).toFixed(1)),updatedAtMs:Date.now(),isDemo:false};
+        const updated={...current,name,college,points:Number(current.points||0)+Number(quizPoints||0),quizzes:Number(current.quizzes||0)+1,correct:nextCorrect,answered:nextAnswered,accuracy:Number((nextCorrect/Math.max(1,nextAnswered)*100).toFixed(1)),updatedAtMs:Date.now(),isDemo:false};
         const rows=this.getLocalLeaderboardRows().filter(x=>x.uid!==uid);
         rows.push(updated);
         const merged=this.mergeLeaderboardRows(rows);
@@ -624,7 +601,7 @@ class MedicalExamApp {
             
             await runTransaction(this.firestore, async tx=>{
                 tx.set(attemptRef,{uid:this.authUser.uid,quizPoints:Number(meta.quizPoints)||0,correct:Number(meta.correctCount)||0,wrong:Number(meta.wrongCount)||0,total:Number(meta.totalQuestions)||0,accuracy:Number(meta.accuracy)||0,createdAt:serverTimestamp()});
-                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,weeklyPoints:updated.weeklyPoints||0,weekKey:updated.weekKey||this.getCurrentWeekKey(),quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
+                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
             });
             this.setLeaderboardSyncQueue(this.getLeaderboardSyncQueue().filter(x=>x.uid!==updated.uid));
             return true;
@@ -1572,7 +1549,7 @@ window.handleLogout = function() {
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), weeklyRankPoints: Math.max(0, Number(data.weeklyRankPoints) || 0), weekKey: String(data.weekKey || ''), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
@@ -1664,14 +1641,7 @@ window.handleLogout = function() {
     if (!alreadyRewarded && state.submitted) {
       progress.rankPoints += correct * 10;
       const now = new Date();
-      const weekDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-      weekDate.setUTCDate(weekDate.getUTCDate() + 4 - (weekDate.getUTCDay() || 7));
-      const yearStart = new Date(Date.UTC(weekDate.getUTCFullYear(), 0, 1));
-      const weekKey = weekDate.getUTCFullYear() + '-W' + String(Math.ceil((((weekDate - yearStart) / 86400000) + 1) / 7)).padStart(2, '0');
-      if (progress.weekKey !== weekKey && localStorage.getItem('med_weekly_reset_enabled_v1') !== 'false') { progress.weeklyRankPoints = 0; progress.weekKey = weekKey; }
-      if (!progress.weekKey) progress.weekKey = weekKey;
-      progress.weeklyRankPoints += correct * 10;
-      progress.xp += 20;
+            progress.xp += 20;
       progress.completedExams += 1;
       const today = new Date().toISOString().slice(0, 10);
       const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -1690,8 +1660,6 @@ window.handleLogout = function() {
           name: this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student',
           college: this.profile?.college || oldRow.college || '',
           rankPoints: progress.rankPoints,
-          weeklyRankPoints: progress.weeklyRankPoints,
-          rankWeekKey: progress.weekKey,
           xp: progress.xp,
           level: Math.floor(progress.xp / 120) + 1,
           updatedAtMs: Date.now()
@@ -1702,8 +1670,7 @@ window.handleLogout = function() {
         if (this.firestore) {
           setDoc(doc(this.firestore, 'leaderboard', uid), {
             uid, name: rankRow.name, college: rankRow.college,
-            rankPoints: progress.rankPoints, weeklyRankPoints: progress.weeklyRankPoints,
-            rankWeekKey: progress.weekKey, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
+            rankPoints: progress.rankPoints, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
           }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
         }
       }
