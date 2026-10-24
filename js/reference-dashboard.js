@@ -130,7 +130,7 @@
     window.setTimeout(updateAll, 1800);
     window.addEventListener('load', updateAll);
     window.addEventListener('storage', updateAll);
-    window.addEventListener('student-progress-updated', updateAll);
+    document.addEventListener('student-progress-updated', updateAll);
 
     if (typeof app.setAuthState === 'function' && !app.__rdAuthHook) {
       app.__rdAuthHook = true;
@@ -326,7 +326,7 @@
         if (picture) picture.textContent = button.dataset.rdAvatar;
         updateProfile();
         renderAvatars();
-        window.dispatchEvent(new CustomEvent('student-progress-updated'));
+        document.dispatchEvent(new CustomEvent('student-progress-updated'));
       });
     });
   }
