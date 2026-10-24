@@ -346,7 +346,16 @@ body.sidebar-collapsed{padding-left:70px!important}
 .sidebar-nav button:focus-visible,.sidebar-action:focus-visible,.sidebar-collapse-toggle:focus-visible,.student-profile-top-shortcut:focus-visible{outline:3px solid rgba(110,231,183,.8);outline-offset:2px}
 .student-profile-top-shortcut{position:fixed;top:14px;right:18px;z-index:9997;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 16px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(10,18,32,.96);color:#f8fafc;font-size:13px;font-weight:800;box-shadow:0 10px 28px rgba(0,0,0,.16);backdrop-filter:blur(14px);cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
 .student-profile-top-shortcut i{color:#6ee7b7;font-size:16px}.student-profile-top-shortcut:hover{transform:translateY(-1px);border-color:rgba(110,231,183,.7);background:#14243a}
-body.exam-active .student-profile-top-shortcut{display:none}
+body.exam-active .student-profile-top-shortcut,
+body.exam-active #app-sidebar,
+body.exam-active #sidebar-toggle,
+body.exam-active #sidebar-overlay{display:none!important}
+body.exam-active{padding-left:0!important;overflow-x:hidden}
+body.exam-active main{padding:12px!important;margin:0!important;width:100%!important;max-width:none!important}
+body.exam-active main>.view-section:not(#view-exam){display:none!important}
+body.exam-active #view-exam{display:block!important;width:100%;max-width:1100px;margin:0 auto}
+body.exam-active #view-exam .exam-header{position:sticky;top:0;z-index:100;background:inherit}
+body.exam-active .sidebar-open{transform:translateX(-105%)!important}
 main{min-width:0;box-sizing:border-box;padding-top:76px!important}
 #view-home>.medical-home-footer{width:100%!important;max-width:100%!important;margin-left:0!important}
 .account-action-card{display:flex;align-items:center;gap:14px;min-width:0;padding:20px;border:1px solid var(--line);border-radius:22px;background:var(--surface);box-shadow:var(--shadow-sm)}
