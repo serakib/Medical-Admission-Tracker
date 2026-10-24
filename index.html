@@ -377,12 +377,44 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
         <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar();setTimeout(function(){var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},100)" type="button"><i class="fa-solid fa-envelope"></i><span>Contact</span></button>
       </nav>
       <div class="sidebar-bottom">
-        <div class="sidebar-profile-row"><button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button><button id="question-palette-settings" class="sidebar-palette-settings" type="button" aria-label="Question Palette Settings" title="Question Palette Settings" onclick="window.openQuestionPaletteSettings()"><i class="fa-solid fa-sliders"></i><span class="sr-only">Question Palette Settings</span></button></div>
+        <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
         <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
+        <button id="app-settings-toggle" class="sidebar-action" type="button" aria-expanded="false" aria-controls="app-settings-content" onclick="toggleAppSettings()"><i class="fa-solid fa-gear"></i><span>App Settings</span><i class="fa-solid fa-chevron-down" style="margin-left:auto;font-size:.75rem"></i></button>
+        <div id="app-settings-content" hidden style="padding:6px 0 8px 12px;display:flex;flex-direction:column;gap:6px">
+          <button id="question-palette-settings" class="sidebar-action" type="button" aria-label="Question Palette Settings" onclick="closeAppSidebar();window.openQuestionPaletteSettings()"><i class="fa-solid fa-sliders"></i><span>Weekly Palette Settings</span></button>
+          <button class="sidebar-action" type="button" onclick="window.app.toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i><span>Appearance / Theme</span></button>
+          <label class="sidebar-action" for="weekly-reset-setting" style="display:flex;align-items:center;gap:10px;cursor:pointer"><i class="fa-solid fa-calendar-week"></i><span style="flex:1">Weekly Leaderboard Reset</span><input id="weekly-reset-setting" type="checkbox" style="accent-color:#10b981;width:16px;height:16px"></label>
+          <button class="sidebar-action" type="button" onclick="toggleSidebarSettingInfo('about-app-copy')"><i class="fa-solid fa-circle-info"></i><span>About App</span></button>
+          <div id="about-app-copy" hidden class="sidebar-setting-info" style="padding:8px 12px;font-size:.82rem">Medical Admission Tracker — a student exam and progress companion.</div>
+          <button class="sidebar-action" type="button" onclick="toggleSidebarSettingInfo('about-me-copy')"><i class="fa-solid fa-user"></i><span>About Me</span></button>
+          <div id="about-me-copy" hidden class="sidebar-setting-info" style="padding:8px 12px;font-size:.82rem">Built by Rakib Hasan. <a href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></div>
+          <a class="sidebar-action" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-telegram"></i><span>Help &amp; Support</span></a>
+          <a class="sidebar-action" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-blog"></i><span>Student Blog</span></a>
+        </div>
         <button class="sidebar-action login-action" onclick="window.redirectToLogin()" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
     </aside>
     <script>
+function toggleAppSettings(){
+  var content=document.getElementById('app-settings-content'),button=document.getElementById('app-settings-toggle');
+  if(!content||!button)return;
+  var open=content.hidden;
+  content.hidden=!open;
+  content.style.display=open?'flex':'none';
+  button.setAttribute('aria-expanded',String(open));
+}
+function toggleSidebarSettingInfo(id){
+  var item=document.getElementById(id);
+  if(item)item.hidden=!item.hidden;
+}
+(function restoreWeeklyResetPreference(){
+  var input=document.getElementById('weekly-reset-setting');
+  if(!input)return;
+  try{input.checked=localStorage.getItem('med_weekly_reset_enabled_v1')!=='false';}catch(_e){input.checked=true;}
+  input.addEventListener('change',function(){
+    try{localStorage.setItem('med_weekly_reset_enabled_v1',input.checked?'true':'false');}catch(_e){}
+  });
+})();
 function closeAppSidebar(){
   var s=document.getElementById('app-sidebar'),o=document.getElementById('sidebar-overlay'),t=document.getElementById('sidebar-toggle');
   if(s)s.classList.remove('sidebar-open');
@@ -511,21 +543,7 @@ function toggleAppSidebarCollapse(){
                     <div class="flex-1 min-w-0"><h3>Manage your account</h3><p>সমর্থিত account details ও sign-in controls খুলুন।</p></div>
                     <button class="ghost-btn" type="button" onclick="window.app.openAccountAuth('account')">Manage</button>
                 </article>
-                <article class="account-action-card">
-                    <span class="account-action-icon"><i class="fa-solid fa-sliders"></i></span>
-                    <div class="flex-1 min-w-0"><h3>Settings</h3><p>App appearance ও supported preferences পরিবর্তন করুন।</p></div>
-                    <button class="ghost-btn" type="button" aria-expanded="false" aria-controls="account-settings-panel" onclick="const panel=document.getElementById('account-settings-panel');const open=panel.classList.contains('hidden');panel.classList.toggle('hidden',!open);this.setAttribute('aria-expanded',String(open));if(open)panel.scrollIntoView({behavior:'smooth',block:'start'})">Settings</button>
-                </article>
             </div>
-            <section id="account-settings-panel" class="profile-panel space-y-4 hidden" aria-labelledby="account-settings-title">
-                <div class="profile-panel-head"><div><span class="eyebrow">Preferences</span><h3 id="account-settings-title">App Settings</h3></div><i class="fa-solid fa-gear" aria-hidden="true"></i></div>
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div><strong class="block">Appearance</strong><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Light বা dark theme বেছে নিন।</p><p id="account-theme-status" class="text-sm font-bold mt-2">Light mode</p></div>
-                    <button class="primary-btn" type="button" onclick="window.app.toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> Toggle theme</button>
-                </div>
-                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-sm leading-6 text-gray-600 dark:text-gray-300"><i class="fa-solid fa-circle-info text-emerald-600 mr-1" aria-hidden="true"></i> এই অ্যাপে একবারে একটি Firebase account active থাকে। অন্য account দিয়ে sign in করলে active account পরিবর্তিত হবে। Password সংরক্ষণ করা হয় না।</div>
-                <div class="flex justify-end"><button class="ghost-btn" type="button" onclick="if(confirm('আপনি কি sign out করতে চান?')) window.app.logout()"><i class="fa-solid fa-right-from-bracket"></i> Log out</button></div>
-            </section>
         </section>
 
         <!-- VIEW 1: HOME / DASHBOARD -->
