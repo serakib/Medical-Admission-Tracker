@@ -642,7 +642,7 @@
     paintLeaderboardPeriodTabs();
   }
   /* Human portrait avatar picker: people only, no animal avatars. */
-  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.profile-avatar-options{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:10px}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}}';document.head.appendChild(humanAvatarStyle);
+  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:10px}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}}';document.head.appendChild(humanAvatarStyle);
   /* Per-account avatar selection for the profile view. */
   const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
   const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
@@ -993,6 +993,35 @@ const oldAnswer=app.answerPractice.bind(app);app.answerPractice=function(index){
 const oldBrowser=app.renderPracticeBrowser?.bind(app);if(oldBrowser)app.renderPracticeBrowser=function(){const r=oldBrowser();setupPracticeUI();updatePracticeUI();return r};
 const oldAuth=app.setAuthState.bind(app);app.setAuthState=function(user,...args){const r=oldAuth(user,...args);renderSidebarAuth();renderRankCard();setupPracticeUI();updatePracticeUI();return r};
 const oldShow=app.showView.bind(app);app.showView=function(name,...args){const r=oldShow(name,...args);if(name==='profile')renderRankCard();if(name==='practice'){setupPracticeUI();updatePracticeUI()}renderSidebarAuth();return r};
-const oldLeaderboard=app.renderLeaderboardRows?.bind(app);if(oldLeaderboard)app.renderLeaderboardRows=function(rows){const result=oldLeaderboard(rows);document.querySelectorAll('#leaderboard-body .tracker-rank-badge,#leaderboard-podium .tracker-rank-badge,#leaderboard-me .tracker-rank-badge').forEach(el=>el.remove());const p=progress(),r=rank(p.rankPoints),live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name;return result};
+const oldLeaderboard=app.renderLeaderboardRows?.bind(app);
+const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
+function portraitForRow(row){
+  const uid=String(row?.uid||row?.name||'student');
+  if(app.authUser?.uid&&row?.uid===app.authUser.uid){
+    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);if(portraitChoices.includes(saved))return saved;}catch(_){}
+  }
+  let hash=0;for(let i=0;i<uid.length;i++)hash=((hash<<5)-hash+uid.charCodeAt(i))|0;
+  return portraitChoices[Math.abs(hash)%portraitChoices.length];
+}
+function paintLeaderboardPeople(rows){
+  const safe=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>Number(b.points||0)-Number(a.points||0));
+  document.querySelectorAll('#leaderboard-body .tracker-rank-badge,#leaderboard-podium .tracker-rank-badge,#leaderboard-me .tracker-rank-badge').forEach(el=>el.remove());
+  Array.from(document.querySelectorAll('#leaderboard-body tr.leader-row')).forEach((tr,i)=>{
+    const row=safe[i],avatar=tr.querySelector('.leader-avatar');if(!row||!avatar)return;
+    avatar.innerHTML='<img src="'+portraitForRow(row)+'" alt="Student avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    avatar.setAttribute('aria-label','Student portrait');
+  });
+  Array.from(document.querySelectorAll('#leaderboard-podium .podium-card')).forEach((card,i)=>{
+    const row=safe[i],avatar=card.querySelector('.podium-avatar');if(!row||!avatar)return;
+    avatar.innerHTML='<img src="'+portraitForRow(row)+'" alt="Student avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  });
+  const me=document.getElementById('leaderboard-me'),mine=safe.find(row=>row.uid&&row.uid===app.authUser?.uid);
+  if(me&&mine){let img=me.querySelector('.leaderboard-me-avatar');if(!img){img=document.createElement('img');img.className='leaderboard-me-avatar';img.alt='Your profile avatar';img.style.cssText='width:44px;height:44px;object-fit:cover;border-radius:50%;margin-inline-end:12px';me.prepend(img)}img.src=portraitForRow(mine)}
+}
+if(oldLeaderboard)app.renderLeaderboardRows=function(rows){
+  const result=oldLeaderboard(rows);paintLeaderboardPeople(rows);
+  const p=progress(),r=rank(p.rankPoints),live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');
+  if(live)live.textContent=r.name;if(best)best.textContent=r.name;return result
+};
 document.addEventListener('student-progress-updated',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});document.addEventListener('student-auth-state-changed',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});window.addEventListener('load',()=>{renderRankCard();renderSidebarAuth();setupPracticeUI();updatePracticeUI()});renderRankCard();renderSidebarAuth();setupPracticeUI();
 })();
