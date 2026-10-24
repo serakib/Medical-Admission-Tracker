@@ -32,7 +32,7 @@
         if(yearArea) yearArea.hidden=type!=='previous-year';
         if(type==='previous-year'){
           const yearSelect=document.getElementById('setup-year');
-          const years=[...new Set((app.questionBank||[]).filter(q=>q.isPreviousYear&&q.year).map(q=>String(q.year)))].sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
+          const years=[...new Set((app.questionBank||[]).filter(q=>q.year&&!/^practice$/i.test(String(q.year))).map(q=>String(q.year)))].sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
           if(yearSelect&&(!yearSelect.value||yearSelect.value==='all')&&years.length)yearSelect.value=years[0];
         }
         const help=document.getElementById('final-exam-type-help');
@@ -87,7 +87,7 @@
     let pool=this.questionBank.slice();
     if(type==='previous-year'){
       if(year==='all'){alert('পরীক্ষার আগে একটি নির্দিষ্ট বছর নির্বাচন করুন।');return;}
-      pool=pool.filter(q=>String(q.year)===String(year)&&Boolean(q.isPreviousYear));
+      pool=pool.filter(q=>String(q.year).trim()===String(year).trim());
     } else if(type==='wrong') pool=pool.filter(q=>Boolean(history[qKey(q)]?.wrong));
     else if(type==='skipped') pool=pool.filter(q=>Boolean(history[qKey(q)]?.skipped));
     else if(type==='reviewed') pool=pool.filter(q=>Boolean(history[qKey(q)]?.reviewed));
@@ -112,7 +112,7 @@
     questions.forEach((q,i)=>{
       const key=qKey(q), record=history[key]||{key,question:q,reviewed:false,wrong:false,skipped:false};
       if(answers[i]===null||answers[i]===undefined)record.skipped=true;
-      else if(answers[i]!==q.answer)record.wrong=true;
+      else { const correct = Number.isInteger(q.answer) ? q.answer : (Number.isInteger(q.correctAnswer) ? q.correctAnswer : 'ABCD'.indexOf(String(q.correctAnswer||'').toUpperCase())); if(answers[i]!==correct)record.wrong=true; }
       record.question=q;record.updatedAt=Date.now();history[key]=record;
     });
     writeHistory(history);
