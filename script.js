@@ -1093,7 +1093,7 @@ class MedicalExamApp {
         const count = this.setup.mode === 'previousQuiz' ? this.questionBank.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear).length : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
         const questions = this.shuffleQuestionsAndOptions(this.questionBank, count);
         if (!questions.length) return;
-        this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: document.getElementById('setup-year')?.value || 'all', durationMins: (this.setup.mode === 'challenge' || this.setup.mode === 'previousQuiz') ? 10 : this.setup.durationMins };
+        this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: document.getElementById('setup-year')?.value || 'all', durationMins: this.setup.durationMins };
         this.renderExamIntro();
         this.showView('exam-intro');
     }
@@ -1105,7 +1105,7 @@ class MedicalExamApp {
         document.getElementById('exam-intro-subtitle').textContent = this.t('Read the rules before you start. Your timer begins only after you press Start Exam.','শুরু করার আগে নিয়মগুলো পড়ে নিন। Start Exam চাপার পরই সময় গণনা শুরু হবে।');
         document.getElementById('exam-intro-start').textContent = this.t('Start Exam','পরীক্ষা শুরু করুন');
         const rules = (cfg.mode === 'challenge' || cfg.mode === 'previousQuiz')
-            ? [this.t('20 MCQ questions','২০টি MCQ প্রশ্ন'), this.t('Time limit: 10 minutes','সময়: ১০ মিনিট'), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('Leaving the exam requires submitting it first','পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')]
+            ? [this.t(`${cfg.questions.length} MCQ questions`,`${cfg.questions.length}টি MCQ প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('Leaving the exam requires submitting it first','পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')]
             : [this.t(`${cfg.questions.length} questions` ,`${cfg.questions.length}টি প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('You cannot leave without submitting the exam','জমা না দিয়ে পরীক্ষা থেকে বের হওয়া যাবে না'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')];
         document.getElementById('exam-intro-rules').innerHTML = rules.map(x => `<li>• ${this.escapeHtml(x)}</li>`).join('');
         document.getElementById('exam-intro-stats').innerHTML = [
