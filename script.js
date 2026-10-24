@@ -1566,16 +1566,16 @@ window.handleLogout = function() {
     } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
   };
   const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
-  const durationFor = (count) => Math.max(1, Math.round(Number(count || 0) * 0.5));
+  const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
-  const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count) + ' minutes (automatic) · Source: all Question Bank questions';
+  const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count, 0.6) + ' minutes (automatic) · Source: all Question Bank questions';
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
   app.setSetupQuestions = function(count) {
     originalSetSetupQuestions(count);
     if (this.setup.mode === 'model') {
       const selectedCount = modelCounts.includes(Number(count)) ? Number(count) : 50;
       this.setup.questionsCount = selectedCount;
-      this.setup.durationMins = durationFor(selectedCount);
+      this.setup.durationMins = durationFor(selectedCount, 0.6);
       this.setup.subject = 'all';
       const subjectSelect = document.getElementById('setup-subject');
       if (subjectSelect) subjectSelect.value = 'all';
@@ -1614,7 +1614,7 @@ window.handleLogout = function() {
       if (mode === 'model') {
         this.setup.questionsCount = modelCounts.includes(Number(this.setup.questionsCount)) ? Number(this.setup.questionsCount) : 50;
         this.setup.subject = 'all';
-        this.setup.durationMins = durationFor(this.setup.questionsCount);
+        this.setup.durationMins = durationFor(this.setup.questionsCount, 0.6);
         const subjectSelect = document.getElementById('setup-subject');
         if (subjectSelect) subjectSelect.value = 'all';
         const yearSelect = document.getElementById('setup-year');
