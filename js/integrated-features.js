@@ -988,7 +988,7 @@ const tiers=['Bronze','Silver','Gold','Platinum','Master','Pro'],roman=['V','IV'
 const pkey=()=>'med_account_progress_v1_'+(app.authUser?.uid||'guest');
 const progress=()=>{try{return JSON.parse(localStorage.getItem(pkey())||'{}')||{}}catch(_){return{}}};
 const rank=points=>{const n=Math.min(29,Math.floor(Math.max(0,Number(points)||0)/150));return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,points:Math.max(0,Number(points)||0),remaining:n>=29?0:(n+1)*150-Math.max(0,Number(points)||0)}};
-const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\\s+/g,' ').trim();
+const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
 const hkey=()=>'med_review_history_v2_'+(app.authUser?.uid||'guest');
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(hkey())||'{}')||{}}catch(_){return{}}};
 const record=q=>readHistory()[qkey(q)]||{};
