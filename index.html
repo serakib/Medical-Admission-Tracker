@@ -893,8 +893,8 @@ function toggleAppSidebarCollapse(){
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 shadow-md border border-gray-200 dark:border-gray-700 space-y-6">
                 <div class="border-b border-gray-100 dark:border-gray-700 pb-4 flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">পরীক্ষার সেটআপ নির্বাচন করুন</h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">আপনার পছন্দমতো বিষয়, প্রশ্ন সংখ্যা এবং সময় নির্ধারণ করুন</p>
+                        <h2 id="setup-title" class="text-2xl font-bold text-gray-900 dark:text-white">পরীক্ষার সেটআপ নির্বাচন করুন</h2>
+                        <p id="setup-subtitle" class="text-xs text-gray-500 dark:text-gray-400">আপনার পছন্দমতো বিষয়, প্রশ্ন সংখ্যা এবং সময় নির্ধারণ করুন</p>
                     </div>
                     <button onclick="window.app.showView('home')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <i class="fa-solid fa-xmark text-xl"></i>
@@ -902,7 +902,7 @@ function toggleAppSidebarCollapse(){
                 </div>
 
                 <!-- Exam Mode Options -->
-                <div class="space-y-2">
+                <div id="setup-mode-options" class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">পরীক্ষার টাইপ</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button type="button" id="setup-mode-random" onclick="window.app.setSetupMode('random')" class="mode-select-btn py-2.5 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-600 text-center hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -918,7 +918,7 @@ function toggleAppSidebarCollapse(){
                 </div>
 
                 <!-- Subject Selection -->
-                <div class="space-y-2">
+                <div id="setup-subject-area" class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">বিষয় নির্বাচন</label>
                     <select id="setup-subject" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-medical-500 focus:outline-none">
                         <option value="all">সকল বিষয় (All Subjects)</option>
@@ -931,7 +931,7 @@ function toggleAppSidebarCollapse(){
                 </div>
 
                 <!-- Year Filter -->
-                <div class="space-y-2">
+                <div id="setup-year-area" class="space-y-2">
                     <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">বছর নির্বাচন</label>
                     <select id="setup-year" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl py-3 px-4 text-sm font-medium focus:ring-2 focus:ring-medical-500 focus:outline-none">
                         <option value="all">সব বছর (All Years)</option>
@@ -940,7 +940,7 @@ function toggleAppSidebarCollapse(){
 
                 <!-- Question Count Options -->
                 <div class="space-y-2">
-                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">প্রশ্নের সংখ্যা</label>
+                    <label id="setup-question-count-label" class="block text-sm font-bold text-gray-700 dark:text-gray-300">প্রশ্নের সংখ্যা</label>
                     <div id="setup-question-count-options" class="grid grid-cols-5 gap-2">
                         <button type="button" onclick="window.app.setSetupQuestions(20)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">20</button>
                         <button type="button" onclick="window.app.setSetupQuestions(30)" class="q-count-btn py-2 text-xs sm:text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-600 text-center">30</button>
@@ -962,7 +962,7 @@ function toggleAppSidebarCollapse(){
                     </div>
                 </div>
 
-                <p id="model-test-fixed-note" class="hidden text-xs font-bold text-medical-700 dark:text-medical-300 rounded-xl border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 px-3 py-2">Model Test: Choose question count (marks) and time below</p>
+                <p id="model-test-fixed-note" class="hidden text-xs font-bold text-medical-700 dark:text-medical-300 rounded-xl border border-medical-200 dark:border-medical-800 bg-medical-50 dark:bg-medical-900/30 px-3 py-2">Model Test: Select marks. Questions come from the entire Question Bank and time is automatic.</p>
 
                 <!-- Exam Rules Info Note -->
                 <div class="p-4 bg-medical-50 dark:bg-medical-900/30 rounded-2xl border border-medical-100 dark:border-medical-800/50 text-xs text-medical-800 dark:text-medical-300 space-y-1">
