@@ -298,6 +298,17 @@ class MedicalExamApp {
 
     setAuthState(user, notice = '') {
         this.authUser = user || null;
+        const sidebarAuth = document.getElementById('sidebar-auth-action');
+        if (sidebarAuth) {
+            const loggedIn = Boolean(this.authUser?.uid);
+            sidebarAuth.innerHTML = loggedIn
+                ? '<i class="fa-solid fa-right-from-bracket"></i><span>Log Out</span>'
+                : '<i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign up</span>';
+            sidebarAuth.setAttribute('aria-label', loggedIn ? 'Log Out' : 'Log In / Sign up');
+            sidebarAuth.onclick = loggedIn
+                ? function () { if (typeof window.handleLogout === 'function') window.handleLogout(); }
+                : function () { if (typeof window.redirectToLogin === 'function') window.redirectToLogin(); };
+        }
         const button = document.getElementById('authStatusBtn');
         const icon = document.getElementById('authStatusIcon');
         const label = document.getElementById('authStatusLabel');
