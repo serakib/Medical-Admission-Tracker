@@ -582,6 +582,19 @@
     renderAccountList();
   });
 
+  // Keep account-scoped review history and remembered accounts in sync across views/tabs.
+  window.addEventListener('student-auth-state-changed', () => {
+    renderReviewPanel();
+    renderAccountList();
+    renderResultFilters();
+  });
+  window.addEventListener('storage', event => {
+    if (event.key === ACCOUNT_KEY || (event.key && event.key.startsWith('med_review_history_v2_'))) {
+      renderReviewPanel();
+      renderAccountList();
+    }
+  });
+
   /* Leaderboard period views use saved rows; Friends stays honest until friend links exist. */
   const leaderboardPeriodKey = 'med_leaderboard_period_v1';
   let leaderboardPeriod = ['weekly', 'all-time', 'friends'].includes(localStorage.getItem(leaderboardPeriodKey))
@@ -979,6 +992,18 @@
     syncFocusState();
     return result;
   };
+
+  // Rebind account-scoped UI whenever Firebase changes the active user.
+  if (typeof app.setAuthState === 'function') {
+    const originalSetAuthState = app.setAuthState.bind(app);
+    app.setAuthState = function(user, ...args) {
+      const result = originalSetAuthState(user, ...args);
+      window.dispatchEvent(new CustomEvent('student-auth-state-changed', {
+        detail: { uid: user?.uid || null }
+      }));
+      return result;
+    };
+  }
 
   // Covers initialization when a page is restored from browser history.
   syncFocusState();
