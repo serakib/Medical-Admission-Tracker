@@ -622,7 +622,9 @@
       const viewRows = latestLeaderboardRows.map(row => ({
         ...row,
         points: leaderboardPeriod === 'weekly'
-          ? Number(row.weekKey === week ? row.weeklyPoints : 0)
+          ? (localStorage.getItem('med_weekly_reset_enabled_v1') === 'false'
+              ? Number(row.points || 0)
+              : Number(row.weekKey === week ? row.weeklyPoints : 0))
           : Number(row.points || 0)
       }));
       return originalRenderLeaderboardRows(viewRows);
@@ -780,8 +782,5 @@
     return result;
   };
   document.addEventListener('student-progress-updated', renderChecklistExtras);
-  document.addEventListener('click', event => {
-    if (event.target.closest('[onclick*="showView(\\'profile\\'"]')) renderChecklistExtras();
-  });
   window.addEventListener('load', renderChecklistExtras);
 })();
