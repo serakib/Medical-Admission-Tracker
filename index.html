@@ -383,15 +383,14 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
       </div>
     </aside>
     <script>
-function toggleAppSettings(){
-  var content=document.getElementById('app-settings-content'),button=document.getElementById('app-settings-toggle');
+function toggleAccountSettings(){
+  var content=document.getElementById('account-settings-content'),button=document.getElementById('account-settings-toggle');
   if(!content||!button)return;
-  var open=content.hidden;
-  content.hidden=!open;
-  content.style.display=open?'flex':'none';
+  var open=content.classList.contains('hidden');
+  content.classList.toggle('hidden',!open);
   button.setAttribute('aria-expanded',String(open));
 }
-function toggleSidebarSettingInfo(id){
+function toggleAccountSettingInfo(id){
   var item=document.getElementById(id);
   if(item)item.hidden=!item.hidden;
 }
@@ -532,6 +531,38 @@ function toggleAppSidebarCollapse(){
                     <button class="ghost-btn" type="button" onclick="window.app.openAccountAuth('account')">Manage</button>
                 </article>
             </div>
+            <article class="account-action-card">
+                <span class="account-action-icon"><i class="fa-solid fa-gear"></i></span>
+                <div class="flex-1 min-w-0"><h3>App Settings</h3><p>অ্যাপের সব preference ও support link এখান থেকে পরিচালনা করুন।</p></div>
+                <button id="account-settings-toggle" class="ghost-btn" type="button" aria-expanded="false" aria-controls="account-settings-content" onclick="toggleAccountSettings()">Open settings</button>
+            </article>
+            <section id="account-settings-content" class="profile-panel space-y-4 hidden" aria-labelledby="account-settings-title">
+                <div class="profile-panel-head"><div><span class="eyebrow">Preferences</span><h3 id="account-settings-title">App Settings</h3></div><i class="fa-solid fa-gear" aria-hidden="true"></i></div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div><strong class="block">Question Palette Settings</strong><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">পরীক্ষার question palette-এর display preferences পরিবর্তন করুন।</p></div>
+                    <button id="question-palette-settings" class="ghost-btn" type="button" onclick="window.openQuestionPaletteSettings()"><i class="fa-solid fa-sliders"></i> Configure</button>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div><strong class="block">Appearance / Theme</strong><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Light বা dark theme বেছে নিন।</p></div>
+                    <button class="ghost-btn" type="button" onclick="window.app.toggleTheme()"><i class="fa-solid fa-circle-half-stroke"></i> Toggle theme</button>
+                </div>
+                <label class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4 cursor-pointer" for="weekly-reset-setting">
+                    <span><strong class="block">Weekly Leaderboard Reset</strong><small class="block mt-1 text-gray-500 dark:text-gray-400">Weekly ranking preference; lifetime XP and Rank Points remain unchanged.</small></span>
+                    <input id="weekly-reset-setting" type="checkbox" style="accent-color:#10b981;width:18px;height:18px">
+                </label>
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                    <button class="ghost-btn" type="button" onclick="toggleAccountSettingInfo('about-app-copy')"><i class="fa-solid fa-circle-info"></i> About App</button>
+                    <p id="about-app-copy" hidden class="mt-3 text-sm text-gray-600 dark:text-gray-300">Medical Admission Tracker — a student exam and progress companion.</p>
+                </div>
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                    <button class="ghost-btn" type="button" onclick="toggleAccountSettingInfo('about-me-copy')"><i class="fa-solid fa-user"></i> About Me</button>
+                    <p id="about-me-copy" hidden class="mt-3 text-sm text-gray-600 dark:text-gray-300">Built by Rakib Hasan. <a class="underline" href="https://github.com/serakib" target="_blank" rel="noopener noreferrer">GitHub</a> · <a class="underline" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a class="ghost-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-telegram"></i> Help &amp; Support</a>
+                    <a class="ghost-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-blog"></i> Student Blog</a>
+                </div>
+            </section>
         </section>
 
         <!-- VIEW 1: HOME / DASHBOARD -->
