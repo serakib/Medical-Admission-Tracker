@@ -514,10 +514,10 @@ function toggleAppSidebarCollapse(){
                 <article class="account-action-card">
                     <span class="account-action-icon"><i class="fa-solid fa-sliders"></i></span>
                     <div class="flex-1 min-w-0"><h3>Settings</h3><p>App appearance ও supported preferences পরিবর্তন করুন।</p></div>
-                    <button class="ghost-btn" type="button" onclick="document.getElementById('account-settings-panel').scrollIntoView({behavior:'smooth',block:'start'})">Settings</button>
+                    <button class="ghost-btn" type="button" aria-expanded="false" aria-controls="account-settings-panel" onclick="const panel=document.getElementById('account-settings-panel');const open=panel.classList.contains('hidden');panel.classList.toggle('hidden',!open);this.setAttribute('aria-expanded',String(open));if(open)panel.scrollIntoView({behavior:'smooth',block:'start'})">Settings</button>
                 </article>
             </div>
-            <section id="account-settings-panel" class="profile-panel space-y-4" aria-labelledby="account-settings-title">
+            <section id="account-settings-panel" class="profile-panel space-y-4 hidden" aria-labelledby="account-settings-title">
                 <div class="profile-panel-head"><div><span class="eyebrow">Preferences</span><h3 id="account-settings-title">App Settings</h3></div><i class="fa-solid fa-gear" aria-hidden="true"></i></div>
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div><strong class="block">Appearance</strong><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Light বা dark theme বেছে নিন।</p><p id="account-theme-status" class="text-sm font-bold mt-2">Light mode</p></div>
