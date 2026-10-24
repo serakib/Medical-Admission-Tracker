@@ -564,33 +564,21 @@ class MedicalExamApp {
         return `${d.getUTCFullYear()}-W${String(week).padStart(2,'0')}`;
     }
 
-    updateProfileRanks(rows=[]){
+    updateProfileRanks(rows=[]) {
         const liveEl=document.getElementById('profile-live-rank');
         const bestEl=document.getElementById('profile-best-rank');
         const uid=this.authUser?.uid||'guest_local';
-        const safe=Array.isArray(rows)?rows:[];
-        const weekKey=this.getCurrentWeekKey();
-        const weekly=safe.filter(row=>row.weekKey===weekKey&&Number(row.weeklyPoints||0)>0)
-            .sort((a,b)=>Number(b.weeklyPoints||0)-Number(a.weeklyPoints||0));
-        const liveIndex=weekly.findIndex(row=>row.uid===uid);
-        if(liveEl)liveEl.textContent=liveIndex>=0?`#${liveIndex+1}`:'—';
-        const myWeekly=weekly.find(row=>row.uid===uid);
-        const progress=Math.max(0,Math.min(100,Math.round(Number(myWeekly?.weeklyPoints||0)/10)));
-        const progressBar=document.querySelector('.league-progress span');
-        const progressTrack=document.querySelector('.league-progress[role="progressbar"]');
-        if(progressBar)progressBar.style.width=`${progress}%`;
-        if(progressTrack)progressTrack.setAttribute('aria-valuenow',String(progress));
-        const progressText=document.querySelector('.league-progress-meta span:nth-child(2)');
-        if(progressText)progressText.textContent=`Weekly progress • ${progress}%`;
-        const currentIndex=safe.findIndex(row=>row.uid===uid);
-        const bestKey=`med_best_rank_${uid}`;
-        let best=Number(localStorage.getItem(bestKey)||0);
-        if(currentIndex>=0){
-            const currentRank=currentIndex+1;
-            if(!best||currentRank<best)best=currentRank;
-            localStorage.setItem(bestKey,String(best));
-        }
-        if(bestEl)bestEl.textContent=best?`#${best}`:'—';
+        const safe=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>Number(b.rankPoints??b.points??0)-Number(a.rankPoints??a.points??0));
+        const index=safe.findIndex(row=>row.uid===uid);
+        if(liveEl)liveEl.textContent=index>=0?'#'+(index+1):'—';
+        if(bestEl)bestEl.textContent=index>=0?'#'+(index+1):'—';
+        const mine=safe.find(row=>row.uid===uid);
+        const points=Math.max(0,Number(mine?.rankPoints??mine?.points??0));
+        const progress=Math.max(0,Math.min(100,Math.round((points%150)/150*100)));
+        const bar=document.querySelector('.league-progress span');
+        const track=document.querySelector('.league-progress[role="progressbar"]');
+        if(bar)bar.style.width=progress+'%';
+        if(track)track.setAttribute('aria-valuenow',String(progress));
     }
 
     async recordLeaderboardResult({correctCount,wrongCount,totalQuestions,quizPoints,accuracy}){
