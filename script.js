@@ -1632,7 +1632,7 @@ window.handleLogout = function() {
       if (subjectSelect) subjectSelect.value = 'all';
       const yearSelect = document.getElementById('setup-year');
       if (yearSelect) yearSelect.value = 'all';
-      this.setup.durationMins = durationFor(this.setup.questionsCount);
+      this.setup.durationMins = durationFor(this.setup.questionsCount, 0.6);
     } else if (this.setup.mode === 'random') {
       this.setup.durationMins = durationFor(this.setup.questionsCount);
     }
