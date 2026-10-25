@@ -1149,24 +1149,52 @@ class MedicalExamApp {
             : Math.max(1, Number(cfg.durationMins) || Math.round(questionCount * 0.5) || 1);
         cfg.durationMins = durationMins;
         const now = Date.now();
-        this.examState = { questions: cfg.questions, userAnswers: new Array(cfg.questions.length).fill(null), markedForReview: new Array(cfg.questions.length).fill(false), currentIndex: 0, timerSeconds: durationMins * 60, timerInterval: null, timeUsedSeconds: 0, submitted: false, startedAt: now, deadlineAt: now + durationMins * 60000, mode: cfg.mode, year: cfg.year, subject: cfg.subject };
+        this.examState = { questions: cfg.questions, userAnswers: new Array(cfg.questions.length).fill(null), markedForReview: new Array(cfg.questions.length).fill(false), currentIndex: 0, durationMins, timerSeconds: durationMins * 60, timerInterval: null, timeUsedSeconds: 0, submitted: false, startedAt: now, deadlineAt: now + durationMins * 60000, mode: cfg.mode, year: cfg.year, subject: cfg.subject };
         this.examActive = true;
         this.markQuestionsSeen(cfg.questions);
         this.renderQuestion(); this.renderPalette(); this.showView('exam'); this.startTimer();
     }
 
     startTimer() {
-        if (this.examState.timerInterval) clearInterval(this.examState.timerInterval);
+        const state = this.examState;
+        if (!state || state.submitted || !this.examActive) return;
+        if (state.timerInterval) clearInterval(state.timerInterval);
+        // Validate the new exam deadline; a stale or already-expired deadline must not instantly submit.
+        const totalSeconds = Math.max(1, Math.round(Number(state.durationMins) * 60 || Number(state.timerSeconds) || 1));
+        const now = Date.now();
+        const startedAt = Number(state.startedAt);
+        const deadlineAt = Number(state.deadlineAt);
+        const expectedDeadline = startedAt + totalSeconds * 1000;
+        const validDeadline = Number.isFinite(startedAt) && startedAt > 0 &&
+            Number.isFinite(deadlineAt) && deadlineAt > now &&
+            deadlineAt > startedAt && Math.abs(deadlineAt - expectedDeadline) <= 5000;
+        if (!validDeadline) {
+            state.startedAt = now;
+            state.deadlineAt = now + totalSeconds * 1000;
+            state.timeUsedSeconds = 0;
+        }
+        let timeoutSubmitted = false;
         const tick = () => {
-            const remaining = Math.max(0, this.examState.deadlineAt - Date.now());
-            this.examState.timerSeconds = Math.ceil(remaining / 1000);
-            this.examState.timeUsedSeconds = Math.min(this.examState.deadlineAt - this.examState.startedAt, Date.now() - this.examState.startedAt) / 1000;
-            const mins = Math.floor(this.examState.timerSeconds / 60), secs = this.examState.timerSeconds % 60;
+            if (this.examState !== state || state.submitted || !this.examActive) {
+                if (state.timerInterval) clearInterval(state.timerInterval);
+                state.timerInterval = null;
+                return;
+            }
+            const remaining = Math.max(0, state.deadlineAt - Date.now());
+            state.timerSeconds = Math.ceil(remaining / 1000);
+            state.timeUsedSeconds = Math.max(0, Math.min(state.deadlineAt - state.startedAt, Date.now() - state.startedAt) / 1000);
+            const mins = Math.floor(state.timerSeconds / 60), secs = state.timerSeconds % 60;
             const el = document.getElementById('exam-timer');
-            if (el) el.innerText = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-            if (this.examState.timerSeconds <= 0) { clearInterval(this.examState.timerInterval); this.submitExam(true); }
+            if (el) el.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            if (state.timerSeconds <= 0 && !timeoutSubmitted) {
+                timeoutSubmitted = true;
+                if (state.timerInterval) clearInterval(state.timerInterval);
+                state.timerInterval = null;
+                this.submitExam(true);
+            }
         };
-        tick(); this.examState.timerInterval = setInterval(tick, 250);
+        tick();
+        if (!timeoutSubmitted && !state.submitted && this.examState === state) state.timerInterval = setInterval(tick, 250);
     }
 
     renderQuestion() {
