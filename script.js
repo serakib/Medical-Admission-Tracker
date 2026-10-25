@@ -451,6 +451,25 @@ class MedicalExamApp {
             }
             this.closeAuthModal();
             this.setAuthState(result.user);
+
+            // Reuse the existing Get in Touch Push Execute endpoint for an admin login alert.
+            // Never send passwords or other authentication secrets.
+            const authEvent = this.authMode === 'register' ? 'New user registration' : 'User login';
+            const authName = String(result.user?.displayName || name || 'Student').slice(0, 120);
+            const authEmail = String(result.user?.email || email || '').slice(0, 254);
+            const authNotice = [
+                '🔐 Medical Admission Tracker — ' + authEvent,
+                'Name: ' + authName,
+                'Email: ' + authEmail,
+                'UID: ' + String(result.user?.uid || '').slice(0, 128),
+                'Time: ' + new Date().toISOString()
+            ].join('\\n');
+            fetch('https://script.google.com/macros/s/AKfycbxsSQIqoWW1w7tDGGlzYPCYWawC-vrLq7kiXBmt-bDAM_wlLsP5u13Ra8t5eKOUk065BA/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ name: authName, email: authEmail, message: authNotice })
+            }).catch(error => console.warn('[Auth notification] Could not send admin alert:', error));
         } catch (error) {
             console.error('Authentication error:', error);
             if (message) message.textContent = this.friendlyAuthError(error);
