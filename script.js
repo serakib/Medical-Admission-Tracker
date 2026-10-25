@@ -1480,13 +1480,17 @@ window.updateExamRewardDisplay = function (reward) {
     const rankEl = document.getElementById('res-rank-earned');
     const statusEl = document.getElementById('res-reward-status');
     if (reward.success && !reward.pending) {
-        const xp = Number(reward.xpGained || 0);
-        const rp = Number(reward.rankPointsDelta || 0);
-        if (xpEl) xpEl.textContent = (xp >= 0 ? '+' : '') + xp.toLocaleString() + ' XP';
-        if (rpEl) rpEl.textContent = (rp >= 0 ? '+' : '') + rp.toLocaleString() + ' RP';
+        const xp = reward.xpGained == null || !Number.isFinite(Number(reward.xpGained)) ? null : Number(reward.xpGained);
+        const rp = reward.rankPointsDelta == null || !Number.isFinite(Number(reward.rankPointsDelta)) ? null : Number(reward.rankPointsDelta);
+        if (xpEl) xpEl.textContent = xp == null ? '—' : ((xp >= 0 ? '+' : '') + xp.toLocaleString() + ' XP');
+        if (rpEl) rpEl.textContent = rp == null ? '—' : ((rp >= 0 ? '+' : '') + rp.toLocaleString() + ' RP');
         if (rankEl) rankEl.textContent = reward.rank ? ('Current Rank: ' + reward.rank) : '';
-        if (statusEl) statusEl.textContent = reward.synced ? 'Global Rank-এ reward sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।';
-        panel.dataset.rewardState = 'synced';
+        if (statusEl) {
+            statusEl.textContent = (xp == null || rp == null)
+                ? 'API থেকে result গ্রহণ করা হয়েছে, কিন্তু earned XP/RP-এর নির্দিষ্ট amount response-এ পাওয়া যায়নি।'
+                : (reward.synced ? 'Global Rank-এ reward sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।');
+        }
+        panel.dataset.rewardState = (xp == null || rp == null) ? 'amount-unavailable' : 'synced';
         return;
     }
     if (reward.pending) {
