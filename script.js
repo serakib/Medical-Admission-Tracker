@@ -47,9 +47,9 @@ class MedicalExamApp {
         this.practiceIndex = 0;
         this.practiceSession = null;
         this.practiceTimerInterval = null;
-        this.leaderboardCacheKey = 'med_leaderboard_cache_v5';
-        this.leaderboardLocalKey = 'med_leaderboard_local_v1';
-        this.leaderboardSyncKey = 'med_leaderboard_sync_queue_v1';
+        this.leaderboardCacheKey = 'med_global_leaderboard_cache_v1';
+        this.leaderboardLocalKey = 'med_global_leaderboard_local_v1';
+        this.leaderboardSyncKey = 'med_global_leaderboard_pending_v1';
         this.firestore = db;
         this.profile = null;
         
@@ -502,19 +502,8 @@ class MedicalExamApp {
         }
     }
 
-    getDemoLeaderboardRows(){
-        return [
-            {uid:'demo_01',name:'Rakib Hasan',college:'Dhaka College',points:1890,quizzes:18,correct:470,answered:520,accuracy:90.4,isDemo:true},
-            {uid:'demo_02',name:'Abdullah Shawon',college:'Dhaka College',points:1725,quizzes:16,correct:438,answered:500,accuracy:87.6,isDemo:true},
-            {uid:'demo_03',name:'Tanvir Ahmed',college:'Notre Dame College',points:1580,quizzes:15,correct:402,answered:470,accuracy:85.5,isDemo:true},
-            {uid:'demo_04',name:'Nusrat Jahan',college:'Holy Cross College',points:1495,quizzes:14,correct:381,answered:450,accuracy:84.7,isDemo:true},
-            {uid:'demo_05',name:'Fahim Hasan',college:'Rajuk Uttara Model College',points:1360,quizzes:13,correct:352,answered:425,accuracy:82.8,isDemo:true},
-            {uid:'demo_06',name:'Mahi Islam',college:'Adamjee Cantonment College',points:1240,quizzes:12,correct:329,answered:400,accuracy:82.3,isDemo:true},
-            {uid:'demo_07',name:'Rafiul Karim',college:'Dhaka City College',points:1125,quizzes:11,correct:300,answered:375,accuracy:80.0,isDemo:true},
-            {uid:'demo_08',name:'Jannatul Ferdous',college:'Cantonment Public School & College',points:1010,quizzes:10,correct:272,answered:350,accuracy:77.7,isDemo:true}
-        ];
-    }
-    getLocalLeaderboardRows(){
+    getDemoLeaderboardRows(){ return []; }
+        getLocalLeaderboardRows(){
         try{
             const raw=JSON.parse(localStorage.getItem(this.leaderboardLocalKey)||'null');
             if(Array.isArray(raw)&&raw.length)return raw;
@@ -612,75 +601,16 @@ class MedicalExamApp {
         if(bestEl)bestEl.textContent=best?`#${best}`:'—';
     }
 
-    async recordLeaderboardResult({correctCount,wrongCount,totalQuestions,quizPoints,accuracy}){
-        const uid=this.authUser?.uid || 'guest_local';
-        const name=this.profile?.name||this.authUser?.displayName||this.authUser?.email||'Guest Student';
-        const college=this.profile?.college||'';
-        const current=this.getLocalLeaderboardRows().find(x=>x.uid===uid)||{uid,name,college,points:0,quizzes:0,correct:0,answered:0};
-        const nextCorrect=Number(current.correct||0)+Number(correctCount||0);
-        const nextAnswered=Number(current.answered||0)+Number(correctCount||0)+Number(wrongCount||0);
-        const weekKey=this.getCurrentWeekKey();
-        const weeklyPoints=Number(current.weekKey===weekKey?current.weeklyPoints:0)+Number(quizPoints||0);
-        const updated={...current,name,college,points:Number(current.points||0)+Number(quizPoints||0),weeklyPoints,weekKey,quizzes:Number(current.quizzes||0)+1,correct:nextCorrect,answered:nextAnswered,accuracy:Number((nextCorrect/Math.max(1,nextAnswered)*100).toFixed(1)),updatedAtMs:Date.now(),isDemo:false};
-        const rows=this.getLocalLeaderboardRows().filter(x=>x.uid!==uid);
-        rows.push(updated);
-        const merged=this.mergeLeaderboardRows(rows);
-        this.setLocalLeaderboardRows(merged);
-        this.renderLeaderboardRows(merged);
-
-        if(!this.authUser||!this.firestore){
-            if(this.authUser) this.queueLeaderboardSync({...updated, meta:{correctCount,wrongCount,totalQuestions,quizPoints,accuracy}});
-            return;
-        }
-        await this.syncLeaderboardUser(updated, {correctCount,wrongCount,totalQuestions,quizPoints,accuracy});
+    async recordLeaderboardResult(){
+        // The global-league module owns result submission. Never write leaderboard data to Firestore.
+        this.showLeaderboardStatus('Global leaderboard client is loading. Please retry shortly.', true);
     }
-    async syncLeaderboardUser(updated, meta={}){
-        if(!this.authUser||!this.firestore)return false;
-        const attemptId=`${this.authUser.uid}_${this.examState.startedAt||Date.now()}`;
-        try{
-            const attemptRef=doc(this.firestore, 'quizAttempts', attemptId);
-            const userLbRef=doc(this.firestore, 'leaderboard', this.authUser.uid);
-            
-            await runTransaction(this.firestore, async tx=>{
-                tx.set(attemptRef,{uid:this.authUser.uid,quizPoints:Number(meta.quizPoints)||0,correct:Number(meta.correctCount)||0,wrong:Number(meta.wrongCount)||0,total:Number(meta.totalQuestions)||0,accuracy:Number(meta.accuracy)||0,createdAt:serverTimestamp()});
-                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,weeklyPoints:updated.weeklyPoints||0,weekKey:updated.weekKey||this.getCurrentWeekKey(),quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
-            });
-            this.setLeaderboardSyncQueue(this.getLeaderboardSyncQueue().filter(x=>x.uid!==updated.uid));
-            return true;
-        }catch(e){
-            console.error('Leaderboard write failed',e);
-            this.queueLeaderboardSync({...updated, meta});
-            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপদে সংরক্ষিত আছে।',true);
-            return false;
-        }
-    }
-    async syncPendingLeaderboard(){
-        if(!this.authUser||!this.firestore)return;
-        const pending=this.getLeaderboardSyncQueue().filter(x=>x.uid===this.authUser.uid);
-        for(const row of pending){ await this.syncLeaderboardUser(row,row.meta||{}); }
-    }
+    async syncLeaderboardUser(){ return false; }
+    async syncPendingLeaderboard(){ return; }
     async loadLeaderboard(silent=false){
-        const body=document.getElementById('leaderboard-body'); if(!body)return;
-        const local=this.getLocalLeaderboardRows();
+        const local = this.getLocalLeaderboardRows();
         this.renderLeaderboardRows(local);
-        if(!silent)this.showLeaderboardStatus('Local leaderboard দেখানো হচ্ছে; Firebase background sync চলছে…',false);
-        if(!this.firestore){
-            if(!silent)this.showLeaderboardStatus('Local leaderboard active — Firebase config পাওয়া যায়নি।',false);
-            return;
-        }
-        try{
-            await this.syncPendingLeaderboard();
-            const qRef = query(collection(this.firestore, 'leaderboard'), orderBy('points', 'desc'));
-            const snap = await getDocs(qRef);
-            const remote=snap.docs.map(d=>({uid:d.id,...d.data()}));
-            const rows=this.mergeLeaderboardRows(remote);
-            this.setLocalLeaderboardRows(rows);
-            this.renderLeaderboardRows(rows);
-            this.showLeaderboardStatus('Leaderboard Firebase থেকে sync হয়েছে এবং local-এ cache করা হয়েছে।',false);
-        }catch(e){
-            console.error(e);
-            this.showLeaderboardStatus('Previous Year কোশ্চেনে কুইজ দিলে তা এখানে অন্তর্ভুক্ত হবে, তবে সেজন্য অবশ্যই লগইন করে নিতে হবে। সর্বশেষ local leaderboard',false);
-        }
+        if (!silent) this.showLeaderboardStatus('Global leaderboard API is initializing…', false);
     }
     showLeaderboardStatus(msg,error){const el=document.getElementById('leaderboard-status');if(!el)return;el.textContent=msg;el.className=`mb-4 rounded-xl p-3 text-sm ${error?'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300':'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;}
 
