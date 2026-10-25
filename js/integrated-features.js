@@ -713,12 +713,12 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  // Every 150 Rank Points advances one sub-rank; after I, advance to the next tier's V.
+  // Keep every trophy tier; 500 RP advances one sub-rank from V through I.
   const rankFor = points => {
-    const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Master', 'Pro'];
+    const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Legend', 'Mythic'];
     const roman = ['V', 'IV', 'III', 'II', 'I'];
-    const rankIndex = Math.min(29, Math.floor(Math.max(0, Number(points) || 0) / 150));
-    return tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
+    const rankIndex = Math.min(50, Math.floor(Math.max(0, Number(points) || 0) / 500));
+    return rankIndex >= 50 ? 'Immortal' : tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
   };
   function ensureStudentSettings() {
     // App-wide preferences now live exclusively under the sidebar's App Settings.
@@ -739,11 +739,11 @@
       else root.prepend(card);
     }
     const progress = readProgress();
-    const xp = Math.max(0, Number(progress.xp) || 0);
-    const level = Math.floor(xp / 120) + 1;
-    const next = level * 120;
-    const levelProgress = Math.round((xp - ((level - 1) * 120)) / 120 * 100);
-    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Level ' + level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, next - xp) + ' XP to next level · ' + levelProgress + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
+    const performanceBonus = Math.max(0, Number(progress.performanceBonus ?? progress.xp) || 0);
+    const levelState = typeof app.getPerformanceLevelProgress === 'function'
+      ? app.getPerformanceLevelProgress(performanceBonus)
+      : { level: 1, toNext: Math.max(0, 600 - performanceBonus), percent: Math.min(100, Math.round(performanceBonus / 600 * 100)) };
+    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Account Level ' + levelState.level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + performanceBonus.toLocaleString() + ' Performance Bonus · ' + levelState.toNext.toLocaleString() + ' PB to next level · ' + levelState.percent + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
   }
   function ensureLogoutState() {
     const root = document.getElementById('view-profile');
@@ -986,10 +986,10 @@
 (() => {
 'use strict';
 const app=window.app;if(!app||app.__comprehensiveRequirementsInstalled)return;app.__comprehensiveRequirementsInstalled=true;
-const tiers=['Bronze','Silver','Gold','Platinum','Master','Pro'],roman=['V','IV','III','II','I'];
+const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','Grandmaster','Legend','Mythic'],roman=['V','IV','III','II','I'];
 const pkey=()=>'med_account_progress_v1_'+(app.authUser?.uid||'guest');
 const progress=()=>{try{return JSON.parse(localStorage.getItem(pkey())||'{}')||{}}catch(_){return{}}};
-const rank=points=>{const n=Math.min(29,Math.floor(Math.max(0,Number(points)||0)/150));return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:Math.max(0,Number(points)||0),remaining:n>=29?0:(n+1)*150-Math.max(0,Number(points)||0)}};
+const rank=points=>{const value=Math.max(0,Number(points)||0),n=Math.min(50,Math.floor(value/500));if(n>=50)return{name:'Immortal',tier:'immortal',index:51,step:1,points:value,remaining:0};return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:500-(value%500)}};
 const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
 const hkey=()=>'med_review_history_v2_'+(app.authUser?.uid||'guest');
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(hkey())||'{}')||{}}catch(_){return{}}};
@@ -1007,11 +1007,32 @@ const style=document.createElement('style');style.id='tracker-rank-badge-styles'
 .rank-tier-silver .tracker-rank-emblem{color:#fff;background:linear-gradient(145deg,#fff,#b4c7df 45%,#526b88);clip-path:polygon(50% 0,62% 15%,83% 10%,85% 31%,100% 50%,85% 69%,83% 90%,62% 85%,50% 100%,38% 85%,17% 90%,15% 69%,0 50%,15% 31%,17% 10%,38% 15%);filter:drop-shadow(0 1px 1px #26364b)}
 .rank-tier-gold .tracker-rank-emblem{background:linear-gradient(145deg,#fff2b7,#daa520,#80520b);clip-path:polygon(50% 0,63% 25%,91% 12%,83% 43%,100% 59%,69% 66%,65% 100%,47% 77%,22% 93%,27% 63%,0 48%,31% 39%)}
 .rank-tier-platinum .tracker-rank-emblem{background:linear-gradient(145deg,#e0f2fe,#60a5fa,#1e3a8a);clip-path:polygon(50% 0,83% 16%,100% 50%,83% 84%,50% 100%,17% 84%,0 50%,17% 16%)}
+.rank-tier-emerald{color:#dcfce7;background:linear-gradient(135deg,#a7f3d0,#047857 48%,#064e3b);border:1px solid #6ee7b7;border-radius:15px 4px 15px 4px}
+.rank-tier-emerald .tracker-rank-emblem{background:linear-gradient(145deg,#d1fae5,#34d399,#065f46);clip-path:polygon(50% 0,61% 24%,89% 10%,78% 42%,100% 57%,71% 68%,70% 100%,50% 81%,30% 100%,29% 68%,0 57%,22% 42%,11% 10%,39% 24%)}
+.rank-tier-diamond{color:#f5f3ff;background:linear-gradient(135deg,#ede9fe,#7c3aed 48%,#312e81);border:1px solid #c4b5fd;border-radius:5px 13px 5px 13px}
+.rank-tier-diamond .tracker-rank-emblem{background:linear-gradient(145deg,#fff,#c4b5fd,#5b21b6);clip-path:polygon(50% 0,91% 24%,78% 78%,50% 100%,22% 78%,9% 24%)}
+.rank-tier-grandmaster{color:#ffedd5;background:linear-gradient(135deg,#fed7aa,#ea580c 48%,#7c2d12);border:1px solid #fdba74;border-radius:14px}
+.rank-tier-grandmaster .tracker-rank-emblem{background:linear-gradient(145deg,#ffedd5,#f97316,#7c2d12);clip-path:polygon(0 18%,35% 30%,50% 0,65% 30%,100% 18%,82% 62%,65% 57%,50% 100%,35% 57%,18% 62%)}
+.rank-tier-legend{color:#fef9c3;background:linear-gradient(135deg,#fef08a,#ca8a04 48%,#713f12);border:1px solid #fde68a;border-radius:18px 4px 18px 4px}
+.rank-tier-legend .tracker-rank-emblem{background:linear-gradient(145deg,#fef9c3,#facc15,#854d0e);clip-path:polygon(50% 0,60% 22%,84% 8%,78% 35%,100% 50%,78% 65%,84% 92%,60% 78%,50% 100%,40% 78%,16% 92%,22% 65%,0 50%,22% 35%,16% 8%,40% 22%)}
+.rank-tier-mythic{color:#fae8ff;background:linear-gradient(135deg,#f5d0fe,#a21caf 48%,#581c87);border:1px solid #f0abfc;border-radius:6px 18px 6px 18px}
+.rank-tier-mythic .tracker-rank-emblem{background:linear-gradient(145deg,#fae8ff,#e879f9,#701a75);clip-path:polygon(50% 0,64% 24%,91% 16%,80% 42%,100% 58%,71% 69%,65% 100%,50% 80%,35% 100%,29% 69%,0 58%,20% 42%,9% 16%,36% 24%)}
+.rank-tier-immortal{color:#fff1f2;background:linear-gradient(135deg,#fecdd3,#e11d48 44%,#4c0519);border:1px solid #fb7185;border-radius:12px 12px 4px 4px;box-shadow:inset 0 1px 0 #fff,inset 0 -4px 0 #4c0519,0 7px 18px #9f123940}
+.rank-tier-immortal .tracker-rank-emblem{background:linear-gradient(145deg,#fff1f2,#fb7185,#4c0519);clip-path:polygon(50% 0,61% 22%,86% 5%,80% 34%,100% 50%,80% 66%,86% 95%,61% 78%,50% 100%,39% 78%,14% 95%,20% 66%,0 50%,20% 34%,14% 5%,39% 22%)}
 .rank-tier-master .tracker-rank-emblem{background:linear-gradient(145deg,#f3e8ff,#c084fc,#581c87);clip-path:polygon(50% 0,62% 27%,90% 15%,78% 45%,100% 57%,73% 69%,75% 98%,50% 80%,25% 98%,27% 69%,0 57%,22% 45%,10% 15%,38% 27%)}
 .rank-tier-pro .tracker-rank-emblem{background:linear-gradient(145deg,#fee2e2,#f87171,#701a75);clip-path:polygon(50% 0,61% 18%,82% 8%,87% 32%,100% 50%,87% 68%,82% 92%,61% 82%,50% 100%,39% 82%,18% 92%,13% 68%,0 50%,13% 32%,18% 8%,39% 18%)}
 .rank-badge-large .tracker-rank-emblem{flex-basis:32px;width:32px;height:32px;font-size:20px}.rank-badge-large .tracker-rank-tier{font-size:12px}.rank-badge-large .tracker-rank-level{min-width:22px;height:23px;font-size:12px}
 `;document.head.appendChild(style);
-function renderRankCard(){const root=document.getElementById('view-profile');if(!root)return;let card=document.getElementById('profile-rank-card');if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card)}const p=progress(),r=rank(p.rankPoints),xp=Math.max(0,Number(p.xp)||0),level=Math.floor(xp/120)+1,into=xp%120,rpProgress=r.index>=30?100:(r.points%150)/150*100;card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points+' lifetime Rank Points</small></div></div><div class="rank-track"><span style="width:'+rpProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=30?'Highest rank reached.':r.remaining+' Rank Points to next rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+level+'</strong><small>'+(120-into)+' XP to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>+20 XP per exam</small></div></div><div class="rank-track"><span style="width:'+(into/120*100)+'%"></span></div><small>Level progress: '+Math.round(into/120*100)+'% · XP and Rank Points are separate.</small>';const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name}
+function renderRankCard(){
+  const root=document.getElementById('view-profile'); if(!root)return;
+  let card=document.getElementById('profile-rank-card');
+  if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card);}
+  const p=progress(),r=rank(p.rankPoints),performanceBonus=Math.max(0,Number(p.performanceBonus??p.xp)||0);
+  const levelState=typeof app.getPerformanceLevelProgress==='function'?app.getPerformanceLevelProgress(performanceBonus):{level:1,toNext:Math.max(0,600-performanceBonus),percent:Math.min(100,Math.round(performanceBonus/600*100))};
+  const rpProgress=r.index>=51?100:(r.points%500)/500*100;
+  card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points.toLocaleString()+' lifetime Rank Points</small></div></div><div class="rank-track"><span style="width:'+rpProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=51?'Highest rank reached.':r.remaining+' RP to next sub-rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+levelState.level+'</strong><small>'+levelState.toNext.toLocaleString()+' Performance Bonus to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>Performance Bonus is awarded per correct answer</small></div></div><div class="rank-track"><span style="width:'+levelState.percent+'%"></span></div><small>Performance Bonus progress: '+levelState.percent+'% · RP and Performance Bonus are separate.</small>';
+  const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name;
+}
 function renderSidebarAuth(){const b=document.getElementById('sidebar-auth-action');if(!b)return;const logged=Boolean(app.authUser?.uid);b.classList.toggle('logout-action',logged);b.classList.toggle('login-action',!logged);b.setAttribute('aria-label',logged?'Log Out':'Log In / Sign Up');b.title=logged?(app.authUser.email||'Log Out'):'Log In / Sign Up';b.innerHTML=logged?'<i class="fa-solid fa-right-from-bracket"></i><span>Log Out</span>':'<i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span>';b.onclick=logged?()=>{if(typeof app.logout==='function')app.logout();else if(window.handleLogout)window.handleLogout()}:()=>{if(window.redirectToLogin)window.redirectToLogin()}}
 function setupPracticeUI(){const view=document.getElementById('view-practice');if(!view||document.getElementById('practice-exam-setup'))return;const panel=document.createElement('section');panel.id='practice-exam-setup';panel.className='practice-exam-setup';panel.innerHTML='<h3 style="font-weight:900;font-size:1.1rem">Practice Exam Setup</h3><p style="font-size:.82rem;color:var(--muted,#64748b);margin:4px 0 14px">Choose the question pool. Existing quiz answer and feedback handlers are preserved.</p><label style="font-size:.85rem;font-weight:900">Exam Type</label><div class="practice-type-grid" role="group"><button type="button" class="practice-type-btn active" data-practice-type="all" aria-pressed="true">All Questions</button><button type="button" class="practice-type-btn" data-practice-type="reviewed" aria-pressed="false">Reviewed</button><button type="button" class="practice-type-btn" data-practice-type="wrong" aria-pressed="false">Wrong Answer</button><button type="button" class="practice-type-btn" data-practice-type="previous" aria-pressed="false">Previous Year</button></div><label style="display:block;font-size:.85rem;font-weight:900;margin-top:14px">Question Count</label><div class="practice-count-grid">'+[20,30,50,75,100].map(n=>'<button type="button" class="practice-count-btn '+(n===20?'active':'')+'" data-practice-count="'+n+'" aria-pressed="'+(n===20?'true':'false')+'">'+n+'</button>').join('')+'</div><div class="practice-setup-footer"><span id="practice-auto-time">20 questions · 10 minutes automatically</span><span id="practice-available-count">Loading questions…</span></div>';const actions=view.querySelector('.practice-mode-actions');view.insertBefore(panel,actions||view.firstChild);panel.addEventListener('click',e=>{const t=e.target.closest('[data-practice-type]'),c=e.target.closest('[data-practice-count]');if(t)panel.querySelectorAll('[data-practice-type]').forEach(b=>{b.classList.toggle('active',b===t);b.setAttribute('aria-pressed',String(b===t))});if(c)panel.querySelectorAll('[data-practice-count]').forEach(b=>{b.classList.toggle('active',b===c);b.setAttribute('aria-pressed',String(b===c))});updatePracticeUI()});updatePracticeUI()}
 const practiceType=()=>document.querySelector('#practice-exam-setup [data-practice-type].active')?.dataset.practiceType||'all',practiceCount=()=>Number(document.querySelector('#practice-exam-setup [data-practice-count].active')?.dataset.practiceCount||20);
