@@ -24,5 +24,7 @@ jobs:
           node --input-type=module --check < script.js
           node --input-type=module --check < js/integrated-features.js
           node --input-type=module --check < js/student-ai.js
+          node --input-type=module --check < js/global-league-system.js
+          node --check < backend/medical-admission-leaderboard.gs
       - name: Check local assets referenced by index.html
         run: node scripts/check-integrity.mjs
