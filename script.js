@@ -1649,10 +1649,103 @@ window.handleLogout = function() {
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
-    } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
+      const xp = Math.max(0, Number(data.xp ?? data.performanceBonus) || 0);
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp, performanceBonus: xp, completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+    } catch (_) { return {rankPoints:0,xp:0,performanceBonus:0,completedExams:0,rewarded:[]}; }
   };
-  const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
+  const saveProgress = data => {
+    data.xp = Math.max(0, Number(data.xp ?? data.performanceBonus) || 0);
+    // Legacy compatibility only; account levels now use XP.
+    data.performanceBonus = data.xp;
+    localStorage.setItem(accountKey(), JSON.stringify(data));
+  };
+  const roundRequirementToFive = value => Math.max(5, Math.round(Number(value || 0) / 5) * 5);
+  const requiredXPForLevel = level => {
+    const currentLevel = Math.max(1, Math.floor(Number(level) || 1));
+    const base = currentLevel * 500;
+    return roundRequirementToFive(currentLevel === 1 ? base : base * 1.3);
+  };
+  const getPerformanceLevelProgress = totalXP => {
+    let remaining = Math.max(0, Number(totalXP) || 0);
+    let level = 1, guard = 0, required = requiredXPForLevel(level);
+    while (remaining >= required && guard < 1000) {
+      remaining -= required;
+      level++;
+      guard++;
+      required = requiredXPForLevel(level);
+    }
+    return { level, required, remaining, toNext: Math.max(0, required - remaining), percent: required > 0 ? Math.min(100, Math.round(remaining / required * 100)) : 100 };
+  };
+  app.getPerformanceLevelProgress = getPerformanceLevelProgress;
+  app.getAccountProgress = () => ({ ...readProgress() });
+  app.convertPBToXP = function(amount) {
+    const pointsToConvert = Math.floor(Number(amount));
+    if (!Number.isFinite(pointsToConvert) || pointsToConvert <= 0) {
+      return { ok: false, message: 'Enter a whole PB amount greater than zero.' };
+    }
+    const progress = readProgress();
+    if (pointsToConvert > progress.rankPoints) {
+      return { ok: false, message: 'You do not have enough PB to convert.' };
+    }
+    progress.rankPoints -= pointsToConvert;
+    progress.xp += pointsToConvert * 2;
+    progress.performanceBonus = progress.xp;
+    saveProgress(progress);
+
+    if (this.authUser?.uid) {
+      const uid = this.authUser.uid;
+      const oldRows = this.getLocalLeaderboardRows?.() || [];
+      const oldRow = oldRows.find(row => row.uid === uid) || {};
+      const rankRow = {
+        ...oldRow, uid,
+        name: this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student',
+        college: this.profile?.college || oldRow.college || '',
+        rankPoints: progress.rankPoints,
+        xp: progress.xp,
+        performanceBonus: progress.xp,
+        level: getPerformanceLevelProgress(progress.xp).level,
+        updatedAtMs: Date.now()
+      };
+      const nextRows = typeof this.mergeLeaderboardRows === 'function'
+        ? this.mergeLeaderboardRows([...oldRows.filter(row => row.uid !== uid), rankRow])
+        : [...oldRows.filter(row => row.uid !== uid), rankRow];
+      this.setLocalLeaderboardRows?.(nextRows);
+      this.renderLeaderboardRows?.(nextRows);
+      if (this.firestore) {
+        setDoc(doc(this.firestore, 'leaderboard', uid), {
+          uid, name: rankRow.name, college: rankRow.college,
+          rankPoints: progress.rankPoints, xp: progress.xp, performanceBonus: progress.xp,
+          level: rankRow.level, updatedAt: serverTimestamp()
+        }, { merge: true }).catch(error => console.warn('PB-to-XP conversion sync failed:', error));
+      }
+    }
+    document.dispatchEvent(new CustomEvent('student-progress-updated', {
+      detail: { ...progress, performanceBonus: progress.xp, conversion: { pb: pointsToConvert, xp: pointsToConvert * 2 } }
+    }));
+    return { ok: true, convertedPB: pointsToConvert, earnedXP: pointsToConvert * 2, rankPoints: progress.rankPoints, xp: progress.xp };
+  };
+  const calculateExamReward = (state, correct) => {
+    const is100MarkModelTest = state?.mode === 'model' && Array.isArray(state.questions) && state.questions.length === 100;
+    let weightedCorrect = Math.max(0, Number(correct) || 0);
+    if (is100MarkModelTest) {
+      const blocks = [
+        { upTo: 40, multiplier: 1 },
+        { upTo: 50, multiplier: 2 },
+        { upTo: 60, multiplier: 4 },
+        { upTo: 70, multiplier: 5 },
+        { upTo: 79, multiplier: 7 },
+        { upTo: 100, multiplier: 10 }
+      ];
+      let previous = 0;
+      weightedCorrect = 0;
+      for (const block of blocks) {
+        const count = Math.max(0, Math.min(Number(correct) || 0, block.upTo) - previous);
+        weightedCorrect += count * block.multiplier;
+        previous = block.upTo;
+      }
+    }
+    return { rankPoints: weightedCorrect * 15, xp: 0, weightedCorrect, is100MarkModelTest };
+  };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
   const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count, 0.6) + ' minutes (automatic) · Source: all Question Bank questions';
@@ -1739,9 +1832,11 @@ window.handleLogout = function() {
     const alreadyRewarded = progress.rewarded.includes(attemptId);
     const result = originalSubmitExamForProgress(autoSubmitted);
     if (!alreadyRewarded && state.submitted) {
-      progress.rankPoints += correct * 10;
+      const reward = calculateExamReward(state, correct);
+      progress.rankPoints += reward.rankPoints;
+      // Exams award PB (rank points). XP is earned only through an explicit PB conversion.
+      progress.performanceBonus = progress.xp;
       const now = new Date();
-            progress.xp += 20;
       progress.completedExams += 1;
       const today = new Date().toISOString().slice(0, 10);
       const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -1761,7 +1856,8 @@ window.handleLogout = function() {
           college: this.profile?.college || oldRow.college || '',
           rankPoints: progress.rankPoints,
           xp: progress.xp,
-          level: Math.floor(progress.xp / 120) + 1,
+          performanceBonus: progress.performanceBonus,
+          level: getPerformanceLevelProgress(progress.xp).level,
           updatedAtMs: Date.now()
         };
         const rows = this.mergeLeaderboardRows([...this.getLocalLeaderboardRows().filter(row => row.uid !== uid), rankRow]);
@@ -1770,11 +1866,11 @@ window.handleLogout = function() {
         if (this.firestore) {
           setDoc(doc(this.firestore, 'leaderboard', uid), {
             uid, name: rankRow.name, college: rankRow.college,
-            rankPoints: progress.rankPoints, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
+            rankPoints: progress.rankPoints, xp: progress.xp, performanceBonus: progress.performanceBonus, level: rankRow.level, updatedAt: serverTimestamp()
           }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
         }
       }
-      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, correct } }));
+      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, performanceBonus: progress.xp, pbEarned: reward.rankPoints, correct, reward } }));
     }
     return result;
   };

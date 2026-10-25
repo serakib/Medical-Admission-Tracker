@@ -651,16 +651,104 @@
     paintLeaderboardPeriodTabs();
   }
   /* Human portrait avatar picker: people only, no animal avatars. */
-  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:10px}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}}';document.head.appendChild(humanAvatarStyle);
-  /* Per-account avatar selection for the profile view. */
+  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:10px}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}}';
+  humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:block;margin-top:7px;color:var(--muted,#64748b);font-size:11px}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{position:relative;min-width:0}.profile-avatar-remove{position:absolute;right:0;top:0;width:22px;height:22px;border:1px solid #fff;border-radius:50%;background:#dc2626;color:#fff;font-size:14px;line-height:1;font-weight:900;cursor:pointer;box-shadow:0 1px 5px #0003}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-remove:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
+  document.head.appendChild(humanAvatarStyle);
+  /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
   const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+  const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + (app.authUser?.uid || 'guest');
+  const maxUploadedAvatars = 8;
+  const isUploadedAvatarSource = value => {
+    if (typeof value !== 'string') return false;
+    if (/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(value)) return true;
+    return /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(value);
+  };
+  const readUploadedAvatars = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(uploadedAvatarKey()) || '[]');
+      return Array.isArray(saved) ? saved.filter(isUploadedAvatarSource).slice(0, maxUploadedAvatars) : [];
+    } catch (_) { return []; }
+  };
+  const isAvatarSource = value => avatarChoices.includes(value) || readUploadedAvatars().includes(value);
   const readAvatar = () => {
     try {
       const value = localStorage.getItem(avatarKey());
-      return avatarChoices.includes(value) ? value : avatarChoices[0];
+      return isAvatarSource(value) ? value : avatarChoices[0];
     } catch (_) { return avatarChoices[0]; }
   };
+  function sanitizeUploadedSvg(source) {
+    if (source.length > 50 * 1024) throw new Error('SVG file must be smaller than 50 KB.');
+    if (/<!doctype|<!entity/i.test(source)) throw new Error('This SVG file contains unsupported XML declarations.');
+    const parsed = new DOMParser().parseFromString(source, 'image/svg+xml');
+    const rootSvg = parsed.documentElement;
+    if (!rootSvg || rootSvg.localName?.toLowerCase() !== 'svg' || parsed.querySelector('parsererror')) {
+      throw new Error('The selected SVG file is not valid.');
+    }
+    parsed.querySelectorAll('script,foreignObject,iframe,object,embed,audio,video,image,style,animate,animateMotion,animateTransform,set').forEach(node => node.remove());
+    parsed.querySelectorAll('*').forEach(node => {
+      Array.from(node.attributes).forEach(attribute => {
+        const name = attribute.name.toLowerCase();
+        const value = attribute.value.trim();
+        if (name.startsWith('on') || name === 'src' || name === 'srcset') {
+          node.removeAttribute(attribute.name);
+          return;
+        }
+        if ((name === 'href' || name.endsWith(':href')) && !value.startsWith('#')) {
+          node.removeAttribute(attribute.name);
+          return;
+        }
+        if (/javascript:|@import/i.test(value) || /url\s*\(\s*['"]?(?!#)/i.test(value)) {
+          node.removeAttribute(attribute.name);
+        }
+      });
+    });
+    const serialized = new XMLSerializer().serializeToString(rootSvg);
+    if (serialized.length > 50 * 1024) throw new Error('The cleaned SVG must be smaller than 50 KB. Try a simpler SVG avatar.');
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
+  }
+  function processUploadedAvatar(file) {
+    return new Promise((resolve, reject) => {
+      const name = String(file?.name || '');
+      const type = String(file?.type || '').toLowerCase();
+      const isSvg = type === 'image/svg+xml' || /\.svg$/i.test(name);
+      if (!file) { reject(new Error('Choose an image file first.')); return; }
+      if (file.size > 5 * 1024 * 1024) { reject(new Error('Each avatar file must be 5 MB or smaller.')); return; }
+      if (isSvg) {
+        file.text().then(source => resolve(sanitizeUploadedSvg(source))).catch(() => reject(new Error('The SVG file could not be read.')));
+        return;
+      }
+      if (!['image/png','image/jpeg','image/webp'].includes(type)) {
+        reject(new Error('Supported formats: SVG, PNG, JPG/JPEG, and WEBP.'));
+        return;
+      }
+      const objectUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        try {
+          if (!image.naturalWidth || !image.naturalHeight || image.naturalWidth > 8000 || image.naturalHeight > 8000) {
+            throw new Error('Image dimensions must be no larger than 8000 × 8000 pixels.');
+          }
+          const side = 256;
+          const canvas = document.createElement('canvas');
+          canvas.width = side;
+          canvas.height = side;
+          const context = canvas.getContext('2d');
+          if (!context) throw new Error('Image processing is unavailable in this browser.');
+          const cropSide = Math.min(image.naturalWidth, image.naturalHeight);
+          const sx = (image.naturalWidth - cropSide) / 2;
+          const sy = (image.naturalHeight - cropSide) / 2;
+          context.drawImage(image, sx, sy, cropSide, cropSide, 0, 0, side, side);
+          let result = canvas.toDataURL('image/webp', 0.86);
+          if (!result.startsWith('data:image/webp;base64,')) result = canvas.toDataURL('image/png');
+          resolve(result);
+        } catch (error) { reject(error); }
+        finally { URL.revokeObjectURL(objectUrl); }
+      };
+      image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('The selected image could not be opened.')); };
+      image.src = objectUrl;
+    });
+  }
   function renderAvatarPicker() {
     const root = document.getElementById('view-profile');
     if (!root) return;
@@ -669,32 +757,107 @@
       picker = document.createElement('div');
       picker.id = 'profile-avatar-picker';
       picker.className = 'profile-avatar-picker';
-      picker.setAttribute('aria-label', 'Choose profile avatar');
+      picker.setAttribute('aria-label', 'Choose or upload profile avatars');
       const hero = root.querySelector('.profile-hero');
       if (hero) hero.insertAdjacentElement('afterend', picker);
       else root.prepend(picker);
     }
+    const uploaded = readUploadedAvatars();
     const current = readAvatar();
     const avatar = root.querySelector('.profile-hero .profile-avatar');
     if (avatar) {
-      avatar.innerHTML = '<img src="' + current + '" alt="Selected human avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-      avatar.setAttribute('aria-label', 'Selected human profile avatar');
+      avatar.innerHTML = '<img src="' + current + '" alt="Selected profile avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      avatar.setAttribute('aria-label', 'Selected profile avatar');
     }
-    picker.innerHTML = '<span class="profile-avatar-picker-label">Choose a human avatar</span><div class="profile-avatar-options">' + avatarChoices.map((value,i) =>
-      '<button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar="' + value + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose human avatar ' + (i+1) + '"><img src="' + value + '" alt="Human avatar ' + (i+1) + '" loading="lazy"></button>'
-    ).join('') + '</div>';
+    const presetOptions = avatarChoices.map((value, i) =>
+      '<button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar-preset="' + i + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose preset avatar ' + (i+1) + '"><img src="' + value + '" alt="Preset avatar ' + (i+1) + '" loading="lazy"></button>'
+    ).join('');
+    const uploadedOptions = uploaded.map((value, i) =>
+      '<div class="profile-avatar-uploaded-wrap"><button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar-uploaded="' + i + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose uploaded avatar ' + (i+1) + '"><img src="' + value + '" alt="Uploaded avatar ' + (i+1) + '" loading="lazy"></button><button type="button" class="profile-avatar-remove" data-remove-uploaded-avatar="' + i + '" aria-label="Remove uploaded avatar ' + (i+1) + '" title="Remove avatar">×</button></div>'
+    ).join('');
+    picker.innerHTML = '<span class="profile-avatar-picker-label">Choose an avatar or upload your own</span>' +
+      '<div class="profile-avatar-options">' + presetOptions + uploadedOptions + '</div>' +
+      '<div class="profile-avatar-upload-controls"><label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Upload avatar images</label>' +
+      '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
+      '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
+      '<small class="profile-avatar-upload-hint">SVG, PNG, JPG/JPEG, WEBP · Up to 8 uploaded avatars per account on this device. Raster images are cropped to a square avatar.</small>' +
+      '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
   }
-  document.addEventListener('click', event => {
-    const choice = event.target.closest('[data-profile-avatar]');
-    if (!choice) return;
-    const value = choice.dataset.profileAvatar;
-    if (!avatarChoices.includes(value)) return;
-    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
+  function refreshAvatarViews() {
     renderAvatarPicker();
     if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
+  }
+  document.addEventListener('click', event => {
+    const removeButton = event.target.closest('[data-remove-uploaded-avatar]');
+    if (removeButton) {
+      const index = Number(removeButton.dataset.removeUploadedAvatar);
+      const uploaded = readUploadedAvatars();
+      if (!Number.isInteger(index) || index < 0 || index >= uploaded.length) return;
+      const removed = uploaded.splice(index, 1)[0];
+      try {
+        localStorage.setItem(uploadedAvatarKey(), JSON.stringify(uploaded));
+        if (localStorage.getItem(avatarKey()) === removed) localStorage.setItem(avatarKey(), avatarChoices[0]);
+      } catch (_) {}
+      refreshAvatarViews();
+      return;
+    }
+    const presetChoice = event.target.closest('[data-profile-avatar-preset]');
+    const uploadedChoice = event.target.closest('[data-profile-avatar-uploaded]');
+    if (!presetChoice && !uploadedChoice) return;
+    let value = null;
+    if (presetChoice) {
+      const index = Number(presetChoice.dataset.profileAvatarPreset);
+      if (Number.isInteger(index) && index >= 0 && index < avatarChoices.length) value = avatarChoices[index];
+    } else {
+      const index = Number(uploadedChoice.dataset.profileAvatarUploaded);
+      const uploaded = readUploadedAvatars();
+      if (Number.isInteger(index) && index >= 0 && index < uploaded.length) value = uploaded[index];
+    }
+    if (!value) return;
+    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
+    refreshAvatarViews();
+  });
+  document.addEventListener('change', async event => {
+    const input = event.target.closest('#profile-avatar-upload-input');
+    if (!input) return;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    const status = document.getElementById('profile-avatar-upload-status');
+    const existing = readUploadedAvatars();
+    if (files.length > maxUploadedAvatars - existing.length) {
+      if (status) status.textContent = 'You can keep up to ' + maxUploadedAvatars + ' uploaded avatars. Remove an old upload or choose fewer files.';
+      input.value = '';
+      return;
+    }
+    if (status) status.textContent = 'Processing avatar images…';
+    try {
+      const added = [];
+      for (const file of files) {
+        const source = await processUploadedAvatar(file);
+        if (!existing.includes(source) && !added.includes(source)) added.push(source);
+      }
+      if (!added.length) throw new Error('Those avatars are already in your uploaded collection.');
+      const combined = existing.concat(added);
+      localStorage.setItem(uploadedAvatarKey(), JSON.stringify(combined));
+      localStorage.setItem(avatarKey(), added[0]);
+      refreshAvatarViews();
+      const newStatus = document.getElementById('profile-avatar-upload-status');
+      if (newStatus) newStatus.textContent = added.length + ' avatar image(s) added. Choose any thumbnail to use it.';
+    } catch (error) {
+      const errorStatus = document.getElementById('profile-avatar-upload-status');
+      if (errorStatus) errorStatus.textContent = error?.message || 'The avatar upload failed. Try a smaller supported image.';
+    }
+    input.value = '';
   });
   document.addEventListener('student-progress-updated', renderAvatarPicker);
+  document.addEventListener('student-auth-state-changed', renderAvatarPicker);
   window.addEventListener('load', renderAvatarPicker);
+  const originalSetAuthStateForAvatar = app.setAuthState.bind(app);
+  app.setAuthState = function(user, ...args) {
+    const result = originalSetAuthStateForAvatar(user, ...args);
+    renderAvatarPicker();
+    return result;
+  };
   const originalShowViewForAvatar = app.showView.bind(app);
   app.showView = function(viewName, force = false) {
     const result = originalShowViewForAvatar(viewName, force);
@@ -713,8 +876,30 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  // Every 150 Rank Points advances one rank; every 120 XP advances one account level.
-  const rankFor = points => 'Rank ' + (Math.floor(Math.max(0, Number(points) || 0) / 150) + 1);
+  // The nth rank-up costs 400*n PB, with 20% extra after the first step.
+  const roundRankCost = value => Math.max(5, Math.round(Number(value || 0) / 5) * 5);
+  const rankUpgradeCost = step => {
+    const n = Math.max(1, Math.floor(Number(step) || 1));
+    const base = n * 400;
+    return roundRankCost(n === 1 ? base : base * 1.2);
+  };
+  const completedRankUps = points => {
+    const value = Math.max(0, Number(points) || 0);
+    let total = 0, count = 0;
+    while (count < 50) {
+      const nextCost = rankUpgradeCost(count + 1);
+      if (value < total + nextCost) break;
+      total += nextCost;
+      count++;
+    }
+    return count;
+  };
+  const rankFor = points => {
+    const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Legend', 'Mythic'];
+    const roman = ['V', 'IV', 'III', 'II', 'I'];
+    const rankIndex = completedRankUps(points);
+    return rankIndex >= 50 ? 'Immortal' : tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
+  };
   function ensureStudentSettings() {
     // App-wide preferences now live exclusively under the sidebar's App Settings.
     const root = document.getElementById('view-profile');
@@ -734,11 +919,11 @@
       else root.prepend(card);
     }
     const progress = readProgress();
-    const xp = Math.max(0, Number(progress.xp) || 0);
-    const level = Math.floor(xp / 120) + 1;
-    const next = level * 120;
-    const levelProgress = Math.round((xp - ((level - 1) * 120)) / 120 * 100);
-    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Level ' + level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, next - xp) + ' XP to next level · ' + levelProgress + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
+    const xp = Math.max(0, Number(progress.xp ?? progress.performanceBonus) || 0);
+    const levelState = typeof app.getPerformanceLevelProgress === 'function'
+      ? app.getPerformanceLevelProgress(xp)
+      : { level: 1, toNext: Math.max(0, 500 - xp), percent: Math.min(100, Math.round(xp / 500 * 100)) };
+    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Account Level ' + levelState.level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, Number(progress.rankPoints) || 0).toLocaleString() + ' PB (Rank Points) · ' + xp.toLocaleString() + ' XP · ' + levelState.toNext.toLocaleString() + ' XP to next level · ' + levelState.percent + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
   }
   function ensureLogoutState() {
     const root = document.getElementById('view-profile');
@@ -981,15 +1166,16 @@
 (() => {
 'use strict';
 const app=window.app;if(!app||app.__comprehensiveRequirementsInstalled)return;app.__comprehensiveRequirementsInstalled=true;
-const tiers=['Bronze','Silver','Gold','Platinum','Master','Pro'],roman=['V','IV','III','II','I'];
+const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','Grandmaster','Legend','Mythic'],roman=['V','IV','III','II','I'];
 const pkey=()=>'med_account_progress_v1_'+(app.authUser?.uid||'guest');
 const progress=()=>{try{return JSON.parse(localStorage.getItem(pkey())||'{}')||{}}catch(_){return{}}};
-const rank=points=>{const n=Math.min(29,Math.floor(Math.max(0,Number(points)||0)/150));return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:Math.max(0,Number(points)||0),remaining:n>=29?0:(n+1)*150-Math.max(0,Number(points)||0)}};
+const rankUpgradeCost=step=>{const n=Math.max(1,Math.floor(Number(step)||1)),base=n*400;return Math.max(5,Math.round((n===1?base:base*1.2)/5)*5)};
+const rank=points=>{const value=Math.max(0,Number(points)||0);let n=0,spent=0,required=rankUpgradeCost(1);while(n<50&&value>=spent+required){spent+=required;n++;required=rankUpgradeCost(n+1)}if(n>=50)return{name:'Immortal',tier:'immortal',index:51,step:1,points:value,remaining:0,progress:100};const within=value-spent;return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:Math.max(0,required-within),progress:Math.min(100,within/required*100)}};
 const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
 const hkey=()=>'med_review_history_v2_'+(app.authUser?.uid||'guest');
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(hkey())||'{}')||{}}catch(_){return{}}};
 const record=q=>readHistory()[qkey(q)]||{};
-const badge=(points,large=false)=>{const r=rank(points),symbols={bronze:'✦',silver:'✥',gold:'✶',platinum:'❖',master:'✹',pro:'✧'},romanLevel=roman[r.step-1]||'V';return '<span class="tracker-rank-badge rank-tier-'+r.tier+(large?' rank-badge-large':'')+'" aria-label="'+r.name+' rank badge"><span class="tracker-rank-emblem" aria-hidden="true">'+symbols[r.tier]+'</span><span class="tracker-rank-name"><span class="tracker-rank-tier">'+r.tier.toUpperCase()+'</span><span class="tracker-rank-level">'+romanLevel+'</span></span></span>'};
+const badge=(points,large=false)=>{const r=rank(points),symbols={bronze:'✦',silver:'✥',gold:'✶',platinum:'❖',emerald:'❋',diamond:'◈',master:'✹',grandmaster:'♛',legend:'☼',mythic:'✧',immortal:'🔥'},romanLevel=roman[r.step-1]||'V';return '<span class="tracker-rank-badge rank-tier-'+r.tier+(large?' rank-badge-large':'')+'" aria-label="'+r.name+' rank badge"><span class="tracker-rank-emblem" aria-hidden="true">'+symbols[r.tier]+'</span><span class="tracker-rank-name"><span class="tracker-rank-tier">'+r.tier.toUpperCase()+'</span><span class="tracker-rank-level">'+romanLevel+'</span></span></span>'};
 const style=document.createElement('style');style.id='tracker-rank-badge-styles';style.textContent=".tracker-rank-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #ffffff55;border-radius:8px;color:white;font-size:11px;font-weight:900;white-space:nowrap;box-shadow:0 3px 8px #0002}.rank-tier-bronze{background:linear-gradient(135deg,#b8793f,#70421f);border-radius:4px 10px}.rank-tier-silver{background:linear-gradient(135deg,#f1f5f9,#64748b);color:#172033;clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);padding:7px 12px}.rank-tier-gold{background:linear-gradient(135deg,#fff0a6,#b77908,#facc15);color:#4a2b05;clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);padding:7px 12px}.rank-tier-platinum{background:linear-gradient(135deg,#93c5fd,#1d4ed8,#172554);clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);padding:7px 12px}.rank-tier-master{background:linear-gradient(135deg,#d8b4fe,#7e22ce,#3b0764);clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);padding:7px 12px}.rank-tier-pro{background:linear-gradient(135deg,#fca5a5,#dc2626,#581c87);border-radius:18px 5px}.rank-tier-pro:before,.rank-tier-pro:after{content:'✦';color:#fef08a}.tracker-rank-marks{font-size:9px;letter-spacing:1px;line-height:1}.rank-badge-large{font-size:14px;padding:10px 15px}#profile-rank-card .rank-track{height:9px;background:var(--line,#dbe4ee);border-radius:99px;overflow:hidden;margin:10px 0}#profile-rank-card .rank-track span{display:block;height:100%;background:linear-gradient(90deg,#10b981,#0ea5e9)}#profile-rank-card .rank-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}#profile-rank-card .rank-stat{padding:10px;border:1px solid var(--line,#dbe4ee);border-radius:12px}#profile-rank-card .rank-stat small{display:block;color:var(--muted,#64748b);font-size:11px}#profile-rank-card .rank-stat strong{font-size:19px;font-weight:900}.practice-exam-setup{padding:17px;border:1px solid var(--line,#dbe4ee);border-radius:20px;background:var(--surface,#fff);box-shadow:0 8px 22px #0f172a08}.practice-type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.practice-type-btn,.practice-count-btn{padding:10px 7px;border:1px solid var(--line,#cbd5e1);border-radius:11px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#1e293b)}.practice-type-btn.active,.practice-count-btn.active{border-color:#059669;background:#10b98120;color:#047857;box-shadow:inset 0 0 0 1px #059669}.practice-count-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:8px}.practice-setup-footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:12px;font-weight:800;color:var(--muted,#64748b)}@media(max-width:640px){.practice-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#profile-rank-card .rank-stats{gap:5px}#profile-rank-card .rank-stat{padding:7px}#profile-rank-card .rank-stat strong{font-size:16px}}";style.textContent += `
 .tracker-rank-badge{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:5px 10px 5px 6px;border:1px solid #ffffffaa;border-radius:11px 5px 11px 5px;overflow:hidden;isolation:isolate;box-shadow:inset 0 1px 0 #ffffffa3,inset 0 -2px 0 #0003,0 5px 13px #0002;letter-spacing:.035em}
 .tracker-rank-badge:after{content:"";position:absolute;inset:1px 1px auto;height:42%;background:linear-gradient(180deg,#ffffff44,transparent);pointer-events:none;z-index:-1}
@@ -1002,11 +1188,41 @@ const style=document.createElement('style');style.id='tracker-rank-badge-styles'
 .rank-tier-silver .tracker-rank-emblem{color:#fff;background:linear-gradient(145deg,#fff,#b4c7df 45%,#526b88);clip-path:polygon(50% 0,62% 15%,83% 10%,85% 31%,100% 50%,85% 69%,83% 90%,62% 85%,50% 100%,38% 85%,17% 90%,15% 69%,0 50%,15% 31%,17% 10%,38% 15%);filter:drop-shadow(0 1px 1px #26364b)}
 .rank-tier-gold .tracker-rank-emblem{background:linear-gradient(145deg,#fff2b7,#daa520,#80520b);clip-path:polygon(50% 0,63% 25%,91% 12%,83% 43%,100% 59%,69% 66%,65% 100%,47% 77%,22% 93%,27% 63%,0 48%,31% 39%)}
 .rank-tier-platinum .tracker-rank-emblem{background:linear-gradient(145deg,#e0f2fe,#60a5fa,#1e3a8a);clip-path:polygon(50% 0,83% 16%,100% 50%,83% 84%,50% 100%,17% 84%,0 50%,17% 16%)}
+.rank-tier-emerald{color:#dcfce7;background:linear-gradient(135deg,#a7f3d0,#047857 48%,#064e3b);border:1px solid #6ee7b7;border-radius:15px 4px 15px 4px}
+.rank-tier-emerald .tracker-rank-emblem{background:linear-gradient(145deg,#d1fae5,#34d399,#065f46);clip-path:polygon(50% 0,61% 24%,89% 10%,78% 42%,100% 57%,71% 68%,70% 100%,50% 81%,30% 100%,29% 68%,0 57%,22% 42%,11% 10%,39% 24%)}
+.rank-tier-diamond{color:#f5f3ff;background:linear-gradient(135deg,#ede9fe,#7c3aed 48%,#312e81);border:1px solid #c4b5fd;border-radius:5px 13px 5px 13px}
+.rank-tier-diamond .tracker-rank-emblem{background:linear-gradient(145deg,#fff,#c4b5fd,#5b21b6);clip-path:polygon(50% 0,91% 24%,78% 78%,50% 100%,22% 78%,9% 24%)}
+.rank-tier-grandmaster{color:#ffedd5;background:linear-gradient(135deg,#fed7aa,#ea580c 48%,#7c2d12);border:1px solid #fdba74;border-radius:14px}
+.rank-tier-grandmaster .tracker-rank-emblem{background:linear-gradient(145deg,#ffedd5,#f97316,#7c2d12);clip-path:polygon(0 18%,35% 30%,50% 0,65% 30%,100% 18%,82% 62%,65% 57%,50% 100%,35% 57%,18% 62%)}
+.rank-tier-legend{color:#fef9c3;background:linear-gradient(135deg,#fef08a,#ca8a04 48%,#713f12);border:1px solid #fde68a;border-radius:18px 4px 18px 4px}
+.rank-tier-legend .tracker-rank-emblem{background:linear-gradient(145deg,#fef9c3,#facc15,#854d0e);clip-path:polygon(50% 0,60% 22%,84% 8%,78% 35%,100% 50%,78% 65%,84% 92%,60% 78%,50% 100%,40% 78%,16% 92%,22% 65%,0 50%,22% 35%,16% 8%,40% 22%)}
+.rank-tier-mythic{color:#fae8ff;background:linear-gradient(135deg,#f5d0fe,#a21caf 48%,#581c87);border:1px solid #f0abfc;border-radius:6px 18px 6px 18px}
+.rank-tier-mythic .tracker-rank-emblem{background:linear-gradient(145deg,#fae8ff,#e879f9,#701a75);clip-path:polygon(50% 0,64% 24%,91% 16%,80% 42%,100% 58%,71% 69%,65% 100%,50% 80%,35% 100%,29% 69%,0 58%,20% 42%,9% 16%,36% 24%)}
+.rank-tier-immortal{color:#fff1f2;background:linear-gradient(135deg,#fecdd3,#e11d48 44%,#4c0519);border:1px solid #fb7185;border-radius:12px 12px 4px 4px;box-shadow:inset 0 1px 0 #fff,inset 0 -4px 0 #4c0519,0 7px 18px #9f123940}
+.rank-tier-immortal .tracker-rank-emblem{background:linear-gradient(145deg,#fff1f2,#fb7185,#4c0519);clip-path:polygon(50% 0,61% 22%,86% 5%,80% 34%,100% 50%,80% 66%,86% 95%,61% 78%,50% 100%,39% 78%,14% 95%,20% 66%,0 50%,20% 34%,14% 5%,39% 22%)}
 .rank-tier-master .tracker-rank-emblem{background:linear-gradient(145deg,#f3e8ff,#c084fc,#581c87);clip-path:polygon(50% 0,62% 27%,90% 15%,78% 45%,100% 57%,73% 69%,75% 98%,50% 80%,25% 98%,27% 69%,0 57%,22% 45%,10% 15%,38% 27%)}
 .rank-tier-pro .tracker-rank-emblem{background:linear-gradient(145deg,#fee2e2,#f87171,#701a75);clip-path:polygon(50% 0,61% 18%,82% 8%,87% 32%,100% 50%,87% 68%,82% 92%,61% 82%,50% 100%,39% 82%,18% 92%,13% 68%,0 50%,13% 32%,18% 8%,39% 18%)}
 .rank-badge-large .tracker-rank-emblem{flex-basis:32px;width:32px;height:32px;font-size:20px}.rank-badge-large .tracker-rank-tier{font-size:12px}.rank-badge-large .tracker-rank-level{min-width:22px;height:23px;font-size:12px}
 `;document.head.appendChild(style);
-function renderRankCard(){const root=document.getElementById('view-profile');if(!root)return;let card=document.getElementById('profile-rank-card');if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card)}const p=progress(),r=rank(p.rankPoints),xp=Math.max(0,Number(p.xp)||0),level=Math.floor(xp/120)+1,into=xp%120,rpProgress=r.index>=30?100:(r.points%150)/150*100;card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points+' lifetime Rank Points</small></div></div><div class="rank-track"><span style="width:'+rpProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=30?'Highest rank reached.':r.remaining+' Rank Points to next rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+level+'</strong><small>'+(120-into)+' XP to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>+20 XP per exam</small></div></div><div class="rank-track"><span style="width:'+(into/120*100)+'%"></span></div><small>Level progress: '+Math.round(into/120*100)+'% · XP and Rank Points are separate.</small>';const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name}
+function renderRankCard(){
+  const root=document.getElementById('view-profile'); if(!root)return;
+  let card=document.getElementById('profile-rank-card');
+  if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card);}
+  const p=progress(),r=rank(p.rankPoints),xp=Math.max(0,Number(p.xp??p.performanceBonus)||0);
+  const levelState=typeof app.getPerformanceLevelProgress==='function'?app.getPerformanceLevelProgress(xp):{level:1,toNext:Math.max(0,500-xp),percent:Math.min(100,Math.round(xp/500*100))};
+  const pbProgress=r.progress;
+  card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points.toLocaleString()+' PB balance (Rank Points)</small></div></div><div class="rank-track"><span style="width:'+pbProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=51?'Highest rank reached.':r.remaining+' PB to next sub-rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+levelState.level+'</strong><small>'+levelState.toNext.toLocaleString()+' XP to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>Exams award PB; convert PB to XP when needed</small></div></div><div class="rank-track"><span style="width:'+levelState.percent+'%"></span></div><small>XP progress: '+levelState.percent+'% · Conversion rate: 1 PB = 2 XP.</small><div class="pb-xp-converter" style="margin-top:16px;padding:13px;border:1px solid var(--line,#cbd5e1);border-radius:14px"><strong style="display:block;margin-bottom:7px">Convert PB to XP</strong><div style="display:flex;gap:8px;flex-wrap:wrap"><label for="pb-to-xp-amount" style="position:absolute;left:-9999px">PB amount to convert</label><input id="pb-to-xp-amount" type="number" min="1" max="'+Math.floor(r.points)+'" step="1" inputmode="numeric" placeholder="PB amount" style="flex:1;min-width:110px;padding:9px 11px;border:1px solid var(--line,#cbd5e1);border-radius:9px;background:var(--surface,#fff);color:var(--text,#1e293b)"><button type="button" id="pb-to-xp-button" style="padding:9px 13px;border-radius:9px;background:#0f766e;color:#fff;font-weight:800">Convert</button></div><small style="display:block;margin-top:7px;color:var(--muted,#64748b)">1 PB = 2 XP. Converted PB is deducted from your PB balance and can lower your rank.</small></div>';
+  const converterButton=card.querySelector('#pb-to-xp-button');
+  if(converterButton)converterButton.onclick=()=>{
+    const input=card.querySelector('#pb-to-xp-amount'),amount=Number(input?.value||0);
+    if(typeof app.convertPBToXP!=='function'){alert('PB-to-XP conversion is unavailable.');return}
+    const result=app.convertPBToXP(amount);
+    if(!result.ok){alert(result.message||'Unable to convert PB.');return}
+    alert(result.convertedPB.toLocaleString()+' PB converted to '+result.earnedXP.toLocaleString()+' XP.');
+    renderRankCard();
+  };
+  const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name;
+}
 function renderSidebarAuth(){const b=document.getElementById('sidebar-auth-action');if(!b)return;const logged=Boolean(app.authUser?.uid);b.classList.toggle('logout-action',logged);b.classList.toggle('login-action',!logged);b.setAttribute('aria-label',logged?'Log Out':'Log In / Sign Up');b.title=logged?(app.authUser.email||'Log Out'):'Log In / Sign Up';b.innerHTML=logged?'<i class="fa-solid fa-right-from-bracket"></i><span>Log Out</span>':'<i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span>';b.onclick=logged?()=>{if(typeof app.logout==='function')app.logout();else if(window.handleLogout)window.handleLogout()}:()=>{if(window.redirectToLogin)window.redirectToLogin()}}
 function setupPracticeUI(){const view=document.getElementById('view-practice');if(!view||document.getElementById('practice-exam-setup'))return;const panel=document.createElement('section');panel.id='practice-exam-setup';panel.className='practice-exam-setup';panel.innerHTML='<h3 style="font-weight:900;font-size:1.1rem">Practice Exam Setup</h3><p style="font-size:.82rem;color:var(--muted,#64748b);margin:4px 0 14px">Choose the question pool. Existing quiz answer and feedback handlers are preserved.</p><label style="font-size:.85rem;font-weight:900">Exam Type</label><div class="practice-type-grid" role="group"><button type="button" class="practice-type-btn active" data-practice-type="all" aria-pressed="true">All Questions</button><button type="button" class="practice-type-btn" data-practice-type="reviewed" aria-pressed="false">Reviewed</button><button type="button" class="practice-type-btn" data-practice-type="wrong" aria-pressed="false">Wrong Answer</button><button type="button" class="practice-type-btn" data-practice-type="previous" aria-pressed="false">Previous Year</button></div><label style="display:block;font-size:.85rem;font-weight:900;margin-top:14px">Question Count</label><div class="practice-count-grid">'+[20,30,50,75,100].map(n=>'<button type="button" class="practice-count-btn '+(n===20?'active':'')+'" data-practice-count="'+n+'" aria-pressed="'+(n===20?'true':'false')+'">'+n+'</button>').join('')+'</div><div class="practice-setup-footer"><span id="practice-auto-time">20 questions · 10 minutes automatically</span><span id="practice-available-count">Loading questions…</span></div>';const actions=view.querySelector('.practice-mode-actions');view.insertBefore(panel,actions||view.firstChild);panel.addEventListener('click',e=>{const t=e.target.closest('[data-practice-type]'),c=e.target.closest('[data-practice-count]');if(t)panel.querySelectorAll('[data-practice-type]').forEach(b=>{b.classList.toggle('active',b===t);b.setAttribute('aria-pressed',String(b===t))});if(c)panel.querySelectorAll('[data-practice-count]').forEach(b=>{b.classList.toggle('active',b===c);b.setAttribute('aria-pressed',String(b===c))});updatePracticeUI()});updatePracticeUI()}
 const practiceType=()=>document.querySelector('#practice-exam-setup [data-practice-type].active')?.dataset.practiceType||'all',practiceCount=()=>Number(document.querySelector('#practice-exam-setup [data-practice-count].active')?.dataset.practiceCount||20);
@@ -1022,7 +1238,7 @@ const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?i
 function portraitForRow(row){
   const uid=String(row?.uid||row?.name||'student');
   if(app.authUser?.uid&&row?.uid===app.authUser.uid){
-    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);if(portraitChoices.includes(saved))return saved;}catch(_){}
+    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$|^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(saved)))return saved;}catch(_){}
   }
   let hash=0;for(let i=0;i<uid.length;i++)hash=((hash<<5)-hash+uid.charCodeAt(i))|0;
   return portraitChoices[Math.abs(hash)%portraitChoices.length];
