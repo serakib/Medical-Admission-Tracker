@@ -573,14 +573,15 @@
     saveQueue(queue);
   }
   async function flushQueue() {
-    if (!isAuthenticated() || !navigator.onLine) return;
+    if (!navigator.onLine) return;
     var queue = getQueue();
     if (!queue.length) return;
+    var activeUid = currentSubmissionUid();
     var keep = [];
     var sentAny = false;
     for (var i = 0; i < queue.length; i++) {
       var item = queue[i];
-      if (!item || item.uid !== app.authUser.uid) { keep.push(item); continue; }
+      if (!item || item.uid !== activeUid) { keep.push(item); continue; }
       try {
         await submitResult(item, true);
         sentAny = true;
