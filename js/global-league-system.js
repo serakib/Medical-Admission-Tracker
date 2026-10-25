@@ -24,6 +24,7 @@
   var configUrl = function () {
     return String(window.MED_LEADERBOARD_API_URL || '').trim();
   };
+  function leagueStorageKey() { return LEAGUE_KEY + '_' + (app.authUser && app.authUser.uid || 'guest'); }
 
   function readPeriod() {
     var p = localStorage.getItem(PERIOD_KEY) || 'weekly';
