@@ -1493,13 +1493,15 @@ window.updateExamRewardDisplay = function (reward) {
         const rp = reward.rankPointsDelta == null || !Number.isFinite(Number(reward.rankPointsDelta)) ? null : Number(reward.rankPointsDelta);
         if (xpEl) xpEl.textContent = xp == null ? '—' : ((xp >= 0 ? '+' : '') + xp.toLocaleString() + ' XP');
         if (rpEl) rpEl.textContent = rp == null ? '—' : ((rp >= 0 ? '+' : '') + rp.toLocaleString() + ' RP');
-        if (rankEl) rankEl.textContent = reward.rank ? ('Current Rank: ' + reward.rank) : '';
+        if (rankEl) rankEl.textContent = reward.rank ? ('বর্তমান Rank: ' + reward.rank) : '';
         if (statusEl) {
             statusEl.textContent = (xp == null || rp == null)
                 ? 'API থেকে result গ্রহণ করা হয়েছে, কিন্তু earned XP/RP-এর নির্দিষ্ট amount response-এ পাওয়া যায়নি।'
-                : (reward.synced ? 'Global Rank-এ reward sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।');
+                : (reward.fallbackUsed
+                    ? 'API earned delta ফেরত দেয়নি; তাই Fallrush-এর client-side fallback হিসাব দেখানো হচ্ছে।'
+                    : (reward.synced ? 'Global Rank-এ reward sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।'));
         }
-        panel.dataset.rewardState = (xp == null || rp == null) ? 'amount-unavailable' : 'synced';
+        panel.dataset.rewardState = (xp == null || rp == null) ? 'amount-unavailable' : (reward.fallbackUsed ? 'fallback' : 'synced');
         return;
     }
     if (reward.pending) {
