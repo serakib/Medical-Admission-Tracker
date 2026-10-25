@@ -416,6 +416,7 @@ class MedicalExamApp {
 
     async handleAuthSubmit(event) {
         event.preventDefault();
+        if (this.authMode !== 'register' && !window.confirm('আপনি কি লগইন করতে চান?')) return;
         const message = document.getElementById('authMessage');
         const email = document.getElementById('auth-email')?.value.trim();
         const password = document.getElementById('auth-password')?.value;
@@ -1643,6 +1644,7 @@ onAuthStateChanged(auth, (user) => {
 
 // গ্লোবাল রিডাইরেক্ট এবং লগআউট ফাংশন
 window.redirectToLogin = function() {
+    if (!window.confirm("আপনি কি লগইন পেজে যেতে চান?")) return;
     window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 };
 
