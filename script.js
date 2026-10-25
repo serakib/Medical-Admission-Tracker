@@ -152,10 +152,23 @@ class MedicalExamApp {
 
     async loadQuestionBank() {
         const cacheBuster = `?v=${Date.now()}`;
-        const response = await fetch(`./questions.json${cacheBuster}`, {
-            cache: 'no-store',
-            headers: { 'Accept': 'application/json' }
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        let response;
+        try {
+            response = await fetch(`./questions.json${cacheBuster}`, {
+                cache: 'no-store',
+                headers: { 'Accept': 'application/json' },
+                signal: controller.signal
+            });
+        } catch (error) {
+            if (controller.signal.aborted) {
+                throw new Error('প্রশ্ন ব্যাংক লোড হতে ১৫ সেকেন্ডের বেশি সময় লাগছে। পেজটি আবার লোড করুন; সমস্যা থাকলে প্রশ্ন ফাইলের সংযোগ পরীক্ষা করতে হবে।');
+            }
+            throw error;
+        } finally {
+            clearTimeout(timeoutId);
+        }
         if (!response.ok) {
             throw new Error(`questions.json (${response.status})`);
         }
