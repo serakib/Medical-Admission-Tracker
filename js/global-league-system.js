@@ -382,8 +382,22 @@
     try {
       if (app.authUser) {
         var previousAccountLeague = currentMe && currentMe.league || '';
-        var profileResponse = await api('profileSync', { name: profileName(), college: profileCollege(), avatar: profileAvatar() });
+        var profileResponse = await api('profileSync', { name: profileName(), college: profileCollege(), avatar: profileAvatar(),
+          mobile: text(app.profile && app.profile.mobile || '', 32),
+          studentClass: text(app.profile && (app.profile.class || app.profile.studentClass) || '', 40),
+          bloodGroup: text(app.profile && app.profile.bloodGroup || '', 12)
+        });
         currentMe = profileResponse.user || currentMe;
+        if (currentMe) {
+          currentMe.rpTarget = LEAGUE_TARGET_RP;
+          app.profile = Object.assign({}, app.profile || {}, currentMe, {
+            uid: app.authUser.uid, email: app.authUser.email || (app.profile && app.profile.email) || '',
+            mobile: profileResponse.privateProfile && profileResponse.privateProfile.mobile || (app.profile && app.profile.mobile) || '',
+            class: profileResponse.privateProfile && profileResponse.privateProfile.class || (app.profile && app.profile.class) || '',
+            bloodGroup: profileResponse.privateProfile && profileResponse.privateProfile.bloodGroup || (app.profile && app.profile.bloodGroup) || ''
+          });
+          try { localStorage.setItem('med_student_profile_v1_' + app.authUser.uid, JSON.stringify(app.profile)); } catch (_) {}
+        }
         if (!storedLeague && currentMe && currentMe.league) {
           selectedLeague = currentMe.league;
           localStorage.setItem(leagueStorageKey(), selectedLeague);
