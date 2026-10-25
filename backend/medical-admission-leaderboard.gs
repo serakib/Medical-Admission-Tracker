@@ -24,11 +24,16 @@ var MAT_HEADERS = {
 };
 
 function doGet(e) {
-  var action = (e && e.parameter && e.parameter.action) || 'health';
-  if (action === 'health') {
-    return matJson_({ success: true, service: 'Medical Admission Tracker Global League API', configured: !!matSpreadsheetId_(), leagues: MAT_LEAGUES });
+  try {
+    var params = (e && e.parameter) || {};
+    var action = params.action || 'health';
+    if (action === 'health') {
+      return matJson_({ success: true, service: 'Medical Admission Tracker Global League API', configured: !!matSpreadsheetId_(), leagues: MAT_LEAGUES });
+    }
+    return matJson_(matDispatch_({ action: action, period: params.period, league: params.league, sortBy: params.sortBy }));
+  } catch (err) {
+    return matJson_({ success: false, error: String(err && err.message || err || 'Request failed.') });
   }
-  return matJson_(matDispatch_({ action: action, period: e.parameter.period, league: e.parameter.league, sortBy: e.parameter.sortBy }));
 }
 
 function doPost(e) {
