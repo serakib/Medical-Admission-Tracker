@@ -14,19 +14,7 @@ import {
     setPersistence,
     browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc, 
-    collection, 
-    runTransaction, 
-    serverTimestamp, 
-    orderBy, 
-    query, 
-    getDocs,
-    getDocFromServer
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
 
 // Firebase Configuration & Initialization (firebaseApp নাম ব্যবহার করা হয়েছে ডুপ্লিকেট এড়াতে)[cite: 1]
 const firebaseConfig = {
@@ -40,7 +28,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
+const db = null; // Firebase Authentication only; leaderboard/profile sync lives outside Firestore.
 
 let QUESTION_BANK = [];
 
@@ -406,11 +394,22 @@ class MedicalExamApp {
             if (this.authMode === 'register') {
                 result = await createUserWithEmailAndPassword(this.auth, email, password);
                 if (name && result.user) { await updateProfile(result.user, { displayName: name }); }
-                if (this.firestore && result.user) {
-                    await setDoc(doc(this.firestore, 'students', result.user.uid), {
-                        uid: result.user.uid, name: name || '', college: college || '', mobile: mobile || '', email, class: studentClass || '', bloodGroup: bloodGroup || '',
-                        updatedAt: serverTimestamp(), createdAt: serverTimestamp()
-                    }, { merge: true });
+                if (result.user) {
+                    const localProfile = {
+                        uid: result.user.uid, name: name || result.user.displayName || '', college: college || '',
+                        mobile: mobile || '', email: email || result.user.email || '', class: studentClass || '',
+                        bloodGroup: bloodGroup || '', updatedAtMs: Date.now()
+                    };
+                    try { localStorage.setItem('med_student_profile_v1_' + result.user.uid, JSON.stringify(localProfile)); } catch (_) {}
+                    this.profile = localProfile;
+                    if (window.MedGlobalLeague && typeof window.MedGlobalLeague.syncProfile === 'function') {
+                        try {
+                            const syncedProfile = await window.MedGlobalLeague.syncProfile(localProfile);
+                            if (syncedProfile && syncedProfile.user) this.profile = Object.assign({}, localProfile, syncedProfile.user);
+                        } catch (syncError) {
+                            console.warn('Leaderboard profile sync deferred:', syncError);
+                        }
+                    }
                 }
             } else {
                 result = await signInWithEmailAndPassword(this.auth, email, password);
@@ -481,7 +480,27 @@ class MedicalExamApp {
     }
     startPreviousYearQuiz(){ if(!this.previousSelectedYear) return; this.setup.mode='previousQuiz'; this.setup.subject='all'; this.setup.questionsCount=Math.min(20,this.questionBank.filter(q=>q.year===this.previousSelectedYear&&q.isPreviousYear).length); this.setup.durationMins=10; const ys=document.getElementById('setup-year'); if(ys) ys.value=this.previousSelectedYear; this.prepareExamFromSetup(); }
 
-    async loadUserProfile(){ if(!this.firestore||!this.authUser) return; try{ const snap=await getDoc(doc(this.firestore, 'students', this.authUser.uid)); this.profile=snap.exists()?snap.data():{name:this.authUser.displayName||'',email:this.authUser.email||''}; this.loadProgressStats(); }catch(e){console.warn('Profile load failed',e);} }
+    async loadUserProfile(){
+        if (!this.authUser) return;
+        const uid = this.authUser.uid;
+        try {
+            const cached = JSON.parse(localStorage.getItem('med_student_profile_v1_' + uid) || '{}');
+            this.profile = Object.assign({ uid: uid, name: this.authUser.displayName || '', email: this.authUser.email || '' }, cached || {});
+            if (window.MedGlobalLeague && typeof window.MedGlobalLeague.syncProfile === 'function') {
+                try {
+                    const synced = await window.MedGlobalLeague.syncProfile(this.profile);
+                    if (synced && synced.user) this.profile = Object.assign({}, this.profile, synced.user);
+                } catch (syncError) {
+                    console.warn('Global profile sync deferred:', syncError);
+                }
+            }
+            try { localStorage.setItem('med_student_profile_v1_' + uid, JSON.stringify(this.profile)); } catch (_) {}
+            this.loadProgressStats();
+        } catch (e) {
+            console.warn('Local profile load failed', e);
+            this.profile = { uid: uid, name: this.authUser.displayName || '', email: this.authUser.email || '' };
+        }
+    }
 
     getDemoLeaderboardRows(){
         return [
