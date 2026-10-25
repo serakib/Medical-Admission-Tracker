@@ -661,7 +661,7 @@
   const maxUploadedAvatars = 8;
   const isUploadedAvatarSource = value => {
     if (typeof value !== 'string') return false;
-    if (/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(value)) return true;
+    if (/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(value)) return true;
     return /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(value);
   };
   const readUploadedAvatars = () => {
@@ -704,7 +704,7 @@
       });
     });
     const serialized = new XMLSerializer().serializeToString(rootSvg);
-    if (serialized.length > 150 * 1024) throw new Error('The cleaned SVG is too large. Try a simpler SVG avatar.');
+    if (serialized.length > 50 * 1024) throw new Error('The cleaned SVG must be smaller than 50 KB. Try a simpler SVG avatar.');
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized);
   }
   function processUploadedAvatar(file) {
@@ -1238,7 +1238,7 @@ const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?i
 function portraitForRow(row){
   const uid=String(row?.uid||row?.name||'student');
   if(app.authUser?.uid&&row?.uid===app.authUser.uid){
-    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&/^data:image\/(?:webp;base64,[A-Za-z0-9+/=]+|svg\+xml;charset=utf-8,%3Csvg)/i.test(saved)))return saved;}catch(_){}
+    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$|^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(saved)))return saved;}catch(_){}
   }
   let hash=0;for(let i=0;i<uid.length;i++)hash=((hash<<5)-hash+uid.charCodeAt(i))|0;
   return portraitChoices[Math.abs(hash)%portraitChoices.length];
