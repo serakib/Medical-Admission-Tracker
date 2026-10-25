@@ -621,6 +621,9 @@
     };
     var token = getToken();
     var previousProfile = currentProfile || {};
+    var itemIsGuest = item.isGuest != null ? !!item.isGuest : !token;
+    var tokenForAttempt = itemIsGuest ? '' : token;
+    if (!itemIsGuest && !tokenForAttempt) throw new Error('এই attempt-টি লগইন করা Fallrush API session দিয়ে শুরু হয়েছিল। Reward sync করতে একই API account-এ আবার sign in করুন।');
     var payload = {
       action: 'gameEnd',
       gameId: 'MAT-' + safeText(item.uid || 'USER', 55) + '-' + safeText(id, 70),
@@ -634,11 +637,11 @@
       feverActivations: 0,
       survivalSeconds: 0,
       username: safeText(item.name || profileName(), 80),
-      playerId: token ? safeText(localStorage.getItem('elem_player_id') || medPlayerId(), 100) : medPlayerId(),
-      isGuest: !token,
+      playerId: safeText(item.playerId || (tokenForAttempt ? localStorage.getItem('elem_player_id') || medPlayerId() : medPlayerId()), 100),
+      isGuest: itemIsGuest,
       college: safeText(item.college || profileCollege(), 120)
     };
-    if (token) payload.token = token;
+    if (tokenForAttempt) payload.token = tokenForAttempt;
     var response = await request(payload);
     var resultUser = response.user || response.profile || response;
     currentProfile = Object.assign({}, currentProfile || {}, resultUser || {});
@@ -701,7 +704,9 @@
       totalQuestions: Math.max(0, Math.floor(Number(meta.totalQuestions) || 0)),
       maxCombo: Math.max(0, Math.floor(Number(meta.maxCombo) || 0)),
       name: profileName(),
-      college: profileCollege()
+      college: profileCollege(),
+      playerId: safeText(getToken() ? localStorage.getItem('elem_player_id') || medPlayerId() : medPlayerId(), 100),
+      isGuest: !getToken()
     };
     if (!item.totalQuestions) {
       var invalidReward = { success: false, pending: true, attemptId: attemptId, message: 'Exam result-এ question count পাওয়া যায়নি; XP/RP sync হয়নি।' };
