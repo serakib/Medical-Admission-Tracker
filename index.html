@@ -1261,7 +1261,7 @@ function toggleAppSidebarCollapse(){
         <!-- VIEW: LEADERBOARD -->
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">All-time Rank Points determine the leaderboard. Friends shows students from your college.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Global Match Rank and RP are synced through the shared API. Friends shows your accepted friend connections.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
                 <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Leaderboard period">
   <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">All Time</button>
@@ -1484,11 +1484,13 @@ function toggleAppSidebarCollapse(){
 
 
     
+<script src="./js/leaderboard-config.js?v=fallrush-api-1"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=logout-confirmation-2"></script>
+<script type="module" src="script.js?v=fallrush-api-1"></script>
 <script type="module" src="./js/integrated-features.js"></script>
 <script src="./js/final-trophy-practice.js" defer></script>
-    <script src="./js/final-exam-type-lifetime.js" defer></script>
+<script src="./js/final-exam-type-lifetime.js" defer></script>
+<script type="module" src="./js/global-league-system.js?v=fallrush-api-1"></script>
 </body>
 </html>
