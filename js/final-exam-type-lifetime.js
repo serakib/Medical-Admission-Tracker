@@ -7,7 +7,7 @@
 
   const style = document.createElement('style');
   style.id = 'final-exam-type-lifetime-styles';
-  style.textContent = '#view-practice,#practice-browser,#practice-quiz-view,#practice-exam-setup,#enhanced-review-history{display:none!important} #view-setup #setup-mode-options,#view-setup #setup-subject-area,#view-setup .time-btn{display:none!important} #view-setup .q-count-btn:not([data-final-count="50"]):not([data-final-count="100"]){display:none!important} #view-setup #setup-question-count-options{grid-template-columns:repeat(2,minmax(0,1fr))!important} #weekly-reset-setting,label[for="weekly-reset-setting"],.league-banner,[data-leaderboard-period="weekly"]{display:none!important} #final-exam-type-panel{border:1px solid rgba(16,185,129,.24);border-radius:16px;padding:16px;background:rgba(16,185,129,.045)} #final-exam-type-panel label{display:block;font-weight:800;font-size:.9rem;margin-bottom:8px} #final-exam-type{width:100%;border:1px solid #94a3b8;border-radius:12px;padding:12px;background:var(--surface,#fff);color:inherit} #final-exam-type-help{margin-top:8px;font-size:.8rem;color:#64748b;line-height:1.6} html.dark #final-exam-type{background:#1f2937}';
+  style.textContent = '#view-setup #setup-mode-options,#view-setup #setup-subject-area,#view-setup .time-btn{display:none!important} #view-setup .q-count-btn:not([data-final-count="50"]):not([data-final-count="100"]){display:none!important} #view-setup #setup-question-count-options{grid-template-columns:repeat(2,minmax(0,1fr))!important} #weekly-reset-setting,label[for="weekly-reset-setting"],.league-banner,[data-leaderboard-period="weekly"]{display:none!important} #final-exam-type-panel{border:1px solid rgba(16,185,129,.24);border-radius:16px;padding:16px;background:rgba(16,185,129,.045)} #final-exam-type-panel label{display:block;font-weight:800;font-size:.9rem;margin-bottom:8px} #final-exam-type{width:100%;border:1px solid #94a3b8;border-radius:12px;padding:12px;background:var(--surface,#fff);color:inherit} #final-exam-type-help{margin-top:8px;font-size:.8rem;color:#64748b;line-height:1.6} html.dark #final-exam-type{background:#1f2937}';
   document.head.appendChild(style);
 
   const historyKey = () => 'med_review_history_v2_' + (app.authUser?.uid || 'guest');
@@ -60,22 +60,21 @@
     if(app.practiceTimerInterval){clearInterval(app.practiceTimerInterval);app.practiceTimerInterval=null;}
     app.practiceSession=null;
     app.setup.mode='model'; app.setup.subject='all';
-    if(![50,100].includes(Number(app.setup.questionsCount))) app.setup.questionsCount=50;
-    app.setup.durationMins=app.setup.questionsCount*.6;
+    app.setup.questionsCount=50;
+    app.setup.durationMins=30;
     const show=app.showView.bind(app);
     show('setup');
     installExamTypeUI();
+    if(typeof app.updateSetupUI==='function') app.updateSetupUI();
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  app.openPracticeBrowser=openModelTest;
-  app.startPracticeFromBrowser=openModelTest;
   const originalQuick=app.setupExamQuick?.bind(app);
   app.setupExamQuick=function(mode){if(mode==='model'){openModelTest();return;}return originalQuick?originalQuick(mode):openModelTest();};
   const originalShow=app.showView.bind(app);
-  app.showView=function(name,...args){if(name==='practice'){openModelTest();return;}const result=originalShow(name,...args);if(name==='setup')installExamTypeUI();return result;};
+  app.showView=function(name,...args){const result=originalShow(name,...args);if(name==='setup')installExamTypeUI();return result;};
   const originalCount=app.setSetupQuestions?.bind(app);
-  if(originalCount) app.setSetupQuestions=function(count){if(![50,100].includes(Number(count)))return;this.setup.questionsCount=Number(count);this.setup.durationMins=Number(count)*.6;installExamTypeUI();};
+  if(originalCount) app.setSetupQuestions=function(count){const n=Number(count);if(![50,100].includes(n))return;originalCount(n);this.setup.questionsCount=n;this.setup.durationMins=n*.6;if(originalUpdate)originalUpdate();installExamTypeUI();};
   const originalUpdate=app.updateSetupUI?.bind(app);
   if(originalUpdate) app.updateSetupUI=function(...args){const result=originalUpdate(...args);installExamTypeUI();return result;};
 
@@ -137,10 +136,6 @@
   };
   const observer=new MutationObserver(()=>removeWeeklyUI());
   observer.observe(document.documentElement,{childList:true,subtree:true});
-  document.addEventListener('click',event=>{
-    const link=event.target.closest('[onclick*="openPracticeBrowser"],[onclick*="startPracticeFromBrowser"]');
-    if(link){event.preventDefault();event.stopImmediatePropagation();openModelTest();}
-  },true);
   window.addEventListener('load',()=>{installExamTypeUI();removeWeeklyUI();},{once:true});
   document.addEventListener('DOMContentLoaded',()=>{installExamTypeUI();removeWeeklyUI();},{once:true});
   installExamTypeUI();removeWeeklyUI();
