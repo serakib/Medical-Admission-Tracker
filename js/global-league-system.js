@@ -606,7 +606,7 @@
     var accuracy = total > 0 ? correct / total : 0;
     var rawRP = Math.floor(score / 80) + Math.floor(combo * 1.5) +
       Math.floor(correct * 1.25) + Math.floor(accuracy * 20) - Math.floor(wrong * 1.5);
-    var multiplier = getToken() ? 2 : 1;
+    var multiplier = item && item.isGuest != null ? (item.isGuest ? 1 : 2) : (getToken() ? 2 : 1);
     var xp = Math.round((Math.max(5, Math.floor(score / 25)) + 15 + (combo >= 10 ? 10 : 0)) * multiplier);
     var rp = Math.round(Math.max(1, rawRP) * multiplier);
     return { xpGained: xp, rankPointsDelta: rp };
