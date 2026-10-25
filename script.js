@@ -1313,8 +1313,8 @@ class MedicalExamApp {
         const secsUsed = usedSeconds % 60;
         setResultText('res-time-used', minsUsed + ':' + String(secsUsed).padStart(2, '0'));
 
-        const quizPoints = (state.mode === 'challenge' || state.mode === 'previousQuiz')
-            ? Math.max(0, correctCount * 4 - wrongCount) : 0;
+        // Every submitted exam awards Rank API points, regardless of exam mode.
+        const quizPoints = Math.max(0, correctCount * 4 - wrongCount);
         // Persist the result independently from non-critical progress/leaderboard updates.
         try {
             this.saveExamAttempt({
@@ -1332,12 +1332,30 @@ class MedicalExamApp {
         } catch (error) {
             console.error('[Exam] Result calculated, but saving exam history failed:', error);
         }
-        if (['challenge', 'previousQuiz', 'model', 'random', 'previous'].includes(String(state.mode || ''))) {
-            try {
-                Promise.resolve(this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy }))
-                    .catch(error => console.error('[Exam] Could not update global leaderboard after submission:', error));
-            } catch (error) {
-                console.error('[Exam] Could not update global leaderboard after submission:', error);
+        // The result page shows the exact XP/RP returned by the shared API.
+        const attemptId = String(state.startedAt || Date.now());
+        const rewardPanel = document.getElementById('exam-reward-summary');
+        if (rewardPanel) rewardPanel.dataset.attemptId = attemptId;
+        if (typeof window.updateExamRewardDisplay === 'function') {
+            window.updateExamRewardDisplay({ attemptId, pending: true, message: 'XP ও RP হিসাব করে আনা হচ্ছে…' });
+        }
+        try {
+            Promise.resolve(this.recordLeaderboardResult({
+                correctCount, wrongCount, totalQuestions, quizPoints, accuracy, attemptId
+            })).then(reward => {
+                if (typeof window.updateExamRewardDisplay === 'function') {
+                    window.updateExamRewardDisplay(reward || { attemptId, pending: true, message: 'Reward sync-এর অপেক্ষায় আছে।' });
+                }
+            }).catch(error => {
+                console.error('[Exam] Could not update global reward after submission:', error);
+                if (typeof window.updateExamRewardDisplay === 'function') {
+                    window.updateExamRewardDisplay({ attemptId, pending: true, message: 'API-তে সংযোগ হয়নি; reward sync retry হবে।' });
+                }
+            });
+        } catch (error) {
+            console.error('[Exam] Could not update global reward after submission:', error);
+            if (typeof window.updateExamRewardDisplay === 'function') {
+                window.updateExamRewardDisplay({ attemptId, pending: true, message: 'Reward sync-এর অপেক্ষায় আছে।' });
             }
         }
 
@@ -1450,6 +1468,41 @@ class MedicalExamApp {
 }
 
 window.app = new MedicalExamApp();
+
+window.updateExamRewardDisplay = function (reward) {
+    const panel = document.getElementById('exam-reward-summary');
+    if (!panel || !reward) return;
+    const activeAttempt = String(panel.dataset.attemptId || '');
+    const rewardAttempt = String(reward.attemptId || '');
+    if (activeAttempt && rewardAttempt && activeAttempt !== rewardAttempt) return;
+    const xpEl = document.getElementById('res-xp-earned');
+    const rpEl = document.getElementById('res-rp-earned');
+    const rankEl = document.getElementById('res-rank-earned');
+    const statusEl = document.getElementById('res-reward-status');
+    if (reward.success && !reward.pending) {
+        const xp = Number(reward.xpGained || 0);
+        const rp = Number(reward.rankPointsDelta || 0);
+        if (xpEl) xpEl.textContent = (xp >= 0 ? '+' : '') + xp.toLocaleString() + ' XP';
+        if (rpEl) rpEl.textContent = (rp >= 0 ? '+' : '') + rp.toLocaleString() + ' RP';
+        if (rankEl) rankEl.textContent = reward.rank ? ('Current Rank: ' + reward.rank) : '';
+        if (statusEl) statusEl.textContent = reward.synced ? 'Global Rank-এ reward sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।';
+        panel.dataset.rewardState = 'synced';
+        return;
+    }
+    if (reward.pending) {
+        if (xpEl) xpEl.textContent = 'Pending';
+        if (rpEl) rpEl.textContent = 'Pending';
+        if (rankEl) rankEl.textContent = '';
+        if (statusEl) statusEl.textContent = reward.message || 'XP ও RP shared API থেকে নিশ্চিত করা হচ্ছে।';
+        panel.dataset.rewardState = 'pending';
+        return;
+    }
+    if (xpEl) xpEl.textContent = '—';
+    if (rpEl) rpEl.textContent = '—';
+    if (rankEl) rankEl.textContent = '';
+    if (statusEl) statusEl.textContent = reward.message || 'এই result-এর reward এখনো নিশ্চিত হয়নি।';
+    panel.dataset.rewardState = 'unavailable';
+};
 
 let isWrongFiltered = false;
 let originalQuestionStates = new Map();
