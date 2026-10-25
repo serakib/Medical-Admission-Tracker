@@ -1311,7 +1311,31 @@ function setupPracticeUI(){
 const practiceType=()=>document.querySelector('#practice-exam-setup [data-practice-type].active')?.dataset.practiceType||'all',practiceCount=()=>Number(document.querySelector('#practice-exam-setup [data-practice-count].active')?.dataset.practiceCount||20);
 function practicePool(){const qs=Array.isArray(app.questionBank)?app.questionBank:[],type=practiceType();if(type==='reviewed')return qs.filter(q=>Boolean(record(q).reviewed));if(type==='wrong')return qs.filter(q=>Boolean(record(q).wrong));if(type==='previous')return qs.filter(q=>Boolean(q.isPreviousYear)||(q.year&&!/^practice$/i.test(String(q.year))));return qs.slice()}
 function updatePracticeUI(){const pool=practicePool(),count=Math.min(practiceCount(),pool.length),mins=Math.max(1,Math.round(count/2)),time=document.getElementById('practice-auto-time'),available=document.getElementById('practice-available-count');if(time)time.textContent=count+' questions · '+mins+' minutes automatically';if(available)available.textContent=pool.length+' matching questions'}
-app.startPracticeFromBrowser=function(){if(!this.questionsLoaded||!this.questionBank.length){this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।');return}const pool=practicePool();if(!pool.length){alert(practiceType()==='reviewed'?'No Reviewed questions yet. Mark questions Reviewed in Question Bank.':practiceType()==='wrong'?'No Wrong Answer questions yet.':'No questions found for this Practice type.');return}const selected=pool.slice().sort(()=>Math.random()-.5).slice(0,Math.min(practiceCount(),pool.length));if(this.practiceTimerInterval){clearInterval(this.practiceTimerInterval);this.practiceTimerInterval=null}this.practiceSession={questions:selected,index:0,answers:[],marks:0,showAnswer:false,timeLeft:Math.max(60,Math.round(selected.length/2)*60),practiceType:practiceType()};this.markQuestionsSeen(selected);const browser=document.getElementById('practice-browser'),quiz=document.getElementById('practice-quiz-view');if(browser)browser.hidden=true;if(quiz)quiz.hidden=false;this.showView('practice');this.renderPractice();this.startPracticeTimer();updatePracticeUI()};
+app.startPracticeFromBrowser=function(){
+  if(!this.questionsLoaded||!this.questionBank.length){this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।');return}
+  const pool=practicePool();
+  if(!pool.length){alert(practiceType()==='reviewed'?'No Reviewed questions yet. Mark questions Reviewed in Question Bank.':practiceType()==='wrong'?'No Wrong Answer questions yet.':'No questions found for this Practice type.');return}
+  const selected=pool.slice().sort(()=>Math.random()-.5).slice(0,Math.min(practiceCount(),pool.length));
+  if(this.practiceTimerInterval){clearInterval(this.practiceTimerInterval);this.practiceTimerInterval=null}
+  if(this.examState?.timerInterval){clearInterval(this.examState.timerInterval);this.examState.timerInterval=null}
+  if(typeof this.shuffleQuestionsAndOptions!=='function'||typeof this.beginPreparedExam!=='function'){this.showDataError('Strict Practice exam চালু করা যাচ্ছে না। পেজটি refresh করে আবার চেষ্টা করুন।');return}
+  this.preparedExam={
+    questions:this.shuffleQuestionsAndOptions(selected,selected.length),
+    mode:'practice',
+    subject:'all',
+    year:'all',
+    durationMins:Math.max(1,Math.round(selected.length*0.5))
+  };
+  const badge=document.getElementById('exam-mode-badge');
+  if(badge)badge.textContent='Practice Exam';
+  const browser=document.getElementById('practice-browser');
+  const quiz=document.getElementById('practice-quiz-view');
+  if(browser)browser.hidden=true;
+  if(quiz)quiz.hidden=true;
+  // Reuse the real exam engine so the existing question palette, timer and strict full-screen layout stay in sync.
+  this.beginPreparedExam();
+  updatePracticeUI();
+};
 const oldAnswer=app.answerPractice.bind(app);app.answerPractice=function(index){const q=this.practiceSession?.questions?.[this.practiceSession?.index],result=oldAnswer(index);if(q&&index!==q.answer){const h=readHistory(),key=qkey(q);h[key]={...(h[key]||{key,question:q,reviewed:false}),question:q,wrong:true,updatedAt:Date.now()};localStorage.setItem(hkey(),JSON.stringify(h));updatePracticeUI()}return result};
 const oldBrowser=app.renderPracticeBrowser?.bind(app);if(oldBrowser)app.renderPracticeBrowser=function(){const r=oldBrowser();setupPracticeUI();updatePracticeUI();return r};
 const oldAuth=app.setAuthState.bind(app);app.setAuthState=function(user,...args){const r=oldAuth(user,...args);renderSidebarAuth();renderRankCard();setupPracticeUI();updatePracticeUI();return r};
