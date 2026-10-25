@@ -705,7 +705,7 @@
     });
     const serialized = new XMLSerializer().serializeToString(rootSvg);
     if (serialized.length > 50 * 1024) throw new Error('The cleaned SVG must be smaller than 50 KB. Try a simpler SVG avatar.');
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized);
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
   }
   function processUploadedAvatar(file) {
     return new Promise((resolve, reject) => {
