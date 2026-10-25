@@ -70,7 +70,7 @@
       if (gameId) return safeText(gameId, 100);
     }
     var uid = (app.authUser && app.authUser.uid) || '';
-    if (uid) return 'MED-' + uid.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80);
+    if (uid) return 'G-MED-' + uid.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 76);
     var guest = '';
     try { guest = localStorage.getItem('med_fallrush_guest_player_id') || ''; } catch (_) {}
     if (!guest) {
@@ -548,7 +548,7 @@
       gameId: 'MAT-' + safeText(item.uid || 'USER', 55) + '-' + safeText(id, 70),
       score: Math.max(0, Number(item.quizPoints) || 0),
       mode: 'Rank',
-      maxCombo: Math.max(0, Number(item.correctCount) || 0),
+      maxCombo: 0,
       catches: Math.max(0, Number(item.correctCount) || 0) + Math.max(0, Number(item.wrongCount) || 0),
       correctCatches: Math.max(0, Number(item.correctCount) || 0),
       wrongCatches: Math.max(0, Number(item.wrongCount) || 0),
