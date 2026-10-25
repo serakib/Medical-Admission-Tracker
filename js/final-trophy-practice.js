@@ -127,12 +127,27 @@
   ];
   const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
   trophyRanks.push(['Immortal','#f43f5e','#4c0519','#ffe4e6','immortal','I']);
-  function requiredRP(index) { return index >= trophyRanks.length - 1 ? 0 : 500; }
+  function roundRankCost(value) { return Math.max(5, Math.round(Number(value || 0) / 5) * 5); }
+  // Upgrade step 1 costs 400 PB; later steps scale by 400 each plus 20%.
+  function requiredRP(index) {
+    if (index >= trophyRanks.length - 1) return 0;
+    const step = index + 1;
+    const base = step * 400;
+    return roundRankCost(step === 1 ? base : base * 1.2);
+  }
   function rankFromPoints(points) {
     const value = Math.max(0, Number(points) || 0);
-    const index = Math.min(trophyRanks.length - 1, Math.floor(value / 500));
+    let index = 0, accumulated = 0;
+    while (index < trophyRanks.length - 1) {
+      const required = requiredRP(index);
+      if (value < accumulated + required) break;
+      accumulated += required;
+      index++;
+    }
     const atMax = index === trophyRanks.length - 1;
-    return { index, left: atMax ? 0 : value - index * 500, rank: trophyRanks[index], required: atMax ? 0 : 500 };
+    const required = atMax ? 0 : requiredRP(index);
+    const left = atMax ? 0 : Math.max(0, value - accumulated);
+    return { index, left, rank: trophyRanks[index], required, progress: atMax ? 100 : Math.min(100, left / required * 100) };
   }
   function buildTrophyEmblem(index, main, dark, shine) {
     const frames = [
