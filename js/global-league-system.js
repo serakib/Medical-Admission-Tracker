@@ -228,7 +228,10 @@
   function getCurrentUserRow() {
     var id = medPlayerId();
     var rows = rawRows.map(normalizeEntry);
-    return rows.find(function (row) { return row.playerId === id || isMine(row.raw); }) || null;
+    var found = rows.find(function (row) { return row.playerId === id || isMine(row.raw); });
+    if (found) return found;
+    if (currentProfile && (currentProfile.rank || currentProfile.rankPoints != null)) return normalizeEntry(Object.assign({}, currentProfile, { playerId: currentProfile.playerId || currentProfile.userId || id, username: currentProfile.username || profileName() }));
+    return null;
   }
   function currentRank() {
     var me = getCurrentUserRow();
@@ -458,7 +461,7 @@
   }
   async function loadMyApiProfile() {
     var token = getToken();
-    if (!token) return null;
+    if (!token) { currentProfile = null; return null; }
     try {
       var response = await request({ action: 'profile', token: token });
       currentProfile = response.user || response.profile || response;
@@ -467,6 +470,7 @@
   }
   async function loadLeaderboard(silent) {
     ensureUI();
+    selectedRank = readSelectedRank();
     var requestId = ++lastLoadId;
     var cache = cachedRowsForDisplay();
     if (cache.length) renderRows(cache);
@@ -588,7 +592,7 @@
       name: profileName(),
       college: profileCollege()
     };
-    if (!item.totalQuestions) throw new Error('Quiz result is missing its question count.');
+    if (!item.totalQuestions) { setStatus('Quiz result-এ question count পাওয়া যায়নি; result sync করা হয়নি।', true); return false; }
     try {
       await submitResult(item, false);
       await loadLeaderboard(true);
@@ -770,6 +774,7 @@
     getCachedRows: getCachedRows,
     saveCache: saveCache,
     getRanks: function () { return MATCH_RANKS.slice(); },
+    flushPending: flushQueue,
     reload: function () { return loadLeaderboard(true); }
   });
   var originalSetAuthState = app.setAuthState.bind(app);
@@ -786,7 +791,7 @@
   });
   window.addEventListener('student-auth-state-changed', function () {
     selectedRank = readSelectedRank();
-    loadLeaderboard(true);
+    updateTopControls(getCurrentUserRow());
   });
   window.setTimeout(function () { loadLeaderboard(true); }, 0);
 })();
