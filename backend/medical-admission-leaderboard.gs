@@ -18,7 +18,7 @@ var MAT_SHEETS = {
   FRIENDS: 'FriendRequests'
 };
 var MAT_HEADERS = {
-  Users: ['uid', 'name', 'college', 'avatar', 'allTimePoints', 'weeklyPoints', 'weekKey', 'league', 'rankRP', 'quizzes', 'correct', 'answered', 'accuracy', 'updatedAt'],
+  Users: ['uid', 'name', 'college', 'avatar', 'mobile', 'studentClass', 'bloodGroup', 'allTimePoints', 'weeklyPoints', 'weekKey', 'league', 'rankRP', 'quizzes', 'correct', 'answered', 'accuracy', 'updatedAt'],
   Attempts: ['attemptKey', 'uid', 'attemptId', 'quizPoints', 'correct', 'wrong', 'total', 'createdAt'],
   FriendRequests: ['fromUid', 'toUid', 'status', 'createdAt', 'updatedAt']
 };
@@ -163,7 +163,7 @@ function matReadSheet_(sheetName) {
 }
 function matUserRow_(user) {
   return [
-    user.uid, user.name, user.college, user.avatar,
+    user.uid, user.name, user.college, user.avatar, user.mobile || '', user.studentClass || '', user.bloodGroup || '',
     matNum_(user.allTimePoints), matNum_(user.weeklyPoints), user.weekKey,
     user.league, matNum_(user.rankRP), matNum_(user.quizzes),
     matNum_(user.correct), matNum_(user.answered),
@@ -181,18 +181,23 @@ function matWriteUser_(user) {
 }
 function matDefaultUser_(uid, name, college, avatar) {
   return {
-    uid: uid, name: name || 'Student', college: college || '', avatar: avatar || '🩺',
+    uid: uid, name: name || 'Student', college: college || '', avatar: avatar || '🩺', mobile: '', studentClass: '', bloodGroup: '',
     allTimePoints: 0, weeklyPoints: 0, weekKey: matWeekKey_(new Date()),
     league: MAT_LEAGUES[0], rankRP: 0, quizzes: 0, correct: 0, answered: 0, accuracy: 0
   };
 }
-function matEnsureUser_(uid, name, college, avatar) {
+function matEnsureUser_(uid, name, college, avatar, privateProfile) {
   var users = matReadSheet_(MAT_SHEETS.USERS);
   var user = users.find(function(x) { return x.uid === uid; });
-  if (!user) return matWriteUser_(matDefaultUser_(uid, name, college, avatar));
+  if (!user) user = matDefaultUser_(uid, name, college, avatar);
+  privateProfile = privateProfile || {};
   user.name = name || user.name || 'Student';
   user.college = college || user.college || '';
   user.avatar = avatar || user.avatar || '🩺';
+  if (privateProfile.mobile != null && String(privateProfile.mobile).trim()) user.mobile = matText_(privateProfile.mobile, 32);
+  if (privateProfile.studentClass != null && String(privateProfile.studentClass).trim()) user.studentClass = matText_(privateProfile.studentClass, 40);
+  if (privateProfile.bloodGroup != null && String(privateProfile.bloodGroup).trim()) user.bloodGroup = matText_(privateProfile.bloodGroup, 12);
+  user.mobile = user.mobile || ''; user.studentClass = user.studentClass || ''; user.bloodGroup = user.bloodGroup || '';
   user.allTimePoints = matNum_(user.allTimePoints);
   user.weeklyPoints = matNum_(user.weeklyPoints);
   user.rankRP = matNum_(user.rankRP);
@@ -267,9 +272,9 @@ function matProfileSync_(req) {
   var identity = matVerifyToken_(req.idToken);
   return matWithLock_(function() {
     matEnsureWeeklyRollover_();
-    var user = matEnsureUser_(identity.uid, matText_(req.name || identity.name || identity.email || 'Student', 80), matText_(req.college, 120), matText_(req.avatar, 16));
+    var user = matEnsureUser_(identity.uid, matText_(req.name || identity.name || identity.email || 'Student', 80), matText_(req.college, 120), matText_(req.avatar, 16), { mobile: req.mobile, studentClass: req.studentClass, bloodGroup: req.bloodGroup });
     user = matWriteUser_(user);
-    return { success: true, user: matSafeUser_(user), currentWeekKey: matWeekKey_(new Date()) };
+    return { success: true, user: matSafeUser_(user), privateProfile: { mobile: String(user.mobile || ''), class: String(user.studentClass || ''), bloodGroup: String(user.bloodGroup || '') }, currentWeekKey: matWeekKey_(new Date()) };
   });
 }
 function matRecordResult_(req) {
