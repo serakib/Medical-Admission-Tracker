@@ -713,11 +713,28 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  // Keep every trophy tier; 500 PB advances one sub-rank from V through I.
+  // The nth rank-up costs 400*n PB, with 20% extra after the first step.
+  const roundRankCost = value => Math.max(5, Math.round(Number(value || 0) / 5) * 5);
+  const rankUpgradeCost = step => {
+    const n = Math.max(1, Math.floor(Number(step) || 1));
+    const base = n * 400;
+    return roundRankCost(n === 1 ? base : base * 1.2);
+  };
+  const completedRankUps = points => {
+    const value = Math.max(0, Number(points) || 0);
+    let total = 0, count = 0;
+    while (count < 50) {
+      const nextCost = rankUpgradeCost(count + 1);
+      if (value < total + nextCost) break;
+      total += nextCost;
+      count++;
+    }
+    return count;
+  };
   const rankFor = points => {
     const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Legend', 'Mythic'];
     const roman = ['V', 'IV', 'III', 'II', 'I'];
-    const rankIndex = Math.min(50, Math.floor(Math.max(0, Number(points) || 0) / 500));
+    const rankIndex = completedRankUps(points);
     return rankIndex >= 50 ? 'Immortal' : tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
   };
   function ensureStudentSettings() {
@@ -989,7 +1006,8 @@ const app=window.app;if(!app||app.__comprehensiveRequirementsInstalled)return;ap
 const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','Grandmaster','Legend','Mythic'],roman=['V','IV','III','II','I'];
 const pkey=()=>'med_account_progress_v1_'+(app.authUser?.uid||'guest');
 const progress=()=>{try{return JSON.parse(localStorage.getItem(pkey())||'{}')||{}}catch(_){return{}}};
-const rank=points=>{const value=Math.max(0,Number(points)||0),n=Math.min(50,Math.floor(value/500));if(n>=50)return{name:'Immortal',tier:'immortal',index:51,step:1,points:value,remaining:0};return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:500-(value%500)}};
+const rankUpgradeCost=step=>{const n=Math.max(1,Math.floor(Number(step)||1)),base=n*400;return Math.max(5,Math.round((n===1?base:base*1.2)/5)*5)};
+const rank=points=>{const value=Math.max(0,Number(points)||0);let n=0,spent=0,required=rankUpgradeCost(1);while(n<50&&value>=spent+required){spent+=required;n++;required=rankUpgradeCost(n+1)}if(n>=50)return{name:'Immortal',tier:'immortal',index:51,step:1,points:value,remaining:0,progress:100};const within=value-spent;return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:Math.max(0,required-within),progress:Math.min(100,within/required*100)}};
 const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
 const hkey=()=>'med_review_history_v2_'+(app.authUser?.uid||'guest');
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(hkey())||'{}')||{}}catch(_){return{}}};
@@ -1029,7 +1047,7 @@ function renderRankCard(){
   if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card);}
   const p=progress(),r=rank(p.rankPoints),xp=Math.max(0,Number(p.xp??p.performanceBonus)||0);
   const levelState=typeof app.getPerformanceLevelProgress==='function'?app.getPerformanceLevelProgress(xp):{level:1,toNext:Math.max(0,500-xp),percent:Math.min(100,Math.round(xp/500*100))};
-  const pbProgress=r.index>=51?100:(r.points%500)/500*100;
+  const pbProgress=r.progress;
   card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points.toLocaleString()+' PB balance (Rank Points)</small></div></div><div class="rank-track"><span style="width:'+pbProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=51?'Highest rank reached.':r.remaining+' PB to next sub-rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+levelState.level+'</strong><small>'+levelState.toNext.toLocaleString()+' XP to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>Exams award PB; convert PB to XP when needed</small></div></div><div class="rank-track"><span style="width:'+levelState.percent+'%"></span></div><small>XP progress: '+levelState.percent+'% · Conversion rate: 1 PB = 2 XP.</small><div class="pb-xp-converter" style="margin-top:16px;padding:13px;border:1px solid var(--line,#cbd5e1);border-radius:14px"><strong style="display:block;margin-bottom:7px">Convert PB to XP</strong><div style="display:flex;gap:8px;flex-wrap:wrap"><label for="pb-to-xp-amount" style="position:absolute;left:-9999px">PB amount to convert</label><input id="pb-to-xp-amount" type="number" min="1" max="'+Math.floor(r.points)+'" step="1" inputmode="numeric" placeholder="PB amount" style="flex:1;min-width:110px;padding:9px 11px;border:1px solid var(--line,#cbd5e1);border-radius:9px;background:var(--surface,#fff);color:var(--text,#1e293b)"><button type="button" id="pb-to-xp-button" style="padding:9px 13px;border-radius:9px;background:#0f766e;color:#fff;font-weight:800">Convert</button></div><small style="display:block;margin-top:7px;color:var(--muted,#64748b)">1 PB = 2 XP. Converted PB is deducted from your PB balance and can lower your rank.</small></div>';
   const converterButton=card.querySelector('#pb-to-xp-button');
   if(converterButton)converterButton.onclick=()=>{
