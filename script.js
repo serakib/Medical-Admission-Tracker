@@ -597,11 +597,12 @@ class MedicalExamApp {
         if(!safe.length){ body.innerHTML=`<tr><td colspan="5" class="py-12 text-center text-sm text-gray-500">এখনও কোনো leaderboard data নেই। Challenge Quiz সম্পন্ন করলে এখানে দেখা যাবে।</td></tr>`; return; }
         const top=safe.slice(0,3);
         if(podium){
-            podium.innerHTML=top.map((x,i)=>`<article class="podium-card podium-${i+1}"><div class="podium-medal">${['🥇','🥈','🥉'][i]}</div><div class="podium-avatar">${this.escapeHtml((x.name||'S').charAt(0).toUpperCase())}</div><strong>${this.escapeHtml(x.name||'Student')}</strong><span>${Number(x.points||0)} Points</span><small>${Number(x.accuracy||0).toFixed(1)}% Accuracy</small></article>`).join('');
+            podium.innerHTML=top.map((x,i)=>`<article class="podium-card podium-${i+1}" data-uid="${this.escapeHtml(x.uid||'')}"><div class="podium-medal">${['🥇','🥈','🥉'][i]}</div><div class="podium-avatar">${this.escapeHtml((x.name||'S').charAt(0).toUpperCase())}</div><strong>${this.escapeHtml(x.name||'Student')}</strong><span>${Number(x.points||0)} Points</span><small>${Number(x.accuracy||0).toFixed(1)}% Accuracy</small></article>`).join('');
         }
         safe.forEach((x,i)=>{
             const tr=document.createElement('tr');
             tr.className=`leader-row ${this.authUser?.uid===x.uid?'is-me':''}`;
+            tr.dataset.uid = String(x.uid || '');
             tr.innerHTML=`<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">${this.escapeHtml((x.name||'S').charAt(0).toUpperCase())}</span><span><b>${this.escapeHtml(x.name||'Student')}</b>${this.authUser?.uid===x.uid?'<em>YOU</em>':''}</span></div></td><td class="py-4 px-3">${this.escapeHtml(x.college||'—')}</td><td class="py-4 px-3">${x.quizzes||0}</td><td class="py-4 px-3">${Number(x.accuracy||0).toFixed(1)}%</td><td class="leader-rank-points py-4 px-3"><strong class="leader-rank-number">${i+1}</strong><small class="leader-points-label">${Number(x.points||0)} Points</small></td>`;
             body.appendChild(tr);
         });
