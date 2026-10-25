@@ -1083,7 +1083,7 @@ class MedicalExamApp {
         if (this.setup.mode === 'previousQuiz') {
             // A Previous Year paper must use the selected year's full validated question set.
             // Do not let stale setup dropdown filters silently reduce the paper.
-            filtered = filtered.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear);
+            filtered = filtered.filter(q => q.year === this.previousSelectedYear);
         } else {
             const subjectSelect = document.getElementById('setup-subject');
             const selectedSubject = subjectSelect ? subjectSelect.value : this.setup.subject;
@@ -1108,7 +1108,7 @@ class MedicalExamApp {
     prepareExamFromSetup() {
         if (!this.questionsLoaded || !this.questionBank.length) { this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।'); return; }
         const previousYearQuestions = this.setup.mode === 'previousQuiz'
-            ? this.questionBank.filter(q => q.year === this.previousSelectedYear && q.isPreviousYear)
+            ? this.questionBank.filter(q => q.year === this.previousSelectedYear)
             : null;
         const count = this.setup.mode === 'previousQuiz' ? previousYearQuestions.length : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
         const questions = this.shuffleQuestionsAndOptions(previousYearQuestions || this.questionBank, count);
