@@ -1,21 +1,21 @@
 # Firebase setup
 
 ## 1) Authentication
-Firebase Console → Authentication → Sign-in method → enable **Email/Password**.
 
-Guest mode remains available even if Firebase is unavailable.
+Firebase is used for account sign-in, persistent login sessions, and identity verification. In Firebase Console → Authentication → Sign-in method, enable **Email/Password**. Guest mode remains available.
 
-## 2) Firestore
-Create a Firestore database. The app uses:
-- `students/{uid}` for student profile data
-- `leaderboard/{uid}` for aggregated quiz points/statistics
-- `quizAttempts/{uid_timestamp}` for duplicate-submit protection
+## 2) Firestore is not the leaderboard database
 
-## 3) Firestore rules
-Start with development rules only if you understand the risk. For production, use authenticated read access for leaderboard and owner-only writes for student profiles. Quiz-point writes should ideally be moved to a trusted server/Cloud Function before treating the leaderboard as a high-stakes competitive system.
+The client no longer reads or writes the leaderboard or quiz attempts in Firestore, and it no longer creates new students/{uid} profile documents there. Firebase Authentication remains the identity provider. Existing Firestore documents from earlier versions are left untouched but are not used by the new global leaderboard.
 
-## 4) Client configuration
-`js/firebase-config.js` contains the Firebase Web SDK configuration. Web SDK config values are not Admin SDK secrets. Never put service-account private keys or Admin SDK credentials in this repository.
+You do not need to create Firestore for leaderboard functionality.
 
-## 5) Leaderboard behavior
-The app renders the last saved leaderboard from LocalStorage immediately, then silently refreshes from Firestore. Firestore remains the source of truth; LocalStorage is only a UI cache.
+## 3) Global leaderboard backend
+
+The shared leaderboard, RP, League progression, weekly resets, and friend requests use a separate Google Apps Script + Google Sheets backend. Follow GLOBAL_LEADERBOARD_SETUP.md to deploy it and configure js/leaderboard-config.js.
+
+The backend verifies Firebase ID tokens before accepting score, profile, and friend-request writes. Keep the backing Google spreadsheet private. Do not place service-account private keys or Admin SDK credentials in this repository.
+
+## 4) Browser cache
+
+LocalStorage stores the last fetched leaderboard view and pending result submissions for offline recovery. It is only a cache/queue; the shared Google Sheets backend is the global source of truth.
