@@ -655,15 +655,17 @@
   }
   async function recordLeaderboardResult(meta) {
     meta = meta || {};
-    if (!isAuthenticated()) {
-      setStatus('Global rank-এ score যোগ করতে Medical Admission Tracker-এ sign in করুন।', true);
-      return false;
-    }
     var state = app.examState || {};
-    var attemptId = String(state.startedAt || Date.now());
-    if (sentIds().indexOf(attemptId) >= 0) return false;
+    var attemptId = String(meta.attemptId || state.startedAt || Date.now());
+    var saved = getSavedReward(attemptId);
+    if (saved) return saved;
+    if (sentIds().indexOf(attemptId) >= 0) return {
+      success: true, synced: true, attemptId: attemptId,
+      xpGained: null, rankPointsDelta: null,
+      message: 'এই exam attempt-এর result আগে submit করা হয়েছে।'
+    };
     var item = {
-      uid: app.authUser.uid,
+      uid: currentSubmissionUid(),
       attemptId: attemptId,
       quizPoints: Math.max(0, Math.floor(Number(meta.quizPoints) || 0)),
       correctCount: Math.max(0, Math.floor(Number(meta.correctCount) || 0)),
@@ -672,15 +674,26 @@
       name: profileName(),
       college: profileCollege()
     };
-    if (!item.totalQuestions) { setStatus('Quiz result-এ question count পাওয়া যায়নি; result sync করা হয়নি।', true); return false; }
+    if (!item.totalQuestions) {
+      var invalidReward = { success: false, pending: true, attemptId: attemptId, message: 'Exam result-এ question count পাওয়া যায়নি; XP/RP sync হয়নি।' };
+      setStatus(invalidReward.message, true);
+      return invalidReward;
+    }
     try {
-      await submitResult(item, false);
+      var reward = await submitResult(item, false);
       await loadLeaderboard(true);
-      return true;
+      return reward;
     } catch (error) {
       queueResult(item);
-      setStatus('Leaderboard API এখন unavailable; result pending queue-তে রাখা হয়েছে। Online হলে আবার sync হবে। ' + (error.message || ''), true);
-      return false;
+      var pendingReward = {
+        success: false,
+        pending: true,
+        attemptId: attemptId,
+        message: 'API এখন unavailable। XP/RP amount নিশ্চিত হলে result-এ দেখানো হবে; sync retry হবে।'
+      };
+      saveReward(Object.assign({}, pendingReward, { transient: true }));
+      setStatus('Leaderboard API এখন unavailable; exam result pending queue-তে রাখা হয়েছে। ' + (error.message || ''), true);
+      return pendingReward;
     }
   }
   async function showPublicProfile(playerId) {
