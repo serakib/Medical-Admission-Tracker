@@ -651,8 +651,8 @@
     paintLeaderboardPeriodTabs();
   }
   /* Human portrait avatar picker: people only, no animal avatars. */
-  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:none;grid-template-columns:repeat(auto-fill,minmax(48px,60px));gap:8px;margin-top:12px;align-items:start}.profile-avatar-picker.is-expanded .profile-avatar-options{display:grid}.profile-avatar-toggle-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-toggle-button:hover{background:#10b98125}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(auto-fill,minmax(42px,52px));gap:7px}}';
-  humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:block;margin-top:7px;color:var(--muted,#64748b);font-size:11px}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.profile-avatar-remove{border:0;background:transparent;color:var(--muted,#64748b);font-size:10px;line-height:1.2;font-weight:700;cursor:pointer;padding:3px 5px;border-radius:5px}.profile-avatar-remove:hover{color:#dc2626;background:#dc262610}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-remove:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
+  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:none;grid-template-columns:repeat(auto-fill,minmax(48px,60px));gap:8px;margin-top:12px;align-items:start}.profile-avatar-picker.is-expanded .profile-avatar-options{display:grid}.profile-avatar-toggle-button,.profile-avatar-confirm-button,.profile-avatar-cancel-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-toggle-button:hover,.profile-avatar-confirm-button:hover{background:#10b98125}.profile-avatar-confirm-button:disabled{opacity:.45;cursor:not-allowed}.profile-avatar-cancel-button{border-color:var(--line,#cbd5e1);background:transparent}.profile-avatar-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.profile-avatar-comparison-card{min-width:0;padding:12px;border:1px solid var(--line,#cbd5e1);border-radius:14px;display:flex;align-items:center;flex-direction:column;gap:8px;text-align:center}.profile-avatar-comparison-card img{width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid var(--line,#cbd5e1)}.profile-avatar-comparison-card.is-current img{border-color:#10b981}.profile-avatar-comparison-card.is-preview img{border-color:#0ea5e9}.profile-avatar-comparison-card small{font-size:12px;font-weight:850}.profile-avatar-comparison-placeholder{width:88px;height:88px;display:grid;place-items:center;border-radius:50%;border:2px dashed var(--line,#cbd5e1);font-size:11px;color:var(--muted,#64748b);padding:8px}.profile-avatar-confirm-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}.profile-avatar-choice.is-current{border-color:#10b981;box-shadow:0 0 0 2px #10b98138}.profile-avatar-choice.is-pending{border-color:#0ea5e9;box-shadow:0 0 0 3px #0ea5e938;transform:scale(1.04)}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(auto-fill,minmax(42px,52px));gap:7px}}';
+  humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:block;margin-top:7px;color:var(--muted,#64748b);font-size:11px}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-remove:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
   document.head.appendChild(humanAvatarStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
@@ -660,6 +660,7 @@
   const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + (app.authUser?.uid || 'guest');
   const maxUploadedAvatars = 8;
   let avatarPickerExpanded = false;
+  let pendingAvatarSource = null;
   const isUploadedAvatarSource = value => {
     if (typeof value !== 'string') return false;
     if (/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(value)) return true;
@@ -766,25 +767,41 @@
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
     const uploaded = readUploadedAvatars();
     const current = readAvatar();
+    const pending = isAvatarSource(pendingAvatarSource) ? pendingAvatarSource : null;
+    if (!pending) pendingAvatarSource = null;
     const avatar = root.querySelector('.profile-hero .profile-avatar');
     if (avatar) {
-      avatar.innerHTML = '<img src="' + current + '" alt="Selected profile avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-      avatar.setAttribute('aria-label', 'Selected profile avatar');
+      avatar.innerHTML = '<img src="' + current + '" alt="Current profile avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      avatar.setAttribute('aria-label', 'Current profile avatar');
     }
-    // The selected avatar stays prominent in the profile header and is omitted from the small choices grid.
-    const presetOptions = avatarChoices.map((value, i) => value === current ? '' :
-      '<button type="button" class="profile-avatar-choice" data-profile-avatar-preset="' + i + '" aria-pressed="false" aria-label="Choose preset avatar ' + (i+1) + '"><img src="' + value + '" alt="Preset avatar ' + (i+1) + '" loading="lazy"></button>'
-    ).join('');
-    const uploadedOptions = uploaded.map((value, i) => value === current ? '' :
-      '<div class="profile-avatar-uploaded-wrap"><button type="button" class="profile-avatar-choice" data-profile-avatar-uploaded="' + i + '" aria-pressed="false" aria-label="Choose uploaded avatar ' + (i+1) + '"><img src="' + value + '" alt="Uploaded avatar ' + (i+1) + '" loading="lazy"></button><button type="button" class="profile-avatar-remove" data-remove-uploaded-avatar="' + i + '" aria-label="Remove uploaded avatar ' + (i+1) + '" title="Remove from uploaded avatars">Remove</button></div>'
-    ).join('');
+    // Keep the current avatar in the choices grid so users can compare it with a candidate.
+    const optionButton = (value, index, source, label) => {
+      const isCurrent = value === current;
+      const isPending = value === pending;
+      const classes = 'profile-avatar-choice' + (isCurrent ? ' is-current' : '') + (isPending ? ' is-pending' : '');
+      const stateLabel = isCurrent && isPending ? 'Current selection' : isPending ? 'Preview candidate' : isCurrent ? 'Current avatar' : 'Choose avatar';
+      return '<button type="button" class="' + classes + '" data-avatar-source="' + source + '" data-avatar-index="' + index + '" aria-pressed="' + String(isPending) + '" aria-label="' + stateLabel + ': ' + label + '"><img src="' + value + '" alt="' + label + '" loading="lazy"></button>';
+    };
+    const presetOptions = avatarChoices.map((value, i) => optionButton(value, i, 'preset', 'Preset avatar ' + (i+1))).join('');
+    const uploadedOptions = uploaded.map((value, i) => optionButton(value, i, 'uploaded', 'Uploaded avatar ' + (i+1))).join('');
+    let compareMarkup = '';
+    if (avatarPickerExpanded) {
+      compareMarkup = '<div class="profile-avatar-comparison" aria-label="Compare current and candidate avatars">' +
+        '<div class="profile-avatar-comparison-card is-current"><small>Current avatar</small><img src="' + current + '" alt="Current avatar comparison"></div>' +
+        '<div class="profile-avatar-comparison-card is-preview"><small>Selected preview</small>' +
+        (pending ? '<img src="' + pending + '" alt="Candidate avatar preview">' : '<div class="profile-avatar-comparison-placeholder">Choose a thumbnail</div>') +
+        '</div></div>' +
+        '<div class="profile-avatar-confirm-actions"><button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button">Cancel</button>' +
+        '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (!pending || pending === current ? ' disabled' : '') + '>Confirm avatar</button></div>';
+    }
     picker.innerHTML = '<span class="profile-avatar-picker-label">Profile avatar</span>' +
       '<div class="profile-avatar-upload-controls"><button type="button" id="profile-avatar-toggle-picker" class="profile-avatar-toggle-button" aria-expanded="' + String(avatarPickerExpanded) + '"><i class="fa-solid fa-user-pen" aria-hidden="true"></i> ' + (avatarPickerExpanded ? 'Hide avatar choices' : 'Select another avatar') + '</button>' +
       '<label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Upload avatar images</label>' +
       '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
       '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
-      '<div class="profile-avatar-options" aria-label="Other available avatars">' + presetOptions + uploadedOptions + '</div>' +
-      '<small class="profile-avatar-upload-hint">SVG, PNG, JPG/JPEG, WEBP · Up to 8 uploaded avatars per account on this device. Raster images are cropped to a square avatar.</small>' +
+      '<div class="profile-avatar-options" aria-label="Available avatars">' + presetOptions + uploadedOptions + '</div>' +
+      compareMarkup +
+      '<small class="profile-avatar-upload-hint">SVG, PNG, JPG/JPEG, WEBP · Up to 8 uploaded avatars per account on this device. Select a thumbnail to preview it, then confirm to apply it.</small>' +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
   }
@@ -796,38 +813,47 @@
     const togglePicker = event.target.closest('#profile-avatar-toggle-picker');
     if (togglePicker) {
       avatarPickerExpanded = !avatarPickerExpanded;
+      pendingAvatarSource = null;
       renderAvatarPicker();
       return;
     }
-    const removeButton = event.target.closest('[data-remove-uploaded-avatar]');
-    if (removeButton) {
-      const index = Number(removeButton.dataset.removeUploadedAvatar);
-      const uploaded = readUploadedAvatars();
-      if (!Number.isInteger(index) || index < 0 || index >= uploaded.length) return;
-      const removed = uploaded.splice(index, 1)[0];
-      try {
-        localStorage.setItem(uploadedAvatarKey(), JSON.stringify(uploaded));
-        if (localStorage.getItem(avatarKey()) === removed) localStorage.setItem(avatarKey(), avatarChoices[0]);
-      } catch (_) {}
+    const cancelButton = event.target.closest('#profile-avatar-cancel');
+    if (cancelButton) {
+      pendingAvatarSource = null;
+      avatarPickerExpanded = false;
+      renderAvatarPicker();
+      return;
+    }
+    const confirmButton = event.target.closest('#profile-avatar-confirm');
+    if (confirmButton) {
+      const current = readAvatar();
+      const candidate = isAvatarSource(pendingAvatarSource) ? pendingAvatarSource : null;
+      if (!candidate || candidate === current || confirmButton.disabled) return;
+      try { localStorage.setItem(avatarKey(), candidate); }
+      catch (_) {
+        const status = document.getElementById('profile-avatar-upload-status');
+        if (status) status.textContent = 'Avatar could not be saved in this browser. Check available site storage.';
+        return;
+      }
+      pendingAvatarSource = null;
+      avatarPickerExpanded = false;
       refreshAvatarViews();
       return;
     }
-    const presetChoice = event.target.closest('[data-profile-avatar-preset]');
-    const uploadedChoice = event.target.closest('[data-profile-avatar-uploaded]');
-    if (!presetChoice && !uploadedChoice) return;
+    const avatarChoice = event.target.closest('[data-avatar-source]');
+    if (!avatarChoice) return;
+    const source = avatarChoice.dataset.avatarSource;
+    const index = Number(avatarChoice.dataset.avatarIndex);
     let value = null;
-    if (presetChoice) {
-      const index = Number(presetChoice.dataset.profileAvatarPreset);
-      if (Number.isInteger(index) && index >= 0 && index < avatarChoices.length) value = avatarChoices[index];
-    } else {
-      const index = Number(uploadedChoice.dataset.profileAvatarUploaded);
+    if (source === 'preset' && Number.isInteger(index) && index >= 0 && index < avatarChoices.length) {
+      value = avatarChoices[index];
+    } else if (source === 'uploaded') {
       const uploaded = readUploadedAvatars();
       if (Number.isInteger(index) && index >= 0 && index < uploaded.length) value = uploaded[index];
     }
     if (!value) return;
-    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
-    avatarPickerExpanded = false;
-    refreshAvatarViews();
+    pendingAvatarSource = value;
+    renderAvatarPicker();
   });
   document.addEventListener('change', async event => {
     const input = event.target.closest('#profile-avatar-upload-input');
@@ -851,11 +877,11 @@
       if (!added.length) throw new Error('Those avatars are already in your uploaded collection.');
       const combined = existing.concat(added);
       localStorage.setItem(uploadedAvatarKey(), JSON.stringify(combined));
-      localStorage.setItem(avatarKey(), added[0]);
-      avatarPickerExpanded = false;
-      refreshAvatarViews();
+      pendingAvatarSource = added[0];
+      avatarPickerExpanded = true;
+      renderAvatarPicker();
       const newStatus = document.getElementById('profile-avatar-upload-status');
-      if (newStatus) newStatus.textContent = added.length + ' avatar image(s) added. Choose any thumbnail to use it.';
+      if (newStatus) newStatus.textContent = added.length + ' avatar image(s) added. Compare the preview, then confirm to apply it.';
     } catch (error) {
       const errorStatus = document.getElementById('profile-avatar-upload-status');
       if (errorStatus) errorStatus.textContent = error?.message || 'The avatar upload failed. Try a smaller supported image.';
@@ -869,11 +895,16 @@
   app.setAuthState = function(user, ...args) {
     const result = originalSetAuthStateForAvatar(user, ...args);
     avatarPickerExpanded = false;
+    pendingAvatarSource = null;
     renderAvatarPicker();
     return result;
   };
   const originalShowViewForAvatar = app.showView.bind(app);
   app.showView = function(viewName, force = false) {
+    if (viewName !== 'profile') {
+      avatarPickerExpanded = false;
+      pendingAvatarSource = null;
+    }
     const result = originalShowViewForAvatar(viewName, force);
     if (viewName === 'profile') renderAvatarPicker();
     return result;
