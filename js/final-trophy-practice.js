@@ -26,6 +26,7 @@
     .premium-trophy-medal svg{width:100%;height:100%;overflow:visible}
 
     .lifetime-trophy-card{width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit}#profile-rank-card{display:none!important}
+    .exam-trophy-hub-modal[hidden]{display:none!important}
     .exam-trophy-hub-modal{position:fixed!important;inset:0!important;z-index:12000!important;display:block!important;overflow:auto!important;max-width:none!important;width:100%!important;margin:0!important;padding:12px!important;background:rgba(2,6,23,.8)!important;backdrop-filter:blur(8px)}
     .exam-trophy-hub-modal>div{width:min(100%,900px);max-height:calc(100vh - 24px);overflow:auto;margin:0 auto!important;background:var(--surface,#fff);border-radius:22px;padding:18px!important;box-shadow:0 24px 80px #0005}
     .exam-hub-close{display:block;margin:0 0 12px auto;padding:8px 12px;border-radius:10px;background:#334155;color:#fff;font-weight:800}
