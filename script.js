@@ -463,7 +463,7 @@ class MedicalExamApp {
                 'Email: ' + authEmail,
                 'UID: ' + String(result.user?.uid || '').slice(0, 128),
                 'Time: ' + new Date().toISOString()
-            ].join('\\n');
+            ].join('\n');
             fetch('https://script.google.com/macros/s/AKfycbxsSQIqoWW1w7tDGGlzYPCYWawC-vrLq7kiXBmt-bDAM_wlLsP5u13Ra8t5eKOUk065BA/exec', {
                 method: 'POST',
                 mode: 'no-cors',
