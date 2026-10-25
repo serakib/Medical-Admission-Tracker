@@ -258,16 +258,62 @@
       if(label&&label.parentElement)label.parentElement.remove();
     },0);
   });
+  function rankPointsForLeaderboardRow(row) {
+    return Math.max(0, Number(row?.rankPoints ?? row?.lifetimeRankPoints ?? row?.points ?? 0) || 0);
+  }
+  function leaderboardTrophyMarkup(row) {
+    const points = rankPointsForLeaderboardRow(row);
+    const current = rankFromPoints(points);
+    const rank = current.rank;
+    const index = current.index;
+    const [name, main, dark, shine] = rank;
+    const rpLabel = Math.floor(points).toLocaleString();
+    const svg = '<svg class="leader-rank-trophy-svg" viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+main+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/>'+buildTrophyEmblem(index,main,dark,shine)+'<path d="M28 83h44l7 15H21Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+dark+'">'+rpLabel+' RP</text></svg>';
+    return '<span class="leader-rank-trophy" title="'+name+' · '+rpLabel+' RP">'+svg+'<span class="leader-rank-trophy-copy"><strong>'+name+'</strong><small>'+rpLabel+' RP</small></span></span>';
+  }
+  function installLeaderboardTrophyStyles() {
+    if (document.getElementById('leader-rank-trophy-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'leader-rank-trophy-styles';
+    style.textContent = '.leader-rank-trophy{display:inline-flex;align-items:center;gap:6px;max-width:100%;vertical-align:middle;margin:3px 0}.leader-rank-trophy-svg{display:block;flex:0 0 28px;width:28px;height:32px;filter:drop-shadow(0 2px 2px #0003)}.leader-rank-trophy-copy{display:flex;flex-direction:column;align-items:flex-start;min-width:0;line-height:1.25}.leader-rank-trophy-copy strong{font-size:10px;font-weight:950;white-space:nowrap}.leader-rank-trophy-copy small{font-size:9px;opacity:.78;white-space:nowrap}.podium-card .leader-rank-trophy{justify-content:center}.podium-card .leader-rank-trophy-copy{align-items:center}.leaderboard-me .leader-rank-trophy{margin-inline-start:8px}@media(max-width:600px){.leader-rank-trophy-svg{flex-basis:24px;width:24px;height:28px}.leader-rank-trophy-copy strong{font-size:9px}.leader-rank-trophy-copy small{font-size:8px}}';
+    document.head.appendChild(style);
+  }
+  function paintLeaderboardTrophies(rows) {
+    installLeaderboardTrophyStyles();
+    const byUid = new Map((Array.isArray(rows) ? rows : []).filter(row=>row?.uid).map(row=>[String(row.uid),row]));
+    const ordered = (Array.isArray(rows) ? rows : []).slice().sort((a,b)=>rankPointsForLeaderboardRow(b)-rankPointsForLeaderboardRow(a));
+    const body = document.getElementById('leaderboard-body');
+    if (body) body.querySelectorAll('tr').forEach((tr,index)=>{
+      tr.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
+      const row = byUid.get(String(tr.dataset.uid||'')) || ordered[index];
+      const cell = tr.querySelector('.leader-rank-points') || tr.querySelector('td:last-child');
+      if (!row || !cell) return;
+      cell.insertAdjacentHTML('beforeend', leaderboardTrophyMarkup(row));
+    });
+    const podium = document.getElementById('leaderboard-podium');
+    if (podium) podium.querySelectorAll('.podium-card').forEach((card,index)=>{
+      card.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
+      const row = byUid.get(String(card.dataset.uid||'')) || ordered[index];
+      if (row) card.insertAdjacentHTML('beforeend', leaderboardTrophyMarkup(row));
+    });
+    const me = document.getElementById('leaderboard-me');
+    const mine = (Array.isArray(rows)?rows:[]).find(row=>row?.uid && row.uid===app.authUser?.uid);
+    if (me && mine) {
+      me.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
+      me.insertAdjacentHTML('beforeend', leaderboardTrophyMarkup(mine));
+    }
+  }
   const oldLeaderboard=app.renderLeaderboardRows&&app.renderLeaderboardRows.bind(app);
   if(oldLeaderboard)app.renderLeaderboardRows=function(rows){
-    const result=oldLeaderboard(rows), body=document.getElementById('leaderboard-body');
-    if(body)body.querySelectorAll('tr').forEach(function(tr,i){
-      const cells=tr.querySelectorAll('td'), cell=cells[cells.length-1];if(!cell)return;
-      const points=Number((Array.isArray(rows)&&rows[i]&&rows[i].points)||0), current=rankFromPoints(points), rank=current.rank;
-      cell.innerHTML='<span class="leader-latest-trophy" title="Latest achievement: '+rank[0]+'"><span class="leader-trophy-dot" style="background:linear-gradient(135deg,'+rank[1]+','+rank[2]+')">🏆</span><small>'+rank[0]+'</small></span>';
-    });
+    const result=oldLeaderboard(rows);
+    paintLeaderboardTrophies(rows);
     return result;
   };
   window.addEventListener('storage',function(){setTimeout(renderTrophy,0);});
+  document.addEventListener('student-progress-updated',function(){
+    const rows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
+    setTimeout(function(){paintLeaderboardTrophies(rows);},0);
+    setTimeout(renderTrophy,0);
+  });
 
 })();
