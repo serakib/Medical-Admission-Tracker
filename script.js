@@ -478,9 +478,19 @@ class MedicalExamApp {
     }
 
     async logout() {
+        // Route every app/sidebar logout through the same visible confirmation dialog.
+        // The dialog itself calls signOut(auth) only after the user confirms.
+        if (typeof window.handleLogout === 'function') {
+            window.handleLogout();
+            return;
+        }
+
+        // Safe fallback only if the global confirmation handler has not loaded.
+        if (!window.confirm('আপনি কি সত্যিই আপনার অ্যাকাউন্ট থেকে লগআউট করতে চান?')) return;
         try {
             if (this.auth) await signOut(this.auth);
             this.closeAuthModal();
+            window.location.reload();
         } catch (error) {
             console.error('Logout error:', error);
             const message = document.getElementById('authMessage');
