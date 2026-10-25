@@ -272,8 +272,12 @@ function matProfileSync_(req) {
   var identity = matVerifyToken_(req.idToken);
   return matWithLock_(function() {
     matEnsureWeeklyRollover_();
+    var before = matReadSheet_(MAT_SHEETS.USERS).find(function(x) { return x.uid === identity.uid; }) || null;
     var user = matEnsureUser_(identity.uid, matText_(req.name || identity.name || identity.email || 'Student', 80), matText_(req.college, 120), matText_(req.avatar, 16), { mobile: req.mobile, studentClass: req.studentClass, bloodGroup: req.bloodGroup });
-    user = matWriteUser_(user);
+    var fields = ['name', 'college', 'avatar', 'mobile', 'studentClass', 'bloodGroup', 'league', 'rankRP', 'weeklyPoints', 'weekKey'];
+    var changed = !before || fields.some(function(k) { return String(before[k] == null ? '' : before[k]) !== String(user[k] == null ? '' : user[k]); });
+    if (changed) user = matWriteUser_(user);
+    else user.updatedAt = before.updatedAt || '';
     return { success: true, user: matSafeUser_(user), privateProfile: { mobile: String(user.mobile || ''), class: String(user.studentClass || ''), bloodGroup: String(user.bloodGroup || '') }, currentWeekKey: matWeekKey_(new Date()) };
   });
 }
@@ -344,7 +348,7 @@ function matGetLeaderboard_(req) {
     sortBy = String(req.sortBy || 'weekly') === 'all-time' ? 'allTimePoints' : 'weeklyPoints';
   }
   var me = currentUid ? users.find(function(u) { return u.uid === currentUid; }) || null : null;
-  var entries = users.filter(function(u) { return u.league === league && matNum_(u.quizzes) > 0; }).sort(function(a, b) {
+  var entries = users.filter(function(u) { return u.league === league && matNum_(u[sortBy]) > 0; }).sort(function(a, b) {
     var diff = matNum_(b[sortBy]) - matNum_(a[sortBy]);
     if (diff) return diff;
     return String(a.name || '').localeCompare(String(b.name || ''));
