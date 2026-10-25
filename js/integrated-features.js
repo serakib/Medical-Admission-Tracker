@@ -713,7 +713,7 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  // Keep every trophy tier; 500 RP advances one sub-rank from V through I.
+  // Keep every trophy tier; 500 PB advances one sub-rank from V through I.
   const rankFor = points => {
     const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Legend', 'Mythic'];
     const roman = ['V', 'IV', 'III', 'II', 'I'];
@@ -739,11 +739,11 @@
       else root.prepend(card);
     }
     const progress = readProgress();
-    const performanceBonus = Math.max(0, Number(progress.performanceBonus ?? progress.xp) || 0);
+    const xp = Math.max(0, Number(progress.xp ?? progress.performanceBonus) || 0);
     const levelState = typeof app.getPerformanceLevelProgress === 'function'
-      ? app.getPerformanceLevelProgress(performanceBonus)
-      : { level: 1, toNext: Math.max(0, 600 - performanceBonus), percent: Math.min(100, Math.round(performanceBonus / 600 * 100)) };
-    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Account Level ' + levelState.level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + performanceBonus.toLocaleString() + ' Performance Bonus · ' + levelState.toNext.toLocaleString() + ' PB to next level · ' + levelState.percent + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
+      ? app.getPerformanceLevelProgress(xp)
+      : { level: 1, toNext: Math.max(0, 500 - xp), percent: Math.min(100, Math.round(xp / 500 * 100)) };
+    card.innerHTML = '<h3>Rank & Achievements</h3><div class="enhanced-actions"><span class="enhanced-status-pill enhanced-status-reviewed">' + rankFor(Math.max(0, Number(progress.rankPoints) || 0)) + '</span><span class="enhanced-status-pill">Account Level ' + levelState.level + '</span><span class="enhanced-status-pill">🏆 ' + Math.floor((Number(progress.completedExams) || 0) / 10) + ' trophies</span></div><p class="enhanced-empty">' + Math.max(0, Number(progress.rankPoints) || 0).toLocaleString() + ' PB (Rank Points) · ' + xp.toLocaleString() + ' XP · ' + levelState.toNext.toLocaleString() + ' XP to next level · ' + levelState.percent + '% level progress · ' + (Number(progress.completedExams) || 0) + ' completed exams</p>';
   }
   function ensureLogoutState() {
     const root = document.getElementById('view-profile');
@@ -1027,10 +1027,19 @@ function renderRankCard(){
   const root=document.getElementById('view-profile'); if(!root)return;
   let card=document.getElementById('profile-rank-card');
   if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card);}
-  const p=progress(),r=rank(p.rankPoints),performanceBonus=Math.max(0,Number(p.performanceBonus??p.xp)||0);
-  const levelState=typeof app.getPerformanceLevelProgress==='function'?app.getPerformanceLevelProgress(performanceBonus):{level:1,toNext:Math.max(0,600-performanceBonus),percent:Math.min(100,Math.round(performanceBonus/600*100))};
-  const rpProgress=r.index>=51?100:(r.points%500)/500*100;
-  card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points.toLocaleString()+' lifetime Rank Points</small></div></div><div class="rank-track"><span style="width:'+rpProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=51?'Highest rank reached.':r.remaining+' RP to next sub-rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+levelState.level+'</strong><small>'+levelState.toNext.toLocaleString()+' Performance Bonus to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>Performance Bonus is awarded per correct answer</small></div></div><div class="rank-track"><span style="width:'+levelState.percent+'%"></span></div><small>Performance Bonus progress: '+levelState.percent+'% · RP and Performance Bonus are separate.</small>';
+  const p=progress(),r=rank(p.rankPoints),xp=Math.max(0,Number(p.xp??p.performanceBonus)||0);
+  const levelState=typeof app.getPerformanceLevelProgress==='function'?app.getPerformanceLevelProgress(xp):{level:1,toNext:Math.max(0,500-xp),percent:Math.min(100,Math.round(xp/500*100))};
+  const pbProgress=r.index>=51?100:(r.points%500)/500*100;
+  card.innerHTML='<h3>Rank System & Progress</h3><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px">'+badge(r.points,true)+'<div><strong style="display:block">'+r.name+'</strong><small>'+r.points.toLocaleString()+' PB balance (Rank Points)</small></div></div><div class="rank-track"><span style="width:'+pbProgress+'%"></span></div><p class="enhanced-empty">'+(r.index>=51?'Highest rank reached.':r.remaining+' PB to next sub-rank')+'</p><div class="rank-stats"><div class="rank-stat"><small>Account Level</small><strong>'+levelState.level+'</strong><small>'+levelState.toNext.toLocaleString()+' XP to next level</small></div><div class="rank-stat"><small>Completed Exams</small><strong>'+(Number(p.completedExams)||0)+'</strong><small>Exams award PB; convert PB to XP when needed</small></div></div><div class="rank-track"><span style="width:'+levelState.percent+'%"></span></div><small>XP progress: '+levelState.percent+'% · Conversion rate: 1 PB = 2 XP.</small><div class="pb-xp-converter" style="margin-top:16px;padding:13px;border:1px solid var(--line,#cbd5e1);border-radius:14px"><strong style="display:block;margin-bottom:7px">Convert PB to XP</strong><div style="display:flex;gap:8px;flex-wrap:wrap"><label for="pb-to-xp-amount" style="position:absolute;left:-9999px">PB amount to convert</label><input id="pb-to-xp-amount" type="number" min="1" max="'+Math.floor(r.points)+'" step="1" inputmode="numeric" placeholder="PB amount" style="flex:1;min-width:110px;padding:9px 11px;border:1px solid var(--line,#cbd5e1);border-radius:9px;background:var(--surface,#fff);color:var(--text,#1e293b)"><button type="button" id="pb-to-xp-button" style="padding:9px 13px;border-radius:9px;background:#0f766e;color:#fff;font-weight:800">Convert</button></div><small style="display:block;margin-top:7px;color:var(--muted,#64748b)">1 PB = 2 XP. Converted PB is deducted from your PB balance and can lower your rank.</small></div>';
+  const converterButton=card.querySelector('#pb-to-xp-button');
+  if(converterButton)converterButton.onclick=()=>{
+    const input=card.querySelector('#pb-to-xp-amount'),amount=Number(input?.value||0);
+    if(typeof app.convertPBToXP!=='function'){alert('PB-to-XP conversion is unavailable.');return}
+    const result=app.convertPBToXP(amount);
+    if(!result.ok){alert(result.message||'Unable to convert PB.');return}
+    alert(result.convertedPB.toLocaleString()+' PB converted to '+result.earnedXP.toLocaleString()+' XP.');
+    renderRankCard();
+  };
   const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name;
 }
 function renderSidebarAuth(){const b=document.getElementById('sidebar-auth-action');if(!b)return;const logged=Boolean(app.authUser?.uid);b.classList.toggle('logout-action',logged);b.classList.toggle('login-action',!logged);b.setAttribute('aria-label',logged?'Log Out':'Log In / Sign Up');b.title=logged?(app.authUser.email||'Log Out'):'Log In / Sign Up';b.innerHTML=logged?'<i class="fa-solid fa-right-from-bracket"></i><span>Log Out</span>':'<i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span>';b.onclick=logged?()=>{if(typeof app.logout==='function')app.logout();else if(window.handleLogout)window.handleLogout()}:()=>{if(window.redirectToLogin)window.redirectToLogin()}}
