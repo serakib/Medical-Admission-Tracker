@@ -123,7 +123,10 @@
     document.querySelectorAll('[data-leaderboard-period="weekly"],#weekly-reset-setting,label[for="weekly-reset-setting"],.league-banner').forEach(el=>el.remove());
     document.querySelectorAll('.rank-stat').forEach(el=>{if(/weekly rank points|weekly reset/i.test(el.textContent||''))el.remove();});
     const heading=document.querySelector('#view-leaderboard h2'), paragraph=heading?.parentElement?.querySelector('p');
-    if(paragraph)paragraph.textContent='All-time Rank Points determine the leaderboard. Friends shows students from your college.';
+    const leaderboardCopy='All-time Rank Points determine the leaderboard. Friends shows students from your college.';
+    // The observer below watches this subtree; avoid resetting identical text and
+    // triggering an endless MutationObserver microtask loop on every pass.
+    if(paragraph && paragraph.textContent!==leaderboardCopy)paragraph.textContent=leaderboardCopy;
   }
   const oldRankUpdate=app.updateProfileRanks?.bind(app);
   if(oldRankUpdate)app.updateProfileRanks=function(rows=[]){
