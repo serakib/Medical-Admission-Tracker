@@ -1,21 +1,23 @@
 # Firebase setup
 
 ## 1) Authentication
-Firebase Console → Authentication → Sign-in method → enable **Email/Password**.
 
-Guest mode remains available even if Firebase is unavailable.
+Firebase is the sign-in provider for the Medical Admission Tracker. In Firebase Console → Authentication → Sign-in method, enable **Email/Password**. Firebase Authentication handles credentials, persistent sessions, and the user identity used by the app.
 
-## 2) Firestore
-Create a Firestore database. The app uses:
-- `students/{uid}` for student profile data
-- `leaderboard/{uid}` for aggregated quiz points/statistics
-- `quizAttempts/{uid_timestamp}` for duplicate-submit protection
+## 2) Student profile data
 
-## 3) Firestore rules
-Start with development rules only if you understand the risk. For production, use authenticated read access for leaderboard and owner-only writes for student profiles. Quiz-point writes should ideally be moved to a trusted server/Cloud Function before treating the leaderboard as a high-stakes competitive system.
+The existing app still uses the `students/{uid}` Firestore document for student profile fields such as name, college, and profile details. Keep the current Firestore rules owner-scoped for writes to a student's own profile. Do not allow public reads of private profile details.
 
-## 4) Client configuration
-`js/firebase-config.js` contains the Firebase Web SDK configuration. Web SDK config values are not Admin SDK secrets. Never put service-account private keys or Admin SDK credentials in this repository.
+## 3) Global leaderboard / Rank data
 
-## 5) Leaderboard behavior
-The app renders the last saved leaderboard from LocalStorage immediately, then silently refreshes from Firestore. Firestore remains the source of truth; LocalStorage is only a UI cache.
+Leaderboard, Rank Points, and rank tiers are **not stored in Firestore**. The client sends eligible submitted exam results to the shared API configured in `js/leaderboard-config.js`. It currently points to the existing Fallrush API as requested; that means the Medical app's Rank entries use the same backend and may appear alongside Fallrush Rank entries.
+
+To use a separate Medical Admission Tracker API later, replace the URL in `js/leaderboard-config.js`. No Firebase leaderboard collections are needed for the new flow. Old Firestore leaderboard/quiz-attempt documents from earlier versions are left untouched, but the current client no longer reads or writes them.
+
+## 4) Security boundary
+
+The current Fallrush API has its own session token. When that token is available in the same browser, the adapter sends it. Otherwise, a signed-in Medical user is submitted through the API's guest-player route with a stable Medical-prefixed player ID. Firebase authentication still gates submission in the Medical UI, but **the Fallrush API does not verify Firebase ID tokens**. Therefore, this temporary shared-API setup does not provide full server-side verification that a Rank result came from an authenticated Medical account, and it should not be treated as tamper-proof. A dedicated Medical backend should verify Firebase ID tokens and validate exam submissions server-side before using the ranking for high-stakes decisions.
+
+## 5) Browser cache
+
+LocalStorage stores a cached copy of the shared leaderboard and a pending queue for temporarily failed result submissions. These are convenience caches only; the shared API is the global data source.
