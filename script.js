@@ -1137,8 +1137,19 @@ class MedicalExamApp {
     beginPreparedExam() {
         if (!this.preparedExam) return;
         const cfg = this.preparedExam;
+        const questionCount = Array.isArray(cfg.questions) ? cfg.questions.length : 0;
+        if (!questionCount) {
+            this.showDataError('পরীক্ষা শুরু করার জন্য কোনো প্রশ্ন পাওয়া যায়নি।');
+            return;
+        }
+        // Recalculate model/previous-year duration from the actual prepared question set,
+        // so stale setup state cannot shorten or extend the exam unexpectedly.
+        const durationMins = (cfg.mode === 'model' || cfg.mode === 'previousQuiz')
+            ? Math.max(1, Math.round(questionCount * 0.6))
+            : Math.max(1, Number(cfg.durationMins) || Math.round(questionCount * 0.5) || 1);
+        cfg.durationMins = durationMins;
         const now = Date.now();
-        this.examState = { questions: cfg.questions, userAnswers: new Array(cfg.questions.length).fill(null), markedForReview: new Array(cfg.questions.length).fill(false), currentIndex: 0, timerSeconds: cfg.durationMins * 60, timerInterval: null, timeUsedSeconds: 0, submitted: false, startedAt: now, deadlineAt: now + cfg.durationMins * 60000, mode: cfg.mode, year: cfg.year, subject: cfg.subject };
+        this.examState = { questions: cfg.questions, userAnswers: new Array(cfg.questions.length).fill(null), markedForReview: new Array(cfg.questions.length).fill(false), currentIndex: 0, timerSeconds: durationMins * 60, timerInterval: null, timeUsedSeconds: 0, submitted: false, startedAt: now, deadlineAt: now + durationMins * 60000, mode: cfg.mode, year: cfg.year, subject: cfg.subject };
         this.examActive = true;
         this.markQuestionsSeen(cfg.questions);
         this.renderQuestion(); this.renderPalette(); this.showView('exam'); this.startTimer();
