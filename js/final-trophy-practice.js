@@ -26,6 +26,7 @@
     .premium-trophy-medal svg{width:100%;height:100%;overflow:visible}
 
     .lifetime-trophy-card{width:100%;text-align:left;cursor:pointer;color:inherit;font:inherit}#profile-rank-card{display:none!important}
+    .exam-trophy-hub-modal[hidden]{display:none!important}
     .exam-trophy-hub-modal{position:fixed!important;inset:0!important;z-index:12000!important;display:block!important;overflow:auto!important;max-width:none!important;width:100%!important;margin:0!important;padding:12px!important;background:rgba(2,6,23,.8)!important;backdrop-filter:blur(8px)}
     .exam-trophy-hub-modal>div{width:min(100%,900px);max-height:calc(100vh - 24px);overflow:auto;margin:0 auto!important;background:var(--surface,#fff);border-radius:22px;padding:18px!important;box-shadow:0 24px 80px #0005}
     .exam-hub-close{display:block;margin:0 0 12px auto;padding:8px 12px;border-radius:10px;background:#334155;color:#fff;font-weight:800}
@@ -84,7 +85,7 @@
     let card=profile.querySelector('.lifetime-trophy-card');
     if(!card){
       card=document.createElement('button');card.type='button';card.className='lifetime-trophy-card';
-      card.setAttribute('aria-label','Open exam setup and all trophy ranks');
+      card.setAttribute('aria-label','Open all trophy ranks');
       const anchor=profile.querySelector('#profile-rank-card')||profile.querySelector('.profile-hero');
       if(anchor)anchor.insertAdjacentElement('afterend',card);else profile.prepend(card);
     }
@@ -132,42 +133,70 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderTrophy, {once:true});
   else renderTrophy();
 
-  function openExamTrophyHub(mode) {
-    if(typeof app.setSetupMode==='function') app.setSetupMode(mode||'random');
-    const setup=document.getElementById('view-setup');
-    if(!setup){if(app.setupExamQuick)app.setupExamQuick(mode||'random');return;}
-    app.showView('setup');
-    setup.classList.add('exam-trophy-hub-modal');
-    setup.setAttribute('role','dialog');setup.setAttribute('aria-modal','true');setup.setAttribute('aria-label','Exam setup and trophy collection');
-    const inner=setup.querySelector(':scope > div');
-    if(inner&&!inner.querySelector('.exam-hub-close')){
-      const close=document.createElement('button');close.type='button';close.className='exam-hub-close';close.textContent='✕ Close';
-      close.onclick=function(){setup.classList.remove('exam-trophy-hub-modal');app.showView('home');};inner.prepend(close);
+  function closeExamTrophyHub() {
+    const overlay=document.getElementById('exam-trophy-hub-modal');
+    if(overlay)overlay.hidden=true;
+    document.body.style.overflow='';
+  }
+  function openExamTrophyHub() {
+    let overlay=document.getElementById('exam-trophy-hub-modal');
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='exam-trophy-hub-modal';
+      overlay.className='exam-trophy-hub-modal';
+      overlay.hidden=true;
+      overlay.setAttribute('role','dialog');
+      overlay.setAttribute('aria-modal','true');
+      overlay.setAttribute('aria-labelledby','exam-trophy-hub-title');
+      overlay.innerHTML='<div><button type="button" class="exam-hub-close" aria-label="Close trophy gallery">✕ Close</button><section id="exam-trophy-collection" class="exam-trophy-collection"></section></div>';
+      overlay.addEventListener('click',function(event){if(event.target===overlay)closeExamTrophyHub();});
+      overlay.querySelector('.exam-hub-close').addEventListener('click',closeExamTrophyHub);
+      document.body.appendChild(overlay);
     }
     renderCollection();
+    overlay.hidden=false;
+    document.body.style.overflow='hidden';
+    const heading=overlay.querySelector('#exam-trophy-hub-title');
+    if(heading)heading.focus();
   }
   function renderCollection() {
-    const points=lifetimePoints(), current=rankFromPoints(points);
-    let host=document.getElementById('exam-trophy-collection');
-    if(!host){host=document.createElement('section');host.id='exam-trophy-collection';host.className='exam-trophy-collection';
-      const setup=document.getElementById('view-setup');const inner=setup&&setup.querySelector(':scope > div');if(inner)inner.appendChild(host);else if(setup)setup.appendChild(host);}
+    const points=lifetimePoints();
+    const current=rankFromPoints(points);
+    const overlay=document.getElementById('exam-trophy-hub-modal');
+    if(!overlay)return;
+    let host=overlay.querySelector('#exam-trophy-collection');
+    if(!host){
+      host=document.createElement('section');
+      host.id='exam-trophy-collection';
+      host.className='exam-trophy-collection';
+      overlay.querySelector(':scope > div').appendChild(host);
+    }
     let cards='';
     trophyRanks.forEach(function(rank,i){
-      let target=0;for(let j=0;j<i;j++)target+=requiredRP(j);
+      let target=0;
+      for(let j=0;j<i;j++)target+=requiredRP(j);
       const earned=points>=target;
       const c=rank[1],d=rank[2],s=rank[3];
-      cards+='<article class="exam-trophy-item '+(earned?'earned':'locked')+'"><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><path d="M50 24l4 9 10 1-7 7 2 9-9-5-9 5 2-9-7-7 10-1Z" fill="'+s+'"/><path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+d+'">'+(target)+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'TARGET '+target.toLocaleString()+' RP')+'</small></article>';
+      const emblem=i%3===0
+        ? '<path d="M50 24l4.2 8.5 9.4 1.4-6.8 6.6 1.6 9.3-8.4-4.4-8.4 4.4 1.6-9.3-6.8-6.6 9.4-1.4Z" fill="'+s+'" stroke="'+d+'" stroke-width="1.5"/>'
+        : i%3===1
+          ? '<path d="M50 22 65 38 50 54 35 38Z" fill="'+s+'" stroke="'+d+'" stroke-width="2"/><path d="M50 29v18M41 38h18" stroke="'+d+'" stroke-width="2"/>'
+          : '<path d="M34 29l10 8 6-13 6 13 10-8-3 20H37Z" fill="'+s+'" stroke="'+d+'" stroke-width="2"/><path d="M39 53h22" stroke="'+s+'" stroke-width="3"/>';
+
+      const stage=i%3+1;
+      const tier=Math.floor(i/3);
+      cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+d+'">'+target+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'TARGET '+target.toLocaleString()+' RP')+'</small></article>';
     });
-    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3>All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show their RP target.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
+    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show their RP target.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
+    // Make all ranks visually distinguishable, even within the same colour tier.
+    host.querySelectorAll('.exam-trophy-item').forEach(function(card,index){
+      const stage=index%3;
+      card.style.borderRadius=stage===0?'18px 18px 12px 12px':stage===1?'10px 18px 10px 18px':'22px 8px 22px 8px';
+      card.style.borderStyle=stage===0?'solid':stage===1?'double':'dashed';
+    });
   }
-  const previousPractice=app.openPracticeBrowser&&app.openPracticeBrowser.bind(app);
-  app.openPracticeBrowser=function(){openExamTrophyHub('random');};
-  const previousQuick=app.setupExamQuick&&app.setupExamQuick.bind(app);
-  app.setupExamQuick=function(mode){if(mode==='model'){openExamTrophyHub('model');return;}return previousQuick&&previousQuick(mode);};
   const previousShowView=app.showView.bind(app);
   app.showView=function(viewName) {
-    const setup=document.getElementById('view-setup');
-    if(setup&&viewName!=='setup')setup.classList.remove('exam-trophy-hub-modal');
     const result=previousShowView.apply(this,arguments);
     if(viewName==='profile')setTimeout(renderTrophy,0);
     return result;
@@ -194,6 +223,5 @@
     return result;
   };
   window.addEventListener('storage',function(){setTimeout(renderTrophy,0);});
-  setTimeout(renderCollection,0);
 
 })();
