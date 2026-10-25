@@ -461,19 +461,26 @@
   }
   async function loadMyApiProfile() {
     var token = getToken();
-    if (!token) { currentProfile = null; return null; }
+    if (!token) {
+      if (currentProfile && String(currentProfile.playerId || currentProfile.userId || '') === medPlayerId()) return currentProfile;
+      currentProfile = null;
+      return null;
+    }
     try {
       var response = await request({ action: 'profile', token: token });
       currentProfile = response.user || response.profile || response;
       return currentProfile;
-    } catch (_) { return null; }
+    } catch (_) { currentProfile = null; return null; }
   }
   async function loadLeaderboard(silent) {
     ensureUI();
     selectedRank = readSelectedRank();
     var requestId = ++lastLoadId;
     var cache = cachedRowsForDisplay();
-    if (cache.length) renderRows(cache);
+    if (cache.length) {
+      rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
+      renderRows(cache);
+    }
     if (!API_URL()) {
       setStatus('Global leaderboard API URL সেট করা নেই।', true);
       return;
@@ -793,5 +800,14 @@
     selectedRank = readSelectedRank();
     updateTopControls(getCurrentUserRow());
   });
+  var originalLoadUserProfile = typeof app.loadUserProfile === 'function' ? app.loadUserProfile.bind(app) : null;
+  if (originalLoadUserProfile) {
+    app.loadUserProfile = async function () {
+      var result = await originalLoadUserProfile();
+      await loadLeaderboard(true);
+      return result;
+    };
+  }
+  window.setInterval(flushQueue, 15000);
   window.setTimeout(function () { loadLeaderboard(true); }, 0);
 })();
