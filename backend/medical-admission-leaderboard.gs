@@ -339,7 +339,7 @@ function matGetLeaderboard_(req) {
     sortBy = String(req.sortBy || 'weekly') === 'all-time' ? 'allTimePoints' : 'weeklyPoints';
   }
   var me = currentUid ? users.find(function(u) { return u.uid === currentUid; }) || null : null;
-  var entries = users.filter(function(u) { return u.league === league; }).sort(function(a, b) {
+  var entries = users.filter(function(u) { return u.league === league && matNum_(u.quizzes) > 0; }).sort(function(a, b) {
     var diff = matNum_(b[sortBy]) - matNum_(a[sortBy]);
     if (diff) return diff;
     return String(a.name || '').localeCompare(String(b.name || ''));
@@ -363,9 +363,9 @@ function matSendFriendRequest_(req) {
     if (!users.some(function(u) { return u.uid === toUid; })) throw new Error('এই student এখনো leaderboard-এ নেই।');
     var sheet = matSheet_(MAT_SHEETS.FRIENDS);
     var links = matReadSheet_(MAT_SHEETS.FRIENDS);
-    var existing = links.find(function(f) {
+    var existing = links.filter(function(f) {
       return (f.fromUid === identity.uid && f.toUid === toUid) || (f.fromUid === toUid && f.toUid === identity.uid);
-    });
+    }).sort(function(a, b) { return Number(b._row || 0) - Number(a._row || 0); })[0];
     if (existing && existing.status === 'accepted') return { success: true, status: 'accepted' };
     if (existing && existing.status === 'pending' && existing.fromUid === identity.uid) return { success: true, status: 'pending' };
     if (existing && existing.status === 'pending' && existing.toUid === identity.uid) {
