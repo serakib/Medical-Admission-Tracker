@@ -1646,19 +1646,76 @@ window.handleLogout = function() {
   if (!app || app.__examProgressFoundation) return;
   app.__examProgressFoundation = true;
   const accountKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
+  const PENDING_PB_DELAY_MS = 2 * 60 * 60 * 1000;
+  const pendingPBTotal = progress => (Array.isArray(progress.pendingPBEntries) ? progress.pendingPBEntries : []).reduce((sum, entry) => sum + Math.max(0, Number(entry.amount) || 0), 0);
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
       const xp = Math.max(0, Number(data.xp ?? data.performanceBonus) || 0);
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp, performanceBonus: xp, completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
-    } catch (_) { return {rankPoints:0,xp:0,performanceBonus:0,completedExams:0,rewarded:[]}; }
+      return { ...data, rankPoints: Math.max(0, Number(data.rankPoints) || 0), pendingPBEntries: Array.isArray(data.pendingPBEntries) ? data.pendingPBEntries.filter(entry => Number(entry?.amount) > 0 && Number.isFinite(Number(entry?.convertsAt))).map(entry => ({ id: String(entry.id || ''), amount: Math.floor(Number(entry.amount)), earnedAt: Number(entry.earnedAt) || 0, convertsAt: Number(entry.convertsAt) })) : [], pendingPB: 0, xp, performanceBonus: xp, completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+    } catch (_) { return {rankPoints:0,pendingPBEntries:[],pendingPB:0,xp:0,performanceBonus:0,completedExams:0,streak:0,lastExamDate:'',rewarded:[]}; }
   };
   const saveProgress = data => {
+    data.rankPoints = Math.max(0, Number(data.rankPoints) || 0);
+    data.pendingPBEntries = Array.isArray(data.pendingPBEntries) ? data.pendingPBEntries : [];
     data.xp = Math.max(0, Number(data.xp ?? data.performanceBonus) || 0);
     // Legacy compatibility only; account levels now use XP.
     data.performanceBonus = data.xp;
     localStorage.setItem(accountKey(), JSON.stringify(data));
   };
+  function consumePendingPB(progress, amount) {
+    let remaining = amount;
+    const next = [];
+    const entries = (Array.isArray(progress.pendingPBEntries) ? progress.pendingPBEntries : []).slice().sort((a, b) => Number(a.earnedAt || 0) - Number(b.earnedAt || 0));
+    for (const entry of entries) {
+      const available = Math.max(0, Number(entry.amount) || 0);
+      const used = Math.min(available, remaining);
+      remaining -= used;
+      if (available > used) next.push({ ...entry, amount: available - used });
+    }
+    if (remaining > 0) return false;
+    progress.pendingPBEntries = next;
+    return true;
+  }
+  function syncRankProgress(progress, reason = 'progress') {
+    const uid = app.authUser?.uid;
+    if (!uid) return;
+    const oldRows = app.getLocalLeaderboardRows?.() || [];
+    const oldRow = oldRows.find(row => row.uid === uid) || {};
+    const rankRow = {
+      ...oldRow, uid,
+      name: app.profile?.name || app.authUser?.displayName || app.authUser?.email || 'Student',
+      college: app.profile?.college || oldRow.college || '',
+      rankPoints: progress.rankPoints,
+      xp: progress.xp,
+      performanceBonus: progress.xp,
+      level: getPerformanceLevelProgress(progress.xp).level,
+      updatedAtMs: Date.now()
+    };
+    const rows = typeof app.mergeLeaderboardRows === 'function'
+      ? app.mergeLeaderboardRows([...oldRows.filter(row => row.uid !== uid), rankRow])
+      : [...oldRows.filter(row => row.uid !== uid), rankRow];
+    app.setLocalLeaderboardRows?.(rows);
+    app.renderLeaderboardRows?.(rows);
+    if (app.firestore) setDoc(doc(app.firestore, 'leaderboard', uid), {
+      uid, name: rankRow.name, college: rankRow.college, rankPoints: progress.rankPoints,
+      xp: progress.xp, performanceBonus: progress.xp, level: rankRow.level,
+      updatedAt: serverTimestamp()
+    }, { merge: true }).catch(error => console.warn(reason + ' leaderboard sync failed:', error));
+  }
+  function settleDuePB(progress, now = Date.now()) {
+    const entries = Array.isArray(progress.pendingPBEntries) ? progress.pendingPBEntries : [];
+    let converted = 0;
+    const pending = [];
+    entries.forEach(entry => {
+      const amount = Math.max(0, Number(entry.amount) || 0);
+      if (amount && Number(entry.convertsAt) <= now) converted += amount;
+      else if (amount) pending.push(entry);
+    });
+    progress.pendingPBEntries = pending;
+    if (converted) progress.rankPoints += converted;
+    return converted;
+  }
   const roundRequirementToFive = value => Math.max(5, Math.round(Number(value || 0) / 5) * 5);
   const requiredXPForLevel = level => {
     const currentLevel = Math.max(1, Math.floor(Number(level) || 1));
@@ -1677,53 +1734,61 @@ window.handleLogout = function() {
     return { level, required, remaining, toNext: Math.max(0, required - remaining), percent: required > 0 ? Math.min(100, Math.round(remaining / required * 100)) : 100 };
   };
   app.getPerformanceLevelProgress = getPerformanceLevelProgress;
-  app.getAccountProgress = () => ({ ...readProgress() });
+  app.settlePendingPB = function(now = Date.now()) {
+    const progress = readProgress();
+    const converted = settleDuePB(progress, now);
+    if (!converted) return { ok: true, convertedPB: 0, rankPoints: progress.rankPoints, pendingPB: pendingPBTotal(progress) };
+    saveProgress(progress);
+    syncRankProgress(progress, 'Automatic PB-to-RP conversion');
+    document.dispatchEvent(new CustomEvent('student-progress-updated', {
+      detail: { ...progress, pendingPB: pendingPBTotal(progress), autoConversion: { pb: converted, rp: converted } }
+    }));
+    return { ok: true, convertedPB: converted, rankPoints: progress.rankPoints, pendingPB: pendingPBTotal(progress) };
+  };
+  app.getAccountProgress = () => {
+    app.settlePendingPB();
+    const progress = readProgress();
+    progress.pendingPB = pendingPBTotal(progress);
+    return { ...progress };
+  };
+  function getConvertibleProgress() {
+    app.settlePendingPB();
+    return readProgress();
+  }
   app.convertPBToXP = function(amount) {
     const pointsToConvert = Math.floor(Number(amount));
-    if (!Number.isFinite(pointsToConvert) || pointsToConvert <= 0) {
-      return { ok: false, message: 'Enter a whole PB amount greater than zero.' };
-    }
-    const progress = readProgress();
-    if (pointsToConvert > progress.rankPoints) {
-      return { ok: false, message: 'You do not have enough PB to convert.' };
-    }
-    progress.rankPoints -= pointsToConvert;
+    if (!Number.isFinite(pointsToConvert) || pointsToConvert <= 0) return { ok: false, message: 'Enter a whole PB amount greater than zero.' };
+    const progress = getConvertibleProgress();
+    if (pointsToConvert > pendingPBTotal(progress)) return { ok: false, message: 'You do not have enough pending PB. PB older than 2 hours has already become RP.' };
+    if (!consumePendingPB(progress, pointsToConvert)) return { ok: false, message: 'Unable to use the selected pending PB.' };
     progress.xp += pointsToConvert * 2;
     progress.performanceBonus = progress.xp;
     saveProgress(progress);
-
-    if (this.authUser?.uid) {
-      const uid = this.authUser.uid;
-      const oldRows = this.getLocalLeaderboardRows?.() || [];
-      const oldRow = oldRows.find(row => row.uid === uid) || {};
-      const rankRow = {
-        ...oldRow, uid,
-        name: this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student',
-        college: this.profile?.college || oldRow.college || '',
-        rankPoints: progress.rankPoints,
-        xp: progress.xp,
-        performanceBonus: progress.xp,
-        level: getPerformanceLevelProgress(progress.xp).level,
-        updatedAtMs: Date.now()
-      };
-      const nextRows = typeof this.mergeLeaderboardRows === 'function'
-        ? this.mergeLeaderboardRows([...oldRows.filter(row => row.uid !== uid), rankRow])
-        : [...oldRows.filter(row => row.uid !== uid), rankRow];
-      this.setLocalLeaderboardRows?.(nextRows);
-      this.renderLeaderboardRows?.(nextRows);
-      if (this.firestore) {
-        setDoc(doc(this.firestore, 'leaderboard', uid), {
-          uid, name: rankRow.name, college: rankRow.college,
-          rankPoints: progress.rankPoints, xp: progress.xp, performanceBonus: progress.xp,
-          level: rankRow.level, updatedAt: serverTimestamp()
-        }, { merge: true }).catch(error => console.warn('PB-to-XP conversion sync failed:', error));
-      }
-    }
+    syncRankProgress(progress, 'PB-to-XP conversion');
     document.dispatchEvent(new CustomEvent('student-progress-updated', {
-      detail: { ...progress, performanceBonus: progress.xp, conversion: { pb: pointsToConvert, xp: pointsToConvert * 2 } }
+      detail: { ...progress, pendingPB: pendingPBTotal(progress), conversion: { pb: pointsToConvert, xp: pointsToConvert * 2 } }
     }));
-    return { ok: true, convertedPB: pointsToConvert, earnedXP: pointsToConvert * 2, rankPoints: progress.rankPoints, xp: progress.xp };
+    return { ok: true, convertedPB: pointsToConvert, earnedXP: pointsToConvert * 2, rankPoints: progress.rankPoints, pendingPB: pendingPBTotal(progress), xp: progress.xp };
   };
+  app.convertPBToRP = function(amount) {
+    const pointsToConvert = Math.floor(Number(amount));
+    if (!Number.isFinite(pointsToConvert) || pointsToConvert <= 0) return { ok: false, message: 'Enter a whole PB amount greater than zero.' };
+    const progress = getConvertibleProgress();
+    if (pointsToConvert > pendingPBTotal(progress)) return { ok: false, message: 'You do not have enough pending PB. PB older than 2 hours has already become RP.' };
+    if (!consumePendingPB(progress, pointsToConvert)) return { ok: false, message: 'Unable to use the selected pending PB.' };
+    progress.rankPoints += pointsToConvert;
+    saveProgress(progress);
+    syncRankProgress(progress, 'Manual PB-to-RP conversion');
+    document.dispatchEvent(new CustomEvent('student-progress-updated', {
+      detail: { ...progress, pendingPB: pendingPBTotal(progress), conversion: { pb: pointsToConvert, rp: pointsToConvert } }
+    }));
+    return { ok: true, convertedPB: pointsToConvert, earnedRP: pointsToConvert, rankPoints: progress.rankPoints, pendingPB: pendingPBTotal(progress) };
+  };
+  // The tab can mature PB while open; opening/returning to the page also settles overdue entries.
+  const settlePBNow = () => app.settlePendingPB();
+  window.addEventListener('load', settlePBNow);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) settlePBNow(); });
+  window.setInterval(settlePBNow, 30000);
   const calculateExamReward = (state, correct) => {
     const is100MarkModelTest = state?.mode === 'model' && Array.isArray(state.questions) && state.questions.length === 100;
     let weightedCorrect = Math.max(0, Number(correct) || 0);
@@ -1833,8 +1898,11 @@ window.handleLogout = function() {
     const result = originalSubmitExamForProgress(autoSubmitted);
     if (!alreadyRewarded && state.submitted) {
       const reward = calculateExamReward(state, correct);
-      progress.rankPoints += reward.rankPoints;
-      // Exams award PB (rank points). XP is earned only through an explicit PB conversion.
+      const earnedAt = Date.now();
+      if (reward.rankPoints > 0) {
+        progress.pendingPBEntries.push({ id: attemptId, amount: reward.rankPoints, earnedAt, convertsAt: earnedAt + PENDING_PB_DELAY_MS });
+      }
+      // New exam rewards remain PB for two hours; only matured/manual PB becomes RP.
       progress.performanceBonus = progress.xp;
       const now = new Date();
       progress.completedExams += 1;
@@ -1870,7 +1938,7 @@ window.handleLogout = function() {
           }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
         }
       }
-      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, performanceBonus: progress.xp, pbEarned: reward.rankPoints, correct, reward } }));
+      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, performanceBonus: progress.xp, pendingPB: pendingPBTotal(progress), pbEarned: reward.rankPoints, correct, reward } }));
     }
     return result;
   };
