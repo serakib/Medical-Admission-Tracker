@@ -33,4 +33,4 @@ The backend verifies that the sender is signed in and checks score totals agains
 
 ## Existing Firebase data
 
-The client no longer reads or writes leaderboard entries or quiz attempts in Firestore. It also stops creating new students/{uid} profile documents: the authenticated user's basic public leaderboard profile is synchronized to the Google Sheets backend, while additional profile details can remain in that account's local browser storage. Existing Firestore documents, if any, are not deleted by this change.
+The client no longer reads or writes leaderboard entries, quiz attempts, or student profile documents in Firestore. Firebase Authentication remains responsible for sign-in and issuing ID tokens. The separate private Google spreadsheet stores public leaderboard fields and student profile metadata; the API returns only public leaderboard fields to leaderboard viewers, and returns mobile/class/blood-group details only to the authenticated owner during profile sync. Existing Firestore documents, if any, are not deleted by this change.
