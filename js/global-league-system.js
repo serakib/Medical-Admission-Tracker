@@ -590,6 +590,28 @@
     saveQueue(keep);
     if (sentAny) await loadLeaderboard(true);
   }
+  function getMedicalRankScore(item) {
+    var total = Math.max(1, Number(item && item.totalQuestions) || 1);
+    var correct = Math.max(0, Number(item && item.correctCount) || 0);
+    // Fallrush Rank uses a 300-point promotion threshold. Normalize the exam result
+    // to that scale so every completed exam can earn positive XP/RP without changing
+    // the actual medical exam marks shown in the result/history.
+    return 300 + Math.round(Math.min(1, correct / total) * 300);
+  }
+  function calculateFallbackReward(item, score) {
+    var correct = Math.max(0, Number(item && item.correctCount) || 0);
+    var wrong = Math.max(0, Number(item && item.wrongCount) || 0);
+    var combo = Math.max(0, Number(item && item.maxCombo) || 0);
+    var total = Math.max(0, correct + wrong);
+    var accuracy = total > 0 ? correct / total : 0;
+    var rawRP = Math.floor(score / 80) + Math.floor(combo * 1.5) +
+      Math.floor(correct * 1.25) + Math.floor(accuracy * 20) - Math.floor(wrong * 1.5);
+    var multiplier = getToken() ? 2 : 1;
+    var xp = Math.round((Math.max(5, Math.floor(score / 25)) + 15 + (combo >= 10 ? 10 : 0)) * multiplier);
+    var rp = Math.round(Math.max(1, rawRP) * multiplier);
+    return { xpGained: xp, rankPointsDelta: rp };
+  }
+
   async function submitResult(item, fromQueue) {
     var id = String(item.attemptId || '');
     if (!id) throw new Error('Missing quiz attempt ID.');
@@ -602,9 +624,10 @@
     var payload = {
       action: 'gameEnd',
       gameId: 'MAT-' + safeText(item.uid || 'USER', 55) + '-' + safeText(id, 70),
-      score: Math.max(0, Number(item.quizPoints) || 0),
+      score: getMedicalRankScore(item),
+      medicalQuizPoints: Math.max(0, Number(item.quizPoints) || 0),
       mode: 'Rank',
-      maxCombo: 0,
+      maxCombo: Math.max(0, Number(item.maxCombo) || 0),
       catches: Math.max(0, Number(item.correctCount) || 0) + Math.max(0, Number(item.wrongCount) || 0),
       correctCatches: Math.max(0, Number(item.correctCount) || 0),
       wrongCatches: Math.max(0, Number(item.wrongCount) || 0),
@@ -631,6 +654,11 @@
     var rpValue = response.rankPointsDelta != null ? response.rankPointsDelta
       : (response.earnedRP != null ? response.earnedRP
       : (response.rpDelta != null ? response.rpDelta : (resultUser.rankPointsDelta != null ? resultUser.rankPointsDelta : null)));
+    // Match Fallrush's existing client fallback when its API omits a reward delta
+    // or returns zero: the exam score has already been normalized to the Rank scale.
+    var fallbackReward = calculateFallbackReward(item, getMedicalRankScore(item));
+    if (xpValue == null || !Number.isFinite(Number(xpValue)) || Number(xpValue) <= 0) xpValue = fallbackReward.xpGained;
+    if (rpValue == null || !Number.isFinite(Number(rpValue)) || Number(rpValue) === 0) rpValue = fallbackReward.rankPointsDelta;
     var reward = {
       success: true,
       synced: true,
@@ -671,6 +699,7 @@
       correctCount: Math.max(0, Math.floor(Number(meta.correctCount) || 0)),
       wrongCount: Math.max(0, Math.floor(Number(meta.wrongCount) || 0)),
       totalQuestions: Math.max(0, Math.floor(Number(meta.totalQuestions) || 0)),
+      maxCombo: Math.max(0, Math.floor(Number(meta.maxCombo) || 0)),
       name: profileName(),
       college: profileCollege()
     };
