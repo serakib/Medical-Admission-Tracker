@@ -14,6 +14,7 @@
   var CACHE_KEY = 'med_fallrush_leaderboard_cache_v1';
   var QUEUE_KEY = 'med_fallrush_leaderboard_pending_v1';
   var SENT_KEY = 'med_fallrush_leaderboard_sent_v1';
+  var REWARDS_KEY = 'med_fallrush_exam_rewards_v1';
   var RANK_KEY_PREFIX = 'med_fallrush_selected_rank_v1_';
   var FRIENDS_CACHE_KEY = 'med_fallrush_friends_cache_v1';
   var API_URL = function () { return String(window.MED_LEADERBOARD_API_URL || '').trim(); };
@@ -247,6 +248,26 @@
     var ids = sentIds().filter(function (x) { return x !== id; });
     ids.push(id);
     try { localStorage.setItem(SENT_KEY, JSON.stringify(ids.slice(-500))); } catch (_) {}
+  }
+  function readRewardCache() {
+    var value = parseJson(localStorage.getItem(REWARDS_KEY), {});
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
+  function saveReward(reward) {
+    if (!reward || !reward.attemptId) return reward;
+    var cache = readRewardCache();
+    cache[String(reward.attemptId)] = reward;
+    var keys = Object.keys(cache);
+    if (keys.length > 100) keys.slice(0, keys.length - 100).forEach(function (key) { delete cache[key]; });
+    try { localStorage.setItem(REWARDS_KEY, JSON.stringify(cache)); } catch (_) {}
+    if (typeof window.updateExamRewardDisplay === 'function') window.updateExamRewardDisplay(reward);
+    return reward;
+  }
+  function getSavedReward(attemptId) {
+    return readRewardCache()[String(attemptId || '')] || null;
+  }
+  function currentSubmissionUid() {
+    return (app.authUser && app.authUser.uid) || medPlayerId();
   }
   function getCurrentUserRow() {
     var id = medPlayerId();
