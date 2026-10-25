@@ -200,6 +200,29 @@
       return true;
     });
   }
+  var portraitChoices = Array.from({ length: 24 }, function (_, i) { return 'https://i.pravatar.cc/120?img=' + (i + 1); });
+  function avatarMarkup(row) {
+    var avatar = safeText(row && row.avatar || '', 300);
+    if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar)) {
+      return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    }
+    if (isMine(row && (row.raw || row)) && app.authUser) {
+      try {
+        var uid = app.authUser.uid;
+        var saved = localStorage.getItem('med_profile_avatar_v1_' + uid) || '';
+        if (saved && saved.length <= 12 && !/[<>]/.test(saved)) return escapeHtml(saved);
+        var uploaded = parseJson(localStorage.getItem('med_profile_uploaded_avatars_v1_' + uid), []);
+        if (typeof saved === 'string' && uploaded.indexOf(saved) >= 0 && /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(saved)) {
+          return '<img src="' + saved + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+        }
+      } catch (_) {}
+    }
+    if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHtml(avatar);
+    var key = String(row && (row.uid || row.playerId || row.name) || 'student');
+    var hash = 0;
+    for (var i = 0; i < key.length; i++) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
+    return '<img src="' + portraitChoices[Math.abs(hash) % portraitChoices.length] + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  }
   function getCachedRows() {
     var rows = parseJson(localStorage.getItem(CACHE_KEY), []);
     return Array.isArray(rows) ? rows.filter(function (x) { return x && !x.isDemo; }) : [];
@@ -413,7 +436,7 @@
         podium.innerHTML = rankRows.slice(0, 3).map(function (row, index) {
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.playerId) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
             '<div class="podium-medal">' + ['🥇','🥈','🥉'][index] + '</div>' +
-            '<div class="podium-avatar">' + (row.avatar ? '<img src="' + escapeHtml(row.avatar) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : escapeHtml(String(row.name || 'S').slice(0,1).toUpperCase())) + '</div>' +
+            '<div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
             '<strong>' + escapeHtml(row.name || 'Student') + '</strong><span>' + Number(row.rankPoints || 0) + ' RP</span><small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
@@ -426,7 +449,7 @@
         tr.setAttribute('role', 'button');
         tr.setAttribute('aria-label', 'Open ' + row.name + ' profile');
         tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' +
-          (row.avatar ? '<img src="' + escapeHtml(row.avatar) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : escapeHtml(String(row.name || 'S').slice(0,1).toUpperCase())) +
+          avatarMarkup(row) +
           '</span><span><b>' + escapeHtml(row.name || 'Student') + '</b>' + (isMine(row.raw || row) ? '<em>YOU</em>' : '') +
           '<small class="block text-xs opacity-70">' + escapeHtml(row.rank || 'Bronze I') + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
           '<td class="py-4 px-3">' + escapeHtml(row.college || '—') + '</td>' +
