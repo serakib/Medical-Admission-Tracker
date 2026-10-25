@@ -651,16 +651,104 @@
     paintLeaderboardPeriodTabs();
   }
   /* Human portrait avatar picker: people only, no animal avatars. */
-  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:10px}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}}';document.head.appendChild(humanAvatarStyle);
-  /* Per-account avatar selection for the profile view. */
+  const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:9px;margin-top:10px}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}}';
+  humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:block;margin-top:7px;color:var(--muted,#64748b);font-size:11px}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{position:relative;min-width:0}.profile-avatar-remove{position:absolute;right:0;top:0;width:22px;height:22px;border:1px solid #fff;border-radius:50%;background:#dc2626;color:#fff;font-size:14px;line-height:1;font-weight:900;cursor:pointer;box-shadow:0 1px 5px #0003}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-remove:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
+  document.head.appendChild(humanAvatarStyle);
+  /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
   const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+  const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + (app.authUser?.uid || 'guest');
+  const maxUploadedAvatars = 8;
+  const isUploadedAvatarSource = value => {
+    if (typeof value !== 'string') return false;
+    if (/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(value)) return true;
+    return /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(value);
+  };
+  const readUploadedAvatars = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(uploadedAvatarKey()) || '[]');
+      return Array.isArray(saved) ? saved.filter(isUploadedAvatarSource).slice(0, maxUploadedAvatars) : [];
+    } catch (_) { return []; }
+  };
+  const isAvatarSource = value => avatarChoices.includes(value) || readUploadedAvatars().includes(value);
   const readAvatar = () => {
     try {
       const value = localStorage.getItem(avatarKey());
-      return avatarChoices.includes(value) ? value : avatarChoices[0];
+      return isAvatarSource(value) ? value : avatarChoices[0];
     } catch (_) { return avatarChoices[0]; }
   };
+  function sanitizeUploadedSvg(source) {
+    if (source.length > 50 * 1024) throw new Error('SVG file must be smaller than 50 KB.');
+    if (/<!doctype|<!entity/i.test(source)) throw new Error('This SVG file contains unsupported XML declarations.');
+    const parsed = new DOMParser().parseFromString(source, 'image/svg+xml');
+    const rootSvg = parsed.documentElement;
+    if (!rootSvg || rootSvg.localName?.toLowerCase() !== 'svg' || parsed.querySelector('parsererror')) {
+      throw new Error('The selected SVG file is not valid.');
+    }
+    parsed.querySelectorAll('script,foreignObject,iframe,object,embed,audio,video,image,style,animate,animateMotion,animateTransform,set').forEach(node => node.remove());
+    parsed.querySelectorAll('*').forEach(node => {
+      Array.from(node.attributes).forEach(attribute => {
+        const name = attribute.name.toLowerCase();
+        const value = attribute.value.trim();
+        if (name.startsWith('on') || name === 'src' || name === 'srcset') {
+          node.removeAttribute(attribute.name);
+          return;
+        }
+        if ((name === 'href' || name.endsWith(':href')) && !value.startsWith('#')) {
+          node.removeAttribute(attribute.name);
+          return;
+        }
+        if (/javascript:|@import/i.test(value) || /url\s*\(\s*['"]?(?!#)/i.test(value)) {
+          node.removeAttribute(attribute.name);
+        }
+      });
+    });
+    const serialized = new XMLSerializer().serializeToString(rootSvg);
+    if (serialized.length > 150 * 1024) throw new Error('The cleaned SVG is too large. Try a simpler SVG avatar.');
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized);
+  }
+  function processUploadedAvatar(file) {
+    return new Promise((resolve, reject) => {
+      const name = String(file?.name || '');
+      const type = String(file?.type || '').toLowerCase();
+      const isSvg = type === 'image/svg+xml' || /\.svg$/i.test(name);
+      if (!file) { reject(new Error('Choose an image file first.')); return; }
+      if (file.size > 5 * 1024 * 1024) { reject(new Error('Each avatar file must be 5 MB or smaller.')); return; }
+      if (isSvg) {
+        file.text().then(source => resolve(sanitizeUploadedSvg(source))).catch(() => reject(new Error('The SVG file could not be read.')));
+        return;
+      }
+      if (!['image/png','image/jpeg','image/webp'].includes(type)) {
+        reject(new Error('Supported formats: SVG, PNG, JPG/JPEG, and WEBP.'));
+        return;
+      }
+      const objectUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        try {
+          if (!image.naturalWidth || !image.naturalHeight || image.naturalWidth > 8000 || image.naturalHeight > 8000) {
+            throw new Error('Image dimensions must be no larger than 8000 × 8000 pixels.');
+          }
+          const side = 256;
+          const canvas = document.createElement('canvas');
+          canvas.width = side;
+          canvas.height = side;
+          const context = canvas.getContext('2d');
+          if (!context) throw new Error('Image processing is unavailable in this browser.');
+          const cropSide = Math.min(image.naturalWidth, image.naturalHeight);
+          const sx = (image.naturalWidth - cropSide) / 2;
+          const sy = (image.naturalHeight - cropSide) / 2;
+          context.drawImage(image, sx, sy, cropSide, cropSide, 0, 0, side, side);
+          let result = canvas.toDataURL('image/webp', 0.86);
+          if (!result.startsWith('data:image/webp;base64,')) result = canvas.toDataURL('image/png');
+          resolve(result);
+        } catch (error) { reject(error); }
+        finally { URL.revokeObjectURL(objectUrl); }
+      };
+      image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('The selected image could not be opened.')); };
+      image.src = objectUrl;
+    });
+  }
   function renderAvatarPicker() {
     const root = document.getElementById('view-profile');
     if (!root) return;
@@ -669,32 +757,107 @@
       picker = document.createElement('div');
       picker.id = 'profile-avatar-picker';
       picker.className = 'profile-avatar-picker';
-      picker.setAttribute('aria-label', 'Choose profile avatar');
+      picker.setAttribute('aria-label', 'Choose or upload profile avatars');
       const hero = root.querySelector('.profile-hero');
       if (hero) hero.insertAdjacentElement('afterend', picker);
       else root.prepend(picker);
     }
+    const uploaded = readUploadedAvatars();
     const current = readAvatar();
     const avatar = root.querySelector('.profile-hero .profile-avatar');
     if (avatar) {
-      avatar.innerHTML = '<img src="' + current + '" alt="Selected human avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-      avatar.setAttribute('aria-label', 'Selected human profile avatar');
+      avatar.innerHTML = '<img src="' + current + '" alt="Selected profile avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      avatar.setAttribute('aria-label', 'Selected profile avatar');
     }
-    picker.innerHTML = '<span class="profile-avatar-picker-label">Choose a human avatar</span><div class="profile-avatar-options">' + avatarChoices.map((value,i) =>
-      '<button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar="' + value + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose human avatar ' + (i+1) + '"><img src="' + value + '" alt="Human avatar ' + (i+1) + '" loading="lazy"></button>'
-    ).join('') + '</div>';
+    const presetOptions = avatarChoices.map((value, i) =>
+      '<button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar-preset="' + i + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose preset avatar ' + (i+1) + '"><img src="' + value + '" alt="Preset avatar ' + (i+1) + '" loading="lazy"></button>'
+    ).join('');
+    const uploadedOptions = uploaded.map((value, i) =>
+      '<div class="profile-avatar-uploaded-wrap"><button type="button" class="profile-avatar-choice' + (value === current ? ' is-selected' : '') + '" data-profile-avatar-uploaded="' + i + '" aria-pressed="' + (value === current ? 'true' : 'false') + '" aria-label="Choose uploaded avatar ' + (i+1) + '"><img src="' + value + '" alt="Uploaded avatar ' + (i+1) + '" loading="lazy"></button><button type="button" class="profile-avatar-remove" data-remove-uploaded-avatar="' + i + '" aria-label="Remove uploaded avatar ' + (i+1) + '" title="Remove avatar">×</button></div>'
+    ).join('');
+    picker.innerHTML = '<span class="profile-avatar-picker-label">Choose an avatar or upload your own</span>' +
+      '<div class="profile-avatar-options">' + presetOptions + uploadedOptions + '</div>' +
+      '<div class="profile-avatar-upload-controls"><label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Upload avatar images</label>' +
+      '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
+      '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
+      '<small class="profile-avatar-upload-hint">SVG, PNG, JPG/JPEG, WEBP · Up to 8 uploaded avatars per account on this device. Raster images are cropped to a square avatar.</small>' +
+      '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
   }
-  document.addEventListener('click', event => {
-    const choice = event.target.closest('[data-profile-avatar]');
-    if (!choice) return;
-    const value = choice.dataset.profileAvatar;
-    if (!avatarChoices.includes(value)) return;
-    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
+  function refreshAvatarViews() {
     renderAvatarPicker();
     if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
+  }
+  document.addEventListener('click', event => {
+    const removeButton = event.target.closest('[data-remove-uploaded-avatar]');
+    if (removeButton) {
+      const index = Number(removeButton.dataset.removeUploadedAvatar);
+      const uploaded = readUploadedAvatars();
+      if (!Number.isInteger(index) || index < 0 || index >= uploaded.length) return;
+      const removed = uploaded.splice(index, 1)[0];
+      try {
+        localStorage.setItem(uploadedAvatarKey(), JSON.stringify(uploaded));
+        if (localStorage.getItem(avatarKey()) === removed) localStorage.setItem(avatarKey(), avatarChoices[0]);
+      } catch (_) {}
+      refreshAvatarViews();
+      return;
+    }
+    const presetChoice = event.target.closest('[data-profile-avatar-preset]');
+    const uploadedChoice = event.target.closest('[data-profile-avatar-uploaded]');
+    if (!presetChoice && !uploadedChoice) return;
+    let value = null;
+    if (presetChoice) {
+      const index = Number(presetChoice.dataset.profileAvatarPreset);
+      if (Number.isInteger(index) && index >= 0 && index < avatarChoices.length) value = avatarChoices[index];
+    } else {
+      const index = Number(uploadedChoice.dataset.profileAvatarUploaded);
+      const uploaded = readUploadedAvatars();
+      if (Number.isInteger(index) && index >= 0 && index < uploaded.length) value = uploaded[index];
+    }
+    if (!value) return;
+    try { localStorage.setItem(avatarKey(), value); } catch (_) {}
+    refreshAvatarViews();
+  });
+  document.addEventListener('change', async event => {
+    const input = event.target.closest('#profile-avatar-upload-input');
+    if (!input) return;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    const status = document.getElementById('profile-avatar-upload-status');
+    const existing = readUploadedAvatars();
+    if (files.length > maxUploadedAvatars - existing.length) {
+      if (status) status.textContent = 'You can keep up to ' + maxUploadedAvatars + ' uploaded avatars. Remove an old upload or choose fewer files.';
+      input.value = '';
+      return;
+    }
+    if (status) status.textContent = 'Processing avatar images…';
+    try {
+      const added = [];
+      for (const file of files) {
+        const source = await processUploadedAvatar(file);
+        if (!existing.includes(source) && !added.includes(source)) added.push(source);
+      }
+      if (!added.length) throw new Error('Those avatars are already in your uploaded collection.');
+      const combined = existing.concat(added);
+      localStorage.setItem(uploadedAvatarKey(), JSON.stringify(combined));
+      localStorage.setItem(avatarKey(), added[0]);
+      refreshAvatarViews();
+      const newStatus = document.getElementById('profile-avatar-upload-status');
+      if (newStatus) newStatus.textContent = added.length + ' avatar image(s) added. Choose any thumbnail to use it.';
+    } catch (error) {
+      const errorStatus = document.getElementById('profile-avatar-upload-status');
+      if (errorStatus) errorStatus.textContent = error?.message || 'The avatar upload failed. Try a smaller supported image.';
+    }
+    input.value = '';
   });
   document.addEventListener('student-progress-updated', renderAvatarPicker);
+  document.addEventListener('student-auth-state-changed', renderAvatarPicker);
   window.addEventListener('load', renderAvatarPicker);
+  const originalSetAuthStateForAvatar = app.setAuthState.bind(app);
+  app.setAuthState = function(user, ...args) {
+    const result = originalSetAuthStateForAvatar(user, ...args);
+    renderAvatarPicker();
+    return result;
+  };
   const originalShowViewForAvatar = app.showView.bind(app);
   app.showView = function(viewName, force = false) {
     const result = originalShowViewForAvatar(viewName, force);
@@ -1075,7 +1238,7 @@ const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?i
 function portraitForRow(row){
   const uid=String(row?.uid||row?.name||'student');
   if(app.authUser?.uid&&row?.uid===app.authUser.uid){
-    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);if(portraitChoices.includes(saved))return saved;}catch(_){}
+    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&/^data:image\/(?:webp;base64,[A-Za-z0-9+/=]+|svg\+xml;charset=utf-8,%3Csvg)/i.test(saved)))return saved;}catch(_){}
   }
   let hash=0;for(let i=0;i<uid.length;i++)hash=((hash<<5)-hash+uid.charCodeAt(i))|0;
   return portraitChoices[Math.abs(hash)%portraitChoices.length];
