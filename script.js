@@ -14,18 +14,12 @@ import {
     setPersistence,
     browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc, 
-    collection, 
-    runTransaction, 
-    serverTimestamp, 
-    orderBy, 
-    query, 
-    getDocs,
-    getDocFromServer
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // Firebase Configuration & Initialization (firebaseApp নাম ব্যবহার করা হয়েছে ডুপ্লিকেট এড়াতে)[cite: 1]
@@ -59,9 +53,9 @@ class MedicalExamApp {
         this.practiceIndex = 0;
         this.practiceSession = null;
         this.practiceTimerInterval = null;
-        this.leaderboardCacheKey = 'med_leaderboard_cache_v5';
-        this.leaderboardLocalKey = 'med_leaderboard_local_v1';
-        this.leaderboardSyncKey = 'med_leaderboard_sync_queue_v1';
+        this.leaderboardCacheKey = 'med_fallrush_leaderboard_cache_v1';
+        this.leaderboardLocalKey = 'med_fallrush_leaderboard_cache_v1';
+        this.leaderboardSyncKey = 'med_fallrush_leaderboard_pending_v1';
         this.firestore = db;
         this.profile = null;
         
@@ -547,54 +541,24 @@ class MedicalExamApp {
 
     async loadUserProfile(){ if(!this.firestore||!this.authUser) return; try{ const snap=await getDoc(doc(this.firestore, 'students', this.authUser.uid)); this.profile=snap.exists()?snap.data():{name:this.authUser.displayName||'',email:this.authUser.email||''}; this.loadProgressStats(); }catch(e){console.warn('Profile load failed',e);} }
 
-    getDemoLeaderboardRows(){
-        return [
-            {uid:'demo_01',name:'Rakib Hasan',college:'Dhaka College',points:1890,quizzes:18,correct:470,answered:520,accuracy:90.4,isDemo:true},
-            {uid:'demo_02',name:'Abdullah Shawon',college:'Dhaka College',points:1725,quizzes:16,correct:438,answered:500,accuracy:87.6,isDemo:true},
-            {uid:'demo_03',name:'Tanvir Ahmed',college:'Notre Dame College',points:1580,quizzes:15,correct:402,answered:470,accuracy:85.5,isDemo:true},
-            {uid:'demo_04',name:'Nusrat Jahan',college:'Holy Cross College',points:1495,quizzes:14,correct:381,answered:450,accuracy:84.7,isDemo:true},
-            {uid:'demo_05',name:'Fahim Hasan',college:'Rajuk Uttara Model College',points:1360,quizzes:13,correct:352,answered:425,accuracy:82.8,isDemo:true},
-            {uid:'demo_06',name:'Mahi Islam',college:'Adamjee Cantonment College',points:1240,quizzes:12,correct:329,answered:400,accuracy:82.3,isDemo:true},
-            {uid:'demo_07',name:'Rafiul Karim',college:'Dhaka City College',points:1125,quizzes:11,correct:300,answered:375,accuracy:80.0,isDemo:true},
-            {uid:'demo_08',name:'Jannatul Ferdous',college:'Cantonment Public School & College',points:1010,quizzes:10,correct:272,answered:350,accuracy:77.7,isDemo:true}
-        ];
-    }
+    getDemoLeaderboardRows(){ return []; }
     getLocalLeaderboardRows(){
-        try{
-            const raw=JSON.parse(localStorage.getItem(this.leaderboardLocalKey)||'null');
-            if(Array.isArray(raw)&&raw.length)return raw;
-        }catch(e){}
-        const rows=this.getDemoLeaderboardRows(); this.setLocalLeaderboardRows(rows); return rows;
+        if(window.MedGlobalLeague && typeof window.MedGlobalLeague.getCachedRows === 'function') return window.MedGlobalLeague.getCachedRows();
+        return [];
     }
     setLocalLeaderboardRows(rows){
-        const safe=(Array.isArray(rows)?rows:[]).map(x=>({...x,points:Number(x.points||0),quizzes:Number(x.quizzes||0),correct:Number(x.correct||0),answered:Number(x.answered||0),accuracy:Number(x.accuracy||0)}));
-        localStorage.setItem(this.leaderboardLocalKey,JSON.stringify(safe));
-        this.setLeaderboardCache(safe);
-        return safe;
+        if(window.MedGlobalLeague && typeof window.MedGlobalLeague.saveCache === 'function') return window.MedGlobalLeague.saveCache(rows);
+        return Array.isArray(rows) ? rows.filter(x => x && !x.isDemo) : [];
     }
-    getLeaderboardCache(){ try{return JSON.parse(localStorage.getItem(this.leaderboardCacheKey)||'null');}catch{return null;} }
-    setLeaderboardCache(rows){ localStorage.setItem(this.leaderboardCacheKey,JSON.stringify({savedAt:Date.now(),rows})); }
-    getLeaderboardSyncQueue(){ try{const q=JSON.parse(localStorage.getItem(this.leaderboardSyncKey)||'[]');return Array.isArray(q)?q:[];}catch{return [];} }
-    setLeaderboardSyncQueue(q){ localStorage.setItem(this.leaderboardSyncKey,JSON.stringify(q)); }
-    queueLeaderboardSync(payload){ const q=this.getLeaderboardSyncQueue().filter(x=>x.uid!==payload.uid); q.push(payload); this.setLeaderboardSyncQueue(q); }
-    getLeaderboardRowTime(row){
-        if(!row) return 0;
-        if(Number(row.updatedAtMs||0)) return Number(row.updatedAtMs);
-        const stamp=row.updatedAt;
-        if(stamp && typeof stamp.toMillis==='function') return stamp.toMillis();
-        if(stamp && Number(stamp.seconds)) return Number(stamp.seconds)*1000;
-        return 0;
-    }
+    getLeaderboardCache(){ return null; }
+    setLeaderboardCache(){ return false; }
+    getLeaderboardSyncQueue(){ return []; }
+    setLeaderboardSyncQueue(){ return false; }
+    queueLeaderboardSync(){ return false; }
+    getLeaderboardRowTime(row){ return Number(row && row.updatedAtMs || 0); }
     mergeLeaderboardRows(remoteRows=[]){
-        const demos=this.getDemoLeaderboardRows();
-        const local=this.getLocalLeaderboardRows();
-        const map=new Map();
-        [...demos,...local,...(Array.isArray(remoteRows)?remoteRows:[])].forEach(row=>{
-            if(!row?.uid)return;
-            const old=map.get(row.uid);
-            if(!old || this.getLeaderboardRowTime(row)>=this.getLeaderboardRowTime(old)){ map.set(row.uid,{...old,...row}); }
-        });
-        return [...map.values()].sort((a,b)=>Number(b.points||0)-Number(a.points||0));
+        return (Array.isArray(remoteRows) ? remoteRows : []).filter(row => row && !row.isDemo)
+            .slice().sort((a,b) => Number(b.rankPoints ?? b.points ?? 0) - Number(a.rankPoints ?? a.points ?? 0));
     }
     renderLeaderboardRows(rows){
         const body=document.getElementById('leaderboard-body'); if(!body)return;
@@ -637,75 +601,23 @@ class MedicalExamApp {
         if(track)track.setAttribute('aria-valuenow',String(progress));
     }
 
-    async recordLeaderboardResult({correctCount,wrongCount,totalQuestions,quizPoints,accuracy}){
-        const uid=this.authUser?.uid || 'guest_local';
-        const name=this.profile?.name||this.authUser?.displayName||this.authUser?.email||'Guest Student';
-        const college=this.profile?.college||'';
-        const current=this.getLocalLeaderboardRows().find(x=>x.uid===uid)||{uid,name,college,points:0,quizzes:0,correct:0,answered:0};
-        const nextCorrect=Number(current.correct||0)+Number(correctCount||0);
-        const nextAnswered=Number(current.answered||0)+Number(correctCount||0)+Number(wrongCount||0);
-        const updated={...current,name,college,points:Number(current.points||0)+Number(quizPoints||0),quizzes:Number(current.quizzes||0)+1,correct:nextCorrect,answered:nextAnswered,accuracy:Number((nextCorrect/Math.max(1,nextAnswered)*100).toFixed(1)),updatedAtMs:Date.now(),isDemo:false};
-        const rows=this.getLocalLeaderboardRows().filter(x=>x.uid!==uid);
-        rows.push(updated);
-        const merged=this.mergeLeaderboardRows(rows);
-        this.setLocalLeaderboardRows(merged);
-        this.renderLeaderboardRows(merged);
-
-        if(!this.authUser||!this.firestore){
-            if(this.authUser) this.queueLeaderboardSync({...updated, meta:{correctCount,wrongCount,totalQuestions,quizPoints,accuracy}});
-            return;
+    async recordLeaderboardResult(meta={}){
+        if(window.MedGlobalLeague && typeof window.MedGlobalLeague.recordLeaderboardResult === 'function') {
+            return window.MedGlobalLeague.recordLeaderboardResult(meta);
         }
-        await this.syncLeaderboardUser(updated, {correctCount,wrongCount,totalQuestions,quizPoints,accuracy});
+        this.showLeaderboardStatus('Global leaderboard adapter loading — result not sent yet.', true);
+        return false;
     }
-    async syncLeaderboardUser(updated, meta={}){
-        if(!this.authUser||!this.firestore)return false;
-        const attemptId=`${this.authUser.uid}_${this.examState.startedAt||Date.now()}`;
-        try{
-            const attemptRef=doc(this.firestore, 'quizAttempts', attemptId);
-            const userLbRef=doc(this.firestore, 'leaderboard', this.authUser.uid);
-            
-            await runTransaction(this.firestore, async tx=>{
-                tx.set(attemptRef,{uid:this.authUser.uid,quizPoints:Number(meta.quizPoints)||0,correct:Number(meta.correctCount)||0,wrong:Number(meta.wrongCount)||0,total:Number(meta.totalQuestions)||0,accuracy:Number(meta.accuracy)||0,createdAt:serverTimestamp()});
-                tx.set(userLbRef,{uid:this.authUser.uid,name:updated.name,college:updated.college,points:updated.points,quizzes:updated.quizzes,correct:updated.correct,answered:updated.answered,accuracy:updated.accuracy,updatedAt:serverTimestamp()},{merge:true});
-            });
-            this.setLeaderboardSyncQueue(this.getLeaderboardSyncQueue().filter(x=>x.uid!==updated.uid));
-            return true;
-        }catch(e){
-            console.error('Leaderboard write failed',e);
-            this.queueLeaderboardSync({...updated, meta});
-            this.showLeaderboardStatus('Firebase sync হয়নি — local data নিরাপদে সংরক্ষিত আছে।',true);
-            return false;
-        }
-    }
+    async syncLeaderboardUser(){ return false; }
     async syncPendingLeaderboard(){
-        if(!this.authUser||!this.firestore)return;
-        const pending=this.getLeaderboardSyncQueue().filter(x=>x.uid===this.authUser.uid);
-        for(const row of pending){ await this.syncLeaderboardUser(row,row.meta||{}); }
+        if(window.MedGlobalLeague && typeof window.MedGlobalLeague.flushPending === 'function') return window.MedGlobalLeague.flushPending();
+        return false;
     }
     async loadLeaderboard(silent=false){
-        const body=document.getElementById('leaderboard-body'); if(!body)return;
-        const local=this.getLocalLeaderboardRows();
-        this.renderLeaderboardRows(local);
-        if(!silent)this.showLeaderboardStatus('Local leaderboard দেখানো হচ্ছে; Firebase background sync চলছে…',false);
-        if(!this.firestore){
-            if(!silent)this.showLeaderboardStatus('Local leaderboard active — Firebase config পাওয়া যায়নি।',false);
-            return;
-        }
-        try{
-            await this.syncPendingLeaderboard();
-            const qRef = query(collection(this.firestore, 'leaderboard'), orderBy('points', 'desc'));
-            const snap = await getDocs(qRef);
-            const remote=snap.docs.map(d=>({uid:d.id,...d.data()}));
-            const rows=this.mergeLeaderboardRows(remote);
-            this.setLocalLeaderboardRows(rows);
-            this.renderLeaderboardRows(rows);
-            this.showLeaderboardStatus('Leaderboard Firebase থেকে sync হয়েছে এবং local-এ cache করা হয়েছে।',false);
-        }catch(e){
-            console.error(e);
-            this.showLeaderboardStatus('Previous Year কোশ্চেনে কুইজ দিলে তা এখানে অন্তর্ভুক্ত হবে, তবে সেজন্য অবশ্যই লগইন করে নিতে হবে। সর্বশেষ local leaderboard',false);
-        }
+        if(window.MedGlobalLeague && typeof window.MedGlobalLeague.loadLeaderboard === 'function') return window.MedGlobalLeague.loadLeaderboard(silent);
+        return false;
     }
-    showLeaderboardStatus(msg,error){const el=document.getElementById('leaderboard-status');if(!el)return;el.textContent=msg;el.className=`mb-4 rounded-xl p-3 text-sm ${error?'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300':'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;}
+        showLeaderboardStatus(msg,error){const el=document.getElementById('leaderboard-status');if(!el)return;el.textContent=msg;el.className=`mb-4 rounded-xl p-3 text-sm ${error?'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300':'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;}
 
     // Question Bank + Practice
     openQuestionBank(mode='view'){ this.bankMode=mode; this.bankSearch=''; this.bankSubject='all'; this.bankYear='all'; this.showView(mode==='practice'?'practice':'question-bank'); if(mode==='practice') this.startPractice(); else this.renderQuestionBank(); }
