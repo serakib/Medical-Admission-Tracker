@@ -61,7 +61,7 @@
   function lifetimePoints() {
     const rankCard = document.getElementById('profile-rank-card');
     const rankText = rankCard?.textContent || '';
-    const rankMatch = rankText.match(/([\d,]+)\s*lifetime Rank Points/i);
+    const rankMatch = rankText.match(/([\d,]+)\s*(?:PB balance(?: \(Rank Points\))?|lifetime Rank Points)/i);
     if (rankMatch) return Math.max(0, Number(rankMatch[1].replace(/,/g, '')) || 0);
     try { const progress = JSON.parse(localStorage.getItem('med_account_progress_v1_' + (app.authUser?.uid || 'guest')) || '{}'); if (Number.isFinite(Number(progress.rankPoints))) return Math.max(0, Number(progress.rankPoints)); } catch (_) {}
     const keys = [
@@ -89,9 +89,9 @@
       const anchor=profile.querySelector('#profile-rank-card')||profile.querySelector('.profile-hero');
       if(anchor)anchor.insertAdjacentElement('afterend',card);else profile.prepend(card);
     }
-    const nextRankText=current.index>=trophyRanks.length-1?'Maximum trophy rank reached':current.left.toLocaleString()+' / '+current.required.toLocaleString()+' RP toward next rank';
+    const nextRankText=current.index>=trophyRanks.length-1?'Maximum trophy rank reached':current.left.toLocaleString()+' / '+current.required.toLocaleString()+' PB toward next rank';
     const trophyProgress=current.index>=trophyRanks.length-1?100:Math.min(100,current.left/current.required*100);
-    card.innerHTML='<div class="premium-trophy-medal" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(current.index,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' RP</text></svg></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime RP · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
+    card.innerHTML='<div class="premium-trophy-medal" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(current.index,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' PB</text></svg></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime PB · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
     card.onclick=function(){openExamTrophyHub('random');};
   }
   const originalShowProfile = app.showProfile?.bind(app);
@@ -209,9 +209,9 @@
       const stage=i%5+1;
       const tier=Math.floor(i/5);
 
-      cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+d+'">'+target+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'TARGET '+target.toLocaleString()+' RP')+'</small></article>';
+      cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+d+'">'+target+' PB</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'TARGET '+target.toLocaleString()+' PB')+'</small></article>';
     });
-    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show their RP target.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
+    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show their PB target.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime PB</b></div><div class="exam-trophy-grid">'+cards+'</div>';
     // Make all ranks visually distinguishable, even within the same colour tier.
     host.querySelectorAll('.exam-trophy-item').forEach(function(card,index){
       const stage=index%3;
