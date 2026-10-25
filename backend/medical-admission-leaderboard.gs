@@ -294,6 +294,7 @@ function matRecordResult_(req) {
       return { success: true, duplicate: true, user: existing ? matSafeUser_(existing) : null };
     }
     var user = matEnsureUser_(identity.uid, matText_(req.name || identity.name || identity.email || 'Student', 80), matText_(req.college, 120), matText_(req.avatar, 16));
+    var previousLeague = String(user.league || MAT_LEAGUES[0]);
     var currentWeek = matWeekKey_(new Date());
     if (user.weekKey !== currentWeek) { user.weekKey = currentWeek; user.weeklyPoints = 0; }
     user.allTimePoints = matNum_(user.allTimePoints) + points;
@@ -313,11 +314,11 @@ function matRecordResult_(req) {
     if (leagueIndex === MAT_LEAGUES.length - 1) user.rankRP = Math.min(999999, user.rankRP);
     matWriteUser_(user);
     attemptsSheet.appendRow([key, identity.uid, attemptId, points, correct, wrong, total, new Date()]);
-    return { success: true, duplicate: false, user: matSafeUser_(user), currentWeekKey: currentWeek, promoted: String(user.league) !== String(req.previousLeague || user.league) };
+    return { success: true, duplicate: false, user: matSafeUser_(user), currentWeekKey: currentWeek, promoted: String(user.league) !== previousLeague, previousLeague: previousLeague };
   });
 }
 function matGetLeaderboard_(req) {
-  matEnsureWeeklyRollover_();
+  matWithLock_(function() { matEnsureWeeklyRollover_(); });
   var period = String(req.period || 'weekly');
   var league = String(req.league || MAT_LEAGUES[0]);
   var sortBy = period === 'all-time' ? 'allTimePoints' : 'weeklyPoints';
