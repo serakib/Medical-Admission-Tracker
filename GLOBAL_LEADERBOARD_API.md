@@ -17,6 +17,12 @@ When a dedicated Medical Admission Tracker API is ready, change only `window.MED
 
 The adapter keeps a local leaderboard cache and a queue for failed score submissions; successful API results remain the shared source of truth.
 
+## Exam result rewards
+
+Every submitted exam mode sends an exam-result reward request: Challenge, Previous Year, Model Test, Random Test, Previous Exam, and selected-question exams. The result screen shows the exact XP and RP values returned by the shared API, together with the updated Rank when the API returns it. If the request is temporarily unavailable, the result panel says the reward is pending and the same attempt is queued for retry; it does not pretend that an unconfirmed value was saved.
+
+Fallrush Rank scoring expects a 300-point threshold, while Medical exam marks use a different scale. For the Rank API request only, the adapter normalizes each exam into a Rank score from 300 to 600 based on the proportion of questions answered correctly. The actual Medical exam score/marks and quiz points are not changed in the exam result or saved exam history. Consecutive correct answers are passed as the exam's combo value. This normalization is what lets even short exam modes receive an XP/RP reward under the existing Fallrush Rank rules.
+
 ## Rank UI
 
 The rank strip mirrors Fallrush's current Match Rank tiers: Bronze I/II/III, Silver I/II/III, Gold I/II/III, Platinum I/II/III, Diamond I/II/III, Master, Grandmaster, and Legend. The progress bar uses the API's 300 RP promotion target.
