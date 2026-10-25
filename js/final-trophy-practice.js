@@ -128,11 +128,11 @@
   const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
   trophyRanks.push(['Immortal','#f43f5e','#4c0519','#ffe4e6','immortal','I']);
   function roundRankCost(value) { return Math.max(5, Math.round(Number(value || 0) / 5) * 5); }
-  // Upgrade step 1 costs 400 PB; later steps scale by 400 each plus 20%.
+  // Rank-up costs are halved: step 1 costs 200 PB; later steps scale by 200 plus 20%.
   function requiredRP(index) {
     if (index >= trophyRanks.length - 1) return 0;
     const step = index + 1;
-    const base = step * 400;
+    const base = step * 200;
     return roundRankCost(step === 1 ? base : base * 1.2);
   }
   function rankFromPoints(points) {
