@@ -108,24 +108,41 @@ class MedicalExamApp {
 
         this.initAuth();
 
+        let loadError = null;
         try {
             await this.loadQuestionBank();
-            this.updateSubjectCountsUI();
-            this.updateSetupUI();
-            this.loadProgressStats();
-            this.renderPracticeBrowser();
-            this.setDataStatus('ready');
-            // Load cached/local data immediately, then synchronize Firebase in the background.
-            this.loadLeaderboard(true);
         } catch (error) {
-            console.error('Question bank initialization failed:', error);
-            this.updateSubjectCountsUI();
-            this.updateSetupUI();
-            this.loadProgressStats();
-            this.renderPracticeBrowser();
-            this.setDataStatus('error', error.message || 'questions.json লোড করা যায়নি।');
-            this.loadLeaderboard(true);
+            loadError = error;
+            console.error('Question bank loading failed:', error);
         }
+
+        // A secondary UI/rendering error must never prevent the loading status from
+        // being replaced with a ready/error message.
+        let uiError = null;
+        const safeRun = (label, callback) => {
+            try {
+                callback();
+            } catch (error) {
+                console.error(`Question bank initialization: ${label} failed:`, error);
+                if (!uiError) uiError = error;
+            }
+        };
+
+        safeRun('subject counts', () => this.updateSubjectCountsUI());
+        safeRun('exam setup', () => this.updateSetupUI());
+        safeRun('progress stats', () => this.loadProgressStats());
+        safeRun('practice browser', () => this.renderPracticeBrowser());
+
+        if (loadError) {
+            this.setDataStatus('error', loadError.message || 'questions.json লোড করা যায়নি।');
+        } else if (uiError) {
+            this.setDataStatus('error', 'প্রশ্নগুলো লোড হয়েছে, কিন্তু পেজের কিছু অংশ দেখাতে সমস্যা হয়েছে। Console error পরীক্ষা করুন।');
+        } else {
+            this.setDataStatus('ready');
+        }
+
+        // Leaderboard syncing is non-critical and must not block the question-bank status.
+        safeRun('leaderboard', () => this.loadLeaderboard(true));
     }
 
     setDataStatus(state, message = '') {
@@ -153,40 +170,44 @@ class MedicalExamApp {
     async loadQuestionBank() {
         const cacheBuster = `?v=${Date.now()}`;
         const controller = new AbortController();
+        // Keep the timeout active through response.json(); fetch() alone only covers
+        // receiving the response headers, not necessarily reading the response body.
         const timeoutId = setTimeout(() => controller.abort(), 15000);
-        let response;
+
         try {
-            response = await fetch(`./questions.json${cacheBuster}`, {
+            const response = await fetch(`./questions.json${cacheBuster}`, {
                 cache: 'no-store',
                 headers: { 'Accept': 'application/json' },
                 signal: controller.signal
             });
+
+            if (!response.ok) {
+                throw new Error(`questions.json (${response.status})`);
+            }
+
+            const raw = await response.json();
+            if (!Array.isArray(raw)) {
+                throw new Error('questions.json-এ একটি JSON array থাকতে হবে।');
+            }
+
+            const normalized = raw.map((q, index) => this.normalizeQuestion(q, index))
+                .filter(Boolean);
+
+            if (!normalized.length) {
+                throw new Error('questions.json-এ কোনো বৈধ প্রশ্ন পাওয়া যায়নি।');
+            }
+
+            this.questionBank = normalized;
+            this.questionsLoaded = true;
+            this.populateYearFilter();
         } catch (error) {
             if (controller.signal.aborted) {
-                throw new Error('প্রশ্ন ব্যাংক লোড হতে ১৫ সেকেন্ডের বেশি সময় লাগছে। পেজটি আবার লোড করুন; সমস্যা থাকলে প্রশ্ন ফাইলের সংযোগ পরীক্ষা করতে হবে।');
+                throw new Error('প্রশ্ন ব্যাংক লোড হতে ১৫ সেকেন্ডের বেশি সময় লাগছে। সংযোগ বা questions.json-এর response body পরীক্ষা করতে হবে।');
             }
             throw error;
         } finally {
             clearTimeout(timeoutId);
         }
-        if (!response.ok) {
-            throw new Error(`questions.json (${response.status})`);
-        }
-        const raw = await response.json();
-        if (!Array.isArray(raw)) {
-            throw new Error('questions.json-এ একটি JSON array থাকতে হবে।');
-        }
-
-        const normalized = raw.map((q, index) => this.normalizeQuestion(q, index))
-            .filter(Boolean);
-
-        if (!normalized.length) {
-            throw new Error('questions.json-এ কোনো বৈধ প্রশ্ন পাওয়া যায়নি।');
-        }
-
-        this.questionBank = normalized;
-        this.questionsLoaded = true;
-        this.populateYearFilter();
     }
 
     normalizeQuestion(q, index) {
