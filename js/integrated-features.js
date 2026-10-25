@@ -713,8 +713,13 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  // Every 150 Rank Points advances one rank; every 120 XP advances one account level.
-  const rankFor = points => 'Rank ' + (Math.floor(Math.max(0, Number(points) || 0) / 150) + 1);
+  // Every 150 Rank Points advances one sub-rank; after I, advance to the next tier's V.
+  const rankFor = points => {
+    const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Master', 'Pro'];
+    const roman = ['V', 'IV', 'III', 'II', 'I'];
+    const rankIndex = Math.min(29, Math.floor(Math.max(0, Number(points) || 0) / 150));
+    return tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
+  };
   function ensureStudentSettings() {
     // App-wide preferences now live exclusively under the sidebar's App Settings.
     const root = document.getElementById('view-profile');
