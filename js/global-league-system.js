@@ -20,7 +20,7 @@
   var currentMe = null;
   var activeRows = [];
   var selectedPeriod = readPeriod();
-  var selectedLeague = localStorage.getItem(LEAGUE_KEY) || '';
+  var selectedLeague = '';
   var configUrl = function () {
     return String(window.MED_LEADERBOARD_API_URL || '').trim();
   };
@@ -157,7 +157,7 @@
     }).join('');
     try {
       var activeButton = rail.querySelector('[data-mat-league="' + active + '"]');
-      if (activeButton && active !== 'Bronze') activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      if (activeButton) activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     } catch (_) {}
     renderLeagueProgress();
   }
@@ -165,7 +165,7 @@
     var area = document.getElementById('mat-league-progress-area');
     if (!area) return;
     var me = currentMe || {};
-    var isMine = !me.league || selectedLeague === me.league;
+    var isMine = currentMe ? selectedLeague === currentMe.league : selectedLeague === 'Bronze';
     var rp = Math.max(0, Number(me.rankRP) || 0);
     var target = Math.max(1, Number(me.rpTarget) || LEAGUE_TARGET_RP);
     var pct = Math.max(0, Math.min(100, Math.round(rp / target * 100)));
@@ -222,7 +222,7 @@
     style.textContent =
       '.league-banner{padding:20px 14px 18px!important;text-align:left!important}' +
       '.mat-league-heading{text-align:center;display:flex;flex-direction:column;gap:5px;margin-bottom:14px}.mat-league-heading>span{font-weight:950;font-size:11px;letter-spacing:.18em;color:#c4b5fd}.mat-league-heading small{font-size:12px;color:#cbd5e1}' +
-      '.mat-league-rail{display:flex;align-items:center;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-ms-overflow-style:none;padding:8px 8px 12px;scroll-snap-type:x mandatory}.mat-league-rail::-webkit-scrollbar{display:none}' +
+      '.mat-league-rail{display:flex;align-items:center;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-ms-overflow-style:none;padding:8px 8px 12px;scroll-snap-type:x mandatory}.mat-league-rail:before,.mat-league-rail:after{content:"";flex:0 0 max(0px,calc((100% - 118px)/2))}.mat-league-rail::-webkit-scrollbar{display:none}' +
       '.mat-league-card{flex:0 0 86px;min-width:86px;min-height:92px;border:1px solid rgba(148,163,184,.23);border-radius:18px;padding:10px 7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;opacity:.72;transform:scale(.92);transition:transform .18s ease,opacity .18s ease,box-shadow .18s ease,border-color .18s ease;scroll-snap-align:center;color:#f8fafc;background:rgba(15,23,42,.72);cursor:pointer}' +
       '.mat-league-card.is-active{flex-basis:118px;min-width:118px;min-height:116px;opacity:1;transform:scale(1);border-color:rgba(255,255,255,.55);box-shadow:0 0 0 2px rgba(255,255,255,.08),0 12px 26px rgba(0,0,0,.2)}.mat-league-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:22px}.mat-league-card.is-active .mat-league-icon{width:49px;height:49px;font-size:25px}.mat-league-name{font-weight:950;font-size:13px}.mat-league-card small{font-size:8px;font-weight:900;letter-spacing:.08em;opacity:.8}' +
       '.mat-league-card.bronze .mat-league-icon{color:#f1b47b;background:linear-gradient(145deg,#6e442c,#bd804f)}.mat-league-card.silver .mat-league-icon{color:#e2e8f0;background:linear-gradient(145deg,#475569,#94a3b8)}.mat-league-card.gold .mat-league-icon{color:#fff1aa;background:linear-gradient(145deg,#8b5e0b,#eab308)}.mat-league-card.diamond .mat-league-icon{color:#cffafe;background:linear-gradient(145deg,#0e7490,#67e8f9)}' +
@@ -364,7 +364,8 @@
     ensureLeagueUI();
     var period = readPeriod();
     selectedPeriod = period;
-    var guess = selectedLeague || (currentMe && currentMe.league) || 'Bronze';
+    var storedLeague = localStorage.getItem(leagueStorageKey()) || '';
+    var guess = storedLeague || selectedLeague || (currentMe && currentMe.league) || 'Bronze';
     selectedLeague = LEAGUES.indexOf(guess) >= 0 ? guess : 'Bronze';
     var cached = cachedView(selectedLeague, selectedPeriod);
     if (cached.length) {
@@ -379,11 +380,15 @@
     }
     try {
       if (app.authUser) {
+        var previousAccountLeague = currentMe && currentMe.league || '';
         var profileResponse = await api('profileSync', { name: profileName(), college: profileCollege(), avatar: profileAvatar() });
         currentMe = profileResponse.user || currentMe;
-        if (!localStorage.getItem(LEAGUE_KEY) && currentMe && currentMe.league) {
+        if (!storedLeague && currentMe && currentMe.league) {
           selectedLeague = currentMe.league;
-          localStorage.setItem(LEAGUE_KEY, selectedLeague);
+          localStorage.setItem(leagueStorageKey(), selectedLeague);
+        } else if (previousAccountLeague && currentMe && currentMe.league !== previousAccountLeague && storedLeague === previousAccountLeague) {
+          selectedLeague = currentMe.league;
+          localStorage.setItem(leagueStorageKey(), selectedLeague);
         }
       }
       var res = await api('leaderboard', {
@@ -456,12 +461,17 @@
       correctCount: correct, wrongCount: wrong, totalQuestions: total
     };
     try {
+      var oldLeague = currentMe && currentMe.league || '';
       var res = await api('recordResult', {
         attemptId: attemptId, quizPoints: points, correctCount: correct, wrongCount: wrong, totalQuestions: total,
         name: profileName(), college: profileCollege(), avatar: profileAvatar(),
-        previousLeague: currentMe && currentMe.league || ''
+        previousLeague: oldLeague
       });
       if (res.user) currentMe = Object.assign({}, res.user, { rpTarget: LEAGUE_TARGET_RP });
+      if (res.promoted && currentMe && currentMe.league) {
+        selectedLeague = currentMe.league;
+        localStorage.setItem(leagueStorageKey(), selectedLeague);
+      }
       markAttempt(attemptId);
       setStatus('Quiz result global leaderboard-এ sync হয়েছে। +' + points + ' points.', false);
       await loadLeaderboard(true);
@@ -511,7 +521,7 @@
       if (leagueBtn) {
         selectedLeague = leagueBtn.dataset.matLeague;
         if (LEAGUES.indexOf(selectedLeague) < 0) return;
-        localStorage.setItem(LEAGUE_KEY, selectedLeague);
+        localStorage.setItem(leagueStorageKey(), selectedLeague);
         renderLeagueSelector();
         await loadLeaderboard(true);
         return;
@@ -606,6 +616,7 @@
   bindEvents();
   window.addEventListener('student-auth-state-changed', function () {
     currentMe = null;
+    selectedLeague = '';
     selectedPeriod = readPeriod();
     updatePeriodTabs();
     loadLeaderboard(true);
