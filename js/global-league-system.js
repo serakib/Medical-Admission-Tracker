@@ -90,8 +90,9 @@
     var url = configUrl();
     if (!url) throw new Error('Global leaderboard backend is not connected yet. Deploy backend/medical-admission-leaderboard.gs, then set its Web App URL in js/leaderboard-config.js.');
     var body = Object.assign({}, payload || {}, { action: action });
-    if (app.authUser && typeof app.authUser.getIdToken === 'function' && body.idToken == null) {
-      body.idToken = await app.authUser.getIdToken();
+    var tokenUser = app.authUser || (app.auth && app.auth.currentUser);
+    if (tokenUser && typeof tokenUser.getIdToken === 'function' && body.idToken == null) {
+      body.idToken = await tokenUser.getIdToken();
     }
     var response = await fetch(url, {
       method: 'POST',
@@ -469,6 +470,18 @@
       setStatus('Global sync সাময়িকভাবে unavailable। Result pending queue-তে রাখা হয়েছে; online হলে আবার sync হবে। ' + (err.message || ''), true);
     }
   }
+  async function syncProfile(profile) {
+    if (!(app.authUser || (app.auth && app.auth.currentUser))) throw new Error('Sign in to sync the student profile.');
+    profile = profile || app.profile || {};
+    var response = await api('profileSync', {
+      name: text(profile.name || profile.displayName || profileName(), 80),
+      college: text(profile.college || '', 120),
+      avatar: text(profile.avatar || profileAvatar(), 16)
+    });
+    if (response.user) currentMe = Object.assign({}, response.user, { rpTarget: LEAGUE_TARGET_RP });
+    return response;
+  }
+
   function updatePeriodTabs() {
     document.querySelectorAll('[data-leaderboard-period]').forEach(function (button) {
       var active = button.dataset.leaderboardPeriod === selectedPeriod;
@@ -568,6 +581,23 @@
   app.recordLeaderboardResult = recordLeaderboardResult;
   app.syncPendingLeaderboard = flushQueue;
   app.syncLeaderboardUser = function () { return Promise.resolve(false); };
+
+  window.MedGlobalLeague = Object.freeze({ syncProfile: syncProfile, reload: loadLeaderboard, flushPending: flushQueue });
+
+  app.loadUserProfile = async function () {
+    if (!this.authUser) return;
+    var uid = this.authUser.uid;
+    var localProfile = parse(localStorage.getItem('med_student_profile_v1_' + uid), {});
+    this.profile = Object.assign({ uid: uid, name: this.authUser.displayName || '', email: this.authUser.email || '' }, localProfile || {});
+    if (configUrl()) {
+      try {
+        var synced = await syncProfile(this.profile);
+        if (synced && synced.user) this.profile = Object.assign({}, this.profile, synced.user);
+        localStorage.setItem('med_student_profile_v1_' + uid, JSON.stringify(this.profile));
+      } catch (err) { console.warn('Profile sync deferred:', err); }
+    }
+    this.loadProgressStats();
+  };
 
   ensureLeagueUI();
   updatePeriodTabs();
