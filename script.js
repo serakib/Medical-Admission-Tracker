@@ -1332,9 +1332,13 @@ class MedicalExamApp {
         } catch (error) {
             console.error('[Exam] Result calculated, but saving exam history failed:', error);
         }
-        if (state.mode === 'challenge' || state.mode === 'previousQuiz') {
-            try { this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy }); }
-            catch (error) { console.error('[Exam] Could not update leaderboard after submission:', error); }
+        if (['challenge', 'previousQuiz', 'model', 'random', 'previous'].includes(String(state.mode || ''))) {
+            try {
+                Promise.resolve(this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy }))
+                    .catch(error => console.error('[Exam] Could not update global leaderboard after submission:', error));
+            } catch (error) {
+                console.error('[Exam] Could not update global leaderboard after submission:', error);
+            }
         }
 
         // Always leave the exam state locked and attempt to show the result, even if an
