@@ -1238,14 +1238,19 @@ class MedicalExamApp {
     }
 
     selectOption(optIdx) {
-        const idx = this.examState.currentIndex;
-        if (this.examState.userAnswers[idx] !== null) return;
-        this.examState.userAnswers[idx] = optIdx;
-        const question = this.examState.questions[idx];
-        this.markQuestionPracticed(question);
-        this.markQuestionCoveredIfCorrect(question, optIdx);
-        this.renderQuestion();
-        this.renderPalette();
+        const state = this.examState;
+        if (!this.examActive || !state || state.submitted || !Array.isArray(state.questions)) return;
+        const idx = state.currentIndex;
+        const question = state.questions[idx];
+        if (!question || !Array.isArray(question.options) || !Number.isInteger(optIdx) || optIdx < 0 || optIdx >= question.options.length) return;
+        // One answer per question for the entire attempt: no multi-select and no unselect.
+        if (state.userAnswers[idx] !== null && state.userAnswers[idx] !== undefined) return;
+        state.userAnswers[idx] = optIdx;
+        // Progress/trophy bookkeeping must never prevent the selected answer from rendering.
+        try { this.markQuestionPracticed(question); } catch (error) { console.error('[Exam] Could not save practiced-question progress:', error); }
+        try { this.markQuestionCoveredIfCorrect(question, optIdx); } catch (error) { console.error('[Exam] Could not save coverage progress:', error); }
+        try { this.renderQuestion(); } catch (error) { console.error('[Exam] Could not render selected answer:', error); }
+        try { this.renderPalette(); } catch (error) { console.error('[Exam] Could not render question palette:', error); }
     }
 
     clearOptionSelection() {
@@ -1285,64 +1290,86 @@ class MedicalExamApp {
     }
 
     submitExam(autoSubmitted = false) {
-        if (this.examState.submitted) return;
+        const state = this.examState;
+        if (!state || state.submitted || !Array.isArray(state.questions)) return;
+        // Lock submission immediately so timer/manual clicks cannot submit twice.
+        state.submitted = true;
+        if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
 
-        if (this.examState.timerInterval) clearInterval(this.examState.timerInterval);
-        this.examState.submitted = true;
-
-        let correctCount = 0;
-        let wrongCount = 0;
-        let skippedCount = 0;
-
-        this.examState.questions.forEach((q, idx) => {
-            const ans = this.examState.userAnswers[idx];
-            if (ans === null) {
-                skippedCount++;
-            } else if (ans === q.answer) {
-                correctCount++;
-            } else {
-                wrongCount++;
-            }
+        const questions = state.questions;
+        const answers = Array.isArray(state.userAnswers) ? state.userAnswers : [];
+        let correctCount = 0, wrongCount = 0, skippedCount = 0;
+        questions.forEach((q, idx) => {
+            const answer = answers[idx];
+            const correct = Number.isInteger(q?.answer) ? q.answer
+                : Number.isInteger(q?.correctAnswer) ? q.correctAnswer
+                : 'ABCD'.indexOf(String(q?.correctAnswer || '').toUpperCase());
+            if (answer === null || answer === undefined) skippedCount++;
+            else if (answer === correct) correctCount++;
+            else wrongCount++;
         });
 
         const negativeMarks = wrongCount * 0.25;
+        const totalQuestions = questions.length;
         const totalScore = Math.max(0, correctCount - negativeMarks);
-        const totalQuestions = this.examState.questions.length;
-        const accuracy = (correctCount + wrongCount) > 0 
-            ? ((correctCount / (correctCount + wrongCount)) * 100).toFixed(1) 
-            : 0;
+        const accuracy = (correctCount + wrongCount) > 0
+            ? ((correctCount / (correctCount + wrongCount)) * 100).toFixed(1) : '0.0';
+        const setResultText = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.innerText = String(value);
+        };
+        setResultText('res-score-main', totalScore.toFixed(2) + ' / ' + totalQuestions);
+        setResultText('res-percentage', (totalQuestions ? (totalScore / totalQuestions * 100) : 0).toFixed(1) + '%');
+        setResultText('res-accuracy', accuracy + '%');
+        setResultText('res-correct', correctCount);
+        setResultText('res-wrong', wrongCount);
+        setResultText('res-skipped', skippedCount);
+        setResultText('res-negative', '-' + negativeMarks.toFixed(2));
 
-        document.getElementById('res-score-main').innerText = `${totalScore.toFixed(2)} / ${totalQuestions}`;
-        document.getElementById('res-percentage').innerText = `${(totalQuestions ? ((totalScore / totalQuestions) * 100) : 0).toFixed(1)}%`;
-        document.getElementById('res-accuracy').innerText = `${accuracy}%`;
-        document.getElementById('res-correct').innerText = correctCount;
-        document.getElementById('res-wrong').innerText = wrongCount;
-        document.getElementById('res-skipped').innerText = skippedCount;
-        document.getElementById('res-negative').innerText = `-${negativeMarks.toFixed(2)}`;
-
-        const usedSeconds = Math.max(0, Math.round(this.examState.timeUsedSeconds));
+        const usedSeconds = Math.max(0, Math.round(Number(state.timeUsedSeconds) || 0));
         const minsUsed = Math.floor(usedSeconds / 60);
         const secsUsed = usedSeconds % 60;
-        document.getElementById('res-time-used').innerText = `${minsUsed}:${secsUsed.toString().padStart(2, '0')}`;
+        setResultText('res-time-used', minsUsed + ':' + String(secsUsed).padStart(2, '0'));
 
-        const quizPoints = (this.examState.mode === 'challenge' || this.examState.mode === 'previousQuiz') ? Math.max(0, correctCount * 4 - wrongCount) : 0;
+        const quizPoints = (state.mode === 'challenge' || state.mode === 'previousQuiz')
+            ? Math.max(0, correctCount * 4 - wrongCount) : 0;
+        // Persist the result independently from non-critical progress/leaderboard updates.
+        try {
+            this.saveExamAttempt({
+                date: new Date().toLocaleDateString('bn-BD'),
+                mode: this.setup?.mode || state.mode || 'model',
+                subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
+                year: document.getElementById('setup-year')?.value || state.year || 'all',
+                score: totalScore.toFixed(2),
+                total: totalQuestions,
+                accuracy: accuracy + '%',
+                timeUsed: minsUsed + ':' + String(secsUsed).padStart(2, '0'),
+                quizPoints,
+                modeLabel: state.mode
+            });
+        } catch (error) {
+            console.error('[Exam] Result calculated, but saving exam history failed:', error);
+        }
+        if (state.mode === 'challenge' || state.mode === 'previousQuiz') {
+            try { this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy }); }
+            catch (error) { console.error('[Exam] Could not update leaderboard after submission:', error); }
+        }
 
-        this.saveExamAttempt({
-            date: new Date().toLocaleDateString('bn-BD'),
-            mode: this.setup.mode,
-            subject: document.getElementById('setup-subject').value,
-            year: document.getElementById('setup-year')?.value || 'all',
-            score: totalScore.toFixed(2),
-            total: totalQuestions,
-            accuracy: `${accuracy}%`,
-            timeUsed: `${minsUsed}:${secsUsed.toString().padStart(2, '0')}`,
-            quizPoints, modeLabel: this.examState.mode
-        });
-        if (this.examState.mode === 'challenge' || this.examState.mode === 'previousQuiz') this.recordLeaderboardResult({ correctCount, wrongCount, totalQuestions, quizPoints, accuracy });
+        // Always leave the exam state locked and attempt to show the result, even if an
+        // optional history/progress/leaderboard integration throws.
         this.examActive = false;
         this.preparedExam = null;
-        history.replaceState({ app: true }, '', window.location.pathname + window.location.search);
-        this.showView('result', true);
+        try { history.replaceState({ app: true }, '', window.location.pathname + window.location.search); }
+        catch (error) { console.warn('[Exam] Could not clean the exam URL:', error); }
+        try { this.showView('result', true); }
+        catch (error) {
+            console.error('[Exam] Result view navigation failed:', error);
+            document.querySelectorAll('main .view-section').forEach(section => {
+                const visible = section.id === 'view-result';
+                section.classList.toggle('hidden', !visible);
+                section.setAttribute('aria-hidden', visible ? 'false' : 'true');
+            });
+        }
     }
 
     showReviewAnswersView() {
