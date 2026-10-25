@@ -109,9 +109,6 @@
       renderTrophy();
     }
   });
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderTrophy, {once:true});
-  else renderTrophy();
-
   const trophyRanks = [
     ['Bronze I','#b8793f','#583018','#f6d1a0'],['Bronze II','#b8793f','#583018','#f6d1a0'],['Bronze III','#b8793f','#583018','#f6d1a0'],
     ['Silver I','#a8b4c4','#475569','#ffffff'],['Silver II','#a8b4c4','#475569','#ffffff'],['Silver III','#a8b4c4','#475569','#ffffff'],
@@ -131,6 +128,10 @@
     while(index<trophyRanks.length-1 && left>=requiredRP(index)){left-=requiredRP(index);index++;}
     return {index:index,left:left,rank:trophyRanks[index],required:requiredRP(index)};
   }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderTrophy, {once:true});
+  else renderTrophy();
+
   function openExamTrophyHub(mode) {
     if(typeof app.setSetupMode==='function') app.setSetupMode(mode||'random');
     const setup=document.getElementById('view-setup');
