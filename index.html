@@ -1287,7 +1287,8 @@ function toggleAppSidebarCollapse(){
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Global Match Rank and RP are synced through the shared API. Friends shows your accepted friend connections.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
                 <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Leaderboard period">
-  <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">All Time</button>
+  <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">🏆 All Time</button>
+  <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Weekly</button>
   <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">Friends</button>
 </div>
 <div id="leaderboard-period-note" class="hidden mb-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200" role="status"></div>
