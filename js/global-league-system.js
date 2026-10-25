@@ -593,8 +593,12 @@
   async function submitResult(item, fromQueue) {
     var id = String(item.attemptId || '');
     if (!id) throw new Error('Missing quiz attempt ID.');
-    if (sentIds().indexOf(id) >= 0) return true;
+    if (sentIds().indexOf(id) >= 0) return getSavedReward(id) || {
+      success: true, synced: true, attemptId: id, xpGained: null, rankPointsDelta: null,
+      message: 'এই attempt-এর reward API-তে আগেই পাঠানো হয়েছিল।'
+    };
     var token = getToken();
+    var previousProfile = currentProfile || {};
     var payload = {
       action: 'gameEnd',
       gameId: 'MAT-' + safeText(item.uid || 'USER', 55) + '-' + safeText(id, 70),
@@ -621,9 +625,33 @@
         app.profile.rankPoints = Number(resultUser.rankPoints || 0);
       }
     }
+    var xpValue = response.xpGained != null ? response.xpGained
+      : (response.earnedXP != null ? response.earnedXP
+      : (resultUser.xpGained != null ? resultUser.xpGained : null));
+    var rpValue = response.rankPointsDelta != null ? response.rankPointsDelta
+      : (response.earnedRP != null ? response.earnedRP
+      : (response.rpDelta != null ? response.rpDelta : (resultUser.rankPointsDelta != null ? resultUser.rankPointsDelta : null)));
+    var reward = {
+      success: true,
+      synced: true,
+      pending: false,
+      attemptId: id,
+      xpGained: xpValue == null || !Number.isFinite(Number(xpValue)) ? null : Number(xpValue),
+      rankPointsDelta: rpValue == null || !Number.isFinite(Number(rpValue)) ? null : Number(rpValue),
+      rank: resultUser.rank || response.rank || previousProfile.rank || '',
+      rankPoints: resultUser.rankPoints != null ? Number(resultUser.rankPoints) : (response.rankPoints != null ? Number(response.rankPoints) : null),
+      level: resultUser.level != null ? Number(resultUser.level) : (response.level != null ? Number(response.level) : null),
+      message: 'Global Rank API থেকে exam reward response পাওয়া গেছে।'
+    };
     markSent(id);
-    if (!fromQueue) setStatus('Quiz result shared with the Global Rank API. +' + Math.max(0, Number(item.quizPoints) || 0) + ' quiz points submitted.', false);
-    return true;
+    saveReward(reward);
+    if (!fromQueue) {
+      setStatus('Exam result shared with the Global Rank API.', false);
+      if (reward.xpGained == null || reward.rankPointsDelta == null) {
+        setStatus('API result গ্রহণ করেছে, কিন্তু XP/RP earned amount response-এ পাওয়া যায়নি।', true);
+      }
+    }
+    return reward;
   }
   async function recordLeaderboardResult(meta) {
     meta = meta || {};
