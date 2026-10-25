@@ -91,7 +91,13 @@ The examination system follows this scoring scheme:
 - Accuracy and points comparison.
 - Refreshable leaderboard interface.
 
-*Only eligible Challenge Quiz points are intended to count toward the leaderboard.*
+*Submitted Challenge Quiz, Previous Year, Model Test, Random Test, and Previous Exam results are sent to the configured global Rank API. Review-only actions do not submit leaderboard points.*
+
+### 🌐 Global Rank API
+
+Global Rank, Match Rank tiers, and Rank Points use the endpoint configured in `js/leaderboard-config.js`. It currently points to the shared Fallrush API, so Rank entries may be visible in both sites' shared leaderboard. Replace that single URL when a dedicated Medical Admission Tracker API is ready.
+
+The Rank UI uses Fallrush's current tiers (Bronze I through Legend) and 300 RP per promotion tier. Firebase remains the Medical app's sign-in provider and is not used for leaderboard writes. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for the current API/security boundary and limitations.
 
 ### 📖 11. Syllabus & Examination Guidelines
 - Subject-wise marks distribution.
