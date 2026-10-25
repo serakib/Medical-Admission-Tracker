@@ -278,8 +278,10 @@
     style.textContent = '.leader-rank-trophy{display:inline-flex;align-items:center;gap:6px;max-width:100%;vertical-align:middle;margin:3px 0}.leader-rank-trophy-svg{display:block;flex:0 0 28px;width:28px;height:32px;filter:drop-shadow(0 2px 2px #0003)}.leader-rank-trophy-copy{display:flex;flex-direction:column;align-items:flex-start;min-width:0;line-height:1.25}.leader-rank-trophy-copy strong{font-size:10px;font-weight:950;white-space:nowrap}.leader-rank-trophy-copy small{font-size:9px;opacity:.78;white-space:nowrap}.podium-card .leader-rank-trophy{justify-content:center}.podium-card .leader-rank-trophy-copy{align-items:center}.leaderboard-me .leader-rank-trophy{margin-inline-start:8px}@media(max-width:600px){.leader-rank-trophy-svg{flex-basis:24px;width:24px;height:28px}.leader-rank-trophy-copy strong{font-size:9px}.leader-rank-trophy-copy small{font-size:8px}}';
     document.head.appendChild(style);
   }
+  let latestLeaderboardRowsForTrophies = [];
   function paintLeaderboardTrophies(rows) {
     installLeaderboardTrophyStyles();
+    if (Array.isArray(rows) && rows.length) latestLeaderboardRowsForTrophies = rows.slice();
     const byUid = new Map((Array.isArray(rows) ? rows : []).filter(row=>row?.uid).map(row=>[String(row.uid),row]));
     const ordered = (Array.isArray(rows) ? rows : []).slice().sort((a,b)=>rankPointsForLeaderboardRow(b)-rankPointsForLeaderboardRow(a));
     const body = document.getElementById('leaderboard-body');
@@ -311,8 +313,11 @@
   };
   window.addEventListener('storage',function(){setTimeout(renderTrophy,0);});
   document.addEventListener('student-progress-updated',function(){
-    const rows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
-    setTimeout(function(){paintLeaderboardTrophies(rows);},0);
+    const localRows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
+    const localByUid = new Map((Array.isArray(localRows)?localRows:[]).filter(row=>row?.uid).map(row=>[String(row.uid),row]));
+    const base = latestLeaderboardRowsForTrophies.length ? latestLeaderboardRowsForTrophies : localRows;
+    const merged = (Array.isArray(base)?base:[]).map(row=>localByUid.has(String(row?.uid||''))?{...row,...localByUid.get(String(row.uid))}:row);
+    setTimeout(function(){paintLeaderboardTrophies(merged);},0);
     setTimeout(renderTrophy,0);
   });
 
