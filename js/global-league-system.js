@@ -664,19 +664,23 @@
     // Match Fallrush's existing client fallback when its API omits a reward delta
     // or returns zero: the exam score has already been normalized to the Rank scale.
     var fallbackReward = calculateFallbackReward(item, getMedicalRankScore(item));
-    if (xpValue == null || !Number.isFinite(Number(xpValue)) || Number(xpValue) <= 0) xpValue = fallbackReward.xpGained;
-    if (rpValue == null || !Number.isFinite(Number(rpValue)) || Number(rpValue) === 0) rpValue = fallbackReward.rankPointsDelta;
+    var fallbackUsed = false;
+    if (xpValue == null || !Number.isFinite(Number(xpValue)) || Number(xpValue) <= 0) { xpValue = fallbackReward.xpGained; fallbackUsed = true; }
+    if (rpValue == null || !Number.isFinite(Number(rpValue)) || Number(rpValue) === 0) { rpValue = fallbackReward.rankPointsDelta; fallbackUsed = true; }
     var reward = {
       success: true,
       synced: true,
       pending: false,
+      fallbackUsed: fallbackUsed,
       attemptId: id,
       xpGained: xpValue == null || !Number.isFinite(Number(xpValue)) ? null : Number(xpValue),
       rankPointsDelta: rpValue == null || !Number.isFinite(Number(rpValue)) ? null : Number(rpValue),
       rank: resultUser.rank || response.rank || previousProfile.rank || '',
       rankPoints: resultUser.rankPoints != null ? Number(resultUser.rankPoints) : (response.rankPoints != null ? Number(response.rankPoints) : null),
       level: resultUser.level != null ? Number(resultUser.level) : (response.level != null ? Number(response.level) : null),
-      message: 'Global Rank API থেকে exam reward response পাওয়া গেছে।'
+      message: fallbackUsed
+        ? 'API earned delta ফেরত দেয়নি/0 দিয়েছে; Fallrush client-side reward fallback দেখানো হয়েছে।'
+        : 'Global Rank API থেকে exam reward response পাওয়া গেছে।'
     };
     markSent(id);
     saveReward(reward);
