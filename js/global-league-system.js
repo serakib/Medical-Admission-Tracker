@@ -645,11 +645,15 @@
     var response = await request(payload);
     var resultUser = response.user || response.profile || response;
     currentProfile = Object.assign({}, currentProfile || {}, resultUser || {});
-    if (resultUser && (resultUser.rank || resultUser.rankPoints != null)) {
+    if (resultUser && (resultUser.rank || resultUser.rankPoints != null || resultUser.xp != null || resultUser.level != null)) {
       if (app.profile) {
-        app.profile.rank = resultUser.rank || app.profile.rank;
-        app.profile.rankPoints = Number(resultUser.rankPoints || 0);
+        if (resultUser.rank) app.profile.rank = resultUser.rank;
+        if (resultUser.rankPoints != null) app.profile.rankPoints = Number(resultUser.rankPoints || 0);
+        if (resultUser.xp != null) app.profile.xp = Number(resultUser.xp || 0);
+        if (resultUser.level != null) app.profile.level = Number(resultUser.level || 1);
+        try { localStorage.setItem('med_student_profile_v1_' + (app.authUser && app.authUser.uid || 'guest'), JSON.stringify(app.profile)); } catch (_) {}
       }
+      try { window.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { source: 'global-rank-api' } })); } catch (_) {}
     }
     var xpValue = response.xpGained != null ? response.xpGained
       : (response.earnedXP != null ? response.earnedXP
