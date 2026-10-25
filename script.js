@@ -1804,6 +1804,7 @@ window.handleLogout = function() {
           college: this.profile?.college || oldRow.college || '',
           rankPoints: progress.rankPoints,
           xp: progress.xp,
+          performanceBonus: progress.performanceBonus,
           level: getPerformanceLevelProgress(progress.xp).level,
           updatedAtMs: Date.now()
         };
