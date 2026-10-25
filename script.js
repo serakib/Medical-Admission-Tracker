@@ -1649,10 +1649,51 @@ window.handleLogout = function() {
   const readProgress = () => {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
-      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: Math.max(0, Number(data.xp) || 0), completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
-    } catch (_) { return {rankPoints:0,xp:0,completedExams:0,rewarded:[]}; }
+      const performanceBonus = Math.max(0, Number(data.performanceBonus ?? data.xp) || 0);
+      return { rankPoints: Math.max(0, Number(data.rankPoints) || 0), xp: performanceBonus, performanceBonus, completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+    } catch (_) { return {rankPoints:0,xp:0,performanceBonus:0,completedExams:0,rewarded:[]}; }
   };
-  const saveProgress = data => localStorage.setItem(accountKey(), JSON.stringify(data));
+  const saveProgress = data => {
+    data.performanceBonus = Math.max(0, Number(data.performanceBonus ?? data.xp) || 0);
+    data.xp = data.performanceBonus;
+    localStorage.setItem(accountKey(), JSON.stringify(data));
+  };
+  const roundRequirementToFive = value => Math.max(5, Math.round(Number(value || 0) / 5) * 5);
+  const requiredPerformanceBonusForLevel = level => roundRequirementToFive(600 * Math.pow(1.2, Math.max(0, Number(level) - 1)));
+  const getPerformanceLevelProgress = totalBonus => {
+    let remaining = Math.max(0, Number(totalBonus) || 0);
+    let level = 1, guard = 0, required = requiredPerformanceBonusForLevel(level);
+    while (remaining >= required && guard < 1000) {
+      remaining -= required;
+      level++;
+      guard++;
+      required = requiredPerformanceBonusForLevel(level);
+    }
+    return { level, required, remaining, toNext: Math.max(0, required - remaining), percent: required > 0 ? Math.min(100, Math.round(remaining / required * 100)) : 100 };
+  };
+  app.getPerformanceLevelProgress = getPerformanceLevelProgress;
+  const calculateExamReward = (state, correct) => {
+    const is100MarkModelTest = state?.mode === 'model' && Array.isArray(state.questions) && state.questions.length === 100;
+    let weightedCorrect = Math.max(0, Number(correct) || 0);
+    if (is100MarkModelTest) {
+      const blocks = [
+        { upTo: 40, multiplier: 1 },
+        { upTo: 50, multiplier: 2 },
+        { upTo: 60, multiplier: 4 },
+        { upTo: 70, multiplier: 5 },
+        { upTo: 79, multiplier: 7 },
+        { upTo: 100, multiplier: 10 }
+      ];
+      let previous = 0;
+      weightedCorrect = 0;
+      for (const block of blocks) {
+        const count = Math.max(0, Math.min(Number(correct) || 0, block.upTo) - previous);
+        weightedCorrect += count * block.multiplier;
+        previous = block.upTo;
+      }
+    }
+    return { rankPoints: weightedCorrect * 15, performanceBonus: weightedCorrect * 30, weightedCorrect, is100MarkModelTest };
+  };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
   const modelNoteText = count => 'Model Test: ' + count + ' marks · ' + count + ' questions · ' + durationFor(count, 0.6) + ' minutes (automatic) · Source: all Question Bank questions';
@@ -1739,9 +1780,11 @@ window.handleLogout = function() {
     const alreadyRewarded = progress.rewarded.includes(attemptId);
     const result = originalSubmitExamForProgress(autoSubmitted);
     if (!alreadyRewarded && state.submitted) {
-      progress.rankPoints += correct * 10;
+      const reward = calculateExamReward(state, correct);
+      progress.rankPoints += reward.rankPoints;
+      progress.xp += reward.performanceBonus;
+      progress.performanceBonus = progress.xp;
       const now = new Date();
-            progress.xp += 20;
       progress.completedExams += 1;
       const today = new Date().toISOString().slice(0, 10);
       const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -1761,7 +1804,7 @@ window.handleLogout = function() {
           college: this.profile?.college || oldRow.college || '',
           rankPoints: progress.rankPoints,
           xp: progress.xp,
-          level: Math.floor(progress.xp / 120) + 1,
+          level: getPerformanceLevelProgress(progress.xp).level,
           updatedAtMs: Date.now()
         };
         const rows = this.mergeLeaderboardRows([...this.getLocalLeaderboardRows().filter(row => row.uid !== uid), rankRow]);
@@ -1770,11 +1813,11 @@ window.handleLogout = function() {
         if (this.firestore) {
           setDoc(doc(this.firestore, 'leaderboard', uid), {
             uid, name: rankRow.name, college: rankRow.college,
-            rankPoints: progress.rankPoints, xp: progress.xp, level: rankRow.level, updatedAt: serverTimestamp()
+            rankPoints: progress.rankPoints, xp: progress.xp, performanceBonus: progress.performanceBonus, level: rankRow.level, updatedAt: serverTimestamp()
           }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
         }
       }
-      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, correct } }));
+      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, performanceBonus: progress.xp, correct, reward } }));
     }
     return result;
   };
