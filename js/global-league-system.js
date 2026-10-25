@@ -487,7 +487,10 @@
     var response = await api('profileSync', {
       name: text(profile.name || profile.displayName || profileName(), 80),
       college: text(profile.college || '', 120),
-      avatar: text(profile.avatar || profileAvatar(), 16)
+      avatar: text(profile.avatar || profileAvatar(), 16),
+      mobile: text(profile.mobile || '', 32),
+      studentClass: text(profile.studentClass || profile.class || '', 40),
+      bloodGroup: text(profile.bloodGroup || '', 12)
     });
     if (response.user) currentMe = Object.assign({}, response.user, { rpTarget: LEAGUE_TARGET_RP });
     return response;
@@ -604,6 +607,7 @@
       try {
         var synced = await syncProfile(this.profile);
         if (synced && synced.user) this.profile = Object.assign({}, this.profile, synced.user);
+        if (synced && synced.privateProfile) this.profile = Object.assign({}, this.profile, { mobile: synced.privateProfile.mobile || this.profile.mobile || '', class: synced.privateProfile.class || this.profile.class || '', bloodGroup: synced.privateProfile.bloodGroup || this.profile.bloodGroup || '' });
         localStorage.setItem('med_student_profile_v1_' + uid, JSON.stringify(this.profile));
       } catch (err) { console.warn('Profile sync deferred:', err); }
     }
