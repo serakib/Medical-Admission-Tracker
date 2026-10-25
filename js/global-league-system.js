@@ -97,6 +97,7 @@
     }
     var response = await fetch(url, {
       method: 'POST',
+      redirect: 'follow',
       mode: 'cors',
       credentials: 'omit',
       cache: 'no-store',
@@ -310,6 +311,7 @@
     var podium = document.getElementById('leaderboard-podium');
     var mePanel = document.getElementById('leaderboard-me');
     if (!body) return;
+    if (typeof app.updateProfileRanks === 'function') app.updateProfileRanks(activeRows);
     if (podium) podium.innerHTML = '';
     body.innerHTML = '';
     if (mePanel) { mePanel.innerHTML = ''; mePanel.classList.add('hidden'); }
@@ -376,7 +378,7 @@
       renderLeaderboardRows(localRows().filter(function (r) { return r.league === selectedLeague; }));
     }
     if (!configUrl()) {
-      setStatus('Global leaderboard backend এখনো connect করা হয়নি। Apps Script deploy করে URL configure করতে হবে।', true);
+      setStatus('Global leaderboard sync এখনো চালু হয়নি। Last saved data থাকলে সেটি দেখা যাবে; সংযোগ চালু হলে live ranking আসবে।', true);
       return;
     }
     try {
