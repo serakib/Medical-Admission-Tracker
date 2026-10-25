@@ -89,7 +89,9 @@
       const anchor=profile.querySelector('#profile-rank-card')||profile.querySelector('.profile-hero');
       if(anchor)anchor.insertAdjacentElement('afterend',card);else profile.prepend(card);
     }
-    card.innerHTML='<div class="premium-trophy-medal" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><path d="M50 24l4.2 8.5 9.4 1.4-6.8 6.6 1.6 9.3-8.4-4.4-8.4 4.4 1.6-9.3-6.8-6.6 9.4-1.4Z" fill="'+rank[3]+'" stroke="'+rank[2]+'"/><path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><path d="M31 87h38M31 99h38" stroke="'+rank[2]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+rank[2]+'" stroke="'+rank[3]+'" stroke-width=".25">'+Math.floor(points).toLocaleString()+' RP</text></svg></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime RP · '+current.left+' / '+current.required+' RP toward next rank</small><div class="lifetime-trophy-track"><span style="width:'+Math.min(100,current.left/current.required*100)+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
+    const nextRankText=current.index>=trophyRanks.length-1?'Maximum trophy rank reached':current.left.toLocaleString()+' / '+current.required.toLocaleString()+' RP toward next rank';
+    const trophyProgress=current.index>=trophyRanks.length-1?100:Math.min(100,current.left/current.required*100);
+    card.innerHTML='<div class="premium-trophy-medal" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(current.index,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' RP</text></svg></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime RP · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
     card.onclick=function(){openExamTrophyHub('random');};
   }
   const originalShowProfile = app.showProfile?.bind(app);
@@ -110,24 +112,50 @@
       renderTrophy();
     }
   });
-  const trophyRanks = [
-    ['Bronze I','#b8793f','#583018','#f6d1a0'],['Bronze II','#b8793f','#583018','#f6d1a0'],['Bronze III','#b8793f','#583018','#f6d1a0'],
-    ['Silver I','#a8b4c4','#475569','#ffffff'],['Silver II','#a8b4c4','#475569','#ffffff'],['Silver III','#a8b4c4','#475569','#ffffff'],
-    ['Gold I','#eab308','#854d0e','#fff2a6'],['Gold II','#eab308','#854d0e','#fff2a6'],['Gold III','#eab308','#854d0e','#fff2a6'],
-    ['Platinum I','#7dd3fc','#1e40af','#eff6ff'],['Platinum II','#7dd3fc','#1e40af','#eff6ff'],['Platinum III','#7dd3fc','#1e40af','#eff6ff'],
-    ['Emerald I','#34d399','#065f46','#d1fae5'],['Emerald II','#34d399','#065f46','#d1fae5'],['Emerald III','#34d399','#065f46','#d1fae5'],
-    ['Diamond I','#c4b5fd','#5b21b6','#f5f3ff'],['Diamond II','#c4b5fd','#5b21b6','#f5f3ff'],['Diamond III','#c4b5fd','#5b21b6','#f5f3ff'],
-    ['Master I','#fb7185','#881337','#ffe4e6'],['Master II','#fb7185','#881337','#ffe4e6'],['Master III','#fb7185','#881337','#ffe4e6'],
-    ['Grandmaster I','#f97316','#7c2d12','#ffedd5'],['Grandmaster II','#f97316','#7c2d12','#ffedd5'],['Grandmaster III','#f97316','#7c2d12','#ffedd5'],
-    ['Legend I','#facc15','#713f12','#fef9c3'],['Legend II','#facc15','#713f12','#fef9c3'],['Legend III','#facc15','#713f12','#fef9c3'],
-    ['Mythic I','#e879f9','#701a75','#fae8ff'],['Mythic II','#e879f9','#701a75','#fae8ff'],['Mythic III','#e879f9','#701a75','#fae8ff'],
-    ['Immortal','#f43f5e','#4c0519','#ffe4e6']
+  const subRanks = ['V', 'IV', 'III', 'II', 'I'];
+  const trophyTiers = [
+    { name:'Bronze', main:'#b8793f', dark:'#583018', shine:'#f6d1a0' },
+    { name:'Silver', main:'#a8b4c4', dark:'#475569', shine:'#ffffff' },
+    { name:'Gold', main:'#eab308', dark:'#854d0e', shine:'#fff2a6' },
+    { name:'Platinum', main:'#7dd3fc', dark:'#1e40af', shine:'#eff6ff' },
+    { name:'Emerald', main:'#34d399', dark:'#065f46', shine:'#d1fae5' },
+    { name:'Diamond', main:'#c4b5fd', dark:'#5b21b6', shine:'#f5f3ff' },
+    { name:'Master', main:'#fb7185', dark:'#881337', shine:'#ffe4e6' },
+    { name:'Grandmaster', main:'#f97316', dark:'#7c2d12', shine:'#ffedd5' },
+    { name:'Legend', main:'#facc15', dark:'#713f12', shine:'#fef9c3' },
+    { name:'Mythic', main:'#e879f9', dark:'#701a75', shine:'#fae8ff' }
   ];
-  function requiredRP(index) { if(index===0)return 100; let n=100; for(let i=1;i<=index;i++)n=Math.ceil(120+n*0.2); return n; }
+  const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
+  trophyRanks.push(['Immortal','#f43f5e','#4c0519','#ffe4e6','immortal','I']);
+  function requiredRP(index) { return index >= trophyRanks.length - 1 ? 0 : 500; }
   function rankFromPoints(points) {
-    let left=Math.max(0,Number(points)||0), index=0;
-    while(index<trophyRanks.length-1 && left>=requiredRP(index)){left-=requiredRP(index);index++;}
-    return {index:index,left:left,rank:trophyRanks[index],required:requiredRP(index)};
+    const value = Math.max(0, Number(points) || 0);
+    const index = Math.min(trophyRanks.length - 1, Math.floor(value / 500));
+    const atMax = index === trophyRanks.length - 1;
+    return { index, left: atMax ? 0 : value - index * 500, rank: trophyRanks[index], required: atMax ? 0 : 500 };
+  }
+  function buildTrophyEmblem(index, main, dark, shine) {
+    const frames = [
+      '<path d="M50 12 78 25 74 61 50 84 26 61 22 25Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M50 19 70 29 66 56 50 72 34 56 30 29Z" fill="none" stroke="'+dark+'" stroke-width="2"/>',
+      '<path d="M50 12 72 23 84 45 72 68 50 82 28 68 16 45 28 23Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M50 20 66 29 75 45 66 61 50 72 34 61 25 45 34 29Z" fill="none" stroke="'+dark+'" stroke-width="2"/>',
+      '<path d="M50 10 59 25 77 18 73 37 90 46 73 55 77 74 59 67 50 84 41 67 23 74 27 55 10 46 27 37 23 18 41 25Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/>',
+      '<path d="M50 9 82 35 68 75 50 87 32 75 18 35Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M50 17 73 37 62 68 50 77 38 68 27 37Z" fill="none" stroke="'+dark+'" stroke-width="2"/>',
+      '<path d="M50 15 69 22 82 39 72 61 50 83 28 61 18 39 31 22Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M25 50Q18 30 35 29M75 50Q82 30 65 29M29 57Q22 68 37 72M71 57Q78 68 63 72" fill="none" stroke="'+dark+'" stroke-width="3"/>',
+      '<path d="M50 10 79 27 79 59 50 83 21 59 21 27Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M50 18 70 31 70 56 50 73 30 56 30 31Z" fill="none" stroke="'+dark+'" stroke-width="2"/><path d="M30 31 70 56M70 31 30 56" stroke="'+shine+'" stroke-width="1.5"/>',
+      '<path d="M17 28 34 34 42 17 50 31 58 17 66 34 83 28 78 55 68 65 32 65 22 55Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M29 70H71L76 79H24Z" fill="'+dark+'" stroke="'+shine+'" stroke-width="1.5"/>',
+      '<path d="M12 25 35 33 50 18 65 33 88 25 77 49 66 59 50 84 34 59 23 49Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M21 33 38 42M79 33 62 42" stroke="'+dark+'" stroke-width="3"/>',
+      '<path d="M50 10 61 32 85 23 72 45 91 58 65 61 61 85 50 67 39 85 35 61 9 58 28 45 15 23 39 32Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/>',
+      '<path d="M50 12Q65 31 78 24L73 52Q68 68 50 84Q32 68 27 52L22 24Q35 31 50 12Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2"/><path d="M50 28Q61 43 59 56Q54 67 44 70Q49 59 42 48Q39 40 50 28Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="1.5"/>'
+    ];
+    const centers = [
+      '<path d="M50 24 64 39 50 54 36 39Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><path d="M50 29V49M40 39H60" stroke="'+dark+'" stroke-width="1.5"/>',
+      '<path d="M50 22 55 34 68 35 58 44 61 57 50 50 39 57 42 44 32 35 45 34Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="1.7"/>',
+      '<path d="M31 39 40 30 50 39 60 30 69 39 64 52H36Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><path d="M36 57H64" stroke="'+dark+'" stroke-width="3"/>',
+      '<path d="M27 35Q34 25 42 37L50 45 58 37Q66 25 73 35L66 52 50 61 34 52Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="1.8"/><path d="M34 56 29 49M66 56 71 49" stroke="'+dark+'" stroke-width="2"/>',
+      '<path d="M50 21 56 34 70 35 59 45 62 59 50 52 38 59 41 45 30 35 44 34Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="1.7"/><circle cx="50" cy="42" r="5" fill="'+main+'" stroke="'+dark+'" stroke-width="1.5"/>'
+    ];
+    if (index >= 50) return '<path d="M50 12 62 28 81 22 75 42 91 52 72 62 69 82 50 72 31 82 28 62 9 52 25 42 19 22 38 28Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2.5"/><path d="M50 24Q70 43 58 59Q54 67 43 70Q50 59 42 48Q37 37 50 24Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><circle cx="50" cy="48" r="27" fill="none" stroke="'+shine+'" stroke-width="2"/>';
+    return frames[Math.floor(index / 5)] + centers[index % 5];
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderTrophy, {once:true});
@@ -177,14 +205,10 @@
       for(let j=0;j<i;j++)target+=requiredRP(j);
       const earned=points>=target;
       const c=rank[1],d=rank[2],s=rank[3];
-      const emblem=i%3===0
-        ? '<path d="M50 24l4.2 8.5 9.4 1.4-6.8 6.6 1.6 9.3-8.4-4.4-8.4 4.4 1.6-9.3-6.8-6.6 9.4-1.4Z" fill="'+s+'" stroke="'+d+'" stroke-width="1.5"/>'
-        : i%3===1
-          ? '<path d="M50 22 65 38 50 54 35 38Z" fill="'+s+'" stroke="'+d+'" stroke-width="2"/><path d="M50 29v18M41 38h18" stroke="'+d+'" stroke-width="2"/>'
-          : '<path d="M34 29l10 8 6-13 6 13 10-8-3 20H37Z" fill="'+s+'" stroke="'+d+'" stroke-width="2"/><path d="M39 53h22" stroke="'+s+'" stroke-width="3"/>';
+      const emblem=buildTrophyEmblem(i,c,d,s);
+      const stage=i%5+1;
+      const tier=Math.floor(i/5);
 
-      const stage=i%3+1;
-      const tier=Math.floor(i/3);
       cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="'+d+'">'+target+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'TARGET '+target.toLocaleString()+' RP')+'</small></article>';
     });
     host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show their RP target.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
