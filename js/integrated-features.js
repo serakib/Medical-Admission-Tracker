@@ -656,7 +656,7 @@
   }
 
   /* Per-account avatar selection for the profile view. */
-  const avatarChoices = ['🩺', '🧑‍⚕️', '👨‍🎓', '👩‍🎓', '🧬', '🧠', '🦉', '🚀'];
+  const avatarChoices = ['🩺', '🧑‍⚕️', '👨‍⚕️', '👩‍⚕️', '🧑‍🎓', '👨‍🎓', '👩‍🎓', '🧬', '🧠'];
   const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
   const readAvatar = () => {
     try {
