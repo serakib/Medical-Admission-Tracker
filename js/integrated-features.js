@@ -271,6 +271,7 @@
     originalSetAuthState(user, notice);
     if (user?.email) saveRememberedAccount(user.email, user.displayName || user.email);
     renderAccountList();
+    window.dispatchEvent(new CustomEvent('student-auth-state-changed', { detail: { user: user || null } }));
   };
 
   const originalSetSetupQuestions = app.setSetupQuestions.bind(app);
