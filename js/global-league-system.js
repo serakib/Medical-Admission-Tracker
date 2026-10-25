@@ -26,7 +26,7 @@
 
   function readPeriod() {
     var value = localStorage.getItem(PERIOD_KEY) || 'all-time';
-    return value === 'friends' ? 'friends' : 'all-time';
+    return value === 'friends' || value === 'weekly' ? value : 'all-time';
   }
   function accountKey() {
     return (app.authUser && app.authUser.uid) || 'guest';
@@ -136,17 +136,53 @@
     if (Array.isArray(response.users)) return response.users;
     return [];
   }
+  function weeklyMetric(entry) {
+    entry = entry || {};
+    var value = entry.weeklyRankPoints;
+    if (value == null) value = entry.weeklyRP;
+    if (value == null) value = entry.weekRP;
+    if (value == null) value = entry.weeklyPoints;
+    if (value == null) value = entry.weekPoints;
+    if (value == null) value = entry.weeklyScore;
+    return value == null || !Number.isFinite(Number(value)) ? null : Math.max(0, Number(value));
+  }
+  function hasWeeklyMetric(entry) {
+    return weeklyMetric(entry) != null;
+  }
+  function weeklyPeriodConfirmed(response, entries) {
+    response = response || {};
+    var declared = String(response.period || response.scope || response.leaderboardPeriod || '').toLowerCase();
+    return declared === 'week' || declared === 'weekly' || response.weekly === true ||
+      Array.isArray(response.weeklyEntries) || (Array.isArray(entries) && entries.some(hasWeeklyMetric));
+  }
   function sortEntries(entries) {
     return (Array.isArray(entries) ? entries : []).slice().sort(function (a, b) {
+      if (selectedPeriod === 'weekly') {
+        var weekA = weeklyMetric(a);
+        var weekB = weeklyMetric(b);
+        if (weekA != null && weekB != null && weekA !== weekB) return weekB - weekA;
+      }
       var rankA = MATCH_RANKS.indexOf(a.rank || 'Bronze I');
       var rankB = MATCH_RANKS.indexOf(b.rank || 'Bronze I');
       if (rankA !== rankB) return rankB - rankA;
-      var rp = (Number(b.rankPoints || b.rp || 0) - Number(a.rankPoints || a.rp || 0));
+      var rpA = selectedPeriod === 'weekly' && weeklyMetric(a) != null ? weeklyMetric(a) : Number(a.rankPoints || a.rp || 0);
+      var rpB = selectedPeriod === 'weekly' && weeklyMetric(b) != null ? weeklyMetric(b) : Number(b.rankPoints || b.rp || 0);
+      var rp = rpB - rpA;
       if (rp) return rp;
       var score = Number(b.rankScore || b.score || b.points || 0) - Number(a.rankScore || a.score || a.points || 0);
       if (score) return score;
       return String(a.username || a.name || '').localeCompare(String(b.username || b.name || ''));
     });
+  }
+  function rankTrophy(rank) {
+    var value = String(rank || '').toLowerCase();
+    if (value.indexOf('immortal') === 0 || value.indexOf('legend') === 0) return '🏆';
+    if (value.indexOf('grandmaster') === 0 || value.indexOf('master') === 0) return '👑';
+    if (value.indexOf('diamond') === 0) return '💎';
+    if (value.indexOf('platinum') === 0) return '🛡️';
+    if (value.indexOf('gold') === 0) return '🥇';
+    if (value.indexOf('silver') === 0) return '🥈';
+    return '🥉';
   }
   function myApiProfileId() {
     if (currentProfile) return String(currentProfile.playerId || currentProfile.userId || currentProfile.uid || '');
@@ -170,7 +206,8 @@
     var wrong = Number(raw.wrongCatches != null ? raw.wrongCatches : raw.wrong || 0);
     var answered = Math.max(0, correct) + Math.max(0, wrong);
     var rank = MATCH_RANKS.indexOf(raw.rank) >= 0 ? raw.rank : 'Bronze I';
-    var rp = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : raw.rp || 0));
+    var periodRP = selectedPeriod === 'weekly' ? weeklyMetric(raw) : null;
+    var rp = Math.max(0, Number(periodRP != null ? periodRP : (raw.rankPoints != null ? raw.rankPoints : raw.rp || 0)));
     var score = Math.max(0, Number(raw.rankScore != null ? raw.rankScore : raw.score != null ? raw.score : raw.points || 0));
     return {
       uid: mine && app.authUser ? app.authUser.uid : id,
@@ -181,6 +218,7 @@
       avatar: safeText(raw.avatar || '', 100),
       rank: rank,
       rankPoints: rp,
+      weeklyRankPoints: weeklyMetric(raw),
       rankScore: score,
       points: rp,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
@@ -458,7 +496,7 @@
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.playerId) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
             '<div class="podium-medal">' + ['🥇','🥈','🥉'][index] + '</div>' +
             '<div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + escapeHtml(row.name || 'Student') + '</strong><span>' + Number(row.rankPoints || 0) + ' RP</span><small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
+            '<strong>' + escapeHtml(row.name || 'Student') + '</strong><span>' + Number(row.rankPoints || 0) + ' RP</span><small>' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
       rankRows.forEach(function (row, index) {
@@ -472,7 +510,7 @@
         tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' +
           avatarMarkup(row) +
           '</span><span><b>' + escapeHtml(row.name || 'Student') + '</b>' + (isMine(row.raw || row) ? '<em>YOU</em>' : '') +
-          '<small class="block text-xs opacity-70">' + escapeHtml(row.rank || 'Bronze I') + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
+          '<small class="block text-xs opacity-70">' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank || 'Bronze I') + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
           '<td class="py-4 px-3">' + escapeHtml(row.college || '—') + '</td>' +
           '<td class="py-4 px-3">' + Number(row.quizzes || 0) + '</td>' +
           '<td class="py-4 px-3">' + Number(row.accuracy || 0).toFixed(1) + '%</td>' +
@@ -541,11 +579,24 @@
         }
         response = await request({ action: 'friends', token: token, username: (currentProfile && currentProfile.username) || profileName() });
       } else {
-        response = await request({ action: 'leaderboard', mode: 'Rank', username: (currentProfile && currentProfile.username) || profileName() });
+        response = await request({
+          action: 'leaderboard',
+          mode: 'Rank',
+          period: selectedPeriod === 'weekly' ? 'weekly' : 'all-time',
+          week: selectedPeriod === 'weekly' ? 'current' : undefined,
+          username: (currentProfile && currentProfile.username) || profileName()
+        });
       }
       if (requestId !== lastLoadId) return;
-      var entries = extractEntries(response);
+      var entries = selectedPeriod === 'weekly' && response && Array.isArray(response.weeklyEntries)
+        ? response.weeklyEntries : extractEntries(response);
       if (!entries.length && response && response.user) entries = [response.user];
+      if (selectedPeriod === 'weekly' && !weeklyPeriodConfirmed(response, entries)) {
+        rawRows = [];
+        renderRows([]);
+        setStatus('Weekly leaderboard API support এখনো নিশ্চিত নয়: endpoint week-specific entries বা weekly RP ফেরত দেয়নি। All Time data-কে Weekly নামে দেখানো হয়নি।', true);
+        return;
+      }
       rawRows = entries.slice();
       var rows = normalizeRows(entries);
       if (currentProfile && !rows.some(function (row) { return isMine(row.raw || row); })) {
@@ -793,8 +844,9 @@
     });
     var note = document.getElementById('leaderboard-period-note');
     if (note) {
-      note.classList.toggle('hidden', selectedPeriod !== 'friends');
+      note.classList.toggle('hidden', selectedPeriod === 'all-time');
       if (selectedPeriod === 'friends') note.textContent = 'Friends তালিকা shared Fallrush API থেকে আসে; এর জন্য API session token প্রয়োজন।';
+      else if (selectedPeriod === 'weekly') note.textContent = 'Weekly leaderboard current-week data ব্যবহার করে। Shared API-কে weekly entries বা weekly RP ফেরত দিতে হবে; না থাকলে All Time data এখানে দেখানো হবে না।';
       else note.textContent = '';
     }
   }
@@ -813,7 +865,7 @@
       if (period) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        selectedPeriod = period.dataset.leaderboardPeriod === 'friends' ? 'friends' : 'all-time';
+        selectedPeriod = period.dataset.leaderboardPeriod === 'friends' ? 'friends' : (period.dataset.leaderboardPeriod === 'weekly' ? 'weekly' : 'all-time');
         try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
         updatePeriodTabs();
         await loadLeaderboard(true);
