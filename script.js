@@ -406,6 +406,7 @@ class MedicalExamApp {
                         try {
                             const syncedProfile = await window.MedGlobalLeague.syncProfile(localProfile);
                             if (syncedProfile && syncedProfile.user) this.profile = Object.assign({}, localProfile, syncedProfile.user);
+                            if (syncedProfile && syncedProfile.privateProfile) this.profile = Object.assign({}, this.profile, { mobile: syncedProfile.privateProfile.mobile || mobile || '', class: syncedProfile.privateProfile.class || studentClass || '', bloodGroup: syncedProfile.privateProfile.bloodGroup || bloodGroup || '' });
                         } catch (syncError) {
                             console.warn('Leaderboard profile sync deferred:', syncError);
                         }
