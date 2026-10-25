@@ -1263,7 +1263,51 @@ function renderRankCard(){
   const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');if(live)live.textContent=r.name;if(best)best.textContent=r.name;
 }
 function renderSidebarAuth(){const b=document.getElementById('sidebar-auth-action');if(!b)return;const logged=Boolean(app.authUser?.uid);b.classList.toggle('logout-action',logged);b.classList.toggle('login-action',!logged);b.setAttribute('aria-label',logged?'Log Out':'Log In / Sign Up');b.title=logged?(app.authUser.email||'Log Out'):'Log In / Sign Up';b.innerHTML=logged?'<i class="fa-solid fa-right-from-bracket"></i><span>Log Out</span>':'<i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span>';b.onclick=logged?()=>{if(typeof app.logout==='function')app.logout();else if(window.handleLogout)window.handleLogout()}:()=>{if(window.redirectToLogin)window.redirectToLogin()}}
-function setupPracticeUI(){const view=document.getElementById('view-practice');if(!view||document.getElementById('practice-exam-setup'))return;const panel=document.createElement('section');panel.id='practice-exam-setup';panel.className='practice-exam-setup';panel.innerHTML='<h3 style="font-weight:900;font-size:1.1rem">Practice Exam Setup</h3><p style="font-size:.82rem;color:var(--muted,#64748b);margin:4px 0 14px">Choose the question pool. Existing quiz answer and feedback handlers are preserved.</p><label style="font-size:.85rem;font-weight:900">Exam Type</label><div class="practice-type-grid" role="group"><button type="button" class="practice-type-btn active" data-practice-type="all" aria-pressed="true">All Questions</button><button type="button" class="practice-type-btn" data-practice-type="reviewed" aria-pressed="false">Reviewed</button><button type="button" class="practice-type-btn" data-practice-type="wrong" aria-pressed="false">Wrong Answer</button><button type="button" class="practice-type-btn" data-practice-type="previous" aria-pressed="false">Previous Year</button></div><label style="display:block;font-size:.85rem;font-weight:900;margin-top:14px">Question Count</label><div class="practice-count-grid">'+[20,30,50,75,100].map(n=>'<button type="button" class="practice-count-btn '+(n===20?'active':'')+'" data-practice-count="'+n+'" aria-pressed="'+(n===20?'true':'false')+'">'+n+'</button>').join('')+'</div><div class="practice-setup-footer"><span id="practice-auto-time">20 questions · 10 minutes automatically</span><span id="practice-available-count">Loading questions…</span></div>';const actions=view.querySelector('.practice-mode-actions');view.insertBefore(panel,actions||view.firstChild);panel.addEventListener('click',e=>{const t=e.target.closest('[data-practice-type]'),c=e.target.closest('[data-practice-count]');if(t)panel.querySelectorAll('[data-practice-type]').forEach(b=>{b.classList.toggle('active',b===t);b.setAttribute('aria-pressed',String(b===t))});if(c)panel.querySelectorAll('[data-practice-count]').forEach(b=>{b.classList.toggle('active',b===c);b.setAttribute('aria-pressed',String(b===c))});updatePracticeUI()});updatePracticeUI()}
+function setupPracticeUI(){
+  const view=document.getElementById('view-practice');
+  if(!view)return;
+  let browser=document.getElementById('practice-browser');
+  if(!browser){
+    browser=document.createElement('div');
+    browser.id='practice-browser';
+    browser.className='practice-browser';
+    view.appendChild(browser);
+  }
+  let quiz=document.getElementById('practice-quiz-view');
+  if(!quiz){
+    quiz=document.createElement('section');
+    quiz.id='practice-quiz-view';
+    quiz.className='enhanced-panel practice-quiz-view';
+    quiz.hidden=true;
+    quiz.innerHTML='<div class="practice-quiz-top"><strong>Practice Session</strong><span class="practice-quiz-timer" id="practice-timer">10:00</span></div><div class="practice-quiz-status"><span id="practice-progress">Question 1</span><span>Score: <strong id="practice-score">0</strong></span></div><div id="practice-question" class="practice-question"></div><div class="practice-quiz-actions"><button type="button" id="practice-prev-button" class="enhanced-small-btn">← Previous</button><button type="button" id="practice-next-button" class="practice-start-btn">Next →</button><button type="button" id="practice-finish-button" class="enhanced-small-btn">Finish Practice</button></div>';
+    view.appendChild(quiz);
+    quiz.querySelector('#practice-prev-button').onclick=()=>app.prevPractice();
+    quiz.querySelector('#practice-next-button').onclick=()=>app.nextPractice();
+    quiz.querySelector('#practice-finish-button').onclick=()=>app.finishPractice(false);
+  }
+  if(!document.getElementById('practice-exam-setup')){
+    const panel=document.createElement('section');
+    panel.id='practice-exam-setup';
+    panel.className='practice-exam-setup';
+    panel.innerHTML='<h3 style="font-weight:900;font-size:1.1rem">Practice Exam Setup</h3><p style="font-size:.82rem;color:var(--muted,#64748b);margin:4px 0 14px">Choose the question pool and count before starting.</p><label style="font-size:.85rem;font-weight:900">Exam Type</label><div class="practice-type-grid" role="group"><button type="button" class="practice-type-btn active" data-practice-type="all" aria-pressed="true">All Questions</button><button type="button" class="practice-type-btn" data-practice-type="reviewed" aria-pressed="false">Reviewed</button><button type="button" class="practice-type-btn" data-practice-type="wrong" aria-pressed="false">Wrong Answer</button><button type="button" class="practice-type-btn" data-practice-type="previous" aria-pressed="false">Previous Year</button></div><label style="display:block;font-size:.85rem;font-weight:900;margin-top:14px">Question Count</label><div class="practice-count-grid">'+[20,30,50,75,100].map(n=>'<button type="button" class="practice-count-btn '+(n===20?'active':'')+'" data-practice-count="'+n+'" aria-pressed="'+(n===20?'true':'false')+'">'+n+'</button>').join('')+'</div><div class="practice-setup-footer"><span id="practice-auto-time">20 questions · 10 minutes automatically</span><span id="practice-available-count">Loading questions…</span></div><div class="practice-start-row"><button type="button" id="practice-start-button" class="practice-start-btn"><i class="fa-solid fa-play" aria-hidden="true"></i> Start Practice</button></div>';
+    browser.appendChild(panel);
+    panel.addEventListener('click',e=>{
+      const typeButton=e.target.closest('[data-practice-type]');
+      const countButton=e.target.closest('[data-practice-count]');
+      if(typeButton)panel.querySelectorAll('[data-practice-type]').forEach(b=>{b.classList.toggle('active',b===typeButton);b.setAttribute('aria-pressed',String(b===typeButton))});
+      if(countButton)panel.querySelectorAll('[data-practice-count]').forEach(b=>{b.classList.toggle('active',b===countButton);b.setAttribute('aria-pressed',String(b===countButton))});
+      if(typeButton||countButton)updatePracticeUI();
+    });
+    panel.querySelector('#practice-start-button').onclick=()=>app.startPracticeFromBrowser();
+  }
+  const style=document.getElementById('practice-restored-controls-style');
+  if(!style){
+    const st=document.createElement('style');st.id='practice-restored-controls-style';
+    st.textContent='.practice-start-row{display:flex;justify-content:flex-end;margin-top:16px}.practice-start-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 20px;border:0;border-radius:12px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff;font-weight:900;box-shadow:0 7px 18px #05966930;cursor:pointer}.practice-start-btn:hover{filter:brightness(1.06)}.practice-start-btn:disabled{opacity:.5;cursor:not-allowed}.practice-quiz-top,.practice-quiz-status{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.practice-quiz-timer{font-weight:950;font-variant-numeric:tabular-nums;padding:6px 10px;border-radius:9px;background:rgba(16,185,129,.13);color:#059669}.practice-quiz-status{margin-top:10px;padding-bottom:10px;border-bottom:1px solid var(--line,#dbe4ee);font-size:12px;color:var(--muted,#64748b)}.practice-question{min-height:110px;padding:12px 0}.practice-quiz-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line,#dbe4ee);padding-top:12px}.practice-quiz-view[hidden],#practice-browser[hidden]{display:none!important}';
+    document.head.appendChild(st);
+  }
+  updatePracticeUI();
+}
 const practiceType=()=>document.querySelector('#practice-exam-setup [data-practice-type].active')?.dataset.practiceType||'all',practiceCount=()=>Number(document.querySelector('#practice-exam-setup [data-practice-count].active')?.dataset.practiceCount||20);
 function practicePool(){const qs=Array.isArray(app.questionBank)?app.questionBank:[],type=practiceType();if(type==='reviewed')return qs.filter(q=>Boolean(record(q).reviewed));if(type==='wrong')return qs.filter(q=>Boolean(record(q).wrong));if(type==='previous')return qs.filter(q=>Boolean(q.isPreviousYear)||(q.year&&!/^practice$/i.test(String(q.year))));return qs.slice()}
 function updatePracticeUI(){const pool=practicePool(),count=Math.min(practiceCount(),pool.length),mins=Math.max(1,Math.round(count/2)),time=document.getElementById('practice-auto-time'),available=document.getElementById('practice-available-count');if(time)time.textContent=count+' questions · '+mins+' minutes automatically';if(available)available.textContent=pool.length+' matching questions'}
