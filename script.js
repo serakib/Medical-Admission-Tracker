@@ -1281,14 +1281,23 @@ class MedicalExamApp {
         const questions = state.questions;
         const answers = Array.isArray(state.userAnswers) ? state.userAnswers : [];
         let correctCount = 0, wrongCount = 0, skippedCount = 0;
+        let currentCorrectStreak = 0, maxCorrectStreak = 0;
         questions.forEach((q, idx) => {
             const answer = answers[idx];
             const correct = Number.isInteger(q?.answer) ? q.answer
                 : Number.isInteger(q?.correctAnswer) ? q.correctAnswer
                 : 'ABCD'.indexOf(String(q?.correctAnswer || '').toUpperCase());
-            if (answer === null || answer === undefined) skippedCount++;
-            else if (answer === correct) correctCount++;
-            else wrongCount++;
+            if (answer === null || answer === undefined) {
+                skippedCount++;
+                currentCorrectStreak = 0;
+            } else if (answer === correct) {
+                correctCount++;
+                currentCorrectStreak++;
+                maxCorrectStreak = Math.max(maxCorrectStreak, currentCorrectStreak);
+            } else {
+                wrongCount++;
+                currentCorrectStreak = 0;
+            }
         });
 
         const negativeMarks = wrongCount * 0.25;
@@ -1341,7 +1350,7 @@ class MedicalExamApp {
         }
         try {
             Promise.resolve(this.recordLeaderboardResult({
-                correctCount, wrongCount, totalQuestions, quizPoints, accuracy, attemptId
+                correctCount, wrongCount, totalQuestions, quizPoints, accuracy, attemptId, maxCombo: maxCorrectStreak
             })).then(reward => {
                 if (typeof window.updateExamRewardDisplay === 'function') {
                     window.updateExamRewardDisplay(reward || { attemptId, pending: true, message: 'Reward sync-এর অপেক্ষায় আছে।' });
