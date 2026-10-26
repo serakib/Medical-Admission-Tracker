@@ -620,6 +620,12 @@
           '<td class="leader-rank-points py-4 px-3"><strong class="leader-rank-number">#' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + '</small>' + safeStatus + '</td>';
         body.appendChild(tr);
       });
+      if (selectedPeriod === 'weekly' && !safeDividerInserted && safeRows.length && !riskRows.length) {
+        var finalDivider = document.createElement('tr');
+        finalDivider.className = 'safe-zone-divider';
+        finalDivider.innerHTML = '<td colspan="5"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">All listed students are above this line.</span></td>';
+        body.appendChild(finalDivider);
+      }
       if (mePanel && me) {
         var ownIndex = displayRows.findIndex(function (row) { return row.isMine || String(row.userId) === String(me.userId); });
         mePanel.classList.remove('hidden');
