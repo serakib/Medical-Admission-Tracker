@@ -53,9 +53,9 @@ class MedicalExamApp {
         this.practiceIndex = 0;
         this.practiceSession = null;
         this.practiceTimerInterval = null;
-        this.leaderboardCacheKey = 'med_fallrush_leaderboard_cache_v1';
-        this.leaderboardLocalKey = 'med_fallrush_leaderboard_cache_v1';
-        this.leaderboardSyncKey = 'med_fallrush_leaderboard_pending_v1';
+        this.leaderboardCacheKey = 'med_sheet_leaderboard_cache_v1';
+        this.leaderboardLocalKey = 'med_sheet_leaderboard_cache_v1';
+        this.leaderboardSyncKey = 'med_sheet_exam_pending_v1';
         this.firestore = db;
         this.profile = null;
         
@@ -85,6 +85,8 @@ class MedicalExamApp {
         this.auth = auth;
         this.authMode = 'login';
         this.authReady = false;
+        this.authStateResolved = false;
+        this.__medicalRegistrationInProgress = false;
         this.examActive = false;
         this.beforeUnloadHandler = (event) => { if (this.examActive && !this.examState.submitted) { event.preventDefault(); event.returnValue = ''; } };
         window.addEventListener('beforeunload', this.beforeUnloadHandler);
@@ -313,9 +315,12 @@ class MedicalExamApp {
                 console.warn('Firebase persistence could not be set:', err);
             });
 
-            onAuthStateChanged(this.auth, user => { 
-                this.setAuthState(user); 
-                if (user) this.loadUserProfile(); 
+            onAuthStateChanged(this.auth, async user => {
+                this.authStateResolved = false;
+                this.setAuthState(user);
+                if (user) await this.loadUserProfile();
+                this.authStateResolved = true;
+                try { window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: user || null } })); } catch (_) {}
             });
             this.authReady = true;
         } catch (error) {
@@ -357,8 +362,7 @@ class MedicalExamApp {
         this.renderAccountProfile();
 
         this.loadProgressStats();
-        // Recompute rank for the current signed-in user rather than the previous guest session.
-        if (this.firestore) this.loadLeaderboard(true);
+        // The Medical Sheets API adapter loads the authoritative leaderboard after auth resolves.
     }
 
     openAuthModal(mode = this.authUser ? 'account' : 'login') {
@@ -410,7 +414,8 @@ class MedicalExamApp {
 
     async handleAuthSubmit(event) {
         event.preventDefault();
-        if (this.authMode !== 'register' && !window.confirm('আপনি কি লগইন করতে চান?')) return;
+        const isRegister = this.authMode === 'register';
+        if (!isRegister && !window.confirm('আপনি কি লগইন করতে চান?')) return;
         const message = document.getElementById('authMessage');
         const email = document.getElementById('auth-email')?.value.trim();
         const password = document.getElementById('auth-password')?.value;
@@ -429,45 +434,57 @@ class MedicalExamApp {
             return;
         }
 
+        this.__medicalRegistrationInProgress = isRegister;
         try {
             if (message) message.textContent = 'অনুগ্রহ করে অপেক্ষা করুন...';
             let result;
-            if (this.authMode === 'register') {
+            if (isRegister) {
                 result = await createUserWithEmailAndPassword(this.auth, email, password);
-                if (name && result.user) { await updateProfile(result.user, { displayName: name }); }
+                if (name && result.user) await updateProfile(result.user, { displayName: name });
+                this.profile = Object.assign({}, this.profile || {}, {
+                    uid: result.user.uid, name: name || result.user.displayName || '',
+                    email: email, college: college || '', batch: studentClass || '',
+                    class: studentClass || '', mobile: mobile || '', bloodGroup: bloodGroup || ''
+                });
                 if (this.firestore && result.user) {
                     await setDoc(doc(this.firestore, 'students', result.user.uid), {
-                        uid: result.user.uid, name: name || '', college: college || '', mobile: mobile || '', email, class: studentClass || '', bloodGroup: bloodGroup || '',
+                        uid: result.user.uid, name: name || '', college: college || '', mobile: mobile || '',
+                        email: email, class: studentClass || '', batch: studentClass || '', bloodGroup: bloodGroup || '',
                         updatedAt: serverTimestamp(), createdAt: serverTimestamp()
                     }, { merge: true });
                 }
             } else {
                 result = await signInWithEmailAndPassword(this.auth, email, password);
+                this.profile = { uid: result.user.uid, name: result.user.displayName || email.split('@')[0], email: email };
             }
             this.closeAuthModal();
             this.setAuthState(result.user);
 
-            // Reuse the existing Get in Touch Push Execute endpoint for an admin login alert.
-            // Never send passwords or other authentication secrets.
-            const authEvent = this.authMode === 'register' ? 'New user registration' : 'User login';
-            const authName = String(result.user?.displayName || name || 'Student').slice(0, 120);
-            const authEmail = String(result.user?.email || email || '').slice(0, 254);
-            const authNotice = [
-                '🔐 Medical Admission Tracker — ' + authEvent,
-                'Name: ' + authName,
-                'Email: ' + authEmail,
-                'UID: ' + String(result.user?.uid || '').slice(0, 128),
-                'Time: ' + new Date().toISOString()
-            ].join('\n');
-            fetch('https://script.google.com/macros/s/AKfycbxsSQIqoWW1w7tDGGlzYPCYWawC-vrLq7kiXBmt-bDAM_wlLsP5u13Ra8t5eKOUk065BA/exec', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ name: authName, email: authEmail, message: authNotice })
-            }).catch(error => console.warn('[Auth notification] Could not send admin alert:', error));
+            // A new account is recorded by the dedicated Medical Sheets API.
+            // It sends a Telegram alert once per registered account; normal login is not a notification.
+            if (isRegister && window.MedGlobalLeague && typeof window.MedGlobalLeague.registerUser === 'function') {
+                try {
+                    await window.MedGlobalLeague.registerUser({
+                        name: name || result.user.displayName || email.split('@')[0],
+                        college: college || '',
+                        batch: studentClass || '',
+                        avatar: ''
+                    });
+                    if (message) message.textContent = 'অ্যাকাউন্ট তৈরি হয়েছে এবং Medical profile সংরক্ষিত হয়েছে।';
+                } catch (apiError) {
+                    console.warn('[Medical API] Registration profile will retry after auth resolves:', apiError);
+                    if (message) message.textContent = 'অ্যাকাউন্ট তৈরি হয়েছে; Medical profile sync আবার চেষ্টা করা হবে।';
+                }
+            }
         } catch (error) {
             console.error('Authentication error:', error);
             if (message) message.textContent = this.friendlyAuthError(error);
+        } finally {
+            this.__medicalRegistrationInProgress = false;
+            if (this.authUser) {
+                this.authStateResolved = true;
+                try { window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: this.authUser } })); } catch (_) {}
+            }
         }
     }
 
@@ -495,8 +512,10 @@ class MedicalExamApp {
     continueAsGuest() {
         this.authUser = null;
         localStorage.setItem('med_guest_mode', 'true');
+        this.authStateResolved = true;
         this.closeAuthModal();
         this.setAuthState(null);
+        try { window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null } })); } catch (_) {}
     }
 
     friendlyAuthError(error) {
@@ -539,7 +558,21 @@ class MedicalExamApp {
     }
     startPreviousYearQuiz(){ if(!this.previousSelectedYear) return; this.setup.mode='previousQuiz'; this.setup.subject='all'; this.setup.questionsCount=this.questionBank.filter(q=>q.year===this.previousSelectedYear&&q.isPreviousYear).length; this.setup.durationMins=Math.max(1,Math.ceil(this.setup.questionsCount*0.6)); const ss=document.getElementById('setup-subject'); if(ss) ss.value='all'; const ys=document.getElementById('setup-year'); if(ys) ys.value=this.previousSelectedYear; this.prepareExamFromSetup(); }
 
-    async loadUserProfile(){ if(!this.firestore||!this.authUser) return; try{ const snap=await getDoc(doc(this.firestore, 'students', this.authUser.uid)); this.profile=snap.exists()?snap.data():{name:this.authUser.displayName||'',email:this.authUser.email||''}; this.loadProgressStats(); }catch(e){console.warn('Profile load failed',e);} }
+    async loadUserProfile(){
+        if (!this.firestore || !this.authUser) return null;
+        try {
+            const snap = await getDoc(doc(this.firestore, 'students', this.authUser.uid));
+            this.profile = snap.exists()
+                ? snap.data()
+                : { name: this.authUser.displayName || '', email: this.authUser.email || '' };
+            this.loadProgressStats();
+            try { window.dispatchEvent(new CustomEvent('student-profile-loaded', { detail: { uid: this.authUser.uid } })); } catch (_) {}
+            return this.profile;
+        } catch (e) {
+            console.warn('Profile load failed', e);
+            return null;
+        }
+    }
 
     getDemoLeaderboardRows(){ return []; }
     getLocalLeaderboardRows(){
@@ -1732,32 +1765,13 @@ window.handleLogout = function() {
     return true;
   }
   function syncRankProgress(progress, reason = 'progress') {
-    const uid = app.authUser?.uid;
-    if (!uid) return;
-    const oldRows = app.getLocalLeaderboardRows?.() || [];
-    const oldRow = oldRows.find(row => row.uid === uid) || {};
-    const rankRow = {
-      ...oldRow, uid,
-      name: app.profile?.name || app.authUser?.displayName || app.authUser?.email || 'Student',
-      college: app.profile?.college || oldRow.college || '',
-      rankPoints: progress.rankPoints,
-      xp: progress.xp,
-      performanceBonus: progress.xp,
-      level: getPerformanceLevelProgress(progress.xp).level,
-      updatedAtMs: Date.now()
-    };
-    const rows = typeof app.mergeLeaderboardRows === 'function'
-      ? app.mergeLeaderboardRows([...oldRows.filter(row => row.uid !== uid), rankRow])
-      : [...oldRows.filter(row => row.uid !== uid), rankRow];
-    app.setLocalLeaderboardRows?.(rows);
-    app.renderLeaderboardRows?.(rows);
-    if (app.firestore) setDoc(doc(app.firestore, 'leaderboard', uid), {
-      uid, name: rankRow.name, college: rankRow.college, rankPoints: progress.rankPoints,
-      xp: progress.xp, performanceBonus: progress.xp, level: rankRow.level,
-      updatedAt: serverTimestamp()
-    }, { merge: true }).catch(error => console.warn(reason + ' leaderboard sync failed:', error));
+    // The Google Sheets API is authoritative for the global leaderboard.
+    // Local learning-progress events never write Firebase leaderboard documents.
+    document.dispatchEvent(new CustomEvent('student-progress-updated', {
+      detail: { ...progress, pendingPB: pendingPBTotal(progress), source: reason || 'local-progress' }
+    }));
   }
-  function settleDuePB(progress, now = Date.now()) {
+    function settleDuePB(progress, now = Date.now()) {
     const entries = Array.isArray(progress.pendingPBEntries) ? progress.pendingPBEntries : [];
     let converted = 0;
     const pending = [];
