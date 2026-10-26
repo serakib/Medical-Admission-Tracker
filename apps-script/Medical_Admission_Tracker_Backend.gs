@@ -761,7 +761,8 @@ function matGetLeaderboard_(period, userIds) {
       completedExams: Number(examStats.matches || 0),
       correctCount: Number(examStats.correct || 0),
       wrongCount: Number(examStats.wrong || 0),
-      accuracy: Number(examStats.accuracy || 0)
+      accuracy: Number(examStats.accuracy || 0),
+      streak: Number(examStats.streak || 0)
     };
   });
   rows.sort(function (a, b) {
@@ -813,16 +814,32 @@ function matGetExamStatsByUser_() {
     if (status && status !== 'COMMITTED') return;
     const uid = String(record.UserID || '');
     if (!uid) return;
-    if (!totals[uid]) totals[uid] = { matches: 0, correct: 0, wrong: 0, accuracy: 0 };
+    if (!totals[uid]) totals[uid] = { matches: 0, correct: 0, wrong: 0, accuracy: 0, dates: {} };
     const stat = totals[uid];
     stat.matches += 1;
     stat.correct += Math.max(0, matFiniteNumber_(record.Correct, 0));
     stat.wrong += Math.max(0, matFiniteNumber_(record.Wrong, 0));
+    const dateKey = matDateKey_(record.SubmittedAt);
+    if (dateKey) stat.dates[dateKey] = true;
   });
+  const today = matDateKey_(matNowIso_());
+  const yesterday = matOffsetDateKey_(today, -1);
   Object.keys(totals).forEach(function (uid) {
     const stat = totals[uid];
     const answered = stat.correct + stat.wrong;
     stat.accuracy = answered ? Math.round((stat.correct / answered) * 1000) / 10 : 0;
+    // A day counts once even if the student takes multiple exams that day.
+    // A streak remains active through today or yesterday, using Dhaka-local dates.
+    const dates = stat.dates || {};
+    const latest = Object.keys(dates).sort().pop() || '';
+    let cursor = latest && (latest === today || latest === yesterday) ? latest : '';
+    let streak = 0;
+    while (cursor && dates[cursor]) {
+      streak += 1;
+      cursor = matOffsetDateKey_(cursor, -1);
+    }
+    stat.streak = streak;
+    delete stat.dates;
   });
   return totals;
 }
