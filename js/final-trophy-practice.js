@@ -283,12 +283,16 @@
   function paintLeaderboardTrophies(rows) {
     installLeaderboardTrophyStyles();
     if (Array.isArray(rows) && rows.length) latestLeaderboardRowsForTrophies = rows.slice();
-    const byUid = new Map((Array.isArray(rows) ? rows : []).filter(row=>row?.uid).map(row=>[String(row.uid),row]));
+    const byUid = new Map();
+    (Array.isArray(rows) ? rows : []).forEach(row => {
+      const id = String(row?.uid || row?.userId || row?.playerId || '');
+      if (id) byUid.set(id,row);
+    });
     const ordered = (Array.isArray(rows) ? rows : []).slice().sort((a,b)=>rankPointsForLeaderboardRow(b)-rankPointsForLeaderboardRow(a));
     const body = document.getElementById('leaderboard-body');
     if (body) body.querySelectorAll('tr').forEach((tr,index)=>{
       tr.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
-      const row = byUid.get(String(tr.dataset.uid||'')) || ordered[index];
+      const row = byUid.get(String(tr.dataset.uid || tr.dataset.medPlayer || '')) || (tr.dataset.totalRp ? { totalRP:Number(tr.dataset.totalRp), rankPoints:Number(tr.dataset.totalRp), rank:tr.dataset.rank || '' } : null) || ordered[index];
       const cell = tr.querySelector('.leader-rank-points') || tr.querySelector('td:last-child');
       if (!row || !cell) return;
       cell.insertAdjacentHTML('beforeend', leaderboardTrophyMarkup(row));
@@ -296,7 +300,7 @@
     const podium = document.getElementById('leaderboard-podium');
     if (podium) podium.querySelectorAll('.podium-card').forEach((card,index)=>{
       card.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
-      const row = byUid.get(String(card.dataset.uid||'')) || ordered[index];
+      const row = byUid.get(String(card.dataset.uid || card.dataset.medPlayer || '')) || (card.dataset.totalRp ? { totalRP:Number(card.dataset.totalRp), rankPoints:Number(card.dataset.totalRp), rank:card.dataset.rank || '' } : null) || ordered[index];
       if (row) card.insertAdjacentHTML('beforeend', leaderboardTrophyMarkup(row));
     });
     const me = document.getElementById('leaderboard-me');
