@@ -721,7 +721,32 @@
     var name = String(row && row.name || 'M').trim();
     return escapeHtml(name ? name.charAt(0).toUpperCase() : 'M');
   }
+  function ensureWeeklyTab() {
+    var tabs = document.getElementById('leaderboard-period-tabs');
+    if (!tabs) return null;
+    var weekly = tabs.querySelector('[data-leaderboard-period="weekly"]');
+    if (!weekly) {
+      weekly = document.createElement('button');
+      weekly.type = 'button';
+      weekly.setAttribute('role', 'tab');
+      weekly.setAttribute('aria-selected', 'false');
+      weekly.setAttribute('data-leaderboard-period', 'weekly');
+      weekly.className = 'leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border flex-shrink-0 whitespace-nowrap';
+      weekly.textContent = '📅 Weekly';
+      var friends = tabs.querySelector('[data-leaderboard-period="friends"]');
+      if (friends) friends.insertAdjacentElement('afterend', weekly);
+      else tabs.appendChild(weekly);
+    }
+    // Keep the tab visible even when an older cached stylesheet/markup is used.
+    weekly.style.setProperty('display', 'inline-flex', 'important');
+    weekly.style.setProperty('visibility', 'visible', 'important');
+    weekly.style.setProperty('opacity', '1', 'important');
+    weekly.style.setProperty('flex', '0 0 auto');
+    weekly.classList.add('flex-shrink-0', 'whitespace-nowrap');
+    return weekly;
+  }
   function updatePeriodTabs() {
+    ensureWeeklyTab();
     document.querySelectorAll('[data-leaderboard-period]').forEach(function (button) {
       var active = button.dataset.leaderboardPeriod === selectedPeriod;
       button.classList.toggle('is-active', active);
