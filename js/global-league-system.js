@@ -1096,6 +1096,12 @@
     return region;
   }
 
+  function formatStudentBatch(value) {
+    return String(value || '').trim()
+      .replace(/\bhsc\b/gi, 'HSC')
+      .replace(/\bssc\b/gi, 'SSC');
+  }
+
   function renderFriendDirectory(query) {
     var region = ensureFriendDirectory();
     if (!region) return;
@@ -1129,10 +1135,15 @@
         : (window.MedStudentFriends && typeof window.MedStudentFriends.canManageFriends === 'function' && window.MedStudentFriends.canManageFriends())
           ? '<button type="button" class="mat-row-friend-button" data-med-friend-send="' + escapeHtml(row.userId) + '" data-med-friend-name="' + escapeHtml(row.name || 'Student') + '"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>'
           : '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">View Profile</button>';
+      var details = [
+        row.college ? 'College: ' + row.college : '',
+        formatStudentBatch(row.batch) ? 'Class/Batch: ' + formatStudentBatch(row.batch) : '',
+        row.rank ? 'Rank: ' + row.rank + ' · Level ' + Math.max(1, Number(row.level) || 1) : ''
+      ].filter(Boolean);
       return '<article class="mat-friend-search-result" role="listitem">' +
         '<span class="mat-friend-search-avatar">' + avatarMarkup(row) + '</span>' +
         '<div class="mat-friend-search-copy"><strong>' + escapeHtml(row.name || 'Student') + '</strong><small>' +
-        escapeHtml([row.college, row.batch, row.rank].filter(Boolean).join(' · ') || 'Medical student') +
+        escapeHtml(details.join(' | ') || 'Medical student') +
         '</small></div><div class="mat-friend-search-action">' + relationLabel + '</div></article>';
     }).join('');
   }
