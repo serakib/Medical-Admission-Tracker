@@ -583,7 +583,9 @@
     }
     var me = getMe(all);
     if (!selectedRank || !me) selectedRank = (me && me.rank) || selectedRank || RANKS[0];
-    var displayRows = all.slice();
+    // The selected trophy is a real rank filter. Without this, the same student
+    // appeared in every selected subrank even though their authoritative rank was unchanged.
+    var displayRows = all.filter(function (row) { return String(row.rank || '') === String(selectedRank || ''); });
     var safeRows = [], riskRows = [];
     if (selectedPeriod === 'weekly') {
       safeRows = displayRows.filter(isInWeeklySafeZone);
@@ -644,10 +646,10 @@
         finalDivider.innerHTML = '<td colspan="5"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">All listed students are above this line.</span></td>';
         body.appendChild(finalDivider);
       }
-      if (mePanel && me) {
+      if (mePanel && me && displayRows.some(function (row) { return row.isMine || String(row.userId) === String(me.userId); })) {
         var ownIndex = displayRows.findIndex(function (row) { return row.isMine || String(row.userId) === String(me.userId); });
         mePanel.classList.remove('hidden');
-        mePanel.innerHTML = '<div><span>Your Position</span><strong>#' + (ownIndex >= 0 ? ownIndex + 1 : '—') + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(selectedRank) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
       }
     } else {
       var emptyText = selectedPeriod === 'friends'
@@ -670,7 +672,7 @@
     }));
   }
   function avatarMarkup(row) {
-    var avatar = safeText(row && row.avatar || '', 500);
+    var avatar = safeText(row && row.avatar || '', 20000);
     if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) {
       return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     }
