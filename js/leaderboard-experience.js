@@ -258,7 +258,13 @@
     const batch = safeText(row.batch || '', 40)
       .replace(/\bhsc\b/gi, 'HSC')
       .replace(/\bssc\b/gi, 'SSC');
-    const currentRank = safeText(row.rank || '—', 50);
+    const rawRank = safeText(row.rank || '—', 50);
+    // Repair the missing initial B seen in older/malformed profile data.
+    const currentRank = rawRank.replace(/^ronze(?=\\s|$)/i, 'Bronze');
+    const rankTierMatch = currentRank.match(/^(Grandmaster|Platinum|Emerald|Diamond|Silver|Bronze|Gold|Master|Legend|Mythic|Immortal)\\b/i);
+    const currentRankTier = rankTierMatch
+      ? rankTierMatch[1].charAt(0).toUpperCase() + rankTierMatch[1].slice(1).toLowerCase()
+      : currentRank;
     const avatar = document.getElementById('student-profile-avatar');
     const avatarMarkupHTML = avatarMarkup(row);
     if (avatar) {
@@ -280,7 +286,7 @@
     write('student-profile-exams', Number.isFinite(Number(row.quizzes)) && Number(row.quizzes) > 0 ? fmt(row.quizzes) : '—');
     write('student-profile-streak', fmt(row.streak) + ' days');
     write('student-profile-accuracy', Number(row.accuracy) > 0 ? Number(row.accuracy).toFixed(1) + '%' : '—');
-    write('student-profile-rank', currentRank);
+    write('student-profile-rank', currentRankTier);
     const vault = window.MedAchievementVaultTrophies;
     const trophy = document.getElementById('student-profile-trophy');
     if (trophy) {
