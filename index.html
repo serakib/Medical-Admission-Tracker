@@ -549,6 +549,11 @@ function toggleAppSidebarCollapse(){
                     <button class="ghost-btn" type="button" onclick="window.app.openAccountAuth('account')">Manage</button>
                 </article>
             </div>
+            <article id="account-delete-card" class="account-action-card hidden border border-red-200 dark:border-red-900/70">
+                <span class="account-action-icon text-red-600 dark:text-red-300"><i class="fa-solid fa-user-xmark"></i></span>
+                <div class="flex-1 min-w-0"><h3 class="text-red-700 dark:text-red-300">Delete Account</h3><p>Login account, Medical profile, exam records ও Friends data স্থায়ীভাবে মুছে যাবে। Password verification এবং দুইবার confirmation লাগবে।</p></div>
+                <button id="account-delete-start" class="ghost-btn border border-red-500/50 text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30" type="button" onclick="window.handleAccountDeletion()"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete account</button>
+            </article>
             <article class="account-action-card">
                 <span class="account-action-icon"><i class="fa-solid fa-gear"></i></span>
                 <div class="flex-1 min-w-0"><h3>App Settings</h3><p>অ্যাপের সব preference ও support link এখান থেকে পরিচালনা করুন।</p></div>
@@ -1580,7 +1585,7 @@ function toggleAppSidebarCollapse(){
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-4"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=medical-feature-set-5"></script>
+<script type="module" src="script.js?v=medical-feature-set-6"></script>
 <script type="module" src="./js/integrated-features.js?v=medical-feature-set-14"></script>
 <script src="./js/final-trophy-practice.js?v=medical-feature-set-5" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=weekly-tabs-1" defer></script>

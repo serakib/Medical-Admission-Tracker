@@ -11,6 +11,10 @@ import {
     signOut, 
     onAuthStateChanged, 
     updateProfile,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    sendPasswordResetEmail,
+    deleteUser,
     setPersistence,
     browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -19,6 +23,7 @@ import {
     doc,
     setDoc,
     getDoc,
+    deleteDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -920,6 +925,10 @@ class MedicalExamApp {
                 : 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100';
         }
         if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
+        const deleteCard = document.getElementById('account-delete-card');
+        const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
+            user.providerData.some(provider => provider && provider.providerId === 'password'));
+        if (deleteCard) deleteCard.classList.toggle('hidden', !hasEmailPassword);
     }
 
     openAccountAuth(mode = 'login') {
@@ -1754,6 +1763,212 @@ window.handleLogout = function() {
         }
     });
     overlay.querySelector('[data-logout-cancel]').focus();
+};
+
+/**
+ * Double-confirmed, password-verified account deletion.
+ * Password reset exactly reuses Firebase sendPasswordResetEmail from the existing
+ * Medical-Admission-Tracker-login website's Forgot Password flow.
+ */
+window.handleAccountDeletion = function() {
+    if (document.getElementById('account-delete-confirmation-modal')) return;
+    const user = auth.currentUser || window.app?.authUser;
+    const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
+        user.providerData.some(provider => provider && provider.providerId === 'password'));
+    if (!hasEmailPassword) {
+        alert('Account delete করতে registered email/password account-এ sign in করুন।');
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'account-delete-confirmation-modal';
+    overlay.className = 'fixed inset-0 z-[10001] flex items-center justify-center bg-slate-950/70 p-4';
+    overlay.setAttribute('role', 'presentation');
+    overlay.innerHTML = `
+      <section role="dialog" aria-modal="true" aria-labelledby="account-delete-title"
+        class="w-full max-w-md rounded-2xl border border-red-200 bg-white p-5 shadow-2xl dark:border-red-900 dark:bg-slate-900">
+        <div class="mb-3 flex items-center gap-3">
+          <span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-300">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+          </span>
+          <h2 id="account-delete-title" class="text-lg font-bold text-slate-900 dark:text-white">Are you sure to delete this account?</h2>
+        </div>
+        <p class="mb-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+          এটি শুধু logout নয়। আপনার Firebase account, Medical profile, XP/RP/rank, stored exam attempts এবং Friends requests/connections স্থায়ীভাবে মুছে যাবে।
+        </p>
+        <p class="mb-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold leading-5 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+          এই কাজ undo করা যাবে না। চালিয়ে যেতে দ্বিতীয়বার নিশ্চিত করতে হবে এবং account password যাচাই হবে।
+        </p>
+        <div class="flex justify-end gap-2">
+          <button type="button" data-account-delete-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button>
+          <button type="button" data-account-delete-next class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Continue</button>
+        </div>
+      </section>
+    `;
+    document.body.appendChild(overlay);
+
+    const closeDialog = () => overlay.remove();
+    overlay.querySelector('[data-account-delete-cancel]').addEventListener('click', closeDialog);
+    overlay.addEventListener('click', event => { if (event.target === overlay) closeDialog(); });
+    overlay.addEventListener('keydown', event => { if (event.key === 'Escape') closeDialog(); });
+
+    overlay.querySelector('[data-account-delete-next]').addEventListener('click', () => {
+        const dialog = overlay.querySelector('[role="dialog"]');
+        dialog.innerHTML = `
+          <div class="mb-3 flex items-center gap-3">
+            <span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-300">
+              <i class="fa-solid fa-user-xmark" aria-hidden="true"></i>
+            </span>
+            <h2 id="account-delete-title" class="text-lg font-bold text-slate-900 dark:text-white">Are you sure to delete this account?</h2>
+          </div>
+          <p class="mb-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Final confirmation for <strong data-account-delete-email></strong>. This permanently deletes your account and connected Medical data. Enter your current password to confirm.</p>
+          <form id="account-delete-form" class="space-y-3">
+            <label for="account-delete-password" class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Verify current password</label>
+            <input id="account-delete-password" name="password" type="password" required autocomplete="current-password"
+              class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+              placeholder="Account password">
+            <button type="button" data-account-delete-reset class="text-sm font-semibold text-sky-700 underline hover:text-sky-900 dark:text-sky-300">Forgot password? Send reset link</button>
+            <p id="account-delete-status" class="hidden rounded-xl p-3 text-sm leading-5" role="status" aria-live="polite"></p>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" data-account-delete-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button>
+              <button type="submit" data-account-delete-final class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Verify password &amp; delete account</button>
+            </div>
+          </form>
+        `;
+        dialog.querySelector('[data-account-delete-email]').textContent = String(user.email || '');
+        dialog.querySelector('[data-account-delete-cancel]').addEventListener('click', closeDialog);
+        const passwordInput = dialog.querySelector('#account-delete-password');
+        const status = dialog.querySelector('#account-delete-status');
+        const setDeleteStatus = (message, isError = false) => {
+          if (!status) return;
+          status.textContent = String(message || '');
+          status.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-emerald-50', 'text-emerald-700', 'dark:bg-red-950/30', 'dark:text-red-300', 'dark:bg-emerald-950/30', 'dark:text-emerald-300');
+          status.classList.add(isError ? 'bg-red-50' : 'bg-emerald-50', isError ? 'text-red-700' : 'text-emerald-700', isError ? 'dark:bg-red-950/30' : 'dark:bg-emerald-950/30', isError ? 'dark:text-red-300' : 'dark:text-emerald-300');
+        };
+
+        dialog.querySelector('[data-account-delete-reset]').addEventListener('click', async event => {
+          const button = event.currentTarget;
+          button.disabled = true;
+          setDeleteStatus('Medical login website-এর reset-link flow ব্যবহার করে email request পাঠানো হচ্ছে…');
+          try {
+            await sendPasswordResetEmail(auth, user.email);
+            setDeleteStatus('Password reset link পাঠানো হয়েছে। ' + user.email + '-এর Inbox/Spam দেখুন; password reset করে ফিরে এসে আবার verification করুন।');
+          } catch (error) {
+            console.warn('[Account deletion] Password reset request result:', error);
+            setDeleteStatus('Password reset request process করা হয়েছে। ' + user.email + '-এর Inbox/Spam দেখুন; প্রয়োজনে Medical login page-এর Forgot Password ব্যবহার করুন।');
+          } finally {
+            button.disabled = false;
+          }
+        });
+
+        dialog.querySelector('#account-delete-form').addEventListener('submit', async event => {
+          event.preventDefault();
+          const confirmButton = dialog.querySelector('[data-account-delete-final]');
+          const resetButton = dialog.querySelector('[data-account-delete-reset]');
+          const password = String(passwordInput.value || '');
+          if (!password) { setDeleteStatus('Account password দিন।', true); passwordInput.focus(); return; }
+          confirmButton.disabled = true;
+          passwordInput.disabled = true;
+          resetButton.disabled = true;
+          confirmButton.textContent = 'Verifying password…';
+          setDeleteStatus('Password যাচাই হচ্ছে। তারপর account data delete হবে…');
+
+          try {
+            const liveUser = auth.currentUser;
+            if (!liveUser || liveUser.uid !== user.uid) throw new Error('Active login account বদলে গেছে। আবার নিজের account-এ sign in করুন।');
+
+            // 1. Verify the current account password before any deletion starts.
+            const credential = EmailAuthProvider.credential(liveUser.email, password);
+            await reauthenticateWithCredential(liveUser, credential);
+
+            // 2. Delete server-side Medical profile, exam history, and friend links.
+            const endpoint = String(window.MED_LEADERBOARD_API_URL || '').trim();
+            if (!endpoint) throw new Error('Medical backend URL পাওয়া যায়নি। Account delete করা হয়নি।');
+            const token = await liveUser.getIdToken(true);
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              mode: 'cors',
+              credentials: 'omit',
+              cache: 'no-store',
+              redirect: 'follow',
+              headers: { 'Accept': 'application/json,text/plain,*/*', 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: 'deleteAccount', idToken: token })
+            });
+            const raw = await response.text();
+            let data;
+            try { data = JSON.parse(raw); }
+            catch (_) { throw new Error('Medical backend JSON response দেয়নি। Latest Code.gs deploy না হওয়ায় account delete করা হয়নি।'); }
+            if (!response.ok || data.success === false || data.deleted !== true) {
+              const apiError = String(data.error || data.message || 'Medical account data delete হয়নি।');
+              if (/unknown action|unsupported action/i.test(apiError)) {
+                throw new Error('Live Apps Script-এ deleteAccount action নেই। Latest Medical_Admission_Tracker_Backend.gs deploy না হওয়া পর্যন্ত account delete করা হয়নি।');
+              }
+              throw new Error(apiError);
+            }
+
+            // 3. Remove the user's Firestore profile, then remove Firebase Auth access.
+            try {
+              await deleteDoc(doc(db, 'students', liveUser.uid));
+            } catch (firestoreError) {
+              console.error('[Account deletion] Firestore profile cleanup failed after Medical Sheets cleanup:', firestoreError);
+              throw new Error('Medical Sheets-এর account data delete হয়েছে, কিন্তু Firestore profile remove হয়নি। Account login এখনও delete করা হয়নি; আবার চেষ্টা করুন।');
+            }
+            await deleteUser(liveUser);
+
+            // Remove only this account's local records; app-wide preferences remain.
+            const uid = String(user.uid);
+            [
+              'med_history_' + uid,
+              'med_seen_questions_' + uid,
+              'med_answered_questions_' + uid,
+              'med_practiced_questions_' + uid,
+              'med_review_history_v2_' + uid,
+              'med_profile_avatar_v1_' + uid,
+              'med_profile_avatar_manual_v1_' + uid,
+              'med_sheet_profile_v1_' + uid,
+              'med_account_progress_v1_' + uid,
+              'med_sheet_selected_rank_v1_' + uid
+            ].forEach(key => { try { localStorage.removeItem(key); } catch (_) {} });
+
+            try {
+              const queue = JSON.parse(localStorage.getItem('med_sheet_exam_pending_v1') || '[]');
+              if (Array.isArray(queue)) {
+                localStorage.setItem('med_sheet_exam_pending_v1', JSON.stringify(queue.filter(item => String(item && item.userId || '') !== uid)));
+              }
+            } catch (_) {}
+            ['med_sheet_leaderboard_cache_v1_all-time','med_sheet_leaderboard_cache_v1_weekly','med_sheet_leaderboard_cache_v1_friends']
+              .forEach(key => { try { localStorage.removeItem(key); } catch (_) {} });
+            try {
+              const remembered = JSON.parse(localStorage.getItem('med_recent_accounts_v1') || '[]');
+              if (Array.isArray(remembered)) {
+                localStorage.setItem('med_recent_accounts_v1', JSON.stringify(remembered.filter(item =>
+                  String(item && item.email || '').toLowerCase() !== String(user.email || '').toLowerCase()
+                )));
+              }
+            } catch (_) {}
+            overlay.remove();
+            window.location.reload();
+          } catch (error) {
+            console.error('[Account deletion] Account delete failed:', error);
+            let message = String(error && error.message || error || 'Account delete failed.');
+            if (error && (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials')) {
+              message = 'Password সঠিক নয়। আবার দিন, অথবা Forgot password দিয়ে reset link পাঠান।';
+            } else if (error && error.code === 'auth/requires-recent-login') {
+              message = 'Password verification complete হয়নি। আবার password দিয়ে চেষ্টা করুন।';
+            } else if (error && /auth\/network-request-failed/.test(String(error.code || ''))) {
+              message = 'Network সমস্যা হয়েছে। Internet check করে আবার চেষ্টা করুন।';
+            }
+            setDeleteStatus(message, true);
+            confirmButton.disabled = false;
+            passwordInput.disabled = false;
+            resetButton.disabled = false;
+            confirmButton.textContent = 'Verify password & delete account';
+            passwordInput.focus();
+          }
+        });
+        passwordInput.focus();
+    });
+    overlay.querySelector('[data-account-delete-cancel]').focus();
 };
 
 

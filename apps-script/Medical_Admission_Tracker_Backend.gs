@@ -130,6 +130,8 @@ function matDispatch_(action, p) {
       return matResolveFriendRequest_(p || {}, 'cancelled');
     case 'removeFriend':
       return matRemoveFriend_(p || {});
+    case 'deleteAccount':
+      return matDeleteAccount_(p || {});
     case 'submitExam':
     case 'recordExam':
     case 'gameEnd': // compatibility action name only; uses Medical-only rewards.
@@ -1360,7 +1362,86 @@ function matRemoveFriend_(p) {
   return matFriendConnections_(p);
 }
 
+/* --------------------------- Account deletion ---------------------------------- */
+/**
+ * Remove the authenticated account's Medical Sheets data. This validates Firebase
+ * directly so cleanup can be retried if a client-side deletion step fails later.
+ */
+function matDeleteAccount_(p) {
+  p = p || {};
+  const idToken = String(p.idToken || p.firebaseIdToken || '').trim();
+  if (!idToken) throw new Error('Firebase ID token is required to delete an account.');
+  const firebaseUser = matVerifyFirebaseIdToken_(idToken);
+  const userId = String(firebaseUser.localId || '');
+  if (!userId) throw new Error('Firebase identity could not be verified for account deletion.');
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  let result;
+  try {
+    const studentsSheet = matGetStudentsSheet_();
+    const student = matFindStudentById_(userId);
+    if (student && String(student.AccountType || '').toUpperCase() === 'GUEST') {
+      throw new Error('A registered Firebase account is required for password-verified account deletion.');
+    }
+
+    const friendsSheet = matGetFriendsSheet_();
+    const friendRows = matReadObjects_(friendsSheet);
+    const friendRowNumbers = friendRows.filter(function (row) {
+      const kind = String(row.RecordType || '').toUpperCase();
+      if (kind === 'REQUEST') {
+        return String(row.FromUserID || '') === userId || String(row.ToUserID || '') === userId;
+      }
+      if (kind === 'FRIENDSHIP') {
+        return String(row.UserA || '') === userId || String(row.UserB || '') === userId;
+      }
+      return false;
+    }).map(function (row) { return row._rowNumber; });
+    const deletedFriendRows = matDeleteRows_(friendsSheet, friendRowNumbers);
+
+    const examSheet = matGetExamSheet_();
+    const examRows = matReadObjects_(examSheet);
+    const activitySourceMarker = 'MAT-' + userId + '-';
+    const top10TargetMarker = ':TOP10:' + userId;
+    const examRowNumbers = examRows.filter(function (row) {
+      if (matIsExamRecord_(row)) return String(row.UserID || '') === userId;
+      if (String(row.RecordType || '').toUpperCase() !== 'ACTIVITY') return false;
+      const activityId = String(row.ActivityID || '');
+      return activityId.indexOf(activitySourceMarker) >= 0 || activityId.endsWith(top10TargetMarker);
+    }).map(function (row) { return row._rowNumber; });
+    const deletedExamAndActivityRows = matDeleteRows_(examSheet, examRowNumbers);
+
+    let deletedProfile = false;
+    if (student && student._rowNumber) {
+      studentsSheet.deleteRow(student._rowNumber);
+      deletedProfile = true;
+    }
+    matSaveTop10Snapshot_(matBuildTop10_());
+
+    result = {
+      success: true,
+      deleted: true,
+      userId: userId,
+      deletedProfile: deletedProfile,
+      deletedFriendRows: deletedFriendRows,
+      deletedExamAndActivityRows: deletedExamAndActivityRows,
+      message: 'Medical account data deleted. Finish deleting the Firebase account in the client.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
+  return result;
+}
+
 /* ---------------------------- Spreadsheet helpers ---------------------------- */
+
+function matDeleteRows_(sheet, rowNumbers) {
+  const rows = Array.from(new Set((rowNumbers || []).map(Number).filter(function (row) {
+    return Number.isInteger(row) && row >= 2;
+  }))).sort(function (a, b) { return b - a; });
+  rows.forEach(function (rowNumber) { sheet.deleteRow(rowNumber); });
+  return rows.length;
+}
 
 function matGetStudentsSheet_() {
   return matEnsureSheet_(MAT_CONFIG.PROFILE_SPREADSHEET_ID, MAT_CONFIG.PROFILE_TAB,
