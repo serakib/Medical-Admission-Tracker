@@ -10,7 +10,7 @@ The existing `students/{uid}` Firestore document may continue storing the app's 
 
 ## 3. Dedicated Medical Sheets API
 
-`js/leaderboard-config.js` points to a separate Cloudflare Worker proxy. The Worker forwards to the Medical Admission Tracker's own Google Apps Script deployment, which uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. It does not call any external game API.
+`js/leaderboard-config.js` points directly to the Medical Admission Tracker's own Google Apps Script deployment, which uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. This does not call any external game API.
 
 - Registered users: Firebase ID token is verified by the Medical API.
 - Guests: a random Guest token is stored locally and resolved by the Medical API.
@@ -20,6 +20,6 @@ The existing `students/{uid}` Firestore document may continue storing the app's 
 
 Keep both spreadsheets private. Store `FIREBASE_API_KEY`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_OWNER_CHAT_ID` in Apps Script Project Settings → Script Properties. Never expose the Telegram token on the website.
 
-## 4. Browser CORS / redirect handling
+## 4. Direct Apps Script calls and Get in Touch
 
-Deploy `workers/medical-api-proxy-worker.js` as a **separate** Cloudflare Worker named `medical-admission-api-proxy` under the site's existing workers.dev account. The config is prefilled for that Worker name. Do not replace the separate Student Support/AI Worker.
+The Medical frontend calls the dedicated Apps Script API directly. Verify that the deployed Web App is accessible to intended users and returns responses the browser can read. Apps Script redirects/CORS can vary by deployment; do not describe live API sync as tested until it has been tested from the site. The site's Get in Touch form is a separate portfolio-message feature; keep its existing portfolio Telegram endpoint and reply flow unchanged. Do not route contact messages through the Medical rewards API.
