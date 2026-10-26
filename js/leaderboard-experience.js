@@ -39,12 +39,24 @@
     el.classList.toggle('text-emerald-700', !isError);
   };
   const errorMessage = error => {
-    const message = String(error?.message || error || '');
+    const message = String(error?.message || error || '').trim();
     if (/registered account|login|authentication required|token/i.test(message)) {
       return 'Friends sync করতে registered account-এ login করুন।';
     }
     if (/pending|already your friend|request already|request পাওয়া/i.test(message)) return message;
-    return 'Google Sheets Friends sync হয়নি। API deployment ও network connection পরীক্ষা করে আবার চেষ্টা করুন।';
+    if (/failed to fetch|networkerror|load failed|cors|redirect|network/i.test(message)) {
+      return 'Friends API request browser থেকে সম্পন্ন হয়নি (network/CORS/redirect সমস্যা)। API deployment access ও Web App response পরীক্ষা করুন।';
+    }
+    if (/did not return json|not json|unexpected token|html/i.test(message)) {
+      return 'Friends API JSON response দেয়নি। দেওয়া URL-এ latest Apps Script Web App version deploy আছে কি না পরীক্ষা করুন।';
+    }
+    if (/unknown action|unsupported action|not implemented|action .*not found/i.test(message)) {
+      return 'এই Apps Script deployment-এ Friends action নেই বা পুরোনো version চলছে: ' + message.slice(0, 180);
+    }
+    if (message && message !== '[object Object]') {
+      return 'Friends sync failed: ' + message.slice(0, 220);
+    }
+    return 'Friends sync ব্যর্থ হয়েছে। Browser console-এ [Friends] error এবং Apps Script Executions log দেখুন।';
   };
   const canManageFriends = () => !!userId() && typeof app.authUser?.getIdToken === 'function';
 
