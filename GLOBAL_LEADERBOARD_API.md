@@ -4,7 +4,7 @@
 
 Medical Admission Tracker uses Firebase Authentication for registered users and its own Google Apps Script + Google Sheets API for profiles, exam results, Medical XP/RP, rank progression, and leaderboard data. It uses no external game account session or shared game-reward balance.
 
-The browser-facing proxy URL is configured in `js/leaderboard-config.js` (expected Worker name: `medical-admission-api-proxy`). Its source is `workers/medical-api-proxy-worker.js`; deploy it as a new Worker. The Apps Script source of truth is the deployment URL embedded in that Worker.
+The direct Medical Apps Script URL is configured in `js/leaderboard-config.js`. The website's separate Get in Touch form is intentionally left unchanged and continues to use the existing portfolio messaging endpoint; it is not replaced by this Medical rewards API.
 
 ## API actions used by the website
 
@@ -36,9 +36,9 @@ Top-10 leaderboard movement notifications are queued with their original timesta
 
 Bot token and owner Chat ID belong in Apps Script Script Properties only; never put them in client-side JavaScript or public repository code.
 
-## Apps Script CORS/redirect note
+## Direct Apps Script connectivity
 
-Apps Script Web Apps can redirect `ContentService` responses. If browser requests from GitHub Pages show a CORS or redirect error, deploy the separate proxy Worker in `workers/medical-api-proxy-worker.js`, then set `window.MED_LEADERBOARD_API_URL` to the deployed Worker URL in `js/leaderboard-config.js`. Deploy it as a new Worker; do not replace the unrelated Student Support/AI Worker. The Worker forwards only the documented Medical API actions to the dedicated Google Apps Script backend.
+The frontend requests the dedicated Medical Apps Script endpoint directly. Apps Script deployments can return redirects or trigger browser CORS restrictions depending on how the Web App is deployed. If browser calls are blocked, direct client-side reads cannot be claimed as working until the deployment response path is adjusted. The separate portfolio/Get in Touch messaging endpoint is not part of this API and must remain unchanged.
 
 ## Tests before launch
 
