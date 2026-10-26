@@ -4,7 +4,7 @@
 
 Medical Admission Tracker uses Firebase Authentication for registered users and its own Google Apps Script + Google Sheets API for profiles, exam results, Medical XP/RP, rank progression, and leaderboard data. It uses no external game account session or shared game-reward balance.
 
-The API endpoint is configured in `js/leaderboard-config.js`. Current Google Apps Script endpoint is the dedicated Medical deployment provided by the site owner.
+The browser-facing proxy URL is configured in `js/leaderboard-config.js` (expected Worker name: `medical-admission-api-proxy`). Its source is `workers/medical-api-proxy-worker.js`; deploy it as a new Worker. The Apps Script source of truth is the deployment URL embedded in that Worker.
 
 ## API actions used by the website
 
