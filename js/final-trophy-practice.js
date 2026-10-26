@@ -93,7 +93,16 @@
     const profile=document.getElementById('view-profile');
     if(!profile)return;
     const points=lifetimePoints();
-    const current=rankFromPoints(points);
+    let current=rankFromPoints(points);
+    const apiRankIndex=rankIndexForName(app.profile && app.profile.rank);
+    if(apiRankIndex>=0){
+      current={
+        index:apiRankIndex,
+        rank:trophyRanks[apiRankIndex],
+        left:Math.max(0,Number(app.profile.rankPoints)||0),
+        required:apiRankIndex>=trophyRanks.length-1?0:requiredRP(apiRankIndex)
+      };
+    }
     const rank=current.rank;
     let card=profile.querySelector('.lifetime-trophy-card');
     if(!card){
