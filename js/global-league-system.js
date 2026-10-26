@@ -12,9 +12,12 @@
     'Silver V','Silver IV','Silver III','Silver II','Silver I',
     'Gold V','Gold IV','Gold III','Gold II','Gold I',
     'Platinum V','Platinum IV','Platinum III','Platinum II','Platinum I',
+    'Emerald V','Emerald IV','Emerald III','Emerald II','Emerald I',
     'Diamond V','Diamond IV','Diamond III','Diamond II','Diamond I',
     'Master V','Master IV','Master III','Master II','Master I',
     'Grandmaster V','Grandmaster IV','Grandmaster III','Grandmaster II','Grandmaster I',
+    'Legend V','Legend IV','Legend III','Legend II','Legend I',
+    'Mythic V','Mythic IV','Mythic III','Mythic II','Mythic I',
     'Immortal'
   ];
   var PERIOD_KEY = 'med_sheet_leaderboard_period_v1';
@@ -168,11 +171,14 @@
     if (value.indexOf('silver') === 0) return 'silver';
     if (value.indexOf('gold') === 0) return 'gold';
     if (value.indexOf('platinum') === 0) return 'platinum';
+    if (value.indexOf('emerald') === 0) return 'emerald';
     if (value.indexOf('diamond') === 0) return 'diamond';
     if (value.indexOf('immortal') === 0) return 'immortal';
     if (value.indexOf('grandmaster') === 0) return 'grandmaster';
     if (value.indexOf('master') === 0) return 'master';
-    return 'legend';
+    if (value.indexOf('mythic') === 0) return 'mythic';
+    if (value.indexOf('legend') === 0) return 'legend';
+    return 'bronze';
   }
   function rankIcon(index) {
     if (index === RANKS.length - 1) return 'fa-crown';
@@ -459,7 +465,7 @@
       var active = rank === selectedRank;
       var svg = vault && typeof vault.trophySvgForIndex === 'function'
         ? vault.trophySvgForIndex(item.index, 'vault-rank-trophy-svg')
-        : '<span aria-hidden="true">🏆</span>';
+        : '<span class="vault-trophy-pending" aria-hidden="true"></span>';
       return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + '" data-med-rank="' + escapeHtml(rank) + '" aria-label="' + escapeHtml(rank) + ' trophy">' +
         svg + '<span>' + escapeHtml(rank) + '</span></button>';
     }).join('');
