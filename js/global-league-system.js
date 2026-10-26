@@ -489,6 +489,12 @@
       return;
     }
     var pct = Math.max(0, Math.min(100, earnedThisPeriod / required * 100));
+    if (!weeklyMode) {
+      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' Current RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
+        '<div class="mat-rank-track" role="progressbar" aria-label="Trophy rank progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '"><span style="width:' + pct + '%;background:linear-gradient(90deg,#a78bfa,#10b981)"></span></div>' +
+        '<div class="mat-rank-foot"><span>0 RP</span><span>' + required.toLocaleString() + ' RP</span></div>';
+      return;
+    }
     var markerPct = Math.max(0, Math.min(100, threshold / required * 100));
     var safe = earnedThisPeriod >= threshold;
     var remaining = Math.max(0, threshold - earnedThisPeriod);
