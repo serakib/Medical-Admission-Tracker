@@ -1,5 +1,5 @@
 /* Medical Admission Tracker — Firebase + dedicated Google Sheets API adapter.
- * Fallrush API/session/reward dependencies are intentionally not used.
+ * Medical profiles, exam rewards, ranks and leaderboard use this site's own backend.
  */
 (function () {
   'use strict';
@@ -415,7 +415,7 @@
         '<div class="mat-rule-list">' +
         '<details open><summary>🏅 Rank progression</summary><div>প্রতিটি league-এ Bronze V থেকে I, তারপর পরের league-এর V থেকে I। ধাপ বাদ দিয়ে promotion হয় না; Immortal সর্বোচ্চ rank।</div></details>' +
         '<details><summary>📅 Weekly leaderboard</summary><div>এই সপ্তাহে জমা হওয়া Medical RP দিয়ে Weekly ranking; All Time-এ মোট অর্জিত RP দিয়ে ranking।</div></details>' +
-        '<details><summary>⭐ XP & RP</summary><div>Medical XP ও RP নতুন Medical API-তে সংরক্ষিত। Fallrush-এর Coin বা XP এখানে ব্যবহার করা হয় না।</div></details>' +
+        '<details><summary>⭐ XP & RP</summary><div>Medical XP ও RP এই website-এর নিজস্ব API-তে সংরক্ষিত এবং আলাদা balance হিসেবে হিসাব হয়।</div></details>' +
         '<details><summary>🔐 Account & profile</summary><div>Registered account Firebase দিয়ে যাচাই হয়। Guest profile আলাদা Guest token দিয়ে সংরক্ষিত হয়।</div></details>' +
         '</div></div>';
       document.body.appendChild(rules);
