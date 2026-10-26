@@ -34,6 +34,7 @@
   var currentProfile = null;
   var identityPromise = null;
   var loadSequence = 0;
+  var suppressRankClickUntil = 0;
 
   function readPeriod() {
     try {
@@ -397,7 +398,7 @@
     style.textContent =
       '.mat-rank-banner{margin:0 0 20px;padding:20px 14px 18px;border-radius:22px;background:radial-gradient(circle at 50% 0,rgba(129,140,248,.3),transparent 45%),linear-gradient(145deg,#101a31,#172744 55%,#101827);border:1px solid rgba(148,163,184,.2);color:#f8fafc;overflow:hidden}' +
       '.mat-rank-head{text-align:center;display:flex;flex-direction:column;gap:4px;margin-bottom:12px}.mat-rank-head strong{font-size:11px;letter-spacing:.18em;color:#c4b5fd}.mat-rank-head small{font-size:12px;color:#cbd5e1}' +
-      '.mat-rank-rail{display:flex;align-items:center;width:min(100%,520px);max-width:520px;box-sizing:border-box;margin:0 auto;gap:8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;padding:9px 3px 12px;scroll-snap-type:x mandatory}.mat-rank-rail::-webkit-scrollbar{display:none}' +
+      '.mat-rank-rail{display:flex;align-items:center;width:min(100%,520px);max-width:520px;box-sizing:border-box;margin:0 auto;gap:8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;cursor:grab;user-select:none;padding:9px 3px 12px;scroll-snap-type:x mandatory}.mat-rank-rail.is-mouse-dragging{cursor:grabbing;scroll-snap-type:none}.mat-rank-rail::-webkit-scrollbar{display:none}' +
       '.mat-rank-tier{flex:0 0 76px;min-width:76px;min-height:88px;border:1px solid rgba(148,163,184,.22);border-radius:15px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;opacity:.67;transform:scale(.92);transition:transform .18s ease,opacity .18s ease,box-shadow .18s ease,border-color .18s ease;scroll-snap-align:center;color:#f8fafc;background:rgba(15,23,42,.72);cursor:pointer;font-size:11px;font-weight:850;text-align:center}.mat-rank-tier.is-active{flex-basis:118px;min-width:118px;min-height:108px;opacity:1;transform:scale(1);border-color:rgba(255,255,255,.6);box-shadow:0 0 0 2px rgba(255,255,255,.08),0 12px 26px rgba(0,0,0,.22)}.mat-rank-tier i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:18px;background:rgba(255,255,255,.1)}.mat-rank-tier.is-active i{width:43px;height:43px;font-size:22px}.mat-rank-tier small{font-size:8px;letter-spacing:.07em;opacity:.8}.mat-rank-tier.bronze i{color:#f1b47b;background:linear-gradient(145deg,#6e442c,#bd804f)}.mat-rank-tier.silver i{color:#e2e8f0;background:linear-gradient(145deg,#475569,#94a3b8)}.mat-rank-tier.gold i{color:#fff1aa;background:linear-gradient(145deg,#8b5e0b,#eab308)}.mat-rank-tier.platinum i{color:#ddd6fe;background:linear-gradient(145deg,#6d28d9,#a78bfa)}.mat-rank-tier.diamond i{color:#cffafe;background:linear-gradient(145deg,#0e7490,#67e8f9)}.mat-rank-tier.master i,.mat-rank-tier.grandmaster i,.mat-rank-tier.legend i,.mat-rank-tier.immortal i{color:#fde68a;background:linear-gradient(145deg,#7f1d1d,#f59e0b)}' +
       '.mat-rank-progress{padding:8px 9px 0}.mat-rank-progress-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.mat-rank-progress-line>span:first-child{display:flex;flex-direction:column;gap:3px}.mat-rank-progress-line strong{font-size:13px}.mat-rank-progress-line small,.mat-rank-foot{font-size:11px;color:#cbd5e1}.mat-rank-rp{font-weight:950;color:#fde68a;white-space:nowrap}.mat-rank-track{position:relative;height:11px;border-radius:99px;background:rgba(148,163,184,.25);margin:14px 10px 8px}.mat-rank-track>span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#a78bfa,#fbbf24);transition:width .35s ease}.mat-rank-track>i{position:absolute;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#fef3c7;color:#a16207;border:2px solid #fff7ed;box-shadow:0 2px 8px rgba(0,0,0,.3)}.mat-rank-foot{display:flex;justify-content:space-between;gap:8px}.mat-rank-locked{display:flex;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.25);border-radius:14px;padding:12px;background:rgba(15,23,42,.46);font-size:12px;line-height:1.6}' +
       '#med-rank-controls{position:fixed;z-index:9998;top:13px;right:16px;display:flex;align-items:center;justify-content:flex-end;gap:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;color:#f8fafc;pointer-events:none}#med-rank-controls .mat-top-icon{pointer-events:auto}body.exam-active #med-rank-controls{display:none}.mat-top-icon{position:relative;display:grid;place-items:center;width:39px;height:39px;border-radius:11px;border:1px solid rgba(148,163,184,.18);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:16px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}.mat-top-icon:hover{transform:translateY(-1px);border-color:rgba(110,231,183,.55);background:rgba(16,185,129,.12);box-shadow:0 7px 18px rgba(16,185,129,.12)}.mat-top-icon:first-child{color:#fb923c}.mat-streak-control{display:flex;align-items:center;justify-content:center;gap:6px;width:auto;min-width:98px;height:35px;padding:0 8px;border-color:rgba(251,146,60,.28);background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(245,158,11,.06))}.mat-streak-control>i{color:#fb923c;font-size:17px;filter:drop-shadow(0 0 5px rgba(251,146,60,.28))}.mat-top-streak-count{font-size:18px;line-height:1;font-weight:950;color:#fff7ed;font-variant-numeric:tabular-nums}.mat-streak-copy{font-size:8px;line-height:1.2;font-weight:950;letter-spacing:.08em;color:#fed7aa;white-space:nowrap}.mat-info-control{color:#c4b5fd;border-color:rgba(167,139,250,.4);background:linear-gradient(145deg,rgba(139,92,246,.22),rgba(79,70,229,.12));box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 15px rgba(139,92,246,.08)}.mat-info-glyph{display:grid;place-items:center;width:20px;height:20px;border:2px solid currentColor;border-radius:50%;font-family:Georgia,serif;font-style:normal;font-size:13px;font-weight:900;line-height:1;color:#ddd6fe;box-shadow:0 0 0 3px rgba(167,139,250,.09),inset 0 1px 3px rgba(255,255,255,.12)}.mat-info-control:hover .mat-info-glyph{background:rgba(167,139,250,.16);box-shadow:0 0 0 4px rgba(167,139,250,.12),0 0 12px rgba(167,139,250,.22)}.mat-top-rp{display:flex;align-items:center;gap:7px;height:39px;padding:0 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);color:#f8fafc;font-weight:950;white-space:nowrap;cursor:pointer}.mat-top-rp i{color:#facc15}' +
@@ -459,9 +460,39 @@
     }
   }
   function getMyRankEntry(rows) { return getMe(rows || []); }
+  function bindRankRailSwipe(rail) {
+    if (!rail || rail.dataset.rankSwipeBound === 'true') return;
+    rail.dataset.rankSwipeBound = 'true';
+    var dragging = false, didDrag = false, startX = 0, startScrollLeft = 0, activePointerId = null;
+    rail.addEventListener('pointerdown', function (event) {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      dragging = true;
+      didDrag = false;
+      startX = event.clientX;
+      startScrollLeft = rail.scrollLeft;
+      activePointerId = event.pointerId;
+      rail.classList.add('is-mouse-dragging');
+    });
+    document.addEventListener('pointermove', function (event) {
+      if (!dragging || event.pointerId !== activePointerId) return;
+      var delta = event.clientX - startX;
+      if (Math.abs(delta) > 4) didDrag = true;
+      if (didDrag) rail.scrollLeft = startScrollLeft - delta;
+    }, true);
+    document.addEventListener('pointerup', finish, true);
+    document.addEventListener('pointercancel', finish, true);
+    function finish(event) {
+      if (!dragging || (event && event.pointerId !== activePointerId)) return;
+      dragging = false;
+      rail.classList.remove('is-mouse-dragging');
+      if (didDrag) suppressRankClickUntil = Date.now() + 300;
+      activePointerId = null;
+    }
+  }
   function renderRankRail(rows) {
     var rail = document.getElementById('med-rank-rail');
     if (!rail) return;
+    bindRankRailSwipe(rail);
     var me = getMyRankEntry(rows || []);
     var vault = window.MedAchievementVaultTrophies;
     var vaultRanks = vault && typeof vault.getRanks === 'function'
@@ -928,6 +959,12 @@
   }
   function bindEvents() {
     document.addEventListener('click', async function (event) {
+      if (suppressRankClickUntil > Date.now() && event.target.closest && event.target.closest('#med-rank-rail')) {
+        suppressRankClickUntil = 0;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
       var periodButton = event.target.closest && event.target.closest('[data-leaderboard-period]');
       if (periodButton) {
         event.preventDefault();
