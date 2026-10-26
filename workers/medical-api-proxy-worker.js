@@ -9,7 +9,7 @@ const MAX_BODY_BYTES = 100 * 1024;
 const ALLOWED_ACTIONS = new Set([
   'health', 'createGuest', 'guestCreate', 'registerUser', 'signup', 'login',
   'profile', 'getProfile', 'updateProfile', 'saveProfile',
-  'leaderboard', 'getLeaderboard', 'submitExam', 'recordExam', 'gameEnd'
+  'leaderboard', 'getLeaderboard', 'submitExam', 'recordExam'
 ]);
 
 export default {
