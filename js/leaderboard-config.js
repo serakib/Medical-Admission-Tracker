@@ -1,6 +1,7 @@
-/* Medical Admission Tracker — dedicated Google Sheets Apps Script API.
- * Medical profile, leaderboard and reward data stay separate from every other website.
- * If browser fetch is blocked by Apps Script CORS/redirect behaviour, deploy the
- * separate medical API proxy Worker and replace this URL with its /exec-equivalent base URL.
+/* Medical Admission Tracker — independent Sheets API proxy.
+ * Deploy workers/medical-api-proxy-worker.js as a NEW Cloudflare Worker named
+ * "medical-admission-api-proxy" under the site's existing workers.dev account.
+ * The Worker forwards to the dedicated Medical Google Apps Script + Sheets backend.
+ * Do not replace the separate Student Support / AI Worker.
  */
-window.MED_LEADERBOARD_API_URL = 'https://script.google.com/macros/s/AKfycbycNshXdkJCyqGIJfN4iEZOe1nDv-RQh9n9r7iKuTUiroJu_ey6enWt2X1ILlEgrtreuQ/exec';
+window.MED_LEADERBOARD_API_URL = 'https://medical-admission-api-proxy.asrafuldcg.workers.dev';
