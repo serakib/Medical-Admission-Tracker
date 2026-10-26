@@ -189,3 +189,25 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
 .mat-student-profile-stat>small{display:block!important;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
 .mat-student-profile-stat>strong{display:block!important;width:auto;max-width:100%;min-width:0;margin:6px 0 0!important;padding:0!important;clip-path:none!important;text-indent:0!important;transform:none!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere;line-height:1.35}
 #student-profile-rank{display:block!important;position:static!important;padding:0!important;margin:6px 0 0!important;clip-path:none!important;text-indent:0!important;transform:none!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere}
+
+
+/* Friends: clickable search results, clear pending states, and a visible accepted-friends roster. */
+.mat-friend-search-result{cursor:pointer;transition:border-color .15s,background-color .15s,transform .15s}
+.mat-friend-search-result:hover{border-color:rgba(16,185,129,.55);background:rgba(16,185,129,.07);transform:translateY(-1px)}
+.mat-friend-search-result:focus-visible{outline:3px solid rgba(16,185,129,.45);outline-offset:2px}
+.mat-friend-search-action{gap:5px;flex-wrap:wrap}
+.mat-friend-search-action .mat-row-friend-button{margin:0}
+.mat-row-friend-button.danger{color:#dc2626;border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.06)}
+.dark .mat-row-friend-button.danger{color:#fca5a5;border-color:rgba(248,113,113,.4)}
+.mat-friend-state.pending{color:#b45309;background:rgba(245,158,11,.12)}
+.mat-friend-state.incoming{color:#0369a1;background:rgba(14,165,233,.12)}
+.mat-friend-section{margin-top:14px}
+.mat-friend-section-title{margin:0 0 8px;font-size:10px;font-weight:950;letter-spacing:.1em;color:var(--muted,#64748b)}
+.mat-friend-request-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.mat-friend-profile-link{display:block;align-self:flex-start;padding:0;border:0;background:transparent;color:var(--text,#0f172a);font-size:13px;font-weight:900;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+.mat-friend-profile-link:hover{color:#059669;text-decoration:underline}
+.dark .mat-friend-profile-link{color:var(--text,#f8fafc)}
+#leaderboard-friend-status{padding:10px 12px;border-radius:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);line-height:1.5}
+#leaderboard-friend-status.text-red-600{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.25)}
+#leaderboard-friend-status.text-emerald-700{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)}
+@media(max-width:520px){.mat-friend-search-action{width:100%;padding-left:52px;justify-content:flex-start}.mat-friend-search-action .mat-row-friend-button{margin:0}.mat-friends-request{align-items:flex-start;flex-wrap:wrap}.mat-friends-request .mat-profile-actions{width:100%;padding-left:52px}.mat-friend-profile-link{max-width:100%}}

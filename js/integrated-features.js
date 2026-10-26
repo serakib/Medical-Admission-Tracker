@@ -912,7 +912,10 @@
           const expectedAvatar = stripMarker(serverAvatar);
           const ownId = String(app.authUser?.uid || app.profile?.userId || app.profile?.uid || '');
           let publicRow = null;
-          if (ownId && typeof window.MedGlobalLeague?.getCachedRows === 'function') {
+          if (ownId && typeof window.MedGlobalLeague?.verifyPublicAvatar === 'function') {
+            // Fetch an authoritative, fresh All Time response that explicitly includes this user.
+            publicRow = await window.MedGlobalLeague.verifyPublicAvatar(ownId);
+          } else if (ownId && typeof window.MedGlobalLeague?.getCachedRows === 'function') {
             ['all-time', 'weekly', 'friends'].some(period => {
               const rows = window.MedGlobalLeague.getCachedRows(period);
               publicRow = (Array.isArray(rows) ? rows : []).find(row =>

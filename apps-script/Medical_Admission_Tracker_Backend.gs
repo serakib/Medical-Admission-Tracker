@@ -116,6 +116,8 @@ function matDispatch_(action, p) {
     case 'leaderboard':
     case 'getLeaderboard':
       return matGetLeaderboard_(String((p && p.period) || 'all-time'), p && p.userIds);
+    case 'searchStudents':
+      return matSearchStudents_(p || {});
     case 'friendConnections':
       return matFriendConnections_(p || {});
     case 'sendFriendRequest':
@@ -1119,6 +1121,40 @@ function matTelegramSend_(message) {
 }
 
 
+/* ---------------------------- Authenticated student search --------------------- */
+/**
+ * Search the student directory without returning private email/token fields.
+ * Only authenticated students can query it.
+ */
+function matSearchStudents_(p) {
+  p = p || {};
+  const viewer = matAuthenticate_(p);
+  const query = matCleanText_(p.query || p.term || p.q || '', 80).toLowerCase();
+  if (query.length < 2) return { success: true, query: query, count: 0, entries: [], users: [] };
+
+  const tokens = query.split(/\s+/).filter(Boolean);
+  const requestedLimit = Number(p.limit);
+  const limit = Number.isFinite(requestedLimit)
+    ? Math.min(20, Math.max(1, Math.floor(requestedLimit)))
+    : 12;
+  const matched = matReadObjects_(matGetStudentsSheet_()).map(matNormaliseStudent_).filter(function (student) {
+    if (String(student.UserID || '') === String(viewer.UserID || '')) return false;
+    const searchable = [student.Name, student.College, student.Batch].join(' ').toLowerCase();
+    return tokens.every(function (token) { return searchable.indexOf(token) >= 0; });
+  });
+  matched.sort(function (a, b) {
+    const nameA = String(a.Name || '').toLowerCase();
+    const nameB = String(b.Name || '').toLowerCase();
+    const prefixA = nameA.indexOf(query) === 0 ? 0 : 1;
+    const prefixB = nameB.indexOf(query) === 0 ? 0 : 1;
+    return prefixA - prefixB || nameA.localeCompare(nameB);
+  });
+  const entries = matched.slice(0, limit).map(function (student) {
+    return matPublicProfile_(student, false);
+  });
+  return { success: true, query: query, count: matched.length, entries: entries, users: entries };
+}
+
 /* -------------------------- Google Sheets friendships -------------------------- */
 function matFriendAuthenticate_(p) {
   // Firebase users and persistent Google Sheets guest sessions can both use Friends.
@@ -1165,7 +1201,17 @@ function matFriendConnections_(p) {
     if (String(row.ToUserID || '') === uid) incoming.push(matFriendPublicRequest_(row, true));
     if (String(row.FromUserID || '') === uid) outgoing.push(matFriendPublicRequest_(row, false));
   });
-  return { success: true, friendIds: Array.from(friendIds), incoming: incoming, outgoing: outgoing };
+  const studentById = {};
+  matReadObjects_(matGetStudentsSheet_()).forEach(function (student) {
+    const id = String(student.UserID || '');
+    if (id) studentById[id] = matNormaliseStudent_(student);
+  });
+  const friends = Array.from(friendIds).map(function (id) {
+    return studentById[id] ? matPublicProfile_(studentById[id], false) : null;
+  }).filter(Boolean).sort(function (a, b) {
+    return String(a.name || '').localeCompare(String(b.name || ''));
+  });
+  return { success: true, friendIds: Array.from(friendIds), friends: friends, incoming: incoming, outgoing: outgoing };
 }
 
 function matSendFriendRequest_(p) {

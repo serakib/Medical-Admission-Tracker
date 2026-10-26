@@ -5,6 +5,7 @@
   app.__leaderboardExperienceInstalled = true;
 
   let acceptedFriendIds = new Set();
+  let acceptedFriends = [];
   let incomingRequests = [];
   let outgoingRequests = [];
   let lastConnectionLoad = 0;
@@ -108,20 +109,27 @@
 
   async function loadConnections(force = false) {
     if (!canManageFriends()) {
-      acceptedFriendIds = new Set(); incomingRequests = []; outgoingRequests = [];
+      acceptedFriendIds = new Set(); acceptedFriends = []; incomingRequests = []; outgoingRequests = [];
       lastConnectionLoad = Date.now();
-      return { friendIds: [], incoming: [], outgoing: [] };
+      return getConnectionData();
     }
     if (!force && connectionLoadPromise) return connectionLoadPromise;
     if (!force && Date.now() - lastConnectionLoad < 4000) {
-      return { friendIds: Array.from(acceptedFriendIds), incoming: incomingRequests, outgoing: outgoingRequests };
+      return getConnectionData();
     }
     connectionLoadPromise = (async () => {
       try {
         const data = await friendApi('friendConnections');
         acceptedFriendIds = new Set((data.friendIds || []).map(String).filter(id => id && id !== userId()));
+        acceptedFriends = Array.isArray(data.friends) ? data.friends : [];
         incomingRequests = Array.isArray(data.incoming) ? data.incoming : [];
         outgoingRequests = Array.isArray(data.outgoing) ? data.outgoing : [];
+        if (!acceptedFriends.length && acceptedFriendIds.size && window.MedGlobalLeague?.getCachedRows) {
+          const cachedProfiles = ['all-time', 'weekly', 'friends'].flatMap(period => window.MedGlobalLeague.getCachedRows(period) || []);
+          acceptedFriends = Array.from(acceptedFriendIds).map(id => cachedProfiles.find(row =>
+            String(row?.userId || row?.uid || row?.playerId || row?.raw?.userId || '') === id
+          )).filter(Boolean);
+        }
         lastConnectionLoad = Date.now();
         lastFriendError = '';
         renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
@@ -141,6 +149,14 @@
   }
 
   function getFriendIds() { return Array.from(acceptedFriendIds); }
+  function getConnectionData() {
+    return {
+      friendIds: Array.from(acceptedFriendIds),
+      friends: acceptedFriends.slice(),
+      incoming: incomingRequests.slice(),
+      outgoing: outgoingRequests.slice()
+    };
+  }
   function getRelationship(targetId) {
     const uid = userId(), id = String(targetId || '');
     if (!id) return 'unknown';
@@ -205,14 +221,32 @@
       return;
     }
     const incomingMarkup = incomingRequests.map(request =>
-      '<div class="mat-friends-request"><div class="min-w-0"><strong>' + escapeHTML(request.fromName || 'Student') + '</strong><small>' + escapeHTML([request.fromCollege, request.fromBatch].filter(Boolean).join(' · ') || 'Friend request') + '</small></div><div class="mat-profile-actions"><button type="button" class="primary" data-friend-action="accept" data-request-id="' + escapeHTML(request.id) + '">Accept</button><button type="button" data-friend-action="reject" data-request-id="' + escapeHTML(request.id) + '">Reject</button></div></div>'
+      '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' +
+      avatarMarkup({ userId: request.fromUid, name: request.fromName }) +
+      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.fromUid) + '">' + escapeHTML(request.fromName || 'Student') + '</button><small>' +
+      escapeHTML([request.fromCollege, request.fromBatch].filter(Boolean).join(' · ') || 'Incoming friend request') +
+      '</small></div><div class="mat-profile-actions"><button type="button" class="primary" data-friend-action="accept" data-request-id="' + escapeHTML(request.id) + '">Accept</button><button type="button" data-friend-action="reject" data-request-id="' + escapeHTML(request.id) + '">Reject</button></div></div>'
     ).join('');
     const outgoingMarkup = outgoingRequests.map(request =>
-      '<div class="mat-friends-request"><div class="min-w-0"><strong>' + escapeHTML(request.toName || 'Student') + '</strong><small>Request sent · pending</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id) + '">Cancel</button></div></div>'
+      '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' +
+      avatarMarkup({ userId: request.toUid, name: request.toName }) +
+      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + escapeHTML(request.toName || 'Student') + '</button><small>Request sent · pending</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id) + '">Cancel</button></div></div>'
     ).join('');
-    list.innerHTML = (incomingMarkup || outgoingMarkup)
-      ? (incomingMarkup || '') + (outgoingMarkup ? '<div class="mt-4"><h4 class="text-xs font-extrabold text-gray-500 dark:text-gray-400 mb-2">SENT REQUESTS</h4>' + outgoingMarkup + '</div>' : '')
-      : '<div class="mat-profile-empty">এখন কোনো pending friend request নেই। Student-এর profile খুলে Add Friend চাপলে request পাঠানো যাবে।</div>';
+    const friendsMarkup = acceptedFriends.map(friend => {
+      const id = String(friend.userId || friend.uid || friend.playerId || '');
+      return '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' + avatarMarkup(friend) +
+        '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(id) + '">' +
+        escapeHTML(friend.name || friend.username || 'Student') + '</button><small>' +
+        escapeHTML([friend.college || friend.College, friend.batch || friend.Batch].filter(Boolean).join(' · ') || 'Accepted friend') +
+        '</small></div><div class="mat-profile-actions"><button type="button" class="danger" data-friend-action="remove" data-target-id="' + escapeHTML(id) + '">Remove Friend</button></div></div>';
+    }).join('');
+    const section = (title, markup, count) => markup
+      ? '<section class="mat-friend-section"><h4 class="mat-friend-section-title">' + title + ' (' + count + ')</h4>' + markup + '</section>'
+      : '';
+    const content = section('INCOMING REQUESTS', incomingMarkup, incomingRequests.length) +
+      section('SENT REQUESTS · PENDING', outgoingMarkup, outgoingRequests.length) +
+      section('YOUR FRIENDS', friendsMarkup, acceptedFriends.length);
+    list.innerHTML = content || '<div class="mat-profile-empty">এখন কোনো pending request বা accepted friend নেই। Student search থেকে Add Friend চাপুন।</div>';
   }
 
   const defaultProfilePortraits = Array.from({length:24}, (_, i) => 'https://i.pravatar.cc/120?img=' + (i + 1));
@@ -326,23 +360,24 @@
   }
 
   async function handleFriendAction(action, targetId, requestId) {
+    let successMessage = '';
     try {
       if (action === 'add') {
         await sendRequest(activePublicProfile || { userId: targetId, name: 'Student' });
-        setStatus('Friend request পাঠানো হয়েছে।', false);
+        successMessage = 'Friend request successfully sent. এখন request pending আছে; চাইলে Cancel করতে পারবেন।';
       } else if (action === 'remove') {
         if (!window.confirm('এই student-কে Friends থেকে remove করবেন?')) return;
         await removeFriend(targetId);
-        setStatus('Friend remove করা হয়েছে।', false);
+        successMessage = 'Friend removed successfully. চাইলে আবার Friend Request পাঠাতে পারবেন।';
       } else if (action === 'accept') {
         await acceptRequest(requestId);
-        setStatus('Friend request accepted।', false);
+        successMessage = 'Friend request accepted successfully. এখন student আপনার Friends list-এ আছে।';
       } else if (action === 'reject') {
         await rejectRequest(requestId);
-        setStatus('Friend request rejected।', false);
+        successMessage = 'Friend request rejected.';
       } else if (action === 'cancel') {
         await cancelRequest(requestId);
-        setStatus('Friend request cancelled।', false);
+        successMessage = 'Friend request cancelled successfully. এখন চাইলে আবার পাঠাতে পারবেন।';
       } else if (action === 'edit-profile') {
         app.openAccountProfile();
         return;
@@ -361,9 +396,15 @@
         else if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
         return;
       }
+      await loadConnections(true);
       if (activePublicProfile) renderRelationshipActions(activePublicProfile);
+      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') window.MedGlobalLeague.refreshFriendDirectory();
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.reload === 'function') await window.MedGlobalLeague.reload();
       renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+      if (successMessage) {
+        setStatus(successMessage, false);
+        setFriendPanelStatus(successMessage, false);
+      }
     } catch (error) {
       setStatus(errorMessage(error), true);
       setFriendPanelStatus(errorMessage(error), true);
@@ -382,11 +423,12 @@
     if (requestAction) {
       event.preventDefault();
       event.stopPropagation();
-      await handleFriendAction(requestAction.dataset.friendAction, '', requestAction.dataset.requestId);
+      await handleFriendAction(requestAction.dataset.friendAction, requestAction.dataset.targetId || '', requestAction.dataset.requestId);
     }
   });
   document.addEventListener('student-auth-state-resolved', () => {
     acceptedFriendIds = new Set();
+    acceptedFriends = [];
     incomingRequests = [];
     outgoingRequests = [];
     lastConnectionLoad = 0;
@@ -400,6 +442,7 @@
     loadConnections,
     getLastConnectionError: () => lastFriendError,
     getFriendIds,
+    getConnectionData,
     getRelationship,
     renderRequestPanel,
     sendRequest,

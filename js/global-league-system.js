@@ -20,6 +20,8 @@
   function avatarIdForRow(row) { return String(row && (row.userId || row.uid || row.playerId || row.id || row.name) || 'guest'); }
   var friendDirectoryRows = [];
   var friendDirectoryLoadPromise = null;
+  var friendDirectorySearchSequence = 0;
+  var friendDirectorySearchTimer = null;
   var RANKS = [
     'Bronze V','Bronze IV','Bronze III','Bronze II','Bronze I',
     'Silver V','Silver IV','Silver III','Silver II','Silver I',
@@ -944,8 +946,10 @@
       var rows = normalizeRows(entries);
       saveCache(rows, selectedPeriod);
       if (selectedPeriod === 'all-time') {
-        friendDirectoryRows = rows;
-        renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
+        var directoryQuery = String((document.getElementById('leaderboard-friend-search') || {}).value || '').trim();
+        // Search results come from the full server-side directory; never replace
+        // them with only the public Top-100 leaderboard cache.
+        if (directoryQuery.length < 2) renderFriendDirectory(directoryQuery);
       }
       renderRows(rows);
       var weekLabel = response && response.weekStart ? ' · week of ' + response.weekStart : '';
@@ -1050,6 +1054,19 @@
     var row = normalizeRows(rawRows).find(function (entry) { return String(entry.userId) === targetId; }) ||
       normalizeRows(friendDirectoryRows).find(function (entry) { return String(entry.userId) === targetId; }) ||
       normalizeRows(getCache('all-time')).find(function (entry) { return String(entry.userId) === targetId; });
+    if (!row && window.MedStudentFriends && typeof window.MedStudentFriends.getConnectionData === 'function') {
+      var connectionData = window.MedStudentFriends.getConnectionData();
+      var person = (connectionData.friends || []).find(function (item) { return String(item.userId || item.uid || item.playerId || '') === targetId; });
+      if (!person) {
+        var request = (connectionData.incoming || []).find(function (item) { return String(item.fromUid) === targetId; }) ||
+          (connectionData.outgoing || []).find(function (item) { return String(item.toUid) === targetId; });
+        if (request) person = {
+          userId: targetId, name: request.fromUid === targetId ? request.fromName : request.toName,
+          college: request.fromUid === targetId ? request.fromCollege : '', batch: request.fromUid === targetId ? request.fromBatch : ''
+        };
+      }
+      if (person) row = normalizeRows([person])[0] || null;
+    }
     if (!row) return;
     if (window.MedStudentProfile && typeof window.MedStudentProfile.open === 'function') {
       window.MedStudentProfile.open(row);
@@ -1141,7 +1158,16 @@
       if (list && list.parentNode === panel) panel.insertBefore(region, list);
       else panel.appendChild(region);
       var input = region.querySelector('#leaderboard-friend-search');
-      if (input) input.addEventListener('input', function () { renderFriendDirectory(input.value); });
+      if (input) input.addEventListener('input', function () {
+        if (friendDirectorySearchTimer) clearTimeout(friendDirectorySearchTimer);
+        friendDirectoryRows = [];
+        renderFriendDirectory(input.value);
+        var searchTerm = String(input.value || '').trim();
+        if (searchTerm.length < 2) return;
+        friendDirectorySearchTimer = setTimeout(function () {
+          loadFriendDirectoryRows(searchTerm).catch(function () {});
+        }, 350);
+      });
     }
     return region;
   }
@@ -1158,16 +1184,16 @@
     var results = region.querySelector('#leaderboard-friend-search-results');
     if (!results) return;
     var term = String(query || '').trim().toLowerCase();
-    if (!friendDirectoryRows.length) {
-      results.innerHTML = '<p class="mat-profile-empty">Student list load হচ্ছে…</p>';
-      return;
-    }
     if (term.length < 2) {
       results.innerHTML = '<p class="mat-profile-empty">কাউকে খুঁজতে নাম, কলেজ বা batch-এর অন্তত ২টি অক্ষর লিখুন।</p>';
       return;
     }
-    var matches = normalizeRows(friendDirectoryRows).filter(function (row) {
-      if (row.isMine || String(row.userId) === String(currentUserId())) return false;
+    if (!friendDirectoryRows.length) {
+      results.innerHTML = '<p class="mat-profile-empty">Student directory-তে খোঁজা হচ্ছে…</p>';
+      return;
+    }
+    var matches = friendDirectoryRows.filter(function (row) {
+      if (!row || row.isMine || String(row.userId) === String(currentUserId())) return false;
       return [row.name, row.college, row.batch].some(function (value) {
         return String(value || '').toLowerCase().indexOf(term) >= 0;
       });
@@ -1176,21 +1202,34 @@
       results.innerHTML = '<p class="mat-profile-empty">কোনো student মেলেনি। বানান বা college/batch দিয়ে আবার খুঁজুন।</p>';
       return;
     }
+    var connections = window.MedStudentFriends && typeof window.MedStudentFriends.getConnectionData === 'function'
+      ? window.MedStudentFriends.getConnectionData() : { incoming: [], outgoing: [] };
+    var outgoing = Array.isArray(connections.outgoing) ? connections.outgoing : [];
+    var incoming = Array.isArray(connections.incoming) ? connections.incoming : [];
     results.innerHTML = matches.map(function (row) {
+      var uid = String(row.userId || '');
       var relation = window.MedStudentFriends && typeof window.MedStudentFriends.getRelationship === 'function'
-        ? window.MedStudentFriends.getRelationship(String(row.userId)) : 'unknown';
-      var relationLabel = relation === 'friends' ? '<span class="mat-friend-state">Friends</span>'
-        : relation === 'outgoing' ? '<span class="mat-friend-state">Request Sent</span>'
-        : relation === 'incoming' ? '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">Review Request</button>'
-        : (window.MedStudentFriends && typeof window.MedStudentFriends.canManageFriends === 'function' && window.MedStudentFriends.canManageFriends())
-          ? '<button type="button" class="mat-row-friend-button" data-med-friend-send="' + escapeHtml(row.userId) + '" data-med-friend-name="' + escapeHtml(row.name || 'Student') + '"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>'
-          : '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">View Profile</button>';
+        ? window.MedStudentFriends.getRelationship(uid) : 'unknown';
+      var outRequest = outgoing.find(function (item) { return String(item.toUid) === uid; });
+      var inRequest = incoming.find(function (item) { return String(item.fromUid) === uid; });
+      var relationLabel = '';
+      if (relation === 'friends') {
+        relationLabel = '<span class="mat-friend-state">Friends</span><button type="button" class="mat-row-friend-button danger" data-med-friend-remove="' + escapeHtml(uid) + '"><i class="fa-solid fa-user-minus" aria-hidden="true"></i> Remove Friend</button>';
+      } else if (relation === 'outgoing') {
+        relationLabel = '<span class="mat-friend-state pending">Request Pending</span><button type="button" class="mat-row-friend-button" data-med-friend-cancel-request="' + escapeHtml(outRequest && outRequest.id || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>';
+      } else if (relation === 'incoming') {
+        relationLabel = '<span class="mat-friend-state incoming">Incoming Request</span><button type="button" class="mat-row-friend-button" data-med-friend-accept-request="' + escapeHtml(inRequest && inRequest.id || '') + '"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Accept</button><button type="button" class="mat-row-friend-button danger" data-med-friend-reject-request="' + escapeHtml(inRequest && inRequest.id || '') + '">Reject</button>';
+      } else {
+        relationLabel = (window.MedStudentFriends && typeof window.MedStudentFriends.canManageFriends === 'function' && window.MedStudentFriends.canManageFriends())
+          ? '<button type="button" class="mat-row-friend-button" data-med-friend-send="' + escapeHtml(uid) + '" data-med-friend-name="' + escapeHtml(row.name || 'Student') + '"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>'
+          : '<span class="mat-friend-state">Open Profile</span>';
+      }
       var details = [
         row.college ? 'College: ' + row.college : '',
         formatStudentBatch(row.batch) ? 'Class/Batch: ' + formatStudentBatch(row.batch) : '',
         row.rank ? 'Rank: ' + row.rank + ' · Level ' + Math.max(1, Number(row.level) || 1) : ''
       ].filter(Boolean);
-      return '<article class="mat-friend-search-result" role="listitem">' +
+      return '<article class="mat-friend-search-result" data-med-friend-open-profile="' + escapeHtml(uid) + '" role="button" tabindex="0" aria-label="Open ' + escapeHtml(row.name || 'Student') + ' profile">' +
         '<span class="mat-friend-search-avatar">' + avatarMarkup(row) + '</span>' +
         '<div class="mat-friend-search-copy"><strong>' + escapeHtml(row.name || 'Student') + '</strong><small>' +
         escapeHtml(details.join(' | ') || 'Medical student') +
@@ -1198,35 +1237,44 @@
     }).join('');
   }
 
-  async function loadFriendDirectoryRows() {
+  async function loadFriendDirectoryRows(query) {
     ensureFriendDirectory();
     var input = document.getElementById('leaderboard-friend-search');
-    var query = input ? input.value : '';
-    var cached = getCache('all-time');
-    if (cached.length) {
-      friendDirectoryRows = normalizeRows(cached.map(function (row) { return row && row.raw ? row.raw : row; }));
-      renderFriendDirectory(query);
-      return friendDirectoryRows;
+    var searchTerm = safeText(query != null ? query : (input ? input.value : ''), 80);
+    if (searchTerm.length < 2) {
+      friendDirectoryRows = [];
+      renderFriendDirectory(searchTerm);
+      return [];
     }
-    if (friendDirectoryLoadPromise) return friendDirectoryLoadPromise;
-    friendDirectoryLoadPromise = (async function () {
-      var results = document.getElementById('leaderboard-friend-search-results');
+    var sequence = ++friendDirectorySearchSequence;
+    friendDirectoryRows = [];
+    renderFriendDirectory(searchTerm);
+    var results = document.getElementById('leaderboard-friend-search-results');
+    var load = (async function () {
       try {
         await syncIdentity();
-        var response = await request({ action: 'leaderboard', period: 'all-time' }, { method: 'GET' });
-        var entries = extractEntries(response);
+        var credentials = await credentialsForCurrentUser();
+        const response = await request(Object.assign({
+          action: 'searchStudents', query: searchTerm, limit: 20
+        }, credentials), { method: 'POST' });
+        const entries = extractEntries(response);
+        if (sequence !== friendDirectorySearchSequence) return [];
+        const currentQuery = String((document.getElementById('leaderboard-friend-search') || {}).value || '').trim();
+        if (currentQuery.toLowerCase() !== searchTerm.toLowerCase()) return [];
         friendDirectoryRows = normalizeRows(entries);
-        saveCache(friendDirectoryRows, 'all-time');
-        renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || query);
+        renderFriendDirectory(searchTerm);
         return friendDirectoryRows;
       } catch (error) {
-        if (results) results.innerHTML = '<p class="mat-profile-empty">Student directory load হয়নি: ' + escapeHtml(apiErrorMessage(error)) + '</p>';
+        if (sequence === friendDirectorySearchSequence && results) {
+          results.innerHTML = '<p class="mat-profile-empty">Student directory load হয়নি: ' + escapeHtml(apiErrorMessage(error)) + '</p>';
+        }
         throw error;
       } finally {
-        friendDirectoryLoadPromise = null;
+        if (friendDirectoryLoadPromise === load) friendDirectoryLoadPromise = null;
       }
     })();
-    return friendDirectoryLoadPromise;
+    friendDirectoryLoadPromise = load;
+    return load;
   }
 
   function setFriendActionStatus(message, isError) {
@@ -1301,30 +1349,50 @@
         if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         return;
       }
-      var friendSend = event.target.closest && event.target.closest('[data-med-friend-send]');
-      if (friendSend) {
+      var friendActionButton = event.target.closest && event.target.closest(
+        '[data-med-friend-send],[data-med-friend-cancel-request],[data-med-friend-remove],[data-med-friend-accept-request],[data-med-friend-reject-request]'
+      );
+      if (friendActionButton) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        var friendSendId = String(friendSend.dataset.medFriendSend || '');
-        var friendSendName = String(friendSend.dataset.medFriendName || 'Student');
-        if (!window.MedStudentFriends || typeof window.MedStudentFriends.sendRequest !== 'function') {
+        var friendsApi = window.MedStudentFriends;
+        if (!friendsApi) {
           setFriendActionStatus('Friends system এখনও load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
           return;
         }
-        friendSend.disabled = true;
-        window.MedStudentFriends.sendRequest({ userId: friendSendId, uid: friendSendId, name: friendSendName })
-          .then(async function () {
-            if (window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
-              await window.MedStudentFriends.loadConnections(true);
-            }
-            setFriendActionStatus('Friend request পাঠানো হয়েছে।', false);
-            renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
-            await loadLeaderboard(true);
-          })
-          .catch(function (error) {
-            setFriendActionStatus(String(error && error.message || error || 'Friend request পাঠানো যায়নি।'), true);
-            friendSend.disabled = false;
-          });
+        var friendAction = friendActionButton.hasAttribute('data-med-friend-send') ? 'send'
+          : friendActionButton.hasAttribute('data-med-friend-cancel-request') ? 'cancel'
+          : friendActionButton.hasAttribute('data-med-friend-remove') ? 'remove'
+          : friendActionButton.hasAttribute('data-med-friend-accept-request') ? 'accept' : 'reject';
+        var targetId = String(friendActionButton.dataset.medFriendSend || friendActionButton.dataset.medFriendRemove || '');
+        var requestId = String(friendActionButton.dataset.medFriendCancelRequest || friendActionButton.dataset.medFriendAcceptRequest || friendActionButton.dataset.medFriendRejectRequest || '');
+        var friendName = String(friendActionButton.dataset.medFriendName || 'Student');
+        if (friendAction === 'remove' && !window.confirm('এই student-কে Friends list থেকে remove করবেন?')) return;
+        var busyText = friendAction === 'send' ? 'Friend request পাঠানো হচ্ছে…'
+          : friendAction === 'cancel' ? 'Friend request cancel হচ্ছে…'
+          : friendAction === 'remove' ? 'Friend remove হচ্ছে…'
+          : friendAction === 'accept' ? 'Friend request accept হচ্ছে…' : 'Friend request reject হচ্ছে…';
+        var successText = friendAction === 'send' ? 'Friend request successfully sent. এখন SENT REQUESTS-এ pending দেখাবে; চাইলে Cancel করতে পারবেন।'
+          : friendAction === 'cancel' ? 'Friend request cancelled successfully. এখন চাইলে আবার Add Friend করতে পারবেন।'
+          : friendAction === 'remove' ? 'Friend removed successfully. চাইলে আবার Friend Request পাঠাতে পারবেন।'
+          : friendAction === 'accept' ? 'Friend request accepted successfully. এখন Friends list-এ দেখা যাবে।'
+          : 'Friend request rejected successfully.';
+        setFriendActionStatus(busyText, false);
+        friendActionButton.disabled = true;
+        try {
+          if (friendAction === 'send') await friendsApi.sendRequest({ userId: targetId, uid: targetId, name: friendName });
+          else if (friendAction === 'cancel') await friendsApi.cancelRequest(requestId);
+          else if (friendAction === 'remove') await friendsApi.removeFriend(targetId);
+          else if (friendAction === 'accept') await friendsApi.acceptRequest(requestId);
+          else await friendsApi.rejectRequest(requestId);
+          await friendsApi.loadConnections(true);
+          renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
+          setFriendActionStatus(successText, false);
+          await loadLeaderboard(true);
+        } catch (error) {
+          setFriendActionStatus(String(error && error.message || error || 'Friend action সম্পন্ন হয়নি।'), true);
+          friendActionButton.disabled = false;
+        }
         return;
       }
       var friendOpenProfile = event.target.closest && event.target.closest('[data-med-friend-open-profile]');
@@ -1382,6 +1450,10 @@
     }, true);
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Enter' && event.key !== ' ') return;
+      var searchResult = event.target.closest && event.target.closest('.mat-friend-search-result[data-med-friend-open-profile]');
+      if (searchResult && !(event.target.closest && event.target.closest('button'))) {
+        event.preventDefault(); event.stopImmediatePropagation(); showPublicProfile(searchResult.dataset.medFriendOpenProfile); return;
+      }
       var player = event.target.closest && event.target.closest('[data-med-player]');
       if (player) { event.preventDefault(); event.stopImmediatePropagation(); showPublicProfile(player.dataset.medPlayer); }
     });
@@ -1427,6 +1499,16 @@
     }
   }
 
+  async function verifyPublicAvatar(userId) {
+    var targetId = String(userId || currentUserId() || '');
+    if (!targetId) return null;
+    var response = await request({ action: 'leaderboard', period: 'all-time', includeUserIds: [targetId] }, { method: 'GET' });
+    var entries = extractEntries(response);
+    return entries.find(function (entry) {
+      return String(entry.userId || entry.uid || entry.playerId || entry.UserID || '') === targetId;
+    }) || null;
+  }
+
   app.getDemoLeaderboardRows = function () { return []; };
   app.getLocalLeaderboardRows = function () { return getCache('all-time'); };
   app.setLocalLeaderboardRows = function (rows) { return saveCache(rows, 'all-time'); };
@@ -1445,6 +1527,11 @@
     registerUser: registerUser,
     updateProfile: updateProfile,
     getCachedRows: getCache,
+    verifyPublicAvatar: verifyPublicAvatar,
+    refreshFriendDirectory: function () {
+      var input = document.getElementById('leaderboard-friend-search');
+      renderFriendDirectory(input ? input.value : '');
+    },
     getRanks: function () { return RANKS.slice(); },
     flushPending: flushQueue,
     reload: function () { return loadLeaderboard(true); }
