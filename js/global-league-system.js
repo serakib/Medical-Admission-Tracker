@@ -921,13 +921,22 @@
         event.preventDefault();
         var status = document.getElementById('medical-profile-save-status');
         var button = document.getElementById('medical-profile-save');
+        var submittedName = safeText((document.getElementById('medical-profile-name') || {}).value || '', 80);
+        var submittedCollege = safeText((document.getElementById('medical-profile-college') || {}).value || '', 120);
+        var submittedBatch = safeText((document.getElementById('medical-profile-batch') || {}).value || '', 40);
+        if (submittedName.length < 2 || !submittedCollege || !submittedBatch) {
+          if (status) status.textContent = 'Leaderboard খুলতে Name, College ও Batch—তিনটিই পূরণ করুন।';
+          var missingField = submittedName.length < 2 ? document.getElementById('medical-profile-name') : !submittedCollege ? document.getElementById('medical-profile-college') : document.getElementById('medical-profile-batch');
+          if (missingField) missingField.focus();
+          return;
+        }
         if (button) button.disabled = true;
         if (status) status.textContent = 'Profile save হচ্ছে…';
         try {
           var updated = await updateProfile({
-            name: (document.getElementById('medical-profile-name') || {}).value || '',
-            college: (document.getElementById('medical-profile-college') || {}).value || '',
-            batch: (document.getElementById('medical-profile-batch') || {}).value || '',
+            name: submittedName,
+            college: submittedCollege,
+            batch: submittedBatch,
             avatar: (document.getElementById('medical-profile-avatar') || {}).value || ''
           });
           if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
@@ -935,6 +944,8 @@
               name: updated.name, college: updated.college, batch: updated.batch, avatar: updated.avatar
             });
           }
+          var gateNotice = document.getElementById('leaderboard-profile-gate-message');
+          if (gateNotice) gateNotice.hidden = true;
           if (status) status.textContent = 'Profile update সফল হয়েছে।';
           await loadLeaderboard(true);
         } catch (error) {
