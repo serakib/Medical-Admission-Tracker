@@ -93,11 +93,11 @@ The examination system follows this scoring scheme:
 
 *Submitted Challenge Quiz, Previous Year, Model Test, Random Test, and Previous Exam results are sent to the configured global Rank API. Review-only actions do not submit leaderboard points.*
 
-### 🌐 Global Rank API
+### 🌐 Medical Leaderboard & Rank API
 
-Global Rank, Match Rank tiers, and Rank Points use the endpoint configured in `js/leaderboard-config.js`. It currently points to the shared Fallrush API, so Rank entries may be visible in both sites' shared leaderboard. Replace that single URL when a dedicated Medical Admission Tracker API is ready.
+Medical Admission Tracker uses Firebase Authentication together with its own Google Apps Script / Google Sheets API. Guest and registered users can view the leaderboard without first taking an exam, edit their profile, and earn Medical-only XP/RP from exams. The API supports All Time and Weekly leaderboards, sequential sub-rank promotion up to Immortal, and the Telegram notification queue. No other website's game account or reward balance is shared.
 
-The Rank UI uses Fallrush's current tiers (Bronze I through Legend) and 300 RP per promotion tier. Firebase remains the Medical app's sign-in provider and is not used for leaderboard writes. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for the current API/security boundary and limitations.
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md) for the API actions, security notes, and separate proxy Worker deployment instructions.
 
 ### 📖 11. Syllabus & Examination Guidelines
 - Subject-wise marks distribution.
