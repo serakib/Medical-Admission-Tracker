@@ -286,6 +286,7 @@ import {
     write('student-profile-current-rp', fmt(row.rankPoints) + ' RP');
     write('student-profile-level', 'Lv. ' + Math.max(1, Number(row.level) || 1));
     write('student-profile-exams', Number.isFinite(Number(row.quizzes)) && Number(row.quizzes) > 0 ? fmt(row.quizzes) : '—');
+    write('student-profile-streak', fmt(row.streak) + ' days');
     write('student-profile-accuracy', Number(row.accuracy) > 0 ? Number(row.accuracy).toFixed(1) + '%' : '—');
     write('student-profile-rank', currentRank);
     const vault = window.MedAchievementVaultTrophies;
