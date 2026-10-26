@@ -326,6 +326,7 @@
 
   window.MedStudentFriends = Object.freeze({
     loadConnections,
+    getLastConnectionError: () => lastFriendError,
     getFriendIds,
     getRelationship,
     renderRequestPanel,
