@@ -29,7 +29,7 @@
   var SELECTED_RANK_KEY = 'med_sheet_selected_rank_v1_';
   var API_URL = function () { return String(window.MED_LEADERBOARD_API_URL || '').trim(); };
   var selectedPeriod = readPeriod();
-  var selectedRank = readSelectedRank();
+  var selectedRank = '';
   var rawRows = [];
   var currentProfile = null;
   var identityPromise = null;
@@ -908,7 +908,6 @@
     ensureOverlays();
     ensureRankBanner();
     selectedPeriod = readPeriod();
-    if (RANKS.indexOf(selectedRank) < 0) selectedRank = readSelectedRank();
     updatePeriodTabs();
   }
   function bindEvents() {
@@ -1060,6 +1059,7 @@
   bindEvents();
   window.addEventListener('online', function () { flushQueue(); loadLeaderboard(true); });
   window.addEventListener('student-auth-state-resolved', function () {
+    selectedRank = '';
     syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
   });
   window.addEventListener('student-profile-loaded', function () {
