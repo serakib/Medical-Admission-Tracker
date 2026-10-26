@@ -215,12 +215,28 @@
       : '<div class="mat-profile-empty">এখন কোনো pending friend request নেই। Student-এর profile খুলে Add Friend চাপলে request পাঠানো যাবে।</div>';
   }
 
-  function avatarMarkup(profile) {
-    const avatar = safeText(profile?.avatar || '', 20000);
-    if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) return '<img src="' + escapeHTML(avatar) + '" alt="" loading="lazy">';
-    if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHTML(avatar);
-    return '<i class="fa-solid fa-user-graduate" aria-hidden="true"></i>';
+  const defaultProfilePortraits = Array.from({length:24}, (_, i) => 'https://i.pravatar.cc/120?img=' + (i + 1));
+  function defaultProfileAvatarForUser(userId) {
+    const key = String(userId || 'guest'); let hash = 2166136261;
+    for (let i = 0; i < key.length; i++) hash = Math.imul(hash ^ key.charCodeAt(i), 16777619);
+    return defaultProfilePortraits[(hash >>> 0) % defaultProfilePortraits.length];
   }
+  function avatarMarkup(profile) {
+    const rawAvatar = safeText(profile?.avatar || profile?.Avatar || '', 20000);
+    let avatar = rawAvatar.replace(/#mat-(?:default|custom)-avatar$/i, '');
+    const targetId = String(profile?.userId || profile?.uid || profile?.playerId || profile?.id || profile?.name || 'guest');
+    let manualAvatar = false;
+    if (targetId === userId()) {
+      try { manualAvatar = localStorage.getItem('med_profile_avatar_manual_v1_' + targetId) === '1'; } catch (_) {}
+    }
+    if (avatar === defaultProfilePortraits[0] && !/#mat-(?:default|custom)-avatar$/i.test(rawAvatar) && !manualAvatar) {
+      avatar = defaultProfileAvatarForUser(targetId);
+    }
+    if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) return '<img src="' + escapeHTML(avatar) + '" alt="" loading="lazy">';
+    if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHTML(avatar);
+    return '<img src="' + escapeHTML(defaultProfileAvatarForUser(targetId)) + '" alt="" loading="lazy">';
+  }
+
   function renderRelationshipActions(profile) {
     const host = document.getElementById('student-profile-actions');
     if (!host || !profile) return;

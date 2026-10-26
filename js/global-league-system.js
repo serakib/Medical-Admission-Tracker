@@ -8,6 +8,16 @@
   app.__medicalSheetsAdapter = true;
 
   var DEFAULT_STUDENT_AVATAR = 'https://i.pravatar.cc/120?img=1';
+  var STUDENT_AVATAR_CHOICES = Array.from({length:24}, function (_, i) { return 'https://i.pravatar.cc/120?img=' + (i + 1); });
+  function defaultStudentAvatarForUser(userId) {
+    var key = String(userId || 'guest'); var hash = 2166136261;
+    for (var i = 0; i < key.length; i++) hash = Math.imul(hash ^ key.charCodeAt(i), 16777619);
+    return STUDENT_AVATAR_CHOICES[(hash >>> 0) % STUDENT_AVATAR_CHOICES.length];
+  }
+  function avatarHasDefaultMarker(value) { return /#mat-default-avatar$/i.test(String(value || '')); }
+  function avatarHasCustomMarker(value) { return /#mat-custom-avatar$/i.test(String(value || '')); }
+  function stripAvatarDefaultMarker(value) { return String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, ''); }
+  function avatarIdForRow(row) { return String(row && (row.userId || row.uid || row.playerId || row.id || row.name) || 'guest'); }
   var friendDirectoryRows = [];
   var friendDirectoryLoadPromise = null;
   var RANKS = [
@@ -747,15 +757,24 @@
     }));
   }
   function avatarMarkup(row) {
-    var avatar = safeText(row && row.avatar || '', 20000);
+    var rawAvatar = safeText(row && (row.avatar || row.Avatar) || '', 20000);
+    var avatar = stripAvatarDefaultMarker(rawAvatar);
+    var rowId = avatarIdForRow(row);
+    var isMine = String(currentUserId() || '') === rowId;
+    var manualAvatar = false;
+    if (isMine) {
+      try { manualAvatar = localStorage.getItem('med_profile_avatar_manual_v1_' + rowId) === '1'; } catch (_) {}
+    }
+    if (avatar === DEFAULT_STUDENT_AVATAR && !avatarHasDefaultMarker(rawAvatar) && !avatarHasCustomMarker(rawAvatar) && !manualAvatar) {
+      avatar = defaultStudentAvatarForUser(rowId);
+    }
     if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) {
       return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     }
     if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHtml(avatar);
-    // Match the Student Profile's default avatar when no profile image has been saved centrally yet.
-    return '<img src="' + escapeHtml(DEFAULT_STUDENT_AVATAR) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-
+    return '<img src="' + escapeHtml(defaultStudentAvatarForUser(rowId)) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
   }
+
   function ensurePeriodTabs() {
     var tabs = document.getElementById('leaderboard-period-tabs');
     if (!tabs) {
@@ -1463,5 +1482,14 @@
   if (app.authStateResolved) {
     syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
   }
+  var lastForegroundRefreshAt = 0;
+  function refreshLeaderboardWhenVisible() {
+    if (document.hidden || Date.now() - lastForegroundRefreshAt < 12000) return;
+    lastForegroundRefreshAt = Date.now();
+    var view = document.getElementById('view-leaderboard');
+    if (view && !view.classList.contains('hidden')) loadLeaderboard(true);
+  }
+  window.addEventListener('focus', refreshLeaderboardWhenVisible);
+  document.addEventListener('visibilitychange', refreshLeaderboardWhenVisible);
   window.setInterval(flushQueue, 30000);
 })();

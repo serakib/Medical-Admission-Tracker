@@ -613,8 +613,25 @@
   document.head.appendChild(humanAvatarStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
-  const avatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
-  const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + (app.authUser?.uid || 'guest');
+  const avatarAccountId = () => {
+    const known = app.authUser?.uid || app.profile?.userId || app.profile?.uid;
+    if (known) return String(known);
+    try { return String(localStorage.getItem('med_sheet_guest_id_v1') || 'guest'); } catch (_) { return 'guest'; }
+  };
+  const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
+  const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+  const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
+  const avatarDefaultMarker = '#mat-default-avatar';
+  const avatarCustomMarker = '#mat-custom-avatar';
+  const stripAvatarDefaultMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
+  const isStoredDefaultAvatar = value => /#mat-default-avatar$/i.test(String(value || ''));
+  const isStoredCustomAvatar = value => /#mat-custom-avatar$/i.test(String(value || ''));
+  const defaultAvatarForUser = userId => {
+    const key = String(userId || 'guest'); let hash = 2166136261;
+    for (let i = 0; i < key.length; i++) hash = Math.imul(hash ^ key.charCodeAt(i), 16777619);
+    return avatarChoices[(hash >>> 0) % avatarChoices.length];
+  };
+  const storedDefaultAvatarForUser = userId => defaultAvatarForUser(userId) + avatarDefaultMarker;
   const maxUploadedAvatars = 8;
   let avatarPickerExpanded = false;
   let pendingAvatarSource = null;
@@ -639,38 +656,55 @@
     );
   };
   const readAvatar = () => {
-    // The shared Medical Sheets profile is the source of truth; local storage is only a fallback
-    // while an unsynced selection is waiting to upload.
-    const shared = String(app.profile?.avatar || '').trim();
-    if (isRenderableAvatarSource(shared)) return shared;
+    const id = avatarAccountId();
+    let manual = false;
+    try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
+    const sharedRaw = String(app.profile?.avatar || '').trim();
+    if (isRenderableAvatarSource(sharedRaw)) {
+      const shared = stripAvatarDefaultMarker(sharedRaw);
+      if (isStoredDefaultAvatar(sharedRaw) || isStoredCustomAvatar(sharedRaw)) return shared;
+      if (shared === avatarChoices[0] && !manual) return defaultAvatarForUser(id);
+      return shared;
+    }
     try {
-      const value = localStorage.getItem(avatarKey());
-      return isAvatarSource(value) ? value : avatarChoices[0];
-    } catch (_) { return avatarChoices[0]; }
+      const value = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || '';
+      if (isAvatarSource(value)) {
+        if (value === avatarChoices[0] && !manual) return defaultAvatarForUser(id);
+        return stripAvatarDefaultMarker(value);
+      }
+    } catch (_) {}
+    return defaultAvatarForUser(id);
   };
   let defaultAvatarSyncInFlight = null;
   let defaultAvatarSyncAttemptedFor = '';
   async function ensureSharedAvatarExists() {
-    const accountId = String(app.authUser?.uid || 'guest');
+    let accountId = avatarAccountId();
     if (defaultAvatarSyncInFlight || defaultAvatarSyncAttemptedFor === accountId ||
         typeof window.MedGlobalLeague?.updateProfile !== 'function') return;
     defaultAvatarSyncAttemptedFor = accountId;
     defaultAvatarSyncInFlight = (async () => {
-      // Refresh the authoritative Google Sheets profile before deciding whether a default is needed.
-      if (typeof window.MedGlobalLeague.syncIdentity === 'function') {
-        await window.MedGlobalLeague.syncIdentity();
-      }
-      // Another profile load may have supplied the shared avatar while identity was resolving.
-      if (isRenderableAvatarSource(app.profile?.avatar)) return;
+      if (typeof window.MedGlobalLeague.syncIdentity === 'function') await window.MedGlobalLeague.syncIdentity();
+      accountId = avatarAccountId();
+      defaultAvatarSyncAttemptedFor = accountId;
+      const shared = String(app.profile?.avatar || '').trim();
+      let manual = false;
+      try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
+      const isOldAutoDefault = shared === avatarChoices[0] && !isStoredDefaultAvatar(shared) && !isStoredCustomAvatar(shared) && !manual;
+      if (isRenderableAvatarSource(shared) && !isOldAutoDefault) return;
       let saved = '';
-      try { saved = localStorage.getItem(avatarKey()) || ''; } catch (_) {}
-      const candidate = isAvatarSource(saved) ? saved : avatarChoices[0];
+      try { saved = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || ''; } catch (_) {}
+      const savedIsExplicit = isAvatarSource(saved) && (saved !== avatarChoices[0] || manual);
+      const candidate = savedIsExplicit ? stripAvatarDefaultMarker(saved) : storedDefaultAvatarForUser(accountId);
       const updated = await window.MedGlobalLeague.updateProfile({ avatar: candidate });
-      const sharedAvatar = isRenderableAvatarSource(updated?.avatar) ? updated.avatar : candidate;
+      const sharedAvatar = String(updated?.avatar || '').trim();
+      if (sharedAvatar !== candidate) {
+        throw new Error('Avatar was not confirmed by the server. Deploy the latest Medical_Admission_Tracker_Backend.gs Web App and ensure the Students sheet has an Avatar column.');
+      }
       app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: sharedAvatar });
-      try { localStorage.setItem(avatarKey(), sharedAvatar); } catch (_) {}
+      try { localStorage.setItem(avatarKey(), stripAvatarDefaultMarker(sharedAvatar)); } catch (_) {}
       renderAvatarPicker();
-      if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
+      if (typeof window.MedGlobalLeague.reload === 'function') await window.MedGlobalLeague.reload();
+      else if (typeof app.loadLeaderboard === 'function') await app.loadLeaderboard(true);
     })().catch(error => {
       console.warn('[Profile avatar] Default avatar could not be synced globally:', error);
       defaultAvatarSyncAttemptedFor = '';
@@ -827,8 +861,10 @@
       const current = readAvatar();
       const candidate = isAvatarSource(pendingAvatarSource) ? pendingAvatarSource : null;
       if (!candidate || candidate === current || confirmButton.disabled) return;
-      try { localStorage.setItem(avatarKey(), candidate); }
-      catch (_) {
+      try {
+        localStorage.setItem(avatarKey(), candidate);
+        localStorage.setItem(manualAvatarKey(), '1');
+      } catch (_) {
         const status = document.getElementById('profile-avatar-upload-status');
         if (status) status.textContent = 'Avatar could not be saved in this browser. Check available site storage.';
         return;
@@ -842,15 +878,14 @@
       const avatarStatus = document.getElementById('profile-avatar-upload-status');
       if (avatarStatus) avatarStatus.textContent = 'Avatar saved on this device. Syncing it to your student profile…';
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.updateProfile === 'function') {
-        window.MedGlobalLeague.updateProfile({ avatar: candidate }).then(async updated => {
-          // Treat the server response as authoritative: never report a global sync if
-          // the deployed Apps Script did not actually persist/return the selected avatar.
+        const avatarToSync = candidate === avatarChoices[0] ? candidate + avatarCustomMarker : candidate;
+        window.MedGlobalLeague.updateProfile({ avatar: avatarToSync }).then(async updated => {
           const serverAvatar = String(updated?.avatar || '').trim();
-          if (serverAvatar !== candidate) {
+          if (serverAvatar !== avatarToSync) {
             throw new Error('Google Sheets API saved no matching avatar. Check that the latest Apps Script backend is deployed and its Students sheet has an Avatar column.');
           }
           app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: serverAvatar });
-          try { localStorage.setItem(avatarKey(), serverAvatar); } catch (_) {}
+          try { localStorage.setItem(avatarKey(), candidate); } catch (_) {}
           if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
             try {
               await app.syncFirebaseStudentProfile({ name: app.profile.name, college: app.profile.college, batch: app.profile.batch, avatar: candidate });
@@ -1351,27 +1386,37 @@ const oldAuth=app.setAuthState.bind(app);app.setAuthState=function(user,...args)
 const oldShow=app.showView.bind(app);app.showView=function(name,...args){const r=oldShow(name,...args);if(name==='profile')renderRankCard();if(name==='practice'){setupPracticeUI();updatePracticeUI()}renderSidebarAuth();return r};
 const oldLeaderboard=app.renderLeaderboardRows?.bind(app);
 const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
+function portraitDefaultForId(userId){
+  const key=String(userId||'guest');let hash=2166136261;
+  for(let i=0;i<key.length;i++)hash=Math.imul(hash^key.charCodeAt(i),16777619);
+  return portraitChoices[(hash>>>0)%portraitChoices.length];
+}
 function portraitForRow(row){
+  const rawAvatar=String(row?.avatar||row?.Avatar||'').trim();
+  const rowId=String(row?.uid||row?.userId||row?.playerId||row?.id||row?.name||'guest');
   const usableAvatar=value=>{
-    const avatar=String(value||'').trim();
-    if(/^https:\/\//i.test(avatar)||/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar)||/^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar))return avatar;
+    const avatar=String(value||'').trim().replace(/#mat-(?:default|custom)-avatar$/i,'');
+    if(/^https:\/\//i.test(avatar)||/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(avatar)||/^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar))return avatar;
     return '';
   };
-  // Prefer the central profile avatar returned by the API for every student.
-  const rowAvatar=usableAvatar(row?.avatar||row?.Avatar);
-  if(rowAvatar)return rowAvatar;
-  // Only fall back to this device for the current user while the server profile is being synced.
-  if(app.authUser?.uid&&String(row?.uid||row?.userId||'')===String(app.authUser.uid)){
+  const mine=rowId===avatarAccountId();
+  let manuallyChosen=false;
+  if(mine){try{manuallyChosen=localStorage.getItem(manualAvatarKey())==='1';}catch(_){}}
+  const rowAvatar=usableAvatar(rawAvatar);
+  if(rowAvatar){
+    if(rowAvatar===portraitChoices[0]&&!/#mat-(?:default|custom)-avatar$/i.test(rawAvatar)&&!manuallyChosen)return portraitDefaultForId(rowId);
+    return rowAvatar;
+  }
+  if(mine){
     const profileAvatar=usableAvatar(app.profile?.avatar);
-    if(profileAvatar)return profileAvatar;
+    if(profileAvatar && (profileAvatar!==portraitChoices[0]||manuallyChosen))return profileAvatar;
     try{
-      const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);
-      const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');
-      if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&usableAvatar(saved)))return saved;
+      const saved=localStorage.getItem(avatarKey())||localStorage.getItem(legacyAvatarKey());
+      const uploaded=JSON.parse(localStorage.getItem(uploadedAvatarKey())||'[]');
+      if((portraitChoices.includes(saved)&&(saved!==portraitChoices[0]||manuallyChosen))||(Array.isArray(uploaded)&&uploaded.includes(saved)&&usableAvatar(saved)))return usableAvatar(saved);
     }catch(_){}
   }
-  // Identical fallback everywhere; never fabricate a different avatar from a user's ID.
-  return portraitChoices[0];
+  return portraitDefaultForId(rowId);
 }
 function paintLeaderboardPeople(rows){
   const safe=(Array.isArray(rows)?rows:[]).slice();
