@@ -74,7 +74,7 @@
   function apiErrorMessage(error) {
     var msg = String(error && error.message || error || 'Unknown error');
     if (/failed to fetch|networkerror|load failed|cors|redirect/i.test(msg)) {
-      return 'Google Apps Script response browser-এ পড়া যায়নি। CORS/redirect সমস্যা হলে আলাদা Cloudflare Worker proxy deploy করে MED_LEADERBOARD_API_URL-এ তার URL দিতে হবে।';
+      return 'Google Apps Script response browser-এ পড়া যায়নি। Apps Script Web App deployment access, URL এবং browser CORS/redirect response পরীক্ষা করুন।';
     }
     return msg;
   }
