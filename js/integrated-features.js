@@ -1000,58 +1000,6 @@
 })();
 
 
-/* Public leaderboard profile preview: exposes only fields already displayed in leaderboard. */
-(() => {
-  const app = window.app;
-  if (!app || app.__leaderProfilePreview) return;
-  app.__leaderProfilePreview = true;
-  const oldRender = typeof app.renderLeaderboardRows === 'function' ? app.renderLeaderboardRows.bind(app) : null;
-  if (!oldRender) return;
-  const esc = value => app.escapeHtml ? app.escapeHtml(value) : String(value ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  app.renderLeaderboardRows = function(rows) {
-    const result = oldRender(rows);
-    const body = document.getElementById('leaderboard-body');
-    const sorted = (Array.isArray(rows) ? rows.slice() : []).sort((a,b) => Number(b.points||0)-Number(a.points||0));
-    if (body) Array.from(body.querySelectorAll('tr.leader-row')).forEach((tr, i) => {
-      const row = sorted[i];
-      if (!row) return;
-      tr.dataset.publicName = String(row.name || 'Student');
-      tr.dataset.publicCollege = String(row.college || '—');
-      tr.dataset.publicQuizzes = String(Number(row.quizzes || 0));
-      tr.dataset.publicAccuracy = String(Number(row.accuracy || 0).toFixed(1));
-      tr.dataset.publicPoints = String(Number(row.points || 0));
-      tr.tabIndex = 0;
-      tr.setAttribute('role','button');
-      tr.setAttribute('aria-label','View public leaderboard profile for ' + String(row.name || 'Student'));
-      tr.style.cursor = 'pointer';
-    });
-    return result;
-  };
-  function openPreview(row) {
-    let modal = document.getElementById('leaderboard-public-profile');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'leaderboard-public-profile';
-      modal.className = 'palette-settings-overlay';
-      modal.innerHTML = '<section class="palette-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="leader-public-title"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="leader-public-title">Leaderboard Profile</h3><button type="button" class="enhanced-small-btn" data-close-public-profile>Close</button></div><div data-public-profile-content></div><p class="enhanced-empty">Only public leaderboard statistics are shown here.</p></section>';
-      modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('[data-close-public-profile]')) modal.hidden = true; });
-      document.body.appendChild(modal);
-    }
-    modal.querySelector('[data-public-profile-content]').innerHTML = '<div class="enhanced-panel"><h3>' + esc(row.dataset.publicName) + '</h3><p>College: ' + esc(row.dataset.publicCollege) + '</p><p>Quizzes: ' + esc(row.dataset.publicQuizzes) + '</p><p>Accuracy: ' + esc(row.dataset.publicAccuracy) + '%</p><p>Points in this view: ' + esc(row.dataset.publicPoints) + '</p></div>';
-    modal.hidden = false;
-  }
-  document.addEventListener('click', e => {
-    const row = e.target.closest('#leaderboard-body tr.leader-row');
-    if (row) openPreview(row);
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    const row = e.target.closest?.('#leaderboard-body tr.leader-row');
-    if (row) { e.preventDefault(); openPreview(row); }
-  });
-})();
-
-
 /* Exam focus mode + last-10%-of-time warning.
    Installed after the main app is initialized; does not replace the exam engine. */
 (() => {
