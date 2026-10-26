@@ -384,15 +384,8 @@ import {
   });
   window.MedStudentProfile = Object.freeze({ open: openStudentProfile });
 
-  const oldShowView = app.showView.bind(app);
-  app.showView = function(viewName, force) {
-    const result = oldShowView(viewName, force);
-    if (viewName === 'leaderboard') {
-      loadConnections().catch(() => {});
-      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.reload === 'function') window.MedGlobalLeague.reload();
-    }
-    return result;
-  };
+  // The core leaderboard controller owns routing and reloads; do not install another
+  // showView wrapper here or a single click can trigger duplicate API calls.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       renderRequestPanel(false);
