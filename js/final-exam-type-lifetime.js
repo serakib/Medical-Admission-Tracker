@@ -14,7 +14,12 @@
   const qKey = q => String(q?.id || [q?.subject,q?.year,q?.question || q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
   const readHistory = () => { try { const x=JSON.parse(localStorage.getItem(historyKey())||'{}'); return x && typeof x==='object' && !Array.isArray(x) ? x : {}; } catch (_) { return {}; } };
   const writeHistory = value => { try { localStorage.setItem(historyKey(),JSON.stringify(value)); } catch (_) {} };
-  const currentType = () => document.getElementById('final-exam-type')?.value || 'all';
+  // The legacy Previous Year browser sets previousQuiz/previousSelectedYear directly.
+  // Honour that route even when the newer Exam Type dropdown still says "All Questions".
+  const currentType = () => {
+    if (app.setup?.mode === 'previousQuiz' && app.previousSelectedYear) return 'previous-year';
+    return document.getElementById('final-exam-type')?.value || 'all';
+  };
 
   function installExamTypeUI() {
     const setup=document.getElementById('view-setup'), counts=document.getElementById('setup-question-count-options');
@@ -82,17 +87,20 @@
     if(!this.questionsLoaded||!this.questionBank?.length){this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।');return;}
     installExamTypeUI();
     const type=currentType(), history=readHistory();
-    const yearSelect=document.getElementById('setup-year'), year=yearSelect?.value||'all';
+    const yearSelect=document.getElementById('setup-year');
+    const year = type === 'previous-year'
+      ? String((app.setup?.mode === 'previousQuiz' && app.previousSelectedYear) || yearSelect?.value || 'all').trim()
+      : String(yearSelect?.value || 'all').trim();
     let pool=this.questionBank.slice();
     if(type==='previous-year'){
       if(year==='all'){alert('পরীক্ষার আগে একটি নির্দিষ্ট বছর নির্বাচন করুন।');return;}
-      pool=pool.filter(q=>String(q.year).trim()===String(year).trim());
+      pool=pool.filter(q=>String(q.year ?? '').trim()===year && q.year && !/^practice$/i.test(String(q.year)));
     } else if(type==='wrong') pool=pool.filter(q=>Boolean(history[qKey(q)]?.wrong));
     else if(type==='skipped') pool=pool.filter(q=>Boolean(history[qKey(q)]?.skipped));
     else if(type==='reviewed') pool=pool.filter(q=>Boolean(history[qKey(q)]?.reviewed));
     if(!pool.length){const labels={wrong:'Wrong Answer',skipped:'Skipped',reviewed:'Reviewed'};alert(type==='previous-year'?'এই বছরের জন্য কোনো বিগত বছরের প্রশ্ন পাওয়া যায়নি।':(labels[type]||'এই Exam Type')+' তালিকায় এখনো কোনো প্রশ্ন নেই।');return;}
     const limit=type==='previous-year'?pool.length:Number(this.setup.questionsCount||50);
-    if(type==='previous-year'){this.previousSelectedYear=year;this.setup.mode='previousQuiz';}
+    if(type==='previous-year'){this.previousSelectedYear=year;this.setup.mode='previousQuiz'; const ys=document.getElementById('setup-year'); if(ys) ys.value=year;}
     else {this.setup.mode='model';const ys=document.getElementById('setup-year');if(ys)ys.value='all';this.setup.subject='all';}
     const questions=this.shuffleQuestionsAndOptions(pool,Math.min(limit,pool.length));
     if(!questions.length)return;
