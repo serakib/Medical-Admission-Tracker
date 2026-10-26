@@ -1,7 +1,4 @@
-/* Medical Admission Tracker — independent Sheets API proxy.
- * Deploy workers/medical-api-proxy-worker.js as a NEW Cloudflare Worker named
- * "medical-admission-api-proxy" under the site's existing workers.dev account.
- * The Worker forwards to the dedicated Medical Google Apps Script + Sheets backend.
- * Do not replace the separate Student Support / AI Worker.
+/* Medical Admission Tracker — its own Google Sheets Apps Script API.
+ * Keep this separate from the portfolio/Get in Touch message endpoint and from any other website.
  */
-window.MED_LEADERBOARD_API_URL = 'https://medical-admission-api-proxy.asrafuldcg.workers.dev';
+window.MED_LEADERBOARD_API_URL = 'https://script.google.com/macros/s/AKfycbycNshXdkJCyqGIJfN4iEZOe1nDv-RQh9n9r7iKuTUiroJu_ey6enWt2X1ILlEgrtreuQ/exec';
