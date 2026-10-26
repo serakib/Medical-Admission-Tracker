@@ -216,7 +216,7 @@
     profile.email = user.email || profile.email || (app.authUser && app.authUser.email) || '';
     profile.college = safeText(user.college != null ? user.college : profile.college, 120);
     profile.batch = safeText(user.batch != null ? user.batch : (profile.batch || profile.class || ''), 40);
-    profile.avatar = safeText(user.avatar != null ? user.avatar : profile.avatar, 500);
+    profile.avatar = safeText(user.avatar != null ? user.avatar : profile.avatar, 20000);
     profile.accountType = user.accountType || (app.authUser ? 'REGISTERED' : 'GUEST');
     profile.xp = Math.max(0, Number(user.xp) || 0);
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
@@ -301,7 +301,7 @@
       name: safeText(fields.name || existing.name || app.authUser.displayName || '', 80),
       college: safeText(fields.college || existing.college || '', 120),
       batch: safeText(fields.batch || existing.batch || existing.class || '', 40),
-      avatar: safeText(fields.avatar || existing.avatar || '', 500)
+      avatar: safeText(fields.avatar || existing.avatar || '', 20000)
     });
     if (!response.user) throw new Error('Medical API did not return the registered profile.');
     return applyProfile(response.user);
@@ -332,7 +332,7 @@
     fields = fields || {};
     var allowed = {};
     ['name','college','batch','avatar'].forEach(function (key) {
-      if (Object.prototype.hasOwnProperty.call(fields, key)) allowed[key] = safeText(fields[key], key === 'avatar' ? 500 : (key === 'college' ? 120 : (key === 'batch' ? 40 : 80)));
+      if (Object.prototype.hasOwnProperty.call(fields, key)) allowed[key] = safeText(fields[key], key === 'avatar' ? 20000 : (key === 'college' ? 120 : (key === 'batch' ? 40 : 80)));
     });
     if (Object.prototype.hasOwnProperty.call(allowed, 'name') && allowed.name.length < 2) {
       throw new Error('নাম কমপক্ষে ২ অক্ষরের হতে হবে।');
@@ -356,7 +356,7 @@
       name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
       college: safeText(raw.college || raw.College || '', 120),
       batch: safeText(raw.batch || raw.Batch || '', 40),
-      avatar: safeText(raw.avatar || raw.Avatar || '', 500),
+      avatar: safeText(raw.avatar || raw.Avatar || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       xp: Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0),
       level: Math.max(1, Number(raw.level != null ? raw.level : raw.Level) || 1),
@@ -671,7 +671,7 @@
   }
   function avatarMarkup(row) {
     var avatar = safeText(row && row.avatar || '', 500);
-    if (/^https:\/\//i.test(avatar)) {
+    if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) {
       return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     }
     if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHtml(avatar);
