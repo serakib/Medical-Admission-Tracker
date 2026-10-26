@@ -1404,7 +1404,7 @@ class MedicalExamApp {
         } catch (error) {
             console.error('[Exam] Result calculated, but saving exam history failed:', error);
         }
-        // The result page shows the exact XP/RP returned by the shared API.
+        // The result page shows XP/RP confirmed by the dedicated Medical API.
         const attemptId = String(state.startedAt || Date.now());
         const rewardPanel = document.getElementById('exam-reward-summary');
         if (rewardPanel) rewardPanel.dataset.attemptId = attemptId;
