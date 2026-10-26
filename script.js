@@ -1419,6 +1419,7 @@ class MedicalExamApp {
         // Persist the result independently from non-critical progress/leaderboard updates.
         try {
             this.saveExamAttempt({
+                attemptId: String(state.startedAt || Date.now()),
                 date: new Date().toLocaleDateString('bn-BD'),
                 mode: this.setup?.mode || state.mode || 'model',
                 subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
@@ -1451,6 +1452,11 @@ class MedicalExamApp {
             })).then(reward => {
                 if (typeof window.updateExamRewardDisplay === 'function') {
                     window.updateExamRewardDisplay(reward || { attemptId, pending: true, message: 'Reward sync-এর অপেক্ষায় আছে।' });
+                }
+                // Refresh server-backed attempt history after the reward API finishes.
+                if (window.app) {
+                    window.app.__serverProgressFetchedAt = 0;
+                    window.app.loadProgressStats();
                 }
             }).catch(error => {
                 console.error('[Exam] Could not update global reward after submission:', error);
@@ -1574,7 +1580,12 @@ class MedicalExamApp {
             const appInstance = this;
             league.getProgress().then(response => {
                 if (!response || !Array.isArray(response.attempts)) throw new Error('Server progress response is incomplete.');
-                appInstance.serverExamHistory = response.attempts;
+                const serverAttempts = response.attempts;
+                const localAttempts = JSON.parse(localStorage.getItem(appInstance.getHistoryKey()) || '[]');
+                const unsyncedLocalAttempts = localAttempts.filter(item => item && item.attemptId &&
+                    !serverAttempts.some(serverItem => String(serverItem.attemptId || '').endsWith('-' + String(item.attemptId))));
+                appInstance.serverExamHistory = [...serverAttempts, ...unsyncedLocalAttempts]
+                    .sort((a, b) => String(b.submittedAt || b.date || '').localeCompare(String(a.submittedAt || a.date || '')));
                 appInstance.__serverProgressFetchedAt = Date.now();
                 appInstance.loadProgressStats();
             }).catch(error => {
