@@ -843,9 +843,14 @@
       if (avatarStatus) avatarStatus.textContent = 'Avatar saved on this device. Syncing it to your student profile…';
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.updateProfile === 'function') {
         window.MedGlobalLeague.updateProfile({ avatar: candidate }).then(async updated => {
-          // This write updates the shared Google Sheets profile used by every leaderboard visitor.
-          app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: candidate });
-          try { localStorage.setItem(avatarKey(), candidate); } catch (_) {}
+          // Treat the server response as authoritative: never report a global sync if
+          // the deployed Apps Script did not actually persist/return the selected avatar.
+          const serverAvatar = String(updated?.avatar || '').trim();
+          if (serverAvatar !== candidate) {
+            throw new Error('Google Sheets API saved no matching avatar. Check that the latest Apps Script backend is deployed and its Students sheet has an Avatar column.');
+          }
+          app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: serverAvatar });
+          try { localStorage.setItem(avatarKey(), serverAvatar); } catch (_) {}
           if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
             try {
               await app.syncFirebaseStudentProfile({ name: app.profile.name, college: app.profile.college, batch: app.profile.batch, avatar: candidate });
@@ -854,8 +859,14 @@
               console.warn('[Profile avatar] Medical Sheets avatar is synced; Firebase mirror did not update:', firebaseError);
             }
           }
-          if (avatarStatus) avatarStatus.textContent = 'Global avatar synced. All leaderboard viewers will see this profile image after refresh.';
+          if (avatarStatus) avatarStatus.textContent = 'Global avatar saved. Refreshing leaderboard…';
           refreshAvatarViews();
+          if (typeof window.MedGlobalLeague?.reload === 'function') {
+            await window.MedGlobalLeague.reload();
+          } else if (typeof app.loadLeaderboard === 'function') {
+            await app.loadLeaderboard(true);
+          }
+          if (avatarStatus) avatarStatus.textContent = 'Global avatar synced. Other students will see it when their leaderboard refreshes.';
         }).catch(error => {
           if (avatarStatus) avatarStatus.textContent = 'Global avatar sync failed: ' + String(error?.message || error || 'Unknown API error').slice(0, 220);
           console.warn('[Profile avatar] Global server sync failed:', error);
@@ -1363,18 +1374,31 @@ function portraitForRow(row){
   return portraitChoices[0];
 }
 function paintLeaderboardPeople(rows){
-  const safe=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>Number(b.points||0)-Number(a.points||0));
+  const safe=(Array.isArray(rows)?rows:[]).slice();
+  const rowById=new Map(safe.map(row=>[String(row?.userId||row?.uid||row?.playerId||''),row]).filter(entry=>entry[0]));
+  const rowForElement=(element,index)=>{
+    const id=String(element?.dataset?.uid||element?.dataset?.medPlayer||'');
+    return (id&&rowById.get(id))||safe[index]||null;
+  };
   document.querySelectorAll('#leaderboard-body .tracker-rank-badge,#leaderboard-podium .tracker-rank-badge,#leaderboard-me .tracker-rank-badge').forEach(el=>el.remove());
   Array.from(document.querySelectorAll('#leaderboard-body tr.leader-row')).forEach((tr,i)=>{
-    const row=safe[i],avatar=tr.querySelector('.leader-avatar');if(!row||!avatar)return;
-    avatar.innerHTML='<img src="'+portraitForRow(row)+'" alt="Student avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    const row=rowForElement(tr,i),avatar=tr.querySelector('.leader-avatar');if(!row||!avatar)return;
+    const source=portraitForRow(row);
+    let img=avatar.querySelector('img');
+    if(!img){avatar.innerHTML='<img alt="Student avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';img=avatar.querySelector('img')}
+    if(img.src!==source)img.src=source;
+    img.alt='Student avatar';
     avatar.setAttribute('aria-label','Student portrait');
   });
   Array.from(document.querySelectorAll('#leaderboard-podium .podium-card')).forEach((card,i)=>{
-    const row=safe[i],avatar=card.querySelector('.podium-avatar');if(!row||!avatar)return;
-    avatar.innerHTML='<img src="'+portraitForRow(row)+'" alt="Student avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    const row=rowForElement(card,i),avatar=card.querySelector('.podium-avatar');if(!row||!avatar)return;
+    const source=portraitForRow(row);
+    let img=avatar.querySelector('img');
+    if(!img){avatar.innerHTML='<img alt="Student avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';img=avatar.querySelector('img')}
+    if(img.src!==source)img.src=source;
+    img.alt='Student avatar';
   });
-  const me=document.getElementById('leaderboard-me'),mine=safe.find(row=>row.uid&&row.uid===app.authUser?.uid);
+  const me=document.getElementById('leaderboard-me'),mine=safe.find(row=>String(row?.userId||row?.uid||'')===String(app.authUser?.uid||''));
   if(me&&mine){let img=me.querySelector('.leaderboard-me-avatar');if(!img){img=document.createElement('img');img.className='leaderboard-me-avatar';img.alt='Your profile avatar';img.style.cssText='width:44px;height:44px;object-fit:cover;border-radius:50%;margin-inline-end:12px';me.prepend(img)}img.src=portraitForRow(mine)}
 }
 if(oldLeaderboard)app.renderLeaderboardRows=function(rows){
