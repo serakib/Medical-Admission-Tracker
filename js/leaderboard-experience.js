@@ -542,7 +542,50 @@
     cancelRequest,
     removeFriend
   });
-  window.MedStudentProfile = Object.freeze({ open: openStudentProfile });
+  async function openOwnStudentProfile() {
+    const ownId = userId();
+    const profile = ownProfile();
+    let row = null;
+    const league = window.MedGlobalLeague;
+    if (league && typeof league.getCachedRows === 'function') {
+      const rows = ['all-time', 'weekly', 'friends'].flatMap(period => {
+        try { return league.getCachedRows(period) || []; } catch (_) { return []; }
+      });
+      row = rows.find(item => String(item?.userId || item?.uid || item?.playerId || item?.raw?.userId || '') === ownId) || null;
+    }
+    if (!row) {
+      let progress = {};
+      try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
+      row = {
+        userId: ownId,
+        uid: ownId,
+        name: profile.name || app.authUser?.displayName || 'Student',
+        college: profile.college || '',
+        batch: profile.batch || profile.class || '',
+        avatar: profile.avatar || '',
+        xp: Number(progress.xp ?? progress.totalXP ?? 0) || 0,
+        totalRP: Number(progress.totalRP ?? progress.lifetimeRP ?? 0) || 0,
+        weeklyRankPoints: Number(progress.weeklyRankPoints ?? progress.weeklyRP ?? 0) || 0,
+        rankPoints: Number(progress.rankPoints ?? progress.currentRP ?? 0) || 0,
+        level: Number(progress.level ?? 1) || 1,
+        quizzes: Number(progress.quizzes ?? progress.completedExams ?? 0) || 0,
+        streak: Number(progress.streak ?? 0) || 0,
+        accuracy: Number(progress.accuracy ?? 0) || 0,
+        rank: profile.rank || 'Bronze'
+      };
+    } else {
+      row = Object.assign({}, row, {
+        userId: ownId,
+        uid: ownId,
+        name: row.name || profile.name || app.authUser?.displayName || 'Student',
+        college: row.college || profile.college || '',
+        batch: row.batch || profile.batch || profile.class || ''
+      });
+    }
+    return openStudentProfile(row);
+  }
+
+  window.MedStudentProfile = Object.freeze({ open: openStudentProfile, openOwn: openOwnStudentProfile });
 
   // The core leaderboard controller owns routing and reloads; do not install another
   // showView wrapper here or a single click can trigger duplicate API calls.
