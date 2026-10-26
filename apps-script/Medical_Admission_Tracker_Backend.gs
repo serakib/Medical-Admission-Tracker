@@ -110,6 +110,9 @@ function matDispatch_(action, p) {
     case 'profile':
     case 'getProfile':
       return matGetProfile_(p || {});
+    case 'progress':
+    case 'getProgress':
+      return matGetProgress_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -461,6 +464,53 @@ function matAuthenticate_(p) {
 function matGetProfile_(p) {
   const user = matAuthenticate_(p);
   return { success: true, user: matPublicProfile_(user, true) };
+}
+
+/**
+ * Return progress history for the authenticated account from the server-side
+ * ExamAttempts sheet. XP/RP remain sourced from the Students sheet; browser
+ * localStorage is not trusted as the canonical progress record.
+ */
+function matGetProgress_(p) {
+  const user = matAuthenticate_(p);
+  const userId = String(user.UserID || '');
+  const attempts = matReadObjects_(matGetExamSheet_())
+    .filter(function (row) {
+      return matIsExamRecord_(row) &&
+        String(row.UserID || '') === userId &&
+        String(row.RewardStatus || '').toUpperCase() === 'COMMITTED';
+    })
+    .sort(function (a, b) {
+      return String(b.SubmittedAt || '').localeCompare(String(a.SubmittedAt || ''));
+    })
+    .map(function (row) {
+      const correct = Math.max(0, matFiniteNumber_(row.Correct, 0));
+      const wrong = Math.max(0, matFiniteNumber_(row.Wrong, 0));
+      const total = Math.max(0, matFiniteNumber_(row.TotalQuestions, 0));
+      const answered = correct + wrong;
+      const stamp = String(row.SubmittedAt || '');
+      return {
+        attemptId: String(row.AttemptID || ''),
+        date: stamp ? Utilities.formatDate(new Date(stamp), MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd') : '',
+        mode: String(row.ExamMode || 'Exam'),
+        subject: String(row.Subject || '—'),
+        year: String(row.ExamYear || ''),
+        score: String(matFiniteNumber_(row.Score, 0).toFixed(2)),
+        total: total,
+        accuracy: (answered ? correct / answered * 100 : 0).toFixed(1) + '%',
+        timeUsed: String(row.TimeUsed || '—'),
+        correct: correct,
+        wrong: wrong,
+        submittedAt: stamp
+      };
+    });
+  return {
+    success: true,
+    user: matPublicProfile_(matFindStudentById_(userId) || user, true),
+    attempts: attempts,
+    completedExams: attempts.length,
+    source: 'Medical Sheets API'
+  };
 }
 
 function matUpdateProfile_(p) {
