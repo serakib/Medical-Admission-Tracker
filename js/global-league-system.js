@@ -148,7 +148,7 @@
   function cacheKeyForPeriod(period) {
     if (period === 'weekly') return CACHE_KEY + '_weekly';
     if (period === 'friends') return CACHE_KEY + '_friends';
-    return CACHE_KEY;
+    return CACHE_KEY + '_all-time';
   }
   function getCache(period) {
     var key = cacheKeyForPeriod(period || 'all-time');
@@ -222,6 +222,7 @@
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
+    if (user.streak != null && Number.isFinite(Number(user.streak))) profile.streak = Math.max(0, Number(user.streak) || 0);
     profile.rank = RANKS.indexOf(user.rank) >= 0 ? user.rank : RANKS[0];
     app.profile = profile;
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
@@ -364,6 +365,7 @@
       weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
       accuracy: Math.max(0, Number(raw.accuracy) || 0),
+      streak: Math.max(0, Number(raw.streak) || 0),
       isMine: (app.authUser && id === String(app.authUser.uid)) || (!app.authUser && id === String(localStorage.getItem(GUEST_ID_KEY) || '')),
       raw: raw
     };
@@ -527,11 +529,14 @@
     try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
     var streakButton = document.querySelector('[data-med-action="streak"]');
     if (streakButton) {
-      var streak = Math.max(0, Number(progress.streak) || 0);
-      var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
-      var yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
-      var lastExamDate = String(progress.lastExamDate || '');
-      if (!lastExamDate || (lastExamDate !== today && lastExamDate !== yesterday)) streak = 0;
+      var hasSyncedStreak = me && me.streak != null && Number.isFinite(Number(me.streak));
+      var streak = hasSyncedStreak ? Math.max(0, Number(me.streak) || 0) : Math.max(0, Number(progress.streak) || 0);
+      if (!hasSyncedStreak) {
+        var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+        var yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+        var lastExamDate = String(progress.lastExamDate || '');
+        if (!lastExamDate || (lastExamDate !== today && lastExamDate !== yesterday)) streak = 0;
+      }
       var streakCount = document.getElementById('med-top-streak-count');
       if (streakCount) streakCount.textContent = String(streak);
       streakButton.title = 'Daily study streak: ' + streak + ' day(s)';
@@ -661,7 +666,7 @@
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
       avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP,
-      level: me.level, rank: me.rank, accountType: me.accountType
+      level: me.level, rank: me.rank, accountType: me.accountType, streak: me.streak
     }));
   }
   function avatarMarkup(row) {
