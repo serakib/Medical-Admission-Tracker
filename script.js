@@ -40,7 +40,7 @@ let QUESTION_BANK = [];
 
 class MedicalExamApp {
     constructor() {
-        this.views = ['home', 'question-bank', 'practice', 'exam-intro', 'previous', 'setup', 'exam', 'result', 'review', 'profile', 'account', 'leaderboard', 'syllabus', 'medical-hsc-info'];
+        this.views = ['home', 'question-bank', 'practice', 'exam-intro', 'previous', 'setup', 'exam', 'result', 'review', 'profile', 'account', 'leaderboard', 'student-profile', 'syllabus', 'medical-hsc-info'];
         this.currentTheme = localStorage.getItem('med_theme') || 'light';
         this.language = 'bn';
         this.previousSelectedYear = null;
