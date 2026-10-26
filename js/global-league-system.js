@@ -874,7 +874,7 @@
           : '';
     }
     var friendsPanel = document.getElementById('leaderboard-friends-panel');
-    if (friendsPanel) friendsPanel.classList.toggle('hidden', selectedPeriod !== 'friends');
+    if (friendsPanel) friendsPanel.classList.remove('hidden');
   }
   function cachedRowsForDisplay() {
     // All Time, Friends and Weekly each get their own cache so one tab never
