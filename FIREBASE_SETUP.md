@@ -10,7 +10,7 @@ The existing `students/{uid}` Firestore document may continue storing the app's 
 
 ## 3. Dedicated Medical Sheets API
 
-`js/leaderboard-config.js` points to the Medical Admission Tracker's own Google Apps Script deployment. The backend uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. It does not call the Fallrush API.
+`js/leaderboard-config.js` points to the Medical Admission Tracker's own Google Apps Script deployment. The backend uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. It does not call any external game API.
 
 - Registered users: Firebase ID token is verified by the Medical API.
 - Guests: a random Guest token is stored locally and resolved by the Medical API.
