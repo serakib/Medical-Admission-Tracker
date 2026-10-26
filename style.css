@@ -184,3 +184,10 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
 #student-profile-actions button.primary{background:#059669!important;color:#fff!important;border-color:#059669!important}
 #student-profile-actions button:hover{filter:brightness(.97)}
 .mat-friend-search-copy small{white-space:normal;line-height:1.65;overflow-wrap:anywhere}
+
+
+/* Public student profile stat labels and values must not collide or clip the first rank letter. */
+.mat-student-profile-stat{min-width:0;overflow:visible}
+.mat-student-profile-stat>small{display:block!important;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+.mat-student-profile-stat>strong{display:block!important;width:auto;max-width:100%;min-width:0;margin:6px 0 0!important;padding:0!important;clip-path:none!important;text-indent:0!important;transform:none!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere;line-height:1.35}
+#student-profile-rank{display:block!important;position:static!important;padding:0!important;margin:6px 0 0!important;clip-path:none!important;text-indent:0!important;transform:none!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere}
