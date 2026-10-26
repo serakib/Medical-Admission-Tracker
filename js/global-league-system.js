@@ -382,9 +382,9 @@
       '.mat-rank-rail{display:flex;align-items:center;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:9px 3px 12px;scroll-snap-type:x mandatory}.mat-rank-rail::-webkit-scrollbar{display:none}' +
       '.mat-rank-tier{flex:0 0 76px;min-width:76px;min-height:88px;border:1px solid rgba(148,163,184,.22);border-radius:15px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;opacity:.67;transform:scale(.92);transition:transform .18s ease,opacity .18s ease,box-shadow .18s ease,border-color .18s ease;scroll-snap-align:center;color:#f8fafc;background:rgba(15,23,42,.72);cursor:pointer;font-size:11px;font-weight:850;text-align:center}.mat-rank-tier.is-active{flex-basis:118px;min-width:118px;min-height:108px;opacity:1;transform:scale(1);border-color:rgba(255,255,255,.6);box-shadow:0 0 0 2px rgba(255,255,255,.08),0 12px 26px rgba(0,0,0,.22)}.mat-rank-tier i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:18px;background:rgba(255,255,255,.1)}.mat-rank-tier.is-active i{width:43px;height:43px;font-size:22px}.mat-rank-tier small{font-size:8px;letter-spacing:.07em;opacity:.8}.mat-rank-tier.bronze i{color:#f1b47b;background:linear-gradient(145deg,#6e442c,#bd804f)}.mat-rank-tier.silver i{color:#e2e8f0;background:linear-gradient(145deg,#475569,#94a3b8)}.mat-rank-tier.gold i{color:#fff1aa;background:linear-gradient(145deg,#8b5e0b,#eab308)}.mat-rank-tier.platinum i{color:#ddd6fe;background:linear-gradient(145deg,#6d28d9,#a78bfa)}.mat-rank-tier.diamond i{color:#cffafe;background:linear-gradient(145deg,#0e7490,#67e8f9)}.mat-rank-tier.master i,.mat-rank-tier.grandmaster i,.mat-rank-tier.legend i,.mat-rank-tier.immortal i{color:#fde68a;background:linear-gradient(145deg,#7f1d1d,#f59e0b)}' +
       '.mat-rank-progress{padding:8px 9px 0}.mat-rank-progress-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.mat-rank-progress-line>span:first-child{display:flex;flex-direction:column;gap:3px}.mat-rank-progress-line strong{font-size:13px}.mat-rank-progress-line small,.mat-rank-foot{font-size:11px;color:#cbd5e1}.mat-rank-rp{font-weight:950;color:#fde68a;white-space:nowrap}.mat-rank-track{position:relative;height:11px;border-radius:99px;background:rgba(148,163,184,.25);margin:14px 10px 8px}.mat-rank-track>span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#a78bfa,#fbbf24);transition:width .35s ease}.mat-rank-track>i{position:absolute;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#fef3c7;color:#a16207;border:2px solid #fff7ed;box-shadow:0 2px 8px rgba(0,0,0,.3)}.mat-rank-foot{display:flex;justify-content:space-between;gap:8px}.mat-rank-locked{display:flex;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.25);border-radius:14px;padding:12px;background:rgba(15,23,42,.46);font-size:12px;line-height:1.6}' +
-      '#med-rank-controls{position:fixed;z-index:9998;top:13px;right:16px;display:flex;align-items:center;gap:7px;padding:5px;border-radius:15px;background:rgba(10,18,32,.95);border:1px solid rgba(148,163,184,.23);box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(14px);color:#f8fafc}body.exam-active #med-rank-controls{display:none}.mat-top-icon{position:relative;display:grid;place-items:center;width:39px;height:39px;border-radius:11px;border:1px solid rgba(148,163,184,.18);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:16px;cursor:pointer}.mat-top-icon:first-child{color:#fb923c}.mat-top-rp{display:flex;align-items:center;gap:7px;height:39px;padding:0 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);color:#f8fafc;font-weight:950;white-space:nowrap;cursor:pointer}.mat-top-rp i{color:#facc15}' +
+      '#med-rank-controls{position:fixed;z-index:9998;top:13px;right:16px;display:flex;align-items:center;gap:7px;padding:5px;border-radius:15px;background:rgba(10,18,32,.95);border:1px solid rgba(148,163,184,.23);box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(14px);color:#f8fafc}body.exam-active #med-rank-controls{display:none}.mat-top-icon{position:relative;display:grid;place-items:center;width:39px;height:39px;border-radius:11px;border:1px solid rgba(148,163,184,.18);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:16px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}.mat-top-icon:hover{transform:translateY(-1px);border-color:rgba(110,231,183,.55);background:rgba(16,185,129,.12);box-shadow:0 7px 18px rgba(16,185,129,.12)}.mat-top-icon:first-child{color:#fb923c}.mat-streak-control{display:flex;align-items:center;justify-content:center;gap:7px;width:auto;min-width:112px;height:39px;padding:0 10px;border-color:rgba(251,146,60,.28);background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(245,158,11,.06))}.mat-streak-control>i{color:#fb923c;font-size:17px;filter:drop-shadow(0 0 5px rgba(251,146,60,.28))}.mat-top-streak-count{font-size:18px;line-height:1;font-weight:950;color:#fff7ed;font-variant-numeric:tabular-nums}.mat-streak-copy{font-size:8px;line-height:1.2;font-weight:950;letter-spacing:.08em;color:#fed7aa;white-space:nowrap}.mat-info-control{color:#c4b5fd;border-color:rgba(167,139,250,.4);background:linear-gradient(145deg,rgba(139,92,246,.22),rgba(79,70,229,.12));box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 15px rgba(139,92,246,.08)}.mat-info-glyph{display:grid;place-items:center;width:20px;height:20px;border:2px solid currentColor;border-radius:50%;font-family:Georgia,serif;font-style:normal;font-size:13px;font-weight:900;line-height:1;color:#ddd6fe;box-shadow:0 0 0 3px rgba(167,139,250,.09),inset 0 1px 3px rgba(255,255,255,.12)}.mat-info-control:hover .mat-info-glyph{background:rgba(167,139,250,.16);box-shadow:0 0 0 4px rgba(167,139,250,.12),0 0 12px rgba(167,139,250,.22)}.mat-top-rp{display:flex;align-items:center;gap:7px;height:39px;padding:0 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);color:#f8fafc;font-weight:950;white-space:nowrap;cursor:pointer}.mat-top-rp i{color:#facc15}' +
       '.mat-overlay{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:17px;background:rgba(2,6,23,.7);backdrop-filter:blur(8px)}.mat-overlay.hidden{display:none}.mat-dialog{position:relative;width:min(100%,520px);max-height:min(86vh,760px);overflow:auto;border:1px solid rgba(148,163,184,.24);border-radius:23px;padding:24px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 28px 80px rgba(0,0,0,.36)}.dark .mat-dialog{background:#101827;color:#f8fafc}.mat-dialog h2{font-size:21px;font-weight:950;margin:0 34px 8px 0}.mat-dialog-note{font-size:13px;color:var(--muted,#64748b);margin:0 0 15px;line-height:1.6}.mat-close{position:absolute;right:13px;top:11px;width:35px;height:35px;border-radius:11px;background:rgba(148,163,184,.14);font-size:24px}.mat-player-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:15px 0}.mat-player-stat{padding:11px;border-radius:13px;background:rgba(148,163,184,.12)}.mat-player-stat small{display:block;font-size:11px;color:var(--muted,#64748b)}.mat-player-stat strong{display:block;margin-top:4px;font-size:15px;overflow-wrap:anywhere}.leaderboard-period-tab.is-active{border-color:#0d9488!important;background:rgba(13,148,136,.1)!important;color:#0d9488!important}.leader-tier-trophy{font-size:13px;vertical-align:middle}' +
-      '@media(max-width:650px){#med-rank-controls{top:9px;right:8px;gap:4px;padding:4px}.mat-top-icon{width:35px;height:35px}.mat-top-rp{height:35px;padding:0 8px;font-size:12px}main{padding-top:68px!important}.mat-dialog{padding:20px 15px}.mat-rank-rail{gap:6px}.mat-rank-tier{flex-basis:69px;min-width:69px;min-height:82px}.mat-rank-tier.is-active{flex-basis:105px;min-width:105px;min-height:100px}}';
+      '@media(max-width:650px){#med-rank-controls{top:9px;right:8px;gap:4px;padding:4px}.mat-top-icon{width:35px;height:35px}.mat-streak-control{width:auto;min-width:91px;height:35px;padding:0 7px;gap:5px}.mat-top-streak-count{font-size:15px}.mat-streak-copy{font-size:7px}.mat-info-control{width:35px;height:35px}.mat-info-glyph{width:18px;height:18px;font-size:12px}.mat-top-rp{height:35px;padding:0 8px;font-size:12px}main{padding-top:68px!important}.mat-dialog{padding:20px 15px}.mat-rank-rail{gap:6px}.mat-rank-tier{flex-basis:69px;min-width:69px;min-height:82px}.mat-rank-tier.is-active{flex-basis:105px;min-width:105px;min-height:100px}}';
     document.head.appendChild(style);
   }
   function ensureTopControls() {
@@ -392,8 +392,8 @@
     var root = document.createElement('div');
     root.id = 'med-rank-controls';
     root.innerHTML =
-      '<button type="button" class="mat-top-icon" data-med-action="streak" title="Daily study streak" aria-label="Daily study streak"><i class="fa-solid fa-fire"></i></button>' +
-      '<button type="button" class="mat-top-icon" data-med-action="rules" title="Rank rules" aria-label="Rank rules"><i class="fa-solid fa-circle-info"></i></button>' +
+      '<button type="button" class="mat-top-icon mat-streak-control" data-med-action="streak" title="Daily study streak" aria-label="Daily study streak: 0 days"><i class="fa-solid fa-fire" aria-hidden="true"></i><strong class="mat-top-streak-count" id="med-top-streak-count">0</strong><span class="mat-streak-copy">DAY STREAK</span></button>' +
+      '<button type="button" class="mat-top-icon mat-info-control" data-med-action="rules" title="Rank rules" aria-label="Rank rules"><span class="mat-info-glyph" aria-hidden="true">i</span></button>' +
       '<button type="button" class="mat-top-rp" data-med-action="rank-points" title="Medical Rank Points" aria-label="Medical Rank Points"><i class="fa-solid fa-star"></i><span id="med-top-rp">0 RP</span></button>';
     document.body.appendChild(root);
   }
@@ -480,6 +480,8 @@
     var streakButton = document.querySelector('[data-med-action="streak"]');
     if (streakButton) {
       var streak = Math.max(0, Number(progress.streak) || 0);
+      var streakCount = document.getElementById('med-top-streak-count');
+      if (streakCount) streakCount.textContent = String(streak);
       streakButton.title = 'Daily study streak: ' + streak + ' day(s)';
       streakButton.setAttribute('aria-label', 'Daily study streak: ' + streak + ' day(s)');
     }
@@ -510,21 +512,23 @@
     if (rankRows.length) {
       if (podium) {
         podium.innerHTML = rankRows.slice(0, 3).map(function (row, index) {
-          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
-            '<div class="podium-medal">' + ['🥇','🥈','🥉'][index] + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
+          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
+            '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
             '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</span>' +
-            '<small>' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
+            '<small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
       rankRows.forEach(function (row, index) {
         var tr = document.createElement('tr');
         tr.className = 'leader-row' + (row.isMine ? ' is-me' : '');
         tr.dataset.medPlayer = String(row.userId || '');
+        tr.dataset.totalRp = String(Number(row.totalRP || row.rankPoints || 0));
+        tr.dataset.rank = String(row.rank || '');
         tr.tabIndex = 0;
         tr.setAttribute('role', 'button');
         tr.setAttribute('aria-label', 'Open ' + row.name + ' profile');
         tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' +
-          (row.isMine ? '<em>YOU</em>' : '') + '<small class="block text-xs opacity-70">' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
+          (row.isMine ? '<em>YOU</em>' : '') + '<small class="block text-xs opacity-70">' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
           '<td class="py-4 px-3">' + escapeHtml(row.college || '—') + '</td>' +
           '<td class="py-4 px-3">' + escapeHtml(row.batch || '—') + '</td>' +
           '<td class="py-4 px-3">' + Number(row.xp || 0) + ' XP</td>' +
@@ -541,6 +545,9 @@
     }
     renderRankRail(all);
     updateTopControls(me);
+    if (window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.paint === 'function') {
+      window.MedAchievementVaultTrophies.paint(all);
+    }
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
       avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP,
@@ -828,6 +835,10 @@
   });
 
   ensureUI();
+  updateTopControls(currentProfile || app.profile || {});
+  document.addEventListener('student-progress-updated', function () {
+    updateTopControls(currentProfile || app.profile || {});
+  });
   bindEvents();
   window.addEventListener('online', function () { flushQueue(); loadLeaderboard(true); });
   window.addEventListener('student-auth-state-resolved', function () {
