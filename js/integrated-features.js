@@ -1278,8 +1278,24 @@ const oldLeaderboard=app.renderLeaderboardRows?.bind(app);
 const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
 function portraitForRow(row){
   const uid=String(row?.uid||row?.name||'student');
+  const usableAvatar=value=>{
+    const avatar=String(value||'').trim();
+    if(/^https:\/\//i.test(avatar)||/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar)||/^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar))return avatar;
+    if(avatar&&avatar.length<=12&&!/[<>]/.test(avatar))return avatar;
+    return '';
+  };
+  // The row's saved profile avatar is the canonical source for every student.
+  const rowAvatar=usableAvatar(row?.avatar);
+  if(rowAvatar)return rowAvatar;
+  // For the signed-in student, reuse the existing picker/profile value, not a generated leaderboard avatar.
   if(app.authUser?.uid&&row?.uid===app.authUser.uid){
-    try{const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$|^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(saved)))return saved;}catch(_){}
+    const profileAvatar=usableAvatar(app.profile?.avatar);
+    if(profileAvatar)return profileAvatar;
+    try{
+      const saved=localStorage.getItem('med_profile_avatar_v1_'+app.authUser.uid);
+      const uploaded=JSON.parse(localStorage.getItem('med_profile_uploaded_avatars_v1_'+app.authUser.uid)||'[]');
+      if(portraitChoices.includes(saved)||(Array.isArray(uploaded)&&uploaded.includes(saved)&&usableAvatar(saved)))return saved;
+    }catch(_){}
   }
   let hash=0;for(let i=0;i<uid.length;i++)hash=((hash<<5)-hash+uid.charCodeAt(i))|0;
   return portraitChoices[Math.abs(hash)%portraitChoices.length];
