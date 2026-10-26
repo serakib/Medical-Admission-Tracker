@@ -209,6 +209,19 @@
     app.profile = profile;
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
     try { localStorage.setItem(storageKey, JSON.stringify(profile)); } catch (_) {}
+    // Keep local profile widgets aligned with the server-authoritative Medical XP/RP.
+    // Clear the retired client-side pending-PB queue so it cannot add rewards twice.
+    try {
+      var progressKey = 'med_account_progress_v1_' + accountKey();
+      var localProgress = parseJson(localStorage.getItem(progressKey), {}) || {};
+      localProgress.xp = profile.xp;
+      localProgress.performanceBonus = profile.xp;
+      localProgress.rankPoints = profile.rankPoints;
+      localProgress.pendingPBEntries = [];
+      localProgress.pendingPB = 0;
+      localProgress.rewarded = Array.isArray(localProgress.rewarded) ? localProgress.rewarded : [];
+      localStorage.setItem(progressKey, JSON.stringify(localProgress));
+    } catch (_) {}
     setText('profile-name', profile.name);
     setText('account-profile-name', profile.name);
     setText('profile-email', app.authUser ? (profile.email || 'Signed in') : 'Guest mode · আপনার profile server-এ সংরক্ষিত');
@@ -606,9 +619,10 @@
     if (item.userId && currentId && String(item.userId) !== String(currentId)) {
       throw new Error('এই attempt অন্য account-এ শুরু হয়েছিল। Reward sync করতে সেই account-এ ফিরে যান।');
     }
+    var apiAttemptId = 'MAT-' + safeText(item.userId || currentUserId() || 'guest', 80) + '-' + safeText(item.attemptId || '', 48);
     var response = await request(Object.assign({}, creds, {
       action: 'submitExam',
-      attemptId: String(item.attemptId || ''),
+      attemptId: apiAttemptId,
       examMode: safeText(item.examMode || 'Exam', 60),
       totalQuestions: Math.max(1, Number(item.totalQuestions) || 1),
       correctCount: Math.max(0, Number(item.correctCount) || 0),
