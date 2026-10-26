@@ -1255,7 +1255,7 @@ function renderRankCard(){
   if(!card){card=document.createElement('section');card.id='profile-rank-card';card.className='enhanced-panel';const hero=root.querySelector('.profile-hero');if(hero)hero.insertAdjacentElement('afterend',card);else root.prepend(card);}
   const profile=app.profile||{};
   let local={};
-  try{local=JSON.parse(localStorage.getItem('med_account_progress_v1_'+(app.authUser?.uid||localStorage.getItem('med_sheet_guest_id_v1')||'guest'))||'{}')||{}}catch(_){}
+  try{local=JSON.parse(localStorage.getItem('med_account_progress_v1_'+(app.authUser?.uid||'guest'))||'{}')||{}}catch(_){}
   const xp=Math.max(0,Number(profile.xp??local.xp??local.performanceBonus)||0);
   const rp=Math.max(0,Number(profile.rankPoints??local.rankPoints)||0);
   const totalRP=Math.max(rp,Number(profile.totalRP??rp)||0);
