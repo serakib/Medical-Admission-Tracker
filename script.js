@@ -1444,6 +1444,9 @@ class MedicalExamApp {
             Promise.resolve(this.recordLeaderboardResult({
                 correctCount, wrongCount, totalQuestions, quizPoints, score: totalScore,
                 examMode: this.setup?.mode || state.mode || 'Exam',
+                subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
+                year: document.getElementById('setup-year')?.value || state.year || 'all',
+                timeUsed: minsUsed + ':' + String(secsUsed).padStart(2, '0'),
                 accuracy, attemptId, maxCombo: maxCorrectStreak
             })).then(reward => {
                 if (typeof window.updateExamRewardDisplay === 'function') {
@@ -1542,7 +1545,8 @@ class MedicalExamApp {
     }
 
     loadProgressStats() {
-        const history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
+        const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
+        const history = Array.isArray(this.serverExamHistory) ? this.serverExamHistory : localHistory;
         const answered=this.getAnsweredQuestionIds();
         const total=this.questionBank.length||520;
         const attempts=history.length;
@@ -1559,7 +1563,25 @@ class MedicalExamApp {
         const note=document.getElementById('profile-performance-note');if(note) note.textContent=attempts?`আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`:'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
         const action=document.getElementById('profile-auth-action');if(action)action.textContent=this.authUser?'Account':'লগইন / রেজিস্টার';
         const tbody=document.getElementById('prog-history-tbody');
-        if(tbody){tbody.innerHTML=''; history.slice(0,10).forEach(item=>{const tr=document.createElement('tr');tr.className='hover:bg-gray-50 dark:hover:bg-gray-700/50 transition';tr.innerHTML=`<td class="py-3 px-4 font-medium">${this.escapeHtml(item.date)}</td><td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode)}</td><td class="py-3 px-4">${this.escapeHtml(item.subject)}</td><td class="py-3 px-4 font-bold text-medical-600">${this.escapeHtml(item.score)} / ${this.escapeHtml(item.total)}</td><td class="py-3 px-4">${this.escapeHtml(item.accuracy)}</td><td class="py-3 px-4 text-gray-500">${this.escapeHtml(item.timeUsed)}</td>`;tbody.appendChild(tr);});}
+        if(tbody){tbody.innerHTML=''; history.slice(0,10).forEach(item=>{const tr=document.createElement('tr');tr.className='hover:bg-gray-50 dark:hover:bg-gray-700/50 transition';tr.innerHTML=`<td class="py-3 px-4 font-medium">${this.escapeHtml(item.date || '—')}</td><td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode || 'Exam')}</td><td class="py-3 px-4">${this.escapeHtml(item.subject || '—')}</td><td class="py-3 px-4 font-bold text-medical-600">${this.escapeHtml(item.score ?? '0')} / ${this.escapeHtml(item.total ?? 0)}</td><td class="py-3 px-4">${this.escapeHtml(item.accuracy || '0%')}</td><td class="py-3 px-4 text-gray-500">${this.escapeHtml(item.timeUsed || '—')}</td>`;tbody.appendChild(tr);});}
+        // Refresh account progress from the authenticated Medical Sheets API.
+        // Keep local history visible until the first successful server response.
+        const league = window.MedGlobalLeague;
+        if (league && typeof league.getProgress === 'function' &&
+            !this.__serverProgressLoading &&
+            (!this.__serverProgressFetchedAt || Date.now() - this.__serverProgressFetchedAt > 30000)) {
+            this.__serverProgressLoading = true;
+            const appInstance = this;
+            league.getProgress().then(response => {
+                if (!response || !Array.isArray(response.attempts)) throw new Error('Server progress response is incomplete.');
+                appInstance.serverExamHistory = response.attempts;
+                appInstance.__serverProgressFetchedAt = Date.now();
+                appInstance.loadProgressStats();
+            }).catch(error => {
+                console.warn('[Account progress] Server sync failed; showing available local history.', error);
+                appInstance.__serverProgressFetchedAt = Date.now();
+            }).finally(() => { appInstance.__serverProgressLoading = false; });
+        }
     }
 
     clearStorageHistory() {
