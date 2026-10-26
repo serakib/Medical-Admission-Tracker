@@ -353,6 +353,15 @@
     paintLeaderboardTrophies(rows);
     return result;
   };
+  window.MedAchievementVaultTrophies = Object.freeze({
+    paint: paintLeaderboardTrophies,
+    getRanks: function() { return trophyRanks.map(function(rank, index) { return { name: rank[0], index: index }; }); },
+    getRankIndex: rankIndexForName,
+    getRankInfoForName: getRankInfoForName,
+    getRankInfoForPoints: getRankInfoForPoints,
+    trophySvgForRankName: trophySvgForRankName,
+    trophySvgForIndex: trophySvgForIndex
+  });
   window.addEventListener('storage',function(){setTimeout(renderTrophy,0);});
   document.addEventListener('student-progress-updated',function(){
     const localRows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
