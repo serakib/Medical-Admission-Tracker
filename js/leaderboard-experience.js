@@ -51,8 +51,11 @@
   };
   const errorMessage = error => {
     const message = String(error?.message || error || '').trim();
-    if (/registered account|login|authentication required|token/i.test(message)) {
-      return 'Friends API authentication failed. Guest session refresh করুন বা account আবার sign in করুন।';
+    if (/registered account/i.test(message)) {
+      return 'Live Apps Script-এ এখনও registered-only Friends code চলছে। Latest Medical_Admission_Tracker_Backend.gs deploy করুন।';
+    }
+    if (/authentication required|token|guest session expired|invalid guest/i.test(message)) {
+      return 'Friend session verify হয়নি। পেজ refresh করুন; guest session আবার তৈরি না হলে নতুন guest session চালু করুন।';
     }
     if (/pending|already your friend|request already|request পাওয়া/i.test(message)) return message;
     if (/failed to fetch|networkerror|load failed|cors|redirect|network/i.test(message)) {
