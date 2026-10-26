@@ -561,7 +561,7 @@
     if (fill) fill.style.width = percent + '%';
     fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
     const star = document.getElementById('sidebar-profile-progress-star');
-    if (star) star.style.left = `calc(8px + (100% - 16px) * ${percent / 100})`;
+    if (star) star.style.left = percent + '%';
     const pending = Math.max(0, Number(progress.pendingPB) || 0);
     write('sidebar-profile-pb-balance', 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(xp) + ' · RP: ' + fmt(progress.rankPoints ?? 0));
     const input = document.getElementById('sidebar-profile-pb-amount');
