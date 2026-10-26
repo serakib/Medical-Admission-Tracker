@@ -606,50 +606,7 @@
     }
   });
 
-  /* Lifetime-only leaderboard; Friends filters to the signed-in user's college. */
-  const leaderboardPeriodKey = 'med_leaderboard_period_v1';
-  let leaderboardPeriod = ['all-time','friends'].includes(localStorage.getItem(leaderboardPeriodKey)) ? localStorage.getItem(leaderboardPeriodKey) : 'all-time';
-  try { localStorage.setItem(leaderboardPeriodKey,leaderboardPeriod); } catch (_) {}
-  let latestLeaderboardRows = [];
-  const periodTabs = document.getElementById('leaderboard-period-tabs');
-  const periodNote = document.getElementById('leaderboard-period-note');
-  const originalRenderLeaderboardRows = typeof app.renderLeaderboardRows === 'function' ? app.renderLeaderboardRows.bind(app) : null;
-  const collegeKey = value => String(value || '').trim().toLocaleLowerCase().replace(/\s+/g,' ');
-  function paintLeaderboardPeriodTabs() {
-    document.querySelectorAll('[data-leaderboard-period]').forEach(button => {
-      const active=button.dataset.leaderboardPeriod===leaderboardPeriod;
-      button.classList.toggle('is-active',active);
-      button.setAttribute('aria-selected',active?'true':'false');
-    });
-    if(periodNote){const friends=leaderboardPeriod==='friends';periodNote.classList.toggle('hidden',!friends);periodNote.textContent=friends?'Friends তালিকায় আপনার কলেজের শিক্ষার্থীরাই দেখানো হবে। আপনার প্রোফাইলে কলেজের নাম যোগ করুন.':'';}
-  }
-  if(originalRenderLeaderboardRows){
-    app.renderLeaderboardRows=function(rows){
-      latestLeaderboardRows=Array.isArray(rows)?rows.slice():[];
-      paintLeaderboardPeriodTabs();
-      let viewRows=latestLeaderboardRows.map(row=>({...row,points:Number(row.rankPoints??row.lifetimeRankPoints??row.points??0)}));
-      if(leaderboardPeriod==='friends'){
-        const own=viewRows.find(row=>row.uid&&row.uid===app.authUser?.uid);
-        const college=collegeKey(app.profile?.college||own?.college);
-        if(!college){
-          const body=document.getElementById('leaderboard-body'),podium=document.getElementById('leaderboard-podium'),me=document.getElementById('leaderboard-me');
-          if(body)body.innerHTML='<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">Friends ranking দেখতে Account Profile-এ আপনার কলেজের নাম যোগ করুন।</td></tr>';
-          if(podium)podium.replaceChildren();if(me){me.replaceChildren();me.classList.add('hidden');}return;
-        }
-        viewRows=viewRows.filter(row=>collegeKey(row.college)===college);
-      }
-      return originalRenderLeaderboardRows(viewRows);
-    };
-  }
-  if(periodTabs){
-    periodTabs.addEventListener('click',event=>{
-      const button=event.target.closest('[data-leaderboard-period]');if(!button)return;
-      const next=button.dataset.leaderboardPeriod;if(!['all-time','friends'].includes(next))return;
-      leaderboardPeriod=next;try{localStorage.setItem(leaderboardPeriodKey,next);}catch(_){}
-      paintLeaderboardPeriodTabs();if(originalRenderLeaderboardRows)app.renderLeaderboardRows(latestLeaderboardRows);
-    });
-    paintLeaderboardPeriodTabs();
-  }
+  /* Leaderboard tabs and Friends filtering are managed by js/global-league-system.js. */
   /* Human portrait avatar picker: people only, no animal avatars. */
   const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:none;width:100%;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;margin-top:12px;align-items:start}.profile-avatar-picker.is-expanded .profile-avatar-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr))}.profile-avatar-toggle-button,.profile-avatar-confirm-button,.profile-avatar-cancel-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-toggle-button:hover,.profile-avatar-confirm-button:hover{background:#10b98125}.profile-avatar-confirm-button:disabled{opacity:.45;cursor:not-allowed}.profile-avatar-cancel-button{border-color:var(--line,#cbd5e1);background:transparent}.profile-avatar-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.profile-avatar-comparison-card{min-width:0;padding:12px;border:1px solid var(--line,#cbd5e1);border-radius:14px;display:flex;align-items:center;flex-direction:column;gap:8px;text-align:center}.profile-avatar-comparison-card img{width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid var(--line,#cbd5e1)}.profile-avatar-comparison-card.is-current img{border-color:#10b981}.profile-avatar-comparison-card.is-preview img{border-color:#0ea5e9}.profile-avatar-comparison-card small{font-size:12px;font-weight:850}.profile-avatar-comparison-placeholder{width:88px;height:88px;display:grid;place-items:center;border-radius:50%;border:2px dashed var(--line,#cbd5e1);font-size:11px;color:var(--muted,#64748b);padding:8px}.profile-avatar-confirm-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}.profile-avatar-choice.is-current{border-color:#10b981;box-shadow:0 0 0 2px #10b98138}.profile-avatar-choice.is-pending{border-color:#0ea5e9;box-shadow:0 0 0 3px #0ea5e938;transform:scale(1.04)}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-picker.is-expanded .profile-avatar-options{grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}.profile-avatar-choice{min-width:0}}';
   humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:block;margin-top:7px;color:var(--muted,#64748b);font-size:11px}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-confirm-button:focus-visible,.profile-avatar-cancel-button:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
