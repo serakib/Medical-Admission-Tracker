@@ -260,8 +260,8 @@
       .replace(/\bssc\b/gi, 'SSC');
     const rawRank = safeText(row.rank || '—', 50);
     // Repair the missing initial B seen in older/malformed profile data.
-    const currentRank = rawRank.replace(/^ronze(?=\\s|$)/i, 'Bronze');
-    const rankTierMatch = currentRank.match(/^(Grandmaster|Platinum|Emerald|Diamond|Silver|Bronze|Gold|Master|Legend|Mythic|Immortal)\\b/i);
+    const currentRank = rawRank.replace(/^ronze(?=\s|$)/i, 'Bronze');
+    const rankTierMatch = currentRank.match(/^(Grandmaster|Platinum|Emerald|Diamond|Silver|Bronze|Gold|Master|Legend|Mythic|Immortal)\b/i);
     const currentRankTier = rankTierMatch
       ? rankTierMatch[1].charAt(0).toUpperCase() + rankTierMatch[1].slice(1).toLowerCase()
       : currentRank;
