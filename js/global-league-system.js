@@ -701,7 +701,8 @@
         var safeStatus = selectedPeriod !== 'weekly' ? '' : isInWeeklySafeZone(row)
           ? '<small class="leader-safe-status"><i class="fa-solid fa-shield-check"></i> Safe Zone</small>'
           : '<small class="leader-risk-status"><i class="fa-solid fa-arrow-trend-up"></i> আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন</small>';
-        tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div></td>' +
+        var friendAction = row.isMine ? '' : '<button type="button" class="mat-row-friend-button" data-leaderboard-open-profile="' + escapeHtml(row.userId) + '" aria-label="Open ' + escapeHtml(row.name || 'student') + ' profile and friend actions">Friend</button>';
+        tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + friendAction + '</span></div></td>' +
           '<td class="py-4 px-3 leader-college">' + escapeHtml(row.college || '—') + '</td>' +
           '<td class="py-4 px-3 leader-batch">' + escapeHtml(row.batch || '—') + '</td>' +
           '<td class="py-4 px-3 leader-xp">' + Number(row.xp || 0).toLocaleString() + ' XP</td>' +
@@ -750,30 +751,55 @@
     var name = String(row && row.name || 'M').trim();
     return escapeHtml(name ? name.charAt(0).toUpperCase() : 'M');
   }
-  function ensureWeeklyTab() {
+  function ensurePeriodTabs() {
     var tabs = document.getElementById('leaderboard-period-tabs');
-    if (!tabs) return null;
-    var weekly = tabs.querySelector('[data-leaderboard-period="weekly"]');
-    if (!weekly) {
-      weekly = document.createElement('button');
-      weekly.type = 'button';
-      weekly.setAttribute('role', 'tab');
-      weekly.setAttribute('aria-selected', 'false');
-      weekly.setAttribute('data-leaderboard-period', 'weekly');
-      weekly.className = 'leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border flex-shrink-0 whitespace-nowrap';
-      weekly.textContent = '📅 Weekly';
-      var friends = tabs.querySelector('[data-leaderboard-period="friends"]');
-      if (friends) friends.insertAdjacentElement('afterend', weekly);
-      else tabs.appendChild(weekly);
+    if (!tabs) {
+      var view = document.getElementById('view-leaderboard');
+      if (!view) return null;
+      tabs = document.createElement('div');
+      tabs.id = 'leaderboard-period-tabs';
+      tabs.className = 'flex flex-wrap gap-2 mb-5';
+      tabs.setAttribute('role', 'tablist');
+      tabs.setAttribute('aria-label', 'Leaderboard period');
+      var anchor = document.getElementById('leaderboard-period-note') ||
+        document.getElementById('leaderboard-podium') ||
+        document.getElementById('leaderboard-list');
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(tabs, anchor);
+      else view.appendChild(tabs);
     }
-    // Keep the tab visible even when an older cached stylesheet/markup is used.
-    weekly.style.setProperty('display', 'inline-flex', 'important');
-    weekly.style.setProperty('visibility', 'visible', 'important');
-    weekly.style.setProperty('opacity', '1', 'important');
-    weekly.style.setProperty('flex', '0 0 auto');
-    weekly.classList.add('flex-shrink-0', 'whitespace-nowrap');
-    return weekly;
+    var definitions = [
+      { key: 'all-time', label: '🏆 All Time' },
+      { key: 'friends', label: '👥 Friends' },
+      { key: 'weekly', label: '📅 Weekly' }
+    ];
+    definitions.forEach(function (item) {
+      var button = tabs.querySelector('[data-leaderboard-period="' + item.key + '"]');
+      if (!button) {
+        button = document.createElement('button');
+        button.type = 'button';
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', 'false');
+        button.setAttribute('data-leaderboard-period', item.key);
+        button.className = 'leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border flex-shrink-0 whitespace-nowrap';
+        button.textContent = item.label;
+        tabs.appendChild(button);
+      }
+      button.style.setProperty('display', 'inline-flex', 'important');
+      button.style.setProperty('visibility', 'visible', 'important');
+      button.style.setProperty('opacity', '1', 'important');
+      button.style.setProperty('flex', '0 0 auto');
+      button.classList.add('flex-shrink-0', 'whitespace-nowrap');
+    });
+    tabs.style.setProperty('display', 'flex', 'important');
+    tabs.style.setProperty('visibility', 'visible', 'important');
+    tabs.style.setProperty('opacity', '1', 'important');
+    return tabs;
   }
+  function ensureWeeklyTab() {
+    var tabs = ensurePeriodTabs();
+    return tabs ? tabs.querySelector('[data-leaderboard-period="weekly"]') : null;
+  }
+
   function updatePeriodTabs() {
     ensureWeeklyTab();
     document.querySelectorAll('[data-leaderboard-period]').forEach(function (button) {
@@ -1085,6 +1111,13 @@
           if (view && view.classList.contains('hidden') && typeof app.showView === 'function') app.showView('leaderboard');
           await loadLeaderboard(true);
         }
+        return;
+      }
+      var friendProfileButton = event.target.closest && event.target.closest('[data-leaderboard-open-profile]');
+      if (friendProfileButton) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showPublicProfile(friendProfileButton.dataset.leaderboardOpenProfile);
         return;
       }
       var player = event.target.closest && event.target.closest('[data-med-player]');
