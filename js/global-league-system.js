@@ -444,16 +444,24 @@
   function renderRankRail(rows) {
     var rail = document.getElementById('med-rank-rail');
     if (!rail) return;
-    var me = getMyRankEntry(rows);
-    if (!selectedRank || RANKS.indexOf(selectedRank) < 0) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || RANKS[0];
-    rail.innerHTML = RANKS.map(function (rank, index) {
+    var me = getMyRankEntry(rows || []);
+    var vault = window.MedAchievementVaultTrophies;
+    var vaultRanks = vault && typeof vault.getRanks === 'function'
+      ? vault.getRanks()
+      : RANKS.map(function (name, index) { return { name: name, index: index }; });
+    if (me && (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; }))) selectedRank = me.rank;
+    if (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; })) selectedRank = (me && me.rank) || RANKS[0];
+    rail.innerHTML = vaultRanks.map(function (item) {
+      var rank = item.name;
       var active = rank === selectedRank;
-      var own = me && me.rank === rank;
-      return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + '" data-med-rank="' + escapeHtml(rank) + '">' +
-        '<i class="fa-solid ' + rankIcon(index) + '"></i><span>' + escapeHtml(rank) + '</span><small>' + (own ? 'YOUR RANK' : 'RANK TIER') + '</small></button>';
+      var svg = vault && typeof vault.trophySvgForIndex === 'function'
+        ? vault.trophySvgForIndex(item.index, 'vault-rank-trophy-svg')
+        : '<span aria-hidden="true">🏆</span>';
+      return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + '" data-med-rank="' + escapeHtml(rank) + '" aria-label="' + escapeHtml(rank) + ' trophy">' +
+        svg + '<span>' + escapeHtml(rank) + '</span></button>';
     }).join('');
     try {
-      var activeButton = rail.querySelector('[data-med-rank="' + selectedRank.replace(/"/g, '\\"') + '"]');
+      var activeButton = Array.from(rail.querySelectorAll('[data-med-rank]')).find(function (button) { return button.dataset.medRank === selectedRank; });
       if (activeButton) activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     } catch (_) {}
     renderRankProgress(me);
@@ -462,19 +470,33 @@
     var area = document.getElementById('med-rank-progress');
     if (!area) return;
     if (!me) {
-      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>Leaderboard দেখতে login বা Guest session তৈরি করুন। Exam দেওয়া আবশ্যক নয়।</span></div>';
+      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>নিজের নাম, কলেজ ও ব্যাচ পূরণ করে Save করলে Leaderboard ও trophy progress ব্যবহার করতে পারবেন।</span></div>';
       return;
     }
-    if (selectedRank !== me.rank) {
-      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-lock"></i><span><strong>Unlock ' + escapeHtml(selectedRank) + '</strong><br>আপনার বর্তমান rank: ' + escapeHtml(me.rank) + '.</span></div>';
+    var vault = window.MedAchievementVaultTrophies;
+    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(me.rank) : null;
+    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(me.totalRP || me.rankPoints || 0);
+    var required = Math.max(0, Number(info && info.required) || 0);
+    var threshold = Math.max(0, Number(info && info.safeZoneRP) || 0);
+    var weeklyMode = selectedPeriod === 'weekly';
+    var earnedThisPeriod = Math.max(0, Number(weeklyMode ? me.weeklyRankPoints : me.rankPoints) || 0);
+    var atMax = !!(info && info.atMax) || String(me.rank || '').toLowerCase() === 'immortal';
+    if (atMax || !required) {
+      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal') + ' · সর্বোচ্চ Trophy</strong><small>আপনি সর্বোচ্চ rank-এ পৌঁছেছেন।</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + Math.floor(Number(me.totalRP || me.rankPoints) || 0).toLocaleString() + ' RP</span></div><div class="mat-safe-zone-caption"><i class="fa-solid fa-shield-check"></i> সর্বোচ্চ rank · Demotion protection প্রযোজ্য নয়</div>';
       return;
     }
-    var rp = Math.max(0, Number(me.rankPoints || 0));
-    var pct = Math.max(0, Math.min(100, Math.round(rp / 300 * 100)));
-    var index = RANKS.indexOf(me.rank);
-    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' Progress</strong><small>' + rp + ' / 300 RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + rp + ' RP</span></div>' +
-      '<div class="mat-rank-track" role="progressbar" aria-valuemin="0" aria-valuemax="300" aria-valuenow="' + Math.min(rp, 300) + '"><span style="width:' + pct + '%"></span><i class="fa-solid fa-star" style="left:clamp(10px,' + pct + '%,calc(100% - 10px))"></i></div>' +
-      '<div class="mat-rank-foot"><span>0 RP</span><span>' + (index === RANKS.length - 1 ? 'Highest Rank · Immortal' : 'Next: ' + escapeHtml(RANKS[index + 1])) + '</span><span>300 RP</span></div>';
+    var pct = Math.max(0, Math.min(100, earnedThisPeriod / required * 100));
+    var markerPct = Math.max(0, Math.min(100, threshold / required * 100));
+    var safe = earnedThisPeriod >= threshold;
+    var remaining = Math.max(0, threshold - earnedThisPeriod);
+    var rpLabel = weeklyMode ? 'Weekly RP' : 'Current RP';
+    var statusText = safe
+      ? 'Safe Zone-এ আছেন'
+      : 'Safe Zone-এ যেতে আরও ' + remaining.toLocaleString() + ' RP প্রয়োজন';
+    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' ' + rpLabel + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
+      '<div class="mat-rank-track" role="progressbar" aria-label="Trophy rank progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '"><span style="width:' + pct + '%;background:' + (safe ? 'linear-gradient(90deg,#10b981,#34d399)' : 'linear-gradient(90deg,#f59e0b,#fb923c)') + '"></span><i class="mat-safe-zone-marker" style="left:' + markerPct + '%" aria-hidden="true"></i></div>' +
+      '<div class="mat-rank-foot"><span>0 RP</span><span>' + required.toLocaleString() + ' RP</span></div>' +
+      '<div class="mat-safe-zone-caption ' + (safe ? '' : 'at-risk') + '"><i class="fa-solid ' + (safe ? 'fa-shield-check' : 'fa-triangle-exclamation') + '"></i> ' + statusText + '</div>';
   }
   function updateTopControls(me) {
     var rp = document.getElementById('med-top-rp');
