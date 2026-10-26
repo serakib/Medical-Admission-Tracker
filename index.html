@@ -513,10 +513,32 @@ function toggleAppSidebarCollapse(){
                 <div class="min-w-0 flex-1">
                     <div class="eyebrow"><i class="fa-solid fa-shield-halved"></i> Current Account</div>
                     <h2 id="account-profile-name" class="profile-name">Guest Student</h2>
-                    <p id="account-profile-email" class="profile-subtitle">Guest mode · Sign in to connect your account</p>
+                    <p id="account-profile-email" class="profile-subtitle">Guest mode · Profile is stored on this device session</p>
                     <span id="account-profile-status" class="inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100">Guest account</span>
                 </div>
             </div>
+            <article class="profile-panel space-y-4" id="medical-profile-editor">
+                <div class="profile-panel-head"><div><span class="eyebrow">Medical Profile</span><h3>Personal Information</h3></div><i class="fa-solid fa-id-card" aria-hidden="true"></i></div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Guest এবং registered user—দুজনেই নিজের নাম, College, Batch ও Avatar update করতে পারবেন।</p>
+                <form id="medical-profile-form" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="text-sm font-semibold">নাম
+                        <input id="medical-profile-name" name="name" required minlength="2" maxlength="80" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" autocomplete="name">
+                    </label>
+                    <label class="text-sm font-semibold">College
+                        <input id="medical-profile-college" name="college" maxlength="120" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" autocomplete="organization">
+                    </label>
+                    <label class="text-sm font-semibold">Batch / Class
+                        <input id="medical-profile-batch" name="batch" maxlength="40" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" placeholder="যেমন HSC 2027">
+                    </label>
+                    <label class="text-sm font-semibold">Avatar URL বা Emoji
+                        <input id="medical-profile-avatar" name="avatar" maxlength="500" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" placeholder="🩺 অথবা https://...">
+                    </label>
+                    <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
+                        <button id="medical-profile-save" type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold">Save Profile</button>
+                        <span id="medical-profile-save-status" class="text-sm" role="status" aria-live="polite"></span>
+                    </div>
+                </form>
+            </article>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <article class="account-action-card">
                     <span class="account-action-icon"><i class="fa-solid fa-right-left"></i></span>
@@ -1284,18 +1306,17 @@ function toggleAppSidebarCollapse(){
         <!-- VIEW: LEADERBOARD -->
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Global Match Rank and RP are synced through the shared API. Friends shows your accepted friend connections.</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Medical-only XP, RP and ranks are stored through your dedicated Google Sheets API. Guest ও registered user—দুজনেই exam না দিয়েও leaderboard দেখতে পারবেন।</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
                 <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Leaderboard period">
   <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">🏆 All Time</button>
   <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Weekly</button>
-  <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">Friends</button>
 </div>
 <div id="leaderboard-period-note" class="hidden mb-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200" role="status"></div>
 
                 <div id="leaderboard-podium" class="leaderboard-podium"></div>
                 <div id="leaderboard-me" class="leaderboard-me hidden"></div>
-                <div id="leaderboard-list" class="leaderboard-table-wrap"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-right border-b border-gray-200 dark:border-gray-700"><th class="py-3 px-3">Student</th><th class="py-3 px-3">College</th><th class="py-3 px-3">Quizzes</th><th class="py-3 px-3">Accuracy</th><th class="py-3 px-3">Rank / Points</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div></div>
+                <div id="leaderboard-list" class="leaderboard-table-wrap"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-right border-b border-gray-200 dark:border-gray-700"><th class="py-3 px-3">Student</th><th class="py-3 px-3">College</th><th class="py-3 px-3">Batch</th><th class="py-3 px-3">XP</th><th class="py-3 px-3">Rank / Points</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div></div>
             </div>
         </section>
 <!-- VIEW 7: SYLLABUS & INFO -->
@@ -1508,13 +1529,13 @@ function toggleAppSidebarCollapse(){
 
 
     
-<script src="./js/leaderboard-config.js?v=fallrush-api-1"></script>
+<script src="./js/leaderboard-config.js?v=medical-sheet-api-1"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=fallrush-api-1"></script>
+<script type="module" src="script.js?v=medical-sheet-api-1"></script>
 <script type="module" src="./js/integrated-features.js"></script>
 <script src="./js/final-trophy-practice.js" defer></script>
 <script src="./js/final-exam-type-lifetime.js" defer></script>
-<script type="module" src="./js/global-league-system.js?v=fallrush-api-1"></script>
+<script type="module" src="./js/global-league-system.js?v=medical-sheet-api-1"></script>
 </body>
 </html>
