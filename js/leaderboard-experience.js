@@ -210,8 +210,8 @@
     const panel = document.getElementById('leaderboard-friends-panel');
     const list = document.getElementById('leaderboard-friend-request-list');
     if (!panel || !list) return;
-    panel.classList.toggle('hidden', !isFriendsTab);
-    if (!isFriendsTab) return;
+    // Keep incoming requests reachable from the leaderboard, not only the Friends tab.
+    panel.classList.remove('hidden');
     if (!canManageFriends()) {
       list.innerHTML = '<div class="mat-profile-empty">Guest session এখনও প্রস্তুত হয়নি। পেজ refresh করুন; guest account থেকেও friend request পাঠানো যাবে।</div>';
       return;
@@ -299,6 +299,63 @@
     }
   }
 
+  function renderPBConversionPanel(profile) {
+    const host = document.getElementById('student-profile-actions');
+    if (!host || !profile) return;
+    const targetId = String(profile.userId || profile.uid || '');
+    const ownId = userId();
+    let panel = document.getElementById('student-profile-pb-conversion');
+    if (!ownId || ownId !== targetId) {
+      if (panel) panel.remove();
+      return;
+    }
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'student-profile-pb-conversion';
+      panel.className = 'mt-4 rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/70 dark:bg-emerald-950/20 p-4';
+      panel.innerHTML = '<div class="flex items-start justify-between gap-3"><div><h3 class="font-extrabold text-sm">PB Conversion</h3><p class="text-xs text-gray-600 dark:text-gray-300 mt-1">1 PB → 2 XP অথবা 1 PB → 1 RP। PB পাওয়ার ২ ঘণ্টার মধ্যে convert করুন; সময় পার হলে PB স্বয়ংক্রিয়ভাবে RP হবে।</p></div><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">My Account</span></div><div class="mt-3 flex flex-col sm:flex-row gap-2"><label class="flex-1 text-xs font-semibold">PB amount<input id="student-profile-pb-amount" type="number" min="1" step="1" value="1" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" /></label><div class="flex items-end gap-2"><button type="button" data-pb-convert="xp" class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white">Convert to XP</button><button type="button" data-pb-convert="rp" class="rounded-xl border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">Convert to RP</button></div></div><p id="student-profile-pb-balance" class="mt-2 text-xs font-bold text-gray-700 dark:text-gray-200" aria-live="polite"></p>';
+      host.insertAdjacentElement('afterend', panel);
+    }
+    let progress = {};
+    try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
+    const pending = Math.max(0, Number(progress.pendingPB) || 0);
+    const balance = panel.querySelector('#student-profile-pb-balance');
+    if (balance) balance.textContent = 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(progress.xp) + ' · RP: ' + fmt(progress.rankPoints);
+    const input = panel.querySelector('#student-profile-pb-amount');
+    const xpButton = panel.querySelector('[data-pb-convert="xp"]');
+    const rpButton = panel.querySelector('[data-pb-convert="rp"]');
+    if (input) input.max = String(pending);
+    if (xpButton) xpButton.disabled = pending < 1;
+    if (rpButton) rpButton.disabled = pending < 1;
+  }
+
+  if (!document.documentElement.dataset.pbConversionHandler) {
+    document.documentElement.dataset.pbConversionHandler = '1';
+    document.addEventListener('click', event => {
+      const button = event.target.closest?.('[data-pb-convert]');
+      if (!button) return;
+      const panel = document.getElementById('student-profile-pb-conversion');
+      const input = panel?.querySelector('#student-profile-pb-amount');
+      const amount = Number(input?.value);
+      const kind = button.getAttribute('data-pb-convert');
+      const method = kind === 'xp' ? app.convertPBToXP : app.convertPBToRP;
+      if (typeof method !== 'function') {
+        setStatus('PB conversion service is unavailable. Refresh the page and try again.', true);
+        return;
+      }
+      const result = method.call(app, amount);
+      if (!result?.ok) {
+        setStatus(result?.message || 'PB conversion failed.', true);
+        renderPBConversionPanel(activePublicProfile);
+        return;
+      }
+      setStatus(kind === 'xp'
+        ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
+        : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।');
+      renderPBConversionPanel(activePublicProfile);
+    });
+  }
+
   async function openStudentProfile(row) {
     if (!row) return;
     activePublicProfile = row;
@@ -349,10 +406,12 @@
     const status = document.getElementById('student-profile-status');
     if (status) status.classList.add('hidden');
     renderRelationshipActions(row);
+    renderPBConversionPanel(row);
     if (canManageFriends()) {
       try { await loadConnections(true); }
       catch (error) { setStatus(errorMessage(error), true); }
       renderRelationshipActions(row);
+      renderPBConversionPanel(row);
     }
     if (window.MedGlobalLeague && typeof window.MedGlobalLeague.reload === 'function') {
       // Do not refetch the board just to render the profile; current row data is already authoritative.
