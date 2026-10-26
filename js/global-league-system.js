@@ -355,6 +355,14 @@
     if (!token) throw new Error('Guest session is unavailable. Please reload the page.');
     return { guestToken: token };
   }
+  async function getServerProgress() {
+    await syncIdentity();
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'progress' }, creds));
+    if (response.user) applyProfile(response.user);
+    return response;
+  }
+
   async function updateProfile(fields) {
     fields = fields || {};
     var allowed = {};
@@ -978,7 +986,10 @@
       totalQuestions: Math.max(1, Number(item.totalQuestions) || 1),
       correctCount: Math.max(0, Number(item.correctCount) || 0),
       wrongCount: Math.max(0, Number(item.wrongCount) || 0),
-      score: Math.max(0, Number(item.score != null ? item.score : item.quizPoints) || 0)
+      score: Math.max(0, Number(item.score != null ? item.score : item.quizPoints) || 0),
+      subject: safeText(item.subject || '', 80),
+      year: safeText(item.year || '', 40),
+      timeUsed: safeText(item.timeUsed || '', 20)
     }));
     var user = response.user || response.profile || null;
     if (user) applyProfile(user);
@@ -1010,7 +1021,10 @@
       wrongCount: Math.max(0, Number(meta.wrongCount) || 0),
       quizPoints: Math.max(0, Number(meta.quizPoints) || 0),
       score: Math.max(0, Number(meta.score != null ? meta.score : meta.quizPoints) || 0),
-      examMode: safeText(meta.examMode || (app.examState && app.examState.mode) || 'Exam', 60)
+      examMode: safeText(meta.examMode || (app.examState && app.examState.mode) || 'Exam', 60),
+      subject: safeText(meta.subject || (app.examState && app.examState.subject) || '', 80),
+      year: safeText(meta.year || (app.examState && app.examState.year) || '', 40),
+      timeUsed: safeText(meta.timeUsed || '', 20)
     };
     try {
       await syncIdentity();
@@ -1514,6 +1528,7 @@
   app.setLocalLeaderboardRows = function (rows) { return saveCache(rows, 'all-time'); };
   app.mergeLeaderboardRows = function (rows) { return normalizeRows(rows); };
   app.recordLeaderboardResult = recordLeaderboardResult;
+  app.getServerProgress = getServerProgress;
   app.loadLeaderboard = loadLeaderboard;
   app.syncPendingLeaderboard = flushQueue;
   app.syncLeaderboardUser = syncIdentity;
@@ -1523,6 +1538,7 @@
   window.MedGlobalLeague = Object.freeze({
     loadLeaderboard: loadLeaderboard,
     recordLeaderboardResult: recordLeaderboardResult,
+    getProgress: getServerProgress,
     syncIdentity: syncIdentity,
     registerUser: registerUser,
     updateProfile: updateProfile,
