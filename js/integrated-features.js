@@ -794,7 +794,28 @@
       }
       pendingAvatarSource = null;
       avatarPickerExpanded = false;
+      // Keep the existing avatar picker as the single source of truth, and sync the
+      // chosen image to the Medical Sheets profile so leaderboard/public profiles use it.
+      app.profile = Object.assign({}, app.profile || {}, { avatar: candidate });
       refreshAvatarViews();
+      const avatarStatus = document.getElementById('profile-avatar-upload-status');
+      if (avatarStatus) avatarStatus.textContent = 'Avatar saved on this device. Syncing it to your student profile…';
+      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.updateProfile === 'function') {
+        window.MedGlobalLeague.updateProfile({ avatar: candidate }).then(updated => {
+          app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: candidate });
+          if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
+            return app.syncFirebaseStudentProfile({ name: app.profile.name, college: app.profile.college, batch: app.profile.batch, avatar: candidate });
+          }
+        }).then(() => {
+          if (avatarStatus) avatarStatus.textContent = 'Avatar synced. Leaderboard ও student profile-এ একই avatar দেখা যাবে।';
+          refreshAvatarViews();
+        }).catch(error => {
+          if (avatarStatus) avatarStatus.textContent = 'Avatar এই device-এ save হয়েছে, কিন্তু server sync হয়নি। আবার login করে চেষ্টা করুন।';
+          console.warn('[Profile avatar] Server sync failed:', error);
+        });
+      } else if (avatarStatus) {
+        avatarStatus.textContent = 'Avatar saved on this device. Profile sync service is not ready yet.';
+      }
       return;
     }
     const avatarChoice = event.target.closest('[data-avatar-source]');
