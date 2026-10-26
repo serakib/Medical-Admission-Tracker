@@ -383,7 +383,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
         <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar();setTimeout(function(){var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},100)" type="button"><i class="fa-solid fa-envelope"></i><span>Contact</span></button>
       </nav>
       <div class="sidebar-bottom">
-        <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
+        <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.MedStudentProfile ? window.MedStudentProfile.openOwn() : window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
         <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
         <button id="sidebar-auth-action" class="sidebar-action login-action" onclick="window.app && window.app.authUser ? window.handleLogout() : window.redirectToLogin()" type="button" aria-label="Log In / Sign Up"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
