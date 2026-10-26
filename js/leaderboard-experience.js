@@ -52,7 +52,7 @@
   const errorMessage = error => {
     const message = String(error?.message || error || '').trim();
     if (/registered account|login|authentication required|token/i.test(message)) {
-      return 'Friends sync করতে registered account-এ login করুন।';
+      return 'Friends API authentication failed. Guest session refresh করুন বা account আবার sign in করুন।';
     }
     if (/pending|already your friend|request already|request পাওয়া/i.test(message)) return message;
     if (/failed to fetch|networkerror|load failed|cors|redirect|network/i.test(message)) {
@@ -173,7 +173,7 @@
     return true;
   }
   async function cancelRequest(requestId) {
-    if (!canManageFriends()) throw new Error('Friend request পরিচালনা করতে registered account-এ login করুন।');
+    if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     await friendApi('cancelFriendRequest', { requestId: String(requestId || '') });
     await loadConnections(true);
     return true;
@@ -252,7 +252,9 @@
     const view = document.getElementById('view-student-profile');
     const name = safeText(row.name || 'Medical Student', 80);
     const college = safeText(row.college || '', 120);
-    const batch = safeText(row.batch || '', 40);
+    const batch = safeText(row.batch || '', 40)
+      .replace(/\bhsc\b/gi, 'HSC')
+      .replace(/\bssc\b/gi, 'SSC');
     const currentRank = safeText(row.rank || '—', 50);
     const avatar = document.getElementById('student-profile-avatar');
     const avatarMarkupHTML = avatarMarkup(row);
@@ -262,8 +264,11 @@
     }
     const write = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
     write('student-profile-name', name);
-    write('student-profile-college-batch', [college, batch].filter(Boolean).join(' · ') || 'College ও Batch এখনো যোগ করা হয়নি');
-    write('student-profile-rank-level', currentRank + ' · Level ' + Math.max(1, Number(row.level) || 1));
+    write('student-profile-college-batch', [
+      college ? 'College: ' + college : '',
+      batch ? 'Class/Batch: ' + batch : ''
+    ].filter(Boolean).join('\n') || 'College ও Class/Batch এখনো যোগ করা হয়নি');
+    write('student-profile-rank-level', 'Rank: ' + currentRank + ' · Level ' + Math.max(1, Number(row.level) || 1));
     write('student-profile-xp', fmt(row.xp) + ' XP');
     write('student-profile-total-rp', fmt(row.totalRP) + ' RP');
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
