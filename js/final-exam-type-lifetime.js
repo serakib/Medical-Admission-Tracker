@@ -51,7 +51,8 @@
       else{btn.hidden=true;btn.disabled=true;}
     });
     if(![50,100].includes(Number(app.setup?.questionsCount))) app.setup.questionsCount=50;
-    app.setup.mode='model'; app.setup.subject='all';
+    // Preserve Previous Year exam mode instead of relabeling it as Model Test.
+    if(currentType() !== 'previous-year') { app.setup.mode='model'; app.setup.subject='all'; }
     if(typeof app.setSetupMode==='function') {
       const modelButton=document.getElementById('setup-mode-model');
       if(modelButton) modelButton.classList.add('is-selected');
@@ -95,7 +96,8 @@
     let pool=this.questionBank.slice();
     if(type==='previous-year'){
       if(year==='all'){alert('পরীক্ষার আগে একটি নির্দিষ্ট বছর নির্বাচন করুন।');return;}
-      pool=pool.filter(q=>String(q.year ?? '').trim()===year && q.year && !/^practice$/i.test(String(q.year)));
+      // Only validated previous-year questions from the exact selected year belong in this paper.
+      pool=pool.filter(q=>String(q.year ?? '').trim()===year && q.isPreviousYear === true && q.year && !/^practice$/i.test(String(q.year)));
     } else if(type==='wrong') pool=pool.filter(q=>Boolean(history[qKey(q)]?.wrong));
     else if(type==='skipped') pool=pool.filter(q=>Boolean(history[qKey(q)]?.skipped));
     else if(type==='reviewed') pool=pool.filter(q=>Boolean(history[qKey(q)]?.reviewed));
