@@ -93,8 +93,9 @@
       modal('Your Study Streak', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Current streak</small><h2 style="margin:5px 0 0">' + number(current) + ' days</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Highest streak</small><h2 style="margin:5px 0 0">' + number(highest) + ' days</h2></div></div><p>Your streak statistics are based on the progress data currently available to this account.</p><button id="mat-open-profile-from-streak" class="mat-dash-modal-close" type="button">Open profile</button>');
       document.getElementById('mat-open-profile-from-streak')?.addEventListener('click', () => {
         document.getElementById('mat-dash-modal-backdrop')?.remove();
-        if (typeof app.showView === 'function') app.showView('profile');
-        else document.querySelector('[data-nav-view="profile"]')?.click();
+        if (typeof app.openProfile === 'function') app.openProfile();
+        else if (typeof app.showView === 'function') app.showView('account');
+        else document.querySelector('[data-nav-view="account"]')?.click();
         setTimeout(() => {
           const target = document.getElementById('profile-streak') || document.getElementById('student-profile-streak') || document.querySelector('[data-profile-stat="streak"]');
           target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
