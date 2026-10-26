@@ -1121,6 +1121,23 @@ function matTelegramSend_(message) {
 }
 
 
+/* ------------------------ Public student profile statistics --------------------- */
+function matPublicStudentDirectoryEntry_(student, weeklyByUser, examStatsByUser) {
+  const profile = matPublicProfile_(student, false);
+  const uid = String(student.UserID || '');
+  const weeklyRP = Math.max(0, matFiniteNumber_(weeklyByUser && weeklyByUser[uid], 0));
+  const stats = (examStatsByUser && examStatsByUser[uid]) || { matches: 0, correct: 0, wrong: 0, accuracy: 0, streak: 0 };
+  profile.weeklyRP = weeklyRP;
+  profile.weeklyRankPoints = weeklyRP;
+  profile.matches = Math.max(0, matFiniteNumber_(stats.matches, 0));
+  profile.completedExams = profile.matches;
+  profile.correctCount = Math.max(0, matFiniteNumber_(stats.correct, 0));
+  profile.wrongCount = Math.max(0, matFiniteNumber_(stats.wrong, 0));
+  profile.accuracy = Math.max(0, matFiniteNumber_(stats.accuracy, 0));
+  profile.streak = Math.max(0, matFiniteNumber_(stats.streak, 0));
+  return profile;
+}
+
 /* ---------------------------- Authenticated student search --------------------- */
 /**
  * Search the student directory without returning private email/token fields.
@@ -1149,8 +1166,10 @@ function matSearchStudents_(p) {
     const prefixB = nameB.indexOf(query) === 0 ? 0 : 1;
     return prefixA - prefixB || nameA.localeCompare(nameB);
   });
+  const weeklyByUser = matGetWeeklyRPByUser_();
+  const examStatsByUser = matGetExamStatsByUser_();
   const entries = matched.slice(0, limit).map(function (student) {
-    return matPublicProfile_(student, false);
+    return matPublicStudentDirectoryEntry_(student, weeklyByUser, examStatsByUser);
   });
   return { success: true, query: query, count: matched.length, entries: entries, users: entries };
 }
@@ -1206,8 +1225,10 @@ function matFriendConnections_(p) {
     const id = String(student.UserID || '');
     if (id) studentById[id] = matNormaliseStudent_(student);
   });
+  const weeklyByUser = matGetWeeklyRPByUser_();
+  const examStatsByUser = matGetExamStatsByUser_();
   const friends = Array.from(friendIds).map(function (id) {
-    return studentById[id] ? matPublicProfile_(studentById[id], false) : null;
+    return studentById[id] ? matPublicStudentDirectoryEntry_(studentById[id], weeklyByUser, examStatsByUser) : null;
   }).filter(Boolean).sort(function (a, b) {
     return String(a.name || '').localeCompare(String(b.name || ''));
   });

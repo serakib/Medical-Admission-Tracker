@@ -134,7 +134,7 @@
         lastFriendError = '';
         renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
         if (activePublicProfile) renderRelationshipActions(activePublicProfile);
-        return { friendIds: Array.from(acceptedFriendIds), incoming: incomingRequests, outgoing: outgoingRequests };
+        return { friendIds: Array.from(acceptedFriendIds), friends: acceptedFriends.slice(), incoming: incomingRequests, outgoing: outgoingRequests };
       } catch (error) {
         lastFriendError = errorMessage(error);
         console.warn('[Friends] Google Sheets connection data could not be loaded:', error);
