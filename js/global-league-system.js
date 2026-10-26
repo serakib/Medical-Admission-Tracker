@@ -35,6 +35,7 @@
   var identityPromise = null;
   var loadSequence = 0;
   var suppressRankClickUntil = 0;
+  var rankSelectionTouched = false;
 
   function readPeriod() {
     try {
@@ -616,7 +617,8 @@
       }
     }
     var me = getMe(all);
-    if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
+    if (me && !rankSelectionTouched) selectedRank = me.rank;
+    else if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
     // The selected trophy is a real rank filter. Without this, the same student
     // appeared in every selected subrank even though their authoritative rank was unchanged.
     var displayRows = selectedPeriod === 'friends' ? all.slice() : all.filter(function (row) { return String(row.rank || '') === String(selectedRank || ''); });
@@ -978,6 +980,7 @@
         // Do not carry a stale manually selected trophy into another tab. Default to
         // the signed-in student's authoritative rank so Weekly never opens on an empty league.
         if (nextPeriod !== selectedPeriod) {
+          rankSelectionTouched = false;
           var identityRows = rawRows.length ? normalizeRows(rawRows) : getCache(selectedPeriod);
           var identityRow = getMe(identityRows);
           selectedRank = (identityRow && identityRow.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || '';
@@ -994,6 +997,7 @@
       var rankButton = event.target.closest && event.target.closest('[data-med-rank]');
       if (rankButton) {
         selectedRank = rankButton.dataset.medRank;
+        rankSelectionTouched = true;
         var vaultRanks = window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.getRanks === 'function'
           ? window.MedAchievementVaultTrophies.getRanks().map(function (item) { return item.name; }) : RANKS;
         if (vaultRanks.indexOf(selectedRank) < 0) return;
