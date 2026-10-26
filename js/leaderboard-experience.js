@@ -528,6 +528,74 @@
     if (canManageFriends()) loadConnections(true).catch(() => {});
   });
 
+  function renderSidebarStudentProfileExtras() {
+    const view = document.getElementById('view-profile');
+    const rankGrid = view?.querySelector('.profile-rank-grid');
+    if (!view || !rankGrid) return;
+    let section = document.getElementById('sidebar-student-profile-extras');
+    if (!section) {
+      section = document.createElement('section');
+      section.id = 'sidebar-student-profile-extras';
+      section.className = 'space-y-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-5 shadow-sm';
+      section.innerHTML = '<div><h3 class="font-extrabold text-base flex items-center gap-2"><span aria-hidden="true" class="text-xl">⭐</span> Account Level Progression</h3><div class="flex items-center justify-between gap-3 mt-3"><div><p class="text-xs text-gray-500 dark:text-gray-400">Current Level</p><strong id="sidebar-profile-level" class="text-xl">Level 1</strong></div><div class="text-right"><p class="text-xs text-gray-500 dark:text-gray-400">Next Level</p><strong id="sidebar-profile-next-level">Level 2</strong></div></div><div class="mt-3 h-3 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden" role="progressbar" aria-label="Account level progression" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="sidebar-profile-level-fill" class="h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-500" style="width:0%"></div></div><div class="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400"><span id="sidebar-profile-xp-progress">0 / 500 XP</span><strong id="sidebar-profile-level-percent">0%</strong></div><p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Total Medical XP: <strong id="sidebar-profile-total-xp">0</strong> · RP: <strong id="sidebar-profile-total-rp">0</strong></p></div><div class="border-t border-gray-200 dark:border-gray-700 pt-4"><h3 class="font-extrabold text-base">PB Conversion</h3><p class="mt-1 text-xs text-gray-500 dark:text-gray-400">1 PB → 2 XP অথবা 1 PB → 1 RP। PB পাওয়ার ২ ঘণ্টার মধ্যে convert করুন; সময় পার হলে PB স্বয়ংক্রিয়ভাবে RP হবে।</p><div class="mt-3 flex flex-col sm:flex-row gap-2"><label class="flex-1 text-xs font-semibold">PB amount<input id="sidebar-profile-pb-amount" type="number" min="1" step="1" value="1" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"></label><div class="flex items-end gap-2"><button type="button" data-sidebar-pb-convert="xp" class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white">Convert to XP</button><button type="button" data-sidebar-pb-convert="rp" class="rounded-xl border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">Convert to RP</button></div></div><p id="sidebar-profile-pb-balance" class="mt-2 text-xs font-bold text-gray-700 dark:text-gray-200" aria-live="polite"></p><p id="sidebar-profile-pb-status" class="mt-2 text-sm" role="status" aria-live="polite"></p></div>';
+      rankGrid.insertAdjacentElement('afterend', section);
+    }
+    let progress = {};
+    try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
+    const xp = Math.max(0, Number(progress.xp ?? progress.totalXP) || 0);
+    const levelProgress = typeof app.getPerformanceLevelProgress === 'function'
+      ? app.getPerformanceLevelProgress(xp)
+      : { level: Math.max(1, Number(progress.level) || 1), required: 500, remaining: xp, percent: Math.min(100, Math.round(xp / 500 * 100)) };
+    const level = Math.max(1, Number(levelProgress.level) || 1);
+    const required = Math.max(1, Number(levelProgress.required) || 500);
+    const earned = Math.min(required, Math.max(0, Number(levelProgress.remaining) || 0));
+    const percent = Math.max(0, Math.min(100, Number(levelProgress.percent) || 0));
+    const write = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+    write('sidebar-profile-level', 'Level ' + level);
+    write('sidebar-profile-next-level', 'Level ' + (level + 1));
+    write('sidebar-profile-xp-progress', fmt(earned) + ' / ' + fmt(required) + ' XP · ' + fmt(Math.max(0, required - earned)) + ' XP to go');
+    write('sidebar-profile-level-percent', percent + '%');
+    write('sidebar-profile-total-xp', fmt(xp));
+    write('sidebar-profile-total-rp', fmt(progress.rankPoints ?? progress.currentRP ?? 0));
+    const fill = document.getElementById('sidebar-profile-level-fill');
+    if (fill) fill.style.width = percent + '%';
+    fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
+    const pending = Math.max(0, Number(progress.pendingPB) || 0);
+    write('sidebar-profile-pb-balance', 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(xp) + ' · RP: ' + fmt(progress.rankPoints ?? 0));
+    const input = document.getElementById('sidebar-profile-pb-amount');
+    if (input) input.max = String(pending);
+    section.querySelectorAll('[data-sidebar-pb-convert]').forEach(button => { button.disabled = pending < 1; });
+  }
+
+  if (!document.documentElement.dataset.sidebarProfilePBHandler) {
+    document.documentElement.dataset.sidebarProfilePBHandler = '1';
+    document.addEventListener('click', event => {
+      const button = event.target.closest?.('[data-sidebar-pb-convert]');
+      if (!button) return;
+      const input = document.getElementById('sidebar-profile-pb-amount');
+      const amount = Number(input?.value);
+      const kind = button.getAttribute('data-sidebar-pb-convert');
+      const method = kind === 'xp' ? app.convertPBToXP : app.convertPBToRP;
+      const status = document.getElementById('sidebar-profile-pb-status');
+      if (typeof method !== 'function') {
+        if (status) status.textContent = 'PB conversion service unavailable. Refresh and try again.';
+        return;
+      }
+      const result = method.call(app, amount);
+      if (!result?.ok) {
+        if (status) status.textContent = result?.message || 'PB conversion failed.';
+        renderSidebarStudentProfileExtras();
+        return;
+      }
+      if (status) status.textContent = kind === 'xp'
+        ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
+        : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।';
+      renderSidebarStudentProfileExtras();
+    });
+    document.addEventListener('student-progress-updated', renderSidebarStudentProfileExtras);
+  }
+  renderSidebarStudentProfileExtras();
+
   window.MedStudentFriends = Object.freeze({
     loadConnections,
     getLastConnectionError: () => lastFriendError,
