@@ -553,7 +553,7 @@
       : (localProgress.rankPoints ?? localProgress.currentRP ?? 0)) || 0);
     const levelProgress = typeof app.getPerformanceLevelProgress === 'function'
       ? app.getPerformanceLevelProgress(xp)
-      : { level: Math.max(1, Number(progress.level) || 1), required: 500, remaining: xp, percent: Math.min(100, Math.round(xp / 500 * 100)) };
+      : { level: Math.max(1, Number(localProgress.level) || 1), required: 500, remaining: xp, percent: Math.min(100, Math.round(xp / 500 * 100)) };
     const level = Math.max(1, Number(levelProgress.level) || 1);
     const required = Math.max(1, Number(levelProgress.required) || 500);
     const earned = Math.min(required, Math.max(0, Number(levelProgress.remaining) || 0));
@@ -570,7 +570,7 @@
     fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
     const star = document.getElementById('sidebar-profile-progress-star');
     if (star) star.style.left = percent + '%';
-    const pending = Math.max(0, Number(progress.pendingPB) || 0);
+    const pending = Math.max(0, Number(localProgress.pendingPB) || 0);
     write('sidebar-profile-pb-balance', 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(xp) + ' · RP: ' + fmt(currentRP));
     const input = document.getElementById('sidebar-profile-pb-amount');
     if (input) input.max = String(pending);
