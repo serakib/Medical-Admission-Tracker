@@ -212,7 +212,7 @@
     // Keep local profile widgets aligned with the server-authoritative Medical XP/RP.
     // Clear the retired client-side pending-PB queue so it cannot add rewards twice.
     try {
-      var progressKey = 'med_account_progress_v1_' + accountKey();
+      var progressKey = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
       var localProgress = parseJson(localStorage.getItem(progressKey), {}) || {};
       localProgress.xp = profile.xp;
       localProgress.performanceBonus = profile.xp;
