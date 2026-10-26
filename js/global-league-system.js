@@ -1101,9 +1101,28 @@
       batch: safeText(local.batch || remote.batch || local.class || '', 40)
     };
   }
+  function profileCompletionStorageKey() {
+    var id = currentUserId();
+    return id ? 'med_leaderboard_profile_complete_v1_' + id : '';
+  }
+  function markLeaderboardProfileComplete(profile) {
+    profile = profile || leaderboardProfileFields();
+    if (profile.name.length < 2 || !profile.college || !profile.batch) return false;
+    var key = profileCompletionStorageKey();
+    if (!key) return false;
+    try { localStorage.setItem(key, '1'); return true; } catch (_) { return false; }
+  }
   function hasRequiredLeaderboardProfile() {
     var profile = leaderboardProfileFields();
-    return profile.name.length >= 2 && !!profile.college && !!profile.batch;
+    if (profile.name.length >= 2 && !!profile.college && !!profile.batch) {
+      markLeaderboardProfileComplete(profile);
+      return true;
+    }
+    var key = profileCompletionStorageKey();
+    if (key) {
+      try { if (localStorage.getItem(key) === '1') return true; } catch (_) {}
+    }
+    return false;
   }
   function showLeaderboardProfileGate() {
     var fields = leaderboardProfileFields();
@@ -1499,6 +1518,13 @@
               name: updated.name, college: updated.college, batch: updated.batch, avatar: updated.avatar
             });
           }
+          // Remember successful personal-info completion per account, so a temporary
+          // profile-loading delay after exam/session completion cannot reopen the gate.
+          markLeaderboardProfileComplete({
+            name: safeText(updated.name || submittedName, 80),
+            college: safeText(updated.college || submittedCollege, 120),
+            batch: safeText(updated.batch || submittedBatch, 40)
+          });
           var gateNotice = document.getElementById('leaderboard-profile-gate-message');
           if (gateNotice) gateNotice.hidden = true;
           if (status) status.textContent = 'Profile update সফল হয়েছে।';
