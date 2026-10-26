@@ -2,7 +2,7 @@
 
 ## Independent backend
 
-Medical Admission Tracker uses Firebase Authentication for registered users and its own Google Apps Script + Google Sheets API for profiles, exam results, Medical XP/RP, rank progression, and leaderboard data. It does not use the Fallrush API, account session, Coins, XP, or leaderboard.
+Medical Admission Tracker uses Firebase Authentication for registered users and its own Google Apps Script + Google Sheets API for profiles, exam results, Medical XP/RP, rank progression, and leaderboard data. It uses no external game account session or shared game-reward balance.
 
 The API endpoint is configured in `js/leaderboard-config.js`. Current Google Apps Script endpoint is the dedicated Medical deployment provided by the site owner.
 
