@@ -173,3 +173,14 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
   .mat-friend-search-result{align-items:flex-start;flex-wrap:wrap}
   .mat-friend-search-action{width:100%;padding-left:52px;justify-content:flex-start}
 }
+
+
+/* Public student profile details: keep College, HSC batch, and rank distinct and readable. */
+#student-profile-college-batch{white-space:pre-line;overflow-wrap:anywhere;line-height:1.8}
+#student-profile-rank-level{margin-top:4px;font-weight:750;overflow-wrap:anywhere}
+.mat-student-profile-hero>.min-w-0{flex:1;min-width:0}
+#student-profile-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#student-profile-actions button{min-height:42px;padding:10px 15px;font-size:13px;font-weight:900;white-space:normal}
+#student-profile-actions button.primary{background:#059669!important;color:#fff!important;border-color:#059669!important}
+#student-profile-actions button:hover{filter:brightness(.97)}
+.mat-friend-search-copy small{white-space:normal;line-height:1.65;overflow-wrap:anywhere}
