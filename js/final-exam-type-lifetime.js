@@ -88,9 +88,10 @@
     installExamTypeUI();
     const type=currentType(), history=readHistory();
     const yearSelect=document.getElementById('setup-year');
+    const selectedYear = String(yearSelect?.value || 'all').trim();
     const year = type === 'previous-year'
-      ? String((app.setup?.mode === 'previousQuiz' && app.previousSelectedYear) || yearSelect?.value || 'all').trim()
-      : String(yearSelect?.value || 'all').trim();
+      ? (selectedYear !== 'all' ? selectedYear : String(app.previousSelectedYear || 'all').trim())
+      : selectedYear;
     let pool=this.questionBank.slice();
     if(type==='previous-year'){
       if(year==='all'){alert('পরীক্ষার আগে একটি নির্দিষ্ট বছর নির্বাচন করুন।');return;}
