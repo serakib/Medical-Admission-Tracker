@@ -227,6 +227,10 @@
     if (!user) return null;
     currentProfile = user;
     var profile = Object.assign({}, app.profile || {});
+    var incomingUserId = String(user.userId || user.uid || user.playerId || '');
+    var previousUserId = String(profile.userId || profile.uid || '');
+    var previousAvatar = previousUserId && incomingUserId && previousUserId === incomingUserId
+      ? safeText(profile.avatar || '', 20000) : '';
     profile.uid = user.uid || user.userId || user.playerId || profile.uid || '';
     profile.userId = user.userId || user.uid || '';
     profile.name = safeText(user.name || user.username || profile.name || 'Guest Student', 80);
@@ -234,7 +238,10 @@
     profile.email = user.email || profile.email || (app.authUser && app.authUser.email) || '';
     profile.college = safeText(user.college != null ? user.college : profile.college, 120);
     profile.batch = safeText(user.batch != null ? user.batch : (profile.batch || profile.class || ''), 40);
-    profile.avatar = safeText(user.avatar != null ? user.avatar : profile.avatar, 20000);
+    var incomingAvatar = safeText(user.avatar != null ? user.avatar : '', 20000);
+    // Some older leaderboard deployments omit Avatar in their row payload.
+    // Do not erase this account's already-confirmed avatar when such a row is applied.
+    profile.avatar = incomingAvatar || previousAvatar;
     profile.accountType = user.accountType || (app.authUser ? 'REGISTERED' : 'GUEST');
     profile.xp = Math.max(0, Number(user.xp) || 0);
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);

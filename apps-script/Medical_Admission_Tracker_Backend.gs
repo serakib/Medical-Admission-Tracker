@@ -482,16 +482,26 @@ function matUpdateProfile_(p) {
     throw new Error('No editable profile fields were supplied.');
   }
 
+  let savedProfile;
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
   try {
     const fresh = matFindStudentById_(user.UserID);
     if (!fresh) throw new Error('Student profile not found.');
     matUpdateObjectRow_(matGetStudentsSheet_(), fresh._rowNumber, update);
+    savedProfile = matFindStudentById_(user.UserID);
+    if (!savedProfile) throw new Error('Updated profile could not be read back from the Students sheet.');
+    if (Object.prototype.hasOwnProperty.call(p, 'avatar')) {
+      const expectedAvatar = String(update.Avatar == null ? '' : update.Avatar);
+      const actualAvatar = String(savedProfile.Avatar == null ? '' : savedProfile.Avatar);
+      if (actualAvatar !== expectedAvatar) {
+        throw new Error('Avatar write verification failed: check that the Students sheet has an Avatar column and deploy the latest backend version.');
+      }
+    }
   } finally {
     lock.releaseLock();
   }
-  return { success: true, user: matPublicProfile_(matFindStudentById_(user.UserID), true) };
+  return { success: true, user: matPublicProfile_(savedProfile, true) };
 }
 
 function matSendSignupNotification_(userId) {
@@ -803,7 +813,8 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       accountType: s.AccountType || 'GUEST',
       college: s.College || '',
       batch: s.Batch || '',
-      avatar: s.Avatar || '',
+      avatar: String(s.Avatar || ''),
+      Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0),
       level: Number(s.Level || 1),
       rank: s.Rank || MAT_RANKS[0],

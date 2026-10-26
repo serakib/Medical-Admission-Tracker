@@ -875,8 +875,11 @@
       // chosen image to the Medical Sheets profile so leaderboard/public profiles use it.
       app.profile = Object.assign({}, app.profile || {}, { avatar: candidate });
       refreshAvatarViews();
-      const avatarStatus = document.getElementById('profile-avatar-upload-status');
-      if (avatarStatus) avatarStatus.textContent = 'Avatar saved on this device. Syncing it to your student profile…';
+      const setAvatarStatus = message => {
+        const status = document.getElementById('profile-avatar-upload-status');
+        if (status) status.textContent = String(message || '');
+      };
+      setAvatarStatus('Avatar saved on this device. Syncing it to your student profile…');
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.updateProfile === 'function') {
         const avatarToSync = candidate === avatarChoices[0] ? candidate + avatarCustomMarker : candidate;
         window.MedGlobalLeague.updateProfile({ avatar: avatarToSync }).then(async updated => {
@@ -894,16 +897,44 @@
               console.warn('[Profile avatar] Medical Sheets avatar is synced; Firebase mirror did not update:', firebaseError);
             }
           }
-          if (avatarStatus) avatarStatus.textContent = 'Global avatar saved. Refreshing leaderboard…';
+          setAvatarStatus('Profile avatar saved. Checking the public leaderboard copy…');
           refreshAvatarViews();
           if (typeof window.MedGlobalLeague?.reload === 'function') {
             await window.MedGlobalLeague.reload();
           } else if (typeof app.loadLeaderboard === 'function') {
             await app.loadLeaderboard(true);
           }
-          if (avatarStatus) avatarStatus.textContent = 'Global avatar synced. Other students will see it when their leaderboard refreshes.';
+
+          // Verify the separate public leaderboard endpoint, not just the private
+          // updateProfile response. A stale Apps Script deployment can save the
+          // profile yet still return blank/old avatars to every other viewer.
+          const stripMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
+          const expectedAvatar = stripMarker(serverAvatar);
+          const ownId = String(app.authUser?.uid || app.profile?.userId || app.profile?.uid || '');
+          let publicRow = null;
+          if (ownId && typeof window.MedGlobalLeague?.getCachedRows === 'function') {
+            ['all-time', 'weekly', 'friends'].some(period => {
+              const rows = window.MedGlobalLeague.getCachedRows(period);
+              publicRow = (Array.isArray(rows) ? rows : []).find(row =>
+                String(row?.userId || row?.uid || row?.playerId || row?.raw?.userId || '') === ownId
+              ) || null;
+              return !!publicRow;
+            });
+          }
+          if (publicRow) {
+            const raw = publicRow.raw || publicRow;
+            const publicAvatar = stripMarker(raw.avatar || raw.Avatar || '');
+            if (publicAvatar !== expectedAvatar) {
+              setAvatarStatus('Profile API-তে avatar save হয়েছে, কিন্তু public leaderboard এখনো updated avatar দিচ্ছে না। Apps Script Web App-এর latest Medical_Admission_Tracker_Backend.gs version deploy করুন।');
+              console.warn('[Profile avatar] Private profile updated, but public leaderboard avatar is stale/missing.', { expectedAvatar, publicAvatar });
+              return;
+            }
+            setAvatarStatus('Global avatar synced and verified in the public leaderboard.');
+          } else {
+            setAvatarStatus('Avatar saved to your account. Public leaderboard response-এ আপনার row পাওয়া যায়নি, তাই অন্য viewer-এর display এখনো verify করা যায়নি।');
+          }
         }).catch(error => {
-          if (avatarStatus) avatarStatus.textContent = 'Global avatar sync failed: ' + String(error?.message || error || 'Unknown API error').slice(0, 220);
+          setAvatarStatus('Global avatar sync failed: ' + String(error?.message || error || 'Unknown API error').slice(0, 220));
           console.warn('[Profile avatar] Global server sync failed:', error);
         });
       } else if (avatarStatus) {
