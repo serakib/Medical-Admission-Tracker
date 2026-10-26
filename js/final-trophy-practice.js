@@ -259,7 +259,8 @@
     },0);
   });
   function rankPointsForLeaderboardRow(row) {
-    return Math.max(0, Number(row?.rankPoints ?? row?.lifetimeRankPoints ?? row?.points ?? 0) || 0);
+    // Achievement Vault trophy progression is based on lifetime RP, never weekly RP.
+    return Math.max(0, Number(row?.totalRP ?? row?.lifetimeRankPoints ?? row?.rankPoints ?? row?.points ?? 0) || 0);
   }
   function leaderboardTrophyMarkup(row) {
     const points = rankPointsForLeaderboardRow(row);
