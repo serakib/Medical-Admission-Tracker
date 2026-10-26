@@ -11,8 +11,8 @@
  */
 
 const MAT_CONFIG = Object.freeze({
-  PROFILE_SPREADSHEET_ID: '1KGTY-CrbIPNlcxu_5E6yWRUaiwNMlibkDG_5boswmSg',
-  EXAM_SPREADSHEET_ID: '19tbpEbzHO-iO8cmG-Ad_tcPvx3c0W3Mw_3UjyyLc3GE',
+  PROFILE_SPREADSHEET_ID: '19tbpEbzHO-iO8cmG-Ad_tcPvx3c0W3Mw_3UjyyLc3GE',
+  EXAM_SPREADSHEET_ID: '1KGTY-CrbIPNlcxu_5E6yWRUaiwNMlibkDG_5boswmSg',
   PROFILE_TAB: 'Students',
   EXAM_TAB: 'ExamAttempts',
   TIME_ZONE: 'Asia/Dhaka',
