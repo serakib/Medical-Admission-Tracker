@@ -458,7 +458,7 @@
       host.id = 'med-sheet-rank-banner';
       host.className = 'mat-rank-banner';
       host.setAttribute('aria-label', 'Medical Rank tier and RP progress');
-      host.innerHTML = '<div class="mat-rank-head"><strong>ACHIEVEMENT VAULT</strong><small>আপনার বর্তমান trophy বড় করে দেখানো হবে; অন্য trophy দেখতে swipe করুন</small></div><div class="mat-rank-rail" id="med-rank-rail" role="tablist" aria-label="Achievement Vault trophies"></div><div id="med-rank-progress" class="mat-rank-progress"></div>';
+      host.innerHTML = '<div class="mat-rank-head"><strong>ACHIEVEMENT VAULT</strong><small>প্রথম trophy মাঝখানে থাকবে; swipe করে বাকি rank দেখুন</small></div><div class="mat-rank-rail" id="med-rank-rail" role="tablist" aria-label="Achievement Vault trophies"></div><div id="med-rank-progress" class="mat-rank-progress"></div>';
       if (podium && podium.parentNode) podium.parentNode.insertBefore(host, podium);
       else view.appendChild(host);
     }
