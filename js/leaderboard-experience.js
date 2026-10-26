@@ -551,7 +551,6 @@
     const currentRP = Math.max(0, Number(hasServerBalance
       ? (serverProfile.rankPoints ?? serverProfile.rp ?? 0)
       : (localProgress.rankPoints ?? localProgress.currentRP ?? 0)) || 0);
-    const lifetimeRP = Math.max(0, Number(serverProfile.totalRP ?? currentRP) || 0);
     const levelProgress = typeof app.getPerformanceLevelProgress === 'function'
       ? app.getPerformanceLevelProgress(xp)
       : { level: Math.max(1, Number(progress.level) || 1), required: 500, remaining: xp, percent: Math.min(100, Math.round(xp / 500 * 100)) };
@@ -565,7 +564,7 @@
     write('sidebar-profile-xp-progress', fmt(earned) + ' / ' + fmt(required) + ' XP · ' + fmt(Math.max(0, required - earned)) + ' XP to go');
     write('sidebar-profile-level-percent', percent + '%');
     write('sidebar-profile-total-xp', fmt(xp));
-    write('sidebar-profile-total-rp', fmt(lifetimeRP));
+    write('sidebar-profile-total-rp', fmt(currentRP));
     const fill = document.getElementById('sidebar-profile-level-fill');
     if (fill) fill.style.width = percent + '%';
     fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
