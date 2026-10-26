@@ -15,7 +15,18 @@
   const safeText = (value, max = 180) => String(value ?? '').replace(/[\\u0000-\\u001f\\u007f]/g, '').trim().slice(0, max);
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const fmt = value => Math.max(0, Number(value) || 0).toLocaleString();
-  const userId = () => String(app.authUser?.uid || '');
+  const guestToken = () => {
+    try { return String(localStorage.getItem('med_sheet_guest_token_v1') || '').trim(); }
+    catch (_) { return ''; }
+  };
+  const userId = () => {
+    if (app.authUser?.uid) return String(app.authUser.uid);
+    try {
+      const guestId = String(localStorage.getItem('med_sheet_guest_id_v1') || '').trim();
+      if (guestId) return guestId;
+    } catch (_) {}
+    return String(app.profile?.userId || app.profile?.uid || '');
+  };
   const ownProfile = () => Object.assign({}, app.profile || {}, {
     name: app.profile?.name || app.authUser?.displayName || '',
     college: app.profile?.college || '',
@@ -58,13 +69,23 @@
     }
     return 'Friends sync ব্যর্থ হয়েছে। Browser console-এ [Friends] error এবং Apps Script Executions log দেখুন।';
   };
-  const canManageFriends = () => !!userId() && typeof app.authUser?.getIdToken === 'function';
+  const canManageFriends = () => {
+    if (!userId()) return false;
+    if (app.authUser && typeof app.authUser.getIdToken === 'function') return true;
+    return !!guestToken();
+  };
 
   async function friendApi(action, fields = {}) {
-    if (!canManageFriends()) throw new Error('Friends sync করতে registered account-এ login করুন।');
+    if (!canManageFriends()) throw new Error('Guest session প্রস্তুত হচ্ছে। একটু পর আবার চেষ্টা করুন।');
     const endpoint = String(window.MED_LEADERBOARD_API_URL || '').trim();
     if (!endpoint) throw new Error('Google Sheets API URL is not configured.');
-    const idToken = await app.authUser.getIdToken();
+    const credentials = {};
+    if (app.authUser && typeof app.authUser.getIdToken === 'function') {
+      credentials.idToken = await app.authUser.getIdToken();
+    } else {
+      credentials.guestToken = guestToken();
+      if (!credentials.guestToken) throw new Error('Guest session token পাওয়া যায়নি। পেজ refresh করে আবার চেষ্টা করুন।');
+    }
     const response = await fetch(endpoint, {
       method: 'POST',
       mode: 'cors',
@@ -72,7 +93,7 @@
       cache: 'no-store',
       redirect: 'follow',
       headers: { 'Accept': 'application/json,text/plain,*/*', 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(Object.assign({ action, idToken }, fields))
+      body: JSON.stringify(Object.assign({ action }, credentials, fields))
     });
     const raw = await response.text();
     let data;
@@ -127,7 +148,7 @@
     return 'none';
   }
   async function sendRequest(target) {
-    if (!canManageFriends()) throw new Error('Friend request পাঠাতে registered account-এ login করুন।');
+    if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     const targetId = String(target?.userId || target?.uid || '');
     if (!targetId || userId() === targetId) throw new Error('নিজের account-এ friend request পাঠানো যাবে না।');
     await loadConnections(true);
@@ -140,13 +161,13 @@
     return true;
   }
   async function acceptRequest(requestId) {
-    if (!canManageFriends()) throw new Error('Friend request গ্রহণ করতে registered account-এ login করুন।');
+    if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     await friendApi('acceptFriendRequest', { requestId: String(requestId || '') });
     await loadConnections(true);
     return true;
   }
   async function rejectRequest(requestId) {
-    if (!canManageFriends()) throw new Error('Friend request পরিচালনা করতে registered account-এ login করুন।');
+    if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     await friendApi('rejectFriendRequest', { requestId: String(requestId || '') });
     await loadConnections(true);
     return true;
@@ -158,7 +179,7 @@
     return true;
   }
   async function removeFriend(targetId) {
-    if (!canManageFriends()) throw new Error('Friend remove করতে registered account-এ login করুন।');
+    if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     const other = String(targetId || '');
     if (!other || !acceptedFriendIds.has(other)) throw new Error('এই student এখন আপনার friend নয়।');
     await friendApi('removeFriend', { targetUserId: other });
@@ -173,7 +194,7 @@
     panel.classList.toggle('hidden', !isFriendsTab);
     if (!isFriendsTab) return;
     if (!canManageFriends()) {
-      list.innerHTML = '<div class="mat-profile-empty">Friends ও request sync করতে আপনার registered account-এ login করুন। Guest account-এ All Time ও Weekly leaderboard ব্যবহার করা যাবে।</div>';
+      list.innerHTML = '<div class="mat-profile-empty">Guest session এখনও প্রস্তুত হয়নি। পেজ refresh করুন; guest account থেকেও friend request পাঠানো যাবে।</div>';
       return;
     }
     if (lastFriendError) {
@@ -208,7 +229,7 @@
       return;
     }
     if (!canManageFriends()) {
-      host.innerHTML = '<button type="button" data-student-friend-action="login"><i class="fa-solid fa-user-lock ml-1" aria-hidden="true"></i> Login to Add Friend</button>';
+      host.innerHTML = '<button type="button" data-student-friend-action="login"><i class="fa-solid fa-user-plus ml-1" aria-hidden="true"></i> Start Guest Session to Add Friend</button>';
       return;
     }
     const relation = getRelationship(targetId);
@@ -296,7 +317,16 @@
         app.openAccountProfile();
         return;
       } else if (action === 'login') {
-        if (typeof app.openAccountAuth === 'function') app.openAccountAuth('login');
+        if (typeof window.MedGlobalLeague?.syncIdentity === 'function') {
+          await window.MedGlobalLeague.syncIdentity();
+          if (canManageFriends() && activePublicProfile) {
+            await loadConnections(true);
+            renderRelationshipActions(activePublicProfile);
+            setStatus('Guest session ready. Send your friend request now.', false);
+          } else if (typeof app.openAccountAuth === 'function') {
+            app.openAccountAuth('login');
+          }
+        } else if (typeof app.openAccountAuth === 'function') app.openAccountAuth('login');
         else if (typeof app.openAuthModal === 'function') app.openAuthModal('login');
         else if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
         return;
@@ -343,6 +373,7 @@
     getRelationship,
     renderRequestPanel,
     sendRequest,
+    canManageFriends,
     acceptRequest,
     rejectRequest,
     cancelRequest,
