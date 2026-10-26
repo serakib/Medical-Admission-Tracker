@@ -356,6 +356,36 @@
     });
   }
 
+  function renderAccountLevelProgress(row) {
+    const statsGrid = document.querySelector('#view-student-profile #student-profile-xp')?.closest('.grid');
+    if (!statsGrid) return;
+    let section = document.getElementById('student-profile-level-progression');
+    if (!section) {
+      section = document.createElement('section');
+      section.id = 'student-profile-level-progression';
+      section.className = 'rounded-2xl border border-amber-200 dark:border-amber-900 bg-amber-50/70 dark:bg-amber-950/20 p-4 sm:p-5';
+      section.innerHTML = '<h2 class="font-extrabold text-base flex items-center gap-2"><span aria-hidden="true" class="text-xl">⭐</span><span>Account Level Progression</span></h2><div class="flex items-center justify-between gap-3 mt-3"><div><p class="text-xs text-gray-600 dark:text-gray-300">Current Level</p><p id="student-profile-progression-level" class="text-xl font-black">Level 1</p></div><div class="text-right"><p class="text-xs text-gray-600 dark:text-gray-300">Next Level</p><p id="student-profile-progression-next" class="font-extrabold">Level 2</p></div></div><div class="mt-3 h-3 rounded-full bg-amber-100 dark:bg-gray-700 overflow-hidden" role="progressbar" aria-label="Account level progression" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="student-profile-level-progress-fill" class="h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-500 transition-all duration-500" style="width:0%"></div></div><div class="flex items-center justify-between gap-3 mt-2 text-xs text-gray-600 dark:text-gray-300"><span id="student-profile-level-progress-xp">0 / 500 XP</span><strong id="student-profile-level-progress-percent">0%</strong></div>';
+      statsGrid.insertAdjacentElement('afterend', section);
+    }
+    const xp = Math.max(0, Number(row?.xp) || 0);
+    const progress = typeof app.getPerformanceLevelProgress === 'function'
+      ? app.getPerformanceLevelProgress(xp)
+      : { level: Math.max(1, Number(row?.level) || 1), required: 500, remaining: xp, toNext: Math.max(0, 500 - xp), percent: Math.min(100, Math.round(xp / 500 * 100)) };
+    const level = Math.max(1, Number(progress.level) || Number(row?.level) || 1);
+    const required = Math.max(1, Number(progress.required) || 500);
+    const earned = Math.min(required, Math.max(0, Number(progress.remaining) || 0));
+    const percent = Math.max(0, Math.min(100, Number(progress.percent) || 0));
+    const write = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+    write('student-profile-progression-level', 'Level ' + level);
+    write('student-profile-progression-next', 'Level ' + (level + 1));
+    write('student-profile-level-progress-xp', fmt(earned) + ' / ' + fmt(required) + ' XP · ' + fmt(Math.max(0, required - earned)) + ' XP to go');
+    write('student-profile-level-progress-percent', percent + '%');
+    const fill = document.getElementById('student-profile-level-progress-fill');
+    if (fill) fill.style.width = percent + '%';
+    const bar = fill?.parentElement;
+    if (bar) bar.setAttribute('aria-valuenow', String(percent));
+  }
+
   async function openStudentProfile(row) {
     if (!row) return;
     activePublicProfile = row;
@@ -390,6 +420,7 @@
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
     write('student-profile-current-rp', fmt(row.rankPoints) + ' RP');
     write('student-profile-level', 'Lv. ' + Math.max(1, Number(row.level) || 1));
+    renderAccountLevelProgress(row);
     write('student-profile-exams', Number.isFinite(Number(row.quizzes)) && Number(row.quizzes) > 0 ? fmt(row.quizzes) : '—');
     write('student-profile-streak', fmt(row.streak) + ' days');
     write('student-profile-accuracy', Number(row.accuracy) > 0 ? Number(row.accuracy).toFixed(1) + '%' : '—');
