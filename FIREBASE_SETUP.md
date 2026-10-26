@@ -1,23 +1,25 @@
-# Firebase setup
+# Firebase and Medical API setup
 
-## 1) Authentication
+## 1. Firebase Authentication
 
-Firebase is the sign-in provider for the Medical Admission Tracker. In Firebase Console → Authentication → Sign-in method, enable **Email/Password**. Firebase Authentication handles credentials, persistent sessions, and the user identity used by the app.
+Firebase Authentication is used only for registered Medical Admission Tracker accounts. Enable the sign-in method used by the app (Email/Password if that is the current registration flow). Registered API requests include the Firebase ID token; the Medical Apps Script validates the token before resolving a profile.
 
-## 2) Student profile data
+## 2. Student profile storage
 
-The existing app still uses the `students/{uid}` Firestore document for student profile fields such as name, college, and profile details. Keep the current Firestore rules owner-scoped for writes to a student's own profile. Do not allow public reads of private profile details.
+The existing `students/{uid}` Firestore document may continue storing the app's private student profile and admission details. Global leaderboard, rank points, and exam rewards are no longer written to the Firestore `leaderboard` collection by the current client. The separate Medical Google Sheets API is authoritative for leaderboard XP/RP and rank.
 
-## 3) Global leaderboard / Rank data
+## 3. Dedicated Medical Sheets API
 
-Leaderboard, Rank Points, and rank tiers are **not stored in Firestore**. The client sends eligible submitted exam results to the shared API configured in `js/leaderboard-config.js`. It currently points to the existing Fallrush API as requested; that means the Medical app's Rank entries use the same backend and may appear alongside Fallrush Rank entries.
+`js/leaderboard-config.js` points to the Medical Admission Tracker's own Google Apps Script deployment. The backend uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. It does not call the Fallrush API.
 
-To use a separate Medical Admission Tracker API later, replace the URL in `js/leaderboard-config.js`. No Firebase leaderboard collections are needed for the new flow. Old Firestore leaderboard/quiz-attempt documents from earlier versions are left untouched, but the current client no longer reads or writes them.
+- Registered users: Firebase ID token is verified by the Medical API.
+- Guests: a random Guest token is stored locally and resolved by the Medical API.
+- Profile editing: name, college, batch, and avatar are stored in the Medical Students sheet.
+- Exam rewards: Medical XP/RP are awarded by the API using a unique attempt ID.
+- Telegram: first registered account creation sends an alert; leaderboard activity alerts are separately limited to 20 per day with pending messages carried forward.
 
-## 4) Security boundary
+Keep both spreadsheets private. Store `FIREBASE_API_KEY`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_OWNER_CHAT_ID` in Apps Script Project Settings → Script Properties. Never expose the Telegram token on the website.
 
-The current Fallrush API has its own session token. When that token is available in the same browser, the adapter sends it. Otherwise, a signed-in Medical user is submitted through the API's guest-player route with a stable Medical-prefixed player ID. Firebase authentication still gates submission in the Medical UI, but **the Fallrush API does not verify Firebase ID tokens**. Therefore, this temporary shared-API setup does not provide full server-side verification that a Rank result came from an authenticated Medical account, and it should not be treated as tamper-proof. A dedicated Medical backend should verify Firebase ID tokens and validate exam submissions server-side before using the ranking for high-stakes decisions.
+## 4. Browser CORS / redirect handling
 
-## 5) Browser cache
-
-LocalStorage stores a cached copy of the shared leaderboard and a pending queue for temporarily failed result submissions. These are convenience caches only; the shared API is the global data source.
+If the browser cannot read the Apps Script response because of CORS/redirect behavior, deploy `workers/medical-api-proxy-worker.js` as a **separate** Cloudflare Worker. Update the API URL in `js/leaderboard-config.js` to use that Worker URL. Do not replace the separate Student Support/AI Worker.
