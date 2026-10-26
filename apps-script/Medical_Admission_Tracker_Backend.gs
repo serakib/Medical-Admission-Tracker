@@ -801,6 +801,8 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
     const primaryB = safePeriod === 'weekly' ? b.weeklyRP : b.totalRP;
     return primaryB - primaryA || b.xp - a.xp || String(a.name).localeCompare(String(b.name));
   });
+  // Preserve true global position before adding an out-of-top-100 current user.
+  rows.forEach(function (r, i) { r.position = i + 1; });
   // A Friends request supplies exact account IDs; return all requested friends,
   // even if they are outside the global top-100 leaderboard window.
   let visibleRows;
@@ -816,10 +818,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   } else {
     visibleRows = rows.slice(0, MAT_CONFIG.LEADERBOARD_SIZE);
   }
-  const limited = visibleRows.map(function (r, i) {
-    r.position = i + 1;
-    return r;
-  });
+  const limited = visibleRows;
   const response = {
     success: true,
     period: safePeriod,
