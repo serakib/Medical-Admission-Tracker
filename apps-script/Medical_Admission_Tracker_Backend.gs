@@ -32,6 +32,12 @@ const MAT_STUDENT_HEADERS = [
 
 // Exam records and queued activity notifications share this one tab to keep
 // the backend to two spreadsheets and two principal tabs.
+const MAT_FRIENDS_TAB = 'StudentFriends';
+const MAT_FRIEND_HEADERS = [
+  'RecordID', 'RecordType', 'UserA', 'UserB', 'FromUserID', 'ToUserID',
+  'FromName', 'FromCollege', 'FromBatch', 'ToName', 'Status', 'CreatedAt', 'UpdatedAt'
+];
+
 const MAT_EXAM_HEADERS = [
   'RecordType', 'AttemptID', 'UserID', 'ExamMode', 'TotalQuestions', 'Correct',
   'Wrong', 'Score', 'XPEarned', 'RPEarned', 'RankBefore', 'RankAfter',
@@ -110,6 +116,18 @@ function matDispatch_(action, p) {
     case 'leaderboard':
     case 'getLeaderboard':
       return matGetLeaderboard_(String((p && p.period) || 'all-time'), p && p.userIds);
+    case 'friendConnections':
+      return matFriendConnections_(p || {});
+    case 'sendFriendRequest':
+      return matSendFriendRequest_(p || {});
+    case 'acceptFriendRequest':
+      return matResolveFriendRequest_(p || {}, 'accepted');
+    case 'rejectFriendRequest':
+      return matResolveFriendRequest_(p || {}, 'rejected');
+    case 'cancelFriendRequest':
+      return matResolveFriendRequest_(p || {}, 'cancelled');
+    case 'removeFriend':
+      return matRemoveFriend_(p || {});
     case 'submitExam':
     case 'recordExam':
     case 'gameEnd': // compatibility action name only; uses Medical-only rewards.
@@ -132,6 +150,7 @@ function matDispatch_(action, p) {
 function setupBackend() {
   const studentsSheet = matGetStudentsSheet_();
   const examsSheet = matGetExamSheet_();
+  const friendsSheet = matGetFriendsSheet_();
   matInitializeTop10Snapshot_();
 
   const triggers = ScriptApp.getProjectTriggers();
@@ -163,6 +182,7 @@ function setupBackend() {
     studentsTab: studentsSheet.getName(),
     examsSpreadsheet: MAT_CONFIG.EXAM_SPREADSHEET_ID,
     examsTab: examsSheet.getName(),
+    friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
     weeklyDemotion: 'Runs every Monday at about 01:00 Asia/Dhaka; one subrank maximum per student'
@@ -1039,11 +1059,190 @@ function matTelegramSend_(message) {
   return body;
 }
 
+
+/* -------------------------- Google Sheets friendships -------------------------- */
+function matFriendRequireRegistered_(p) {
+  const user = matAuthenticate_(p || {});
+  if (String(user.AccountType || '').toUpperCase() !== 'REGISTERED') {
+    throw new Error('Friends sync করতে registered account-এ login করুন।');
+  }
+  return user;
+}
+
+function matFriendRows_() {
+  return matReadObjects_(matGetFriendsSheet_());
+}
+
+function matFriendPublicRequest_(row, incoming) {
+  return {
+    id: String(row.RecordID || ''),
+    fromUid: String(row.FromUserID || ''),
+    toUid: String(row.ToUserID || ''),
+    fromName: String(row.FromName || 'Student'),
+    fromCollege: String(row.FromCollege || ''),
+    fromBatch: String(row.FromBatch || ''),
+    toName: String(row.ToName || 'Student'),
+    status: String(row.Status || 'pending'),
+    direction: incoming ? 'incoming' : 'outgoing',
+    createdAt: String(row.CreatedAt || '')
+  };
+}
+
+function matFriendConnections_(p) {
+  const user = matFriendRequireRegistered_(p);
+  const uid = String(user.UserID);
+  const rows = matFriendRows_();
+  const friendIds = new Set();
+  const incoming = [];
+  const outgoing = [];
+  rows.forEach(function (row) {
+    const kind = String(row.RecordType || '').toUpperCase();
+    const status = String(row.Status || '').toLowerCase();
+    if (kind === 'FRIENDSHIP' && status === 'accepted') {
+      const a = String(row.UserA || ''), b = String(row.UserB || '');
+      if (a === uid && b) friendIds.add(b);
+      else if (b === uid && a) friendIds.add(a);
+    }
+    if (kind !== 'REQUEST' || status !== 'pending') return;
+    if (String(row.ToUserID || '') === uid) incoming.push(matFriendPublicRequest_(row, true));
+    if (String(row.FromUserID || '') === uid) outgoing.push(matFriendPublicRequest_(row, false));
+  });
+  return { success: true, friendIds: Array.from(friendIds), incoming: incoming, outgoing: outgoing };
+}
+
+function matSendFriendRequest_(p) {
+  const user = matFriendRequireRegistered_(p);
+  const uid = String(user.UserID);
+  const targetId = String(p.targetUserId || '').trim();
+  if (!targetId || targetId === uid) throw new Error('নিজের account-এ friend request পাঠানো যাবে না।');
+  const target = matFindStudentById_(targetId);
+  if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') {
+    throw new Error('এই registered student-কে পাওয়া যায়নি।');
+  }
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const rows = matFriendRows_();
+    const relation = rows.find(function (r) {
+      const status = String(r.Status || '').toLowerCase();
+      if (status !== 'pending' && status !== 'accepted') return false;
+      const kind = String(r.RecordType || '').toUpperCase();
+      if (kind === 'FRIENDSHIP') return status === 'accepted' &&
+        [String(r.UserA), String(r.UserB)].includes(uid) &&
+        [String(r.UserA), String(r.UserB)].includes(targetId);
+      if (kind === 'REQUEST') return (String(r.FromUserID) === uid && String(r.ToUserID) === targetId) ||
+        (String(r.FromUserID) === targetId && String(r.ToUserID) === uid);
+      return false;
+    });
+    if (relation) {
+      const kind = String(relation.RecordType || '').toUpperCase();
+      if (kind === 'FRIENDSHIP') throw new Error('এই student ইতিমধ্যে আপনার friend।');
+      if (String(relation.FromUserID) === targetId) throw new Error('এই student-এর request আগে থেকেই এসেছে। Accept বা Reject করুন।');
+      throw new Error('Friend request ইতিমধ্যে পাঠানো হয়েছে।');
+    }
+    const now = matNowIso_();
+    matAppendObject_(matGetFriendsSheet_(), {
+      RecordID: Utilities.getUuid(),
+      RecordType: 'REQUEST',
+      FromUserID: uid,
+      ToUserID: targetId,
+      FromName: matSheetSafeText_(matCleanText_(user.Name || 'Student', 80)),
+      FromCollege: matSheetSafeText_(matCleanText_(user.College || '', 120)),
+      FromBatch: matSheetSafeText_(matCleanText_(user.Batch || '', 40)),
+      ToName: matSheetSafeText_(matCleanText_(target.Name || 'Student', 80)),
+      Status: 'pending',
+      CreatedAt: now,
+      UpdatedAt: now
+    });
+  } finally {
+    lock.releaseLock();
+  }
+  return matFriendConnections_(p);
+}
+
+function matResolveFriendRequest_(p, nextStatus) {
+  const user = matFriendRequireRegistered_(p);
+  const uid = String(user.UserID);
+  const requestId = String(p.requestId || '').trim();
+  if (!requestId) throw new Error('Friend request ID প্রয়োজন।');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sheet = matGetFriendsSheet_();
+    const rows = matReadObjects_(sheet);
+    const request = rows.find(function (r) {
+      return String(r.RecordID || '') === requestId &&
+        String(r.RecordType || '').toUpperCase() === 'REQUEST' &&
+        String(r.Status || '').toLowerCase() === 'pending';
+    });
+    if (!request) throw new Error('এই request আর pending নেই।');
+    const from = String(request.FromUserID || ''), to = String(request.ToUserID || '');
+    if (nextStatus === 'accepted') {
+      if (to !== uid) throw new Error('শুধু request পাওয়া student এটি accept করতে পারবেন।');
+      if (!from || from === uid) throw new Error('Friend request-টি সঠিক নয়।');
+      const existing = rows.some(function (r) {
+        return String(r.RecordType || '').toUpperCase() === 'FRIENDSHIP' &&
+          String(r.Status || '').toLowerCase() === 'accepted' &&
+          [String(r.UserA), String(r.UserB)].includes(uid) &&
+          [String(r.UserA), String(r.UserB)].includes(from);
+      });
+      if (!existing) {
+        const pair = [uid, from].sort();
+        matAppendObject_(sheet, {
+          RecordID: Utilities.getUuid(), RecordType: 'FRIENDSHIP',
+          UserA: pair[0], UserB: pair[1], Status: 'accepted',
+          CreatedAt: matNowIso_(), UpdatedAt: matNowIso_()
+        });
+      }
+    } else if (nextStatus === 'rejected' && to !== uid) {
+      throw new Error('শুধু request পাওয়া student এটি reject করতে পারবেন।');
+    } else if (nextStatus === 'cancelled' && from !== uid) {
+      throw new Error('শুধু request পাঠানো student এটি cancel করতে পারবেন।');
+    }
+    matUpdateObjectRow_(sheet, request._rowNumber, { Status: nextStatus, UpdatedAt: matNowIso_() });
+  } finally {
+    lock.releaseLock();
+  }
+  return matFriendConnections_(p);
+}
+
+function matRemoveFriend_(p) {
+  const user = matFriendRequireRegistered_(p);
+  const uid = String(user.UserID);
+  const targetId = String(p.targetUserId || '').trim();
+  if (!targetId || targetId === uid) throw new Error('Friend ID সঠিক নয়।');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sheet = matGetFriendsSheet_();
+    const rows = matReadObjects_(sheet);
+    let removed = false;
+    rows.forEach(function (row) {
+      if (String(row.RecordType || '').toUpperCase() !== 'FRIENDSHIP' ||
+          String(row.Status || '').toLowerCase() !== 'accepted') return;
+      const a = String(row.UserA || ''), b = String(row.UserB || '');
+      if ((a === uid && b === targetId) || (b === uid && a === targetId)) {
+        matUpdateObjectRow_(sheet, row._rowNumber, { Status: 'removed', UpdatedAt: matNowIso_() });
+        removed = true;
+      }
+    });
+    if (!removed) throw new Error('এই student এখন আপনার friend নয়।');
+  } finally {
+    lock.releaseLock();
+  }
+  return matFriendConnections_(p);
+}
+
 /* ---------------------------- Spreadsheet helpers ---------------------------- */
 
 function matGetStudentsSheet_() {
   return matEnsureSheet_(MAT_CONFIG.PROFILE_SPREADSHEET_ID, MAT_CONFIG.PROFILE_TAB,
     MAT_STUDENT_HEADERS, ['UserID', 'Name']);
+}
+
+function matGetFriendsSheet_() {
+  return matEnsureSheet_(MAT_CONFIG.PROFILE_SPREADSHEET_ID, MAT_FRIENDS_TAB,
+    MAT_FRIEND_HEADERS, ['RecordID', 'RecordType']);
 }
 
 function matGetExamSheet_() {
