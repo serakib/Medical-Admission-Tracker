@@ -772,7 +772,11 @@
       if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(tabs, anchor);
       else view.appendChild(tabs);
     }
-    // Put Weekly immediately beside All Time; Friends follows as its own tab.
+    // Rebuild the period controls once per script version to remove stale/duplicate markup.
+    if (tabs.dataset.medicalTabBuildVersion !== '31') {
+      tabs.replaceChildren();
+      tabs.dataset.medicalTabBuildVersion = '31';
+    }
     var definitions = [
       { key: 'all-time', label: '🏆 All Time' },
       { key: 'weekly', label: '📅 Weekly' },
@@ -788,19 +792,31 @@
         button.setAttribute('data-leaderboard-period', item.key);
         button.className = 'leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border flex-shrink-0 whitespace-nowrap';
         button.textContent = item.label;
-        tabs.appendChild(button);
       }
       button.style.setProperty('display', 'inline-flex', 'important');
       button.style.setProperty('visibility', 'visible', 'important');
       button.style.setProperty('opacity', '1', 'important');
-      button.style.setProperty('flex', '0 0 auto');
+      button.style.setProperty('flex', '0 0 auto', 'important');
+      button.style.setProperty('min-height', '40px', 'important');
+      button.style.setProperty('padding', '10px 16px', 'important');
+      button.style.setProperty('border-radius', '12px', 'important');
+      button.style.setProperty('font-weight', '800', 'important');
+      button.style.setProperty('cursor', 'pointer', 'important');
       button.classList.add('flex-shrink-0', 'whitespace-nowrap');
-      // Reorder existing markup too, not only buttons that need to be created.
+      // Always append in the canonical All Time → Weekly → Friends order.
       tabs.appendChild(button);
     });
+    tabs.classList.remove('hidden');
+    tabs.removeAttribute('hidden');
     tabs.style.setProperty('display', 'flex', 'important');
     tabs.style.setProperty('visibility', 'visible', 'important');
     tabs.style.setProperty('opacity', '1', 'important');
+    tabs.style.setProperty('flex-wrap', 'wrap', 'important');
+    tabs.style.setProperty('gap', '8px', 'important');
+    tabs.style.setProperty('width', '100%', 'important');
+    tabs.style.setProperty('min-height', '40px', 'important');
+    tabs.style.setProperty('position', 'relative', 'important');
+    tabs.style.setProperty('z-index', '5', 'important');
     return tabs;
   }
   function ensureWeeklyTab() {
@@ -810,10 +826,14 @@
 
   function updatePeriodTabs() {
     ensureWeeklyTab();
-    document.querySelectorAll('[data-leaderboard-period]').forEach(function (button) {
+    document.querySelectorAll('#leaderboard-period-tabs [data-leaderboard-period]').forEach(function (button) {
       var active = button.dataset.leaderboardPeriod === selectedPeriod;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-selected', active ? 'true' : 'false');
+      button.style.setProperty('background', active ? 'linear-gradient(135deg,#059669,#0284c7)' : 'rgba(148,163,184,.10)', 'important');
+      button.style.setProperty('color', active ? '#ffffff' : 'var(--text, #334155)', 'important');
+      button.style.setProperty('border-color', active ? '#059669' : 'rgba(148,163,184,.38)', 'important');
+      button.style.setProperty('box-shadow', active ? '0 5px 14px rgba(5,150,105,.20)' : 'none', 'important');
     });
     var note = document.getElementById('leaderboard-period-note');
     if (note) {
