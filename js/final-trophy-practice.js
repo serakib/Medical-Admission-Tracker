@@ -60,6 +60,14 @@
   };
 
   function lifetimePoints() {
+    // Prefer the Medical Sheets API's lifetime total over browser-only legacy rank points.
+    const profileTotal = Number(app.profile?.totalRP);
+    if (Number.isFinite(profileTotal) && profileTotal >= 0) return profileTotal;
+    const cachedRows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
+    const currentId = String(app.authUser?.uid || app.profile?.uid || app.profile?.userId || '');
+    const cachedMe = Array.isArray(cachedRows) ? cachedRows.find(row => currentId && String(row.uid || row.userId || '') === currentId) : null;
+    const cachedTotal = Number(cachedMe?.totalRP);
+    if (Number.isFinite(cachedTotal) && cachedTotal >= 0) return cachedTotal;
     if (typeof app.getAccountProgress === 'function') {
       const state = app.getAccountProgress();
       if (Number.isFinite(Number(state.rankPoints))) return Math.max(0, Number(state.rankPoints));
