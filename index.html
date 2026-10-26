@@ -380,7 +380,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
         <button data-nav-view="practice" onclick="window.app.openPracticeBrowser();closeAppSidebar()" type="button"><i class="fa-solid fa-bullseye"></i><span>Practice</span></button>
         <button data-nav-view="setup" onclick="window.app.setupExamQuick('model');closeAppSidebar()" type="button"><i class="fa-solid fa-clipboard-check"></i><span>Model Test</span></button>
         <button data-nav-view="previous" onclick="window.app.showPreviousYears();closeAppSidebar()" type="button"><i class="fa-solid fa-clock-rotate-left"></i><span>Previous Year</span></button>
-        <button data-nav-view="leaderboard" onclick="window.app.showView('leaderboard');window.app.loadLeaderboard();closeAppSidebar()" type="button"><i class="fa-solid fa-trophy"></i><span>Leaderboard</span></button>
+        <button data-nav-view="leaderboard" onclick="window.app.openLeaderboard();closeAppSidebar()" type="button"><i class="fa-solid fa-trophy"></i><span>Leaderboard</span></button>
         <button data-nav-view="syllabus" onclick="window.app.showView('syllabus');closeAppSidebar()" type="button"><i class="fa-solid fa-book-open"></i><span>Syllabus</span></button>
         <button data-feature-view="medical-hsc-info" data-nav-view="medical-hsc-info" type="button" aria-controls="view-medical-hsc-info" onclick="window.app.showView('medical-hsc-info');closeAppSidebar()"><i class="fa-solid fa-hospital"></i><span>Medical Info</span></button>
         <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar();setTimeout(function(){var c=document.getElementById('contact');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},100)" type="button"><i class="fa-solid fa-envelope"></i><span>Contact</span></button>
@@ -1303,20 +1303,72 @@ function toggleAppSidebarCollapse(){
             </div>
         </section>
 
+
+        <!-- VIEW: PUBLIC STUDENT PROFILE (fixed page, never a popup) -->
+        <section id="view-student-profile" class="view-section hidden space-y-6 max-w-5xl mx-auto" aria-hidden="true">
+          <div class="flex items-center justify-between gap-3">
+            <button type="button" onclick="window.app.openLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-bold"><i class="fa-solid fa-arrow-right ml-1" aria-hidden="true"></i> Leaderboard-এ ফিরুন</button>
+            <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300"><i class="fa-solid fa-user-graduate ml-1" aria-hidden="true"></i> Student Profile</span>
+          </div>
+          <section class="mat-student-profile rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+            <div class="mat-student-profile-hero">
+              <div id="student-profile-avatar" class="mat-student-profile-avatar" aria-label="Student avatar"><i class="fa-solid fa-user-graduate"></i></div>
+              <div class="min-w-0 flex-1">
+                <h1 id="student-profile-name" class="mat-student-profile-title">Student Profile</h1>
+                <p id="student-profile-college-batch" class="mat-student-profile-meta"></p>
+                <p id="student-profile-rank-level" class="mat-student-profile-meta"></p>
+              </div>
+            </div>
+            <div class="p-4 sm:p-6 space-y-6">
+              <p id="student-profile-status" class="hidden rounded-xl p-3 text-sm" role="status" aria-live="polite"></p>
+              <div id="student-profile-trophy" class="mat-student-vault-trophy"></div>
+              <div id="student-profile-actions" class="mat-profile-actions"></div>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="mat-student-profile-stat"><small>Medical XP</small><strong id="student-profile-xp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Lifetime RP</small><strong id="student-profile-total-rp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong id="student-profile-weekly-rp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Current RP</small><strong id="student-profile-current-rp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Account Level</small><strong id="student-profile-level">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Completed Exams</small><strong id="student-profile-exams">—</strong></div>
+              </div>
+              <section class="border-t border-gray-200 dark:border-gray-700 pt-5">
+                <h2 class="text-lg font-extrabold">Performance</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                  <div class="mat-student-profile-stat"><small>Accuracy</small><strong id="student-profile-accuracy">—</strong></div>
+                  <div class="mat-student-profile-stat"><small>Current Rank</small><strong id="student-profile-rank">—</strong></div>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">এখানে leaderboard/API-তে উপলব্ধ public learning statistics দেখানো হয়; private account details প্রকাশ করা হয় না।</p>
+              </section>
+            </div>
+          </section>
+        </section>
+
         <!-- VIEW: LEADERBOARD -->
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Medical-only XP, RP and ranks are stored through your dedicated Google Sheets API. Guest ও registered user—দুজনেই exam না দিয়েও leaderboard দেখতে পারবেন।</p></div><button onclick="window.app.loadLeaderboard()" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button></div>
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
+                  <div class="min-w-0"><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">All Time, Friends এবং Weekly ranking আলাদাভাবে দেখুন। আগে আপনার Name, College ও Batch পূরণ করুন।</p></div>
+                  <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <span class="mat-top-rp" title="Medical lifetime Rank Points"><i class="fa-solid fa-star" aria-hidden="true"></i><span id="med-top-rp">0 RP</span></span>
+                    <button type="button" class="mat-top-icon mat-info-control" data-med-action="rules" title="Exam, Rewards & Rank Rules" aria-label="Open Exam, Rewards and Rank Rules"><span class="mat-info-glyph" aria-hidden="true">i</span></button>
+                    <button onclick="window.app.loadLeaderboard()" class="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button>
+                  </div>
+                </div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
                 <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Leaderboard period">
   <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">🏆 All Time</button>
+  <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border"><i class="fa-solid fa-user-group ml-1" aria-hidden="true"></i> Friends</button>
   <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Weekly</button>
 </div>
 <div id="leaderboard-period-note" class="hidden mb-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200" role="status"></div>
-
+                <section id="leaderboard-friends-panel" class="hidden mb-5 rounded-2xl border border-gray-200 dark:border-gray-700 p-4" aria-labelledby="leaderboard-friends-heading">
+                  <div class="flex items-center justify-between gap-3 mb-3"><div><h3 id="leaderboard-friends-heading" class="font-extrabold">Friend Requests</h3><p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Incoming requests accept/reject করুন; accepted friends-দের ranking এখানে দেখা যাবে।</p></div><i class="fa-solid fa-user-group text-emerald-600 text-xl" aria-hidden="true"></i></div>
+                  <div id="leaderboard-friend-request-list"><p class="text-sm text-gray-500 dark:text-gray-400">Friend requests load হচ্ছে…</p></div>
+                  <p id="leaderboard-friend-status" class="hidden mt-3 text-sm" role="status" aria-live="polite"></p>
+                </section>
                 <div id="leaderboard-podium" class="leaderboard-podium"></div>
                 <div id="leaderboard-me" class="leaderboard-me hidden"></div>
-                <div id="leaderboard-list" class="leaderboard-table-wrap"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-right border-b border-gray-200 dark:border-gray-700"><th class="py-3 px-3">Student</th><th class="py-3 px-3">College</th><th class="py-3 px-3">Batch</th><th class="py-3 px-3">XP</th><th class="py-3 px-3">Rank / Points</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div></div>
+                <div id="leaderboard-list" class="leaderboard-table-wrap"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-right border-b border-gray-200 dark:border-gray-700"><th class="py-3 px-3">Student</th><th class="py-3 px-3">College</th><th class="py-3 px-3">Batch</th><th class="py-3 px-3">XP</th><th class="py-3 px-3">Rank</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div></div>
             </div>
         </section>
 <!-- VIEW 7: SYLLABUS & INFO -->
@@ -1536,6 +1588,7 @@ function toggleAppSidebarCollapse(){
 <script type="module" src="./js/integrated-features.js?v=medical-sheet-api-3"></script>
 <script src="./js/final-trophy-practice.js?v=medical-vault-streak-4" defer></script>
 <script src="./js/final-exam-type-lifetime.js" defer></script>
-<script type="module" src="./js/global-league-system.js?v=medical-vault-streak-4"></script>
+<script type="module" src="./js/global-league-system.js?v=medical-vault-social-5"></script>
+<script type="module" src="./js/leaderboard-experience.js?v=medical-vault-social-5"></script>
 </body>
 </html>
