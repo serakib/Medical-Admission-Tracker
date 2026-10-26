@@ -12,7 +12,7 @@
   let activePublicProfile = null;
   let lastFriendError = '';
 
-  const safeText = (value, max = 180) => String(value ?? '').replace(/[\\u0000-\\u001f\\u007f]/g, '').trim().slice(0, max);
+  const safeText = (value, max = 180) => String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const fmt = value => Math.max(0, Number(value) || 0).toLocaleString();
   const guestToken = () => {
@@ -277,7 +277,7 @@
       college ? 'College: ' + college : '',
       batch ? 'Class/Batch: ' + batch : ''
     ].filter(Boolean).join('\n') || 'College ও Class/Batch এখনো যোগ করা হয়নি');
-    write('student-profile-rank-level', 'Rank: ' + currentRank + ' · Level ' + Math.max(1, Number(row.level) || 1));
+    write('student-profile-rank-level', 'Rank: ' + currentRankTier + ' · Level ' + Math.max(1, Number(row.level) || 1));
     write('student-profile-xp', fmt(row.xp) + ' XP');
     write('student-profile-total-rp', fmt(row.totalRP) + ' RP');
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
