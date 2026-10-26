@@ -99,6 +99,9 @@
       var params = new URLSearchParams();
       params.set('action', String(payload.action || 'health'));
       if (payload.period) params.set('period', String(payload.period));
+      if (Array.isArray(payload.userIds) && payload.userIds.length) {
+        params.set('ids', Array.from(new Set(payload.userIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)).values()).join(','));
+      }
       url += (url.indexOf('?') >= 0 ? '&' : '?') + params.toString();
     } else {
       // text/plain keeps this a simple browser request and avoids an OPTIONS preflight.
@@ -693,7 +696,15 @@
     try {
       await syncIdentity();
       var apiPeriod = selectedPeriod === 'weekly' ? 'weekly' : 'all-time';
-      var response = await request({ action: 'leaderboard', period: apiPeriod }, { method: 'GET' });
+      var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
+      if (selectedPeriod === 'friends') {
+        var friendIds = window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function'
+          ? window.MedStudentFriends.getFriendIds().map(String) : [];
+        var myId = currentUserId();
+        if (myId) friendIds.push(String(myId));
+        leaderboardPayload.userIds = Array.from(new Set(friendIds)).slice(0, 500);
+      }
+      var response = await request(leaderboardPayload, { method: 'GET' });
       if (requestId !== loadSequence) return;
       var entries = extractEntries(response);
       rawRows = entries.slice();
