@@ -541,9 +541,14 @@
   }
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
-    if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function') {
-      var friendIds = new Set(window.MedStudentFriends.getFriendIds().map(String));
-      all = all.filter(function (row) { return row.isMine || friendIds.has(String(row.userId)); });
+    if (selectedPeriod === 'friends') {
+      if (window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function') {
+        var friendIds = new Set(window.MedStudentFriends.getFriendIds().map(String));
+        all = all.filter(function (row) { return row.isMine || friendIds.has(String(row.userId)); });
+      } else {
+        // Never expose the full public leaderboard as a fallback Friends list.
+        all = all.filter(function (row) { return row.isMine; });
+      }
     }
     var me = getMe(all);
     if (!selectedRank || !me) selectedRank = (me && me.rank) || selectedRank || RANKS[0];
