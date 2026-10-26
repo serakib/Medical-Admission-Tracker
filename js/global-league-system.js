@@ -250,7 +250,6 @@
       setInput('medical-profile-name', profile.name);
       setInput('medical-profile-college', profile.college);
       setInput('medical-profile-batch', profile.batch);
-      setInput('medical-profile-avatar', profile.avatar);
     }
     renderAccountRank(profile);
     try {
@@ -891,11 +890,9 @@
     var nameInput = document.getElementById('medical-profile-name');
     var collegeInput = document.getElementById('medical-profile-college');
     var batchInput = document.getElementById('medical-profile-batch');
-    var avatarInput = document.getElementById('medical-profile-avatar');
     if (nameInput && !nameInput.value) nameInput.value = fields.name;
     if (collegeInput && !collegeInput.value) collegeInput.value = fields.college;
     if (batchInput && !batchInput.value) batchInput.value = fields.batch;
-    if (avatarInput && !avatarInput.value) avatarInput.value = safeText(app.profile && app.profile.avatar || currentProfile && currentProfile.avatar || '', 500);
     setTimeout(function () {
       editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
       var firstMissing = !fields.name || fields.name.length < 2 ? nameInput : !fields.college ? collegeInput : batchInput;
@@ -990,7 +987,6 @@
             name: submittedName,
             college: submittedCollege,
             batch: submittedBatch,
-            avatar: (document.getElementById('medical-profile-avatar') || {}).value || ''
           });
           if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
             await app.syncFirebaseStudentProfile({
