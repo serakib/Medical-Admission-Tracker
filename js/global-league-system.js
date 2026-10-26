@@ -772,10 +772,11 @@
       if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(tabs, anchor);
       else view.appendChild(tabs);
     }
+    // Put Weekly immediately beside All Time; Friends follows as its own tab.
     var definitions = [
       { key: 'all-time', label: '🏆 All Time' },
-      { key: 'friends', label: '👥 Friends' },
-      { key: 'weekly', label: '📅 Weekly' }
+      { key: 'weekly', label: '📅 Weekly' },
+      { key: 'friends', label: '👥 Friends' }
     ];
     definitions.forEach(function (item) {
       var button = tabs.querySelector('[data-leaderboard-period="' + item.key + '"]');
@@ -794,6 +795,8 @@
       button.style.setProperty('opacity', '1', 'important');
       button.style.setProperty('flex', '0 0 auto');
       button.classList.add('flex-shrink-0', 'whitespace-nowrap');
+      // Reorder existing markup too, not only buttons that need to be created.
+      tabs.appendChild(button);
     });
     tabs.style.setProperty('display', 'flex', 'important');
     tabs.style.setProperty('visibility', 'visible', 'important');
