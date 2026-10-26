@@ -290,7 +290,7 @@
     });
     const ordered = (Array.isArray(rows) ? rows : []).slice().sort((a,b)=>rankPointsForLeaderboardRow(b)-rankPointsForLeaderboardRow(a));
     const body = document.getElementById('leaderboard-body');
-    if (body) body.querySelectorAll('tr').forEach((tr,index)=>{
+    if (body) body.querySelectorAll('tr.leader-row').forEach((tr,index)=>{
       tr.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
       const row = byUid.get(String(tr.dataset.uid || tr.dataset.medPlayer || '')) || (tr.dataset.totalRp ? { totalRP:Number(tr.dataset.totalRp), rankPoints:Number(tr.dataset.totalRp), rank:tr.dataset.rank || '' } : null) || ordered[index];
       const cell = tr.querySelector('.leader-rank-points') || tr.querySelector('td:last-child');
