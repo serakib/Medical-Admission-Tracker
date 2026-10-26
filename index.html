@@ -343,10 +343,8 @@ body.sidebar-collapsed{padding-left:70px!important}
 }
 .sidebar-nav button.active,.sidebar-action.active{color:#fff;background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(14,165,233,.13));border-color:rgba(52,211,153,.34);box-shadow:inset 3px 0 0 #34d399}
 .sidebar-nav button.active i,.sidebar-action.active i{color:#a7f3d0}
-.sidebar-nav button:focus-visible,.sidebar-action:focus-visible,.sidebar-collapse-toggle:focus-visible,.student-profile-top-shortcut:focus-visible{outline:3px solid rgba(110,231,183,.8);outline-offset:2px}
-.student-profile-top-shortcut{position:fixed;top:14px;right:18px;z-index:9997;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 16px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(10,18,32,.96);color:#f8fafc;font-size:13px;font-weight:800;box-shadow:0 10px 28px rgba(0,0,0,.16);backdrop-filter:blur(14px);cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
-.student-profile-top-shortcut i{color:#6ee7b7;font-size:16px}.student-profile-top-shortcut:hover{transform:translateY(-1px);border-color:rgba(110,231,183,.7);background:#14243a}
-body.exam-active .student-profile-top-shortcut,
+.sidebar-nav button:focus-visible,.sidebar-action:focus-visible,.sidebar-collapse-toggle:focus-visible{outline:3px solid rgba(110,231,183,.8);outline-offset:2px}
+
 body.exam-active #app-sidebar,
 body.exam-active #sidebar-toggle,
 body.exam-active #sidebar-overlay{display:none!important}
@@ -362,9 +360,8 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
 .account-action-card h3{margin:0;font-size:1rem;font-weight:900;color:var(--text)}
 .account-action-card p{margin:5px 0 0;color:var(--muted);font-size:.82rem;line-height:1.65}
 .account-action-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:14px;background:color-mix(in srgb,var(--brand) 12%,var(--surface));color:var(--brand);font-size:1.05rem}
-@media(max-width:767px){.sidebar-collapse-toggle{display:none}.student-profile-top-shortcut{top:14px;right:14px;min-height:44px;padding:0 12px;gap:7px}main{padding-top:70px!important}}
-@media(max-width:420px){.student-profile-top-shortcut{width:44px;padding:0}.student-profile-top-shortcut span{display:none}}
-@media(prefers-reduced-motion:reduce){.app-sidebar,.sidebar-nav button,.sidebar-action,.sidebar-collapse-toggle,.student-profile-top-shortcut{transition:none}.ai-float-btn{animation:none!important}}
+@media(max-width:767px){.sidebar-collapse-toggle{display:none}main{padding-top:70px!important}}
+@media(prefers-reduced-motion:reduce){.app-sidebar,.sidebar-nav button,.sidebar-action,.sidebar-collapse-toggle{transition:none}.ai-float-btn{animation:none!important}}
 </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
@@ -435,7 +432,6 @@ function toggleAppSidebarCollapse(){
 
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <button class="student-profile-top-shortcut" type="button" onclick="window.app.openProfile()" aria-label="Open Student Profile" title="Student Profile"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i><span>Student Profile</span></button>
 
 <!-- Medical & HSC Info View: kept inside <main> so the app view switcher can display it. -->
 <section id="view-medical-hsc-info" class="view-section hidden p-2 sm:p-4" aria-labelledby="medical-info-title" aria-hidden="true">
