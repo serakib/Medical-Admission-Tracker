@@ -172,6 +172,7 @@ import {
     batch.set(doc(database, FRIENDSHIPS, pairId(uid, other)), {
       userA: [uid, other].sort()[0],
       userB: [uid, other].sort()[1],
+      requestId: String(requestId),
       status: 'accepted',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
