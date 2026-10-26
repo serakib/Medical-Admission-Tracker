@@ -789,7 +789,11 @@
     }
     if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
       try { await window.MedStudentFriends.loadConnections(); }
-      catch (friendError) { setStatus('Friends list load হয়নি। Firebase permission/status পরীক্ষা করুন।', true); }
+      catch (friendError) {
+        var friendsErrorText = window.MedStudentFriends && typeof window.MedStudentFriends.getLastConnectionError === 'function'
+          ? window.MedStudentFriends.getLastConnectionError() : '';
+        setStatus(friendsErrorText || 'Friends list load হয়নি। Existing Google Sheets API/deployment পরীক্ষা করুন।', true);
+      }
     }
     var requestId = ++loadSequence;
     var cache = cachedRowsForDisplay();
