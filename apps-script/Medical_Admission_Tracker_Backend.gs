@@ -559,6 +559,27 @@ function matUpdateLastSeen_(user) {
 
 /* ------------------------------ Exam submission ------------------------------- */
 
+/** Calculates the special performance-weighted RP for a 100-mark Model Test. */
+function matCalculate100MarkModelTestRP_(correct) {
+  const correctCount = Math.max(0, Math.min(100, matSafeNonNegativeInt_(correct, 'correctCount')));
+  const blocks = [
+    { upTo: 40, multiplier: 1 },
+    { upTo: 50, multiplier: 2 },
+    { upTo: 60, multiplier: 4 },
+    { upTo: 70, multiplier: 5 },
+    { upTo: 79, multiplier: 7 },
+    { upTo: 100, multiplier: 10 }
+  ];
+  let weightedCorrect = 0;
+  let previous = 0;
+  blocks.forEach(function (block) {
+    const count = Math.max(0, Math.min(correctCount, block.upTo) - previous);
+    weightedCorrect += count * block.multiplier;
+    previous = block.upTo;
+  });
+  return weightedCorrect * 15;
+}
+
 function matSubmitExam_(p) {
   const authenticatedUser = matAuthenticate_(p);
   const attemptId = matCleanText_(p.attemptId || p.AttemptID || p.gameId || '', 160);
@@ -613,8 +634,13 @@ function matSubmitExam_(p) {
       // Medical-only rewards. Never accept XP/RP amounts supplied by the browser.
       // Note: correctness counts still need trusted answer-key grading in the backend
       // if the product requires tamper-resistant competitive ranking.
+      // Every submitted exam earns XP/RP. Only a 100-question Model Test uses the
+      // special performance-weighted RP formula; every other exam uses standard RP.
       const xpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
-      const rpEarned = Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
+      const is100MarkModelTest = String(examMode).trim().toLowerCase() === 'model' && total === 100;
+      const rpEarned = is100MarkModelTest
+        ? matCalculate100MarkModelTestRP_(correct)
+        : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
       const rankBefore = String(freshUser.Rank || MAT_RANKS[0]);
