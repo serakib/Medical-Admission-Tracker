@@ -181,7 +181,7 @@
 
   function avatarMarkup(profile) {
     const avatar = safeText(profile?.avatar || '', 500);
-    if (/^https:\/\//i.test(avatar)) return '<img src="' + escapeHTML(avatar) + '" alt="" loading="lazy">';
+    if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) return '<img src="' + escapeHTML(avatar) + '" alt="" loading="lazy">';
     if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHTML(avatar);
     return '<i class="fa-solid fa-user-graduate" aria-hidden="true"></i>';
   }
