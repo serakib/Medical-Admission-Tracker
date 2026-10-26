@@ -1126,9 +1126,9 @@
       var relationLabel = relation === 'friends' ? '<span class="mat-friend-state">Friends</span>'
         : relation === 'outgoing' ? '<span class="mat-friend-state">Request Sent</span>'
         : relation === 'incoming' ? '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">Review Request</button>'
-        : (!app.authUser || typeof app.authUser.getIdToken !== 'function')
-          ? '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">View Profile</button>'
-          : '<button type="button" class="mat-row-friend-button" data-med-friend-send="' + escapeHtml(row.userId) + '" data-med-friend-name="' + escapeHtml(row.name || 'Student') + '"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>';
+        : (window.MedStudentFriends && typeof window.MedStudentFriends.canManageFriends === 'function' && window.MedStudentFriends.canManageFriends())
+          ? '<button type="button" class="mat-row-friend-button" data-med-friend-send="' + escapeHtml(row.userId) + '" data-med-friend-name="' + escapeHtml(row.name || 'Student') + '"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>'
+          : '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">View Profile</button>';
       return '<article class="mat-friend-search-result" role="listitem">' +
         '<span class="mat-friend-search-avatar">' + avatarMarkup(row) + '</span>' +
         '<div class="mat-friend-search-copy"><strong>' + escapeHtml(row.name || 'Student') + '</strong><small>' +
