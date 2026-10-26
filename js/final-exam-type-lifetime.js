@@ -97,7 +97,7 @@
     if(type==='previous-year'){
       if(year==='all'){alert('পরীক্ষার আগে একটি নির্দিষ্ট বছর নির্বাচন করুন।');return;}
       // Only validated previous-year questions from the exact selected year belong in this paper.
-      pool=pool.filter(q=>String(q.year ?? '').trim()===year && q.isPreviousYear === true && q.year && !/^practice$/i.test(String(q.year)));
+      pool=pool.filter(q=>String(q.year ?? '').trim()===year && Boolean(q.isPreviousYear) && q.year && !/^practice$/i.test(String(q.year)));
     } else if(type==='wrong') pool=pool.filter(q=>Boolean(history[qKey(q)]?.wrong));
     else if(type==='skipped') pool=pool.filter(q=>Boolean(history[qKey(q)]?.skipped));
     else if(type==='reviewed') pool=pool.filter(q=>Boolean(history[qKey(q)]?.reviewed));
