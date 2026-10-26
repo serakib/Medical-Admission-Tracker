@@ -470,7 +470,14 @@ function matUpdateProfile_(p) {
   }
   if (Object.prototype.hasOwnProperty.call(p, 'college')) update.College = matSheetSafeText_(matCleanText_(p.college, 120));
   if (Object.prototype.hasOwnProperty.call(p, 'batch')) update.Batch = matSheetSafeText_(matCleanText_(p.batch, 40));
-  if (Object.prototype.hasOwnProperty.call(p, 'avatar')) update.Avatar = matSheetSafeText_(matCleanText_(p.avatar, 500));
+  if (Object.prototype.hasOwnProperty.call(p, 'avatar')) {
+    const avatar = String(p.avatar == null ? '' : p.avatar).trim();
+    if (avatar.length > 20000) throw new Error('Avatar image is too large to sync. Choose a smaller avatar image.');
+    if (avatar && !/^https:\/\//i.test(avatar) && !/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) && !/^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) {
+      throw new Error('Unsupported avatar image source. Choose an existing avatar or upload a supported image.');
+    }
+    update.Avatar = matSheetSafeText_(avatar);
+  }
   if (!allowed.some(function (key) { return Object.prototype.hasOwnProperty.call(p, key); })) {
     throw new Error('No editable profile fields were supplied.');
   }
