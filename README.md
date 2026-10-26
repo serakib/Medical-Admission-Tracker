@@ -97,7 +97,7 @@ The examination system follows this scoring scheme:
 
 Medical Admission Tracker uses Firebase Authentication together with its own Google Apps Script / Google Sheets API. Guest and registered users can view the leaderboard without first taking an exam, edit their profile, and earn Medical-only XP/RP from exams. The API supports All Time and Weekly leaderboards, sequential sub-rank promotion up to Immortal, and the Telegram notification queue. No other website's game account or reward balance is shared.
 
-See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md) for the API actions, security notes, and separate proxy Worker deployment instructions.
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md) for API actions and security notes. The existing Get in Touch form remains separate and continues to use the portfolio's messaging endpoint.
 
 ### 📖 11. Syllabus & Examination Guidelines
 - Subject-wise marks distribution.
