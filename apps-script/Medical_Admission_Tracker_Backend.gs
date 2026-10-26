@@ -72,7 +72,7 @@ function doGet(e) {
     const action = String((e && e.parameter && e.parameter.action) || 'health');
     if (action === 'health') return matJson_({ success: true, service: 'Medical Admission Tracker API', status: 'ok' });
     if (action === 'leaderboard' || action === 'getLeaderboard') {
-      return matJson_(matGetLeaderboard_(String((e.parameter && e.parameter.period) || 'all-time'), String((e.parameter && e.parameter.ids) || '')));
+      return matJson_(matGetLeaderboard_(String((e.parameter && e.parameter.period) || 'all-time'), String((e.parameter && e.parameter.ids) || ''), String((e.parameter && e.parameter.includeIds) || '')));
     }
     return matJson_({ success: false, error: 'Use POST for this action.' });
   } catch (err) {
@@ -750,12 +750,16 @@ function matGetLevel_(xp) {
 
 /* -------------------------- Leaderboard and Top 10 ---------------------------- */
 
-function matGetLeaderboard_(period, userIds) {
+function matGetLeaderboard_(period, userIds, includeUserIds) {
   const safePeriod = String(period || 'all-time').toLowerCase() === 'weekly' ? 'weekly' : 'all-time';
   const requestedIds = Array.isArray(userIds)
     ? userIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)
     : String(userIds || '').split(',').map(function (id) { return String(id || '').trim(); }).filter(Boolean);
   const requestedIdSet = new Set(requestedIds);
+  const includeIds = Array.isArray(includeUserIds)
+    ? includeUserIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)
+    : String(includeUserIds || '').split(',').map(function (id) { return String(id || '').trim(); }).filter(Boolean);
+  const includeIdSet = new Set(includeIds);
   const allStudents = matReadObjects_(matGetStudentsSheet_()).map(matNormaliseStudent_);
   const students = requestedIdSet.size ? allStudents.filter(function (s) { return requestedIdSet.has(s.UserID); }) : allStudents;
   // Include current-week RP in every profile payload, even on All Time/Friends tabs.
@@ -799,8 +803,20 @@ function matGetLeaderboard_(period, userIds) {
   });
   // A Friends request supplies exact account IDs; return all requested friends,
   // even if they are outside the global top-100 leaderboard window.
-  const resultLimit = requestedIdSet.size ? requestedIdSet.size : MAT_CONFIG.LEADERBOARD_SIZE;
-  const limited = rows.slice(0, resultLimit).map(function (r, i) {
+  let visibleRows;
+  if (requestedIdSet.size) {
+    // The Friends endpoint intentionally returns only its requested IDs.
+    visibleRows = rows.slice(0, requestedIdSet.size);
+  } else if (includeIdSet.size) {
+    // For All Time and Weekly, keep the global top list and always include the
+    // requesting student's own row, even if they are outside the global top 100.
+    const visibleIds = new Set(rows.slice(0, MAT_CONFIG.LEADERBOARD_SIZE).map(function (r) { return String(r.userId); }));
+    includeIdSet.forEach(function (id) { visibleIds.add(id); });
+    visibleRows = rows.filter(function (r) { return visibleIds.has(String(r.userId)); });
+  } else {
+    visibleRows = rows.slice(0, MAT_CONFIG.LEADERBOARD_SIZE);
+  }
+  const limited = visibleRows.map(function (r, i) {
     r.position = i + 1;
     return r;
   });
