@@ -787,6 +787,11 @@
             batch: (document.getElementById('medical-profile-batch') || {}).value || '',
             avatar: (document.getElementById('medical-profile-avatar') || {}).value || ''
           });
+          if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
+            await app.syncFirebaseStudentProfile({
+              name: updated.name, college: updated.college, batch: updated.batch, avatar: updated.avatar
+            });
+          }
           if (status) status.textContent = 'Profile update সফল হয়েছে।';
           await loadLeaderboard(true);
         } catch (error) {
