@@ -704,7 +704,7 @@
         if (myId) friendIds.push(String(myId));
         leaderboardPayload.userIds = Array.from(new Set(friendIds)).slice(0, 500);
       }
-      var response = await request(leaderboardPayload, { method: 'GET' });
+      var response = await request(leaderboardPayload, { method: selectedPeriod === 'friends' ? 'POST' : 'GET' });
       if (requestId !== loadSequence) return;
       var entries = extractEntries(response);
       rawRows = entries.slice();
