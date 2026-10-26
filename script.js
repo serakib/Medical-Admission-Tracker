@@ -1160,9 +1160,18 @@ class MedicalExamApp {
         document.getElementById('exam-intro-title').textContent = title;
         document.getElementById('exam-intro-subtitle').textContent = this.t('Read the rules before you start. Your timer begins only after you press Start Exam.','শুরু করার আগে নিয়মগুলো পড়ে নিন। Start Exam চাপার পরই সময় গণনা শুরু হবে।');
         document.getElementById('exam-intro-start').textContent = this.t('Start Exam','পরীক্ষা শুরু করুন');
-        const rules = (cfg.mode === 'challenge' || cfg.mode === 'previousQuiz')
-            ? [this.t(`${cfg.questions.length} MCQ questions`,`${cfg.questions.length}টি MCQ প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('Leaving the exam requires submitting it first','পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')]
-            : [this.t(`${cfg.questions.length} questions` ,`${cfg.questions.length}টি প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('You cannot leave without submitting the exam','জমা না দিয়ে পরীক্ষা থেকে বের হওয়া যাবে না'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')];
+        const rules = cfg.mode === 'previousQuiz'
+            ? [
+                this.t(`Previous Year paper: ${cfg.year} only`, `বিগত বছরের প্রশ্নপত্র: শুধু ${cfg.year} সালের প্রশ্ন`),
+                this.t(`All ${cfg.questions.length} questions from the selected year are included`, `নির্বাচিত বছরের সব ${cfg.questions.length}টি প্রশ্ন থাকবে`),
+                this.t(`Time limit: ${cfg.durationMins} minutes`, `সময়: ${cfg.durationMins} মিনিট`),
+                this.t('+1 for correct, −0.25 for wrong, 0 for skipped', 'সঠিক +১, ভুল −০.২৫, স্কিপ ০'),
+                this.t('A 100-question Previous Year paper uses the special 100-mark PB earning rule', '১০০টি প্রশ্নের Previous Year পরীক্ষায় ১০০ মার্কের বিশেষ PB earning rule প্রযোজ্য'),
+                this.t('Time ending submits automatically', 'সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')
+            ]
+            : (cfg.mode === 'challenge')
+                ? [this.t(`${cfg.questions.length} MCQ questions`,`${cfg.questions.length}টি MCQ প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('Leaving the exam requires submitting it first','পরীক্ষা থেকে বের হতে হলে আগে পরীক্ষা জমা দিতে হবে'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')]
+                : [this.t(`${cfg.questions.length} questions` ,`${cfg.questions.length}টি প্রশ্ন`), this.t(`Time limit: ${cfg.durationMins} minutes`,`সময়: ${cfg.durationMins} মিনিট`), this.t('+1 for correct, −0.25 for wrong, 0 for skipped','সঠিক +১, ভুল −০.২৫, স্কিপ ০'), this.t('You cannot leave without submitting the exam','জমা না দিয়ে পরীক্ষা থেকে বের হওয়া যাবে না'), this.t('Time ending submits automatically','সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')];
         document.getElementById('exam-intro-rules').innerHTML = rules.map(x => `<li>• ${this.escapeHtml(x)}</li>`).join('');
         document.getElementById('exam-intro-stats').innerHTML = [
             [this.t('Questions','প্রশ্ন'), cfg.questions.length], [this.t('Time','সময়'), `${cfg.durationMins} min`], [this.t('Marks','নম্বর'), cfg.questions.length], [this.t('Negative','নেগেটিভ'), '0.25']
@@ -2158,7 +2167,7 @@ window.handleAccountDeletion = function() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) settlePBNow(); });
   window.setInterval(settlePBNow, 30000);
   const calculateExamReward = (state, correct) => {
-    const is100MarkModelTest = state?.mode === 'model' && Array.isArray(state.questions) && state.questions.length === 100;
+    const is100MarkModelTest = (state?.mode === 'model' || state?.mode === 'previousQuiz') && Array.isArray(state.questions) && state.questions.length === 100;
     let weightedCorrect = Math.max(0, Number(correct) || 0);
     if (is100MarkModelTest) {
       const blocks = [
