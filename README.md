@@ -177,4 +177,4 @@ Medical Admission Tester — a web-based platform for medical admission preparat
 
 ## Medical leaderboard / Rank API
 
-Medical Admission Tracker uses Firebase Authentication plus its own Google Apps Script / Google Sheets API. It does not use the Fallrush API or share Fallrush Coins/XP. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md).
+Medical Admission Tracker uses Firebase Authentication plus its own Google Apps Script / Google Sheets API. Its rewards and data are independent from other websites. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md).
