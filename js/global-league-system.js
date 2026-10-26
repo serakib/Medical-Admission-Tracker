@@ -348,6 +348,26 @@
     return applyProfile(response.user);
   }
 
+  // Reuse the exact avatar selected on Student Profile for the signed-in student.
+  // The leaderboard API may omit avatar, so its blank value must not replace the profile image.
+  function profileAvatarForUser(id) {
+    if (!id || String(id) !== String(currentUserId())) return '';
+    var uid = (app.authUser && app.authUser.uid) || String(id);
+    try {
+      var selected = localStorage.getItem('med_profile_avatar_v1_' + uid);
+      if (selected) return safeText(selected, 20000);
+    } catch (_) {}
+    try {
+      var storedProfile = parseJson(localStorage.getItem('med_sheet_profile_v1_' + accountKey()), {});
+      if (storedProfile && storedProfile.avatar) return safeText(storedProfile.avatar, 20000);
+    } catch (_) {}
+    var candidates = [(app.profile && app.profile.avatar), (currentProfile && currentProfile.avatar)];
+    for (var i = 0; i < candidates.length; i++) {
+      if (candidates[i]) return safeText(candidates[i], 20000);
+    }
+    return '';
+  }
+
   function normalizeEntry(raw) {
     raw = raw || {};
     var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
@@ -361,7 +381,7 @@
       name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
       college: safeText(raw.college || raw.College || '', 120),
       batch: safeText(raw.batch || raw.Batch || '', 40),
-      avatar: safeText(raw.avatar || raw.Avatar || '', 20000),
+      avatar: safeText(profileAvatarForUser(id) || raw.avatar || raw.Avatar || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       xp: Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0),
       level: Math.max(1, Number(raw.level != null ? raw.level : raw.Level) || 1),
