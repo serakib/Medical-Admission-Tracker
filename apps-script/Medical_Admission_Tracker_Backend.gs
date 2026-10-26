@@ -1083,12 +1083,11 @@ function matTelegramSend_(message) {
 
 
 /* -------------------------- Google Sheets friendships -------------------------- */
-function matFriendRequireRegistered_(p) {
-  const user = matAuthenticate_(p || {});
-  if (String(user.AccountType || '').toUpperCase() !== 'REGISTERED') {
-    throw new Error('Friends sync করতে registered account-এ login করুন।');
-  }
-  return user;
+function matFriendAuthenticate_(p) {
+  // Firebase users and persistent Google Sheets guest sessions can both use Friends.
+  // matAuthenticate_ validates the Firebase ID token or the unguessable guest token
+  // and returns only the account represented by that credential.
+  return matAuthenticate_(p || {});
 }
 
 function matFriendRows_() {
@@ -1111,7 +1110,7 @@ function matFriendPublicRequest_(row, incoming) {
 }
 
 function matFriendConnections_(p) {
-  const user = matFriendRequireRegistered_(p);
+  const user = matFriendAuthenticate_(p);
   const uid = String(user.UserID);
   const rows = matFriendRows_();
   const friendIds = new Set();
@@ -1133,14 +1132,16 @@ function matFriendConnections_(p) {
 }
 
 function matSendFriendRequest_(p) {
-  const user = matFriendRequireRegistered_(p);
+  const user = matFriendAuthenticate_(p);
   const uid = String(user.UserID);
   const targetId = String(p.targetUserId || '').trim();
   if (!targetId || targetId === uid) throw new Error('নিজের account-এ friend request পাঠানো যাবে না।');
   const target = matFindStudentById_(targetId);
-  if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') {
-    throw new Error('এই registered student-কে পাওয়া যায়নি।');
+  if (!target) {
+    throw new Error('এই student-কে পাওয়া যায়নি। আবার search করে চেষ্টা করুন।');
   }
+  // Guest profiles are valid targets too; do not allow sending to an unknown ID.
+  // Existing-request and self-request checks below still prevent duplicates and self-links.
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
   try {
@@ -1183,7 +1184,7 @@ function matSendFriendRequest_(p) {
 }
 
 function matResolveFriendRequest_(p, nextStatus) {
-  const user = matFriendRequireRegistered_(p);
+  const user = matFriendAuthenticate_(p);
   const uid = String(user.UserID);
   const requestId = String(p.requestId || '').trim();
   if (!requestId) throw new Error('Friend request ID প্রয়োজন।');
@@ -1229,7 +1230,7 @@ function matResolveFriendRequest_(p, nextStatus) {
 }
 
 function matRemoveFriend_(p) {
-  const user = matFriendRequireRegistered_(p);
+  const user = matFriendAuthenticate_(p);
   const uid = String(user.UserID);
   const targetId = String(p.targetUserId || '').trim();
   if (!targetId || targetId === uid) throw new Error('Friend ID সঠিক নয়।');
