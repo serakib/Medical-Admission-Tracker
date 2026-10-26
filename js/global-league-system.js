@@ -527,12 +527,33 @@
     if (Array.isArray(response.leaderboard)) return response.leaderboard;
     return [];
   }
+  function safeZoneThresholdFor(row) {
+    var vault = window.MedAchievementVaultTrophies;
+    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
+    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && (row.totalRP || row.rankPoints) || 0);
+    if (info && info.atMax) return 0;
+    return Math.max(0, Number(info && info.safeZoneRP) || 0);
+  }
+  function isInWeeklySafeZone(row) {
+    if (String(row && row.rank || '').toLowerCase() === 'immortal') return true;
+    var threshold = safeZoneThresholdFor(row);
+    return Math.max(0, Number(row && row.weeklyRankPoints) || 0) >= threshold;
+  }
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
+    if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function') {
+      var friendIds = new Set(window.MedStudentFriends.getFriendIds().map(String));
+      all = all.filter(function (row) { return row.isMine || friendIds.has(String(row.userId)); });
+    }
     var me = getMe(all);
-    if (me && (!selectedRank || RANKS.indexOf(selectedRank) < 0)) selectedRank = me.rank;
-    if (RANKS.indexOf(selectedRank) < 0) selectedRank = (me && me.rank) || RANKS[0];
-    var rankRows = all.filter(function (row) { return row.rank === selectedRank; });
+    if (!selectedRank || !me) selectedRank = (me && me.rank) || selectedRank || RANKS[0];
+    var displayRows = all.slice();
+    var safeRows = [], riskRows = [];
+    if (selectedPeriod === 'weekly') {
+      safeRows = displayRows.filter(isInWeeklySafeZone);
+      riskRows = displayRows.filter(function (row) { return !isInWeeklySafeZone(row); });
+      displayRows = safeRows.concat(riskRows);
+    }
     var body = document.getElementById('leaderboard-body');
     var podium = document.getElementById('leaderboard-podium');
     var mePanel = document.getElementById('leaderboard-me');
@@ -540,44 +561,65 @@
     if (podium) podium.innerHTML = '';
     body.innerHTML = '';
     if (mePanel) { mePanel.innerHTML = ''; mePanel.classList.add('hidden'); }
-    if (rankRows.length) {
+    if (displayRows.length) {
       if (podium) {
-        podium.innerHTML = rankRows.slice(0, 3).map(function (row, index) {
-          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
+        podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
+          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</span>' +
+            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</span>' +
             '<small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
-      rankRows.forEach(function (row, index) {
+      var safeDividerInserted = false;
+      displayRows.forEach(function (row, index) {
+        if (selectedPeriod === 'weekly' && !safeDividerInserted && index === safeRows.length && riskRows.length) {
+          var divider = document.createElement('tr');
+          divider.className = 'safe-zone-divider';
+          divider.innerHTML = '<td colspan="5"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">Students below this line have not reached the required weekly RP threshold.</span></td>';
+          body.appendChild(divider);
+          safeDividerInserted = true;
+        }
         var tr = document.createElement('tr');
-        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '');
+        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + (selectedPeriod === 'weekly' && !isInWeeklySafeZone(row) ? ' is-below-safe-zone' : '');
         tr.dataset.medPlayer = String(row.userId || '');
         tr.dataset.totalRp = String(Number(row.totalRP || row.rankPoints || 0));
+        tr.dataset.rankPoints = String(Number(row.rankPoints || 0));
+        tr.dataset.weeklyRp = String(Number(row.weeklyRankPoints || 0));
         tr.dataset.rank = String(row.rank || '');
+        tr.dataset.uid = String(row.userId || '');
         tr.tabIndex = 0;
         tr.setAttribute('role', 'button');
-        tr.setAttribute('aria-label', 'Open ' + row.name + ' profile');
-        tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' +
-          (row.isMine ? '<em>YOU</em>' : '') + '<small class="block text-xs opacity-70">' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
-          '<td class="py-4 px-3">' + escapeHtml(row.college || '—') + '</td>' +
-          '<td class="py-4 px-3">' + escapeHtml(row.batch || '—') + '</td>' +
-          '<td class="py-4 px-3">' + Number(row.xp || 0) + ' XP</td>' +
-          '<td class="leader-rank-points py-4 px-3"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</small><small class="leader-points-label">' + Number(row.rankPoints || 0) + ' current RP</small></td>';
+        tr.setAttribute('aria-label', 'Open ' + row.name + ' student profile');
+        var safeThreshold = safeZoneThresholdFor(row);
+        var weeklyRP = Math.max(0, Number(row.weeklyRankPoints) || 0);
+        var safeStatus = selectedPeriod !== 'weekly' ? '' : isInWeeklySafeZone(row)
+          ? '<small class="leader-safe-status"><i class="fa-solid fa-shield-check"></i> Safe Zone</small>'
+          : '<small class="leader-risk-status"><i class="fa-solid fa-arrow-trend-up"></i> আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন</small>';
+        tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div></td>' +
+          '<td class="py-4 px-3 leader-college">' + escapeHtml(row.college || '—') + '</td>' +
+          '<td class="py-4 px-3 leader-batch">' + escapeHtml(row.batch || '—') + '</td>' +
+          '<td class="py-4 px-3 leader-xp">' + Number(row.xp || 0).toLocaleString() + ' XP</td>' +
+          '<td class="leader-rank-points py-4 px-3"><strong class="leader-rank-number">#' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + '</small>' + safeStatus + '</td>';
         body.appendChild(tr);
       });
-      var own = rankRows.find(function (row) { return row.isMine; });
-      if (mePanel && own) {
+      if (mePanel && me) {
+        var ownIndex = displayRows.findIndex(function (row) { return row.isMine || String(row.userId) === String(me.userId); });
         mePanel.classList.remove('hidden');
-        mePanel.innerHTML = '<div><span>Your Position</span><strong>#' + (rankRows.indexOf(own) + 1) + '</strong></div><div><b>' + escapeHtml(own.name) + '</b><small>' + Number(own.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + ' · ' + escapeHtml(own.rank) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position</span><strong>#' + (ownIndex >= 0 ? ownIndex + 1 : '—') + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
       }
     } else {
-      body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">এই rank-এ এখনো কোনো student নেই। অন্য rank নির্বাচন করুন।</td></tr>';
+      var emptyText = selectedPeriod === 'friends'
+        ? 'আপনার Friends leaderboard এখন খালি। অন্য student-এর profile খুলে Friend Request পাঠান।'
+        : 'এই leaderboard-এ এখনো দেখানোর মতো student নেই।';
+      body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">' + emptyText + '</td></tr>';
     }
     renderRankRail(all);
     updateTopControls(me);
     if (window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.paint === 'function') {
-      window.MedAchievementVaultTrophies.paint(all);
+      window.MedAchievementVaultTrophies.paint(displayRows);
+    }
+    if (window.MedStudentFriends && typeof window.MedStudentFriends.renderRequestPanel === 'function') {
+      window.MedStudentFriends.renderRequestPanel(selectedPeriod === 'friends');
     }
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
