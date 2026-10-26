@@ -574,6 +574,36 @@ class MedicalExamApp {
         }
     }
 
+    async syncFirebaseStudentProfile(fields = {}) {
+        if (!this.authUser) return false;
+        const safeFields = {};
+        ['name', 'college', 'batch', 'class', 'mobile', 'bloodGroup', 'avatar'].forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(fields, key)) safeFields[key] = fields[key];
+        });
+        if (safeFields.name) {
+            try { await updateProfile(this.authUser, { displayName: String(safeFields.name).slice(0, 80) }); }
+            catch (error) { console.warn('Firebase display name sync failed:', error); }
+        }
+        if (this.firestore) {
+            try {
+                await setDoc(doc(this.firestore, 'students', this.authUser.uid), {
+                    uid: this.authUser.uid,
+                    email: this.authUser.email || '',
+                    ...safeFields,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.warn('Firebase student profile sync failed:', error);
+            }
+        }
+        this.profile = Object.assign({}, this.profile || {}, safeFields, {
+            uid: this.authUser.uid,
+            email: this.authUser.email || (this.profile && this.profile.email) || ''
+        });
+        this.renderAccountProfile();
+        return true;
+    }
+
     getDemoLeaderboardRows(){ return []; }
     getLocalLeaderboardRows(){
         if(window.MedGlobalLeague && typeof window.MedGlobalLeague.getCachedRows === 'function') return window.MedGlobalLeague.getCachedRows();
