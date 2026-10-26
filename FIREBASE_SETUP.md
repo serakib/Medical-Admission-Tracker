@@ -10,7 +10,7 @@ The existing `students/{uid}` Firestore document may continue storing the app's 
 
 ## 3. Dedicated Medical Sheets API
 
-`js/leaderboard-config.js` points to the Medical Admission Tracker's own Google Apps Script deployment. The backend uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. It does not call any external game API.
+`js/leaderboard-config.js` points to a separate Cloudflare Worker proxy. The Worker forwards to the Medical Admission Tracker's own Google Apps Script deployment, which uses the two private spreadsheets supplied by the site owner: one for student profiles/rewards, and one for exam history plus queued leaderboard-activity notifications. It does not call any external game API.
 
 - Registered users: Firebase ID token is verified by the Medical API.
 - Guests: a random Guest token is stored locally and resolved by the Medical API.
@@ -22,4 +22,4 @@ Keep both spreadsheets private. Store `FIREBASE_API_KEY`, `TELEGRAM_BOT_TOKEN`, 
 
 ## 4. Browser CORS / redirect handling
 
-If the browser cannot read the Apps Script response because of CORS/redirect behavior, deploy `workers/medical-api-proxy-worker.js` as a **separate** Cloudflare Worker. Update the API URL in `js/leaderboard-config.js` to use that Worker URL. Do not replace the separate Student Support/AI Worker.
+Deploy `workers/medical-api-proxy-worker.js` as a **separate** Cloudflare Worker named `medical-admission-api-proxy` under the site's existing workers.dev account. The config is prefilled for that Worker name. Do not replace the separate Student Support/AI Worker.
