@@ -140,3 +140,36 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
 }
 .dark .mat-row-friend-button{color:#6ee7b7;border-color:rgba(52,211,153,.42)}
 .mat-row-friend-button:hover{background:rgba(16,185,129,.18);border-color:rgba(16,185,129,.8)}
+
+
+/* Always-visible Friends entry point and searchable global student directory. */
+.mat-manage-friends-button{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;
+  padding:9px 13px;border:1px solid rgba(16,185,129,.5);border-radius:12px;
+  background:rgba(16,185,129,.12);color:#047857;font-size:13px;font-weight:900;
+  white-space:nowrap;cursor:pointer;transition:background-color .16s,border-color .16s,transform .16s;
+}
+.mat-manage-friends-button:hover{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.8);transform:translateY(-1px)}
+.dark .mat-manage-friends-button{color:#6ee7b7;border-color:rgba(52,211,153,.48);background:rgba(16,185,129,.14)}
+.mat-friend-directory{padding:13px;margin:0 0 16px;border:1px solid rgba(148,163,184,.23);border-radius:16px;background:rgba(148,163,184,.045)}
+.mat-friend-directory>label{display:block;margin:0 0 8px;font-size:14px;font-weight:900}
+#leaderboard-friend-search{display:block;width:100%;min-height:42px;padding:10px 12px;border:1px solid rgba(148,163,184,.45);border-radius:11px;background:var(--surface,#fff);color:var(--text,#0f172a);outline:none}
+#leaderboard-friend-search:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+#leaderboard-friend-search-help{margin-top:6px;font-size:11px;color:var(--muted,#64748b)}
+#leaderboard-friend-search-results{display:grid;gap:8px;margin-top:10px}
+.mat-friend-search-result{display:flex;align-items:center;gap:10px;min-width:0;padding:9px;border:1px solid rgba(148,163,184,.2);border-radius:12px;background:rgba(148,163,184,.045)}
+.mat-friend-search-avatar{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:50%;overflow:hidden;background:rgba(148,163,184,.12)}
+.mat-friend-search-avatar img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.mat-friend-search-copy{display:flex;flex:1;flex-direction:column;min-width:0;gap:3px}
+.mat-friend-search-copy strong{overflow-wrap:anywhere;font-size:13px;font-weight:900}
+.mat-friend-search-copy small{overflow-wrap:anywhere;font-size:11px;color:var(--muted,#64748b)}
+.mat-friend-search-action{display:flex;flex-shrink:0;align-items:center;justify-content:flex-end}
+.mat-friend-state{padding:6px 9px;border-radius:999px;background:rgba(16,185,129,.1);color:#059669;font-size:11px;font-weight:900}
+.dark .mat-friend-state{color:#6ee7b7}
+.mat-friend-search-action .mat-row-friend-button{margin-top:0;white-space:nowrap}
+.leader-person .mat-row-friend-button{white-space:nowrap}
+@media(max-width:520px){
+  .mat-manage-friends-button{padding:8px 10px;font-size:12px}
+  .mat-friend-search-result{align-items:flex-start;flex-wrap:wrap}
+  .mat-friend-search-action{width:100%;padding-left:52px;justify-content:flex-start}
+}
