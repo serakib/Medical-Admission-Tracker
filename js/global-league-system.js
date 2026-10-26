@@ -1,87 +1,244 @@
-/* Medical Admission Tracker — shared Fallrush rank/leaderboard adapter.
- * Uses only the existing Fallrush Apps Script actions. Replace its endpoint in
- * js/leaderboard-config.js when the Medical Admission Tracker has its own API.
+/* Medical Admission Tracker — Firebase + dedicated Google Sheets API adapter.
+ * Fallrush API/session/reward dependencies are intentionally not used.
  */
 (function () {
   'use strict';
   var app = window.app;
-  if (!app || app.__fallrushLeaderboardAdapter) return;
-  app.__fallrushLeaderboardAdapter = true;
+  if (!app || app.__medicalSheetsAdapter) return;
+  app.__medicalSheetsAdapter = true;
 
-  var MATCH_RANKS = ['Bronze I','Bronze II','Bronze III','Silver I','Silver II','Silver III','Gold I','Gold II','Gold III','Platinum I','Platinum II','Platinum III','Diamond I','Diamond II','Diamond III','Master','Grandmaster','Legend','Immortal'];
-  var RP_TARGET = 300;
-  var PERIOD_KEY = 'med_leaderboard_period_v1';
-  var CACHE_KEY = 'med_fallrush_leaderboard_cache_v1';
-  var QUEUE_KEY = 'med_fallrush_leaderboard_pending_v1';
-  var SENT_KEY = 'med_fallrush_leaderboard_sent_v1';
-  var REWARDS_KEY = 'med_fallrush_exam_rewards_v1';
-  var RANK_KEY_PREFIX = 'med_fallrush_selected_rank_v1_';
-  var FRIENDS_CACHE_KEY = 'med_fallrush_friends_cache_v1';
+  var RANKS = [
+    'Bronze V','Bronze IV','Bronze III','Bronze II','Bronze I',
+    'Silver V','Silver IV','Silver III','Silver II','Silver I',
+    'Gold V','Gold IV','Gold III','Gold II','Gold I',
+    'Platinum V','Platinum IV','Platinum III','Platinum II','Platinum I',
+    'Diamond V','Diamond IV','Diamond III','Diamond II','Diamond I',
+    'Master V','Master IV','Master III','Master II','Master I',
+    'Grandmaster V','Grandmaster IV','Grandmaster III','Grandmaster II','Grandmaster I',
+    'Immortal'
+  ];
+  var PERIOD_KEY = 'med_sheet_leaderboard_period_v1';
+  var GUEST_TOKEN_KEY = 'med_sheet_guest_token_v1';
+  var GUEST_ID_KEY = 'med_sheet_guest_id_v1';
+  var CACHE_KEY = 'med_sheet_leaderboard_cache_v1';
+  var QUEUE_KEY = 'med_sheet_exam_pending_v1';
+  var REWARD_KEY = 'med_sheet_exam_rewards_v1';
+  var SELECTED_RANK_KEY = 'med_sheet_selected_rank_v1_';
   var API_URL = function () { return String(window.MED_LEADERBOARD_API_URL || '').trim(); };
   var selectedPeriod = readPeriod();
   var selectedRank = readSelectedRank();
   var rawRows = [];
   var currentProfile = null;
-  var lastLoadId = 0;
+  var identityPromise = null;
+  var loadSequence = 0;
 
   function readPeriod() {
-    var value = localStorage.getItem(PERIOD_KEY) || 'all-time';
-    return value === 'friends' || value === 'weekly' ? value : 'all-time';
+    try { return localStorage.getItem(PERIOD_KEY) === 'weekly' ? 'weekly' : 'all-time'; }
+    catch (_) { return 'all-time'; }
   }
   function accountKey() {
-    return (app.authUser && app.authUser.uid) || 'guest';
-  }
-  function rankStorageKey() {
-    return RANK_KEY_PREFIX + accountKey();
+    return (app.authUser && app.authUser.uid) || localStorage.getItem(GUEST_ID_KEY) || 'guest';
   }
   function readSelectedRank() {
-    var value = '';
-    try { value = localStorage.getItem(RANK_KEY_PREFIX + accountKey()) || ''; } catch (_) {}
-    return MATCH_RANKS.indexOf(value) >= 0 ? value : '';
-  }
-  function getToken() {
-    try { return String(localStorage.getItem('elem_session_token') || '').trim(); } catch (_) { return ''; }
+    try {
+      var value = localStorage.getItem(SELECTED_RANK_KEY + accountKey()) || '';
+      return RANKS.indexOf(value) >= 0 ? value : '';
+    } catch (_) { return ''; }
   }
   function safeText(value, max) {
     return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max || 120);
   }
   function escapeHtml(value) {
-    var text = String(value == null ? '' : value);
-    if (typeof app.escapeHtml === 'function') return app.escapeHtml(text);
-    return text.replace(/[&<>"']/g, function (char) {
-      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]);
+    var input = String(value == null ? '' : value);
+    if (typeof app.escapeHtml === 'function') return app.escapeHtml(input);
+    return input.replace(/[&<>"']/g, function (ch) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[ch];
     });
   }
   function parseJson(value, fallback) {
-    try { var parsed = JSON.parse(value); return parsed == null ? fallback : parsed; } catch (_) { return fallback; }
+    try { var parsed = JSON.parse(value); return parsed == null ? fallback : parsed; }
+    catch (_) { return fallback; }
   }
   function profileName() {
     var profile = app.profile || {};
-    var name = profile.name || profile.displayName || (app.authUser && app.authUser.displayName) || '';
-    if (!name && app.authUser && app.authUser.email) name = app.authUser.email.split('@')[0];
-    return safeText(name || 'Medical Student', 80);
+    return safeText(profile.name || profile.displayName ||
+      (app.authUser && app.authUser.displayName) ||
+      (app.authUser && app.authUser.email ? app.authUser.email.split('@')[0] : '') ||
+      (currentProfile && currentProfile.name) || 'Guest Student', 80);
   }
-  function profileCollege() {
-    return safeText((app.profile && app.profile.college) || '', 120);
+  function profileCollege() { return safeText((app.profile && app.profile.college) || (currentProfile && currentProfile.college) || '', 120); }
+  function profileBatch() {
+    var profile = app.profile || {};
+    return safeText(profile.batch || profile.class || (currentProfile && currentProfile.batch) || '', 40);
   }
-  function medPlayerId() {
-    if (getToken()) {
-      var gameId = '';
-      try { gameId = localStorage.getItem('elem_player_id') || ''; } catch (_) {}
-      if (gameId) return safeText(gameId, 100);
+  function apiErrorMessage(error) {
+    var msg = String(error && error.message || error || 'Unknown error');
+    if (/failed to fetch|networkerror|load failed|cors|redirect/i.test(msg)) {
+      return 'Google Apps Script response browser-এ পড়া যায়নি। CORS/redirect সমস্যা হলে আলাদা Cloudflare Worker proxy deploy করে MED_LEADERBOARD_API_URL-এ তার URL দিতে হবে।';
     }
-    var uid = (app.authUser && app.authUser.uid) || '';
-    if (uid) return 'G-MED-' + uid.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 76);
-    var guest = '';
-    try { guest = localStorage.getItem('med_fallrush_guest_player_id') || ''; } catch (_) {}
-    if (!guest) {
-      guest = 'MED-G-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 8).toUpperCase();
-      try { localStorage.setItem('med_fallrush_guest_player_id', guest); } catch (_) {}
-    }
-    return guest;
+    return msg;
   }
-  function isAuthenticated() {
-    return !!(app.authUser && app.authUser.uid);
+  async function request(payload, options) {
+    var endpoint = API_URL();
+    if (!endpoint) throw new Error('Medical Sheets API URL is not configured.');
+    payload = payload || {};
+    options = options || {};
+    var method = String(options.method || 'POST').toUpperCase();
+    var url = endpoint;
+    var init = {
+      method: method,
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'no-store',
+      redirect: 'follow',
+      headers: { 'Accept': 'application/json,text/plain,*/*' }
+    };
+    if (method === 'GET') {
+      var params = new URLSearchParams();
+      params.set('action', String(payload.action || 'health'));
+      if (payload.period) params.set('period', String(payload.period));
+      url += (url.indexOf('?') >= 0 ? '&' : '?') + params.toString();
+    } else {
+      // text/plain keeps this a simple browser request and avoids an OPTIONS preflight.
+      init.headers['Content-Type'] = 'text/plain;charset=utf-8';
+      init.body = JSON.stringify(payload);
+    }
+    var response;
+    try {
+      response = await fetch(url, init);
+    } catch (error) {
+      throw new Error(apiErrorMessage(error));
+    }
+    var body = '';
+    try { body = await response.text(); }
+    catch (_) { throw new Error('Medical API response body could not be read.'); }
+    var data;
+    try { data = JSON.parse(body); }
+    catch (_) {
+      throw new Error('Medical API did not return JSON (HTTP ' + response.status + '). Check the Apps Script deployment and redirect response.');
+    }
+    if (!response.ok) throw new Error(data.error || data.message || ('Medical API HTTP ' + response.status));
+    if (data && data.success === false) throw new Error(data.error || data.message || 'Medical API request failed.');
+    return data || {};
+  }
+  function getGuestToken() {
+    try { return String(localStorage.getItem(GUEST_TOKEN_KEY) || '').trim(); }
+    catch (_) { return ''; }
+  }
+  function getRewardCache() { return parseJson(localStorage.getItem(REWARD_KEY), {}) || {}; }
+  function saveReward(reward) {
+    if (!reward || !reward.attemptId) return reward;
+    var cache = getRewardCache();
+    cache[String(reward.attemptId)] = reward;
+    var keys = Object.keys(cache);
+    if (keys.length > 150) keys.slice(0, keys.length - 150).forEach(function (k) { delete cache[k]; });
+    try { localStorage.setItem(REWARD_KEY, JSON.stringify(cache)); } catch (_) {}
+    if (typeof window.updateExamRewardDisplay === 'function') window.updateExamRewardDisplay(reward);
+    return reward;
+  }
+  function getSavedReward(attemptId) { return getRewardCache()[String(attemptId || '')] || null; }
+  function getCache() {
+    var rows = parseJson(localStorage.getItem(CACHE_KEY), []);
+    return Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
+  }
+  function saveCache(rows) {
+    var list = Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); } catch (_) {}
+    return list;
+  }
+  function getQueue() {
+    var value = parseJson(localStorage.getItem(QUEUE_KEY), []);
+    return Array.isArray(value) ? value : [];
+  }
+  function saveQueue(queue) {
+    try { localStorage.setItem(QUEUE_KEY, JSON.stringify((Array.isArray(queue) ? queue : []).slice(-100))); } catch (_) {}
+  }
+  function currentUserId() {
+    if (app.authUser && app.authUser.uid) return String(app.authUser.uid);
+    return String((currentProfile && (currentProfile.userId || currentProfile.uid)) || localStorage.getItem(GUEST_ID_KEY) || '');
+  }
+  function rankClass(rank) {
+    var value = String(rank || '').toLowerCase();
+    if (value.indexOf('bronze') === 0) return 'bronze';
+    if (value.indexOf('silver') === 0) return 'silver';
+    if (value.indexOf('gold') === 0) return 'gold';
+    if (value.indexOf('platinum') === 0) return 'platinum';
+    if (value.indexOf('diamond') === 0) return 'diamond';
+    if (value.indexOf('immortal') === 0) return 'immortal';
+    if (value.indexOf('grandmaster') === 0) return 'grandmaster';
+    if (value.indexOf('master') === 0) return 'master';
+    return 'legend';
+  }
+  function rankIcon(index) {
+    if (index === RANKS.length - 1) return 'fa-crown';
+    if (index >= 30) return 'fa-crown';
+    if (index >= 20) return 'fa-gem';
+    if (index >= 15) return 'fa-star';
+    if (index >= 10) return 'fa-trophy';
+    if (index >= 5) return 'fa-shield-halved';
+    return 'fa-medal';
+  }
+  function rankTrophy(rank) {
+    var value = String(rank || '').toLowerCase();
+    if (value.indexOf('immortal') === 0) return '🏆';
+    if (value.indexOf('grandmaster') === 0 || value.indexOf('master') === 0) return '👑';
+    if (value.indexOf('diamond') === 0) return '💎';
+    if (value.indexOf('platinum') === 0) return '🛡️';
+    if (value.indexOf('gold') === 0) return '🥇';
+    if (value.indexOf('silver') === 0) return '🥈';
+    return '🥉';
+  }
+  function applyProfile(user) {
+    if (!user) return null;
+    currentProfile = user;
+    var profile = Object.assign({}, app.profile || {});
+    profile.uid = user.uid || user.userId || user.playerId || profile.uid || '';
+    profile.userId = user.userId || user.uid || '';
+    profile.name = safeText(user.name || user.username || profile.name || 'Guest Student', 80);
+    profile.displayName = profile.name;
+    profile.email = user.email || profile.email || (app.authUser && app.authUser.email) || '';
+    profile.college = safeText(user.college != null ? user.college : profile.college, 120);
+    profile.batch = safeText(user.batch != null ? user.batch : (profile.batch || profile.class || ''), 40);
+    profile.avatar = safeText(user.avatar != null ? user.avatar : profile.avatar, 500);
+    profile.accountType = user.accountType || (app.authUser ? 'REGISTERED' : 'GUEST');
+    profile.xp = Math.max(0, Number(user.xp) || 0);
+    profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
+    profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
+    profile.level = Math.max(1, Number(user.level) || 1);
+    profile.rank = RANKS.indexOf(user.rank) >= 0 ? user.rank : RANKS[0];
+    app.profile = profile;
+    var storageKey = 'med_sheet_profile_v1_' + accountKey();
+    try { localStorage.setItem(storageKey, JSON.stringify(profile)); } catch (_) {}
+    setText('profile-name', profile.name);
+    setText('account-profile-name', profile.name);
+    setText('profile-email', app.authUser ? (profile.email || 'Signed in') : 'Guest mode · আপনার profile server-এ সংরক্ষিত');
+    setText('account-profile-email', app.authUser ? (profile.email || 'Registered account') : 'Guest account · Device session');
+    setText('account-profile-status', app.authUser ? 'Registered account' : 'Guest account');
+    var form = document.getElementById('medical-profile-form');
+    if (form) {
+      setInput('medical-profile-name', profile.name);
+      setInput('medical-profile-college', profile.college);
+      setInput('medical-profile-batch', profile.batch);
+      setInput('medical-profile-avatar', profile.avatar);
+    }
+    renderAccountRank(profile);
+    try {
+      window.dispatchEvent(new CustomEvent('student-progress-updated', { detail: Object.assign({}, profile, { source: 'medical-sheets-api' }) }));
+    } catch (_) {}
+    return profile;
+  }
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el && value != null) el.textContent = String(value);
+  }
+  function setInput(id, value) {
+    var el = document.getElementById(id);
+    if (el && document.activeElement !== el) el.value = String(value == null ? '' : value);
+  }
+  function renderAccountRank(profile) {
+    if (!profile) return;
+    setText('profile-live-rank', profile.rank || RANKS[0]);
+    setText('profile-best-rank', profile.rank || RANKS[0]);
   }
   function setStatus(message, isError) {
     var el = document.getElementById('leaderboard-status');
@@ -92,247 +249,128 @@
       : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300');
     el.classList.remove('hidden');
   }
-  async function request(payload) {
-    var url = API_URL();
-    if (!url) throw new Error('Leaderboard API URL is not configured.');
-    var controller = window.AbortController ? new AbortController() : null;
-    var timer = controller ? window.setTimeout(function () {
-      try { controller.abort(); } catch (_) {}
-    }, 15000) : null;
+
+  async function ensureGuest() {
+    var savedToken = getGuestToken();
+    var response = await request({ action: 'createGuest', guestToken: savedToken });
+    if (!response.guestToken) throw new Error('Guest API returned no guest token.');
     try {
-      var response = await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'omit',
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8',
-          'Accept': 'application/json,text/plain,*/*'
-        },
-        body: JSON.stringify(payload || {}),
-        signal: controller ? controller.signal : undefined
-      });
-      var body = await response.text();
-      if (!response.ok) throw new Error('Leaderboard API HTTP ' + response.status + '.');
-      if (!String(body || '').trim()) throw new Error('Leaderboard API returned an empty response.');
-      var data;
-      try { data = JSON.parse(String(body).trim()); } catch (_) { throw new Error('Leaderboard API returned invalid JSON.'); }
-      if (data && data.success === false) throw new Error(data.message || data.error || 'Leaderboard request was rejected.');
-      return data || {};
-    } catch (error) {
-      if (error && error.name === 'AbortError') throw new Error('Leaderboard API timed out. Please retry.');
-      throw error;
-    } finally {
-      if (timer) window.clearTimeout(timer);
-    }
+      localStorage.setItem(GUEST_TOKEN_KEY, response.guestToken);
+      if (response.user && response.user.userId) localStorage.setItem(GUEST_ID_KEY, String(response.user.userId));
+    } catch (_) {}
+    return applyProfile(response.user || {});
   }
-  function extractEntries(response) {
-    if (Array.isArray(response)) return response;
-    if (!response) return [];
-    if (Array.isArray(response.entries)) return response.entries;
-    if (Array.isArray(response.leaderboard)) return response.leaderboard;
-    if (Array.isArray(response.results)) return response.results;
-    if (Array.isArray(response.friends)) return response.friends;
-    if (Array.isArray(response.users)) return response.users;
-    return [];
-  }
-  function weeklyMetric(entry) {
-    entry = entry || {};
-    var value = entry.weeklyRankPoints;
-    if (value == null) value = entry.weeklyRP;
-    if (value == null) value = entry.weekRP;
-    if (value == null) value = entry.weeklyPoints;
-    if (value == null) value = entry.weekPoints;
-    if (value == null) value = entry.weeklyScore;
-    return value == null || !Number.isFinite(Number(value)) ? null : Math.max(0, Number(value));
-  }
-  function hasWeeklyMetric(entry) {
-    return weeklyMetric(entry) != null;
-  }
-  function weeklyPeriodConfirmed(response, entries) {
-    response = response || {};
-    var declared = String(response.period || response.scope || response.leaderboardPeriod || '').toLowerCase();
-    return declared === 'week' || declared === 'weekly' || response.weekly === true ||
-      Array.isArray(response.weeklyEntries) || (Array.isArray(entries) && entries.some(hasWeeklyMetric));
-  }
-  function sortEntries(entries) {
-    return (Array.isArray(entries) ? entries : []).slice().sort(function (a, b) {
-      if (selectedPeriod === 'weekly') {
-        var weekA = weeklyMetric(a);
-        var weekB = weeklyMetric(b);
-        if (weekA != null && weekB != null && weekA !== weekB) return weekB - weekA;
-      }
-      var rankA = MATCH_RANKS.indexOf(a.rank || 'Bronze I');
-      var rankB = MATCH_RANKS.indexOf(b.rank || 'Bronze I');
-      if (rankA !== rankB) return rankB - rankA;
-      var rpA = selectedPeriod === 'weekly' && weeklyMetric(a) != null ? weeklyMetric(a) : Number(a.rankPoints || a.rp || 0);
-      var rpB = selectedPeriod === 'weekly' && weeklyMetric(b) != null ? weeklyMetric(b) : Number(b.rankPoints || b.rp || 0);
-      var rp = rpB - rpA;
-      if (rp) return rp;
-      var score = Number(b.rankScore || b.score || b.points || 0) - Number(a.rankScore || a.score || a.points || 0);
-      if (score) return score;
-      return String(a.username || a.name || '').localeCompare(String(b.username || b.name || ''));
+  async function registerUser(fields) {
+    if (!app.authUser || typeof app.authUser.getIdToken !== 'function') return ensureGuest();
+    fields = fields || {};
+    var idToken = await app.authUser.getIdToken();
+    var existing = app.profile || {};
+    var response = await request({
+      action: 'registerUser',
+      idToken: idToken,
+      name: safeText(fields.name || existing.name || app.authUser.displayName || '', 80),
+      college: safeText(fields.college || existing.college || '', 120),
+      batch: safeText(fields.batch || existing.batch || existing.class || '', 40),
+      avatar: safeText(fields.avatar || existing.avatar || '', 500)
     });
+    if (!response.user) throw new Error('Medical API did not return the registered profile.');
+    return applyProfile(response.user);
   }
-  function rankTrophy(rank) {
-    var value = String(rank || '').toLowerCase();
-    if (value.indexOf('immortal') === 0 || value.indexOf('legend') === 0) return '🏆';
-    if (value.indexOf('grandmaster') === 0 || value.indexOf('master') === 0) return '👑';
-    if (value.indexOf('diamond') === 0) return '💎';
-    if (value.indexOf('platinum') === 0) return '🛡️';
-    if (value.indexOf('gold') === 0) return '🥇';
-    if (value.indexOf('silver') === 0) return '🥈';
-    return '🥉';
+  async function syncIdentity() {
+    if (app.__medicalRegistrationInProgress) return null;
+    if (identityPromise) return identityPromise;
+    identityPromise = (async function () {
+      if (app.authUser) return registerUser({});
+      return ensureGuest();
+    })();
+    try { return await identityPromise; }
+    finally { identityPromise = null; }
   }
-  function myApiProfileId() {
-    if (currentProfile) return String(currentProfile.playerId || currentProfile.userId || currentProfile.uid || '');
-    return '';
+  async function credentialsForCurrentUser() {
+    if (app.authUser && typeof app.authUser.getIdToken === 'function') {
+      return { idToken: await app.authUser.getIdToken() };
+    }
+    var token = getGuestToken();
+    if (!token) {
+      await ensureGuest();
+      token = getGuestToken();
+    }
+    if (!token) throw new Error('Guest session is unavailable. Please reload the page.');
+    return { guestToken: token };
   }
-  function isMine(raw) {
-    var id = String(raw && (raw.playerId || raw.userId || raw.uid || raw.id) || '');
-    var ids = [medPlayerId(), myApiProfileId()];
-    try { ids.push(String(localStorage.getItem('elem_player_id') || '')); } catch (_) {}
-    if (id && ids.some(function (candidate) { return candidate && id.toLowerCase() === candidate.toLowerCase(); })) return true;
-    var rawName = String(raw && (raw.username || raw.name) || '').trim().toLowerCase();
-    var expected = String((currentProfile && currentProfile.username) || profileName()).trim().toLowerCase();
-    return !!(rawName && expected && rawName === expected);
+  async function updateProfile(fields) {
+    fields = fields || {};
+    var allowed = {};
+    ['name','college','batch','avatar'].forEach(function (key) {
+      if (Object.prototype.hasOwnProperty.call(fields, key)) allowed[key] = safeText(fields[key], key === 'avatar' ? 500 : (key === 'college' ? 120 : (key === 'batch' ? 40 : 80)));
+    });
+    if (Object.prototype.hasOwnProperty.call(allowed, 'name') && allowed.name.length < 2) {
+      throw new Error('নাম কমপক্ষে ২ অক্ষরের হতে হবে।');
+    }
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'updateProfile' }, creds, allowed));
+    if (!response.user) throw new Error('Updated profile was not returned by the API.');
+    return applyProfile(response.user);
   }
+
   function normalizeEntry(raw) {
     raw = raw || {};
-    var id = safeText(raw.playerId || raw.userId || raw.uid || raw.id || raw.username || raw.name || 'unknown-player', 120);
-    var mine = isMine(raw);
-    var username = raw.username || raw.name || raw.player || raw.displayName || (raw.playerId ? String(raw.playerId) : 'Student');
-    var correct = Number(raw.correctCatches != null ? raw.correctCatches : raw.correct || 0);
-    var wrong = Number(raw.wrongCatches != null ? raw.wrongCatches : raw.wrong || 0);
-    var answered = Math.max(0, correct) + Math.max(0, wrong);
-    var rank = MATCH_RANKS.indexOf(raw.rank) >= 0 ? raw.rank : 'Bronze I';
-    var periodRP = selectedPeriod === 'weekly' ? weeklyMetric(raw) : null;
-    var rp = Math.max(0, Number(periodRP != null ? periodRP : (raw.rankPoints != null ? raw.rankPoints : raw.rp || 0)));
-    var score = Math.max(0, Number(raw.rankScore != null ? raw.rankScore : raw.score != null ? raw.score : raw.points || 0));
+    var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
+    var rank = RANKS.indexOf(raw.rank || raw.Rank) >= 0 ? (raw.rank || raw.Rank) : RANKS[0];
+    var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
+    var totalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
+    var weeklyRP = Math.max(0, Number(raw.weeklyRP != null ? raw.weeklyRP : raw.weeklyRankPoints != null ? raw.weeklyRankPoints : 0) || 0);
+    var boardPoints = selectedPeriod === 'weekly' ? weeklyRP : totalRP;
     return {
-      uid: mine && app.authUser ? app.authUser.uid : id,
-      playerId: id,
-      userId: safeText(raw.userId || raw.playerId || id, 120),
-      name: safeText(username, 80),
-      college: safeText(raw.college || (mine ? profileCollege() : ''), 120),
-      avatar: safeText(raw.avatar || '', 100),
-      rank: rank,
-      rankPoints: rp,
-      weeklyRankPoints: weeklyMetric(raw),
-      rankScore: score,
-      points: rp,
+      uid: id, userId: id, playerId: id,
+      name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
+      college: safeText(raw.college || raw.College || '', 120),
+      batch: safeText(raw.batch || raw.Batch || '', 40),
+      avatar: safeText(raw.avatar || raw.Avatar || '', 500),
+      accountType: safeText(raw.accountType || raw.AccountType || '', 20),
+      xp: Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0),
+      level: Math.max(1, Number(raw.level != null ? raw.level : raw.Level) || 1),
+      rank: rank, rankPoints: currentRP, totalRP: totalRP,
+      weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
-      accuracy: answered > 0 ? Number((correct / answered * 100).toFixed(1)) : Number(raw.accuracy || 0),
-      xp: Math.max(0, Number(raw.xp || 0)),
-      level: Math.max(1, Number(raw.level || 1)),
-      highScore: Math.max(0, Number(raw.highScore || raw.score || 0)),
-      isGuest: !!(raw.isGuest || raw.guest),
+      accuracy: Math.max(0, Number(raw.accuracy) || 0),
+      isMine: (app.authUser && id === String(app.authUser.uid)) || (!app.authUser && id === String(localStorage.getItem(GUEST_ID_KEY) || '')),
       raw: raw
     };
   }
+  function sortRows(rows) {
+    return (Array.isArray(rows) ? rows : []).slice().sort(function (a, b) {
+      var pa = selectedPeriod === 'weekly' ? Number(a.weeklyRP != null ? a.weeklyRP : a.weeklyRankPoints || 0) : Number(a.totalRP != null ? a.totalRP : a.rankPoints || a.rp || 0);
+      var pb = selectedPeriod === 'weekly' ? Number(b.weeklyRP != null ? b.weeklyRP : b.weeklyRankPoints || 0) : Number(b.totalRP != null ? b.totalRP : b.rankPoints || b.rp || 0);
+      return pb - pa || Number(b.xp || 0) - Number(a.xp || 0) ||
+        String(a.name || a.username || '').localeCompare(String(b.name || b.username || ''));
+    });
+  }
   function normalizeRows(rows) {
     var seen = {};
-    return sortEntries(rows.map(normalizeEntry)).filter(function (row) {
-      var key = (row.playerId || row.name).toLowerCase();
+    return sortRows((Array.isArray(rows) ? rows : []).map(normalizeEntry)).filter(function (row) {
+      var key = String(row.userId || row.name).toLowerCase();
       if (!key || seen[key]) return false;
       seen[key] = true;
       return true;
     });
   }
-  var portraitChoices = Array.from({ length: 24 }, function (_, i) { return 'https://i.pravatar.cc/120?img=' + (i + 1); });
-  function avatarMarkup(row) {
-    var avatar = safeText(row && row.avatar || '', 300);
-    if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar)) {
-      return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-    }
-    if (isMine(row && (row.raw || row)) && app.authUser) {
-      try {
-        var uid = app.authUser.uid;
-        var saved = localStorage.getItem('med_profile_avatar_v1_' + uid) || '';
-        if (saved && saved.length <= 12 && !/[<>]/.test(saved)) return escapeHtml(saved);
-        var uploaded = parseJson(localStorage.getItem('med_profile_uploaded_avatars_v1_' + uid), []);
-        if (typeof saved === 'string' && uploaded.indexOf(saved) >= 0 && /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(saved)) {
-          return '<img src="' + saved + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-        }
-      } catch (_) {}
-    }
-    if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHtml(avatar);
-    var key = String(row && (row.uid || row.playerId || row.name) || 'student');
-    var hash = 0;
-    for (var i = 0; i < key.length; i++) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
-    return '<img src="' + portraitChoices[Math.abs(hash) % portraitChoices.length] + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-  }
-  function getCachedRows() {
-    var rows = parseJson(localStorage.getItem(CACHE_KEY), []);
-    return Array.isArray(rows) ? rows.filter(function (x) { return x && !x.isDemo; }) : [];
-  }
-  function saveCache(rows) {
-    var safe = Array.isArray(rows) ? rows.filter(function (x) { return x && !x.isDemo; }) : [];
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(safe)); } catch (_) {}
-    return safe;
-  }
-  function getQueue() {
-    var queue = parseJson(localStorage.getItem(QUEUE_KEY), []);
-    return Array.isArray(queue) ? queue : [];
-  }
-  function saveQueue(queue) {
-    try { localStorage.setItem(QUEUE_KEY, JSON.stringify((Array.isArray(queue) ? queue : []).slice(-100))); } catch (_) {}
-  }
-  function sentIds() {
-    var ids = parseJson(localStorage.getItem(SENT_KEY), []);
-    return Array.isArray(ids) ? ids : [];
-  }
-  function markSent(id) {
-    var ids = sentIds().filter(function (x) { return x !== id; });
-    ids.push(id);
-    try { localStorage.setItem(SENT_KEY, JSON.stringify(ids.slice(-500))); } catch (_) {}
-  }
-  function readRewardCache() {
-    var value = parseJson(localStorage.getItem(REWARDS_KEY), {});
-    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
-  }
-  function saveReward(reward) {
-    if (!reward || !reward.attemptId) return reward;
-    var cache = readRewardCache();
-    cache[String(reward.attemptId)] = reward;
-    var keys = Object.keys(cache);
-    if (keys.length > 100) keys.slice(0, keys.length - 100).forEach(function (key) { delete cache[key]; });
-    try { localStorage.setItem(REWARDS_KEY, JSON.stringify(cache)); } catch (_) {}
-    if (typeof window.updateExamRewardDisplay === 'function') window.updateExamRewardDisplay(reward);
-    return reward;
-  }
-  function getSavedReward(attemptId) {
-    return readRewardCache()[String(attemptId || '')] || null;
-  }
-  function currentSubmissionUid() {
-    return (app.authUser && app.authUser.uid) || medPlayerId();
-  }
-  function getCurrentUserRow() {
-    var id = medPlayerId();
-    var rows = rawRows.map(normalizeEntry);
-    var found = rows.find(function (row) { return row.playerId === id || isMine(row.raw); });
-    if (found) return found;
-    if (currentProfile && (currentProfile.rank || currentProfile.rankPoints != null)) return normalizeEntry(Object.assign({}, currentProfile, { playerId: currentProfile.playerId || currentProfile.userId || id, username: currentProfile.username || profileName() }));
-    return null;
-  }
-  function currentRank() {
-    var me = getCurrentUserRow();
-    if (me && MATCH_RANKS.indexOf(me.rank) >= 0) return me.rank;
-    return (currentProfile && MATCH_RANKS.indexOf(currentProfile.rank) >= 0) ? currentProfile.rank : 'Bronze I';
+  function getMe(rows) {
+    var id = currentUserId();
+    return (Array.isArray(rows) ? rows : []).find(function (row) { return String(row.userId || row.uid || '') === String(id); }) || null;
   }
   function injectStyles() {
-    if (document.getElementById('med-fallrush-style')) return;
+    if (document.getElementById('med-sheet-style')) return;
     var style = document.createElement('style');
-    style.id = 'med-fallrush-style';
+    style.id = 'med-sheet-style';
     style.textContent =
-      '.student-profile-top-shortcut{display:none!important}' +
       '.mat-rank-banner{margin:0 0 20px;padding:20px 14px 18px;border-radius:22px;background:radial-gradient(circle at 50% 0,rgba(129,140,248,.3),transparent 45%),linear-gradient(145deg,#101a31,#172744 55%,#101827);border:1px solid rgba(148,163,184,.2);color:#f8fafc;overflow:hidden}' +
       '.mat-rank-head{text-align:center;display:flex;flex-direction:column;gap:4px;margin-bottom:12px}.mat-rank-head strong{font-size:11px;letter-spacing:.18em;color:#c4b5fd}.mat-rank-head small{font-size:12px;color:#cbd5e1}' +
-      '.mat-rank-rail{display:flex;align-items:center;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-ms-overflow-style:none;padding:9px 3px 12px;scroll-snap-type:x mandatory}.mat-rank-rail::-webkit-scrollbar{display:none}' +
+      '.mat-rank-rail{display:flex;align-items:center;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:9px 3px 12px;scroll-snap-type:x mandatory}.mat-rank-rail::-webkit-scrollbar{display:none}' +
       '.mat-rank-tier{flex:0 0 76px;min-width:76px;min-height:88px;border:1px solid rgba(148,163,184,.22);border-radius:15px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;opacity:.67;transform:scale(.92);transition:transform .18s ease,opacity .18s ease,box-shadow .18s ease,border-color .18s ease;scroll-snap-align:center;color:#f8fafc;background:rgba(15,23,42,.72);cursor:pointer;font-size:11px;font-weight:850;text-align:center}.mat-rank-tier.is-active{flex-basis:118px;min-width:118px;min-height:108px;opacity:1;transform:scale(1);border-color:rgba(255,255,255,.6);box-shadow:0 0 0 2px rgba(255,255,255,.08),0 12px 26px rgba(0,0,0,.22)}.mat-rank-tier i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:18px;background:rgba(255,255,255,.1)}.mat-rank-tier.is-active i{width:43px;height:43px;font-size:22px}.mat-rank-tier small{font-size:8px;letter-spacing:.07em;opacity:.8}.mat-rank-tier.bronze i{color:#f1b47b;background:linear-gradient(145deg,#6e442c,#bd804f)}.mat-rank-tier.silver i{color:#e2e8f0;background:linear-gradient(145deg,#475569,#94a3b8)}.mat-rank-tier.gold i{color:#fff1aa;background:linear-gradient(145deg,#8b5e0b,#eab308)}.mat-rank-tier.platinum i{color:#ddd6fe;background:linear-gradient(145deg,#6d28d9,#a78bfa)}.mat-rank-tier.diamond i{color:#cffafe;background:linear-gradient(145deg,#0e7490,#67e8f9)}.mat-rank-tier.master i,.mat-rank-tier.grandmaster i,.mat-rank-tier.legend i,.mat-rank-tier.immortal i{color:#fde68a;background:linear-gradient(145deg,#7f1d1d,#f59e0b)}' +
       '.mat-rank-progress{padding:8px 9px 0}.mat-rank-progress-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.mat-rank-progress-line>span:first-child{display:flex;flex-direction:column;gap:3px}.mat-rank-progress-line strong{font-size:13px}.mat-rank-progress-line small,.mat-rank-foot{font-size:11px;color:#cbd5e1}.mat-rank-rp{font-weight:950;color:#fde68a;white-space:nowrap}.mat-rank-track{position:relative;height:11px;border-radius:99px;background:rgba(148,163,184,.25);margin:14px 10px 8px}.mat-rank-track>span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#a78bfa,#fbbf24);transition:width .35s ease}.mat-rank-track>i{position:absolute;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#fef3c7;color:#a16207;border:2px solid #fff7ed;box-shadow:0 2px 8px rgba(0,0,0,.3)}.mat-rank-foot{display:flex;justify-content:space-between;gap:8px}.mat-rank-locked{display:flex;gap:10px;align-items:center;border:1px solid rgba(148,163,184,.25);border-radius:14px;padding:12px;background:rgba(15,23,42,.46);font-size:12px;line-height:1.6}' +
-      '#med-rank-controls{position:fixed;z-index:9998;top:13px;right:16px;display:flex;align-items:center;gap:7px;padding:5px;border-radius:15px;background:rgba(10,18,32,.95);border:1px solid rgba(148,163,184,.23);box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(14px);color:#f8fafc}body.exam-active #med-rank-controls{display:none}.mat-top-icon{position:relative;display:grid;place-items:center;width:39px;height:39px;border-radius:11px;border:1px solid rgba(148,163,184,.18);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:16px;cursor:pointer}.mat-top-icon:first-child{color:#fb923c}.mat-top-rp{display:flex;align-items:center;gap:7px;height:39px;padding:0 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);color:#f8fafc;font-weight:950;white-space:nowrap;cursor:pointer}.mat-top-rp i{color:#facc15}.mat-notice-dot{display:none;position:absolute;right:6px;top:6px;width:7px;height:7px;background:#f87171;border-radius:50%}.mat-notice-dot.is-visible{display:block}' +
-      '.mat-overlay{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:17px;background:rgba(2,6,23,.7);backdrop-filter:blur(8px)}.mat-overlay.hidden{display:none}.mat-dialog{position:relative;width:min(100%,520px);max-height:min(86vh,760px);overflow:auto;border:1px solid rgba(148,163,184,.24);border-radius:23px;padding:24px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 28px 80px rgba(0,0,0,.36)}.dark .mat-dialog{background:#101827;color:#f8fafc}.mat-dialog h2{font-size:21px;font-weight:950;margin:0 34px 8px 0}.mat-dialog-note{font-size:13px;color:var(--muted,#64748b);margin:0 0 15px;line-height:1.6}.mat-close{position:absolute;right:13px;top:11px;width:35px;height:35px;border-radius:11px;background:rgba(148,163,184,.14);font-size:24px}.mat-rule-list{display:flex;flex-direction:column;gap:8px}.mat-rule-list details{border:1px solid rgba(148,163,184,.25);border-radius:13px;overflow:hidden}.mat-rule-list summary{list-style:none;display:flex;align-items:center;gap:10px;padding:13px;font-weight:850;cursor:pointer}.mat-rule-list summary::-webkit-details-marker{display:none}.mat-rule-list summary i{color:#8b5cf6}.mat-rule-list details>div{padding:0 13px 14px;font-size:13px;line-height:1.7;color:var(--muted,#64748b)}.dark .mat-rule-list details>div{color:#cbd5e1}.mat-friend-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.2)}.mat-friend-row button,.mat-primary{border:0;border-radius:10px;padding:8px 10px;background:#0d9488;color:white;font-size:12px;font-weight:850}.mat-friend-row .mat-muted-button{background:#64748b}.mat-player-avatar{font-size:36px;margin-bottom:8px}.mat-player-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:15px 0}.mat-player-stat{padding:11px;border-radius:13px;background:rgba(148,163,184,.12)}.mat-player-stat small{display:block;font-size:11px;color:var(--muted,#64748b)}.mat-player-stat strong{display:block;margin-top:4px;font-size:15px;overflow-wrap:anywhere}.mat-player-actions{display:flex;gap:8px;flex-wrap:wrap}.mat-player-actions button{padding:9px 12px;border-radius:10px;font-weight:850;border:1px solid rgba(148,163,184,.28)}#leaderboard-body tr[data-med-player],#leaderboard-podium [data-med-player]{cursor:pointer}#leaderboard-body tr[data-med-player]:hover{background:rgba(13,148,136,.07)}.leaderboard-period-tab.is-active{border-color:#0d9488!important;background:rgba(13,148,136,.1)!important;color:#0d9488!important}' +
+      '#med-rank-controls{position:fixed;z-index:9998;top:13px;right:16px;display:flex;align-items:center;gap:7px;padding:5px;border-radius:15px;background:rgba(10,18,32,.95);border:1px solid rgba(148,163,184,.23);box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(14px);color:#f8fafc}body.exam-active #med-rank-controls{display:none}.mat-top-icon{position:relative;display:grid;place-items:center;width:39px;height:39px;border-radius:11px;border:1px solid rgba(148,163,184,.18);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:16px;cursor:pointer}.mat-top-icon:first-child{color:#fb923c}.mat-top-rp{display:flex;align-items:center;gap:7px;height:39px;padding:0 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);color:#f8fafc;font-weight:950;white-space:nowrap;cursor:pointer}.mat-top-rp i{color:#facc15}' +
+      '.mat-overlay{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:17px;background:rgba(2,6,23,.7);backdrop-filter:blur(8px)}.mat-overlay.hidden{display:none}.mat-dialog{position:relative;width:min(100%,520px);max-height:min(86vh,760px);overflow:auto;border:1px solid rgba(148,163,184,.24);border-radius:23px;padding:24px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 28px 80px rgba(0,0,0,.36)}.dark .mat-dialog{background:#101827;color:#f8fafc}.mat-dialog h2{font-size:21px;font-weight:950;margin:0 34px 8px 0}.mat-dialog-note{font-size:13px;color:var(--muted,#64748b);margin:0 0 15px;line-height:1.6}.mat-close{position:absolute;right:13px;top:11px;width:35px;height:35px;border-radius:11px;background:rgba(148,163,184,.14);font-size:24px}.mat-player-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:15px 0}.mat-player-stat{padding:11px;border-radius:13px;background:rgba(148,163,184,.12)}.mat-player-stat small{display:block;font-size:11px;color:var(--muted,#64748b)}.mat-player-stat strong{display:block;margin-top:4px;font-size:15px;overflow-wrap:anywhere}.leaderboard-period-tab.is-active{border-color:#0d9488!important;background:rgba(13,148,136,.1)!important;color:#0d9488!important}.leader-tier-trophy{font-size:13px;vertical-align:middle}' +
       '@media(max-width:650px){#med-rank-controls{top:9px;right:8px;gap:4px;padding:4px}.mat-top-icon{width:35px;height:35px}.mat-top-rp{height:35px;padding:0 8px;font-size:12px}main{padding-top:68px!important}.mat-dialog{padding:20px 15px}.mat-rank-rail{gap:6px}.mat-rank-tier{flex-basis:69px;min-width:69px;min-height:82px}.mat-rank-tier.is-active{flex-basis:105px;min-width:105px;min-height:100px}}';
     document.head.appendChild(style);
   }
@@ -340,9 +378,10 @@
     if (document.getElementById('med-rank-controls')) return;
     var root = document.createElement('div');
     root.id = 'med-rank-controls';
-    root.innerHTML = '<button type="button" class="mat-top-icon" data-med-action="streak" title="Daily streak" aria-label="Daily streak"><i class="fa-solid fa-fire"></i></button>' +
-      '<button type="button" class="mat-top-icon" data-med-action="notifications" title="Notifications and rules" aria-label="Notifications and rules"><i class="fa-solid fa-bell"></i><span class="mat-notice-dot" id="med-notice-dot"></span></button>' +
-      '<button type="button" class="mat-top-rp" data-med-action="rank-points" title="Rank Points" aria-label="Rank Points"><i class="fa-solid fa-star"></i><span id="med-top-rp">0 RP</span></button>';
+    root.innerHTML =
+      '<button type="button" class="mat-top-icon" data-med-action="streak" title="Daily study streak" aria-label="Daily study streak"><i class="fa-solid fa-fire"></i></button>' +
+      '<button type="button" class="mat-top-icon" data-med-action="rules" title="Rank rules" aria-label="Rank rules"><i class="fa-solid fa-circle-info"></i></button>' +
+      '<button type="button" class="mat-top-rp" data-med-action="rank-points" title="Medical Rank Points" aria-label="Medical Rank Points"><i class="fa-solid fa-star"></i><span id="med-top-rp">0 RP</span></button>';
     document.body.appendChild(root);
   }
   function ensureOverlays() {
@@ -359,12 +398,12 @@
       rules.className = 'mat-overlay hidden';
       rules.innerHTML = '<div class="mat-dialog" role="dialog" aria-modal="true" aria-labelledby="med-rules-title">' +
         '<button class="mat-close" type="button" data-med-close aria-label="Close">×</button>' +
-        '<h2 id="med-rules-title">Notifications & Rules</h2><p class="mat-dialog-note">একটি বিষয় খুলে তার নিয়ম দেখুন।</p><div id="med-friend-requests"></div>' +
+        '<h2 id="med-rules-title">Medical Rank & Leaderboard Rules</h2><p class="mat-dialog-note">শিক্ষামূলক competition-এর নিয়ম।</p>' +
         '<div class="mat-rule-list">' +
-        '<details><summary><i class="fa-solid fa-trophy"></i> Rank & RP</summary><div>Fallrush-এর বর্তমান Rank tier-গুলো একই ক্রমে দেখানো হয়। প্রতিটি tier-এর promotion threshold 300 RP; server response-ই rank ও RP-এর চূড়ান্ত মান নির্ধারণ করে।</div></details>' +
-        '<details><summary><i class="fa-solid fa-calendar-week"></i> Weekly Rank Rules</summary><div>Weekly rank reset/demotion-এর নিয়ম shared API যেভাবে প্রয়োগ করে সেটিই এখানে অনুসরণ করা হবে। এই client নিজে আলাদা rank database তৈরি করে না।</div></details>' +
-        '<details><summary><i class="fa-solid fa-user-group"></i> Friends & Privacy</summary><div>Friends ও friend request-এর জন্য একই API-এর session token প্রয়োজন। Firebase password বা login token leaderboard row-তে দেখানো হয় না।</div></details>' +
-        '<details><summary><i class="fa-solid fa-cloud-arrow-up"></i> Sync</summary><div>Global leaderboard-এর authoritative data shared API থেকে আসে। LocalStorage শুধু cache ও pending result queue রাখে।</div></details>' +
+        '<details open><summary>🏅 Rank progression</summary><div>প্রতিটি league-এ Bronze V থেকে I, তারপর পরের league-এর V থেকে I। ধাপ বাদ দিয়ে promotion হয় না; Immortal সর্বোচ্চ rank।</div></details>' +
+        '<details><summary>📅 Weekly leaderboard</summary><div>এই সপ্তাহে জমা হওয়া Medical RP দিয়ে Weekly ranking; All Time-এ মোট অর্জিত RP দিয়ে ranking।</div></details>' +
+        '<details><summary>⭐ XP & RP</summary><div>Medical XP ও RP নতুন Medical API-তে সংরক্ষিত। Fallrush-এর Coin বা XP এখানে ব্যবহার করা হয় না।</div></details>' +
+        '<details><summary>🔐 Account & profile</summary><div>Registered account Firebase দিয়ে যাচাই হয়। Guest profile আলাদা Guest token দিয়ে সংরক্ষিত হয়।</div></details>' +
         '</div></div>';
       document.body.appendChild(rules);
     }
@@ -373,56 +412,28 @@
     var view = document.getElementById('view-leaderboard');
     if (!view) return;
     var podium = document.getElementById('leaderboard-podium');
-    var host = document.getElementById('med-fallrush-rank-banner');
+    var host = document.getElementById('med-sheet-rank-banner');
     if (!host) {
       host = document.createElement('section');
-      host.id = 'med-fallrush-rank-banner';
+      host.id = 'med-sheet-rank-banner';
       host.className = 'mat-rank-banner';
-      host.setAttribute('aria-label', 'Global Rank tier and RP progress');
-      host.innerHTML = '<div class="mat-rank-head"><strong>GLOBAL RANK</strong><small>Current rank বড়; অন্য tier দেখতে পাশে swipe করুন</small></div><div class="mat-rank-rail" id="med-rank-rail" role="tablist" aria-label="Select Rank tier"></div><div id="med-rank-progress" class="mat-rank-progress"></div>';
+      host.setAttribute('aria-label', 'Medical Rank tier and RP progress');
+      host.innerHTML = '<div class="mat-rank-head"><strong>MEDICAL RANK</strong><small>বর্তমান rank বড় করে দেখানো হয়েছে; অন্য rank দেখতে swipe করুন</small></div><div class="mat-rank-rail" id="med-rank-rail" role="tablist" aria-label="Select Medical Rank tier"></div><div id="med-rank-progress" class="mat-rank-progress"></div>';
       if (podium && podium.parentNode) podium.parentNode.insertBefore(host, podium);
-      else {
-        var status = document.getElementById('leaderboard-status');
-        if (status && status.parentNode) status.parentNode.insertBefore(host, status.nextSibling);
-        else view.appendChild(host);
-      }
+      else view.appendChild(host);
     }
   }
-  function rankClass(rank) {
-    var text = String(rank || 'Bronze I').toLowerCase();
-    if (text.indexOf('bronze') === 0) return 'bronze';
-    if (text.indexOf('silver') === 0) return 'silver';
-    if (text.indexOf('gold') === 0) return 'gold';
-    if (text.indexOf('platinum') === 0) return 'platinum';
-    if (text.indexOf('diamond') === 0) return 'diamond';
-    if (text.indexOf('immortal') === 0) return 'immortal';
-    if (text.indexOf('grandmaster') === 0) return 'grandmaster';
-    if (text.indexOf('master') === 0) return 'master';
-    if (text.indexOf('legend') === 0) return 'legend';
-    return 'bronze';
-  }
-  function rankIcon(rank, index) {
-    if (index >= 15) return 'fa-crown';
-    if (index >= 12) return 'fa-gem';
-    if (index >= 9) return 'fa-star';
-    if (index >= 6) return 'fa-trophy';
-    if (index >= 3) return 'fa-shield-halved';
-    return 'fa-medal';
-  }
-  function getMyRankEntry(rows) {
-    return (Array.isArray(rows) ? rows : []).find(function (entry) { return isMine(entry.raw || entry); }) || null;
-  }
+  function getMyRankEntry(rows) { return getMe(rows || []); }
   function renderRankRail(rows) {
     var rail = document.getElementById('med-rank-rail');
     if (!rail) return;
     var me = getMyRankEntry(rows);
-    if (!selectedRank || MATCH_RANKS.indexOf(selectedRank) < 0) selectedRank = (me && me.rank) || 'Bronze I';
-    rail.innerHTML = MATCH_RANKS.map(function (rank, index) {
+    if (!selectedRank || RANKS.indexOf(selectedRank) < 0) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || RANKS[0];
+    rail.innerHTML = RANKS.map(function (rank, index) {
       var active = rank === selectedRank;
-      var ownRank = me && me.rank === rank;
-      var name = rank;
+      var own = me && me.rank === rank;
       return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + '" data-med-rank="' + escapeHtml(rank) + '">' +
-        '<i class="fa-solid ' + rankIcon(rank, index) + '"></i><span>' + escapeHtml(name) + '</span><small>' + (ownRank ? 'YOUR RANK' : 'MATCH RANK') + '</small></button>';
+        '<i class="fa-solid ' + rankIcon(index) + '"></i><span>' + escapeHtml(rank) + '</span><small>' + (own ? 'YOUR RANK' : 'RANK TIER') + '</small></button>';
     }).join('');
     try {
       var activeButton = rail.querySelector('[data-med-rank="' + selectedRank.replace(/"/g, '\\"') + '"]');
@@ -434,57 +445,48 @@
     var area = document.getElementById('med-rank-progress');
     if (!area) return;
     if (!me) {
-      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-lock"></i><span>আপনার rank progress দেখতে Medical Admission Tracker-এ sign in করে প্রথম eligible quiz সম্পন্ন করুন।</span></div>';
+      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>Leaderboard দেখতে login বা Guest session তৈরি করুন। Exam দেওয়া আবশ্যক নয়।</span></div>';
       return;
     }
     if (selectedRank !== me.rank) {
-      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-lock"></i><span><strong>Unlock ' + escapeHtml(selectedRank) + '</strong><br>আপনার বর্তমান rank হলো ' + escapeHtml(me.rank) + '. Global entry দেখতে rank badge-এ click করুন।</span></div>';
+      area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-lock"></i><span><strong>Unlock ' + escapeHtml(selectedRank) + '</strong><br>আপনার বর্তমান rank: ' + escapeHtml(me.rank) + '.</span></div>';
       return;
     }
     var rp = Math.max(0, Number(me.rankPoints || 0));
-    var pct = Math.max(0, Math.min(100, Math.round(rp / RP_TARGET * 100)));
-    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' Progress</strong><small>' + rp + ' / ' + RP_TARGET + ' RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + rp + ' RP</span></div>' +
-      '<div class="mat-rank-track" role="progressbar" aria-valuemin="0" aria-valuemax="' + RP_TARGET + '" aria-valuenow="' + Math.min(rp, RP_TARGET) + '"><span style="width:' + pct + '%"></span><i class="fa-solid fa-star" style="left:clamp(10px,' + pct + '%,calc(100% - 10px))"></i></div>' +
-      '<div class="mat-rank-foot"><span>0 RP</span><span>' + (MATCH_RANKS.indexOf(me.rank) === MATCH_RANKS.length - 1 ? 'Top Rank' : 'Next: ' + escapeHtml(MATCH_RANKS[MATCH_RANKS.indexOf(me.rank) + 1])) + '</span><span>' + RP_TARGET + ' RP</span></div>';
+    var pct = Math.max(0, Math.min(100, Math.round(rp / 300 * 100)));
+    var index = RANKS.indexOf(me.rank);
+    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' Progress</strong><small>' + rp + ' / 300 RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + rp + ' RP</span></div>' +
+      '<div class="mat-rank-track" role="progressbar" aria-valuemin="0" aria-valuemax="300" aria-valuenow="' + Math.min(rp, 300) + '"><span style="width:' + pct + '%"></span><i class="fa-solid fa-star" style="left:clamp(10px,' + pct + '%,calc(100% - 10px))"></i></div>' +
+      '<div class="mat-rank-foot"><span>0 RP</span><span>' + (index === RANKS.length - 1 ? 'Highest Rank · Immortal' : 'Next: ' + escapeHtml(RANKS[index + 1])) + '</span><span>300 RP</span></div>';
   }
   function updateTopControls(me) {
     var rp = document.getElementById('med-top-rp');
-    if (rp) rp.textContent = String(Math.max(0, Number(me && me.rankPoints) || 0)) + ' RP';
-    var progress = parseJson(localStorage.getItem('med_account_progress_v1_' + accountKey()), {});
-    var streak = Math.max(0, Number(progress.streak) || 0);
+    if (rp) rp.textContent = String(Math.max(0, Number(me && me.rankPoints) || Number(currentProfile && currentProfile.rankPoints) || 0)) + ' RP';
+    var progress = {};
+    try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
     var streakButton = document.querySelector('[data-med-action="streak"]');
     if (streakButton) {
-      streakButton.title = 'Daily streak: ' + streak + ' day' + (streak === 1 ? '' : 's');
-      streakButton.setAttribute('aria-label', 'Daily streak: ' + streak + ' days');
+      var streak = Math.max(0, Number(progress.streak) || 0);
+      streakButton.title = 'Daily study streak: ' + streak + ' day(s)';
+      streakButton.setAttribute('aria-label', 'Daily study streak: ' + streak + ' day(s)');
     }
-    var dot = document.getElementById('med-notice-dot');
-    if (dot) dot.classList.toggle('is-visible', !!getToken());
   }
-  function showOverlay(id) {
-    var overlay = document.getElementById(id);
-    if (overlay) overlay.classList.remove('hidden');
-  }
-  function closeOverlay(el) {
-    if (el) el.classList.add('hidden');
-  }
-  function normaliseRawRows(entries) {
-    rawRows = sortEntries(Array.isArray(entries) ? entries : []);
-    var rows = normalizeRows(rawRows);
-    saveCache(rows);
-    return rows;
+  function showOverlay(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+  function closeOverlay(el) { if (el) el.classList.add('hidden'); }
+  function extractEntries(response) {
+    if (Array.isArray(response)) return response;
+    if (!response) return [];
+    if (Array.isArray(response.entries)) return response.entries;
+    if (Array.isArray(response.users)) return response.users;
+    if (Array.isArray(response.leaderboard)) return response.leaderboard;
+    return [];
   }
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
-    var me = getMyRankEntry(all);
-    if (me && !readSelectedRank()) {
-      selectedRank = me.rank;
-      try { localStorage.setItem(rankStorageKey(), selectedRank); } catch (_) {}
-    }
-    if (MATCH_RANKS.indexOf(selectedRank) < 0) selectedRank = (me && me.rank) || 'Bronze I';
+    var me = getMe(all);
+    if (me && (!selectedRank || RANKS.indexOf(selectedRank) < 0)) selectedRank = me.rank;
+    if (RANKS.indexOf(selectedRank) < 0) selectedRank = (me && me.rank) || RANKS[0];
     var rankRows = all.filter(function (row) { return row.rank === selectedRank; });
-    rankRows.sort(function (a, b) {
-      return Number(b.rankPoints || 0) - Number(a.rankPoints || 0) || Number(b.rankScore || 0) - Number(a.rankScore || 0);
-    });
     var body = document.getElementById('leaderboard-body');
     var podium = document.getElementById('leaderboard-podium');
     var mePanel = document.getElementById('leaderboard-me');
@@ -495,348 +497,51 @@
     if (rankRows.length) {
       if (podium) {
         podium.innerHTML = rankRows.slice(0, 3).map(function (row, index) {
-          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.playerId) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
-            '<div class="podium-medal">' + ['🥇','🥈','🥉'][index] + '</div>' +
-            '<div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + escapeHtml(row.name || 'Student') + '</strong><span>' + Number(row.rankPoints || 0) + ' RP</span><small>' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
+          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' profile">' +
+            '<div class="podium-medal">' + ['🥇','🥈','🥉'][index] + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
+            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</span>' +
+            '<small>' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
       rankRows.forEach(function (row, index) {
         var tr = document.createElement('tr');
-        tr.className = 'leader-row' + (isMine(row.raw || row) ? ' is-me' : '');
-        tr.dataset.medPlayer = String(row.playerId || '');
-        tr.dataset.uid = String(row.uid || '');
+        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '');
+        tr.dataset.medPlayer = String(row.userId || '');
         tr.tabIndex = 0;
         tr.setAttribute('role', 'button');
         tr.setAttribute('aria-label', 'Open ' + row.name + ' profile');
-        tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' +
-          avatarMarkup(row) +
-          '</span><span><b>' + escapeHtml(row.name || 'Student') + '</b>' + (isMine(row.raw || row) ? '<em>YOU</em>' : '') +
-          '<small class="block text-xs opacity-70">' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank || 'Bronze I') + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
+        tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' +
+          (row.isMine ? '<em>YOU</em>' : '') + '<small class="block text-xs opacity-70">' + rankTrophy(row.rank) + ' ' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></span></div></td>' +
           '<td class="py-4 px-3">' + escapeHtml(row.college || '—') + '</td>' +
-          '<td class="py-4 px-3">' + Number(row.quizzes || 0) + '</td>' +
-          '<td class="py-4 px-3">' + Number(row.accuracy || 0).toFixed(1) + '%</td>' +
-          '<td class="leader-rank-points py-4 px-3"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.rankPoints || 0) + ' RP</small></td>';
+          '<td class="py-4 px-3">' + escapeHtml(row.batch || '—') + '</td>' +
+          '<td class="py-4 px-3">' + Number(row.xp || 0) + ' XP</td>' +
+          '<td class="leader-rank-points py-4 px-3"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</small><small class="leader-points-label">' + Number(row.rankPoints || 0) + ' current RP</small></td>';
         body.appendChild(tr);
       });
-      var own = rankRows.find(function (row) { return isMine(row.raw || row); });
+      var own = rankRows.find(function (row) { return row.isMine; });
       if (mePanel && own) {
         mePanel.classList.remove('hidden');
-        mePanel.innerHTML = '<div><span>Your Position</span><strong>#' + (rankRows.indexOf(own) + 1) + '</strong></div><div><b>' + escapeHtml(own.name) + '</b><small>' + Number(own.rankPoints || 0) + ' RP · ' + escapeHtml(own.rank) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position</span><strong>#' + (rankRows.indexOf(own) + 1) + '</strong></div><div><b>' + escapeHtml(own.name) + '</b><small>' + Number(own.boardPoints || 0) + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + ' · ' + escapeHtml(own.rank) + '</small></div>';
       }
     } else {
-      body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">এই Rank-এ এখনো কোনো player পাওয়া যায়নি। অন্য Rank নির্বাচন করুন।</td></tr>';
+      body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">এই rank-এ এখনো কোনো student নেই। অন্য rank নির্বাচন করুন।</td></tr>';
     }
     renderRankRail(all);
     updateTopControls(me);
-    updateProfileRankLabels(me);
+    if (me) applyProfile(Object.assign({}, currentProfile || {}, {
+      userId: me.userId, name: me.name, college: me.college, batch: me.batch,
+      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP,
+      level: me.level, rank: me.rank, accountType: me.accountType
+    }));
   }
-  function updateProfileRankLabels(me) {
-    if (!me) return;
-    var live = document.getElementById('profile-live-rank');
-    var best = document.getElementById('profile-best-rank');
-    if (live) live.textContent = me.rank;
-    if (best) best.textContent = me.rank;
-  }
-  function cachedRowsForDisplay() {
-    var cached = getCachedRows();
-    if (cached.length) return cached;
-    return [];
-  }
-  async function loadMyApiProfile() {
-    var token = getToken();
-    if (!token) {
-      if (currentProfile && String(currentProfile.playerId || currentProfile.userId || '') === medPlayerId()) return currentProfile;
-      currentProfile = null;
-      return null;
+  function avatarMarkup(row) {
+    var avatar = safeText(row && row.avatar || '', 500);
+    if (/^https:\/\//i.test(avatar)) {
+      return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     }
-    try {
-      var response = await request({ action: 'profile', token: token });
-      currentProfile = response.user || response.profile || response;
-      return currentProfile;
-    } catch (_) { currentProfile = null; return null; }
-  }
-  async function loadLeaderboard(silent) {
-    ensureUI();
-    selectedRank = readSelectedRank();
-    var requestId = ++lastLoadId;
-    var cache = cachedRowsForDisplay();
-    if (cache.length) {
-      rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
-      renderRows(cache);
-    }
-    if (!API_URL()) {
-      setStatus('Global leaderboard API URL সেট করা নেই।', true);
-      return;
-    }
-    try {
-      await loadMyApiProfile();
-      var response;
-      if (selectedPeriod === 'friends') {
-        var token = getToken();
-        if (!token) {
-          renderRows([]);
-          setStatus('Friends leaderboard ব্যবহার করতে একই browser-এ Fallrush API account session প্রয়োজন। Medical Firebase login আলাদা থাকে।', true);
-          return;
-        }
-        response = await request({ action: 'friends', token: token, username: (currentProfile && currentProfile.username) || profileName() });
-      } else {
-        response = await request({
-          action: 'leaderboard',
-          mode: 'Rank',
-          period: selectedPeriod === 'weekly' ? 'weekly' : 'all-time',
-          week: selectedPeriod === 'weekly' ? 'current' : undefined,
-          username: (currentProfile && currentProfile.username) || profileName()
-        });
-      }
-      if (requestId !== lastLoadId) return;
-      var entries = selectedPeriod === 'weekly' && response && Array.isArray(response.weeklyEntries)
-        ? response.weeklyEntries : extractEntries(response);
-      if (!entries.length && response && response.user) entries = [response.user];
-      if (selectedPeriod === 'weekly' && !weeklyPeriodConfirmed(response, entries)) {
-        rawRows = [];
-        renderRows([]);
-        setStatus('Weekly leaderboard API support এখনো নিশ্চিত নয়: endpoint week-specific entries বা weekly RP ফেরত দেয়নি। All Time data-কে Weekly নামে দেখানো হয়নি।', true);
-        return;
-      }
-      rawRows = entries.slice();
-      var rows = normalizeRows(entries);
-      if (currentProfile && !rows.some(function (row) { return isMine(row.raw || row); })) {
-        var profileEntry = Object.assign({}, currentProfile, {
-          playerId: currentProfile.playerId || currentProfile.userId || medPlayerId(),
-          username: currentProfile.username || profileName(),
-          college: currentProfile.college || profileCollege(),
-          rank: currentProfile.rank || 'Bronze I',
-          rankPoints: Number(currentProfile.rankPoints || 0)
-        });
-        rows.push(normalizeEntry(profileEntry));
-        rows = sortEntries(rows);
-      }
-      saveCache(rows);
-      renderRows(rows);
-      setStatus('Global Rank synced from the shared API' + (response && response.currentWeekKey ? ' · ' + response.currentWeekKey : '') + '.', false);
-    } catch (error) {
-      if (requestId !== lastLoadId) return;
-      setStatus('Global sync হয়নি; cached leaderboard দেখানো হচ্ছে। ' + (error.message || ''), true);
-    }
-  }
-  function queueResult(payload) {
-    var queue = getQueue();
-    if (!queue.some(function (item) { return item && item.attemptId === payload.attemptId && item.uid === payload.uid; })) queue.push(payload);
-    saveQueue(queue);
-  }
-  async function flushQueue() {
-    if (!navigator.onLine) return;
-    var queue = getQueue();
-    if (!queue.length) return;
-    var activeUid = currentSubmissionUid();
-    var keep = [];
-    var sentAny = false;
-    for (var i = 0; i < queue.length; i++) {
-      var item = queue[i];
-      if (!item || item.uid !== activeUid) { keep.push(item); continue; }
-      try {
-        await submitResult(item, true);
-        sentAny = true;
-      } catch (_) { keep.push(item); }
-    }
-    saveQueue(keep);
-    if (sentAny) await loadLeaderboard(true);
-  }
-  function getMedicalRankScore(item) {
-    var total = Math.max(1, Number(item && item.totalQuestions) || 1);
-    var correct = Math.max(0, Number(item && item.correctCount) || 0);
-    // Fallrush Rank uses a 300-point promotion threshold. Normalize the exam result
-    // to that scale so every completed exam can earn positive XP/RP without changing
-    // the actual medical exam marks shown in the result/history.
-    return 300 + Math.round(Math.min(1, correct / total) * 300);
-  }
-  function calculateFallbackReward(item, score) {
-    var correct = Math.max(0, Number(item && item.correctCount) || 0);
-    var wrong = Math.max(0, Number(item && item.wrongCount) || 0);
-    var combo = Math.max(0, Number(item && item.maxCombo) || 0);
-    var total = Math.max(0, correct + wrong);
-    var accuracy = total > 0 ? correct / total : 0;
-    var rawRP = Math.floor(score / 80) + Math.floor(combo * 1.5) +
-      Math.floor(correct * 1.25) + Math.floor(accuracy * 20) - Math.floor(wrong * 1.5);
-    var multiplier = item && item.isGuest != null ? (item.isGuest ? 1 : 2) : (getToken() ? 2 : 1);
-    var xp = Math.round((Math.max(5, Math.floor(score / 25)) + 15 + (combo >= 10 ? 10 : 0)) * multiplier);
-    var rp = Math.round(Math.max(1, rawRP) * multiplier);
-    return { xpGained: xp, rankPointsDelta: rp };
-  }
-
-  async function submitResult(item, fromQueue) {
-    var id = String(item.attemptId || '');
-    if (!id) throw new Error('Missing quiz attempt ID.');
-    if (sentIds().indexOf(id) >= 0) return getSavedReward(id) || {
-      success: true, synced: true, attemptId: id, xpGained: null, rankPointsDelta: null,
-      message: 'এই attempt-এর reward API-তে আগেই পাঠানো হয়েছিল।'
-    };
-    var token = getToken();
-    var previousProfile = currentProfile || {};
-    var itemIsGuest = item.isGuest != null ? !!item.isGuest : !token;
-    var tokenForAttempt = itemIsGuest ? '' : token;
-    if (!itemIsGuest && !tokenForAttempt) throw new Error('এই attempt-টি লগইন করা Fallrush API session দিয়ে শুরু হয়েছিল। Reward sync করতে একই API account-এ আবার sign in করুন।');
-    var payload = {
-      action: 'gameEnd',
-      gameId: 'MAT-' + safeText(item.uid || 'USER', 55) + '-' + safeText(id, 70),
-      score: getMedicalRankScore(item),
-      medicalQuizPoints: Math.max(0, Number(item.quizPoints) || 0),
-      mode: 'Rank',
-      maxCombo: Math.max(0, Number(item.maxCombo) || 0),
-      catches: Math.max(0, Number(item.correctCount) || 0) + Math.max(0, Number(item.wrongCount) || 0),
-      correctCatches: Math.max(0, Number(item.correctCount) || 0),
-      wrongCatches: Math.max(0, Number(item.wrongCount) || 0),
-      feverActivations: 0,
-      survivalSeconds: 0,
-      username: safeText(item.name || profileName(), 80),
-      playerId: safeText(item.playerId || (tokenForAttempt ? localStorage.getItem('elem_player_id') || medPlayerId() : medPlayerId()), 100),
-      isGuest: itemIsGuest,
-      college: safeText(item.college || profileCollege(), 120)
-    };
-    if (tokenForAttempt) payload.token = tokenForAttempt;
-    var response = await request(payload);
-    var resultUser = response.user || response.profile || response;
-    currentProfile = Object.assign({}, currentProfile || {}, resultUser || {});
-    if (resultUser && (resultUser.rank || resultUser.rankPoints != null || resultUser.xp != null || resultUser.level != null)) {
-      if (app.profile) {
-        if (resultUser.rank) app.profile.rank = resultUser.rank;
-        if (resultUser.rankPoints != null) app.profile.rankPoints = Number(resultUser.rankPoints || 0);
-        if (resultUser.xp != null) app.profile.xp = Number(resultUser.xp || 0);
-        if (resultUser.level != null) app.profile.level = Number(resultUser.level || 1);
-        try { localStorage.setItem('med_student_profile_v1_' + (app.authUser && app.authUser.uid || 'guest'), JSON.stringify(app.profile)); } catch (_) {}
-      }
-      try { window.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { source: 'global-rank-api' } })); } catch (_) {}
-    }
-    var xpValue = response.xpGained != null ? response.xpGained
-      : (response.earnedXP != null ? response.earnedXP
-      : (resultUser.xpGained != null ? resultUser.xpGained : null));
-    var rpValue = response.rankPointsDelta != null ? response.rankPointsDelta
-      : (response.earnedRP != null ? response.earnedRP
-      : (response.rpDelta != null ? response.rpDelta : (resultUser.rankPointsDelta != null ? resultUser.rankPointsDelta : null)));
-    // Match Fallrush's existing client fallback when its API omits a reward delta
-    // or returns zero: the exam score has already been normalized to the Rank scale.
-    var fallbackReward = calculateFallbackReward(item, getMedicalRankScore(item));
-    var fallbackUsed = false;
-    if (xpValue == null || !Number.isFinite(Number(xpValue)) || Number(xpValue) <= 0) { xpValue = fallbackReward.xpGained; fallbackUsed = true; }
-    if (rpValue == null || !Number.isFinite(Number(rpValue)) || Number(rpValue) === 0) { rpValue = fallbackReward.rankPointsDelta; fallbackUsed = true; }
-    var reward = {
-      success: true,
-      synced: true,
-      pending: false,
-      fallbackUsed: fallbackUsed,
-      attemptId: id,
-      xpGained: xpValue == null || !Number.isFinite(Number(xpValue)) ? null : Number(xpValue),
-      rankPointsDelta: rpValue == null || !Number.isFinite(Number(rpValue)) ? null : Number(rpValue),
-      rank: resultUser.rank || response.rank || previousProfile.rank || '',
-      rankPoints: resultUser.rankPoints != null ? Number(resultUser.rankPoints) : (response.rankPoints != null ? Number(response.rankPoints) : null),
-      level: resultUser.level != null ? Number(resultUser.level) : (response.level != null ? Number(response.level) : null),
-      message: fallbackUsed
-        ? 'API earned delta ফেরত দেয়নি/0 দিয়েছে; Fallrush client-side reward fallback দেখানো হয়েছে।'
-        : 'Global Rank API থেকে exam reward response পাওয়া গেছে।'
-    };
-    markSent(id);
-    saveReward(reward);
-    if (!fromQueue) {
-      setStatus('Exam result shared with the Global Rank API.', false);
-      if (reward.xpGained == null || reward.rankPointsDelta == null) {
-        setStatus('API result গ্রহণ করেছে, কিন্তু XP/RP earned amount response-এ পাওয়া যায়নি।', true);
-      }
-    }
-    return reward;
-  }
-  async function recordLeaderboardResult(meta) {
-    meta = meta || {};
-    var state = app.examState || {};
-    var attemptId = String(meta.attemptId || state.startedAt || Date.now());
-    var saved = getSavedReward(attemptId);
-    if (saved) return saved;
-    if (sentIds().indexOf(attemptId) >= 0) return {
-      success: true, synced: true, attemptId: attemptId,
-      xpGained: null, rankPointsDelta: null,
-      message: 'এই exam attempt-এর result আগে submit করা হয়েছে।'
-    };
-    var item = {
-      uid: currentSubmissionUid(),
-      attemptId: attemptId,
-      quizPoints: Math.max(0, Math.floor(Number(meta.quizPoints) || 0)),
-      correctCount: Math.max(0, Math.floor(Number(meta.correctCount) || 0)),
-      wrongCount: Math.max(0, Math.floor(Number(meta.wrongCount) || 0)),
-      totalQuestions: Math.max(0, Math.floor(Number(meta.totalQuestions) || 0)),
-      maxCombo: Math.max(0, Math.floor(Number(meta.maxCombo) || 0)),
-      name: profileName(),
-      college: profileCollege(),
-      playerId: safeText(getToken() ? localStorage.getItem('elem_player_id') || medPlayerId() : medPlayerId(), 100),
-      isGuest: !getToken()
-    };
-    if (!item.totalQuestions) {
-      var invalidReward = { success: false, pending: true, attemptId: attemptId, message: 'Exam result-এ question count পাওয়া যায়নি; XP/RP sync হয়নি।' };
-      setStatus(invalidReward.message, true);
-      return invalidReward;
-    }
-    try {
-      var reward = await submitResult(item, false);
-      await loadLeaderboard(true);
-      return reward;
-    } catch (error) {
-      queueResult(item);
-      var pendingReward = {
-        success: false,
-        pending: true,
-        attemptId: attemptId,
-        message: 'API এখন unavailable। XP/RP amount নিশ্চিত হলে result-এ দেখানো হবে; sync retry হবে।'
-      };
-      saveReward(Object.assign({}, pendingReward, { transient: true }));
-      setStatus('Leaderboard API এখন unavailable; exam result pending queue-তে রাখা হয়েছে। ' + (error.message || ''), true);
-      return pendingReward;
-    }
-  }
-  async function showPublicProfile(playerId) {
-    var row = rawRows.find(function (r) {
-      return String(r.playerId || r.userId || r.uid || '') === String(playerId || '');
-    });
-    if (!row) return;
-    var profile = Object.assign({}, row);
-    try {
-      var publicData = await request({ action: 'publicProfile', playerId: playerId, username: row.username || row.name || '' });
-      if (publicData && publicData.success !== false) profile = Object.assign(profile, publicData.user || publicData.profile || publicData);
-    } catch (_) {}
-    var content = document.getElementById('med-player-content');
-    if (!content) return;
-    var isMe = isMine(profile);
-    content.innerHTML = '<div class="mat-player-avatar">' + (profile.avatar ? '<img src="' + escapeHtml(profile.avatar) + '" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover">' : '🩺') + '</div>' +
-      '<h2 id="med-player-title">' + escapeHtml(profile.username || profile.name || 'Student') + '</h2>' +
-      '<p class="mat-dialog-note">' + escapeHtml(profile.college || (isMe ? profileCollege() : 'College not provided')) + '</p>' +
-      '<div class="mat-player-stats">' +
-      '<div class="mat-player-stat"><small>Match Rank</small><strong>' + escapeHtml(profile.rank || 'Bronze I') + '</strong></div>' +
-      '<div class="mat-player-stat"><small>Rank Points</small><strong>' + Number(profile.rankPoints || 0) + ' RP</strong></div>' +
-      '<div class="mat-player-stat"><small>Level</small><strong>' + Number(profile.level || 1) + '</strong></div>' +
-      '<div class="mat-player-stat"><small>XP</small><strong>' + Number(profile.xp || 0) + '</strong></div>' +
-      '<div class="mat-player-stat"><small>Rank Score</small><strong>' + Number(profile.rankScore || profile.score || 0) + '</strong></div>' +
-      '</div><div class="mat-player-actions">' +
-      (isMe ? '<span class="mat-dialog-note">Your public rank profile</span>' : (getToken() ? '<button type="button" class="mat-primary" data-med-add-friend="' + escapeHtml(playerId) + '" data-med-player-name="' + escapeHtml(profile.username || profile.name || '') + '">Add Friend</button>' : '<span class="mat-dialog-note">Friend request-এর জন্য Fallrush API session দরকার।</span>')) +
-      '<button type="button" data-med-close>Close</button></div><p id="med-player-status" class="mat-dialog-note"></p>';
-    showOverlay('med-player-modal');
-  }
-  async function showFriendRequests() {
-    var root = document.getElementById('med-friend-requests');
-    if (!root) return;
-    var token = getToken();
-    if (!token) {
-      root.innerHTML = '<p class="mat-dialog-note">Friend request sync করার জন্য এই browser-এ Fallrush API session নেই। Global Rank দেখা যাবে, তবে Friends feature API session ছাড়া ব্যবহার করা যাবে না।</p>';
-      return;
-    }
-    root.innerHTML = '<p class="mat-dialog-note">Friend requests লোড হচ্ছে…</p>';
-    try {
-      var response = await request({ action: 'friendRequests', token: token });
-      var incoming = Array.isArray(response.requests) ? response.requests : (Array.isArray(response.incoming) ? response.incoming : []);
-      if (!incoming.length) root.innerHTML = '<p class="mat-dialog-note">কোনো pending friend request নেই।</p>';
-      else root.innerHTML = '<strong>Friend Requests</strong>' + incoming.map(function (item) {
-        return '<div class="mat-friend-row"><span><b>' + escapeHtml(item.username || item.name || 'Player') + '</b></span><span><button data-med-friend-response="accept" data-med-request-id="' + escapeHtml(item.requestId || item.id || '') + '">Accept</button> <button class="mat-muted-button" data-med-friend-response="decline" data-med-request-id="' + escapeHtml(item.requestId || item.id || '') + '">Decline</button></span></div>';
-      }).join('');
-    } catch (error) {
-      root.innerHTML = '<p class="mat-dialog-note">' + escapeHtml(error.message || 'Friend requests লোড করা যায়নি।') + '</p>';
-    }
+    if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHtml(avatar);
+    var name = String(row && row.name || 'M').trim();
+    return escapeHtml(name ? name.charAt(0).toUpperCase() : 'M');
   }
   function updatePeriodTabs() {
     document.querySelectorAll('[data-leaderboard-period]').forEach(function (button) {
@@ -846,11 +551,155 @@
     });
     var note = document.getElementById('leaderboard-period-note');
     if (note) {
-      note.classList.toggle('hidden', selectedPeriod === 'all-time');
-      if (selectedPeriod === 'friends') note.textContent = 'Friends তালিকা shared Fallrush API থেকে আসে; এর জন্য API session token প্রয়োজন।';
-      else if (selectedPeriod === 'weekly') note.textContent = 'Weekly leaderboard current-week data ব্যবহার করে। Shared API-কে weekly entries বা weekly RP ফেরত দিতে হবে; না থাকলে All Time data এখানে দেখানো হবে না।';
-      else note.textContent = '';
+      note.classList.toggle('hidden', selectedPeriod !== 'weekly');
+      note.textContent = selectedPeriod === 'weekly'
+        ? 'Weekly ranking এই সপ্তাহের Medical RP থেকে হিসাব হয়। All Time ranking মোট অর্জিত RP ব্যবহার করে।'
+        : '';
     }
+  }
+  function cachedRowsForDisplay() {
+    var cached = getCache();
+    return cached.length ? cached : [];
+  }
+  async function loadLeaderboard(silent) {
+    ensureUI();
+    selectedPeriod = readPeriod();
+    var requestId = ++loadSequence;
+    var cache = cachedRowsForDisplay();
+    if (cache.length) {
+      rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
+      renderRows(cache);
+    }
+    if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); return; }
+    if (!app.authStateResolved && !app.authUser) {
+      setStatus('Account session যাচাই হচ্ছে…', false);
+      return;
+    }
+    if (app.__medicalRegistrationInProgress) {
+      setStatus('Account তৈরি হচ্ছে…', false);
+      return;
+    }
+    try {
+      await syncIdentity();
+      var response = await request({ action: 'leaderboard', period: selectedPeriod }, { method: 'GET' });
+      if (requestId !== loadSequence) return;
+      var entries = extractEntries(response);
+      rawRows = entries.slice();
+      var rows = normalizeRows(entries);
+      saveCache(rows);
+      renderRows(rows);
+      var weekLabel = response && response.weekStart ? ' · week of ' + response.weekStart : '';
+      setStatus('Medical leaderboard synced' + weekLabel + '.', false);
+    } catch (error) {
+      if (requestId !== loadSequence) return;
+      setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
+    }
+  }
+  function queueResult(item) {
+    var queue = getQueue();
+    if (!queue.some(function (entry) { return entry && entry.attemptId === item.attemptId && entry.userId === item.userId; })) queue.push(item);
+    saveQueue(queue);
+  }
+  async function submitResult(item) {
+    var creds = await credentialsForCurrentUser();
+    var currentId = currentUserId();
+    if (item.userId && currentId && String(item.userId) !== String(currentId)) {
+      throw new Error('এই attempt অন্য account-এ শুরু হয়েছিল। Reward sync করতে সেই account-এ ফিরে যান।');
+    }
+    var response = await request(Object.assign({}, creds, {
+      action: 'submitExam',
+      attemptId: String(item.attemptId || ''),
+      examMode: safeText(item.examMode || 'Exam', 60),
+      totalQuestions: Math.max(1, Number(item.totalQuestions) || 1),
+      correctCount: Math.max(0, Number(item.correctCount) || 0),
+      wrongCount: Math.max(0, Number(item.wrongCount) || 0),
+      score: Math.max(0, Number(item.score != null ? item.score : item.quizPoints) || 0)
+    }));
+    var user = response.user || response.profile || null;
+    if (user) applyProfile(user);
+    var reward = {
+      success: true, synced: true, pending: false,
+      attemptId: String(item.attemptId || response.attemptId || ''),
+      xpGained: Number(response.xpGained || 0),
+      rankPointsDelta: Number(response.rankPointsDelta || 0),
+      rank: (user && user.rank) || response.rankAfter || response.rank || (currentProfile && currentProfile.rank) || '',
+      rankPoints: user && user.rankPoints != null ? Number(user.rankPoints) : (response.rankPoints == null ? null : Number(response.rankPoints)),
+      totalRP: user && user.totalRP != null ? Number(user.totalRP) : (response.totalRP == null ? null : Number(response.totalRP)),
+      level: user && user.level != null ? Number(user.level) : (response.level == null ? null : Number(response.level)),
+      duplicate: !!response.duplicate,
+      message: response.message || 'Medical reward synced.'
+    };
+    saveReward(reward);
+    return reward;
+  }
+  async function recordLeaderboardResult(meta) {
+    meta = meta || {};
+    var attemptId = String(meta.attemptId || (app.examState && app.examState.startedAt) || Date.now());
+    var saved = getSavedReward(attemptId);
+    if (saved) return saved;
+    var item = {
+      attemptId: attemptId,
+      userId: currentUserId(),
+      totalQuestions: Math.max(1, Number(meta.totalQuestions) || 1),
+      correctCount: Math.max(0, Number(meta.correctCount) || 0),
+      wrongCount: Math.max(0, Number(meta.wrongCount) || 0),
+      quizPoints: Math.max(0, Number(meta.quizPoints) || 0),
+      score: Math.max(0, Number(meta.score != null ? meta.score : meta.quizPoints) || 0),
+      examMode: safeText(meta.examMode || (app.examState && app.examState.mode) || 'Exam', 60)
+    };
+    try {
+      await syncIdentity();
+      item.userId = currentUserId();
+      var reward = await submitResult(item);
+      await loadLeaderboard(true);
+      return reward;
+    } catch (error) {
+      queueResult(item);
+      var pending = {
+        success: false, pending: true, synced: false, attemptId: attemptId,
+        xpGained: null, rankPointsDelta: null,
+        message: 'Medical API-তে result sync হয়নি; attempt pending queue-তে রাখা হয়েছে। ' + apiErrorMessage(error)
+      };
+      saveReward(pending);
+      setStatus(pending.message, true);
+      return pending;
+    }
+  }
+  async function flushQueue() {
+    if (!navigator.onLine) return;
+    var queue = getQueue();
+    if (!queue.length) return;
+    try { await syncIdentity(); } catch (_) { return; }
+    var activeId = currentUserId();
+    var keep = [];
+    var sent = false;
+    for (var i = 0; i < queue.length; i++) {
+      var item = queue[i];
+      if (!item || String(item.userId || '') !== String(activeId || '')) { keep.push(item); continue; }
+      try {
+        var reward = await submitResult(item);
+        if (reward && reward.success) sent = true;
+      } catch (_) { keep.push(item); }
+    }
+    saveQueue(keep);
+    if (sent) await loadLeaderboard(true);
+  }
+  function showPublicProfile(userId) {
+    var row = normalizeRows(rawRows).find(function (entry) { return String(entry.userId) === String(userId); });
+    if (!row) return;
+    var content = document.getElementById('med-player-content');
+    if (!content) return;
+    content.innerHTML = '<div class="mat-player-avatar">' + rankTrophy(row.rank) + '</div>' +
+      '<h2 id="med-player-title">' + escapeHtml(row.name || 'Medical Student') + '</h2>' +
+      '<p class="mat-dialog-note">' + escapeHtml([row.college, row.batch].filter(Boolean).join(' · ') || 'Student profile') + '</p>' +
+      '<div class="mat-player-stats">' +
+      '<div class="mat-player-stat"><small>Medical Rank</small><strong>' + escapeHtml(row.rank) + '</strong></div>' +
+      '<div class="mat-player-stat"><small>Current RP</small><strong>' + Number(row.rankPoints || 0) + '</strong></div>' +
+      '<div class="mat-player-stat"><small>Total RP</small><strong>' + Number(row.totalRP || 0) + '</strong></div>' +
+      '<div class="mat-player-stat"><small>Medical XP</small><strong>' + Number(row.xp || 0) + '</strong></div>' +
+      '<div class="mat-player-stat"><small>Level</small><strong>' + Number(row.level || 1) + '</strong></div>' +
+      '</div><p class="mat-dialog-note">Medical Admission Tracker education profile.</p>';
+    showOverlay('med-player-modal');
   }
   function ensureUI() {
     injectStyles();
@@ -858,16 +707,16 @@
     ensureOverlays();
     ensureRankBanner();
     selectedPeriod = readPeriod();
-    if (MATCH_RANKS.indexOf(selectedRank) < 0) selectedRank = readSelectedRank();
+    if (RANKS.indexOf(selectedRank) < 0) selectedRank = readSelectedRank();
     updatePeriodTabs();
   }
   function bindEvents() {
     document.addEventListener('click', async function (event) {
-      var period = event.target.closest && event.target.closest('[data-leaderboard-period]');
-      if (period) {
+      var periodButton = event.target.closest && event.target.closest('[data-leaderboard-period]');
+      if (periodButton) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        selectedPeriod = period.dataset.leaderboardPeriod === 'friends' ? 'friends' : (period.dataset.leaderboardPeriod === 'weekly' ? 'weekly' : 'all-time');
+        selectedPeriod = periodButton.dataset.leaderboardPeriod === 'weekly' ? 'weekly' : 'all-time';
         try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
         updatePeriodTabs();
         await loadLeaderboard(true);
@@ -876,8 +725,8 @@
       var rankButton = event.target.closest && event.target.closest('[data-med-rank]');
       if (rankButton) {
         selectedRank = rankButton.dataset.medRank;
-        if (MATCH_RANKS.indexOf(selectedRank) < 0) return;
-        try { localStorage.setItem(rankStorageKey(), selectedRank); } catch (_) {}
+        if (RANKS.indexOf(selectedRank) < 0) return;
+        try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
         renderRows(rawRows);
         var rail = document.getElementById('med-rank-rail');
         var active = rail && rail.querySelector('[data-med-rank="' + selectedRank + '"]');
@@ -886,54 +735,20 @@
       }
       var action = event.target.closest && event.target.closest('[data-med-action]');
       if (action) {
-        if (action.dataset.medAction === 'notifications') {
-          showOverlay('med-rules-modal');
-          await showFriendRequests();
-        } else if (action.dataset.medAction === 'streak') {
-          var progress = parseJson(localStorage.getItem('med_account_progress_v1_' + accountKey()), {});
-          setStatus('🔥 Current daily streak: ' + Math.max(0, Number(progress.streak) || 0) + ' day(s).', false);
+        if (action.dataset.medAction === 'rules') showOverlay('med-rules-modal');
+        else if (action.dataset.medAction === 'streak') {
+          var progress = {};
+          try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
+          setStatus('📚 Current daily study streak: ' + Math.max(0, Number(progress.streak) || 0) + ' day(s).', false);
         } else {
-          var mine = getCurrentUserRow();
-          setStatus(mine ? mine.rank + ' · ' + mine.rankPoints + ' RP · next rank at ' + RP_TARGET + ' RP' : 'প্রথম eligible quiz সম্পন্ন করলে আপনার RP এখানে sync হবে।', false);
+          var view = document.getElementById('view-leaderboard');
+          if (view && view.classList.contains('hidden') && typeof app.showView === 'function') app.showView('leaderboard');
+          await loadLeaderboard(true);
         }
         return;
       }
       var player = event.target.closest && event.target.closest('[data-med-player]');
-      if (player && player.dataset.medPlayer) {
-        await showPublicProfile(player.dataset.medPlayer);
-        return;
-      }
-      var addFriend = event.target.closest && event.target.closest('[data-med-add-friend]');
-      if (addFriend) {
-        var token = getToken();
-        if (!token) {
-          var msg = document.getElementById('med-player-status');
-          if (msg) msg.textContent = 'Friend request পাঠাতে Fallrush API session দরকার।';
-          return;
-        }
-        addFriend.disabled = true;
-        try {
-          var res = await request({ action: 'friendInvite', token: token, username: addFriend.dataset.medPlayerName || '', playerId: addFriend.dataset.medAddFriend || '' });
-          var status = document.getElementById('med-player-status');
-          if (status) status.textContent = (res && res.success === false) ? (res.message || 'Request failed.') : 'Friend request পাঠানো হয়েছে।';
-        } catch (error) {
-          var statusNode = document.getElementById('med-player-status');
-          if (statusNode) statusNode.textContent = error.message || 'Friend request পাঠানো যায়নি।';
-        } finally { addFriend.disabled = false; }
-        return;
-      }
-      var friendAnswer = event.target.closest && event.target.closest('[data-med-friend-response]');
-      if (friendAnswer) {
-        try {
-          await request({ action: 'friendRespond', token: getToken(), requestId: friendAnswer.dataset.medRequestId || '', decision: friendAnswer.dataset.medFriendResponse });
-          await showFriendRequests();
-          if (selectedPeriod === 'friends') await loadLeaderboard(true);
-        } catch (error) {
-          var root = document.getElementById('med-friend-requests');
-          if (root) root.innerHTML = '<p class="mat-dialog-note">' + escapeHtml(error.message || 'Friend request update failed.') + '</p>';
-        }
-        return;
-      }
+      if (player) { showPublicProfile(player.dataset.medPlayer); return; }
       var close = event.target.closest && event.target.closest('[data-med-close]');
       if (close) { closeOverlay(close.closest('.mat-overlay')); return; }
       if (event.target.classList && event.target.classList.contains('mat-overlay')) closeOverlay(event.target);
@@ -941,55 +756,72 @@
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       var player = event.target.closest && event.target.closest('[data-med-player]');
-      if (player && (event.target === player || event.target.closest('.podium-card'))) {
-        event.preventDefault();
-        showPublicProfile(player.dataset.medPlayer);
-      }
+      if (player) { event.preventDefault(); showPublicProfile(player.dataset.medPlayer); }
     });
+    var profileForm = document.getElementById('medical-profile-form');
+    if (profileForm) {
+      profileForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var status = document.getElementById('medical-profile-save-status');
+        var button = document.getElementById('medical-profile-save');
+        if (button) button.disabled = true;
+        if (status) status.textContent = 'Profile save হচ্ছে…';
+        try {
+          var updated = await updateProfile({
+            name: (document.getElementById('medical-profile-name') || {}).value || '',
+            college: (document.getElementById('medical-profile-college') || {}).value || '',
+            batch: (document.getElementById('medical-profile-batch') || {}).value || '',
+            avatar: (document.getElementById('medical-profile-avatar') || {}).value || ''
+          });
+          if (status) status.textContent = 'Profile update সফল হয়েছে।';
+          await loadLeaderboard(true);
+        } catch (error) {
+          if (status) status.textContent = apiErrorMessage(error);
+          setStatus('Profile update হয়নি। ' + apiErrorMessage(error), true);
+        } finally {
+          if (button) button.disabled = false;
+        }
+      });
+    }
   }
+
   app.getDemoLeaderboardRows = function () { return []; };
-  app.getLocalLeaderboardRows = function () { return getCachedRows(); };
+  app.getLocalLeaderboardRows = function () { return getCache(); };
   app.setLocalLeaderboardRows = function (rows) { return saveCache(rows); };
-  app.mergeLeaderboardRows = function (rows) { return normalizeRows(Array.isArray(rows) ? rows : []); };
+  app.mergeLeaderboardRows = function (rows) { return normalizeRows(rows); };
   app.recordLeaderboardResult = recordLeaderboardResult;
   app.loadLeaderboard = loadLeaderboard;
   app.syncPendingLeaderboard = flushQueue;
-  app.syncLeaderboardUser = function () { return Promise.resolve(false); };
+  app.syncLeaderboardUser = syncIdentity;
   app.renderLeaderboardRows = renderRows;
+  app.updateMedicalProfile = updateProfile;
 
   window.MedGlobalLeague = Object.freeze({
     loadLeaderboard: loadLeaderboard,
     recordLeaderboardResult: recordLeaderboardResult,
-    getCachedRows: getCachedRows,
-    saveCache: saveCache,
-    getRanks: function () { return MATCH_RANKS.slice(); },
+    syncIdentity: syncIdentity,
+    registerUser: registerUser,
+    updateProfile: updateProfile,
+    getCachedRows: getCache,
+    getRanks: function () { return RANKS.slice(); },
     flushPending: flushQueue,
     reload: function () { return loadLeaderboard(true); }
   });
-  var originalSetAuthState = app.setAuthState.bind(app);
-  app.setAuthState = function (user, notice) {
-    var result = originalSetAuthState(user, notice);
-    try { window.dispatchEvent(new CustomEvent('student-auth-state-changed', { detail: { user: user || null } })); } catch (_) {}
-    return result;
-  };
+
   ensureUI();
   bindEvents();
   window.addEventListener('online', function () { flushQueue(); loadLeaderboard(true); });
+  window.addEventListener('student-auth-state-resolved', function () {
+    syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
+  });
+  window.addEventListener('student-profile-loaded', function () {
+    syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
+  });
   window.addEventListener('storage', function (event) {
-    if (event.key === PERIOD_KEY || event.key === 'elem_session_token') { selectedPeriod = readPeriod(); loadLeaderboard(true); }
+    if (event.key === PERIOD_KEY || event.key === GUEST_TOKEN_KEY) { selectedPeriod = readPeriod(); loadLeaderboard(true); }
   });
-  window.addEventListener('student-auth-state-changed', function () {
-    selectedRank = readSelectedRank();
-    updateTopControls(getCurrentUserRow());
-  });
-  var originalLoadUserProfile = typeof app.loadUserProfile === 'function' ? app.loadUserProfile.bind(app) : null;
-  if (originalLoadUserProfile) {
-    app.loadUserProfile = async function () {
-      var result = await originalLoadUserProfile();
-      await loadLeaderboard(true);
-      return result;
-    };
+  if (app.authStateResolved) {
+    syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
   }
-  window.setInterval(flushQueue, 15000);
-  window.setTimeout(function () { loadLeaderboard(true); }, 0);
+  window.setInterval(flushQueue, 30000);
 })();
