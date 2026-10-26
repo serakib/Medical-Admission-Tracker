@@ -1221,6 +1221,8 @@
         await loadLeaderboard(true);
         if (selectedPeriod === 'friends') {
           loadFriendDirectoryRows().catch(function () {});
+          var friendPanel = document.getElementById('leaderboard-friends-panel');
+          if (friendPanel) friendPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         return;
       }
