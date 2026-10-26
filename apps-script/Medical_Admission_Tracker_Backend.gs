@@ -39,7 +39,7 @@ const MAT_FRIEND_HEADERS = [
 ];
 
 const MAT_EXAM_HEADERS = [
-  'RecordType', 'AttemptID', 'UserID', 'ExamMode', 'TotalQuestions', 'Correct',
+  'RecordType', 'AttemptID', 'UserID', 'ExamMode', 'Subject', 'ExamYear', 'TimeUsed', 'TotalQuestions', 'Correct',
   'Wrong', 'Score', 'XPEarned', 'RPEarned', 'RankBefore', 'RankAfter',
   'SubmittedAt', 'ActivityID', 'ActivityCreatedAt', 'ActivityMessage',
   'NotificationStatus', 'SentAt', 'RetryCount', 'LastError', 'RewardStatus'
@@ -718,6 +718,9 @@ function matSubmitExam_(p) {
         AttemptID: attemptId,
         UserID: authenticatedUser.UserID,
         ExamMode: examMode,
+        Subject: matCleanText_(p.subject || '', 80),
+        ExamYear: matCleanText_(p.year || '', 40),
+        TimeUsed: matCleanText_(p.timeUsed || '', 20),
         TotalQuestions: total,
         Correct: correct,
         Wrong: wrong,
