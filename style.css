@@ -115,3 +115,28 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
 .profile-avatar-choice:hover{transform:translateY(-1px);border-color:rgba(16,185,129,.65)}
 .profile-avatar-choice.is-selected{border-color:#10b981;background:rgba(16,185,129,.13);box-shadow:0 0 0 2px rgba(16,185,129,.14)}
 .profile-hero .profile-avatar{display:grid;place-items:center;font-size:30px}
+
+
+/* Keep leaderboard filters accessible while scrolling and expose a clear Friend action. */
+#view-leaderboard #leaderboard-period-tabs{
+  position:sticky;top:8px;z-index:40;display:flex!important;flex-wrap:wrap;gap:8px;
+  padding:9px 10px;margin:0 0 18px;border:1px solid rgba(148,163,184,.24);
+  border-radius:15px;background:rgba(248,250,252,.96);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:0 5px 18px rgba(15,23,42,.08);
+}
+.dark #view-leaderboard #leaderboard-period-tabs{
+  background:rgba(15,23,42,.96);border-color:rgba(148,163,184,.25);
+  box-shadow:0 5px 18px rgba(0,0,0,.2);
+}
+#view-leaderboard #leaderboard-period-tabs .leaderboard-period-tab{
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;
+  align-items:center;justify-content:center;min-height:40px;flex:0 0 auto!important;
+}
+.mat-row-friend-button{
+  display:block;margin-top:6px;padding:4px 9px;border:1px solid rgba(16,185,129,.5);
+  border-radius:999px;background:rgba(16,185,129,.1);color:#059669;
+  font-size:11px;font-weight:850;line-height:1.25;cursor:pointer;
+}
+.dark .mat-row-friend-button{color:#6ee7b7;border-color:rgba(52,211,153,.42)}
+.mat-row-friend-button:hover{background:rgba(16,185,129,.18);border-color:rgba(16,185,129,.8)}
