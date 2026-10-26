@@ -7,6 +7,9 @@
   if (!app || app.__medicalSheetsAdapter) return;
   app.__medicalSheetsAdapter = true;
 
+  var DEFAULT_STUDENT_AVATAR = 'https://i.pravatar.cc/120?img=1';
+  var friendDirectoryRows = [];
+  var friendDirectoryLoadPromise = null;
   var RANKS = [
     'Bronze V','Bronze IV','Bronze III','Bronze II','Bronze I',
     'Silver V','Silver IV','Silver III','Silver II','Silver I',
@@ -381,7 +384,8 @@
       name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
       college: safeText(raw.college || raw.College || '', 120),
       batch: safeText(raw.batch || raw.Batch || '', 40),
-      avatar: safeText(profileAvatarForUser(id) || raw.avatar || raw.Avatar || '', 20000),
+      // Server-owned profile avatar is authoritative for every viewer; local storage is fallback only.
+      avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       xp: Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0),
       level: Math.max(1, Number(raw.level != null ? raw.level : raw.Level) || 1),
@@ -701,7 +705,7 @@
         var safeStatus = selectedPeriod !== 'weekly' ? '' : isInWeeklySafeZone(row)
           ? '<small class="leader-safe-status"><i class="fa-solid fa-shield-check"></i> Safe Zone</small>'
           : '<small class="leader-risk-status"><i class="fa-solid fa-arrow-trend-up"></i> আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন</small>';
-        var friendAction = row.isMine ? '' : '<button type="button" class="mat-row-friend-button" data-leaderboard-open-profile="' + escapeHtml(row.userId) + '" aria-label="Open ' + escapeHtml(row.name || 'student') + ' profile and friend actions">Friend</button>';
+        var friendAction = row.isMine ? '' : '<button type="button" class="mat-row-friend-button" data-leaderboard-open-profile="' + escapeHtml(row.userId) + '" aria-label="Open ' + escapeHtml(row.name || 'student') + ' profile and friend actions"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>';
         tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + friendAction + '</span></div></td>' +
           '<td class="py-4 px-3 leader-college">' + escapeHtml(row.college || '—') + '</td>' +
           '<td class="py-4 px-3 leader-batch">' + escapeHtml(row.batch || '—') + '</td>' +
@@ -748,8 +752,9 @@
       return '<img src="' + escapeHtml(avatar) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     }
     if (avatar && avatar.length <= 12 && !/[<>]/.test(avatar)) return escapeHtml(avatar);
-    var name = String(row && row.name || 'M').trim();
-    return escapeHtml(name ? name.charAt(0).toUpperCase() : 'M');
+    // Match the Student Profile's default avatar when no profile image has been saved centrally yet.
+    return '<img src="' + escapeHtml(DEFAULT_STUDENT_AVATAR) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+
   }
   function ensurePeriodTabs() {
     var tabs = document.getElementById('leaderboard-period-tabs');
@@ -888,6 +893,10 @@
       rawRows = entries.slice();
       var rows = normalizeRows(entries);
       saveCache(rows, selectedPeriod);
+      if (selectedPeriod === 'all-time') {
+        friendDirectoryRows = rows;
+        renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
+      }
       renderRows(rows);
       var weekLabel = response && response.weekStart ? ' · week of ' + response.weekStart : '';
       setStatus('Medical leaderboard synced' + weekLabel + '.', false);
@@ -987,7 +996,10 @@
     if (sent) await loadLeaderboard(true);
   }
   function showPublicProfile(userId) {
-    var row = normalizeRows(rawRows).find(function (entry) { return String(entry.userId) === String(userId); });
+    var targetId = String(userId || '');
+    var row = normalizeRows(rawRows).find(function (entry) { return String(entry.userId) === targetId; }) ||
+      normalizeRows(friendDirectoryRows).find(function (entry) { return String(entry.userId) === targetId; }) ||
+      normalizeRows(getCache('all-time')).find(function (entry) { return String(entry.userId) === targetId; });
     if (!row) return;
     if (window.MedStudentProfile && typeof window.MedStudentProfile.open === 'function') {
       window.MedStudentProfile.open(row);
@@ -1042,9 +1054,133 @@
     }, 50);
     return false;
   }
+  function ensureFriendManageButton() {
+    var view = document.getElementById('view-leaderboard');
+    if (!view) return null;
+    var button = document.getElementById('leaderboard-manage-friends');
+    if (!button) {
+      var refresh = view.querySelector('button[onclick*="loadLeaderboard"]');
+      if (!refresh || !refresh.parentNode) return null;
+      button = document.createElement('button');
+      button.id = 'leaderboard-manage-friends';
+      button.type = 'button';
+      button.className = 'mat-manage-friends-button';
+      button.setAttribute('data-med-action', 'manage-friends');
+      button.innerHTML = '<i class="fa-solid fa-user-group" aria-hidden="true"></i> Friends &amp; Requests';
+      refresh.parentNode.insertBefore(button, refresh);
+    }
+    button.style.setProperty('display', 'inline-flex', 'important');
+    button.style.setProperty('visibility', 'visible', 'important');
+    button.style.setProperty('opacity', '1', 'important');
+    return button;
+  }
+
+  function ensureFriendDirectory() {
+    var panel = document.getElementById('leaderboard-friends-panel');
+    var list = document.getElementById('leaderboard-friend-request-list');
+    if (!panel) return null;
+    var region = document.getElementById('leaderboard-friend-directory');
+    if (!region) {
+      region = document.createElement('section');
+      region.id = 'leaderboard-friend-directory';
+      region.className = 'mat-friend-directory';
+      region.innerHTML = '<label for="leaderboard-friend-search">Find students to add</label>' +
+        '<input id="leaderboard-friend-search" type="search" autocomplete="off" maxlength="80" placeholder="Search by name, college or batch…" aria-describedby="leaderboard-friend-search-help">' +
+        '<p id="leaderboard-friend-search-help">Search the global student list, not just the currently selected rank.</p>' +
+        '<div id="leaderboard-friend-search-results" role="list" aria-live="polite"><p>Student list load হলে নাম দিয়ে খুঁজতে পারবেন।</p></div>';
+      if (list && list.parentNode === panel) panel.insertBefore(region, list);
+      else panel.appendChild(region);
+      var input = region.querySelector('#leaderboard-friend-search');
+      if (input) input.addEventListener('input', function () { renderFriendDirectory(input.value); });
+    }
+    return region;
+  }
+
+  function renderFriendDirectory(query) {
+    var region = ensureFriendDirectory();
+    if (!region) return;
+    var results = region.querySelector('#leaderboard-friend-search-results');
+    if (!results) return;
+    var term = String(query || '').trim().toLowerCase();
+    if (!friendDirectoryRows.length) {
+      results.innerHTML = '<p class="mat-profile-empty">Student list load হচ্ছে…</p>';
+      return;
+    }
+    if (term.length < 2) {
+      results.innerHTML = '<p class="mat-profile-empty">কাউকে খুঁজতে নাম, কলেজ বা batch-এর অন্তত ২টি অক্ষর লিখুন।</p>';
+      return;
+    }
+    var matches = normalizeRows(friendDirectoryRows).filter(function (row) {
+      if (row.isMine || String(row.userId) === String(currentUserId())) return false;
+      return [row.name, row.college, row.batch].some(function (value) {
+        return String(value || '').toLowerCase().indexOf(term) >= 0;
+      });
+    }).slice(0, 10);
+    if (!matches.length) {
+      results.innerHTML = '<p class="mat-profile-empty">কোনো student মেলেনি। বানান বা college/batch দিয়ে আবার খুঁজুন।</p>';
+      return;
+    }
+    results.innerHTML = matches.map(function (row) {
+      var relation = window.MedStudentFriends && typeof window.MedStudentFriends.getRelationship === 'function'
+        ? window.MedStudentFriends.getRelationship(String(row.userId)) : 'unknown';
+      var relationLabel = relation === 'friends' ? '<span class="mat-friend-state">Friends</span>'
+        : relation === 'outgoing' ? '<span class="mat-friend-state">Request Sent</span>'
+        : relation === 'incoming' ? '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">Review Request</button>'
+        : (!app.authUser || typeof app.authUser.getIdToken !== 'function')
+          ? '<button type="button" class="mat-row-friend-button" data-med-friend-open-profile="' + escapeHtml(row.userId) + '">View Profile</button>'
+          : '<button type="button" class="mat-row-friend-button" data-med-friend-send="' + escapeHtml(row.userId) + '" data-med-friend-name="' + escapeHtml(row.name || 'Student') + '"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend</button>';
+      return '<article class="mat-friend-search-result" role="listitem">' +
+        '<span class="mat-friend-search-avatar">' + avatarMarkup(row) + '</span>' +
+        '<div class="mat-friend-search-copy"><strong>' + escapeHtml(row.name || 'Student') + '</strong><small>' +
+        escapeHtml([row.college, row.batch, row.rank].filter(Boolean).join(' · ') || 'Medical student') +
+        '</small></div><div class="mat-friend-search-action">' + relationLabel + '</div></article>';
+    }).join('');
+  }
+
+  async function loadFriendDirectoryRows() {
+    ensureFriendDirectory();
+    var input = document.getElementById('leaderboard-friend-search');
+    var query = input ? input.value : '';
+    var cached = getCache('all-time');
+    if (cached.length) {
+      friendDirectoryRows = normalizeRows(cached.map(function (row) { return row && row.raw ? row.raw : row; }));
+      renderFriendDirectory(query);
+      return friendDirectoryRows;
+    }
+    if (friendDirectoryLoadPromise) return friendDirectoryLoadPromise;
+    friendDirectoryLoadPromise = (async function () {
+      var results = document.getElementById('leaderboard-friend-search-results');
+      try {
+        await syncIdentity();
+        var response = await request({ action: 'leaderboard', period: 'all-time' }, { method: 'GET' });
+        var entries = extractEntries(response);
+        friendDirectoryRows = normalizeRows(entries);
+        saveCache(friendDirectoryRows, 'all-time');
+        renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || query);
+        return friendDirectoryRows;
+      } catch (error) {
+        if (results) results.innerHTML = '<p class="mat-profile-empty">Student directory load হয়নি: ' + escapeHtml(apiErrorMessage(error)) + '</p>';
+        throw error;
+      } finally {
+        friendDirectoryLoadPromise = null;
+      }
+    })();
+    return friendDirectoryLoadPromise;
+  }
+
+  function setFriendActionStatus(message, isError) {
+    var el = document.getElementById('leaderboard-friend-status');
+    if (!el) return;
+    el.textContent = String(message || '');
+    el.classList.remove('hidden', 'text-red-600', 'text-emerald-700');
+    el.classList.add(isError ? 'text-red-600' : 'text-emerald-700');
+  }
+
   function ensureUI() {
     injectStyles();
     ensureTopControls();
+    ensureFriendManageButton();
+    ensureFriendDirectory();
     ensureOverlays();
     ensureRankBanner();
     selectedPeriod = readPeriod();
@@ -1083,6 +1219,9 @@
         try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
         updatePeriodTabs();
         await loadLeaderboard(true);
+        if (selectedPeriod === 'friends') {
+          loadFriendDirectoryRows().catch(function () {});
+        }
         return;
       }
       var rankButton = event.target.closest && event.target.closest('[data-med-rank]');
@@ -1099,8 +1238,55 @@
         if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         return;
       }
+      var friendSend = event.target.closest && event.target.closest('[data-med-friend-send]');
+      if (friendSend) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var friendSendId = String(friendSend.dataset.medFriendSend || '');
+        var friendSendName = String(friendSend.dataset.medFriendName || 'Student');
+        if (!window.MedStudentFriends || typeof window.MedStudentFriends.sendRequest !== 'function') {
+          setFriendActionStatus('Friends system এখনও load হয়নি। পেজ refresh করে আবার চেষ্টা করুন।', true);
+          return;
+        }
+        friendSend.disabled = true;
+        window.MedStudentFriends.sendRequest({ userId: friendSendId, uid: friendSendId, name: friendSendName })
+          .then(async function () {
+            if (window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
+              await window.MedStudentFriends.loadConnections(true);
+            }
+            setFriendActionStatus('Friend request পাঠানো হয়েছে।', false);
+            renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
+            await loadLeaderboard(true);
+          })
+          .catch(function (error) {
+            setFriendActionStatus(String(error && error.message || error || 'Friend request পাঠানো যায়নি।'), true);
+            friendSend.disabled = false;
+          });
+        return;
+      }
+      var friendOpenProfile = event.target.closest && event.target.closest('[data-med-friend-open-profile]');
+      if (friendOpenProfile) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showPublicProfile(friendOpenProfile.dataset.medFriendOpenProfile);
+        return;
+      }
       var action = event.target.closest && event.target.closest('[data-med-action]');
       if (action) {
+        if (action.dataset.medAction === 'manage-friends') {
+          selectedPeriod = 'friends';
+          try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
+          rankSelectionTouched = false;
+          updatePeriodTabs();
+          var leaderboardView = document.getElementById('view-leaderboard');
+          if (leaderboardView && leaderboardView.classList.contains('hidden') && typeof app.showView === 'function') app.showView('leaderboard');
+          ensureFriendDirectory();
+          await loadLeaderboard(true);
+          loadFriendDirectoryRows().catch(function () {});
+          var friendsPanel = document.getElementById('leaderboard-friends-panel');
+          if (friendsPanel) friendsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
         if (action.dataset.medAction === 'rules') showOverlay('med-rules-modal');
         else if (action.dataset.medAction === 'streak') {
           var progress = {};
