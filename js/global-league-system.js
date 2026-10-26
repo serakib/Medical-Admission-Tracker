@@ -644,11 +644,15 @@
     });
     var note = document.getElementById('leaderboard-period-note');
     if (note) {
-      note.classList.toggle('hidden', selectedPeriod !== 'weekly');
+      note.classList.toggle('hidden', selectedPeriod === 'all-time');
       note.textContent = selectedPeriod === 'weekly'
-        ? 'Weekly ranking এই সপ্তাহের Medical RP থেকে হিসাব হয়। All Time ranking মোট অর্জিত RP ব্যবহার করে।'
-        : '';
+        ? 'Weekly RP অনুযায়ী ranking। Safe Zone line-এর নিচে থাকলে কত RP প্রয়োজন তা দেখানো হবে।'
+        : selectedPeriod === 'friends'
+          ? 'শুধু accepted friends-দের ranking। Friend request আপনার student profile থেকেই পরিচালনা করুন।'
+          : '';
     }
+    var friendsPanel = document.getElementById('leaderboard-friends-panel');
+    if (friendsPanel) friendsPanel.classList.toggle('hidden', selectedPeriod !== 'friends');
   }
   function cachedRowsForDisplay() {
     var cached = getCache();
@@ -657,6 +661,15 @@
   async function loadLeaderboard(silent) {
     ensureUI();
     selectedPeriod = readPeriod();
+    var leaderboardView = document.getElementById('view-leaderboard');
+    if (leaderboardView && !leaderboardView.classList.contains('hidden') && !hasRequiredLeaderboardProfile()) {
+      showLeaderboardProfileGate();
+      return;
+    }
+    if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
+      try { await window.MedStudentFriends.loadConnections(); }
+      catch (friendError) { setStatus('Friends list load হয়নি। Firebase permission/status পরীক্ষা করুন।', true); }
+    }
     var requestId = ++loadSequence;
     var cache = cachedRowsForDisplay();
     if (cache.length) {
@@ -674,7 +687,8 @@
     }
     try {
       await syncIdentity();
-      var response = await request({ action: 'leaderboard', period: selectedPeriod }, { method: 'GET' });
+      var apiPeriod = selectedPeriod === 'weekly' ? 'weekly' : 'all-time';
+      var response = await request({ action: 'leaderboard', period: apiPeriod }, { method: 'GET' });
       if (requestId !== loadSequence) return;
       var entries = extractEntries(response);
       rawRows = entries.slice();
@@ -781,19 +795,15 @@
   function showPublicProfile(userId) {
     var row = normalizeRows(rawRows).find(function (entry) { return String(entry.userId) === String(userId); });
     if (!row) return;
-    var content = document.getElementById('med-player-content');
-    if (!content) return;
-    content.innerHTML = '<div class="mat-player-avatar">' + rankTrophy(row.rank) + '</div>' +
-      '<h2 id="med-player-title">' + escapeHtml(row.name || 'Medical Student') + '</h2>' +
-      '<p class="mat-dialog-note">' + escapeHtml([row.college, row.batch].filter(Boolean).join(' · ') || 'Student profile') + '</p>' +
-      '<div class="mat-player-stats">' +
-      '<div class="mat-player-stat"><small>Medical Rank</small><strong>' + escapeHtml(row.rank) + '</strong></div>' +
-      '<div class="mat-player-stat"><small>Current RP</small><strong>' + Number(row.rankPoints || 0) + '</strong></div>' +
-      '<div class="mat-player-stat"><small>Total RP</small><strong>' + Number(row.totalRP || 0) + '</strong></div>' +
-      '<div class="mat-player-stat"><small>Medical XP</small><strong>' + Number(row.xp || 0) + '</strong></div>' +
-      '<div class="mat-player-stat"><small>Level</small><strong>' + Number(row.level || 1) + '</strong></div>' +
-      '</div><p class="mat-dialog-note">Medical Admission Tracker education profile.</p>';
-    showOverlay('med-player-modal');
+    if (window.MedStudentProfile && typeof window.MedStudentProfile.open === 'function') {
+      window.MedStudentProfile.open(row);
+      return;
+    }
+    var view = document.getElementById('view-student-profile');
+    if (view && typeof app.showView === 'function') {
+      app.__pendingStudentProfile = row;
+      app.showView('student-profile');
+    }
   }
   function ensureUI() {
     injectStyles();
@@ -810,7 +820,8 @@
       if (periodButton) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        selectedPeriod = periodButton.dataset.leaderboardPeriod === 'weekly' ? 'weekly' : 'all-time';
+        var requestedPeriod = periodButton.dataset.leaderboardPeriod;
+        selectedPeriod = requestedPeriod === 'weekly' || requestedPeriod === 'friends' ? requestedPeriod : 'all-time';
         try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
         updatePeriodTabs();
         await loadLeaderboard(true);
@@ -819,7 +830,9 @@
       var rankButton = event.target.closest && event.target.closest('[data-med-rank]');
       if (rankButton) {
         selectedRank = rankButton.dataset.medRank;
-        if (RANKS.indexOf(selectedRank) < 0) return;
+        var vaultRanks = window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.getRanks === 'function'
+          ? window.MedAchievementVaultTrophies.getRanks().map(function (item) { return item.name; }) : RANKS;
+        if (vaultRanks.indexOf(selectedRank) < 0) return;
         try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
         renderRows(rawRows);
         var rail = document.getElementById('med-rank-rail');
@@ -842,7 +855,12 @@
         return;
       }
       var player = event.target.closest && event.target.closest('[data-med-player]');
-      if (player) { showPublicProfile(player.dataset.medPlayer); return; }
+      if (player) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showPublicProfile(player.dataset.medPlayer);
+        return;
+      }
       var close = event.target.closest && event.target.closest('[data-med-close]');
       if (close) { closeOverlay(close.closest('.mat-overlay')); return; }
       if (event.target.classList && event.target.classList.contains('mat-overlay')) closeOverlay(event.target);
@@ -850,7 +868,7 @@
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       var player = event.target.closest && event.target.closest('[data-med-player]');
-      if (player) { event.preventDefault(); showPublicProfile(player.dataset.medPlayer); }
+      if (player) { event.preventDefault(); event.stopImmediatePropagation(); showPublicProfile(player.dataset.medPlayer); }
     });
     var profileForm = document.getElementById('medical-profile-form');
     if (profileForm) {
