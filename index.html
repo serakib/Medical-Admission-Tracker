@@ -515,7 +515,7 @@ function toggleAppSidebarCollapse(){
             </div>
             <article class="profile-panel space-y-4" id="medical-profile-editor">
                 <div class="profile-panel-head"><div><span class="eyebrow">Medical Profile</span><h3>Personal Information</h3></div><i class="fa-solid fa-id-card" aria-hidden="true"></i></div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Guest এবং registered user—দুজনেই নিজের নাম, College, Batch ও Avatar update করতে পারবেন।</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Guest এবং registered user—দুজনেই নিজের নাম, College ও Batch update করতে পারবেন। Avatar আপনার existing avatar system থেকেই নিয়ন্ত্রিত হবে।</p>
                 <form id="medical-profile-form" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <label class="text-sm font-semibold">নাম
                         <input id="medical-profile-name" name="name" required minlength="2" maxlength="80" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" autocomplete="name">
@@ -525,9 +525,6 @@ function toggleAppSidebarCollapse(){
                     </label>
                     <label class="text-sm font-semibold">Batch / Class
                         <input id="medical-profile-batch" name="batch" maxlength="40" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" placeholder="যেমন HSC 2027">
-                    </label>
-                    <label class="text-sm font-semibold">Avatar URL বা Emoji
-                        <input id="medical-profile-avatar" name="avatar" maxlength="500" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" placeholder="🩺 অথবা https://...">
                     </label>
                     <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
                         <button id="medical-profile-save" type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold">Save Profile</button>
