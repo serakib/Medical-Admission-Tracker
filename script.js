@@ -1383,7 +1383,9 @@ class MedicalExamApp {
         }
         try {
             Promise.resolve(this.recordLeaderboardResult({
-                correctCount, wrongCount, totalQuestions, quizPoints, accuracy, attemptId, maxCombo: maxCorrectStreak
+                correctCount, wrongCount, totalQuestions, quizPoints, score: totalScore,
+                examMode: this.setup?.mode || state.mode || 'Exam',
+                accuracy, attemptId, maxCombo: maxCorrectStreak
             })).then(reward => {
                 if (typeof window.updateExamRewardDisplay === 'function') {
                     window.updateExamRewardDisplay(reward || { attemptId, pending: true, message: 'Reward sync-এর অপেক্ষায় আছে।' });
@@ -1955,58 +1957,31 @@ window.handleLogout = function() {
   app.submitExam = function(autoSubmitted = false) {
     const state = this.examState;
     if (!state || state.submitted) return originalSubmitExamForProgress(autoSubmitted);
-    let correct = 0;
-    (state.questions || []).forEach((q, i) => {
-      const raw = Number.isInteger(q?.answer) ? q.answer : (Number.isInteger(q?.correctAnswer) ? q.correctAnswer : 'ABCD'.indexOf(String(q?.correctAnswer || '').toUpperCase()));
-      if (state.userAnswers?.[i] === raw) correct++;
-    });
     const attemptId = String(state.startedAt || Date.now());
     const progress = readProgress();
-    const alreadyRewarded = progress.rewarded.includes(attemptId);
+    const alreadyTracked = progress.rewarded.includes(attemptId);
     const result = originalSubmitExamForProgress(autoSubmitted);
-    if (!alreadyRewarded && state.submitted) {
-      const reward = calculateExamReward(state, correct);
-      const earnedAt = Date.now();
-      if (reward.rankPoints > 0) {
-        progress.pendingPBEntries.push({ id: attemptId, amount: reward.rankPoints, earnedAt, convertsAt: earnedAt + PENDING_PB_DELAY_MS });
-      }
-      // New exam rewards remain PB for two hours; only matured/manual PB becomes RP.
-      progress.performanceBonus = progress.xp;
+    if (!alreadyTracked && state.submitted) {
+      // Record learning activity locally, but do not award XP/RP here.
+      // Medical XP/RP are authoritative in the separate Google Sheets API.
       const now = new Date();
-      progress.completedExams += 1;
-      const today = new Date().toISOString().slice(0, 10);
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      progress.completedExams = Math.max(0, Number(progress.completedExams) || 0) + 1;
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+      const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
       if (progress.lastExamDate !== today) {
-        progress.streak = progress.lastExamDate === yesterday ? progress.streak + 1 : 1;
+        progress.streak = progress.lastExamDate === yesterday ? Math.max(0, Number(progress.streak) || 0) + 1 : 1;
         progress.lastExamDate = today;
       }
+      // Prevent the previous browser-only PB->RP conversion system from adding
+      // a second reward balance beside the Medical API.
+      progress.pendingPBEntries = [];
+      progress.pendingPB = 0;
       progress.rewarded.push(attemptId);
       if (progress.rewarded.length > 500) progress.rewarded = progress.rewarded.slice(-500);
       saveProgress(progress);
-      if (this.authUser?.uid) {
-        const uid = this.authUser.uid;
-        const oldRow = this.getLocalLeaderboardRows().find(row => row.uid === uid) || {};
-        const rankRow = {
-          ...oldRow, uid,
-          name: this.profile?.name || this.authUser.displayName || this.authUser.email || 'Student',
-          college: this.profile?.college || oldRow.college || '',
-          rankPoints: progress.rankPoints,
-          xp: progress.xp,
-          performanceBonus: progress.performanceBonus,
-          level: getPerformanceLevelProgress(progress.xp).level,
-          updatedAtMs: Date.now()
-        };
-        const rows = this.mergeLeaderboardRows([...this.getLocalLeaderboardRows().filter(row => row.uid !== uid), rankRow]);
-        this.setLocalLeaderboardRows(rows);
-        this.renderLeaderboardRows(rows);
-        if (this.firestore) {
-          setDoc(doc(this.firestore, 'leaderboard', uid), {
-            uid, name: rankRow.name, college: rankRow.college,
-            rankPoints: progress.rankPoints, xp: progress.xp, performanceBonus: progress.performanceBonus, level: rankRow.level, updatedAt: serverTimestamp()
-          }, { merge: true }).catch(error => console.warn('Rank progress sync failed:', error));
-        }
-      }
-      document.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { ...progress, performanceBonus: progress.xp, pendingPB: pendingPBTotal(progress), pbEarned: reward.rankPoints, correct, reward } }));
+      document.dispatchEvent(new CustomEvent('student-progress-updated', {
+        detail: { ...progress, pendingPB: 0, source: 'medical-exam-completed' }
+      }));
     }
     return result;
   };
