@@ -1122,13 +1122,33 @@ class MedicalExamApp {
 
     prepareExamFromSetup() {
         if (!this.questionsLoaded || !this.questionBank.length) { this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।'); return; }
-        const previousYearQuestions = this.setup.mode === 'previousQuiz'
-            ? this.questionBank.filter(q => q.year === this.previousSelectedYear)
-            : null;
-        const count = this.setup.mode === 'previousQuiz' ? previousYearQuestions.length : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
-        const questions = this.shuffleQuestionsAndOptions(previousYearQuestions || this.questionBank, count);
+        const selectedYear = this.setup.mode === 'previousQuiz'
+            ? this.previousSelectedYear
+            : (document.getElementById('setup-year')?.value || 'all');
+        // Keep the exam pool tied to the selected academic year. Previously, the
+        // year was saved only as metadata while questions were shuffled from the
+        // entire bank, allowing questions from other sessions to appear.
+        let eligibleQuestions = this.setup.mode === 'previousQuiz'
+            ? this.questionBank.filter(q => q.year === selectedYear && q.isPreviousYear)
+            : [...this.questionBank];
+        if (this.setup.mode !== 'challenge' && selectedYear !== 'all') {
+            eligibleQuestions = eligibleQuestions.filter(q => q.year === selectedYear);
+        }
+        if (this.setup.mode !== 'challenge' && this.setup.subject && this.setup.subject !== 'all') {
+            eligibleQuestions = eligibleQuestions.filter(q => q.subject === this.setup.subject);
+        }
+        const count = this.setup.mode === 'previousQuiz'
+            ? eligibleQuestions.length
+            : (this.setup.mode === 'challenge' ? 20 : this.setup.questionsCount);
+        if (!eligibleQuestions.length) {
+            this.showDataError(selectedYear !== 'all'
+                ? `নির্বাচিত ${selectedYear} শিক্ষাবর্ষে এই সেটিংসের জন্য কোনো প্রশ্ন পাওয়া যায়নি।`
+                : 'এই সেটিংসের জন্য কোনো প্রশ্ন পাওয়া যায়নি।');
+            return;
+        }
+        const questions = this.shuffleQuestionsAndOptions(eligibleQuestions, count);
         if (!questions.length) return;
-        const examYear = this.setup.mode === 'previousQuiz' ? this.previousSelectedYear : (document.getElementById('setup-year')?.value || 'all');
+        const examYear = this.setup.mode === 'previousQuiz' ? this.previousSelectedYear : selectedYear;
         this.preparedExam = { questions, mode: this.setup.mode, subject: this.setup.subject, year: examYear, durationMins: this.setup.durationMins };
         this.renderExamIntro();
         this.showView('exam-intro');
