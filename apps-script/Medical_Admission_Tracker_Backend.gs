@@ -698,10 +698,11 @@ function matSubmitExam_(p) {
       // Medical-only rewards. Never accept XP/RP amounts supplied by the browser.
       // Note: correctness counts still need trusted answer-key grading in the backend
       // if the product requires tamper-resistant competitive ranking.
-      // Every submitted exam earns XP/RP. Only a 100-question Model Test uses the
-      // special performance-weighted RP formula; every other exam uses standard RP.
+      // A 100-question Model Test OR a 100-question Previous Year paper uses
+      // the same special performance-weighted RP formula.
       const xpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
-      const is100MarkModelTest = String(examMode).trim().toLowerCase() === 'model' && total === 100;
+      const normalizedExamMode = String(examMode).trim().toLowerCase();
+      const is100MarkModelTest = (normalizedExamMode === 'model' || normalizedExamMode === 'previousquiz') && total === 100;
       const rpEarned = is100MarkModelTest
         ? matCalculate100MarkModelTestRP_(correct)
         : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
