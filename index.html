@@ -48,7 +48,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="./style.css?v=leaderboard-friends-ui-5">
+    <link rel="stylesheet" href="./style.css?v=leaderboard-friends-ui-6">
 
 
     <!-- Home-only Contact section styling (inspired by the portfolio Contact UI) -->
@@ -1340,6 +1340,11 @@ function toggleAppSidebarCollapse(){
         <!-- VIEW: LEADERBOARD -->
         <section id="view-leaderboard" class="view-section hidden space-y-6 max-w-5xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" style="display:flex!important;visibility:visible!important;opacity:1!important;flex-wrap:wrap!important;gap:8px;width:100%;margin:0 0 18px;" role="tablist" aria-label="Leaderboard period">
+  <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border" style="display:inline-flex!important;visibility:visible!important;opacity:1!important;min-height:44px;flex:0 0 auto;padding:10px 16px;font-weight:800;white-space:nowrap;border-radius:12px;">🏆 All Time</button>
+  <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Weekly</button>
+  <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border"><i class="fa-solid fa-user-group ml-1" aria-hidden="true"></i> Friends</button>
+</div>
                 <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
                   <div class="min-w-0"><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Quiz Ranking</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Leaderboard</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">All Time, Friends এবং Weekly ranking আলাদাভাবে দেখুন। আগে আপনার Name, College ও Batch পূরণ করুন।</p></div>
                   <div class="flex flex-wrap items-center gap-2 shrink-0">
@@ -1350,11 +1355,7 @@ function toggleAppSidebarCollapse(){
                   </div>
                 </div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
-                <div id="leaderboard-period-tabs" class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Leaderboard period">
-  <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">🏆 All Time</button>
-  <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Weekly</button>
-  <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border"><i class="fa-solid fa-user-group ml-1" aria-hidden="true"></i> Friends</button>
-</div>
+                
 <div id="leaderboard-period-note" class="hidden mb-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200" role="status"></div>
                 <section id="leaderboard-friends-panel" class="hidden mb-5 rounded-2xl border border-gray-200 dark:border-gray-700 p-4" aria-labelledby="leaderboard-friends-heading">
                   <div class="flex items-center justify-between gap-3 mb-3"><div><h3 id="leaderboard-friends-heading" class="font-extrabold">Friend Requests</h3><p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Incoming requests accept/reject করুন; accepted friends-দের ranking এখানে দেখা যাবে।</p></div><i class="fa-solid fa-user-group text-emerald-600 text-xl" aria-hidden="true"></i></div>
