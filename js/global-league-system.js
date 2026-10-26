@@ -106,6 +106,9 @@
       if (Array.isArray(payload.userIds) && payload.userIds.length) {
         params.set('ids', Array.from(new Set(payload.userIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)).values()).join(','));
       }
+      if (Array.isArray(payload.includeUserIds) && payload.includeUserIds.length) {
+        params.set('includeIds', Array.from(new Set(payload.includeUserIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)).values()).join(','));
+      }
       url += (url.indexOf('?') >= 0 ? '&' : '?') + params.toString();
     } else {
       // text/plain keeps this a simple browser request and avoids an OPTIONS preflight.
@@ -613,10 +616,10 @@
       }
     }
     var me = getMe(all);
-    if (!selectedRank || !me) selectedRank = (me && me.rank) || selectedRank || RANKS[0];
+    if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
     // The selected trophy is a real rank filter. Without this, the same student
     // appeared in every selected subrank even though their authoritative rank was unchanged.
-    var displayRows = all.filter(function (row) { return String(row.rank || '') === String(selectedRank || ''); });
+    var displayRows = selectedPeriod === 'friends' ? all.slice() : all.filter(function (row) { return String(row.rank || '') === String(selectedRank || ''); });
     var safeRows = [], riskRows = [];
     if (selectedPeriod === 'weekly') {
       safeRows = displayRows.filter(isInWeeklySafeZone);
@@ -773,6 +776,7 @@
       await syncIdentity();
       var apiPeriod = selectedPeriod === 'weekly' ? 'weekly' : 'all-time';
       var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
+      if (selectedPeriod !== 'friends' && currentUserId()) leaderboardPayload.includeUserIds = [currentUserId()];
       if (selectedPeriod === 'friends') {
         var friendIds = window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function'
           ? window.MedStudentFriends.getFriendIds().map(String) : [];
@@ -976,7 +980,7 @@
         if (nextPeriod !== selectedPeriod) {
           var identityRows = rawRows.length ? normalizeRows(rawRows) : getCache(selectedPeriod);
           var identityRow = getMe(identityRows);
-          selectedRank = identityRow && identityRow.rank ? identityRow.rank : '';
+          selectedRank = (identityRow && identityRow.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || '';
           if (selectedRank) {
             try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
           }
