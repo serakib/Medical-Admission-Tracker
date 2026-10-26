@@ -654,13 +654,13 @@
     const accountId = String(app.authUser?.uid || 'guest');
     if (defaultAvatarSyncInFlight || defaultAvatarSyncAttemptedFor === accountId ||
         typeof window.MedGlobalLeague?.updateProfile !== 'function') return;
-    if (isRenderableAvatarSource(app.profile?.avatar)) return;
     defaultAvatarSyncAttemptedFor = accountId;
     defaultAvatarSyncInFlight = (async () => {
+      // Refresh the authoritative Google Sheets profile before deciding whether a default is needed.
       if (typeof window.MedGlobalLeague.syncIdentity === 'function') {
         await window.MedGlobalLeague.syncIdentity();
       }
-      // Another profile load may have supplied the global avatar while identity was resolving.
+      // Another profile load may have supplied the shared avatar while identity was resolving.
       if (isRenderableAvatarSource(app.profile?.avatar)) return;
       let saved = '';
       try { saved = localStorage.getItem(avatarKey()) || ''; } catch (_) {}
