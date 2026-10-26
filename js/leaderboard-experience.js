@@ -210,8 +210,8 @@
     const panel = document.getElementById('leaderboard-friends-panel');
     const list = document.getElementById('leaderboard-friend-request-list');
     if (!panel || !list) return;
-    // Keep incoming requests reachable from the leaderboard, not only the Friends tab.
-    panel.classList.remove('hidden');
+    // Friend list and all request actions belong only in the Friends tab.
+    panel.classList.toggle('hidden', !isFriendsTab);
     if (!canManageFriends()) {
       list.innerHTML = '<div class="mat-profile-empty">Guest session এখনও প্রস্তুত হয়নি। পেজ refresh করুন; guest account থেকেও friend request পাঠানো যাবে।</div>';
       return;
