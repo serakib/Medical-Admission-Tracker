@@ -939,7 +939,7 @@
     }
     if (app.__medicalRegistrationInProgress) {
       setStatus('Account তৈরি হচ্ছে…', false);
-      setLeaderboardRefreshBusy(false);
+      if (!silent) setLeaderboardRefreshBusy(false);
       return;
     }
     try {
