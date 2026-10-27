@@ -407,6 +407,20 @@
 
   async function openStudentProfile(row) {
     if (!row) return;
+    // For the signed-in student's own profile, local account progress is the
+    // authoritative streak source; leaderboard rows may contain a stale snapshot.
+    const ownId = userId();
+    const rowId = String(row.userId || row.uid || row.playerId || '');
+    if (ownId && rowId === ownId) {
+      try {
+        const progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() || {} : {};
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+        const lastDate = String(progress.lastExamDate || '');
+        const currentStreak = lastDate === today || lastDate === yesterday ? Math.max(0, Number(progress.streak) || 0) : 0;
+        row = Object.assign({}, row, { streak: currentStreak });
+      } catch (_) {}
+    }
     activePublicProfile = row;
     const view = document.getElementById('view-student-profile');
     const name = safeText(row.name || 'Medical Student', 80);
