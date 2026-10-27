@@ -91,7 +91,7 @@
     const dates = Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates : [];
     const last = String(progress.lastStreakActivityDate || '');
     if (last && !dates.includes(last)) dates.push(last);
-    return new Set(dates.filter(value => /^\\d{4}-\\d{2}-\\d{2}$/.test(String(value))).map(String));
+    return new Set(dates.filter(value => /^\d{4}-\d{2}-\d{2}$/.test(String(value))).map(String));
   }
   function streakGraphMarkup(period, dates) {
     const today = dhakaTodayDate();
