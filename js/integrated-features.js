@@ -118,38 +118,11 @@
     if (legacyPanel) legacyPanel.remove();
   }
 
+  // Answer review now lives exclusively inside the Bengali Answer Review view.
+  // Remove the old duplicate question list that used to appear below Exam Rewards.
   function renderResultFilters() {
-    const view = document.getElementById('view-result');
-    if (!view || !app.examState?.questions?.length) return;
-    let panel = document.getElementById('enhanced-result-review');
-    if (!panel) {
-      panel = document.createElement('section');
-      panel.id = 'enhanced-result-review';
-      panel.className = 'enhanced-panel enhanced-result-panel';
-      view.appendChild(panel);
-    }
-    const rows = app.examState.questions.map((q, i) => {
-      const answer = app.examState.userAnswers[i];
-      const correct = correctIndex(q);
-      const status = answer == null ? 'skip' : answer === correct ? 'right' : 'wrong';
-      return { q, i, answer, correct, status };
-    });
-    let filter = 'all';
-    const render = () => {
-      const filtered = rows.filter(r =>
-        filter === 'all' ||
-        (filter === 'answered' && r.status !== 'skip') ||
-        (filter === 'wrong' && r.status === 'wrong') ||
-        (filter === 'skip' && r.status === 'skip')
-      );
-      panel.innerHTML = `<h3>উত্তর পর্যালোচনা — Answer Review</h3><div class="enhanced-result-filterbar" role="group" aria-label="Filter exam results"><button type="button" data-result-filter="all" class="${filter==='all'?'active':''}">All (${rows.length})</button><button type="button" data-result-filter="answered" class="${filter==='answered'?'active':''}">Answered (${rows.filter(r=>r.status!=='skip').length})</button><button type="button" data-result-filter="wrong" class="${filter==='wrong'?'active':''}">Wrong Answer (${rows.filter(r=>r.status==='wrong').length})</button><button type="button" data-result-filter="skip" class="${filter==='skip'?'active':''}">Skipped (${rows.filter(r=>r.status==='skip').length})</button></div><div class="enhanced-question-list">${filtered.map(r => questionHtml(r.q, r.status==='right'?'Correct / সঠিক':r.status==='wrong'?'Wrong Answer / ভুল উত্তর':'Skipped / উত্তর দেওয়া হয়নি', r.answer)).join('') || '<p class="enhanced-empty">এই বিভাগে প্রশ্ন নেই।</p>'}</div>`;
-      panel.querySelectorAll('[data-result-filter]').forEach(btn => btn.addEventListener('click', () => { filter = btn.dataset.resultFilter; render(); }));
-      panel.querySelectorAll('.enhanced-mark-reviewed').forEach(btn => btn.addEventListener('click', () => {
-        const row = rows.find(r => qKey(r.q) === btn.dataset.qkey);
-        if (row) { markReviewed(row.q); btn.textContent = 'Reviewed ✓'; }
-      }));
-    };
-    render();
+    const oldPanel = document.getElementById('enhanced-result-review');
+    if (oldPanel) oldPanel.remove();
   }
 
   function renderPaletteStats() {
