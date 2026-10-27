@@ -56,6 +56,8 @@
   }
   function profileProgress() {
     try {
+      // Read through the same account-scoped progress API used by exam rewards.
+      if (typeof app.getAccountProgress === 'function') return app.getAccountProgress() || {};
       const key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
       return JSON.parse(localStorage.getItem(key) || '{}') || {};
     } catch (_) { return {}; }
@@ -63,7 +65,15 @@
   function renderShortcuts() {
     const home = document.getElementById('view-home');
     const stats = home?.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
-    if (!home || !stats || document.getElementById('mat-dash-shortcuts')) return;
+    if (!home || !stats) return;
+    let existing = document.getElementById('mat-dash-shortcuts');
+    // Dashboard sections can be moved/rebuilt when switching views. Re-anchor
+    // the existing shortcut row instead of letting it remain in a stale position.
+    if (existing && (existing.parentElement !== stats.parentElement || existing.previousElementSibling !== stats)) {
+      existing.remove();
+      existing = null;
+    }
+    if (existing) return;
     const wrap = document.createElement('div');
     wrap.id = 'mat-dash-shortcuts';
     wrap.className = 'mat-dash-shortcuts';
@@ -88,8 +98,8 @@
       return;
     }
     if (key === 'streak') {
-      const current = Number(profile.streak ?? progress.streak ?? 0);
-      const highest = Number(profile.highestStreak ?? progress.highestStreak ?? progress.maxStreak ?? current);
+      const current = Math.max(0, Number(progress.streak ?? profile.streak ?? 0) || 0);
+      const highest = Math.max(current, Number(progress.highestStreak ?? progress.maxStreak ?? profile.highestStreak ?? current) || 0);
       modal('Your Study Streak', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Current streak</small><h2 style="margin:5px 0 0">' + number(current) + ' days</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Highest streak</small><h2 style="margin:5px 0 0">' + number(highest) + ' days</h2></div></div><p>Your streak statistics are based on the progress data currently available to this account.</p><button id="mat-open-profile-from-streak" class="mat-dash-modal-close" type="button">Open profile</button>');
       document.getElementById('mat-open-profile-from-streak')?.addEventListener('click', () => {
         document.getElementById('mat-dash-modal-backdrop')?.remove();
