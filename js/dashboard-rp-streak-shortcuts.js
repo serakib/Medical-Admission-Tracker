@@ -162,7 +162,7 @@
     }
     const own = document.getElementById('view-profile');
     const publicProfile = document.getElementById('view-student-profile');
-    const isVisible = section => section && !section.classList.contains('hidden') && section.getAttribute('aria-hidden') !== 'true';
+    const isVisible = section => section && !section.classList.contains('hidden');
     button.style.display = isVisible(own) || isVisible(publicProfile) ? 'inline-flex' : 'none';
   }
 
