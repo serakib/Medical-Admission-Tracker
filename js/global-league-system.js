@@ -272,6 +272,13 @@
       localProgress.xp = profile.xp;
       localProgress.performanceBonus = profile.xp;
       localProgress.rankPoints = profile.rankPoints;
+      // Persist whichever streak is newer/higher so server refreshes never
+      // overwrite a locally saved streak with an older zero-value snapshot.
+      localProgress.streak = Math.max(0, Number(localProgress.streak) || 0, Number(profile.streak) || 0);
+      localProgress.highestStreak = Math.max(
+        Number(localProgress.highestStreak || localProgress.maxStreak) || 0,
+        localProgress.streak
+      );
       localProgress.pendingPBEntries = [];
       localProgress.pendingPB = 0;
       localProgress.rewarded = Array.isArray(localProgress.rewarded) ? localProgress.rewarded : [];
