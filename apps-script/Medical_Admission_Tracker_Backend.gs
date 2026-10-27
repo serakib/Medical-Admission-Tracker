@@ -708,7 +708,7 @@ function matUpdateLastSeen_(user) {
 
 /** Calculates the special performance-weighted RP for a 100-mark Model Test. */
 function matCalculate100MarkModelTestRP_(correct) {
-  const correctCount = Math.max(0, Math.min(100, matSafeNonNegativeInt_(correct, 'correctCount')));
+  const correctCount = matSafeNonNegativeInt_(correct, 'correctCount');
   const blocks = [
     { upTo: 40, multiplier: 1 },
     { upTo: 50, multiplier: 2 },
@@ -724,6 +724,8 @@ function matCalculate100MarkModelTestRP_(correct) {
     weightedCorrect += count * block.multiplier;
     previous = block.upTo;
   });
+  // For papers longer than 100 marks, each extra correct answer earns the top-tier PB weight.
+  weightedCorrect += Math.max(0, correctCount - 100) * 10;
   return weightedCorrect * 15;
 }
 
@@ -786,7 +788,7 @@ function matSubmitExam_(p) {
       const normalizedExamMode = String(examMode).trim().toLowerCase();
       const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
       const calculatedXpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
-      const is100MarkModelTest = (normalizedExamMode === 'model' || normalizedExamMode === 'previousquiz') && total === 100;
+      const is100MarkModelTest = total >= 100;
       const calculatedRpEarned = is100MarkModelTest
         ? matCalculate100MarkModelTestRP_(correct)
         : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
