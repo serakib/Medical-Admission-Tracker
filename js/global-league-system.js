@@ -901,7 +901,7 @@
     if (!button) return;
     if (busy) {
       if (leaderboardRefreshTimer) { clearTimeout(leaderboardRefreshTimer); leaderboardRefreshTimer = null; }
-      if (!leaderboardManualRefreshActive) leaderboardRefreshOriginalHtml = button.innerHTML;
+      if (!leaderboardRefreshOriginalHtml) leaderboardRefreshOriginalHtml = button.innerHTML;
       leaderboardManualRefreshActive = true;
       button.disabled = true;
       button.classList.add('is-refreshing');
