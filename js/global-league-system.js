@@ -1436,6 +1436,13 @@
           else if (friendAction === 'remove') await friendsApi.removeFriend(targetId);
           else if (friendAction === 'accept') await friendsApi.acceptRequest(requestId);
           else await friendsApi.rejectRequest(requestId);
+          if (friendAction === 'cancel') {
+            friendActionButton.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Cancelled';
+            friendActionButton.classList.add('is-success');
+            friendActionButton.setAttribute('aria-label', 'Friend request cancelled successfully');
+            setFriendActionStatus(successText, false);
+            await new Promise(function (resolve) { setTimeout(resolve, 900); });
+          }
           await friendsApi.loadConnections(true);
           renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
           setFriendActionStatus(successText, false);
