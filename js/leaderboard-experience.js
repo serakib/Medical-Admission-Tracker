@@ -408,6 +408,7 @@
   async function openStudentProfile(row) {
     if (!row) return;
     activePublicProfile = row;
+    window.__matActivePublicStudentProfile = row;
     const view = document.getElementById('view-student-profile');
     const name = safeText(row.name || 'Medical Student', 80);
     const college = safeText(row.college || '', 120);
