@@ -1442,7 +1442,7 @@
             friendActionButton.classList.add('is-success');
             friendActionButton.setAttribute('aria-label', 'Friend request cancelled successfully');
             setFriendActionStatus(successText, false);
-            await new Promise(function (resolve) { setTimeout(resolve, 900); });
+            await new Promise(function (resolve) { setTimeout(resolve, 1800); });
           }
           await friendsApi.loadConnections(true);
           renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
