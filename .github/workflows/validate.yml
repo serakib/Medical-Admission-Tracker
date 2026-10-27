@@ -28,6 +28,7 @@ jobs:
           node --check < js/leaderboard-config.js
           node --check < js/final-trophy-practice.js
           node --check < js/final-exam-type-lifetime.js
+          node --check < js/practice-history.js
           node --input-type=module --check < js/leaderboard-experience.js
       - name: Check local assets referenced by index.html
         run: node scripts/check-integrity.mjs

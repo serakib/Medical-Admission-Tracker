@@ -555,3 +555,194 @@ button[onclick*="toggleTheme"] .theme-toggle-icon {
     animation: medicalThemeIconChange .5s cubic-bezier(.2,.8,.2,1) both;
   }
 }
+
+
+/* Practice and answer-review polish: responsive, theme-aware cards and controls. */
+#view-review { max-width: 1040px !important; }
+#view-review > .flex:first-child {
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: clamp(16px, 2.5vw, 24px) !important;
+  border-radius: 20px !important;
+  background: linear-gradient(145deg, rgba(15, 30, 48, .98), rgba(17, 42, 61, .94)) !important;
+  border-color: rgba(71, 105, 132, .42) !important;
+  box-shadow: 0 14px 36px rgba(2, 8, 23, .16);
+}
+#view-review > .flex:first-child h2 { letter-spacing: -.025em; }
+#view-review #wrong-btn {
+  padding: 10px 15px !important;
+  border-radius: 11px !important;
+  font-size: 12px;
+  box-shadow: 0 6px 16px rgba(220, 53, 69, .18);
+}
+#review-list-container { display: grid; gap: 16px !important; }
+#review-list-container > div {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(16px, 2.6vw, 26px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(100, 132, 160, .25) !important;
+  background: linear-gradient(145deg, rgba(15, 29, 45, .98), rgba(17, 37, 55, .98)) !important;
+  box-shadow: 0 12px 28px rgba(2, 8, 23, .14) !important;
+  animation: medicalReviewCardIn .28s ease both;
+}
+#review-list-container > div::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, #34d399, #0ea5e9);
+  opacity: .85;
+}
+#review-list-container > div h4 {
+  font-size: clamp(15px, 1.4vw, 18px) !important;
+  line-height: 1.8;
+  letter-spacing: -.01em;
+}
+#review-list-container > div .space-y-2 > div {
+  min-height: 46px;
+  gap: 12px;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  line-height: 1.65;
+  transition: border-color .18s ease, transform .18s ease, background-color .18s ease;
+}
+#review-list-container > div .space-y-2 > div i { flex: 0 0 auto; }
+#review-list-container > div .space-y-2 > div.bg-emerald-50 {
+  box-shadow: inset 3px 0 0 #10b981;
+}
+#review-list-container > div .space-y-2 > div.bg-red-50 {
+  box-shadow: inset 3px 0 0 #f87171;
+}
+#review-list-container > div .p-3.border {
+  line-height: 1.75;
+  border-radius: 13px !important;
+}
+#view-practice #practice-browser,
+#view-practice #practice-quiz-view,
+#view-practice #enhanced-review-history,
+#view-practice #practice-attempt-history {
+  margin-top: 18px;
+}
+#view-practice .practice-exam-setup,
+#view-practice .practice-quiz-view,
+#view-practice #enhanced-review-history,
+#view-practice #practice-attempt-history {
+  padding: clamp(15px, 2.6vw, 24px);
+  border: 1px solid rgba(100, 132, 160, .27);
+  border-radius: 20px;
+  background: linear-gradient(145deg, var(--surface, #fff), color-mix(in srgb, var(--surface, #fff) 92%, #0ea5e9 8%));
+  box-shadow: 0 12px 30px rgba(2, 8, 23, .09);
+}
+html.dark #view-practice .practice-exam-setup,
+html.dark #view-practice .practice-quiz-view,
+html.dark #view-practice #enhanced-review-history,
+html.dark #view-practice #practice-attempt-history {
+  background: linear-gradient(145deg, #0f1d2d, #11263a);
+  border-color: rgba(100, 132, 160, .25);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .16);
+}
+#view-practice .practice-type-grid,
+#view-practice .practice-count-grid { gap: 9px; }
+#view-practice .practice-type-btn,
+#view-practice .practice-count-btn,
+#view-practice .practice-quiz-actions button {
+  border-radius: 11px;
+  min-height: 40px;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+#view-practice .practice-question h2,
+#view-practice .practice-question h3 {
+  font-size: clamp(16px, 1.7vw, 21px);
+  line-height: 1.85;
+}
+#view-practice .practice-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  margin: 9px 0;
+  border: 1px solid var(--line, #cbd5e1);
+  border-radius: 13px;
+  text-align: left;
+  line-height: 1.7;
+  background: var(--surface, #fff);
+  color: var(--text, #1e293b);
+}
+#view-practice .practice-option > span:first-child {
+  display: inline-grid;
+  flex: 0 0 27px;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, .12);
+  color: #059669;
+  font-weight: 900;
+}
+#view-practice .practice-option:not(:disabled):hover {
+  border-color: #10b981;
+  transform: translateY(-1px);
+}
+#view-practice .practice-option.correct {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, .12);
+}
+#view-practice .practice-option.wrong {
+  border-color: #f87171;
+  background: rgba(248, 113, 113, .10);
+}
+#view-practice .practice-feedback {
+  margin-top: 14px;
+  padding: 15px 17px;
+  border: 1px solid currentColor;
+  border-radius: 14px;
+  line-height: 1.75;
+}
+#view-practice .practice-quiz-status { gap: 8px; padding: 12px 0; }
+#view-practice .practice-quiz-actions { margin-top: 10px; }
+#view-practice .enhanced-panel h3,
+#view-practice #practice-attempt-history h3 {
+  margin-bottom: 13px;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -.02em;
+}
+#view-practice .enhanced-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#view-practice .enhanced-actions button,
+#practice-attempt-history button {
+  border: 1px solid rgba(100, 132, 160, .32);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+#view-practice .enhanced-question-card,
+.practice-history-card {
+  padding: 15px;
+  border: 1px solid rgba(100, 132, 160, .25);
+  border-radius: 14px;
+  background: rgba(100, 132, 160, .055);
+}
+.practice-history-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin: 12px 0 16px; }
+.practice-history-toolbar .active { border-color:#10b981 !important; background:rgba(16,185,129,.13); color:#059669; }
+.practice-history-list { display:grid; gap:10px; }
+.practice-history-card h4 { margin:10px 0; font-weight:850; line-height:1.75; }
+.practice-history-card .practice-history-meta { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; color:var(--muted,#64748b); font-size:12px; }
+.practice-history-card .practice-history-answer { margin-top:8px; padding:10px 12px; border-radius:10px; font-size:13px; line-height:1.7; }
+.practice-history-card .practice-history-answer.is-correct { color:#059669; background:rgba(16,185,129,.10); }
+.practice-history-card .practice-history-answer.is-wrong { color:#dc2626; background:rgba(248,113,113,.10); }
+.practice-history-card input[type="checkbox"] { accent-color:#059669; width:16px; height:16px; }
+@keyframes medicalReviewCardIn { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:640px) {
+  #view-review > .flex:first-child { align-items:stretch; }
+  #view-review > .flex:first-child > * { min-width:0; }
+  #view-practice .practice-type-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #view-practice .practice-count-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #view-practice .practice-quiz-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #view-practice .practice-quiz-actions #practice-finish-button { grid-column:1/-1; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #review-list-container > div { animation:none; }
+}

@@ -1208,7 +1208,7 @@ class MedicalExamApp {
                 this.t(`All ${cfg.questions.length} questions from the selected year are included`, `নির্বাচিত বছরের সব ${cfg.questions.length}টি প্রশ্ন থাকবে`),
                 this.t(`Time limit: ${cfg.durationMins} minutes`, `সময়: ${cfg.durationMins} মিনিট`),
                 this.t('+1 for correct, −0.25 for wrong, 0 for skipped', 'সঠিক +১, ভুল −০.২৫, স্কিপ ০'),
-                this.t('A 100-question Previous Year paper uses the special 100-mark PB earning rule', '১০০টি প্রশ্নের Previous Year পরীক্ষায় ১০০ মার্কের বিশেষ PB earning rule প্রযোজ্য'),
+                this.t('Any exam of 100 marks or more uses the special PB earning rule', '১০০ বা তার বেশি মার্কের যেকোনো পরীক্ষায় বিশেষ PB earning rule প্রযোজ্য'),
                 this.t('Time ending submits automatically', 'সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')
             ]
             : (cfg.mode === 'challenge')
@@ -1499,7 +1499,7 @@ class MedicalExamApp {
             this.saveExamAttempt({
                 attemptId: String(state.startedAt || Date.now()),
                 date: new Date().toLocaleDateString('bn-BD'),
-                mode: this.setup?.mode || state.mode || 'model',
+                mode: state.mode === 'practice' ? 'practice' : (this.setup?.mode || state.mode || 'model'),
                 subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
                 year: document.getElementById('setup-year')?.value || state.year || 'all',
                 score: totalScore.toFixed(2),
@@ -1522,7 +1522,7 @@ class MedicalExamApp {
         try {
             Promise.resolve(this.recordLeaderboardResult({
                 correctCount, wrongCount, totalQuestions, quizPoints, score: totalScore,
-                examMode: this.setup?.mode || state.mode || 'Exam',
+                examMode: state.mode === 'practice' ? 'practice' : (this.setup?.mode || state.mode || 'Exam'),
                 subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
                 year: document.getElementById('setup-year')?.value || state.year || 'all',
                 timeUsed: minsUsed + ':' + String(secsUsed).padStart(2, '0'),
@@ -2296,7 +2296,7 @@ window.handleAccountDeletion = function() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) settlePBNow(); });
   window.setInterval(settlePBNow, 30000);
   const calculateExamReward = (state, correct) => {
-    const is100MarkModelTest = (state?.mode === 'model' || state?.mode === 'previousQuiz') && Array.isArray(state.questions) && state.questions.length === 100;
+    const is100MarkModelTest = Array.isArray(state?.questions) && state.questions.length >= 100;
     let weightedCorrect = Math.max(0, Number(correct) || 0);
     if (is100MarkModelTest) {
       const blocks = [
@@ -2314,6 +2314,8 @@ window.handleAccountDeletion = function() {
         weightedCorrect += count * block.multiplier;
         previous = block.upTo;
       }
+      // Exams above 100 marks keep the top-tier PB multiplier for every additional correct answer.
+      weightedCorrect += Math.max(0, (Number(correct) || 0) - 100) * 10;
     }
     return { rankPoints: weightedCorrect * 15, xp: 0, weightedCorrect, is100MarkModelTest };
   };
