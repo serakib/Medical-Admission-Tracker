@@ -168,6 +168,19 @@
       outgoing: outgoingRequests.slice()
     };
   }
+  function applyConnectionSnapshot(data) {
+    if (!data || typeof data !== 'object') return;
+    if (Array.isArray(data.friendIds)) {
+      acceptedFriendIds = new Set(data.friendIds.map(String).filter(id => id && id !== userId()));
+    }
+    if (Array.isArray(data.friends)) acceptedFriends = data.friends;
+    if (Array.isArray(data.incoming)) incomingRequests = data.incoming;
+    if (Array.isArray(data.outgoing)) outgoingRequests = data.outgoing;
+    lastConnectionLoad = Date.now();
+    lastFriendError = '';
+    renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+    if (activePublicProfile) renderRelationshipActions(activePublicProfile);
+  }
   function getRelationship(targetId) {
     const uid = userId(), id = String(targetId || '');
     if (!id) return 'unknown';
@@ -190,42 +203,33 @@
     // Use that response directly instead of immediately issuing another refresh that
     // can race and repaint the profile with stale "Send Friend Request" state.
     const sent = await friendApi('sendFriendRequest', { targetUserId: targetId });
-    if (Array.isArray(sent.friendIds)) {
-      acceptedFriendIds = new Set(sent.friendIds.map(String).filter(id => id && id !== userId()));
-    }
-    if (Array.isArray(sent.friends)) acceptedFriends = sent.friends;
-    if (Array.isArray(sent.incoming)) incomingRequests = sent.incoming;
-    if (Array.isArray(sent.outgoing)) outgoingRequests = sent.outgoing;
-    lastConnectionLoad = Date.now();
-    lastFriendError = '';
-    renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
-    if (activePublicProfile) renderRelationshipActions(activePublicProfile);
+    applyConnectionSnapshot(sent);
     return true;
   }
   async function acceptRequest(requestId) {
     if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
-    await friendApi('acceptFriendRequest', { requestId: String(requestId || '') });
-    await loadConnections(true);
+    const result = await friendApi('acceptFriendRequest', { requestId: String(requestId || '') });
+    applyConnectionSnapshot(result);
     return true;
   }
   async function rejectRequest(requestId) {
     if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
-    await friendApi('rejectFriendRequest', { requestId: String(requestId || '') });
-    await loadConnections(true);
+    const result = await friendApi('rejectFriendRequest', { requestId: String(requestId || '') });
+    applyConnectionSnapshot(result);
     return true;
   }
   async function cancelRequest(requestId) {
     if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
-    await friendApi('cancelFriendRequest', { requestId: String(requestId || '') });
-    await loadConnections(true);
+    const result = await friendApi('cancelFriendRequest', { requestId: String(requestId || '') });
+    applyConnectionSnapshot(result);
     return true;
   }
   async function removeFriend(targetId) {
     if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     const other = String(targetId || '');
     if (!other || !acceptedFriendIds.has(other)) throw new Error('এই student এখন আপনার friend নয়।');
-    await friendApi('removeFriend', { targetUserId: other });
-    await loadConnections(true);
+    const result = await friendApi('removeFriend', { targetUserId: other });
+    applyConnectionSnapshot(result);
     return true;
   }
 
@@ -568,10 +572,9 @@
         else if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
         return;
       }
-      // sendRequest() applies the server's successful send response directly.
-      // Avoid a redundant forced reload here, which could race and revert the new
-      // outgoing request to the default Send Friend Request button.
-      if (action !== 'add') await loadConnections(true);
+      // Each successful friend action applies the authoritative connection snapshot
+      // returned by the backend. Avoid a second forced reload: a racing stale response
+      // can turn Cancel back into Send, or make a cancelled request look pending again.
       if (activePublicProfile) renderRelationshipActions(activePublicProfile);
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') window.MedGlobalLeague.refreshFriendDirectory();
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.reload === 'function') await window.MedGlobalLeague.reload();
