@@ -131,7 +131,7 @@
     style.id = 'mws-styles';
     style.textContent = `
       #mws-launch{position:fixed;left:18px;bottom:20px;z-index:9990;display:inline-flex;align-items:center;gap:9px;padding:12px 16px;border:1px solid rgba(5,150,105,.25);border-radius:999px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff;font:700 13px/1.2 inherit;box-shadow:0 10px 28px rgba(5,150,105,.25);cursor:pointer;transition:transform .2s,box-shadow .2s}
-      #mws-launch:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(5,150,105,.32)}
+      #mws-launch:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(5,150,105,.32)}body.exam-active #mws-launch{display:none!important}
       #mws-launch:focus-visible,#mws-overlay button:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}
       #mws-overlay{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:clamp(10px,3vw,28px);background:rgba(2,6,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
       #mws-overlay[hidden]{display:none}
