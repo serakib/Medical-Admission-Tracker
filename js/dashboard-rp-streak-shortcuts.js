@@ -127,9 +127,15 @@
   }
   function openProfileStreak() {
     const progress = profileProgress();
-    const current = Math.max(0, Number(progress.streak ?? app.profile?.streak ?? 0) || 0);
-    const highest = Math.max(current, Number(progress.highestStreak ?? progress.maxStreak ?? app.profile?.highestStreak ?? current) || 0);
-    const dates = activityDates(progress);
+    const publicSection = document.getElementById('view-student-profile');
+    const showingPublicProfile = !!publicSection && !publicSection.classList.contains('hidden');
+    const publicStudent = showingPublicProfile ? (window.__matActivePublicStudentProfile || {}) : null;
+    const source = publicStudent || progress;
+    const current = Math.max(0, Number(source.streak ?? app.profile?.streak ?? 0) || 0);
+    const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? app.profile?.highestStreak ?? current) || 0);
+    const dates = publicStudent
+      ? new Set((Array.isArray(publicStudent.streakActivityDates) ? publicStudent.streakActivityDates : []).filter(value => /^\d{4}-\d{2}-\d{2}$/.test(String(value))).map(String))
+      : activityDates(progress);
     const body = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(249,115,22,.06)"><small>Current Streak</small><h2 style="margin:5px 0 0;color:#ea580c">' + number(current) + ' days</h2></div>' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(16,185,129,.06)"><small>Highest Streak</small><h2 style="margin:5px 0 0;color:#059669">' + number(highest) + ' days</h2></div></div>' +
