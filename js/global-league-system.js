@@ -895,7 +895,7 @@
   var leaderboardRefreshTimer = null;
   var leaderboardRefreshOriginalHtml = '';
   var leaderboardManualRefreshActive = false;
-  function setLeaderboardRefreshBusy(busy) {
+  function setLeaderboardRefreshBusy(busy, success) {
     var view = document.getElementById('view-leaderboard');
     var button = view && view.querySelector('button[onclick*="loadLeaderboard"]');
     if (!button) return;
@@ -919,8 +919,13 @@
     button.classList.remove('is-refreshing');
     button.setAttribute('aria-busy', 'false');
     button.disabled = false;
-    button.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Refreshed';
     leaderboardManualRefreshActive = false;
+    if (success !== true) {
+      button.innerHTML = leaderboardRefreshOriginalHtml || '<i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh';
+      leaderboardRefreshOriginalHtml = '';
+      return;
+    }
+    button.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Refreshed';
     leaderboardRefreshTimer = setTimeout(function () {
       var currentView = document.getElementById('view-leaderboard');
       var currentButton = currentView && currentView.querySelector('button[onclick*="loadLeaderboard"]');
@@ -1018,7 +1023,7 @@
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
       // A newer silent/background/tab refresh must also stop an animation started by a manual refresh.
-      if (requestId === loadSequence) setLeaderboardRefreshBusy(refreshSucceeded);
+      if (requestId === loadSequence) setLeaderboardRefreshBusy(false, refreshSucceeded);
     }
   }
   function queueResult(item) {
