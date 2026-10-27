@@ -509,7 +509,7 @@
         }
         setStatus(successMessage, false);
         setFriendPanelStatus(successMessage, false);
-        await new Promise(resolve => setTimeout(resolve, 900));
+        await new Promise(resolve => setTimeout(resolve, 1800));
       } else if (action === 'edit-profile') {
         app.openAccountProfile();
         return;
