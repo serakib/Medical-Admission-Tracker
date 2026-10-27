@@ -1419,7 +1419,7 @@
         selectedPeriod = nextPeriod;
         try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
         updatePeriodTabs();
-        await loadLeaderboard(true);
+        await loadLeaderboard();
         if (selectedPeriod === 'friends') {
           loadFriendDirectoryRows().catch(function () {});
           var friendPanel = document.getElementById('leaderboard-friends-panel');
@@ -1662,7 +1662,7 @@
       return false;
     }
     app.showView('leaderboard');
-    loadLeaderboard(true);
+    loadLeaderboard();
     return true;
   };
   ensureUI();
