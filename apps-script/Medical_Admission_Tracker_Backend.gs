@@ -27,7 +27,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek'
+  'LastWeeklyDemotionWeek', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -113,6 +113,8 @@ function matDispatch_(action, p) {
     case 'progress':
     case 'getProgress':
       return matGetProgress_(p || {});
+    case 'syncStreak':
+      return matSyncStreak_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -389,7 +391,11 @@ function matRegisterUser_(p) {
         SignupTelegramSent: 'PENDING',
         GuestTokenHash: '',
         LastSeenAt: now,
-        LastError: ''
+        LastError: '',
+        Streak: 0,
+        HighestStreak: 0,
+        LastStreakActivityDate: '',
+        StreakActivityDates: '[]'
       };
       matAppendObject_(sheet, created);
       user = matFindStudentById_(userId);
@@ -509,6 +515,83 @@ function matGetProgress_(p) {
     user: matPublicProfile_(matFindStudentById_(userId) || user, true),
     attempts: attempts,
     completedExams: attempts.length,
+    source: 'Medical Sheets API'
+  };
+}
+
+/**
+ * Merge offline daily activity into the authenticated student's existing streak record.
+ * The sheet keeps the canonical list of activity dates; repeat sync requests are idempotent.
+ */
+function matSyncStreak_(p) {
+  const user = matAuthenticate_(p);
+  const today = matDateKey_(matNowIso_());
+  const yesterday = matOffsetDateKey_(today, -1);
+  const hasSubmittedStreak = p.streak != null && String(p.streak).trim() !== '' && Number.isFinite(Number(p.streak));
+  const clientStreak = hasSubmittedStreak ? Math.max(0, Math.floor(Number(p.streak))) : 0;
+  const clientHighest = Math.max(0, Math.floor(matFiniteNumber_(p.highestStreak, 0)));
+  const rawClientLast = String(p.lastStreakActivityDate || '').trim();
+  const parsedClientLast = matParseStreakDates_([rawClientLast], today);
+  let incomingLast = parsedClientLast.length ? parsedClientLast[parsedClientLast.length - 1] : '';
+  let incomingDates = matParseStreakDates_(p.streakActivityDates, today);
+  if (incomingLast && incomingDates.indexOf(incomingLast) < 0) incomingDates.push(incomingLast);
+  incomingDates = Array.from(new Set(incomingDates)).sort().slice(-366);
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  let saved;
+  let streak;
+  let highestStreak;
+  let latestDate;
+  let activityDates;
+  try {
+    const fresh = matFindStudentById_(user.UserID);
+    if (!fresh) throw new Error('Student profile not found.');
+    const oldDates = matParseStreakDates_(fresh.StreakActivityDates, today);
+    const oldLastList = matParseStreakDates_([fresh.LastStreakActivityDate], today);
+    const oldLast = oldLastList.length ? oldLastList[oldLastList.length - 1] : (oldDates[oldDates.length - 1] || '');
+    if (!incomingLast && incomingDates.length) incomingLast = incomingDates[incomingDates.length - 1];
+
+    activityDates = Array.from(new Set(oldDates.concat(incomingDates))).sort().slice(-366);
+    latestDate = activityDates.length ? activityDates[activityDates.length - 1] : '';
+    const calculatedStreak = matStreakLength_(activityDates, today);
+    const incomingIsNewestAndCurrent = !!incomingLast &&
+      incomingLast >= oldLast &&
+      (incomingLast === today || incomingLast === yesterday) &&
+      hasSubmittedStreak;
+    // The current streak sent by the device is authoritative when its last
+    // activity date is current/recent. This also preserves a locally tracked
+    // multi-day offline streak even if its older dates predate graph tracking.
+    streak = incomingIsNewestAndCurrent ? clientStreak : calculatedStreak;
+    highestStreak = Math.max(
+      Math.max(0, Math.floor(matFiniteNumber_(fresh.HighestStreak, 0))),
+      Math.max(0, Math.floor(matFiniteNumber_(fresh.Streak, 0))),
+      clientHighest,
+      streak
+    );
+    const update = {
+      Streak: streak,
+      HighestStreak: highestStreak,
+      LastStreakActivityDate: latestDate,
+      StreakActivityDates: JSON.stringify(activityDates),
+      UpdatedAt: matNowIso_(),
+      LastSeenAt: matNowIso_()
+    };
+    matUpdateObjectRow_(matGetStudentsSheet_(), fresh._rowNumber, update);
+    saved = matFindStudentById_(user.UserID);
+    if (!saved) throw new Error('Streak could not be read back from the Students sheet.');
+  } finally {
+    lock.releaseLock();
+  }
+  const finalUser = matPublicProfile_(saved, true);
+  return {
+    success: true,
+    synced: true,
+    streak: streak,
+    highestStreak: highestStreak,
+    lastStreakActivityDate: latestDate,
+    streakActivityDates: activityDates,
+    user: finalUser,
     source: 'Medical Sheets API'
   };
 }
@@ -888,7 +971,17 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       correctCount: Number(examStats.correct || 0),
       wrongCount: Number(examStats.wrong || 0),
       accuracy: Number(examStats.accuracy || 0),
-      streak: Number(examStats.streak || 0)
+      streak: (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak)))
+        ? Math.max(0, Math.floor(Number(s.Streak)))
+        : Number(examStats.streak || 0),
+      highestStreak: Math.max(
+        (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak)))
+          ? Math.max(0, Math.floor(Number(s.Streak)))
+          : Number(examStats.streak || 0),
+        Math.max(0, Math.floor(matFiniteNumber_(s.HighestStreak, 0)))
+      ),
+      lastStreakActivityDate: String(s.LastStreakActivityDate || ''),
+      streakActivityDates: matParseStreakDates_(s.StreakActivityDates, matDateKey_(matNowIso_()))
     };
   });
   rows.sort(function (a, b) {
@@ -1643,6 +1736,13 @@ function matPublicProfile_(r, includeEmail) {
     totalRP: s.TotalRP,
     level: s.Level,
     rank: s.Rank,
+    streak: (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak))) ? Math.max(0, Math.floor(Number(s.Streak))) : 0,
+    highestStreak: Math.max(
+      (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak))) ? Math.max(0, Math.floor(Number(s.Streak))) : 0,
+      Math.max(0, Math.floor(matFiniteNumber_(s.HighestStreak, 0)))
+    ),
+    lastStreakActivityDate: String(s.LastStreakActivityDate || ''),
+    streakActivityDates: matParseStreakDates_(s.StreakActivityDates, matDateKey_(matNowIso_())),
     createdAt: String(s.CreatedAt || ''),
     updatedAt: String(s.UpdatedAt || '')
   };
@@ -1684,6 +1784,46 @@ function matDateKey_(value) {
   const d = value instanceof Date ? value : new Date(value);
   if (isNaN(d.getTime())) return '';
   return Utilities.formatDate(d, MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd');
+}
+
+function matParseStreakDates_(value, today) {
+  let list = [];
+  if (Array.isArray(value)) {
+    list = value;
+  } else if (typeof value === 'string' && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      list = Array.isArray(parsed) ? parsed : [value];
+    } catch (_) {
+      list = value.split(',');
+    }
+  }
+  const upperBound = String(today || matDateKey_(matNowIso_()));
+  const unique = new Set();
+  list.forEach(function (item) {
+    let key = '';
+    if (item instanceof Date) key = Utilities.formatDate(item, MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd');
+    else key = String(item == null ? '' : item).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || key > upperBound) return;
+    const parts = key.split('-').map(Number);
+    const date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    if (date.getUTCFullYear() !== parts[0] || date.getUTCMonth() + 1 !== parts[1] || date.getUTCDate() !== parts[2]) return;
+    unique.add(key);
+  });
+  return Array.from(unique).sort().slice(-366);
+}
+
+function matStreakLength_(dates, today) {
+  const set = new Set(Array.isArray(dates) ? dates : []);
+  const currentDate = String(today || matDateKey_(matNowIso_()));
+  const yesterday = matOffsetDateKey_(currentDate, -1);
+  let cursor = set.has(currentDate) ? currentDate : (set.has(yesterday) ? yesterday : '');
+  let count = 0;
+  while (cursor && set.has(cursor) && count < 366) {
+    count += 1;
+    cursor = matOffsetDateKey_(cursor, -1);
+  }
+  return count;
 }
 
 function matWeekStartKey_() {
