@@ -384,7 +384,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
       </nav>
       <div class="sidebar-bottom">
         <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
-        <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
+        <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Settings</span></button>
         <button id="sidebar-auth-action" class="sidebar-action login-action" onclick="window.app && window.app.authUser ? window.handleLogout() : window.redirectToLogin()" type="button" aria-label="Log In / Sign Up"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
     </aside>
@@ -899,7 +899,7 @@ function toggleAppSidebarCollapse(){
         <section id="view-previous" class="view-section hidden space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Previous Year Question Bank</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Previous Year Questions</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">No exam required. Read the paper, reveal answers, or start a quiz for the selected year.</p></div>
-                <button onclick="window.app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Home</button>
+                <button onclick="window.app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Dashboard</button>
             </div>
             <div id="previous-year-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
             <div id="previous-browser" class="hidden space-y-4">
