@@ -1302,13 +1302,21 @@
       var uid = String(row.userId || '');
       var relation = window.MedStudentFriends && typeof window.MedStudentFriends.getRelationship === 'function'
         ? window.MedStudentFriends.getRelationship(uid) : 'unknown';
+      var sentStateKey = 'med_friend_request_sent_v1_' + accountKey() + '_' + uid;
+      var locallyConfirmedSent = false;
+      try { locallyConfirmedSent = localStorage.getItem(sentStateKey) === 'sent'; } catch (_) {}
+      // Keep the success state visible if the connection refresh briefly returns stale data.
+      if (locallyConfirmedSent && relation !== 'friends' && relation !== 'incoming' && relation !== 'outgoing') relation = 'outgoing';
+      if (relation === 'friends' || relation === 'incoming' || relation === 'outgoing') {
+        try { localStorage.removeItem(sentStateKey); } catch (_) {}
+      }
       var outRequest = outgoing.find(function (item) { return String(item.toUid) === uid; });
       var inRequest = incoming.find(function (item) { return String(item.fromUid) === uid; });
       var relationLabel = '';
       if (relation === 'friends') {
         relationLabel = '<span class="mat-friend-state">Friends</span><button type="button" class="mat-row-friend-button danger" data-med-friend-remove="' + escapeHtml(uid) + '"><i class="fa-solid fa-user-minus" aria-hidden="true"></i> Remove Friend</button>';
       } else if (relation === 'outgoing') {
-        relationLabel = '<span class="mat-friend-state pending">Request Pending</span><button type="button" class="mat-row-friend-button" data-med-friend-cancel-request="' + escapeHtml(outRequest && outRequest.id || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>';
+        relationLabel = '<span class="mat-friend-state pending"><i class="fa-solid fa-clock" aria-hidden="true"></i> Request Sent · Pending</span><button type="button" class="mat-row-friend-button" data-med-friend-cancel-request="' + escapeHtml(outRequest && outRequest.id || '') + '"' + (!outRequest ? ' disabled title="Request sync হচ্ছে; একটু পরে আবার দেখুন"' : '') + '><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>';
       } else if (relation === 'incoming') {
         relationLabel = '<span class="mat-friend-state incoming">Incoming Request</span><button type="button" class="mat-row-friend-button" data-med-friend-accept-request="' + escapeHtml(inRequest && inRequest.id || '') + '"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Accept</button><button type="button" class="mat-row-friend-button danger" data-med-friend-reject-request="' + escapeHtml(inRequest && inRequest.id || '') + '">Reject</button>';
       } else {
@@ -1472,8 +1480,22 @@
         setFriendActionStatus(busyText, false);
         friendActionButton.disabled = true;
         try {
-          if (friendAction === 'send') await friendsApi.sendRequest({ userId: targetId, uid: targetId, name: friendName });
-          else if (friendAction === 'cancel') await friendsApi.cancelRequest(requestId);
+          if (friendAction === 'send') {
+            await friendsApi.sendRequest({ userId: targetId, uid: targetId, name: friendName });
+            // Confirm success immediately on the clicked control, rather than letting
+            // its sending animation disappear back into an Add Friend button.
+            try { localStorage.setItem('med_friend_request_sent_v1_' + accountKey() + '_' + targetId, 'sent'); } catch (_) {}
+            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent';
+            friendActionButton.classList.add('is-success');
+            friendActionButton.disabled = true;
+            friendActionButton.setAttribute('aria-label', 'Friend request sent successfully');
+            setFriendActionStatus('✓ Friend request sent to ' + friendName + '. Requestটি এখন pending; অন্যজন accept করলে Friends-এ যুক্ত হবে।', false);
+          } else if (friendAction === 'cancel') {
+            var cancelRow = friendActionButton.closest('.mat-friend-search-result');
+            var cancelTargetId = cancelRow ? String(cancelRow.dataset.medFriendOpenProfile || '') : '';
+            if (cancelTargetId) { try { localStorage.removeItem('med_friend_request_sent_v1_' + accountKey() + '_' + cancelTargetId); } catch (_) {} }
+            await friendsApi.cancelRequest(requestId);
+          }
           else if (friendAction === 'remove') await friendsApi.removeFriend(targetId);
           else if (friendAction === 'accept') await friendsApi.acceptRequest(requestId);
           else await friendsApi.rejectRequest(requestId);
