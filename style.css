@@ -426,3 +426,56 @@ select:focus-visible {
   .dropdown-menu:not([hidden]):not(.hidden) { animation: none !important; }
   .exam-progress-track > span { transition: none !important; }
 }
+
+
+/* Universal button press feedback: lightweight, visual-only interactions. */
+@media (prefers-reduced-motion: no-preference) {
+  button:not(:disabled):not([aria-disabled="true"]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .14s cubic-bezier(.2,.8,.2,1),
+                box-shadow .18s ease,
+                filter .18s ease;
+  }
+
+  button:not(:disabled):not([aria-disabled="true"]):active,
+  input[type="button"]:not(:disabled):active,
+  input[type="submit"]:not(:disabled):active,
+  [role="button"]:not([aria-disabled="true"]):active {
+    transform: scale(.97);
+    filter: brightness(.97);
+    box-shadow: 0 0 0 3px rgba(15,159,134,.15);
+  }
+
+  button:focus-visible,
+  input[type="button"]:focus-visible,
+  input[type="submit"]:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid rgba(15,159,134,.7);
+    outline-offset: 2px;
+  }
+
+  /* Refresh/retry icons perform one clear turn on hover or keyboard focus. */
+  button:hover .fa-rotate,
+  button:focus-visible .fa-rotate,
+  button:hover .fa-rotate-right,
+  button:focus-visible .fa-rotate-right,
+  button:hover .fa-arrows-rotate,
+  button:focus-visible .fa-arrows-rotate {
+    transform-origin: center;
+    animation: medicalRefreshSpin .65s ease-in-out;
+  }
+}
+
+@keyframes medicalRefreshSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button, input[type="button"], input[type="submit"], [role="button"] {
+    transition: none !important;
+  }
+}
