@@ -20,8 +20,9 @@
       q && q.subject || '', q && q.year || '', q && (q.question || q.questionText || q.question_bn) || ''
     ].join('|')).toLowerCase().replace(/\s+/g, ' ').trim();
     const esc = value => String(value == null ? '' : value).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-    const questionText = q => q && (q.question || q.questionText || q.question_bn || q.question_en) || 'Question text unavailable';
+    const questionText = q => q && (q.question_bn || q.question || q.questionText || q.question_en) || 'Question text unavailable';
     const answerText = (q, index) => q && Array.isArray(q.options) && q.options[index] != null ? q.options[index] : String(index == null ? '—' : index);
+    const explanationText = q => q && (q.explanation_bn || q.explanationBn || q.explanation || q.explanation_en || q.solution || q.answerExplanation || q.rationale) || '';
     let filter = 'all';
     const selected = new Set();
     function renderHistory() {
@@ -52,7 +53,8 @@
           '<article class="practice-history-card"><div class="practice-history-meta"><label><input type="checkbox" data-practice-history-key="' + esc(entry.key) + '" ' + (selected.has(entry.key) ? 'checked' : '') + '> Select</label><span>' + esc(entry.subject || 'Medical') + ' · ' + (entry.correct ? 'Correct' : 'Wrong') + ' · ' + Number(entry.attempts || 1) + ' attempt(s)</span></div>' +
           '<h4>' + esc(questionText(entry.question)) + '</h4>' +
           (Array.isArray(entry.question && entry.question.options) && entry.question.options.length ? '<div class="practice-history-options"><strong>Options:</strong><ol>' + entry.question.options.map((option, optionIndex) => '<li class="' + (optionIndex === Number(entry.correctAnswerIndex) ? 'is-correct-option ' : '') + (optionIndex === Number(entry.userAnswerIndex) ? 'is-selected-option' : '') + '"><span class="practice-history-option-letter">' + String.fromCharCode(65 + optionIndex) + '.</span> ' + esc(option) + (optionIndex === Number(entry.userAnswerIndex) ? ' <span class="practice-history-option-tag">Your answer</span>' : '') + (optionIndex === Number(entry.correctAnswerIndex) ? ' <span class="practice-history-option-tag">Correct answer</span>' : '') + '</li>').join('') + '</ol></div>' : '') +
-          '<div class="practice-history-answer ' + (entry.correct ? 'is-correct' : 'is-wrong') + '"><strong>Your answer:</strong> ' + esc(answerText(entry.question, entry.userAnswerIndex)) + '<br><strong>Correct answer:</strong> ' + esc(answerText(entry.question, entry.correctAnswerIndex)) + '</div></article>'
+          '<div class="practice-history-answer ' + (entry.correct ? 'is-correct' : 'is-wrong') + '"><strong>Your answer:</strong> ' + esc(answerText(entry.question, entry.userAnswerIndex)) + '<br><strong>Correct answer:</strong> ' + esc(answerText(entry.question, entry.correctAnswerIndex)) + '</div>' +
+          '<section class="practice-history-explanation"><h5>ব্যাখ্যা (Explanation)</h5><p>' + esc(explanationText(entry.question) || 'এই প্রশ্নের ডেটায় এখনো ব্যাখ্যা যোগ করা হয়নি।') + '</p></section></article>'
         ).join('') : '<div class="enhanced-empty">এখনো কোনো প্রশ্ন attempt করা হয়নি। উত্তর দেওয়া শুরু করলে এখানে history জমা হবে।</div>') + '</div>';
       panel.querySelectorAll('[data-practice-history-filter]').forEach(button => button.addEventListener('click', () => {
         filter = button.dataset.practiceHistoryFilter;
