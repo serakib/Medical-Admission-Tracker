@@ -131,8 +131,9 @@
     const showingPublicProfile = !!publicSection && !publicSection.classList.contains('hidden');
     const publicStudent = showingPublicProfile ? (window.__matActivePublicStudentProfile || {}) : null;
     const source = publicStudent || progress;
-    const current = Math.max(0, Number(source.streak ?? app.profile?.streak ?? 0) || 0);
-    const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? app.profile?.highestStreak ?? current) || 0);
+    const current = Math.max(0, Number(publicStudent ? (source.streak ?? 0) : (source.streak ?? app.profile?.streak ?? 0)) || 0);
+    const highestFallback = publicStudent ? current : (app.profile?.highestStreak ?? current);
+    const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? highestFallback) || 0);
     const dates = publicStudent
       ? new Set((Array.isArray(publicStudent.streakActivityDates) ? publicStudent.streakActivityDates : []).filter(value => /^\d{4}-\d{2}-\d{2}$/.test(String(value))).map(String))
       : activityDates(progress);
