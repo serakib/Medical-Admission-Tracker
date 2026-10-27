@@ -186,8 +186,20 @@
     if (relation === 'friends') throw new Error('এই student ইতিমধ্যে আপনার friend।');
     if (relation === 'incoming') throw new Error('এই student-এর request আগে থেকেই এসেছে। Accept বা Reject করুন।');
     if (relation === 'outgoing') throw new Error('Friend request ইতিমধ্যে পাঠানো হয়েছে।');
-    await friendApi('sendFriendRequest', { targetUserId: targetId });
-    await loadConnections(true);
+    // The send endpoint already returns the authoritative connection snapshot.
+    // Use that response directly instead of immediately issuing another refresh that
+    // can race and repaint the profile with stale "Send Friend Request" state.
+    const sent = await friendApi('sendFriendRequest', { targetUserId: targetId });
+    if (Array.isArray(sent.friendIds)) {
+      acceptedFriendIds = new Set(sent.friendIds.map(String).filter(id => id && id !== userId()));
+    }
+    if (Array.isArray(sent.friends)) acceptedFriends = sent.friends;
+    if (Array.isArray(sent.incoming)) incomingRequests = sent.incoming;
+    if (Array.isArray(sent.outgoing)) outgoingRequests = sent.outgoing;
+    lastConnectionLoad = Date.now();
+    lastFriendError = '';
+    renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+    if (activePublicProfile) renderRelationshipActions(activePublicProfile);
     return true;
   }
   async function acceptRequest(requestId) {
@@ -556,7 +568,10 @@
         else if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
         return;
       }
-      await loadConnections(true);
+      // sendRequest() applies the server's successful send response directly.
+      // Avoid a redundant forced reload here, which could race and revert the new
+      // outgoing request to the default Send Friend Request button.
+      if (action !== 'add') await loadConnections(true);
       if (activePublicProfile) renderRelationshipActions(activePublicProfile);
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') window.MedGlobalLeague.refreshFriendDirectory();
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.reload === 'function') await window.MedGlobalLeague.reload();
