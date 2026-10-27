@@ -379,6 +379,37 @@
     if (response.user) applyProfile(response.user);
     return response;
   }
+  async function syncDailyStreak() {
+    if (!navigator.onLine || typeof app.getAccountProgress !== 'function') return false;
+    var progress = app.getAccountProgress() || {};
+    if (!progress.streakSyncPending) return true;
+    try {
+      await syncIdentity();
+      var creds = await credentialsForCurrentUser();
+      var response = await request(Object.assign({
+        action: 'syncStreak',
+        streak: Math.max(0, Number(progress.streak) || 0),
+        lastStreakActivityDate: String(progress.lastStreakActivityDate || ''),
+        highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0)
+      }, creds));
+      if (response.user) applyProfile(response.user);
+      var key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+      var local = parseJson(localStorage.getItem(key), {}) || {};
+      // Only clear the pending marker when the backend explicitly confirms success.
+      if (response.success === true || response.synced === true || response.streakSynced === true) {
+        local.streak = Math.max(Number(local.streak) || 0, Number(response.streak) || 0);
+        local.highestStreak = Math.max(Number(local.highestStreak || local.maxStreak) || 0, Number(local.streak) || 0, Number(response.highestStreak) || 0);
+        local.streakSyncPending = false;
+        localStorage.setItem(key, JSON.stringify(local));
+        updateTopControls(currentProfile || app.profile || {});
+        return true;
+      }
+      return false;
+    } catch (_) {
+      // Keep the local streak and pending marker for the next reconnect.
+      return false;
+    }
+  }
 
   async function updateProfile(fields) {
     fields = fields || {};
@@ -1749,9 +1780,12 @@
   updateTopControls(currentProfile || app.profile || {});
   document.addEventListener('student-progress-updated', function () {
     updateTopControls(currentProfile || app.profile || {});
+    if (navigator.onLine) syncDailyStreak();
   });
   bindEvents();
-  window.addEventListener('online', function () { flushQueue(); loadLeaderboard(true); });
+  window.addEventListener('online', function () { syncDailyStreak(); flushQueue(); loadLeaderboard(true); });
+  window.addEventListener('student-auth-state-resolved', function () { syncDailyStreak(); });
+  window.addEventListener('student-profile-loaded', function () { syncDailyStreak(); });
   window.addEventListener('student-auth-state-resolved', function () {
     selectedRank = '';
     syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
