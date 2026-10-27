@@ -289,3 +289,44 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
     font-size: .82rem;
   }
 }
+
+
+/* Safe micro-interactions: subject cards, dropdown surfaces and loading skeletons.
+   CSS-only; no exam, Firebase, API or navigation logic is changed. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  main .group[onclick] {
+    transition: transform .2s cubic-bezier(.2,.7,.2,1),
+                box-shadow .2s ease,
+                border-color .2s ease,
+                background-color .2s ease;
+  }
+  main .group[onclick]:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow) !important;
+  }
+  main .group[onclick]:active {
+    transform: translateY(-1px) scale(.995);
+  }
+}
+[role="menu"]:not([hidden]),
+.dropdown-menu:not([hidden]):not(.hidden) {
+  transform-origin: top center;
+  animation: medicalDropdownEnter .16s ease-out both;
+}
+@keyframes medicalDropdownEnter {
+  from { opacity: 0; transform: translateY(-4px) scale(.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+select {
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+select:focus-visible {
+  border-color: rgba(15,159,134,.65) !important;
+  box-shadow: 0 0 0 3px rgba(15,159,134,.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  [role="menu"]:not([hidden]),
+  .dropdown-menu:not([hidden]):not(.hidden) {
+    animation: none !important;
+  }
+}
