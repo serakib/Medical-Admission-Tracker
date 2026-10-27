@@ -1579,6 +1579,8 @@ class MedicalExamApp {
 
             const card = document.createElement('div');
             card.className = "bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm";
+            card.dataset.reviewStatus = isSkipped ? 'skipped' : (isCorrect ? 'correct' : 'wrong');
+            card.dataset.reviewAnswered = isSkipped ? 'false' : 'true';
 
             let statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">সঠিক</span>`;
             if (isSkipped) {
@@ -1619,6 +1621,52 @@ class MedicalExamApp {
         });
 
         this.showView('review');
+        this.setupAnswerReviewFilters();
+    }
+
+    setupAnswerReviewFilters() {
+        const controls = document.getElementById('answer-review-filters');
+        const container = document.getElementById('review-list-container');
+        if (!controls || !container) return;
+        const cards = Array.from(container.children).filter(card => card.dataset.reviewStatus);
+        const counts = {
+            all: cards.length,
+            answered: cards.filter(card => card.dataset.reviewAnswered === 'true').length,
+            wrong: cards.filter(card => card.dataset.reviewStatus === 'wrong').length,
+            skipped: cards.filter(card => card.dataset.reviewStatus === 'skipped').length
+        };
+        Object.entries(counts).forEach(([key, count]) => {
+            const badge = controls.querySelector('[data-filter-count="' + key + '"]');
+            if (badge) badge.textContent = count;
+        });
+        if (controls.dataset.bound !== 'true') {
+            controls.addEventListener('click', event => {
+                const button = event.target.closest('[data-review-filter]');
+                if (!button) return;
+                const filter = button.dataset.reviewFilter;
+                controls.querySelectorAll('[data-review-filter]').forEach(item => {
+                    const active = item === button;
+                    item.classList.toggle('active', active);
+                    item.setAttribute('aria-pressed', active ? 'true' : 'false');
+                });
+                Array.from(container.children).forEach(card => {
+                    if (!card.dataset.reviewStatus) return;
+                    const status = card.dataset.reviewStatus;
+                    const answered = card.dataset.reviewAnswered === 'true';
+                    card.hidden = !(filter === 'all' || (filter === 'answered' && answered) ||
+                        (filter === 'wrong' && status === 'wrong') || (filter === 'skipped' && status === 'skipped'));
+                });
+            });
+            controls.dataset.bound = 'true';
+        }
+        const active = controls.querySelector('[data-review-filter].active');
+        const filter = active ? active.dataset.reviewFilter : 'all';
+        cards.forEach(card => {
+            const status = card.dataset.reviewStatus;
+            const answered = card.dataset.reviewAnswered === 'true';
+            card.hidden = !(filter === 'all' || (filter === 'answered' && answered) ||
+                (filter === 'wrong' && status === 'wrong') || (filter === 'skipped' && status === 'skipped'));
+        });
     }
 
     saveExamAttempt(attempt) {
