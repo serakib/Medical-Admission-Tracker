@@ -10,6 +10,7 @@
   let outgoingRequests = [];
   let lastConnectionLoad = 0;
   let connectionLoadPromise = null;
+  let connectionLoadSequence = 0;
   let activePublicProfile = null;
   let lastFriendError = '';
 
@@ -117,9 +118,16 @@
     if (!force && Date.now() - lastConnectionLoad < 4000) {
       return getConnectionData();
     }
-    connectionLoadPromise = (async () => {
+
+    // Several profile/navigation handlers can force a refresh at nearly the same time.
+    // Only the newest request may replace the shared connection state; otherwise an
+    // older, slower response can revert "Request Sent" back to "Send Friend Request".
+    const requestSequence = ++connectionLoadSequence;
+    const requestPromise = (async () => {
       try {
         const data = await friendApi('friendConnections');
+        if (requestSequence !== connectionLoadSequence) return getConnectionData();
+
         acceptedFriendIds = new Set((data.friendIds || []).map(String).filter(id => id && id !== userId()));
         acceptedFriends = Array.isArray(data.friends) ? data.friends : [];
         incomingRequests = Array.isArray(data.incoming) ? data.incoming : [];
@@ -136,16 +144,18 @@
         if (activePublicProfile) renderRelationshipActions(activePublicProfile);
         return { friendIds: Array.from(acceptedFriendIds), friends: acceptedFriends.slice(), incoming: incomingRequests, outgoing: outgoingRequests };
       } catch (error) {
+        if (requestSequence !== connectionLoadSequence) return getConnectionData();
         lastFriendError = errorMessage(error);
         console.warn('[Friends] Google Sheets connection data could not be loaded:', error);
         renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
         if (activePublicProfile) renderRelationshipActions(activePublicProfile);
         throw error;
       } finally {
-        connectionLoadPromise = null;
+        if (requestSequence === connectionLoadSequence) connectionLoadPromise = null;
       }
     })();
-    return connectionLoadPromise;
+    connectionLoadPromise = requestPromise;
+    return requestPromise;
   }
 
   function getFriendIds() { return Array.from(acceptedFriendIds); }
