@@ -151,17 +151,28 @@ class MedicalExamApp {
         const el = document.getElementById('question-data-status');
         if (!el) return;
         el.className = 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs';
+        if (this.__dataStatusHideTimer) {
+            clearTimeout(this.__dataStatusHideTimer);
+            this.__dataStatusHideTimer = null;
+        }
+        el.className = 'question-data-status-banner';
         if (state === 'ready') {
-            el.classList.add('hidden');
+            el.classList.add('is-success');
+            el.innerHTML = '<span class="question-data-status-icon"><i class="fa-solid fa-circle-check"></i></span><span><strong>প্রশ্ন সফলভাবে লোড হয়েছে!</strong><small>সব প্রশ্ন প্রস্তুত — এখন পড়া শুরু করো</small></span><span class="question-data-status-check"><i class="fa-solid fa-check"></i></span>';
+            el.classList.remove('hidden');
+            this.__dataStatusHideTimer = setTimeout(() => {
+                el.classList.add('is-leaving');
+                setTimeout(() => { el.classList.add('hidden'); el.classList.remove('is-leaving'); }, 260);
+            }, 1800);
             return;
         }
-        el.classList.remove('hidden');
+        el.classList.remove('hidden', 'is-leaving');
         if (state === 'loading') {
-            el.classList.add('text-blue-700', 'dark:text-blue-300', 'bg-blue-50', 'dark:bg-blue-950/30');
-            el.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1"></i> প্রশ্ন ব্যাংক লোড হচ্ছে...';
+            el.classList.add('is-loading');
+            el.innerHTML = '<span class="question-data-status-icon"><i class="fa-solid fa-arrows-rotate question-loading-spin"></i></span><span><strong>প্রশ্ন লোড হচ্ছে...</strong><small>প্রশ্ন ও অপশন প্রস্তুত করা হচ্ছে</small></span><span class="question-loading-dots"><i></i><i></i><i></i></span>';
         } else {
-            el.classList.add('text-red-700', 'dark:text-red-300', 'bg-red-50', 'dark:bg-red-950/30');
-            el.innerHTML = `<i class="fa-solid fa-triangle-exclamation ml-1"></i> ${this.escapeHtml(message || 'প্রশ্ন ব্যাংক লোড করা যায়নি।')}`;
+            el.classList.add('is-error');
+            el.innerHTML = `<span class="question-data-status-icon"><i class="fa-solid fa-triangle-exclamation"></i></span><span><strong>প্রশ্ন লোড করা যায়নি</strong><small>${this.escapeHtml(message || 'প্রশ্ন ব্যাংক লোড করা যায়নি।')}</small></span>`;
         }
     }
 
