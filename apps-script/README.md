@@ -8,7 +8,7 @@ The standalone backend source is in [Medical_Admission_Tracker_Backend.gs](./Med
 - Medical XP, current RP, lifetime RP, level, and sequential subrank progression.
 - All Time and Weekly leaderboard results, plus Friends queries by explicit user IDs.
 - Friends and friend requests for both registered Firebase accounts and persistent Google Sheets guest sessions. The matching guest token or Firebase ID token is required for each Friends action; the server stores requests centrally in the `StudentFriends` tab.
-- Current study streak, computed from committed exam dates using Asia/Dhaka dates.
+- Daily visit streaks, counted once per Asia/Dhaka calendar day (00:00–23:59:59), with offline activity history merged idempotently into the Students sheet. Current streak, highest streak, last activity date, and up to 366 activity dates are returned in profile and leaderboard payloads; committed exam dates are only a legacy fallback until a daily streak is saved.
 - A weekly Safe Zone review. Each Monday, the previous Monday-to-Monday week is checked once. Students below the threshold for the next trophy are demoted by exactly one subrank; Bronze V and Immortal are protected. Demotion resets current RP but does not reduce lifetime TotalRP.
 - The existing persistent FIFO leaderboard-activity notification queue and the separate signup notification.
 
