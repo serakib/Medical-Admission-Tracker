@@ -2164,11 +2164,15 @@ window.handleAccountDeletion = function() {
       syncRankProgress(progress, 'daily-streak-activity');
     } else {
       progress.streakActivityDates = Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates : [];
+      const needsHistorySync = !progress.lastStreakActivityDate || !progress.streakActivityDates.includes(today);
       if (!progress.streakActivityDates.includes(today)) {
         progress.streakActivityDates.push(today);
         progress.streakActivityDates = Array.from(new Set(progress.streakActivityDates)).sort().slice(-366);
       }
       if (!progress.lastStreakActivityDate) progress.lastStreakActivityDate = today;
+      // A legacy lastExamDate can equal today before the daily-visit tracker stores this date.
+      // Queue one idempotent sync without incrementing the streak.
+      if (needsHistorySync) progress.streakSyncPending = true;
       progress.highestStreak = Math.max(Number(progress.highestStreak || progress.maxStreak) || 0, Number(progress.streak) || 0);
       saveProgress(progress);
     }
