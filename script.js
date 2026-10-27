@@ -2053,8 +2053,8 @@ window.handleAccountDeletion = function() {
     try {
       const data = JSON.parse(localStorage.getItem(accountKey()) || '{}');
       const xp = Math.max(0, Number(data.xp ?? data.performanceBonus) || 0);
-      return { ...data, rankPoints: Math.max(0, Number(data.rankPoints) || 0), pendingPBEntries: Array.isArray(data.pendingPBEntries) ? data.pendingPBEntries.filter(entry => Number(entry?.amount) > 0 && Number.isFinite(Number(entry?.convertsAt))).map(entry => ({ id: String(entry.id || ''), amount: Math.floor(Number(entry.amount)), earnedAt: Number(entry.earnedAt) || 0, convertsAt: Number(entry.convertsAt) })) : [], pendingPB: 0, xp, performanceBonus: xp, completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
-    } catch (_) { return {rankPoints:0,pendingPBEntries:[],pendingPB:0,xp:0,performanceBonus:0,completedExams:0,streak:0,lastExamDate:'',rewarded:[]}; }
+      return { ...data, rankPoints: Math.max(0, Number(data.rankPoints) || 0), pendingPBEntries: Array.isArray(data.pendingPBEntries) ? data.pendingPBEntries.filter(entry => Number(entry?.amount) > 0 && Number.isFinite(Number(entry?.convertsAt))).map(entry => ({ id: String(entry.id || ''), amount: Math.floor(Number(entry.amount)), earnedAt: Number(entry.earnedAt) || 0, convertsAt: Number(entry.convertsAt) })) : [], pendingPB: 0, xp, performanceBonus: xp, completedExams: Math.max(0, Number(data.completedExams) || 0), streak: Math.max(0, Number(data.streak) || 0), lastExamDate: String(data.lastExamDate || ''), lastStreakActivityDate: String(data.lastStreakActivityDate || ''), highestStreak: Math.max(0, Number(data.highestStreak || data.maxStreak) || 0), streakActivityDates: Array.isArray(data.streakActivityDates) ? Array.from(new Set(data.streakActivityDates.map(String).filter(value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value)))).slice(-366) : [], streakSyncPending: !!data.streakSyncPending, rewarded: Array.isArray(data.rewarded) ? data.rewarded : [] };
+    } catch (_) { return {rankPoints:0,pendingPBEntries:[],pendingPB:0,xp:0,performanceBonus:0,completedExams:0,streak:0,lastExamDate:'',lastStreakActivityDate:'',highestStreak:0,streakActivityDates:[],streakSyncPending:false,rewarded:[]}; }
   };
   const saveProgress = data => {
     data.rankPoints = Math.max(0, Number(data.rankPoints) || 0);
@@ -2152,6 +2152,9 @@ window.handleAccountDeletion = function() {
       if (previousDate === yesterday) progress.streak = Math.max(0, Number(progress.streak) || 0) + 1;
       else progress.streak = 1;
       progress.lastStreakActivityDate = today;
+      progress.streakActivityDates = Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates : [];
+      if (!progress.streakActivityDates.includes(today)) progress.streakActivityDates.push(today);
+      progress.streakActivityDates = Array.from(new Set(progress.streakActivityDates)).sort().slice(-366);
       progress.highestStreak = Math.max(
         Number(progress.highestStreak || progress.maxStreak) || 0,
         Number(progress.streak) || 0
@@ -2159,8 +2162,13 @@ window.handleAccountDeletion = function() {
       progress.streakSyncPending = true;
       saveProgress(progress);
       syncRankProgress(progress, 'daily-streak-activity');
-    } else if (!progress.lastStreakActivityDate) {
-      progress.lastStreakActivityDate = today;
+    } else {
+      progress.streakActivityDates = Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates : [];
+      if (!progress.streakActivityDates.includes(today)) {
+        progress.streakActivityDates.push(today);
+        progress.streakActivityDates = Array.from(new Set(progress.streakActivityDates)).sort().slice(-366);
+      }
+      if (!progress.lastStreakActivityDate) progress.lastStreakActivityDate = today;
       progress.highestStreak = Math.max(Number(progress.highestStreak || progress.maxStreak) || 0, Number(progress.streak) || 0);
       saveProgress(progress);
     }
