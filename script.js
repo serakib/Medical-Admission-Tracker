@@ -960,6 +960,11 @@ class MedicalExamApp {
                 const visible = v === viewName;
                 el.classList.toggle('hidden', !visible);
                 el.setAttribute('aria-hidden', visible ? 'false' : 'true');
+                if (visible) {
+                    el.classList.remove('view-reenter');
+                    void el.offsetWidth;
+                    el.classList.add('view-reenter');
+                }
             }
         });
         document.body.classList.toggle('exam-active', viewName === 'exam');
@@ -1245,14 +1250,41 @@ class MedicalExamApp {
         const idx = this.examState.currentIndex;
         const q = this.examState.questions[idx];
 
-        document.getElementById('exam-progress-text').innerText = `${this.t('Question','প্রশ্ন')}: ${idx + 1} / ${this.examState.questions.length}`;
+        const progressText = document.getElementById('exam-progress-text');
+        progressText.innerText = `${this.t('Question','প্রশ্ন')}: ${idx + 1} / ${this.examState.questions.length}`;
+        // A decorative progress indicator; the exam state and timer remain authoritative.
+        let progressTrack = document.getElementById('exam-progress-indicator');
+        if (!progressTrack) {
+            progressTrack = document.createElement('div');
+            progressTrack.id = 'exam-progress-indicator';
+            progressTrack.className = 'exam-progress-track';
+            progressTrack.setAttribute('role', 'progressbar');
+            progressTrack.setAttribute('aria-label', 'Exam question progress');
+            progressTrack.setAttribute('aria-valuemin', '0');
+            progressTrack.setAttribute('aria-valuemax', String(this.examState.questions.length));
+            progressText.closest('#view-exam')?.querySelector('.exam-progress-track')?.remove();
+            document.getElementById('q-text')?.before(progressTrack);
+        }
+        const progressPercent = Math.round(((idx + 1) / Math.max(1, this.examState.questions.length)) * 100);
+        progressTrack.setAttribute('aria-valuenow', String(idx + 1));
+        progressTrack.setAttribute('aria-valuemax', String(this.examState.questions.length));
+        progressTrack.innerHTML = '<span></span>';
+        progressTrack.querySelector('span').style.width = progressPercent + '%';
+
         document.getElementById('q-subject').innerText = this.localizedSubject(q.subject);
         document.getElementById('q-source').innerText = q.year ? `${this.localizedSource(q.source)} • ${q.year}` : this.localizedSource(q.source);
         document.getElementById('q-difficulty').classList.add('hidden');
-        document.getElementById('q-text').innerText = `${idx + 1}. ${this.getLocalizedQuestionText(q)}`;
+        const questionText = document.getElementById('q-text');
+        questionText.innerText = `${idx + 1}. ${this.getLocalizedQuestionText(q)}`;
+        questionText.classList.remove('question-enter');
+        void questionText.offsetWidth;
+        questionText.classList.add('question-enter');
 
         const optionsContainer = document.getElementById('q-options');
         optionsContainer.innerHTML = '';
+        optionsContainer.classList.remove('question-enter');
+        void optionsContainer.offsetWidth;
+        optionsContainer.classList.add('question-enter');
 
         const optionLabels = ['A', 'B', 'C', 'D'];
         q.options.forEach((optText, optIdx) => {
