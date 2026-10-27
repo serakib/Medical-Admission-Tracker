@@ -539,6 +539,17 @@
       }
     } catch (error) {
       restoreFriendActionButton(sourceButton);
+      // A stale Cancel button can remain when the backend reports that the request
+      // is no longer pending. Always resync relationship data after an action error
+      // so the profile reflects the server's current state instead of stale buttons.
+      try {
+        await loadConnections(true);
+        if (activePublicProfile) renderRelationshipActions(activePublicProfile);
+        if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+          window.MedGlobalLeague.refreshFriendDirectory();
+        }
+        renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+      } catch (_) {}
       setStatus(errorMessage(error), true);
       setFriendPanelStatus(errorMessage(error), true);
     }
