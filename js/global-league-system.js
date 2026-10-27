@@ -1493,8 +1493,8 @@
           } else if (friendAction === 'cancel') {
             var cancelRow = friendActionButton.closest('.mat-friend-search-result');
             var cancelTargetId = cancelRow ? String(cancelRow.dataset.medFriendOpenProfile || '') : '';
-            if (cancelTargetId) { try { localStorage.removeItem('med_friend_request_sent_v1_' + accountKey() + '_' + cancelTargetId); } catch (_) {} }
             await friendsApi.cancelRequest(requestId);
+            if (cancelTargetId) { try { localStorage.removeItem('med_friend_request_sent_v1_' + accountKey() + '_' + cancelTargetId); } catch (_) {} }
           }
           else if (friendAction === 'remove') await friendsApi.removeFriend(targetId);
           else if (friendAction === 'accept') await friendsApi.acceptRequest(requestId);
