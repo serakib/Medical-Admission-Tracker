@@ -111,55 +111,11 @@
   }
   function markReviewed(q) { putRecord(q, { reviewed: true }); renderReviewPanel(); }
   function markWrong(q) { putRecord(q, { wrong: true }); }
+  // The dedicated js/practice-history.js panel is the single source of Practice history UI.
+  // Keep the older reviewed/wrong metadata for Question Bank filters, but remove its duplicate panel.
   function renderReviewPanel() {
-    const practice = document.getElementById('view-practice');
-    if (!practice) return;
-    let panel = document.getElementById('enhanced-review-history');
-    if (!panel) {
-      panel = document.createElement('section');
-      panel.id = 'enhanced-review-history';
-      panel.className = 'enhanced-panel';
-      const browser = document.getElementById('practice-browser');
-      (browser || practice).insertAdjacentElement(browser ? 'afterend' : 'beforeend', panel);
-    }
-    const entries = getReviewEntries('all');
-    const reviewedCount = entries.filter(x => x.reviewed).length;
-    const wrongCount = entries.filter(x => x.wrong).length;
-    panel.innerHTML = `<h3>Practice Review History</h3><div class="enhanced-actions" role="group" aria-label="History actions"><button type="button" data-history-filter="all" class="active">All (${entries.length})</button><button type="button" data-history-filter="reviewed">Reviewed (${reviewedCount})</button><button type="button" data-history-filter="wrong">Wrong Answer (${wrongCount})</button><button type="button" id="enhanced-select-all">Select All</button><button type="button" id="enhanced-delete-selected">Delete Selection</button><button type="button" id="enhanced-requiz">Re-quiz Selected</button></div><div class="enhanced-actions" style="margin-top:8px"><label><input id="enhanced-select-all-check" type="checkbox"> All</label><label><input type="checkbox" id="enhanced-select-reviewed"> Reviewed</label><label><input type="checkbox" id="enhanced-select-wrong"> Wrong Answer</label></div><div id="enhanced-history-list" class="enhanced-question-list"></div>`;
-    let activeFilter = 'all';
-    const selected = new Set();
-    const list = panel.querySelector('#enhanced-history-list');
-    const renderList = () => {
-      const filtered = getReviewEntries(activeFilter);
-      list.innerHTML = filtered.length ? filtered.map(r => `<article class="enhanced-question-card"><label><input type="checkbox" class="enhanced-history-check" data-key="${escape(r.key)}" ${selected.has(r.key) ? 'checked' : ''}> Select</label><div class="enhanced-question-meta"><span>${escape(subjectLabel(r.question.subject))}</span><span>${r.reviewed ? 'Reviewed' : ''}${r.reviewed && r.wrong ? ' · ' : ''}${r.wrong ? 'Wrong Answer' : ''}</span></div><h4>${escape(r.question.question || '')}</h4><p><strong>সঠিক উত্তর:</strong> ${escape(answerLabel(r.question, correctIndex(r.question)))}</p></article>`).join('') : '<p class="enhanced-empty">এই বিভাগে কোনো history নেই।</p>';
-    };
-    panel.querySelectorAll('[data-history-filter]').forEach(btn => btn.addEventListener('click', () => {
-      activeFilter = btn.dataset.historyFilter;
-      panel.querySelectorAll('[data-history-filter]').forEach(b => b.classList.toggle('active', b === btn));
-      renderList();
-    }));
-    panel.querySelector('#enhanced-select-all').onclick = () => { getReviewEntries(activeFilter).forEach(r => selected.add(r.key)); renderList(); };
-    panel.querySelector('#enhanced-select-all-check').onchange = e => { if (e.target.checked) getReviewEntries('all').forEach(r => selected.add(r.key)); else selected.clear(); renderList(); };
-    panel.querySelector('#enhanced-select-reviewed').onchange = e => { getReviewEntries('reviewed').forEach(r => e.target.checked ? selected.add(r.key) : selected.delete(r.key)); renderList(); };
-    panel.querySelector('#enhanced-select-wrong').onchange = e => { getReviewEntries('wrong').forEach(r => e.target.checked ? selected.add(r.key) : selected.delete(r.key)); renderList(); };
-    panel.querySelector('#enhanced-delete-selected').onclick = () => {
-      if (!selected.size) { alert('আগে history নির্বাচন করুন।'); return; }
-      if (!confirm(`নির্বাচিত ${selected.size}টি history entry মুছবেন? Question Bank-এর মূল প্রশ্ন মুছবে না।`)) return;
-      const h = getHistory();
-      selected.forEach(key => { delete h[key]; });
-      saveHistory(h); selected.clear(); renderReviewPanel();
-    };
-    panel.querySelector('#enhanced-requiz').onclick = () => {
-      const qs = getReviewEntries('all').filter(r => selected.has(r.key)).map(r => r.question);
-      if (!qs.length) { alert('Re-quiz করার জন্য প্রশ্ন নির্বাচন করুন।'); return; }
-      app.practiceSession = { questions: qs, index: 0, answers: [], marks: 0, showAnswer: false, timeLeft: Math.max(60, qs.length * 60) };
-      const browser = document.getElementById('practice-browser'), quiz = document.getElementById('practice-quiz-view');
-      if (browser) browser.hidden = true; if (quiz) quiz.hidden = false;
-      app.showView('practice'); app.renderPractice(); app.startPracticeTimer();
-    };
-    list.onchange = e => { const input = e.target.closest('.enhanced-history-check'); if (!input) return; input.checked ? selected.add(input.dataset.key) : selected.delete(input.dataset.key); };
-    list.onclick = e => { const btn = e.target.closest('.enhanced-mark-reviewed'); if (!btn) return; const q = app.questionBank.find(x => qKey(x) === btn.dataset.qkey); if (q) markReviewed(q); };
-    renderList();
+    const legacyPanel = document.getElementById('enhanced-review-history');
+    if (legacyPanel) legacyPanel.remove();
   }
 
   function renderResultFilters() {
