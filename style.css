@@ -534,3 +534,24 @@ html.dark #theme-toggle {
     animation: none !important;
   }
 }
+
+
+/* Keep the account-page theme control in sync with the floating sun/moon toggle. */
+button[onclick*="toggleTheme"] .theme-toggle-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: .35em;
+  vertical-align: -0.15em;
+}
+#theme-toggle .theme-toggle-icon {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  vertical-align: middle;
+}
+@media (prefers-reduced-motion: no-preference) {
+  button[onclick*="toggleTheme"] .theme-toggle-icon.theme-icon-animate {
+    animation: medicalThemeIconChange .5s cubic-bezier(.2,.8,.2,1) both;
+  }
+}
