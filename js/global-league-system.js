@@ -604,6 +604,8 @@
       return;
     }
     var pct = Math.max(0, Math.min(100, earnedThisPeriod / required * 100));
+    // Keep a tiny positive Weekly RP visible; 1 / 200 is only 0.5% and can look like zero.
+    if (weeklyMode && earnedThisPeriod > 0) pct = Math.max(1, pct);
     if (!weeklyMode) {
       area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>বর্তমান: ' + escapeHtml(me.rank) + ' · পরের Trophy: ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' Current RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
         '<div class="mat-rank-track" role="progressbar" aria-label="Trophy rank progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '"><span style="width:' + pct + '%;background:linear-gradient(90deg,#a78bfa,#10b981)"></span><span class="mat-progress-star" style="left:' + pct + '%" aria-hidden="true"><i class="fa-solid fa-star"></i></span></div>' +
