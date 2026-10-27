@@ -506,6 +506,10 @@
     if (profileAction) {
       event.preventDefault();
       event.stopPropagation();
+      if (profileAction.dataset.studentFriendAction === 'add') {
+        profileAction.disabled = true;
+        profileAction.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1" aria-hidden="true"></i> Sending Request…';
+      }
       await handleFriendAction(profileAction.dataset.studentFriendAction, activePublicProfile?.userId, profileAction.dataset.requestId);
       return;
     }
