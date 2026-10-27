@@ -772,3 +772,7 @@ html.dark #view-practice #practice-attempt-history {
 .practice-history-option-tag { display:inline-block; margin-left:4px; padding:1px 6px; border-radius:999px; font-size:10px; font-weight:750; background:rgba(100,116,139,.12); }
 .practice-history-options li.is-correct-option .practice-history-option-tag { color:#059669; }
 .practice-history-options li.is-selected-option:not(.is-correct-option) .practice-history-option-tag { color:#dc2626; }
+
+.practice-history-explanation { margin-top: 12px; padding: 12px 14px; border-left: 3px solid #0d9488; border-radius: 8px; background: rgba(13,148,136,.08); }
+.practice-history-explanation h5 { margin: 0 0 5px; font-size: 13px; font-weight: 850; }
+.practice-history-explanation p { margin: 0; line-height: 1.75; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
