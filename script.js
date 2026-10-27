@@ -156,9 +156,10 @@ class MedicalExamApp {
             this.__dataStatusHideTimer = null;
         }
         el.className = 'question-data-status-banner';
+        const refreshButton = '<button type="button" class="question-data-refresh-btn" onclick="window.app.refreshQuestionBank()" aria-label="সর্বশেষ প্রশ্ন, উত্তর ও ব্যাখ্যা রিফ্রেশ করুন"><i class="fa-solid fa-rotate"></i><span>Refresh Questions</span></button>';
         if (state === 'ready') {
             el.classList.add('is-success');
-            el.innerHTML = '<span class="question-data-status-icon"><i class="fa-solid fa-circle-check"></i></span><span><strong>প্রশ্ন সফলভাবে লোড হয়েছে!</strong><small>সব প্রশ্ন প্রস্তুত — এখন পড়া শুরু করো</small></span><span class="question-data-status-check"><i class="fa-solid fa-check"></i></span>';
+            el.innerHTML = '<span class="question-data-status-icon"><i class="fa-solid fa-circle-check"></i></span><span><strong>প্রশ্ন সফলভাবে লোড হয়েছে!</strong><small>সর্বশেষ প্রশ্ন, উত্তর ও ব্যাখ্যা আপডেট হয়েছে</small></span><span class="question-data-status-check"><i class="fa-solid fa-check"></i></span>';
             el.classList.remove('hidden');
             this.__dataStatusHideTimer = setTimeout(() => {
                 el.classList.add('is-leaving');
@@ -169,7 +170,7 @@ class MedicalExamApp {
         el.classList.remove('hidden', 'is-leaving');
         if (state === 'loading') {
             el.classList.add('is-loading');
-            el.innerHTML = '<span class="question-data-status-icon"><i class="fa-solid fa-arrows-rotate question-loading-spin"></i></span><span><strong>প্রশ্ন লোড হচ্ছে...</strong><small>প্রশ্ন ও অপশন প্রস্তুত করা হচ্ছে</small></span><span class="question-loading-dots"><i></i><i></i><i></i></span>';
+            el.innerHTML = '<span class="question-data-status-icon"><i class="fa-solid fa-arrows-rotate question-loading-spin"></i></span><span><strong>প্রশ্ন লোড হচ্ছে...</strong><small>সর্বশেষ প্রশ্ন, উত্তর ও ব্যাখ্যা আনা হচ্ছে</small></span><span class="question-loading-dots"><i></i><i></i><i></i></span>';
         } else {
             el.classList.add('is-error');
             el.innerHTML = `<span class="question-data-status-icon"><i class="fa-solid fa-triangle-exclamation"></i></span><span><strong>প্রশ্ন লোড করা যায়নি</strong><small>${this.escapeHtml(message || 'প্রশ্ন ব্যাংক লোড করা যায়নি।')}</small></span>`;
@@ -178,6 +179,37 @@ class MedicalExamApp {
 
     showDataError(message) {
         this.setDataStatus('error', message);
+    }
+
+    async refreshQuestionBank() {
+        if (this.__questionRefreshInProgress) return;
+        this.__questionRefreshInProgress = true;
+        const button = document.querySelector('.question-data-refresh-btn');
+        if (button) {
+            button.disabled = true;
+            button.classList.add('is-refreshing');
+            button.innerHTML = '<i class="fa-solid fa-rotate question-loading-spin"></i><span>Loading...</span>';
+        }
+        this.setDataStatus('loading');
+        try {
+            await this.loadQuestionBank();
+            this.updateSubjectCountsUI();
+            this.updateSetupUI();
+            this.renderPracticeBrowser();
+            if (typeof this.renderQuestionBank === 'function') this.renderQuestionBank();
+            this.setDataStatus('ready');
+        } catch (error) {
+            console.error('Question bank refresh failed:', error);
+            this.setDataStatus('error', error.message || 'সর্বশেষ প্রশ্ন লোড করা যায়নি।');
+        } finally {
+            this.__questionRefreshInProgress = false;
+            const currentButton = document.querySelector('.question-data-refresh-btn');
+            if (currentButton) {
+                currentButton.disabled = false;
+                currentButton.classList.remove('is-refreshing');
+                currentButton.innerHTML = '<i class="fa-solid fa-rotate"></i><span>Refresh Questions</span>';
+            }
+        }
     }
 
     async loadQuestionBank() {
