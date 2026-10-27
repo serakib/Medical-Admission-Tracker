@@ -11,6 +11,7 @@
   let lastConnectionLoad = 0;
   let connectionLoadPromise = null;
   let connectionLoadSequence = 0;
+  let cancelledFeedback = new Map();
   let activePublicProfile = null;
   let lastFriendError = '';
 
@@ -298,7 +299,15 @@
     const relation = getRelationship(targetId);
     const requestFromThisUser = outgoingRequests.find(item => String(item.toUid) === targetId);
     const requestToThisUser = incomingRequests.find(item => String(item.fromUid) === targetId);
-    if (relation === 'friends') {
+    const cancelledState = cancelledFeedback.get(targetId);
+    if (relation !== 'friends' && relation !== 'incoming' && relation !== 'outgoing' &&
+        cancelledState && cancelledState.expiresAt > Date.now()) {
+      host.innerHTML = '<button type="button" class="is-success" disabled aria-label="Friend request cancelled successfully"><i class="fa-solid fa-check ml-1" aria-hidden="true"></i> Cancelled</button>';
+    } else if (relation !== 'friends' && relation !== 'incoming' && relation !== 'outgoing' && cancelledState) {
+      if (cancelledState.timer) clearTimeout(cancelledState.timer);
+      cancelledFeedback.delete(targetId);
+      host.innerHTML = '<button type="button" class="primary" data-student-friend-action="add"><i class="fa-solid fa-user-plus ml-1" aria-hidden="true"></i> Send Friend Request</button>';
+    } else if (relation === 'friends') {
       host.innerHTML = '<button type="button" data-student-friend-action="remove" data-target-id="' + escapeHTML(targetId) + '" class="danger"><i class="fa-solid fa-user-minus ml-1" aria-hidden="true"></i> Remove Friend</button><span class="inline-flex items-center text-xs font-bold text-emerald-700 dark:text-emerald-300"><i class="fa-solid fa-check ml-1"></i> Friends</span>';
     } else if (relation === 'outgoing') {
       host.innerHTML = '<button type="button" data-student-friend-action="cancel" data-request-id="' + escapeHTML(requestFromThisUser?.id || '') + '"><i class="fa-solid fa-clock ml-1" aria-hidden="true"></i> Request Sent · Cancel</button>';
@@ -508,14 +517,23 @@
         successMessage = 'Friend request rejected.';
       } else if (action === 'cancel') {
         setFriendActionBusy(sourceButton, action);
+        // Keep the confirmation state across connection refreshes triggered by cancelRequest().
+        const previousCancelledState = cancelledFeedback.get(targetId);
+        if (previousCancelledState?.timer) clearTimeout(previousCancelledState.timer);
+        cancelledFeedback.set(targetId, { expiresAt: Infinity, timer: null });
         await cancelRequest(requestId);
         successMessage = 'Friend request cancelled successfully. এখন চাইলে আবার পাঠাতে পারবেন।';
-        // Keep a visible success state briefly before the pending request disappears from the UI.
-        if (sourceButton) {
-          sourceButton.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Cancelled';
-          sourceButton.classList.remove('is-refreshing');
-          sourceButton.classList.add('is-success');
-          sourceButton.setAttribute('aria-label', 'Friend request cancelled successfully');
+        const cancelledState = { expiresAt: Date.now() + 1800, timer: null };
+        cancelledState.timer = setTimeout(() => {
+          cancelledFeedback.delete(targetId);
+          if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
+            renderRelationshipActions(activePublicProfile);
+          }
+        }, 1800);
+        cancelledFeedback.set(targetId, cancelledState);
+        // Re-render from the persistent feedback state, not from a stale button node.
+        if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
+          renderRelationshipActions(activePublicProfile);
         }
         setStatus(successMessage, false);
         setFriendPanelStatus(successMessage, false);
@@ -548,6 +566,11 @@
         setFriendPanelStatus(successMessage, false);
       }
     } catch (error) {
+      if (action === 'cancel') {
+        const cancelledState = cancelledFeedback.get(targetId);
+        if (cancelledState?.timer) clearTimeout(cancelledState.timer);
+        cancelledFeedback.delete(targetId);
+      }
       restoreFriendActionButton(sourceButton);
       // A stale Cancel button can remain when the backend reports that the request
       // is no longer pending. Always resync relationship data after an action error
