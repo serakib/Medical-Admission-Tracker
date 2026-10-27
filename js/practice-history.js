@@ -18,7 +18,7 @@
     };
     const questionKey = q => String(q && q.id != null ? q.id : [
       q && q.subject || '', q && q.year || '', q && (q.question || q.questionText || q.question_bn) || ''
-    ].join('|')).toLowerCase().replace(/\\s+/g, ' ').trim();
+    ].join('|')).toLowerCase().replace(/\s+/g, ' ').trim();
     const esc = value => String(value == null ? '' : value).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
     const questionText = q => q && (q.question || q.questionText || q.question_bn || q.question_en) || 'Question text unavailable';
     const answerText = (q, index) => q && Array.isArray(q.options) && q.options[index] != null ? q.options[index] : String(index == null ? '—' : index);
