@@ -330,3 +330,99 @@ select:focus-visible {
     animation: none !important;
   }
 }
+
+
+/* Expanded, low-cost micro-interactions across existing UI. Visual-only; no business logic. */
+:root { --micro-motion: .2s; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Subject and content cards */
+  .bank-card, .section-hero, .profile-stat-card, .profile-panel,
+  .podium-card, .leader-row, .empty-state, #question-bank-list > *,
+  #previous-year-list > button, #previous-question-list > article {
+    transition: transform var(--micro-motion) ease,
+                box-shadow var(--micro-motion) ease,
+                border-color var(--micro-motion) ease,
+                background-color var(--micro-motion) ease;
+  }
+  .bank-card:hover, #previous-year-list > button:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Question changes and palette feedback */
+  .question-enter { animation: medicalQuestionEnter .18s ease-out both; }
+  #q-palette-grid button { transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease; }
+  #q-palette-grid button:active { transform: scale(.94); }
+  .exam-progress-track { height: 5px; width: 100%; overflow: hidden; border-radius: 99px; background: var(--line); margin: 12px 0 16px; }
+  .exam-progress-track > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--brand-2),var(--accent)); transition: width .24s ease; }
+
+  /* Result reveal and page changes */
+  #view-result.view-reenter > * { animation: medicalResultReveal .35s ease both; }
+  #view-result.view-reenter > *:nth-child(2) { animation-delay: .05s; }
+  #view-result.view-reenter > *:nth-child(3) { animation-delay: .1s; }
+  .view-reenter { animation: medicalQuestionEnter .2s ease-out both; }
+
+  /* Avatars, streak counters and achievement cards, when present */
+  .profile-avatar, .podium-avatar, .leader-avatar, .mat-student-profile-avatar,
+  #student-profile-avatar, [data-streak-count], .streak-count {
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+  }
+  .profile-avatar:hover, .podium-avatar:hover, .leader-avatar:hover,
+  .mat-student-profile-avatar:hover, #student-profile-avatar:hover {
+    transform: translateY(-1px) scale(1.025);
+  }
+  .achievement-card, [data-achievement], .streak-stat-card {
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .achievement-card:hover, [data-achievement]:hover, .streak-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Dropdowns, filters, theme toggle and tooltips */
+  #theme-toggle { transition: transform .22s ease, box-shadow .22s ease, background-color .22s ease !important; }
+  #theme-toggle:hover { transform: rotate(8deg) scale(1.04); }
+  [role="menu"]:not([hidden]), .dropdown-menu:not([hidden]):not(.hidden) {
+    transform-origin: top center;
+    animation: medicalDropdownEnter .16s ease-out both;
+  }
+  select:focus-visible, input:focus-visible, textarea:focus-visible {
+    box-shadow: 0 0 0 3px rgba(15,159,134,.12);
+  }
+  [data-tooltip] { position: relative; }
+  [data-tooltip]::after {
+    content: attr(data-tooltip); position: absolute; z-index: 10000;
+    left: 50%; bottom: calc(100% + 8px); transform: translate(-50%, 3px);
+    opacity: 0; pointer-events: none; white-space: normal; width: max-content;
+    max-width: min(240px, 80vw); padding: 7px 10px; border-radius: 9px;
+    color: #fff; background: #102033; font-size: 12px; line-height: 1.45;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  [data-tooltip]:hover::after, [data-tooltip]:focus-visible::after {
+    opacity: 1; transform: translate(-50%, 0);
+  }
+
+  /* Loading, empty states and generic pagination controls */
+  .skeleton { animation: skeleton 1.35s ease-in-out infinite; }
+  .empty-state { animation: medicalResultReveal .24s ease-out both; }
+  [data-pagination] button, .pagination button, button[aria-label*="page" i] {
+    transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease;
+  }
+  [data-pagination] button:hover, .pagination button:hover, button[aria-label*="page" i]:hover {
+    transform: translateY(-1px);
+  }
+}
+@keyframes medicalQuestionEnter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes medicalResultReveal {
+  from { opacity: 0; transform: translateY(8px) scale(.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .question-enter, .view-reenter, #view-result.view-reenter > *,
+  .empty-state, [role="menu"]:not([hidden]),
+  .dropdown-menu:not([hidden]):not(.hidden) { animation: none !important; }
+  .exam-progress-track > span { transition: none !important; }
+}
