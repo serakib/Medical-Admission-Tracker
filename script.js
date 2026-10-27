@@ -2279,6 +2279,11 @@ window.handleAccountDeletion = function() {
         progress.streak = progress.lastExamDate === yesterday ? Math.max(0, Number(progress.streak) || 0) + 1 : 1;
         progress.lastExamDate = today;
       }
+      // Preserve the best consecutive-day streak for this account.
+      progress.highestStreak = Math.max(
+        Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0),
+        Math.max(0, Number(progress.streak) || 0)
+      );
       // Prevent the previous browser-only PB->RP conversion system from adding
       // a second reward balance beside the Medical API.
       progress.pendingPBEntries = [];
