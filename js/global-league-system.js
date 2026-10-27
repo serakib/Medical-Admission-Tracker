@@ -609,7 +609,7 @@
     if (!weeklyMode) {
       area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>বর্তমান: ' + escapeHtml(me.rank) + ' · পরের Trophy: ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' Current RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
         '<div class="mat-rank-track" role="progressbar" aria-label="Trophy rank progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '"><span style="width:' + pct + '%;background:linear-gradient(90deg,#a78bfa,#10b981)"></span><span class="mat-progress-star" style="left:' + pct + '%" aria-hidden="true"><i class="fa-solid fa-star"></i></span><small class="mat-progress-star-label" style="left:' + pct + '%" aria-hidden="true">RP</small></div>' +
-        '<div class="mat-rank-foot"><span>0 RP</span><span>' + required.toLocaleString() + ' RP</span></div>';
+        '<div class="mat-rank-foot"><span>' + earnedThisPeriod.toLocaleString() + ' RP</span><span>' + required.toLocaleString() + ' RP</span></div>';
       return;
     }
     var markerPct = Math.max(0, Math.min(100, threshold / required * 100));
@@ -621,7 +621,7 @@
       : 'Safe Zone-এ যেতে আরও ' + remaining.toLocaleString() + ' RP প্রয়োজন';
     area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' ' + rpLabel + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
       '<div class="mat-rank-track" role="progressbar" aria-label="Trophy rank progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '"><span style="width:' + pct + '%;background:' + (safe ? 'linear-gradient(90deg,#10b981,#34d399)' : 'linear-gradient(90deg,#f59e0b,#fb923c)') + '"></span><i class="mat-safe-zone-marker" style="left:' + markerPct + '%" aria-hidden="true"></i><span class="mat-progress-star" style="left:' + pct + '%" aria-hidden="true"><i class="fa-solid fa-star"></i></span></div>' +
-      '<div class="mat-rank-foot"><span>0 RP</span><span>' + required.toLocaleString() + ' RP</span></div>' +
+      '<div class="mat-rank-foot"><span>' + earnedThisPeriod.toLocaleString() + ' RP</span><span>' + required.toLocaleString() + ' RP</span></div>' +
       '<div class="mat-safe-zone-caption ' + (safe ? '' : 'at-risk') + '"><i class="fa-solid ' + (safe ? 'fa-shield-check' : 'fa-triangle-exclamation') + '"></i> ' + statusText + '</div>';
   }
   function updateTopControls(me) {
