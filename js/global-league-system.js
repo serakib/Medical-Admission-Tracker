@@ -249,7 +249,17 @@
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
-    if (user.streak != null && Number.isFinite(Number(user.streak))) profile.streak = Math.max(0, Number(user.streak) || 0);
+    // Keep the latest locally saved streak if a stale server profile arrives.
+    // The local account-progress record is persisted immediately after each exam.
+    try {
+      var localProgressKey = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+      var localStreakProgress = parseJson(localStorage.getItem(localProgressKey), {}) || {};
+      var localStreak = Math.max(0, Number(localStreakProgress.streak) || 0);
+      var serverStreak = Math.max(0, Number(user.streak) || 0);
+      profile.streak = Math.max(serverStreak, localStreak);
+    } catch (_) {
+      if (user.streak != null && Number.isFinite(Number(user.streak))) profile.streak = Math.max(0, Number(user.streak) || 0);
+    }
     profile.rank = RANKS.indexOf(user.rank) >= 0 ? user.rank : RANKS[0];
     app.profile = profile;
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
@@ -633,14 +643,15 @@
     try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
     var streakButton = document.querySelector('[data-med-action="streak"]');
     if (streakButton) {
-      var hasSyncedStreak = me && me.streak != null && Number.isFinite(Number(me.streak));
-      var streak = hasSyncedStreak ? Math.max(0, Number(me.streak) || 0) : Math.max(0, Number(progress.streak) || 0);
-      if (!hasSyncedStreak) {
-        var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
-        var yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
-        var lastExamDate = String(progress.lastExamDate || '');
-        if (!lastExamDate || (lastExamDate !== today && lastExamDate !== yesterday)) streak = 0;
-      }
+      // Prefer the highest known value across the server snapshot and the
+      // persistent local account record; stale/offline API responses must not
+      // make the dashboard streak flash back to zero.
+      var streak = Math.max(
+        0,
+        Number(me && me.streak) || 0,
+        Number(currentProfile && currentProfile.streak) || 0,
+        Number(progress.streak) || 0
+      );
       var streakCount = document.getElementById('med-top-streak-count');
       if (streakCount) streakCount.textContent = String(streak);
       streakButton.title = 'Daily study streak: ' + streak + ' day(s)';
@@ -1050,7 +1061,12 @@
       score: Math.max(0, Number(item.score != null ? item.score : item.quizPoints) || 0),
       subject: safeText(item.subject || '', 80),
       year: safeText(item.year || '', 40),
-      timeUsed: safeText(item.timeUsed || '', 20)
+      timeUsed: safeText(item.timeUsed || '', 20),
+      // Include the latest browser-persisted streak snapshot so a backend
+      // deployment that stores streak metadata can keep the server in sync.
+      streak: Math.max(0, Number((app.getAccountProgress && app.getAccountProgress() || {}).streak) || 0),
+      lastExamDate: String((app.getAccountProgress && app.getAccountProgress() || {}).lastExamDate || ''),
+      highestStreak: Math.max(0, Number((app.getAccountProgress && app.getAccountProgress() || {}).highestStreak) || 0)
     }));
     var user = response.user || response.profile || null;
     if (user) applyProfile(user);
