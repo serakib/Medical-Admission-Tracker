@@ -428,7 +428,10 @@ function toggleAppSidebarCollapse(){
 })();
 </script>
 
-    <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
+    <div id="question-data-status-wrap" class="question-data-status-wrap max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div id="question-data-status" class="hidden" role="status" aria-live="polite"></div>
+        <button type="button" class="question-data-refresh-btn" onclick="window.app.refreshQuestionBank()" aria-label="সর্বশেষ প্রশ্ন, উত্তর ও ব্যাখ্যা রিফ্রেশ করুন"><i class="fa-solid fa-rotate"></i><span>Refresh Questions</span></button>
+    </div>
 
     <!-- Main Dynamic Content Wrapper -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -1612,7 +1615,7 @@ function toggleAppSidebarCollapse(){
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=question-loading-animation-1">></script>
+<script type="module" src="script.js?v=question-refresh-button-1">>></script>
 <script type="module" src="./js/integrated-features.js?v=question-bank-selection-polish-1"></script>
 <script src="./js/final-trophy-practice.js?v=medical-feature-set-5" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-4" defer></script>
