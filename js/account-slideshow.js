@@ -22,6 +22,7 @@
     { icon: 'fa-clock-rotate-left', title: 'Previous Year Questions', subtitle: 'আগের বছরের প্রশ্ন অনুশীলন করুন', render: renderPrevious },
     { icon: 'fa-trophy', title: 'Leaderboard & Progress', subtitle: 'নিজের অগ্রগতি ও available ranking দেখুন', render: renderProgress },
     { icon: 'fa-book-open', title: 'Syllabus & Medical Info', subtitle: 'পড়াশোনার গাইড ও প্রয়োজনীয় তথ্য', render: renderResources },
+    { icon: 'fa-users', title: 'Community & support', subtitle: 'Friends, help, AI assistant এবং student resources', render: renderCommunity },
     { icon: 'fa-user-gear', title: 'Your account & settings', subtitle: 'আপনার profile ও preferences', render: renderAccount },
     { icon: 'fa-compass', title: 'Where to go next', subtitle: 'আপনার প্রয়োজন অনুযায়ী পরের ধাপ বেছে নিন', render: renderNext }
   ];
@@ -98,6 +99,9 @@
   }
   function renderResources() {
     return '<p class="mws-intro">Study planning এবং medical admission সম্পর্কিত reference information-এর জন্য এই sections ব্যবহার করুন।</p>' + steps(['Syllabus খুলে syllabus-related content দেখুন।','Medical Info section-এ medical/HSC information ও available guidance পড়ুন।','কোনো তথ্য update বা eligibility-related হলে official source দিয়ে যাচাই করুন।']) + '<div class="mws-action-list">' + action('Open Syllabus','syllabus','fa-book-open','Study topics') + action('Open Medical Info','medical-info','fa-hospital','Medical admission information') + '</div>';
+  }
+  function renderCommunity() {
+    return '<p class="mws-intro">Website-এর study tools ছাড়াও support ও community-related resources খুঁজে পেতে এই shortcuts ব্যবহার করুন।</p>' + steps(['Leaderboard এবং league-related area-তে available ranking ও competition progress দেখুন।','Student Life Support section-এ student wellbeing ও support-related information দেখুন।','AI Assistant খুলে study-related প্রশ্নে সাহায্য নিন; গুরুত্বপূর্ণ medical বা admission সিদ্ধান্ত official source দিয়ে যাচাই করুন।','Help & Support বা Student Blog link Account Profile → App Settings-এও রয়েছে।']) + '<div class="mws-action-list">' + action('Student Life Support','student-life-support','fa-hand-holding-heart','Student support resources') + action('Contact & Help','contact','fa-envelope','Contact section and support links') + action('AI Assistant','ai-assistant','fa-comments','Open AI study assistant') + action('Student Blog','student-blog','fa-blog','Read student resources') + '</div>';
   }
   function renderAccount() {
     var facts = accountFacts();
@@ -231,6 +235,10 @@
         else if (target === 'leaderboard' && typeof a.openLeaderboard === 'function') a.openLeaderboard();
         else if (target === 'syllabus') a.showView('syllabus');
         else if (target === 'medical-info') a.showView('medical-hsc-info');
+        else if (target === 'student-life-support') a.showView('student-life-support');
+        else if (target === 'contact') { a.showView('home'); window.setTimeout(function () { var contact = document.getElementById('contact'); if (contact) contact.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 180); }
+        else if (target === 'ai-assistant') window.open('https://serakib.github.io/Ai-Assisstant/', '_blank', 'noopener,noreferrer');
+        else if (target === 'student-blog') window.open('https://rakibhasandc27.blogspot.com/', '_blank', 'noopener,noreferrer');
         else if (target === 'profile' && typeof a.openProfile === 'function') a.openProfile();
         else if (target === 'account' && typeof a.openAccountProfile === 'function') a.openAccountProfile();
         else if (target === 'theme' && typeof a.toggleTheme === 'function') a.toggleTheme();
