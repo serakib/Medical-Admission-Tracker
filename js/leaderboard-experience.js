@@ -500,6 +500,16 @@
         setFriendActionBusy(sourceButton, action);
         await cancelRequest(requestId);
         successMessage = 'Friend request cancelled successfully. এখন চাইলে আবার পাঠাতে পারবেন।';
+        // Keep a visible success state briefly before the pending request disappears from the UI.
+        if (sourceButton) {
+          sourceButton.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Cancelled';
+          sourceButton.classList.remove('is-refreshing');
+          sourceButton.classList.add('is-success');
+          sourceButton.setAttribute('aria-label', 'Friend request cancelled successfully');
+        }
+        setStatus(successMessage, false);
+        setFriendPanelStatus(successMessage, false);
+        await new Promise(resolve => setTimeout(resolve, 900));
       } else if (action === 'edit-profile') {
         app.openAccountProfile();
         return;
