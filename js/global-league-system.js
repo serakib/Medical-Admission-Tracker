@@ -1302,12 +1302,15 @@
       var uid = String(row.userId || '');
       var relation = window.MedStudentFriends && typeof window.MedStudentFriends.getRelationship === 'function'
         ? window.MedStudentFriends.getRelationship(uid) : 'unknown';
+      var serverRelation = relation;
       var sentStateKey = 'med_friend_request_sent_v1_' + accountKey() + '_' + uid;
       var locallyConfirmedSent = false;
       try { locallyConfirmedSent = localStorage.getItem(sentStateKey) === 'sent'; } catch (_) {}
       // Keep the success state visible if the connection refresh briefly returns stale data.
+      // Do not clear the local confirmation just because this render temporarily used it
+      // to present "outgoing"; clear it only when the connection API itself confirms a state.
       if (locallyConfirmedSent && relation !== 'friends' && relation !== 'incoming' && relation !== 'outgoing') relation = 'outgoing';
-      if (relation === 'friends' || relation === 'incoming' || relation === 'outgoing') {
+      if (serverRelation === 'friends' || serverRelation === 'incoming' || serverRelation === 'outgoing') {
         try { localStorage.removeItem(sentStateKey); } catch (_) {}
       }
       var outRequest = outgoing.find(function (item) { return String(item.toUid) === uid; });
