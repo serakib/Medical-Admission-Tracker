@@ -1573,6 +1573,14 @@ class MedicalExamApp {
         set('profile-name',this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student');
         set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):'Guest mode • আপনার progress এই device-এ সংরক্ষিত');
         set('profile-seen-count',answered.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
+        let accountProgress = {};
+        try { accountProgress = typeof this.getAccountProgress === 'function' ? this.getAccountProgress() || {} : {}; } catch (_) {}
+        const dhakaToday = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+        const dhakaYesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' });
+        const lastStudyDate = String(accountProgress.lastExamDate || '');
+        const savedStreak = Math.max(0, Number(accountProgress.streak) || 0);
+        const currentStreak = lastStudyDate === dhakaToday || lastStudyDate === dhakaYesterday ? savedStreak : 0;
+        set('profile-day-streak', `${currentStreak} days`);
         const coverage=total?Math.min(100,(answered.size/total)*100):0; set('profile-coverage',`${coverage.toFixed(0)}%`);
         const bar=document.getElementById('profile-progress-bar');if(bar)bar.style.width=`${coverage}%`;
         const note=document.getElementById('profile-performance-note');if(note) note.textContent=attempts?`আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`:'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
