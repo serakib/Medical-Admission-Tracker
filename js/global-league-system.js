@@ -892,14 +892,47 @@
     var cached = getCache(selectedPeriod);
     return cached.length ? cached : [];
   }
+  var leaderboardRefreshTimer = null;
+  var leaderboardRefreshOriginalHtml = '';
+  var leaderboardManualRefreshActive = false;
   function setLeaderboardRefreshBusy(busy) {
     var view = document.getElementById('view-leaderboard');
     var button = view && view.querySelector('button[onclick*="loadLeaderboard"]');
     if (!button) return;
-    button.classList.toggle('is-refreshing', !!busy);
-    button.setAttribute('aria-busy', busy ? 'true' : 'false');
-    var icon = button.querySelector('i');
-    if (icon) icon.classList.toggle('mat-refresh-spin', !!busy);
+    if (busy) {
+      if (leaderboardRefreshTimer) { clearTimeout(leaderboardRefreshTimer); leaderboardRefreshTimer = null; }
+      if (!leaderboardManualRefreshActive) leaderboardRefreshOriginalHtml = button.innerHTML;
+      leaderboardManualRefreshActive = true;
+      button.disabled = true;
+      button.classList.add('is-refreshing');
+      button.setAttribute('aria-busy', 'true');
+      button.innerHTML = '<i class="fa-solid fa-rotate mat-refresh-spin" aria-hidden="true"></i> Refreshing…';
+      return;
+    }
+    if (!leaderboardManualRefreshActive) {
+      button.classList.remove('is-refreshing');
+      button.setAttribute('aria-busy', 'false');
+      var idleIcon = button.querySelector('i');
+      if (idleIcon) idleIcon.classList.remove('mat-refresh-spin');
+      return;
+    }
+    button.classList.remove('is-refreshing');
+    button.setAttribute('aria-busy', 'false');
+    button.disabled = false;
+    button.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Refreshed';
+    leaderboardManualRefreshActive = false;
+    leaderboardRefreshTimer = setTimeout(function () {
+      var currentView = document.getElementById('view-leaderboard');
+      var currentButton = currentView && currentView.querySelector('button[onclick*="loadLeaderboard"]');
+      if (currentButton) {
+        currentButton.innerHTML = leaderboardRefreshOriginalHtml || '<i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh';
+        currentButton.disabled = false;
+        currentButton.classList.remove('is-refreshing');
+        currentButton.setAttribute('aria-busy', 'false');
+      }
+      leaderboardRefreshOriginalHtml = '';
+      leaderboardRefreshTimer = null;
+    }, 1800);
   }
   async function loadLeaderboard(silent) {
     // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
@@ -909,7 +942,7 @@
     var leaderboardView = document.getElementById('view-leaderboard');
     if (leaderboardView && !leaderboardView.classList.contains('hidden') && !hasRequiredLeaderboardProfile()) {
       showLeaderboardProfileGate();
-      if (!silent) setLeaderboardRefreshBusy(false);
+      setLeaderboardRefreshBusy(false);
       return;
     }
     if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
@@ -931,10 +964,10 @@
       rawRows = [];
       renderRows([]);
     }
-    if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); if (!silent) setLeaderboardRefreshBusy(false); return; }
+    if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); setLeaderboardRefreshBusy(false); return; }
     if (!app.authStateResolved && !app.authUser) {
       setStatus('Account session যাচাই হচ্ছে…', false);
-      if (!silent) setLeaderboardRefreshBusy(false);
+      setLeaderboardRefreshBusy(false);
       return;
     }
     if (app.__medicalRegistrationInProgress) {
@@ -942,6 +975,7 @@
       if (!silent) setLeaderboardRefreshBusy(false);
       return;
     }
+    var refreshSucceeded = false;
     try {
       await syncIdentity();
       var apiPeriod = selectedPeriod === 'weekly' ? 'weekly' : 'all-time';
@@ -978,12 +1012,13 @@
       renderRows(rows);
       var weekLabel = response && response.weekStart ? ' · week of ' + response.weekStart : '';
       setStatus('Medical leaderboard synced' + weekLabel + '.', false);
+      refreshSucceeded = true;
     } catch (error) {
       if (requestId !== loadSequence) return;
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
       // A newer silent/background/tab refresh must also stop an animation started by a manual refresh.
-      if (requestId === loadSequence) setLeaderboardRefreshBusy(false);
+      if (requestId === loadSequence) setLeaderboardRefreshBusy(refreshSucceeded);
     }
   }
   function queueResult(item) {
