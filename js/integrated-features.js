@@ -69,10 +69,18 @@
       .palette-subject-heading{font-size:.76rem;font-weight:900;margin:0 0 8px;color:var(--text,#1e293b)}
       .palette-subject-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
       .palette-subject-grid button{min-width:0}
-      .enhanced-bank-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0;padding:12px;border:1px solid var(--line,#dbe4ee);border-radius:15px;background:var(--surface,#fff)}
-      .enhanced-bank-toolbar .enhanced-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-      .enhanced-bank-toolbar button{padding:7px 10px;border:1px solid var(--line,#cbd5e1);border-radius:9px;font-size:12px;font-weight:800;background:var(--surface,#fff);color:var(--text,#1e293b)}
-      .enhanced-bank-toolbar .enhanced-practice-selected{background:#059669;color:#fff;border-color:#059669}
+      .enhanced-bank-toolbar{display:grid;gap:12px;margin:14px 0 18px;padding:16px;border:1px solid var(--line,#dbe4ee);border-radius:18px;background:linear-gradient(135deg,var(--surface,#fff),var(--surface-2,rgba(148,163,184,.07)));box-shadow:0 8px 24px rgba(15,23,42,.05)}
+      .enhanced-bank-selection-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+      .enhanced-bank-selection-head>div{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+      .enhanced-bank-selection-head strong{font-size:14px;font-weight:900}
+      .enhanced-bank-selection-head [data-selected-count]{padding:4px 9px;border-radius:99px;background:rgba(13,148,136,.12);color:#0d9488;font-size:11px;font-weight:900}
+      .enhanced-bank-selection-head p{margin:0;color:var(--muted,#64748b);font-size:12px}
+      .enhanced-bank-selection-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .enhanced-bank-toolbar button{min-height:40px;padding:9px 12px;border:1px solid var(--line,#cbd5e1);border-radius:11px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#1e293b);transition:transform .15s ease,box-shadow .15s ease}
+      .enhanced-bank-toolbar button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 5px 14px rgba(15,23,42,.08)}
+      .enhanced-bank-toolbar button:disabled{opacity:.45;cursor:not-allowed}
+      .enhanced-bank-toolbar .enhanced-bank-action-primary{background:linear-gradient(135deg,#059669,#0d9488);color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(5,150,105,.2)}
+      @media(max-width:560px){.enhanced-bank-selection-actions{grid-template-columns:1fr}.enhanced-bank-selection-head{align-items:flex-start;flex-direction:column}}
       .enhanced-bank-select-row{display:flex;align-items:center;gap:7px;margin:12px 0 4px;font-size:12px;font-weight:800;color:var(--muted,#64748b)}
       .enhanced-bank-select-row input{width:16px;height:16px;accent-color:#059669}
       .enhanced-question-status{display:inline-flex;flex-wrap:wrap;gap:5px;margin-left:auto}
@@ -394,8 +402,19 @@
     const toolbar = document.getElementById('enhanced-bank-selection-toolbar');
     if (!toolbar) return;
     const selected = selectedBankKeys.size;
+    const isBn = app.language !== 'en';
     const count = toolbar.querySelector('[data-selected-count]');
-    if (count) count.textContent = `${selected} selected`;
+    if (count) count.textContent = `${selected} ${isBn ? 'টি নির্বাচিত' : 'selected'}`;
+    const list = document.getElementById('question-bank-list');
+    const visibleCards = list ? Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden) : [];
+    const allVisibleSelected = visibleCards.length > 0 && visibleCards.every(card => {
+      const input = card.querySelector('.enhanced-bank-select');
+      return input && selectedBankKeys.has(input.dataset.qkey);
+    });
+    const selectButton = toolbar.querySelector('#enhanced-bank-select-visible');
+    if (selectButton) selectButton.textContent = allVisibleSelected ? (isBn ? 'সব অনির্বাচন' : 'Unselect All') : (isBn ? 'সব নির্বাচন' : 'Select All');
+    const examButton = toolbar.querySelector('#enhanced-bank-practice-selected');
+    if (examButton) examButton.disabled = selected === 0;
   }
   const originalRenderQuestionBank = app.renderQuestionBank.bind(app);
   app.renderQuestionBank = function() {
