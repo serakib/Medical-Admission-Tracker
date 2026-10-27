@@ -48,7 +48,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="./style.css?v=question-refresh-bank-only-2">>>
+    <link rel="stylesheet" href="./style.css?v=question-bank-inline-refresh-3">>>
 
 
     <!-- Home-only Contact section styling (inspired by the portfolio Contact UI) -->
@@ -837,9 +837,11 @@ function toggleAppSidebarCollapse(){
         <!-- VIEW: QUESTION BANK -->
         <section id="view-question-bank" class="view-section hidden space-y-6">
             <div class="section-hero">
-                <div><span class="eyebrow">Study Library</span><h2>Question Bank</h2><p>শুধু পড়ুন, answer দেখুন, filter করুন—কোনো exam শুরু হবে না।</p></div>
+                <div class="question-bank-title-area">
+                    <div class="question-bank-title-row"><span class="eyebrow">Study Library</span><button type="button" class="question-data-refresh-btn" onclick="window.app.refreshQuestionBank()" aria-label="সর্বশেষ প্রশ্ন, উত্তর ও ব্যাখ্যা রিফ্রেশ করুন"><i class="fa-solid fa-rotate"></i><span>Refresh</span></button></div>
+                    <h2>Question Bank</h2><p>শুধু পড়ুন, answer দেখুন, filter করুন—কোনো exam শুরু হবে না।</p>
+                </div>
                 <div class="question-bank-hero-actions">
-                    <button type="button" class="question-data-refresh-btn" onclick="window.app.refreshQuestionBank()" aria-label="সর্বশেষ প্রশ্ন, উত্তর ও ব্যাখ্যা রিফ্রেশ করুন"><i class="fa-solid fa-rotate"></i><span>Refresh Questions</span></button>
                     <button onclick="window.app.showView('home')" class="ghost-btn"><i class="fa-solid fa-arrow-right"></i> Home</button>
                 </div>
             </div>
