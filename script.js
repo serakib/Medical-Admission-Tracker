@@ -1499,7 +1499,7 @@ class MedicalExamApp {
             this.saveExamAttempt({
                 attemptId: String(state.startedAt || Date.now()),
                 date: new Date().toLocaleDateString('bn-BD'),
-                mode: this.setup?.mode || state.mode || 'model',
+                mode: state.mode === 'practice' ? 'practice' : (this.setup?.mode || state.mode || 'model'),
                 subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
                 year: document.getElementById('setup-year')?.value || state.year || 'all',
                 score: totalScore.toFixed(2),
@@ -1522,7 +1522,7 @@ class MedicalExamApp {
         try {
             Promise.resolve(this.recordLeaderboardResult({
                 correctCount, wrongCount, totalQuestions, quizPoints, score: totalScore,
-                examMode: this.setup?.mode || state.mode || 'Exam',
+                examMode: state.mode === 'practice' ? 'practice' : (this.setup?.mode || state.mode || 'Exam'),
                 subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
                 year: document.getElementById('setup-year')?.value || state.year || 'all',
                 timeUsed: minsUsed + ':' + String(secsUsed).padStart(2, '0'),

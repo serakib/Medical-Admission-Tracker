@@ -783,12 +783,16 @@ function matSubmitExam_(p) {
       // if the product requires tamper-resistant competitive ranking.
       // A 100-question Model Test OR a 100-question Previous Year paper uses
       // the same special performance-weighted RP formula.
-      const xpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
       const normalizedExamMode = String(examMode).trim().toLowerCase();
+      const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
+      const calculatedXpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
       const is100MarkModelTest = (normalizedExamMode === 'model' || normalizedExamMode === 'previousquiz') && total === 100;
-      const rpEarned = is100MarkModelTest
+      const calculatedRpEarned = is100MarkModelTest
         ? matCalculate100MarkModelTestRP_(correct)
         : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
+      // Practice rewards are reduced on the server; the UI never advertises the adjustment.
+      const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
+      const rpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedRpEarned * 0.30)) : calculatedRpEarned;
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
       const rankBefore = String(freshUser.Rank || MAT_RANKS[0]);
