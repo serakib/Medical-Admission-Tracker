@@ -1483,17 +1483,27 @@
         setFriendActionStatus(busyText, false);
         friendActionButton.disabled = true;
         var friendRequestSendSucceeded = false;
+        if (friendAction === 'send') {
+          // Show progress on the actual search-result button immediately, not only
+          // in the shared status line below the directory.
+          friendActionButton.classList.remove('is-success');
+          friendActionButton.classList.add('is-loading');
+          friendActionButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Sending Request…';
+          friendActionButton.setAttribute('aria-label', 'Sending friend request');
+        } else {
+          friendActionButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> ' + busyText;
+        }
         try {
           if (friendAction === 'send') {
             await friendsApi.sendRequest({ userId: targetId, uid: targetId, name: friendName });
             friendRequestSendSucceeded = true;
-            // Confirm success immediately on the clicked control, rather than letting
-            // its sending animation disappear back into an Add Friend button.
+            // Keep the confirmed sent state visible while the connections list refreshes.
             try { localStorage.setItem('med_friend_request_sent_v1_' + accountKey() + '_' + targetId, 'sent'); } catch (_) {}
-            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent';
+            friendActionButton.classList.remove('is-loading');
+            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent · Pending';
             friendActionButton.classList.add('is-success');
             friendActionButton.disabled = true;
-            friendActionButton.setAttribute('aria-label', 'Friend request sent successfully');
+            friendActionButton.setAttribute('aria-label', 'Friend request sent and pending');
             setFriendActionStatus('✓ Friend request sent to ' + friendName + '. Requestটি এখন pending; অন্যজন accept করলে Friends-এ যুক্ত হবে।', false);
           } else if (friendAction === 'cancel') {
             var cancelRow = friendActionButton.closest('.mat-friend-search-result');
@@ -1520,13 +1530,14 @@
             // A failed send must visibly restore the retry action; do not leave the
             // button disabled or stuck in its sending/success appearance.
             friendActionButton.innerHTML = '<i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend';
-            friendActionButton.classList.remove('is-success');
+            friendActionButton.classList.remove('is-success', 'is-loading');
             friendActionButton.removeAttribute('aria-label');
             friendActionButton.disabled = false;
             setFriendActionStatus(String(error && error.message || error || 'Friend request পাঠানো যায়নি। আবার চেষ্টা করুন।'), true);
           } else if (friendAction === 'send' && friendRequestSendSucceeded) {
             // Sending succeeded even if a later background refresh failed.
-            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent';
+            friendActionButton.classList.remove('is-loading');
+            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent · Pending';
             friendActionButton.classList.add('is-success');
             friendActionButton.disabled = true;
             friendActionButton.setAttribute('aria-label', 'Friend request sent successfully');
