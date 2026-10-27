@@ -492,3 +492,45 @@ select:focus-visible {
   70% { transform: rotate(300deg) scale(1.08); }
   100% { transform: rotate(360deg) scale(1); }
 }
+
+
+/* Clear action acknowledgement and theme state animation.
+   Feedback is visual-only; the original button handlers still own the action. */
+.button-action-feedback {
+  animation: medicalButtonAcknowledge .56s ease-out;
+}
+@keyframes medicalButtonAcknowledge {
+  0% { box-shadow: 0 0 0 0 rgba(16,185,129,0); filter: brightness(1); }
+  32% { box-shadow: 0 0 0 4px rgba(16,185,129,.28); filter: brightness(1.06); }
+  72% { box-shadow: 0 0 0 2px rgba(16,185,129,.13); filter: brightness(1.02); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); filter: brightness(1); }
+}
+#theme-toggle .theme-toggle-icon { display: block; }
+html:not(.dark) #theme-toggle {
+  background: rgba(255,255,255,.96) !important;
+  color: #f59e0b !important;
+  border-color: rgba(245,158,11,.30) !important;
+  box-shadow: 0 8px 22px rgba(245,158,11,.20) !important;
+}
+html.dark #theme-toggle {
+  background: rgba(15,23,42,.94) !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(148,163,184,.30) !important;
+  box-shadow: 0 8px 22px rgba(2,6,23,.40) !important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  #theme-toggle .theme-toggle-icon.theme-icon-animate {
+    animation: medicalThemeIconChange .5s cubic-bezier(.2,.8,.2,1) both;
+  }
+}
+@keyframes medicalThemeIconChange {
+  0% { opacity: .25; transform: rotate(-100deg) scale(.55); }
+  70% { opacity: 1; transform: rotate(12deg) scale(1.16); }
+  100% { opacity: 1; transform: rotate(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button-action-feedback,
+  #theme-toggle .theme-toggle-icon.theme-icon-animate {
+    animation: none !important;
+  }
+}
