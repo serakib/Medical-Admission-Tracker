@@ -410,21 +410,23 @@
       toolbar.className = 'enhanced-bank-toolbar';
       list.parentElement.insertBefore(toolbar, list);
     }
-    let bankStatusFilter = toolbar.dataset.statusFilter || 'all';
-    toolbar.innerHTML = `<div class="enhanced-actions" role="group" aria-label="Question status filter"><button type="button" data-bank-filter="all" class="${bankStatusFilter==='all'?'active':''}">All Questions</button><button type="button" data-bank-filter="reviewed" class="${bankStatusFilter==='reviewed'?'active':''}">Reviewed</button><button type="button" data-bank-filter="wrong" class="${bankStatusFilter==='wrong'?'active':''}">Wrong Answer</button></div><strong data-selected-count>${selectedBankKeys.size} selected</strong><div class="enhanced-actions"><button type="button" id="enhanced-bank-select-visible">Select All (Visible)</button><button type="button" id="enhanced-bank-clear-selection">Clear Selection</button><button type="button" class="enhanced-practice-selected" id="enhanced-bank-practice-selected">Start Exam with Selected</button></div>`;
-    toolbar.querySelectorAll('[data-bank-filter]').forEach(btn => btn.onclick = () => { toolbar.dataset.statusFilter = btn.dataset.bankFilter; this.renderQuestionBank(); });
-    toolbar.querySelector('#enhanced-bank-select-visible').textContent =
-      Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden).every(card => {
-        const input = card.querySelector('.enhanced-bank-select');
-        return input && selectedBankKeys.has(input.dataset.qkey);
-      }) ? 'Unselect All (Visible)' : 'Select All (Visible)';
-    toolbar.querySelector('#enhanced-bank-select-visible').onclick = () => {
-      const visibleCards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
-      const allSelected = visibleCards.length > 0 && visibleCards.every(card => {
+    toolbar.dataset.statusFilter = 'all';
+    const isBn = this.language !== 'en';
+    toolbar.innerHTML = `<div class="enhanced-bank-selection-head"><div><strong>${isBn?'প্রশ্ন নির্বাচন':'Question selection'}</strong><span data-selected-count>${selectedBankKeys.size} ${isBn?'টি নির্বাচিত':'selected'}</span></div><p>${isBn?'নির্বাচিত প্রশ্নগুলো দিয়ে আলাদা Exam তৈরি করুন':'Build an exam from your selected questions'}</p></div><div class="enhanced-bank-selection-actions"><button type="button" id="enhanced-bank-select-visible" class="enhanced-bank-action">${isBn?'সব নির্বাচন':'Select All'}</button><button type="button" id="enhanced-bank-clear-selection" class="enhanced-bank-action">${isBn?'নির্বাচন বাতিল':'Clear Selection'}</button><button type="button" class="enhanced-practice-selected enhanced-bank-action-primary" id="enhanced-bank-practice-selected" ${selectedBankKeys.size?'':'disabled'}>${isBn?'নির্বাচিত প্রশ্নে Exam':'Exam with Selected'}</button></div>`;
+    const selectVisibleButton = toolbar.querySelector('#enhanced-bank-select-visible');
+    const visibleCards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
+    const allVisibleSelected = visibleCards.length > 0 && visibleCards.every(card => {
+      const input = card.querySelector('.enhanced-bank-select');
+      return input && selectedBankKeys.has(input.dataset.qkey);
+    });
+    selectVisibleButton.textContent = allVisibleSelected ? (isBn?'সব অনির্বাচন':'Unselect All') : (isBn?'সব নির্বাচন':'Select All');
+    selectVisibleButton.onclick = () => {
+      const cards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
+      const allSelected = cards.length > 0 && cards.every(card => {
         const input = card.querySelector('.enhanced-bank-select');
         return input && selectedBankKeys.has(input.dataset.qkey);
       });
-      visibleCards.forEach(card => {
+      cards.forEach(card => {
         const input = card.querySelector('.enhanced-bank-select');
         if (!input) return;
         if (allSelected) selectedBankKeys.delete(input.dataset.qkey);
@@ -456,7 +458,7 @@
       btn.textContent = record.reviewed ? 'Reviewed ✓' : 'Mark Reviewed';
       btn.addEventListener('click', () => { markReviewed(q); this.renderQuestionBank(); });
       card.appendChild(btn);
-      card.hidden = bankStatusFilter === 'reviewed' ? !record.reviewed : bankStatusFilter === 'wrong' ? !record.wrong : false;
+      card.hidden = false;
     });
     list.onchange = event => {
       const input = event.target.closest('.enhanced-bank-select');
