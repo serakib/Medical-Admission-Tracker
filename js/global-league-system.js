@@ -1808,5 +1808,5 @@
   }
   window.addEventListener('focus', refreshLeaderboardWhenVisible);
   document.addEventListener('visibilitychange', refreshLeaderboardWhenVisible);
-  window.setInterval(flushQueue, 30000);
+  window.setInterval(function () { syncDailyStreak(); flushQueue(); }, 30000);
 })();
