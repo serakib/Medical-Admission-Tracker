@@ -902,13 +902,14 @@
     if (icon) icon.classList.toggle('mat-refresh-spin', !!busy);
   }
   async function loadLeaderboard(silent) {
-    setLeaderboardRefreshBusy(true);
+    // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
+    if (!silent) setLeaderboardRefreshBusy(true);
     ensureUI();
     selectedPeriod = readPeriod();
     var leaderboardView = document.getElementById('view-leaderboard');
     if (leaderboardView && !leaderboardView.classList.contains('hidden') && !hasRequiredLeaderboardProfile()) {
       showLeaderboardProfileGate();
-      setLeaderboardRefreshBusy(false);
+      if (!silent) setLeaderboardRefreshBusy(false);
       return;
     }
     if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
@@ -930,10 +931,10 @@
       rawRows = [];
       renderRows([]);
     }
-    if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); setLeaderboardRefreshBusy(false); return; }
+    if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); if (!silent) setLeaderboardRefreshBusy(false); return; }
     if (!app.authStateResolved && !app.authUser) {
       setStatus('Account session যাচাই হচ্ছে…', false);
-      setLeaderboardRefreshBusy(false);
+      if (!silent) setLeaderboardRefreshBusy(false);
       return;
     }
     if (app.__medicalRegistrationInProgress) {
@@ -981,7 +982,7 @@
       if (requestId !== loadSequence) return;
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
-      if (requestId === loadSequence) setLeaderboardRefreshBusy(false);
+      if (!silent && requestId === loadSequence) setLeaderboardRefreshBusy(false);
     }
   }
   function queueResult(item) {
