@@ -890,3 +890,89 @@ main,.view-section,.profile-panel,.account-action-card,.section-hero{min-width:0
 @media(prefers-reduced-motion:reduce){
   .website-guide-button{transition:none}
 }
+
+/* Mobile-only responsive controls: keep the desktop UI unchanged. */
+@media (max-width: 640px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+  main { width: 100%; min-width: 0; padding-left: 12px !important; padding-right: 12px !important; }
+  main > .view-section,
+  main .view-section > *,
+  main article,
+  main section,
+  main .grid > *,
+  main .flex > * { min-width: 0; }
+  main h1, main h2, main h3, main p, main label,
+  main .eyebrow, main button, main a {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  main button,
+  main a.ghost-btn,
+  main a.primary-btn,
+  main .primary-btn,
+  main .ghost-btn {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+    justify-content: center;
+    gap: .4rem;
+    padding-inline: clamp(.55rem, 2.6vw, .9rem);
+    padding-block: .65rem;
+    font-size: clamp(.76rem, 3.25vw, .9rem);
+  }
+  main button i,
+  main a.ghost-btn i,
+  main a.primary-btn i { flex: 0 0 auto; }
+  main .flex.flex-wrap { row-gap: .55rem; }
+  #view-home > div:first-child { padding: 22px 16px !important; }
+  #view-home .pt-2.flex { align-items: stretch; }
+  #view-home .pt-2.flex > button { flex: 1 1 145px; }
+  #view-home .grid { gap: .7rem; }
+  #view-home .grid > * { min-width: 0; }
+  .section-hero { width: 100%; gap: 12px; padding: 17px; }
+  .section-hero > div { min-width: 0; max-width: 100%; }
+  .section-hero .ghost-btn,
+  .section-hero .primary-btn { align-self: flex-start; }
+  .filter-bar { padding: 10px; gap: 8px; }
+  .filter-field { min-width: 0; width: 100%; gap: 7px; padding-inline: 10px; }
+  .filter-field input { min-width: 0; font-size: .88rem; }
+  .filter-bar select { min-width: 0; width: 100%; max-width: 100%; font-size: .88rem; }
+  .section-toolbar { align-items: flex-start; flex-wrap: wrap; gap: 6px 12px; }
+  .bank-card { min-width: 0; padding: 14px; }
+  .bank-meta { flex-wrap: wrap; }
+  .bank-options { min-width: 0; }
+  .bank-option { min-width: 0; overflow-wrap: anywhere; }
+  #practice-question { padding: 16px; }
+  .practice-option { min-width: 0; padding: 11px; overflow-wrap: anywhere; }
+  .practice-nav { flex-wrap: wrap; }
+  .practice-nav > * { min-width: 0; flex: 1 1 120px; }
+  .profile-hero { align-items: flex-start; flex-wrap: wrap; padding: 18px; gap: 12px; }
+  .profile-avatar { width: 54px; height: 54px; flex-basis: 54px; border-radius: 17px; font-size: 23px; }
+  .profile-action { margin-left: 0; white-space: normal; }
+  .profile-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .profile-stat-card { min-width: 0; padding: 13px; overflow-wrap: anywhere; }
+  .profile-stat-card strong { font-size: 1.2rem; }
+  .account-action-card { flex-wrap: wrap; gap: 12px; }
+  .website-guide-button { max-width: 100%; min-width: 0; white-space: normal; }
+  .table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 520px; }
+  input, select, textarea { max-width: 100%; min-width: 0; }
+  [role="dialog"] { max-width: calc(100vw - 20px); }
+  [role="dialog"] > div { max-width: 100%; }
+}
+
+@media (max-width: 380px) {
+  main { padding-left: 9px !important; padding-right: 9px !important; }
+  #view-home > div:first-child { padding: 18px 13px !important; }
+  main button,
+  main a.ghost-btn,
+  main a.primary-btn,
+  main .primary-btn,
+  main .ghost-btn { font-size: .75rem; gap: .3rem; }
+  .profile-stat-grid { gap: 7px; }
+  .profile-stat-card { padding: 10px; }
+}
+
