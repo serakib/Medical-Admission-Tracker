@@ -249,14 +249,30 @@
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
-    // Keep the latest locally saved streak if a stale server profile arrives.
-    // The local account-progress record is persisted immediately after each exam.
+    // Preserve queued local activity until the server acknowledges it; otherwise use
+    // the server's latest current streak instead of reviving a stale pre-gap value.
     try {
       var localProgressKey = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
       var localStreakProgress = parseJson(localStorage.getItem(localProgressKey), {}) || {};
       var localStreak = Math.max(0, Number(localStreakProgress.streak) || 0);
       var serverStreak = Math.max(0, Number(user.streak) || 0);
-      profile.streak = Math.max(serverStreak, localStreak);
+      var localPendingStreak = !!localStreakProgress.streakSyncPending;
+      var serverActivityDates = Array.isArray(user.streakActivityDates) ? user.streakActivityDates : [];
+      var serverHasStreakState = !!user.lastStreakActivityDate || serverActivityDates.length > 0 ||
+        Number(user.highestStreak || 0) > 0 || Number(user.streak || 0) > 0;
+      profile.streak = localPendingStreak ? localStreak : (serverHasStreakState ? serverStreak : Math.max(serverStreak, localStreak));
+      profile.highestStreak = Math.max(
+        Number(localStreakProgress.highestStreak || localStreakProgress.maxStreak) || 0,
+        Number(user.highestStreak) || 0, profile.streak
+      );
+      profile.lastStreakActivityDate = localPendingStreak && String(localStreakProgress.lastStreakActivityDate || '') >= String(user.lastStreakActivityDate || '')
+        ? String(localStreakProgress.lastStreakActivityDate || '')
+        : String(user.lastStreakActivityDate || localStreakProgress.lastStreakActivityDate || '');
+      profile.streakActivityDates = Array.from(new Set(
+        (Array.isArray(localStreakProgress.streakActivityDates) ? localStreakProgress.streakActivityDates : [])
+          .concat(serverActivityDates)
+          .filter(function (date) { return /^\d{4}-\d{2}-\d{2}$/.test(String(date)); })
+      )).sort().slice(-366);
     } catch (_) {
       if (user.streak != null && Number.isFinite(Number(user.streak))) profile.streak = Math.max(0, Number(user.streak) || 0);
     }
@@ -272,13 +288,25 @@
       localProgress.xp = profile.xp;
       localProgress.performanceBonus = profile.xp;
       localProgress.rankPoints = profile.rankPoints;
-      // Persist whichever streak is newer/higher so server refreshes never
-      // overwrite a locally saved streak with an older zero-value snapshot.
-      localProgress.streak = Math.max(0, Number(localProgress.streak) || 0, Number(profile.streak) || 0);
+      // Local pending activity stays authoritative until a successful sync.
+      // After sync, take the server current value so an expired streak remains reset.
+      var hasServerStreakState = !!profile.lastStreakActivityDate ||
+        (Array.isArray(profile.streakActivityDates) && profile.streakActivityDates.length > 0) ||
+        Number(profile.highestStreak || 0) > 0 || Number(profile.streak || 0) > 0;
+      localProgress.streak = localProgress.streakSyncPending
+        ? Math.max(0, Number(localProgress.streak) || 0)
+        : (hasServerStreakState ? Math.max(0, Number(profile.streak) || 0) : Math.max(0, Number(localProgress.streak) || 0, Number(profile.streak) || 0));
       localProgress.highestStreak = Math.max(
         Number(localProgress.highestStreak || localProgress.maxStreak) || 0,
+        Number(profile.highestStreak) || 0,
         localProgress.streak
       );
+      localProgress.lastStreakActivityDate = String(profile.lastStreakActivityDate || localProgress.lastStreakActivityDate || '');
+      localProgress.streakActivityDates = Array.from(new Set(
+        (Array.isArray(localProgress.streakActivityDates) ? localProgress.streakActivityDates : [])
+          .concat(Array.isArray(profile.streakActivityDates) ? profile.streakActivityDates : [])
+          .filter(function (date) { return /^\d{4}-\d{2}-\d{2}$/.test(String(date)); })
+      )).sort().slice(-366);
       localProgress.pendingPBEntries = [];
       localProgress.pendingPB = 0;
       localProgress.rewarded = Array.isArray(localProgress.rewarded) ? localProgress.rewarded : [];
@@ -390,17 +418,31 @@
         action: 'syncStreak',
         streak: Math.max(0, Number(progress.streak) || 0),
         lastStreakActivityDate: String(progress.lastStreakActivityDate || ''),
-        highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0)
+        highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0),
+        streakActivityDates: Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates.slice(-366) : []
       }, creds));
       if (response.user) applyProfile(response.user);
       var key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
       var local = parseJson(localStorage.getItem(key), {}) || {};
       // Only clear the pending marker when the backend explicitly confirms success.
       if (response.success === true || response.synced === true || response.streakSynced === true) {
-        local.streak = Math.max(Number(local.streak) || 0, Number(response.streak) || 0);
+        // Server current streak may correctly reset after a missed day; Highest Streak never decreases.
+        if (response.streak != null) local.streak = Math.max(0, Number(response.streak) || 0);
         local.highestStreak = Math.max(Number(local.highestStreak || local.maxStreak) || 0, Number(local.streak) || 0, Number(response.highestStreak) || 0);
+        local.lastStreakActivityDate = String(response.lastStreakActivityDate || (response.user && response.user.lastStreakActivityDate) || local.lastStreakActivityDate || '');
+        local.streakActivityDates = Array.from(new Set(
+          (Array.isArray(local.streakActivityDates) ? local.streakActivityDates : [])
+            .concat(Array.isArray(response.streakActivityDates) ? response.streakActivityDates : [])
+            .filter(function (date) { return /^\d{4}-\d{2}-\d{2}$/.test(String(date)); })
+        )).sort().slice(-366);
         local.streakSyncPending = false;
         localStorage.setItem(key, JSON.stringify(local));
+        if (app.profile) {
+          app.profile.streak = local.streak;
+          app.profile.highestStreak = local.highestStreak;
+          app.profile.lastStreakActivityDate = local.lastStreakActivityDate;
+          app.profile.streakActivityDates = local.streakActivityDates.slice();
+        }
         updateTopControls(currentProfile || app.profile || {});
         return true;
       }
@@ -469,6 +511,11 @@
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
       accuracy: Math.max(0, Number(raw.accuracy) || 0),
       streak: Math.max(0, Number(raw.streak) || 0),
+      highestStreak: Math.max(Number(raw.highestStreak || raw.HighestStreak) || 0, Number(raw.streak) || 0),
+      lastStreakActivityDate: safeText(raw.lastStreakActivityDate || raw.LastStreakActivityDate || '', 10),
+      streakActivityDates: Array.isArray(raw.streakActivityDates)
+        ? Array.from(new Set(raw.streakActivityDates.map(String).filter(function (date) { return /^\d{4}-\d{2}-\d{2}$/.test(date); }))).sort().slice(-366)
+        : [],
       isMine: (app.authUser && id === String(app.authUser.uid)) || (!app.authUser && id === String(localStorage.getItem(GUEST_ID_KEY) || '')),
       raw: raw
     };
