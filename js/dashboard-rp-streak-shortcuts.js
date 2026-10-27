@@ -23,6 +23,19 @@
     .mat-dash-modal h2{font-size:21px;font-weight:950;margin:0 0 10px}
     .mat-dash-modal p,.mat-dash-modal li{font-size:13px;line-height:1.8;color:var(--muted,#64748b)}
     .mat-dash-modal-close{display:block;margin:16px 0 0 auto;padding:9px 14px;border-radius:11px;background:#059669;color:white;font-size:12px;font-weight:900}
+    .mat-profile-streak-button{position:fixed;top:88px;right:18px;z-index:12000;display:none;align-items:center;gap:8px;padding:10px 15px;border:1px solid rgba(249,115,22,.35);border-radius:999px;background:linear-gradient(135deg,#fff7ed,#ffedd5);color:#9a3412;font-size:13px;font-weight:950;box-shadow:0 8px 24px rgba(124,45,18,.16);cursor:pointer}
+    .mat-profile-streak-button i{font-size:16px;color:#ea580c}
+    .mat-streak-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 12px}
+    .mat-streak-tab{padding:8px 13px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:999px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#0f172a)}
+    .mat-streak-tab[aria-selected="true"]{background:#ea580c;color:#fff;border-color:#ea580c}
+    .mat-streak-chart{display:flex;align-items:stretch;gap:5px;min-height:150px;padding:12px 8px 0;border-bottom:1px solid var(--line,rgba(148,163,184,.2));overflow-x:auto}
+    .mat-streak-column{display:flex;flex:1 0 18px;min-width:18px;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px}
+    .mat-streak-bar-wrap{display:flex;align-items:flex-end;justify-content:center;height:112px;width:100%}
+    .mat-streak-bar{width:min(100%,22px);min-height:3px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#fb923c,#ea580c)}
+    .mat-streak-bar.is-active{background:linear-gradient(180deg,#34d399,#059669)}
+    .mat-streak-label{font-size:9px;line-height:1.2;color:var(--muted,#64748b);white-space:nowrap}
+    .mat-streak-legend{font-size:11px;color:var(--muted,#64748b);margin-top:10px}
+    @media(max-width:640px){.mat-profile-streak-button{top:76px;right:10px;padding:9px 12px;font-size:12px}.mat-streak-chart{gap:3px;padding-left:3px;padding-right:3px}.mat-streak-label{font-size:8px}}
     #leaderboard-body td,#leaderboard-body th{padding:9px 8px!important}
     #leaderboard-body th{white-space:nowrap;font-size:12px}
     #leaderboard-body td:last-child{min-width:0!important;font-size:17px}
@@ -62,6 +75,97 @@
       return JSON.parse(localStorage.getItem(key) || '{}') || {};
     } catch (_) { return {}; }
   }
+
+  function dhakaTodayDate(offset = 0) {
+    const now = new Date(Date.now() + offset * 86400000);
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dhaka', year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(now);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return values.year + '-' + values.month + '-' + values.day;
+  }
+  function dateOffset(dateString, days) {
+    const parts = String(dateString).split('-').map(Number);
+    const d = new Date(Date.UTC(parts[0], parts[1]-1, parts[2] + days));
+    return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
+  }
+  function activityDates(progress) {
+    const dates = Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates : [];
+    const last = String(progress.lastStreakActivityDate || '');
+    if (last && !dates.includes(last)) dates.push(last);
+    return new Set(dates.filter(value => /^\\d{4}-\\d{2}-\\d{2}$/.test(String(value))).map(String));
+  }
+  function streakGraphMarkup(period, dates) {
+    const today = dhakaTodayDate();
+    let items = [];
+    if (period === 'weekly') {
+      for (let i=6;i>=0;i--) {
+        const date = dateOffset(today, -i);
+        const d = new Date(date + 'T00:00:00Z');
+        items.push({ date, label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()], active: dates.has(date) ? 1 : 0 });
+      }
+    } else if (period === 'monthly') {
+      for (let i=29;i>=0;i--) {
+        const date = dateOffset(today, -i);
+        items.push({ date, label: date.slice(8), active: dates.has(date) ? 1 : 0 });
+      }
+    } else {
+      for (let month=0;month<12;month++) {
+        const year = Number(today.slice(0,4));
+        const currentMonth = Number(today.slice(5,7))-1;
+        const index = year*12 + currentMonth - (11-month);
+        const y = Math.floor(index/12), m = index%12;
+        const prefix = y + '-' + String(m+1).padStart(2,'0') + '-';
+        const count = Array.from(dates).filter(date => date.startsWith(prefix)).length;
+        items.push({ date: prefix.slice(0,7), label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m], active: count, month:true });
+      }
+    }
+    const max = Math.max(1, ...items.map(item => item.active));
+    return items.map(item => {
+      const height = item.active ? Math.max(12, Math.round(item.active / max * 100)) : 3;
+      const title = item.month ? item.date + ': ' + item.active + ' active day(s)' : item.date + ': ' + (item.active ? 'Active' : 'No activity recorded');
+      return '<div class="mat-streak-column" title="' + esc(title) + '"><div class="mat-streak-bar-wrap"><div class="mat-streak-bar ' + (item.active ? 'is-active' : '') + '" style="height:' + height + '%"></div></div><span class="mat-streak-label">' + esc(item.label) + '</span></div>';
+    }).join('');
+  }
+  function openProfileStreak() {
+    const progress = profileProgress();
+    const current = Math.max(0, Number(progress.streak ?? app.profile?.streak ?? 0) || 0);
+    const highest = Math.max(current, Number(progress.highestStreak ?? progress.maxStreak ?? app.profile?.highestStreak ?? current) || 0);
+    const dates = activityDates(progress);
+    const body = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">' +
+      '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(249,115,22,.06)"><small>Current Streak</small><h2 style="margin:5px 0 0;color:#ea580c">' + number(current) + ' days</h2></div>' +
+      '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(16,185,129,.06)"><small>Highest Streak</small><h2 style="margin:5px 0 0;color:#059669">' + number(highest) + ' days</h2></div></div>' +
+      '<div class="mat-streak-tabs" role="tablist" aria-label="Streak activity range">' +
+      '<button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="true">Weekly</button>' +
+      '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
+      '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
+      '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
+      '<p class="mat-streak-legend">সবুজ bar = activity recorded · ফাঁকা/কমলা bar = activity record নেই। Graph-এ সংরক্ষিত activity date-ই দেখানো হয়।</p>';
+    modal('Your Streak Journey', body);
+    const chart = document.getElementById('mat-streak-chart');
+    const render = period => {
+      document.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
+      if (chart) chart.innerHTML = streakGraphMarkup(period, dates);
+    };
+    render('weekly');
+    document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
+  }
+  function ensureProfileStreakButton() {
+    let button = document.getElementById('mat-profile-streak-button');
+    if (!button) {
+      button = document.createElement('button');
+      button.id = 'mat-profile-streak-button';
+      button.type = 'button';
+      button.className = 'mat-profile-streak-button';
+      button.setAttribute('data-profile-streak', 'true');
+      button.setAttribute('aria-label', 'Open streak statistics and activity graph');
+      button.innerHTML = '<i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i><span>Streak</span>';
+      document.body.appendChild(button);
+    }
+    const own = document.getElementById('view-profile');
+    const publicProfile = document.getElementById('view-student-profile');
+    const isVisible = section => section && !section.classList.contains('hidden') && section.getAttribute('aria-hidden') !== 'true';
+    button.style.display = isVisible(own) || isVisible(publicProfile) ? 'inline-flex' : 'none';
+  }
+
   function renderShortcuts() {
     // The dashboard shortcut row was intentionally removed. Clean up a copy
     // left in the DOM by an older cached script, but retain this file's
@@ -125,11 +229,12 @@
   document.addEventListener('click', event => {
     const button = event.target.closest?.('[data-shortcut]');
     if (button) handleShortcut(button.dataset.shortcut);
+    if (event.target.closest?.('[data-profile-streak]')) openProfileStreak();
   });
-  const refresh = () => { renderShortcuts(); };
+  const refresh = () => { renderShortcuts(); ensureProfileStreakButton(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh, { once: true }); else refresh();
-  const observer = new MutationObserver(() => renderShortcuts());
-  observer.observe(document.body, { childList: true, subtree: true });
+  const observer = new MutationObserver(() => ensureProfileStreakButton());
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class','aria-hidden'] });
   window.addEventListener('student-progress-updated', refresh);
   window.addEventListener('medical-profile-updated', refresh);
 })();
