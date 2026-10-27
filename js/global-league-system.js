@@ -1479,9 +1479,11 @@
           : 'Friend request rejected successfully.';
         setFriendActionStatus(busyText, false);
         friendActionButton.disabled = true;
+        var friendRequestSendSucceeded = false;
         try {
           if (friendAction === 'send') {
             await friendsApi.sendRequest({ userId: targetId, uid: targetId, name: friendName });
+            friendRequestSendSucceeded = true;
             // Confirm success immediately on the clicked control, rather than letting
             // its sending animation disappear back into an Add Friend button.
             try { localStorage.setItem('med_friend_request_sent_v1_' + accountKey() + '_' + targetId, 'sent'); } catch (_) {}
@@ -1511,8 +1513,25 @@
           setFriendActionStatus(successText, false);
           await loadLeaderboard(true);
         } catch (error) {
-          setFriendActionStatus(String(error && error.message || error || 'Friend action সম্পন্ন হয়নি।'), true);
-          friendActionButton.disabled = false;
+          if (friendAction === 'send' && !friendRequestSendSucceeded) {
+            // A failed send must visibly restore the retry action; do not leave the
+            // button disabled or stuck in its sending/success appearance.
+            friendActionButton.innerHTML = '<i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend';
+            friendActionButton.classList.remove('is-success');
+            friendActionButton.removeAttribute('aria-label');
+            friendActionButton.disabled = false;
+            setFriendActionStatus(String(error && error.message || error || 'Friend request পাঠানো যায়নি। আবার চেষ্টা করুন।'), true);
+          } else if (friendAction === 'send' && friendRequestSendSucceeded) {
+            // Sending succeeded even if a later background refresh failed.
+            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent';
+            friendActionButton.classList.add('is-success');
+            friendActionButton.disabled = true;
+            friendActionButton.setAttribute('aria-label', 'Friend request sent successfully');
+            setFriendActionStatus('✓ Friend request sent to ' + friendName + '. Requestটি pending আছে।', false);
+          } else {
+            setFriendActionStatus(String(error && error.message || error || 'Friend action সম্পন্ন হয়নি।'), true);
+            friendActionButton.disabled = false;
+          }
         }
         return;
       }
