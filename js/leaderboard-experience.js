@@ -517,6 +517,11 @@
       if (action === 'add') {
         setFriendActionBusy(sourceButton, action);
         await sendRequest(activePublicProfile || { userId: targetId, name: 'Student' });
+        // A successful send must render the pending-request action, never the
+        // original Send button. The request ID comes from the backend snapshot.
+        if (!outgoingRequests.some(item => String(item.toUid) === String(targetId))) {
+          await loadConnections(true);
+        }
         successMessage = 'Friend request successfully sent. এখন request pending আছে; চাইলে Cancel করতে পারবেন।';
       } else if (action === 'remove') {
         if (!window.confirm('এই student-কে Friends থেকে remove করবেন?')) return;
@@ -538,6 +543,9 @@
         if (previousCancelledState?.timer) clearTimeout(previousCancelledState.timer);
         cancelledFeedback.set(targetId, { expiresAt: Infinity, timer: null });
         await cancelRequest(requestId);
+        // A successful cancellation must never leave this profile in the outgoing
+        // state, even if an overlapping/stale response briefly contains the request.
+        outgoingRequests = outgoingRequests.filter(item => String(item.toUid) !== String(targetId));
         successMessage = 'Friend request cancelled successfully. এখন চাইলে আবার পাঠাতে পারবেন।';
         const cancelledState = { expiresAt: Date.now() + 1800, timer: null };
         cancelledState.timer = setTimeout(() => {
