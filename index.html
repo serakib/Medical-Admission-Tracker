@@ -372,7 +372,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
     <aside id="app-sidebar" class="app-sidebar" aria-label="Main navigation">
       <div class="sidebar-head"><div class="sidebar-brand" onclick="window.app.showView('home');closeAppSidebar()"><span class="sidebar-brand-icon"><i class="fa-solid fa-stethoscope"></i></span><span><strong>মেডিকেল ভর্তি পরীক্ষা</strong><small>Admission Preparation</small></span></div><button id="sidebar-collapse-toggle" class="sidebar-collapse-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar" onclick="event.stopPropagation();toggleAppSidebarCollapse()"><i class="fa-solid fa-angles-left"></i></button></div>
       <nav class="sidebar-nav">
-        <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar()" type="button"><i class="fa-solid fa-house"></i><span>Home</span></button>
+        <button data-nav-view="home" onclick="window.app.showView('home');closeAppSidebar()" type="button" aria-label="Open Dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></button>
         <button data-nav-view="question-bank" onclick="window.app.openQuestionBank('view');closeAppSidebar()" type="button"><i class="fa-solid fa-book-medical"></i><span>Question Bank</span></button>
         <button data-nav-view="practice" onclick="window.app.openPracticeBrowser();closeAppSidebar()" type="button"><i class="fa-solid fa-bullseye"></i><span>Practice</span></button>
         <button data-nav-view="setup" onclick="window.app.setupExamQuick('model');closeAppSidebar()" type="button"><i class="fa-solid fa-clipboard-check"></i><span>Model Test</span></button>
@@ -384,7 +384,7 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
       </nav>
       <div class="sidebar-bottom">
         <button class="sidebar-action profile-action" data-nav-view="profile" onclick="window.app.openProfile();closeAppSidebar()" type="button" aria-label="Open Student Profile"><i class="fa-solid fa-user-graduate"></i><span>Student Profile</span></button>
-        <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Profile</span></button>
+        <button class="sidebar-action account-action" data-nav-view="account" onclick="window.app.openAccountProfile();closeAppSidebar()" type="button" aria-label="Open Account Profile"><i class="fa-solid fa-user-gear"></i><span>Account Settings</span></button>
         <button id="sidebar-auth-action" class="sidebar-action login-action" onclick="window.app && window.app.authUser ? window.handleLogout() : window.redirectToLogin()" type="button" aria-label="Log In / Sign Up"><i class="fa-solid fa-right-to-bracket"></i><span>Log In / Sign Up</span></button>
       </div>
     </aside>
@@ -499,11 +499,21 @@ function toggleAppSidebarCollapse(){
             <div class="section-hero">
                 <div>
                     <span class="eyebrow"><i class="fa-solid fa-user-gear"></i> Account Center</span>
-                    <h2>Account Profile</h2>
+                    <h2>Account Settings</h2>
                     <p>আপনার account, sign-in options ও app preferences এক জায়গায় পরিচালনা করুন।</p>
                 </div>
                 <button class="ghost-btn" type="button" onclick="window.app.openProfile()"><i class="fa-solid fa-chart-line"></i> Student Profile</button>
             </div>
+            <article class="account-action-card website-guide-card">
+                <span class="account-action-icon website-guide-icon"><i class="fa-solid fa-images" aria-hidden="true"></i></span>
+                <div class="flex-1 min-w-0">
+                    <h3>Website Guide Slideshow</h3>
+                    <p>Question Bank, Practice, Model Test, Previous Year, Leaderboard, Syllabus এবং account settings কীভাবে ব্যবহার করবেন—সহজ step-by-step guide। আপনার latest available profile ও progress-ও এখানে দেখানো হবে।</p>
+                </div>
+                <button id="mws-launch" class="website-guide-button" type="button" aria-haspopup="dialog" aria-label="Open personalized website guide slideshow">
+                    <i class="fa-solid fa-play" aria-hidden="true"></i><span>Start Guide</span>
+                </button>
+            </article>
             <div class="profile-hero">
                 <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
                 <div class="min-w-0 flex-1">
@@ -842,7 +852,7 @@ function toggleAppSidebarCollapse(){
                     <h2>Question Bank</h2><p>শুধু পড়ুন, answer দেখুন, filter করুন—কোনো exam শুরু হবে না।</p>
                 </div>
                 <div class="question-bank-hero-actions">
-                    <button onclick="window.app.showView('home')" class="ghost-btn"><i class="fa-solid fa-arrow-right"></i> Home</button>
+                    <button onclick="window.app.showView('home')" class="ghost-btn"><i class="fa-solid fa-arrow-right"></i> Dashboard</button>
                 </div>
             </div>
             <div class="question-bank-status-slot">
@@ -889,7 +899,7 @@ function toggleAppSidebarCollapse(){
         <section id="view-previous" class="view-section hidden space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div><span class="text-xs font-bold text-medical-600 dark:text-medical-400">Previous Year Question Bank</span><h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">Previous Year Questions</h2><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">No exam required. Read the paper, reveal answers, or start a quiz for the selected year.</p></div>
-                <button onclick="window.app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Home</button>
+                <button onclick="window.app.showView('home')" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 font-bold text-sm">Dashboard</button>
             </div>
             <div id="previous-year-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
             <div id="previous-browser" class="hidden space-y-4">

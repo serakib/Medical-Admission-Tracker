@@ -833,3 +833,60 @@ body.exam-active #question-data-status-wrap{display:none!important}
 .question-bank-title-area h2{margin-top:0}
 .question-bank-hero-actions{align-self:flex-start}
 @media(max-width:640px){.question-bank-title-row{gap:8px}.question-bank-title-row .question-data-refresh-btn{padding:7px 9px}.question-bank-hero-actions{width:auto;justify-content:flex-end}}
+
+
+/* Responsive layout refinement: desktop, tablet and phone */
+.website-guide-card{position:relative;gap:16px;align-items:center;border-color:rgba(5,150,105,.24);background:linear-gradient(115deg,color-mix(in srgb,var(--brand,#059669) 5%,var(--surface,#fff)),var(--surface,#fff));}
+.website-guide-icon{background:linear-gradient(135deg,#059669,#0284c7)!important;color:#fff!important;box-shadow:0 8px 20px rgba(5,150,105,.18)}
+.website-guide-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;flex:0 0 auto;min-height:44px;padding:11px 17px;border:0;border-radius:13px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff;font-size:13px;font-weight:850;box-shadow:0 8px 18px rgba(5,150,105,.18);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+.website-guide-button:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(5,150,105,.25)}
+.website-guide-button:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}
+.dark .website-guide-card{background:linear-gradient(115deg,rgba(5,150,105,.10),var(--surface,#111827));border-color:rgba(52,211,153,.24)}
+/* Prevent long content and grids from forcing horizontal page scroll. */
+main,.view-section,.profile-panel,.account-action-card,.section-hero{min-width:0;max-width:100%;box-sizing:border-box}
+.view-section img,.view-section video,.view-section canvas{max-width:100%;height:auto}
+.view-section input,.view-section select,.view-section textarea{max-width:100%;min-width:0;box-sizing:border-box}
+.view-section button,.app-sidebar button{touch-action:manipulation}
+.view-section :where(h1,h2,h3,p,small,strong,span,a,label){overflow-wrap:anywhere}
+@media(max-width:1100px){
+  .website-guide-card{align-items:flex-start}
+  .account-action-card{gap:12px}
+  .profile-hero{gap:16px}
+  .view-section .grid{min-width:0}
+}
+@media(max-width:760px){
+  .website-guide-card{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start;padding:16px}
+  .website-guide-card .website-guide-icon{grid-column:1;grid-row:1;width:44px;height:44px}
+  .website-guide-card>div{grid-column:2;grid-row:1;min-width:0}
+  .website-guide-button{grid-column:1/-1;width:100%;min-height:46px}
+  .account-action-card{align-items:flex-start;flex-wrap:wrap}
+  .account-action-card>div{flex:1 1 180px;min-width:0}
+  .account-action-card>.ghost-btn,.account-action-card>.website-guide-button{margin-left:auto}
+  .section-hero{align-items:flex-start;flex-wrap:wrap;gap:12px}
+  .section-hero>button{max-width:100%}
+  .profile-hero{align-items:flex-start;flex-wrap:wrap}
+  .profile-hero .min-w-0{width:100%}
+  .view-section .overflow-x-auto{max-width:100%;overscroll-behavior-x:contain}
+  .view-section table{min-width:560px}
+}
+@media(max-width:520px){
+  main{padding-left:12px!important;padding-right:12px!important}
+  .view-section{padding-left:0!important;padding-right:0!important}
+  .website-guide-card{padding:13px;border-radius:17px}
+  .account-action-card{padding:14px;border-radius:17px}
+  .account-action-card .ghost-btn{min-height:42px}
+  .section-hero h1,.section-hero h2{font-size:clamp(1.35rem,6vw,1.8rem);line-height:1.3}
+  .profile-hero{padding:16px;border-radius:18px}
+  .profile-name{font-size:clamp(1.25rem,5.5vw,1.75rem);overflow-wrap:anywhere}
+  .view-section :where(input,select,textarea){font-size:16px}
+  .view-section :where(button,a.ghost-btn){max-width:100%;white-space:normal}
+  .view-section .flex{min-width:0}
+  .view-section .flex-wrap{row-gap:9px}
+  .view-section .grid{grid-template-columns:minmax(0,1fr)}
+  .view-section .sm\:grid-cols-2,.view-section .md\:grid-cols-2{grid-template-columns:minmax(0,1fr)}
+  .view-section .contact-reference-grid{grid-template-columns:minmax(0,1fr)}
+  .question-bank-title-row{align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .website-guide-button{transition:none}
+}
