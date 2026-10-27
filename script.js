@@ -1632,6 +1632,7 @@ class MedicalExamApp {
         const counts = {
             all: cards.length,
             answered: cards.filter(card => card.dataset.reviewAnswered === 'true').length,
+            correct: cards.filter(card => card.dataset.reviewStatus === 'correct').length,
             wrong: cards.filter(card => card.dataset.reviewStatus === 'wrong').length,
             skipped: cards.filter(card => card.dataset.reviewStatus === 'skipped').length
         };
@@ -1654,6 +1655,7 @@ class MedicalExamApp {
                     const status = card.dataset.reviewStatus;
                     const answered = card.dataset.reviewAnswered === 'true';
                     card.hidden = !(filter === 'all' || (filter === 'answered' && answered) ||
+                        (filter === 'correct' && status === 'correct') ||
                         (filter === 'wrong' && status === 'wrong') || (filter === 'skipped' && status === 'skipped'));
                 });
             });
@@ -1665,6 +1667,7 @@ class MedicalExamApp {
             const status = card.dataset.reviewStatus;
             const answered = card.dataset.reviewAnswered === 'true';
             card.hidden = !(filter === 'all' || (filter === 'answered' && answered) ||
+                (filter === 'correct' && status === 'correct') ||
                 (filter === 'wrong' && status === 'wrong') || (filter === 'skipped' && status === 'skipped'));
         });
     }
