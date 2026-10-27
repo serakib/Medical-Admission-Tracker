@@ -982,7 +982,8 @@
       if (requestId !== loadSequence) return;
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
-      if (!silent && requestId === loadSequence) setLeaderboardRefreshBusy(false);
+      // A newer silent/background/tab refresh must also stop an animation started by a manual refresh.
+      if (requestId === loadSequence) setLeaderboardRefreshBusy(false);
     }
   }
   function queueResult(item) {
