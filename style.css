@@ -824,3 +824,12 @@ body.exam-active #question-data-status-wrap{display:none!important}
 .question-data-status-wrap #question-data-status{width:100%;max-width:none;margin:0}
 .question-data-status-wrap #question-data-status.hidden{display:none!important}
 @media(max-width:640px){.question-bank-hero-actions{width:100%;justify-content:flex-start}.question-bank-hero-actions .question-data-refresh-btn{order:0}.question-bank-hero-actions .ghost-btn{order:1}.question-bank-hero-actions .question-data-refresh-btn span{max-width:none;white-space:nowrap}}
+
+/* Keep Refresh directly beside the Question Bank label, not in a separate top row */
+.question-bank-title-row{display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.question-bank-title-row .eyebrow{margin:0}
+.question-bank-title-row .question-data-refresh-btn{padding:7px 11px;font-size:11px;border-radius:10px}
+.question-bank-title-row .question-data-refresh-btn span{white-space:nowrap}
+.question-bank-title-area h2{margin-top:0}
+.question-bank-hero-actions{align-self:flex-start}
+@media(max-width:640px){.question-bank-title-row{gap:8px}.question-bank-title-row .question-data-refresh-btn{padding:7px 9px}.question-bank-hero-actions{width:auto;justify-content:flex-end}}
