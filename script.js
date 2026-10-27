@@ -102,6 +102,7 @@ class MedicalExamApp {
 
     async init() {
         this.applyTheme();
+        this.initButtonFeedback();
         this.applyLanguage();
         history.replaceState({ app: true }, '', window.location.href);
         this.showView('home');
@@ -874,18 +875,53 @@ class MedicalExamApp {
         }
     }
 
+    initButtonFeedback() {
+        if (this._buttonFeedbackBound) return;
+        this._buttonFeedbackBound = true;
+
+        // Delegated feedback works for buttons that are rendered later too.
+        document.addEventListener('click', (event) => {
+            const target = event.target instanceof Element
+                ? event.target.closest('button, [role="button"], input[type="button"], input[type="submit"]')
+                : null;
+            if (!target || target.disabled ||
+                target.getAttribute('aria-disabled') === 'true' ||
+                target.id === 'theme-toggle' ||
+                target.closest('[data-suppress-action-feedback]')) return;
+
+            target.classList.remove('button-action-feedback');
+            void target.offsetWidth;
+            target.classList.add('button-action-feedback');
+            window.setTimeout(() => target.classList.remove('button-action-feedback'), 650);
+        }, true);
+    }
+
     toggleTheme() {
         this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
         localStorage.setItem('med_theme', this.currentTheme);
-        this.applyTheme();
+        this.applyTheme(true);
         this.renderAccountProfile();
     }
 
-    applyTheme() {
-        if (this.currentTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
+    applyTheme(animateIcon = false) {
+        const isDark = this.currentTheme === 'dark';
+        document.documentElement.classList.toggle('dark', isDark);
+
+        // Make the selected theme unmistakable: sun for light, moon for dark.
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const icon = isDark
+                ? '<svg class="theme-toggle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486A9 9 0 1 1 11.514 3.015a7 7 0 0 0 9.471 9.471Z"></path></svg>'
+                : '<svg class="theme-toggle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg>';
+            themeToggle.innerHTML = icon;
+            themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+            themeToggle.setAttribute('aria-label', themeToggle.title);
+            themeToggle.setAttribute('aria-pressed', String(isDark));
+            themeToggle.dataset.themeState = isDark ? 'dark' : 'light';
+            if (animateIcon) {
+                const svg = themeToggle.querySelector('svg');
+                if (svg) svg.classList.add('theme-icon-animate');
+            }
         }
     }
 
