@@ -890,3 +890,57 @@ main,.view-section,.profile-panel,.account-action-card,.section-hero{min-width:0
 @media(prefers-reduced-motion:reduce){
   .website-guide-button{transition:none}
 }
+
+/* Mobile-only positioning and structure adjustments. Existing button styles and actions are preserved. */
+@media (max-width: 640px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+  main { width: 100%; min-width: 0; padding-left: 12px !important; padding-right: 12px !important; }
+  main > .view-section,
+  main .view-section > *,
+  main article,
+  main section,
+  main .grid > *,
+  main .flex > * { min-width: 0; }
+  main h1, main h2, main h3, main p, main label,
+  main .eyebrow { overflow-wrap: anywhere; }
+  main .flex.flex-wrap { row-gap: .55rem; }
+  #view-home > div:first-child { padding: 22px 16px !important; }
+  #view-home .pt-2.flex { display: flex; flex-wrap: wrap; align-items: stretch; gap: .55rem; }
+  #view-home .pt-2.flex > button { flex: 1 1 145px; }
+  #view-home .grid { gap: .7rem; }
+  #view-home .grid > * { min-width: 0; }
+  .section-hero { width: 100%; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; padding: 17px; }
+  .section-hero > div { min-width: 0; max-width: 100%; }
+  .filter-bar { display: flex; flex-wrap: wrap; padding: 10px; gap: 8px; }
+  .filter-field { min-width: 0; flex: 1 1 100%; gap: 7px; padding-inline: 10px; }
+  .filter-field input { min-width: 0; }
+  .filter-bar select { min-width: 0; width: 100%; max-width: 100%; }
+  .section-toolbar { align-items: flex-start; flex-wrap: wrap; gap: 6px 12px; }
+  .bank-card { min-width: 0; }
+  .bank-meta { display: flex; flex-wrap: wrap; }
+  .bank-options { min-width: 0; }
+  .bank-option { min-width: 0; overflow-wrap: anywhere; }
+  #practice-question { min-width: 0; }
+  .practice-option { min-width: 0; overflow-wrap: anywhere; }
+  .practice-nav { display: flex; flex-wrap: wrap; }
+  .practice-nav > * { min-width: 0; flex: 1 1 120px; }
+  .profile-hero { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .profile-action { margin-left: 0; }
+  .profile-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .profile-stat-card { min-width: 0; overflow-wrap: anywhere; }
+  .account-action-card { display: flex; flex-wrap: wrap; gap: 12px; }
+  .website-guide-card { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; }
+  .website-guide-card .website-guide-icon { grid-column: 1; grid-row: 1; }
+  .website-guide-card > div { grid-column: 2; grid-row: 1; min-width: 0; }
+  .website-guide-card .website-guide-button { grid-column: 1 / -1; }
+  .table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 520px; }
+  input, select, textarea { max-width: 100%; min-width: 0; }
+  [role="dialog"] { max-width: calc(100vw - 20px); }
+  [role="dialog"] > div { max-width: 100%; }
+}
+@media (max-width: 380px) {
+  main { padding-left: 9px !important; padding-right: 9px !important; }
+  #view-home > div:first-child { padding: 18px 13px !important; }
+  .profile-stat-grid { gap: 7px; }
+}
