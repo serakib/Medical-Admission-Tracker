@@ -2133,6 +2133,49 @@ window.handleAccountDeletion = function() {
     progress.pendingPB = pendingPBTotal(progress);
     return { ...progress };
   };
+  // Daily streak tracks a student's visit/activity on the site, not only exam submissions.
+  // The date and streak are written locally first, so offline visits are never lost.
+  function dhakaDate(offsetDays = 0) {
+    const date = new Date(Date.now() + offsetDays * 86400000);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Dhaka', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return values.year + '-' + values.month + '-' + values.day;
+  }
+  app.recordDailyStreakActivity = function() {
+    const progress = readProgress();
+    const today = dhakaDate();
+    const yesterday = dhakaDate(-1);
+    const previousDate = String(progress.lastStreakActivityDate || progress.lastExamDate || '');
+    if (previousDate !== today) {
+      if (previousDate === yesterday) progress.streak = Math.max(0, Number(progress.streak) || 0) + 1;
+      else progress.streak = 1;
+      progress.lastStreakActivityDate = today;
+      progress.highestStreak = Math.max(
+        Number(progress.highestStreak || progress.maxStreak) || 0,
+        Number(progress.streak) || 0
+      );
+      progress.streakSyncPending = true;
+      saveProgress(progress);
+      syncRankProgress(progress, 'daily-streak-activity');
+    } else if (!progress.lastStreakActivityDate) {
+      progress.lastStreakActivityDate = today;
+      progress.highestStreak = Math.max(Number(progress.highestStreak || progress.maxStreak) || 0, Number(progress.streak) || 0);
+      saveProgress(progress);
+    }
+    return { streak: Math.max(0, Number(progress.streak) || 0), lastStreakActivityDate: String(progress.lastStreakActivityDate || today), highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0), pending: !!progress.streakSyncPending };
+  };
+  function trackDailyVisit() {
+    try { app.recordDailyStreakActivity(); } catch (_) {}
+  }
+  // Track on page entry and when returning to the site on a later day.
+  trackDailyVisit();
+  window.addEventListener('student-auth-state-resolved', trackDailyVisit);
+  window.addEventListener('student-profile-loaded', trackDailyVisit);
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) trackDailyVisit();
+  });
   function getConvertibleProgress() {
     app.settlePendingPB();
     return readProgress();
