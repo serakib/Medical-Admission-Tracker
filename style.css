@@ -776,3 +776,31 @@ html.dark #view-practice #practice-attempt-history {
 .practice-history-explanation { margin-top: 12px; padding: 12px 14px; border-left: 3px solid #0d9488; border-radius: 8px; background: rgba(13,148,136,.08); }
 .practice-history-explanation h5 { margin: 0 0 5px; font-size: 13px; font-weight: 850; }
 .practice-history-explanation p { margin: 0; line-height: 1.75; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Animated question-bank loading and success feedback */
+.question-data-status-banner{position:relative;display:flex;align-items:center;gap:12px;max-width:1200px;margin:12px auto;padding:13px 16px;border:1px solid rgba(59,130,246,.2);border-radius:16px;background:linear-gradient(110deg,rgba(239,246,255,.98),rgba(224,242,254,.88));color:#1d4ed8;box-shadow:0 8px 24px rgba(37,99,235,.08);overflow:hidden;transition:opacity .24s ease,transform .24s ease}
+.dark .question-data-status-banner{background:linear-gradient(110deg,rgba(30,41,59,.98),rgba(15,48,57,.96));color:#bfdbfe;border-color:rgba(96,165,250,.22)}
+.question-data-status-banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#60a5fa,#22d3ee,#60a5fa);background-size:200% 100%;animation:question-status-progress 1.1s linear infinite}
+.question-data-status-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:rgba(59,130,246,.12);font-size:18px}
+.question-data-status-banner>span:nth-child(2){display:grid;gap:2px;min-width:0}
+.question-data-status-banner strong{font-size:13px;font-weight:900}
+.question-data-status-banner small{font-size:11px;opacity:.78;line-height:1.5}
+.question-loading-spin{animation:question-status-spin .9s linear infinite}
+.question-loading-dots{display:flex;gap:4px;margin-left:auto}
+.question-loading-dots i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:question-status-bounce .7s ease-in-out infinite alternate}
+.question-loading-dots i:nth-child(2){animation-delay:.15s}.question-loading-dots i:nth-child(3){animation-delay:.3s}
+.question-data-status-banner.is-success{background:linear-gradient(110deg,#ecfdf5,#d1fae5);color:#047857;border-color:rgba(16,185,129,.28);animation:question-status-pop .32s ease-out}
+.dark .question-data-status-banner.is-success{background:linear-gradient(110deg,rgba(6,78,59,.45),rgba(6,95,70,.3));color:#6ee7b7}
+.question-data-status-banner.is-success::after{background:#10b981;animation:none}
+.question-data-status-banner.is-success .question-data-status-icon{background:rgba(16,185,129,.14)}
+.question-data-status-check{margin-left:auto;font-size:17px}
+.question-data-status-banner.is-error{background:rgba(254,242,242,.98);color:#b91c1c;border-color:rgba(239,68,68,.25)}
+.dark .question-data-status-banner.is-error{background:rgba(127,29,29,.2);color:#fca5a5}
+.question-data-status-banner.is-error::after{display:none}
+.question-data-status-banner.is-leaving{opacity:0;transform:translateY(-6px)}
+@keyframes question-status-spin{to{transform:rotate(360deg)}}
+@keyframes question-status-bounce{to{transform:translateY(-4px);opacity:.5}}
+@keyframes question-status-progress{to{background-position:200% 0}}
+@keyframes question-status-pop{from{opacity:.6;transform:translateY(-4px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.question-data-status-banner,.question-loading-spin,.question-loading-dots i,.question-data-status-banner::after{animation:none;transition:none}}
+@media(max-width:600px){.question-data-status-banner{margin:8px 0;padding:11px 12px;border-radius:13px}.question-data-status-icon{width:34px;height:34px;flex-basis:34px}}
