@@ -211,3 +211,81 @@ html.dark .account-progress-extra .progress-extra-card strong,body.dark .account
 #leaderboard-friend-status.text-red-600{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.25)}
 #leaderboard-friend-status.text-emerald-700{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)}
 @media(max-width:520px){.mat-friend-search-action{width:100%;padding-left:52px;justify-content:flex-start}.mat-friend-search-action .mat-row-friend-button{margin:0}.mat-friends-request{align-items:flex-start;flex-wrap:wrap}.mat-friends-request .mat-profile-actions{width:100%;padding-left:52px}.mat-friend-profile-link{max-width:100%}}
+
+
+/* Compact, aligned leaderboard rows: reduce wasted space without crowding text. */
+#view-leaderboard .leaderboard-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+#view-leaderboard .leaderboard-table-wrap table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+}
+#view-leaderboard .leaderboard-table-wrap th,
+#view-leaderboard .leaderboard-table-wrap td {
+  padding: 9px 12px !important;
+  vertical-align: middle;
+  line-height: 1.35;
+  white-space: normal;
+}
+#view-leaderboard .leaderboard-table-wrap th {
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+#view-leaderboard .leaderboard-table-wrap td {
+  font-size: .875rem;
+}
+#view-leaderboard .leaderboard-table-wrap .leader-row {
+  height: auto;
+  min-height: 0;
+}
+#view-leaderboard .leaderboard-table-wrap .leader-person {
+  gap: 8px;
+  min-width: 0;
+  align-items: center;
+}
+#view-leaderboard .leaderboard-table-wrap .leader-person > div,
+#view-leaderboard .leaderboard-table-wrap .leader-person > span {
+  min-width: 0;
+}
+#view-leaderboard .leaderboard-table-wrap .leader-person b {
+  font-size: .875rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+#view-leaderboard .leaderboard-table-wrap .leader-person em {
+  margin-top: 2px;
+  line-height: 1.25;
+  font-size: .62rem;
+}
+#view-leaderboard .leaderboard-table-wrap .leader-avatar {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+#view-leaderboard .leaderboard-table-wrap .rank-badge {
+  min-width: 27px;
+  height: 27px;
+  padding: 0 6px;
+}
+#view-leaderboard .leaderboard-table-wrap .mat-row-friend-button {
+  margin-top: 4px;
+}
+@media (max-width: 767px) {
+  #view-leaderboard .leaderboard-table-wrap table {
+    min-width: 660px;
+  }
+  #view-leaderboard .leaderboard-table-wrap th,
+  #view-leaderboard .leaderboard-table-wrap td {
+    padding: 8px 9px !important;
+  }
+  #view-leaderboard .leaderboard-table-wrap td {
+    font-size: .82rem;
+  }
+}
