@@ -760,3 +760,15 @@ html.dark #view-practice #practice-attempt-history {
 #review-list-container>[hidden]{display:none!important}
 #answer-review-filters [data-review-filter][data-review-filter="correct"].active{background:linear-gradient(135deg,#059669,#0d9488);box-shadow:0 6px 15px rgba(5,150,105,.22)}
 @media(max-width:480px){#answer-review-filters.answer-review-filters{gap:7px;padding:9px}#answer-review-filters [data-review-filter]{flex:1 1 calc(50% - 7px);padding:8px 10px}}
+
+/* Full question/options and latest selected/correct answers in Practice History */
+.practice-history-options { margin: 12px 0; }
+.practice-history-options > strong { display:block; margin-bottom:6px; font-size:13px; }
+.practice-history-options ol { list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+.practice-history-options li { display:flex; align-items:flex-start; flex-wrap:wrap; gap:5px; padding:8px 10px; border:1px solid rgba(100,132,160,.2); border-radius:9px; line-height:1.6; overflow-wrap:anywhere; }
+.practice-history-options li.is-correct-option { border-color:rgba(16,185,129,.55); background:rgba(16,185,129,.09); }
+.practice-history-options li.is-selected-option:not(.is-correct-option) { border-color:rgba(239,68,68,.5); background:rgba(248,113,113,.08); }
+.practice-history-option-letter { font-weight:800; flex:0 0 auto; }
+.practice-history-option-tag { display:inline-block; margin-left:4px; padding:1px 6px; border-radius:999px; font-size:10px; font-weight:750; background:rgba(100,116,139,.12); }
+.practice-history-options li.is-correct-option .practice-history-option-tag { color:#059669; }
+.practice-history-options li.is-selected-option:not(.is-correct-option) .practice-history-option-tag { color:#dc2626; }
