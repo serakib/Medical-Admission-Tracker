@@ -449,23 +449,55 @@
     }
   }
 
-  async function handleFriendAction(action, targetId, requestId) {
+  function setFriendActionBusy(button, action) {
+    if (!button || button.dataset.friendActionBusy === '1') return;
+    button.dataset.friendActionBusy = '1';
+    button.dataset.friendActionOriginalHtml = button.innerHTML;
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.classList.add('is-refreshing');
+    const labels = {
+      add: 'Sending Request…',
+      accept: 'Accepting…',
+      reject: 'Rejecting…',
+      cancel: 'Cancelling…',
+      remove: 'Removing Friend…'
+    };
+    button.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1" aria-hidden="true"></i> ' + (labels[action] || 'Processing…');
+  }
+
+  function restoreFriendActionButton(button) {
+    if (!button || !button.dataset.friendActionBusy) return;
+    button.innerHTML = button.dataset.friendActionOriginalHtml || button.innerHTML;
+    delete button.dataset.friendActionOriginalHtml;
+    delete button.dataset.friendActionBusy;
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+    button.classList.remove('is-refreshing');
+  }
+
+  async function handleFriendAction(action, targetId, requestId, sourceButton) {
     let successMessage = '';
     try {
       if (action === 'add') {
+        setFriendActionBusy(sourceButton, action);
         await sendRequest(activePublicProfile || { userId: targetId, name: 'Student' });
         successMessage = 'Friend request successfully sent. এখন request pending আছে; চাইলে Cancel করতে পারবেন।';
       } else if (action === 'remove') {
         if (!window.confirm('এই student-কে Friends থেকে remove করবেন?')) return;
+        setFriendActionBusy(sourceButton, action);
         await removeFriend(targetId);
         successMessage = 'Friend removed successfully. চাইলে আবার Friend Request পাঠাতে পারবেন।';
       } else if (action === 'accept') {
+        setFriendActionBusy(sourceButton, action);
         await acceptRequest(requestId);
         successMessage = 'Friend request accepted successfully. এখন student আপনার Friends list-এ আছে।';
       } else if (action === 'reject') {
+        setFriendActionBusy(sourceButton, action);
         await rejectRequest(requestId);
         successMessage = 'Friend request rejected.';
       } else if (action === 'cancel') {
+        setFriendActionBusy(sourceButton, action);
         await cancelRequest(requestId);
         successMessage = 'Friend request cancelled successfully. এখন চাইলে আবার পাঠাতে পারবেন।';
       } else if (action === 'edit-profile') {
@@ -496,6 +528,7 @@
         setFriendPanelStatus(successMessage, false);
       }
     } catch (error) {
+      restoreFriendActionButton(sourceButton);
       setStatus(errorMessage(error), true);
       setFriendPanelStatus(errorMessage(error), true);
     }
@@ -506,18 +539,14 @@
     if (profileAction) {
       event.preventDefault();
       event.stopPropagation();
-      if (profileAction.dataset.studentFriendAction === 'add') {
-        profileAction.disabled = true;
-        profileAction.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1" aria-hidden="true"></i> Sending Request…';
-      }
-      await handleFriendAction(profileAction.dataset.studentFriendAction, activePublicProfile?.userId, profileAction.dataset.requestId);
+      await handleFriendAction(profileAction.dataset.studentFriendAction, activePublicProfile?.userId, profileAction.dataset.requestId, profileAction);
       return;
     }
     const requestAction = event.target.closest?.('[data-friend-action]');
     if (requestAction) {
       event.preventDefault();
       event.stopPropagation();
-      await handleFriendAction(requestAction.dataset.friendAction, requestAction.dataset.targetId || '', requestAction.dataset.requestId);
+      await handleFriendAction(requestAction.dataset.friendAction, requestAction.dataset.targetId || '', requestAction.dataset.requestId, requestAction);
     }
   });
   document.addEventListener('student-auth-state-resolved', () => {
