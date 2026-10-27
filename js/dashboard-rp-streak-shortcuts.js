@@ -63,6 +63,11 @@
     } catch (_) { return {}; }
   }
   function renderShortcuts() {
+    // The dashboard shortcut row was intentionally removed. Clean up a copy
+    // left in the DOM by an older cached script, but retain this file's
+    // leaderboard polish stylesheet.
+    document.getElementById('mat-dash-shortcuts')?.remove();
+    return;
     const home = document.getElementById('view-home');
     const stats = home?.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
     if (!home || !stats) return;
