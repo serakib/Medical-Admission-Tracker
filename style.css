@@ -816,3 +816,11 @@ html.dark #view-practice #practice-attempt-history {
 .question-data-refresh-btn i{font-size:13px}
 body.exam-active #question-data-status-wrap{display:none!important}
 @media(max-width:600px){.question-data-status-wrap{align-items:stretch;gap:8px;padding-left:10px;padding-right:10px}.question-data-refresh-btn{padding:10px 11px;font-size:11px}.question-data-refresh-btn span{max-width:86px;white-space:normal;line-height:1.25}.question-data-status-banner{padding:10px;gap:8px}.question-data-status-banner small{font-size:10px}}
+
+/* Refresh controls belong only in the Question Bank header, never globally */
+.question-bank-hero-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.question-bank-status-slot{min-width:0}
+.question-data-status-wrap{display:block;width:100%;margin:0;padding:0}
+.question-data-status-wrap #question-data-status{width:100%;max-width:none;margin:0}
+.question-data-status-wrap #question-data-status.hidden{display:none!important}
+@media(max-width:640px){.question-bank-hero-actions{width:100%;justify-content:flex-start}.question-bank-hero-actions .question-data-refresh-btn{order:0}.question-bank-hero-actions .ghost-btn{order:1}.question-bank-hero-actions .question-data-refresh-btn span{max-width:none;white-space:nowrap}}
