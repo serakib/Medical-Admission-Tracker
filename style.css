@@ -758,4 +758,5 @@ html.dark #view-practice #practice-attempt-history {
 #answer-review-filters [data-review-filter].active{color:#fff;background:linear-gradient(135deg,#2563eb,#4f46e5);border-color:transparent;box-shadow:0 6px 15px rgba(37,99,235,.22)}
 #answer-review-filters [data-review-filter].active span{background:rgba(255,255,255,.2)}
 #review-list-container>[hidden]{display:none!important}
+#answer-review-filters [data-review-filter][data-review-filter="correct"].active{background:linear-gradient(135deg,#059669,#0d9488);box-shadow:0 6px 15px rgba(5,150,105,.22)}
 @media(max-width:480px){#answer-review-filters.answer-review-filters{gap:7px;padding:9px}#answer-review-filters [data-review-filter]{flex:1 1 calc(50% - 7px);padding:8px 10px}}
