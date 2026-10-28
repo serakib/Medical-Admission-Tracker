@@ -123,28 +123,104 @@
   function attemptedQuestionCounts() {
     const key = 'med_practice_attempt_history_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
     const counts = new Map();
+    counts.hourly = new Map();
+    counts.monthly = new Map();
+    counts.details = new Map();
+    const dhakaParts = timestamp => {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone:'Asia/Dhaka', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hourCycle:'h23'
+      }).formatToParts(new Date(timestamp));
+      const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      return { date:values.year + '-' + values.month + '-' + values.day, month:values.year + '-' + values.month, hour:Number(values.hour) };
+    };
     try {
       const history = JSON.parse(localStorage.getItem(key) || '{}') || {};
-      Object.values(history).forEach(entry => {
+      Object.entries(history).forEach(([questionKey, entry]) => {
         if (!entry || entry.attempted !== true) return;
         let timestamps = Array.isArray(entry.attemptTimestamps) ? entry.attemptTimestamps : [];
-        if (!timestamps.length) {
-          timestamps = [entry.firstAttemptAt, entry.updatedAt]
-            .filter((value, index, values) => value != null && values.indexOf(value) === index);
-        }
+        if (!timestamps.length) timestamps = [entry.firstAttemptAt, entry.updatedAt].filter((value, index, values) => value != null && values.indexOf(value) === index);
+        timestamps = [...new Set(timestamps.map(Number).filter(value => Number.isFinite(value) && value > 0))];
         timestamps.forEach(timestamp => {
-          const numeric = Number(timestamp);
-          if (!Number.isFinite(numeric) || numeric <= 0) return;
-          const parts = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Asia/Dhaka', year: 'numeric', month: '2-digit', day: '2-digit'
-          }).formatToParts(new Date(numeric));
-          const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
-          const date = values.year + '-' + values.month + '-' + values.day;
-          counts.set(date, (counts.get(date) || 0) + 1);
+          const parts = dhakaParts(timestamp);
+          counts.set(parts.date, (counts.get(parts.date) || 0) + 1);
+          const hourKey = parts.date + 'T' + String(parts.hour).padStart(2,'0');
+          counts.hourly.set(hourKey, (counts.hourly.get(hourKey) || 0) + 1);
+          counts.monthly.set(parts.month, (counts.monthly.get(parts.month) || 0) + 1);
+          if (!counts.details.has(parts.date)) counts.details.set(parts.date, []);
+          const status = String(entry.answerStatus ?? entry.status ?? entry.result ?? '').toLowerCase();
+          const outcome = /correct|right|success/.test(status) ? 'Correct' : /wrong|incorrect|incorrect|fail/.test(status) ? 'Wrong' : '';
+          counts.details.get(parts.date).push({ timestamp, outcome, questionKey });
         });
       });
     } catch (_) {}
+    counts.details.forEach(list => list.sort((a,b) => a.timestamp-b.timestamp));
     return counts;
+  }
+  function streakGraphMarkup(period, counts, zoom = 1) {
+    const today = dhakaTodayDate();
+    const items = [];
+    if (period === 'daily') {
+      const now = Date.now();
+      const start = now - 23 * 3600000;
+      for (let i = 0; i < 24; i++) {
+        const d = new Date(start + i * 3600000);
+        const parts = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(d);
+        const v = Object.fromEntries(parts.map(p => [p.type,p.value]));
+        const date = v.year + '-' + v.month + '-' + v.day;
+        const key = date + 'T' + v.hour;
+        items.push({date, hour:Number(v.hour), label:(zoom >= 2 ? v.hour + ':00' : v.hour + 'h'), value:counts.hourly.get(key)||0, key});
+      }
+    } else if (period === 'yearly' && zoom < 2) {
+      const current = new Date(today + 'T00:00:00Z');
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth() - i, 1));
+        const key = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0');
+        items.push({date:key, label:new Intl.DateTimeFormat('en',{month:'short',timeZone:'UTC'}).format(d), value:counts.monthly.get(key)||0, key});
+      }
+    } else {
+      const days = period === 'weekly' ? 7 : period === 'monthly' ? 30 : 365;
+      for (let i = days - 1; i >= 0; i--) {
+        const date = dateOffset(today, -i);
+        const d = new Date(date + 'T00:00:00Z');
+        const label = period === 'weekly'
+          ? (zoom >= 2 ? date.slice(8) + ' ' + ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()])
+          : period === 'monthly' ? date.slice(8) : date.slice(5);
+        items.push({date, label, value:counts.get(date)||0, key:date});
+      }
+    }
+    const width = 900, height = 270, left = 48, right = 14, top = 28, bottom = 48;
+    const plotWidth = width-left-right, plotHeight = height-top-bottom;
+    const max = Math.max(0, ...items.map(item => item.value));
+    const yMax = Math.max(4, Math.ceil(max / 4) * 4);
+    const points = items.map((item, i) => ({
+      ...item,
+      x:left + (items.length <= 1 ? plotWidth/2 : i*plotWidth/(items.length-1)),
+      y:top + plotHeight - (item.value/yMax)*plotHeight
+    }));
+    const grid = [0,.25,.5,.75,1].map(ratio => {
+      const y = top + plotHeight - ratio*plotHeight;
+      return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-10) + '" y="' + (y+4) + '" text-anchor="end">' + Math.round(yMax*ratio) + '</text>';
+    }).join('');
+    const segments = points.slice(1).map((point,i) => {
+      const prev = points[i], color = point.value > prev.value ? '#059669' : point.value < prev.value ? '#dc2626' : '#64748b';
+      return '<line x1="' + prev.x + '" y1="' + prev.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
+    }).join('');
+    const area = points.map((point,i)=>(i?'L':'M')+point.x+' '+point.y).join(' ')+' L '+points[points.length-1].x+' '+(top+plotHeight)+' L '+points[0].x+' '+(top+plotHeight)+' Z';
+    const circles = points.map(point => {
+      const fullDate = point.date.length === 7 ? point.date : point.date;
+      const timeLabel = point.hour != null ? String(point.hour).padStart(2,'0') + ':00–' + String((point.hour+1)%24).padStart(2,'0') + ':00' : '';
+      const details = point.hour != null ? timeLabel : point.value + ' attempted question(s)';
+      const title = fullDate + (timeLabel ? ' · ' + timeLabel : '') + ': ' + point.value + ' attempted question(s)';
+      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (zoom >= 2 ? '4' : period === 'yearly' ? '3' : '3.5') + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(title) + '</title></circle>';
+    }).join('');
+    const labelStep = zoom >= 3 ? 1 : zoom >= 2 ? Math.max(1,Math.ceil(items.length/24)) : Math.max(1,Math.ceil(items.length/(period==='daily'?12:period==='monthly'?15:period==='yearly'?12:7)));
+    const labels = points.map((point,i) => {
+      if (i % labelStep !== 0 && i !== points.length-1) return '';
+      return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-12) + '" text-anchor="middle">' + esc(point.label) + '</text>';
+    }).join('');
+    const svgWidth = zoom > 1 ? ' style="width:' + (width*zoom) + 'px;min-width:' + (width*zoom) + 'px;max-width:none"' : '';
+    const periodLabel = period === 'daily' ? 'Hourly attempted questions' : period === 'yearly' && zoom < 2 ? 'Monthly attempted questions' : 'Daily attempted questions';
+    return '<svg' + svgWidth + ' viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + periodLabel + ', zoom ' + zoom + 'x"><text class="mat-streak-axis-label" x="12" y="14">' + periodLabel + '</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
   function streakGraphMarkup(period, counts, zoom = 1) {
     const today = dhakaTodayDate();
@@ -235,14 +311,14 @@
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(249,115,22,.06)"><small>Current Streak</small><h2 style="margin:5px 0 0;color:#ea580c">' + number(current) + ' days</h2></div>' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(16,185,129,.06)"><small>Highest Streak</small><h2 style="margin:5px 0 0;color:#059669">' + number(highest) + ' days</h2></div></div>' +
       '<div class="mat-streak-tabs" role="tablist" aria-label="Streak activity range">' +
-      '<button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="true">Weekly</button>' +
+      '<button class="mat-streak-tab" type="button" data-streak-period="daily" aria-selected="true">Daily</button><button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="false">Weekly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button><button class="mat-streak-tab" type="button" data-streak-period="calendar" aria-selected="false">Calendar</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph" title="Use Ctrl + touchpad pinch to zoom this graph"></div>' +
-      '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = day, Y-axis = attempted questions per day. Correct and wrong answers count; skipped questions do not.</p>';
+      '<p class="mat-streak-legend"><span class="up">Green = activity</span> · <span class="down">Red = change from previous point</span> · Daily = hourly · Weekly/Monthly = date-wise · Yearly = month-wise. Use Ctrl + trackpad pinch over the graph to reveal more labels; zooming out keeps the view compact. Hover/tap points for details.</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
-    let activePeriod = 'weekly';
+    let activePeriod = 'daily';
     let zoom = 1;
     let calendarMonth = new Date(dhakaTodayDate() + 'T00:00:00Z');
     let selectedCalendarDate = dhakaTodayDate();
@@ -259,7 +335,7 @@
       }
       if (chart && keepScroll && period !== 'calendar') chart.scrollLeft = Math.max(0, previousRatio * chart.scrollWidth - chart.clientWidth / 2);
     };
-    render('weekly');
+    render('daily');
     document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
     // Trackpad pinch zoom is commonly delivered as a Ctrl+wheel event in Chrome.
     // Capture it only over this graph so the rest of the page keeps normal browser zoom behavior.
