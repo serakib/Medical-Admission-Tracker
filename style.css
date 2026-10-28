@@ -1347,3 +1347,8 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
 
 /* Transparent background for the Announcement filter button (including active state). */
 #mat-notification-center .mat-notification-filters button.mat-notification-announcement-filter,#mat-notification-center .mat-notification-filters button.mat-notification-announcement-filter.is-active{background:transparent!important;box-shadow:none!important;}
+
+/* Keep the Announcement filter row separate from the policy content below it. */
+#mat-notification-center .mat-notification-toolbar{position:relative!important;z-index:2;flex:0 0 auto;}
+#mat-notification-center .mat-notification-list:has(.mat-notification-announcement-view){position:relative!important;z-index:1;display:block!important;flex:1 1 auto;min-width:0;margin-top:0!important;}
+#mat-notification-center .mat-notification-announcement-view{display:block!important;clear:both;width:100%;box-sizing:border-box;}
