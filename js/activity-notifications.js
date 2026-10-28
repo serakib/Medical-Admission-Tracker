@@ -841,6 +841,7 @@
       '<h2 id="mat-notification-title">Notifications <span data-mat-notification-count>All caught up</span></h2>' +
       '<p>Friend progress, leaderboard moves and trophy unlocks.</p></div>' +
       '<button class="mat-notification-expand" type="button" data-mat-notification-expand aria-label="Open fullscreen notifications" title="Open fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
+      '<span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
       '<button type="button" data-mat-filter="all" class="is-active" aria-pressed="true">All</button><button type="button" data-mat-filter="unread" aria-pressed="false">Unread</button></div>' +
@@ -852,7 +853,7 @@
       '<button type="button" data-mat-selected-unread disabled>Mark selected unread</button>' +
       '<button type="button" class="is-danger" data-mat-delete-selected disabled>Delete selected</button></div></div></div>' +
       '<div id="mat-notification-list" class="mat-notification-list" role="list" aria-live="polite"></div>' +
-      '<footer class="mat-notification-footer"><span><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
+      '<footer class="mat-notification-footer">' +
       '<button type="button" data-mat-open-leaderboard>Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></footer></section>';
     document.body.appendChild(overlay);
   }
