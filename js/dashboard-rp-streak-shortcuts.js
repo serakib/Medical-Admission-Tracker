@@ -397,7 +397,9 @@
         (friendLines.length ? '<div style="display:grid;gap:8px">' + friendLines.slice(0,12).map(item =>
           '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:12px;line-height:1.5"><span><b>' + esc(item.name) + '</b> ' + esc(item.message) + '</span><strong style="white-space:nowrap;color:' + (item.direction === 'friend-passed' ? '#dc2626' : '#059669') + '">' + (item.delta > 0 ? '+' : '') + number(item.delta) + ' RP</strong></div>'
         ).join('') + '</div>' : '<p style="font-size:12px;line-height:1.6;margin:0;color:var(--muted,#64748b)">No new friend position changes are recorded yet.</p>') +
-        '</section></div>';
+        '</section>' +
+        (examAttempts.length ? '<button type="button" data-toggle-exam-attempts aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;text-align:left">Exam attempted (' + number(examAttempts.length) + ') <span aria-hidden="true">＋</span></button><section data-exam-attempts-panel hidden style="padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px">' + examTimeline + '</section>' : '') +
+        '</div>';
     })();
     const examTimeline = examAttempts.length
       ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
@@ -416,7 +418,6 @@
       '<div class="mat-streak-calendar-detail">' +
       '<button type="button" class="mat-streak-calendar-summary" data-toggle-day-activity aria-expanded="false"><span><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount || examAttempts.length ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></span><span class="mat-streak-calendar-summary-count"><b>' + number(selectedCount) + '</b><small>attempted questions　＋</small></span></button>' +
       '<section class="mat-streak-calendar-details-panel" data-day-activity-panel hidden>' +
-      (examAttempts.length ? '<button type="button" data-toggle-exam-attempts aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;text-align:left">Exam attempted (' + number(examAttempts.length) + ') <span aria-hidden="true">＋</span></button><section data-exam-attempts-panel hidden>' + examTimeline + '</section>' : '') +
       '<div class="mat-streak-calendar-metrics">' +
       '<div class="mat-streak-calendar-metric is-correct"><span>Right answers</span><b>' + number(correctCount) + '</b></div>' +
       '<div class="mat-streak-calendar-metric is-wrong"><span>Wrong answers</span><b>' + number(wrongCount) + '</b></div>' +
