@@ -921,6 +921,12 @@
       selectedIds.clear();
       list.innerHTML = guestNotificationState();
       list.scrollTop = 0;
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(function () {
+          const currentList = document.getElementById('mat-notification-list');
+          if (currentList && currentList.querySelector('.mat-notification-announcement-view')) currentList.scrollTop = 0;
+        });
+      }
       renderBadge();
       return;
     }
