@@ -469,23 +469,30 @@
       const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       rangeAnimating = true;
       try {
-        if (!reduceMotion && chart?.animate) {
-          const outgoingX = direction < 0 ? -22 : 22;
-          await chart.animate(
+        const canAnimate = !reduceMotion && typeof chart?.animate === 'function';
+        const outgoingX = direction < 0 ? -22 : 22;
+        if (canAnimate) {
+          const outgoing = chart.animate(
             [{opacity:1, transform:'translateX(0)'},{opacity:0, transform:'translateX(' + outgoingX + 'px)'}],
-            {duration:130, easing:'ease-in', fill:'forwards'}
-          ).finished.catch(() => {});
+            {duration:130, easing:'ease-in', fill:'both'}
+          );
+          await outgoing.finished.catch(() => {});
+          outgoing.cancel();
+          chart.style.opacity = '0';
+          chart.style.transform = 'translateX(' + outgoingX + 'px)';
         }
         if (period === 'daily') anchorDate = dateOffset(anchorDate, direction);
         else if (period === 'weekly') anchorDate = dateOffset(anchorDate, direction * 7);
         else if (period === 'monthly') anchorDate = dateOffset(anchorDate, direction * 10);
         render(period);
-        if (!reduceMotion && chart?.animate) {
+        if (canAnimate) {
           const incomingX = direction < 0 ? 22 : -22;
-          await chart.animate(
+          const incoming = chart.animate(
             [{opacity:0, transform:'translateX(' + incomingX + 'px)'},{opacity:1, transform:'translateX(0)'}],
-            {duration:190, easing:'ease-out'}
-          ).finished.catch(() => {});
+            {duration:190, easing:'ease-out', fill:'both'}
+          );
+          await incoming.finished.catch(() => {});
+          incoming.cancel();
         }
       } finally {
         if (chart) { chart.style.opacity = ''; chart.style.transform = ''; }
