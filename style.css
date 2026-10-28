@@ -1106,3 +1106,7 @@ html.dark .mat-notification-item-copy p,body.dark .mat-notification-item-copy p{
   main{padding-top:calc(60px + env(safe-area-inset-top,0px))!important}
   .sidebar-toggle{width:40px;height:40px}
 }
+
+/* Distinguish leaderboard movement from friend and trophy events in notification cards. */
+.mat-notification-item-icon.type-leaderboard{color:#5b21b6;background:rgba(139,92,246,.13)}
+html.dark .mat-notification-item-icon.type-leaderboard,body.dark .mat-notification-item-icon.type-leaderboard{color:#c4b5fd;background:rgba(139,92,246,.18)}
