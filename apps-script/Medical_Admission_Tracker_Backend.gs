@@ -999,10 +999,10 @@ function matFinalizeProcessingExam_(attempt) {
 
 function matRankPromotionCost_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Mirrors the existing Achievement Vault: first promotion costs 200 RP;
+  // Shared smooth RP curve: first promotion costs 400 RP;
   // later subranks scale by 20%, rounded to the nearest 5 RP.
   const step = rankIndex + 1;
-  const base = step * 200;
+  const base = step * 400;
   const requirement = step === 1 ? base : base * 1.2;
   return Math.max(5, Math.round(requirement / 5) * 5);
 }
