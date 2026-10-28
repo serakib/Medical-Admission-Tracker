@@ -821,17 +821,20 @@
   function unreadCount() { return state.notifications.filter(item => item.unread).length; }
   function renderBadge() {
     const signedIn = !!signedInUid();
-    const count = signedIn ? unreadCount() : 0;
-    const total = signedIn ? state.notifications.length : 0;
+    // Guests always have one mandatory, non-dismissible policy announcement.
+    const count = signedIn ? unreadCount() : 1;
+    const total = signedIn ? state.notifications.length : 1;
     document.querySelectorAll('[data-mat-notification-badge]').forEach(function (badge) {
       badge.textContent = count > 99 ? '99+' : String(count);
       badge.hidden = count === 0;
-      badge.setAttribute('aria-label', count + ' unread notifications');
+      badge.setAttribute('aria-label', signedIn
+        ? (count + ' unread notifications')
+        : '1 important Guest account policy announcement');
     });
     document.querySelectorAll('[data-mat-notification-count]').forEach(function (label) {
       label.textContent = signedIn
         ? (total.toLocaleString() + ' total · ' + count.toLocaleString() + ' unread')
-        : 'Sign-in required';
+        : '1 important Guest announcement · Sign-in required for personal notifications';
     });
   }
   function emptyState() {
