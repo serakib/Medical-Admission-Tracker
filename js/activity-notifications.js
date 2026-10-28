@@ -566,20 +566,24 @@
       const changedXP = oldXP !== newXP;
       const changedTier = period === 'all-time' && oldTierPosition !== newTierPosition &&
         (oldTierPosition > 0 || newTierPosition > 0);
-      if (!changedPosition && !changedRP && !changedXP && !changedTier && !crossed) return;
-
       const inTop10 = !!(oldTop10[id] || newTop10[id]);
       const inSameRankTop10 = period === 'all-time' && (oldTierPosition > 0 || newTierPosition > 0);
+
+      // Do not create routine activity alerts for non-friends across the entire Top 100.
+      // Keep only Top 10, same-rank Top 10, or a direct pass involving the current user.
+      if (!inTop10 && !inSameRankTop10 && !crossed) return;
+      if (!changedPosition && !changedRP && !changedXP && !changedTier && !crossed) return;
+
       let title;
       if (crossed === 'peer-passed') title = rowName(row || old) + ' passed you';
       else if (crossed === 'you-passed') title = 'You passed ' + rowName(row || old);
       else if (inSameRankTop10) title = 'Same-rank Top 10 update';
       else if (inTop10) title = label + ' Top 10 movement';
-      else title = label + ' Top 100 update';
+      else title = label + ' leaderboard pass';
 
       let movementText;
-      if (!old && row) movementText = 'Entered the Top 100 at #' + newPosition.toLocaleString() + '.';
-      else if (old && !row) movementText = 'Moved outside the Top 100 (was #' + oldPosition.toLocaleString() + ').';
+      if (!old && row) movementText = 'Entered the relevant leaderboard group at #' + newPosition.toLocaleString() + '.';
+      else if (old && !row) movementText = 'Moved outside the tracked leaderboard group (was #' + oldPosition.toLocaleString() + ').';
       else movementText = 'Global position: ' + rankLine(oldPosition, newPosition) + '.';
       const rpText = (weekly ? 'Weekly RP: ' : 'All Time RP: ') + oldRP.toLocaleString() + ' → ' +
         newRP.toLocaleString() + ' (' + deltaText(newRP - oldRP) + ' RP).';
@@ -721,7 +725,7 @@
   }
   function emptyState() {
     return '<div class="mat-notification-empty"><div class="mat-notification-empty-icon"><i class="fa-regular fa-bell-slash" aria-hidden="true"></i></div>' +
-      '<h3>You are all caught up</h3><p>Updates appear here when a friend changes weekly RP, passes you, unlocks a trophy, or someone moves in the global Top 100/Top 10 or your same-rank leaderboard.</p>' +
+      '<h3>You are all caught up</h3><p>Updates appear here when a friend changes weekly RP, passes you, unlocks a trophy, or someone moves in the Global Top 10 or your same-rank Top 10.</p>' +
       '<small>Activity is checked when you open the website or return to this tab.</small></div>';
   }
   function renderFeed() {
