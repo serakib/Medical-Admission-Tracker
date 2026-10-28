@@ -35,7 +35,7 @@
   let cloudWriteTimer = null;
 
   function makeEmptyState() {
-    return { notifications: [], trash: [], deletedIds: [], restoredIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
+    return { notifications: [], trash: [], deletedIds: [], restoredIds: [], purgedIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
   }
   function safeText(value, max) {
     return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max || 180);
@@ -81,10 +81,12 @@
     const deletedIds = Array.from(new Set((remote.deletedIds || []).concat(local.deletedIds || []).map(String).filter(Boolean))).slice(-1000);
     const restoredIds = Array.from(new Set((remote.restoredIds || []).concat(local.restoredIds || []).map(String).filter(Boolean))).slice(-1000);
     const restoredSet = new Set(restoredIds);
+    const purgedIds = Array.from(new Set((remote.purgedIds || []).concat(local.purgedIds || []).map(String).filter(Boolean))).slice(-1000);
+    const purgedSet = new Set(purgedIds);
     const deletedSet = new Set(deletedIds.filter(id => !restoredSet.has(id)));
     const trashMap = new Map();
     [remote.trash || [], local.trash || []].forEach(items => items.forEach(item => {
-      if (!item || !item.id || restoredSet.has(String(item.id))) return;
+      if (!item || !item.id || restoredSet.has(String(item.id)) || purgedSet.has(String(item.id))) return;
       const previous = trashMap.get(String(item.id));
       if (!previous || numeric(item.deletedAt) >= numeric(previous.deletedAt)) trashMap.set(String(item.id), item);
     }));
@@ -105,6 +107,7 @@
       trash: Array.from(trashMap.values()).filter(item => numeric(item.deletedAt) > localTimestamp() - 10 * 86400000).sort((a, b) => numeric(b.deletedAt) - numeric(a.deletedAt)),
       deletedIds: deletedIds,
       restoredIds: restoredIds,
+      purgedIds: purgedIds,
       lastSnapshot: lastSnapshot || null,
       dayKey: dayKey || '',
       dayBaseline: (baselineOptions[0] && baselineOptions[0].dayBaseline) || (dayKey === local.dayKey ? local.dayBaseline : remote.dayBaseline) || null,
@@ -180,6 +183,7 @@
     if (!Array.isArray(state.trash)) state.trash = [];
     if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
     if (!Array.isArray(state.restoredIds)) state.restoredIds = [];
+    if (!Array.isArray(state.purgedIds)) state.purgedIds = [];
     pruneTrash();
     if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
     renderBadge();
@@ -859,6 +863,7 @@
     if (archiveSelected) { archiveSelected.disabled = selected.length === 0 || activeFilter === 'trash'; archiveSelected.hidden = activeFilter === 'trash'; }
     if (restoreSelected) { restoreSelected.disabled = selected.length === 0; restoreSelected.hidden = activeFilter !== 'trash'; }
     if (deleteSelected) deleteSelected.textContent = activeFilter === 'trash' ? 'Delete permanently' : (selected.length ? 'Move to Trash (' + selected.length + ')' : 'Move to Trash');
+    if (archiveSelected) archiveSelected.textContent = activeFilter === 'archived' ? 'Unarchive selected' : 'Archive selected';
   }
   function renderFeed() {
     ensureAccountState();
@@ -1056,6 +1061,7 @@
     const wanted = new Set((ids || []).map(String));
     if (!wanted.size) return;
     state.trash = state.trash.filter(item => !wanted.has(String(item.id)));
+    state.purgedIds = Array.from(new Set((state.purgedIds || []).concat(Array.from(wanted)))).slice(-1000);
     wanted.forEach(id => selectedIds.delete(id));
     saveState();
     renderFeed();
@@ -1100,7 +1106,7 @@
     const deleteSelected = target.closest('[data-mat-delete-selected]');
     if (deleteSelected) { if (activeFilter === 'trash') permanentlyDelete(pruneSelection()); else deleteSelectedNotifications(); return; }
     const archiveSelected = target.closest('[data-mat-archive-selected]');
-    if (archiveSelected) { archiveNotifications(pruneSelection(), true); return; }
+    if (archiveSelected) { archiveNotifications(pruneSelection(), activeFilter !== 'archived'); return; }
     const restoreSelected = target.closest('[data-mat-restore-selected]');
     if (restoreSelected) { restoreNotifications(pruneSelection()); return; }
     const archiveOne = target.closest('[data-mat-archive-one]');
@@ -1164,6 +1170,7 @@
         if (!Array.isArray(state.trash)) state.trash = [];
         if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
         if (!Array.isArray(state.restoredIds)) state.restoredIds = [];
+        if (!Array.isArray(state.purgedIds)) state.purgedIds = [];
         pruneTrash();
         if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
         renderFeed();
