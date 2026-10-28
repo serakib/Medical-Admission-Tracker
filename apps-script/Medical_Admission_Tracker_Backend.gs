@@ -806,24 +806,31 @@ function matUpdateLastSeen_(user) {
 /* ------------------------------ Exam submission ------------------------------- */
 
 /** Calculates percentage-tier weighted RP for exams containing at least 30 questions. */
-function matCalculateWeightedExamRP_(correct, totalQuestions) {
+function matCalculateWeightedExamRP_(correct, wrong, totalQuestions) {
   const correctCount = matSafeNonNegativeInt_(correct, 'correctCount');
+  const wrongCount = matSafeNonNegativeInt_(wrong, 'wrongCount');
   const total = matSafeNonNegativeInt_(totalQuestions, 'totalQuestions');
   if (total < 30) throw new Error('Weighted exam RP requires at least 30 questions.');
-  if (correctCount > total) throw new Error('correctCount cannot exceed totalQuestions.');
+  if (correctCount + wrongCount > total) throw new Error('Correct + wrong cannot exceed totalQuestions.');
 
-  let weightedCorrect = 0;
-  for (let answerNumber = 1; answerNumber <= correctCount; answerNumber++) {
-    const correctPercent = answerNumber * 100 / total;
-    const multiplier = correctPercent <= 40 ? 1
-      : correctPercent <= 50 ? 2
-      : correctPercent <= 60 ? 4
-      : correctPercent <= 70 ? 5
-      : correctPercent <= 79 ? 7
-      : 10;
-    weightedCorrect += multiplier;
-  }
-  return weightedCorrect * 15;
+  // Match the exam result screen: each wrong answer deducts 0.25 marks.
+  const finalScore = Math.max(0, correctCount - wrongCount * 0.25);
+  const tiers = [
+    { upTo: total * 0.40, multiplier: 1 },
+    { upTo: total * 0.50, multiplier: 2 },
+    { upTo: total * 0.60, multiplier: 4 },
+    { upTo: total * 0.70, multiplier: 5 },
+    { upTo: total * 0.79, multiplier: 7 },
+    { upTo: total, multiplier: 10 }
+  ];
+  let weightedScore = 0;
+  let previousLimit = 0;
+  tiers.forEach(function (tier) {
+    const tierScore = Math.max(0, Math.min(finalScore, tier.upTo) - previousLimit);
+    weightedScore += tierScore * tier.multiplier;
+    previousLimit = tier.upTo;
+  });
+  return Math.round(weightedScore * 15);
 }
 
 function matSubmitExam_(p) {
@@ -888,7 +895,7 @@ function matSubmitExam_(p) {
       // not a replacement for the original RP/XP calculation.
       const baseRpEarned = Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
       const hasWeightedExamRule = total >= 30;
-      const weightedBonusRp = hasWeightedExamRule ? matCalculateWeightedExamRP_(correct, total) : 0;
+      const weightedBonusRp = hasWeightedExamRule ? matCalculateWeightedExamRP_(correct, wrong, total) : 0;
       const calculatedRpEarned = baseRpEarned + weightedBonusRp;
       // Practice XP remains at 30% of the calculated amount; Practice RP now receives 70% (30% reduction).
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
