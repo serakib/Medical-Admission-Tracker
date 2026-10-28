@@ -462,11 +462,35 @@
     const onKey = event => { if (event.key === 'Escape') close(); };
     window.__matCloseStreakDialog = close;
     document.addEventListener('keydown', onKey);
-    const shiftRange = direction => {
-      if (activePeriod === 'daily') anchorDate = dateOffset(anchorDate, direction);
-      else if (activePeriod === 'weekly') anchorDate = dateOffset(anchorDate, direction * 7);
-      else if (activePeriod === 'monthly') anchorDate = dateOffset(anchorDate, direction * 10);
-      render(activePeriod);
+    let rangeAnimating = false;
+    const shiftRange = async direction => {
+      if (rangeAnimating || activePeriod === 'calendar') return;
+      const period = activePeriod;
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      rangeAnimating = true;
+      try {
+        if (!reduceMotion && chart?.animate) {
+          const outgoingX = direction < 0 ? -22 : 22;
+          await chart.animate(
+            [{opacity:1, transform:'translateX(0)'},{opacity:0, transform:'translateX(' + outgoingX + 'px)'}],
+            {duration:130, easing:'ease-in', fill:'forwards'}
+          ).finished.catch(() => {});
+        }
+        if (period === 'daily') anchorDate = dateOffset(anchorDate, direction);
+        else if (period === 'weekly') anchorDate = dateOffset(anchorDate, direction * 7);
+        else if (period === 'monthly') anchorDate = dateOffset(anchorDate, direction * 10);
+        render(period);
+        if (!reduceMotion && chart?.animate) {
+          const incomingX = direction < 0 ? 22 : -22;
+          await chart.animate(
+            [{opacity:0, transform:'translateX(' + incomingX + 'px)'},{opacity:1, transform:'translateX(0)'}],
+            {duration:190, easing:'ease-out'}
+          ).finished.catch(() => {});
+        }
+      } finally {
+        if (chart) { chart.style.opacity = ''; chart.style.transform = ''; }
+        rangeAnimating = false;
+      }
     };
     const render = (period = activePeriod) => {
       activePeriod = period;
