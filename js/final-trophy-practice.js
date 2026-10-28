@@ -150,12 +150,12 @@
   const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
   ['V','IV','III','II','I'].forEach(sub => trophyRanks.push(['Immortal '+sub,'#f43f5e','#4c0519','#ffe4e6','immortal',sub]));
   function roundRankCost(value) { return Math.max(5, Math.round(Number(value || 0) / 5) * 5); }
-  // Smooth RP curve: step 1 costs 400 RP; later steps scale by 400 per step plus 20%.
+  // Friendly curve: first promotion costs 500 RP; each next promotion costs 500 + 20% of the previous promotion cost.
   function requiredRP(index) {
     if (index >= trophyRanks.length - 1) return 0;
-    const step = index + 1;
-    const base = step * 400;
-    return roundRankCost(step === 1 ? base : base * 1.2);
+    let cost = 500;
+    for (let step = 1; step <= index; step++) cost = roundRankCost(500 + cost * 0.2);
+    return cost;
   }
   function rankFromPoints(points) {
     const value = Math.max(0, Number(points) || 0);
