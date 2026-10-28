@@ -717,9 +717,30 @@
     const totalMinutes = Math.floor(diff / 60000);
     if (totalMinutes < 1) return 'Less than 1 min ago';
     if (totalMinutes < 60) return totalMinutes + ' min ago';
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return minutes ? hours + ' hr ' + minutes + ' min ago' : hours + ' hr ago';
+
+    const totalHours = Math.floor(totalMinutes / 60);
+    if (totalHours < 24) {
+      const minutes = totalMinutes % 60;
+      return minutes ? totalHours + ' hr ' + minutes + ' min ago' : totalHours + ' hr ago';
+    }
+
+    const totalDays = Math.floor(totalHours / 24);
+    if (totalDays < 30) return totalDays + (totalDays === 1 ? ' day ago' : ' days ago');
+
+    const years = Math.floor(totalDays / 365);
+    const monthsAfterYears = Math.floor((totalDays % 365) / 30);
+    const daysAfterMonths = totalDays % 30;
+
+    if (years > 0) {
+      const parts = [years + (years === 1 ? ' year' : ' years')];
+      if (monthsAfterYears > 0) parts.push(monthsAfterYears + (monthsAfterYears === 1 ? ' month' : ' months'));
+      return parts.join(' ') + ' ago';
+    }
+
+    const months = Math.floor(totalDays / 30);
+    const parts = [months + (months === 1 ? ' month' : ' months')];
+    if (daysAfterMonths > 0) parts.push(daysAfterMonths + (daysAfterMonths === 1 ? ' day' : ' days'));
+    return parts.join(' ') + ' ago';
   }
   function updateRelativeTimes() {
     document.querySelectorAll('#mat-notification-list time[data-mat-notification-time]').forEach(function (time) {
