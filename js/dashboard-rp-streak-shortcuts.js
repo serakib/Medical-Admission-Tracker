@@ -154,9 +154,11 @@
           counts.monthly.set(parts.month, (counts.monthly.get(parts.month) || 0) + 1);
           if (!counts.details.has(parts.date)) counts.details.set(parts.date, []);
           const record = attemptRecords.find(item => Number(item && item.timestamp) === timestamp) || {};
+          const legacyLatest = Number(entry.updatedAt) === timestamp || (attemptRecords.length === 0 && timestamps.length === 1);
           const status = String(entry.answerStatus ?? entry.status ?? entry.result ?? '').toLowerCase();
-          const isCorrect = typeof record.correct === 'boolean' ? record.correct : typeof entry.correct === 'boolean' ? entry.correct : /correct|right|success/.test(status);
-          const isWrong = typeof record.correct === 'boolean' ? !record.correct : typeof entry.correct === 'boolean' ? !entry.correct : /wrong|incorrect|fail/.test(status);
+          const recordedCorrect = typeof record.correct === 'boolean' ? record.correct : legacyLatest && typeof entry.correct === 'boolean' ? entry.correct : null;
+          const isCorrect = recordedCorrect === true || (recordedCorrect == null && /correct|right|success/.test(status));
+          const isWrong = recordedCorrect === false || (recordedCorrect == null && /wrong|incorrect|fail/.test(status));
           const outcome = isCorrect ? 'Correct' : isWrong ? 'Wrong' : '';
           const question = entry.question || {};
           const source = String(record.source || question.source || entry.source || question.year || entry.year || '').trim();
