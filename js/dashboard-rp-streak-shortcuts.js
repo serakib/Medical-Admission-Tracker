@@ -187,7 +187,7 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
       '<div class="mat-streak-zoom" aria-label="Graph zoom controls"><button type="button" data-streak-zoom="out" aria-label="Zoom out">−</button><span class="mat-streak-zoom-label" id="mat-streak-zoom-label">1×</span><button type="button" data-streak-zoom="in" aria-label="Zoom in">+</button><button type="button" data-streak-zoom="reset">Reset</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
-      '<p class="mat-streak-legend"><span class="up">Green = trend up ↑</span> · <span class="down">Red = trend down ↓</span> · X-axis = day, Y-axis = attempted questions per day. Correct and wrong answers count; skipped questions do not.</p>';
+      '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = day, Y-axis = attempted questions per day. Correct and wrong answers count; skipped questions do not.</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
     let activePeriod = 'weekly';
