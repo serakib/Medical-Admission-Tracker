@@ -648,6 +648,11 @@
   }
   async function refreshActivity(force) {
     ensureAccountState();
+    if (!signedInUid()) {
+      lastRefreshAt = localTimestamp();
+      renderFeed();
+      return;
+    }
     if (refreshPromise) return refreshPromise;
     if (!force && localTimestamp() - lastRefreshAt < 30000) return;
     refreshPromise = (async function () {
@@ -721,20 +726,32 @@
   }
   function unreadCount() { return state.notifications.filter(item => item.unread).length; }
   function renderBadge() {
-    const count = unreadCount();
+    const signedIn = !!signedInUid();
+    const count = signedIn ? unreadCount() : 0;
     document.querySelectorAll('[data-mat-notification-badge]').forEach(function (badge) {
       badge.textContent = count > 99 ? '99+' : String(count);
       badge.hidden = count === 0;
       badge.setAttribute('aria-label', count + ' unread notifications');
     });
     document.querySelectorAll('[data-mat-notification-count]').forEach(function (label) {
-      label.textContent = count ? count.toLocaleString() + ' unread' : 'All caught up';
+      label.textContent = signedIn
+        ? (count ? count.toLocaleString() + ' unread' : 'All caught up')
+        : 'Sign-in required';
     });
   }
   function emptyState() {
     return '<div class="mat-notification-empty"><div class="mat-notification-empty-icon"><i class="fa-regular fa-bell-slash" aria-hidden="true"></i></div>' +
       '<h3>You are all caught up</h3><p>Updates appear here when a friend changes weekly RP, passes you, unlocks a trophy, or someone moves in the Global Top 10 or your same-rank Top 10.</p>' +
       '<small>Activity is checked when you open the website or return to this tab.</small></div>';
+  }
+  function guestNotificationState() {
+    return '<section class="mat-notification-guest-state" role="status">' +
+      '<div class="mat-notification-guest-icon"><i class="fa-solid fa-user-lock" aria-hidden="true"></i></div>' +
+      '<h3>You have to sign in to see personalised notifications</h3>' +
+      '<p>Sign in or create an account to see updates about your friends, your leaderboard progress and trophy unlocks.</p>' +
+      '<button type="button" data-mat-notification-login><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in / Sign up</button>' +
+      '<small>Personal notifications are available inside the website. No phone push alerts.</small>' +
+      '</section>';
   }
   function visibleNotifications() {
     return state.notifications.filter(item => activeFilter === 'unread' ? item.unread : true);
@@ -775,6 +792,15 @@
     ensureAccountState();
     const list = document.getElementById('mat-notification-list');
     if (!list) { renderBadge(); return; }
+    const toolbar = document.querySelector('#mat-notification-center .mat-notification-toolbar');
+    const signedIn = !!signedInUid();
+    if (toolbar) toolbar.style.display = signedIn ? '' : 'none';
+    if (!signedIn) {
+      selectedIds.clear();
+      list.innerHTML = guestNotificationState();
+      renderBadge();
+      return;
+    }
     const items = visibleNotifications();
     const selected = new Set(pruneSelection());
     list.innerHTML = items.length ? items.map(function (item) {
@@ -929,6 +955,12 @@
     if (toggleRead) { markOneStatus(toggleRead.getAttribute('data-mat-toggle-read'), toggleRead.getAttribute('data-mat-next-unread') === 'true'); return; }
     const deleteOne = target.closest('[data-mat-delete-one]');
     if (deleteOne) { deleteNotifications([deleteOne.getAttribute('data-mat-delete-one')]); return; }
+    const loginButton = target.closest('[data-mat-notification-login]');
+    if (loginButton) {
+      if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
+      else if (window.app && typeof window.app.openAccountAuth === 'function') window.app.openAccountAuth('login');
+      return;
+    }
     const openLeaderboard = target.closest('[data-mat-open-leaderboard]');
     if (openLeaderboard) {
       closeCenter();
@@ -942,6 +974,7 @@
     window.addEventListener('student-auth-state-resolved', function () {
       ensureAccountState();
       lastRefreshAt = 0;
+      renderFeed();
       refreshActivity(true);
     });
     document.addEventListener('keydown', function (event) {
