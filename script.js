@@ -1681,10 +1681,17 @@ class MedicalExamApp {
     }
 
     openSavedExamReview(attemptId) {
+        const normalizeId = value => String(value ?? '').split('-').pop();
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-        const saved = localHistory.find(item => item && String(item.attemptId) === String(attemptId) && item.reviewData);
+        const allHistory = [
+            ...localHistory,
+            ...(Array.isArray(this.serverExamHistory) ? this.serverExamHistory : [])
+        ];
+        const saved = allHistory.find(item => item && item.reviewData &&
+            (String(item.attemptId) === String(attemptId) ||
+             normalizeId(item.attemptId) === normalizeId(attemptId)));
         if (!saved || !Array.isArray(saved.reviewData.questions) || !Array.isArray(saved.reviewData.userAnswers)) {
-            alert('এই পুরোনো attempt-এর পূর্ণ Answer Review সংরক্ষিত নেই। নতুন exam attempt-গুলো থেকে review খোলা যাবে।');
+            alert('এই attempt-এর Answer Review data আগে সংরক্ষিত হয়নি, তাই প্রশ্ন ও উত্তর দেখানো যাচ্ছে না। নতুন attempt-এ Answer Review সংরক্ষিত থাকবে।');
             return;
         }
         this.__savedReviewReturnState = {
@@ -1784,12 +1791,25 @@ class MedicalExamApp {
     loadProgressStats() {
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
         const localByAttemptId = new Map(localHistory.filter(item => item && item.attemptId).map(item => [String(item.attemptId), item]));
-        const history = Array.isArray(this.serverExamHistory)
-            ? this.serverExamHistory.map(item => {
-                const local = item && item.attemptId ? localByAttemptId.get(String(item.attemptId).replace(/^.*-/, '')) || localByAttemptId.get(String(item.attemptId)) : null;
-                return local?.reviewData ? { ...item, reviewData: local.reviewData, correctCount: local.correctCount, wrongCount: local.wrongCount, skippedCount: local.skippedCount } : item;
-            })
-            : localHistory;
+        const normalizeAttemptId = value => String(value ?? '').split('-').pop();
+        const historySource = Array.isArray(this.serverExamHistory) ? this.serverExamHistory : localHistory;
+        const historyById = new Map();
+        historySource.forEach(item => {
+            if (!item) return;
+            const local = item.attemptId
+                ? localByAttemptId.get(String(item.attemptId)) || localByAttemptId.get(normalizeAttemptId(item.attemptId))
+                : null;
+            const merged = local?.reviewData
+                ? { ...item, reviewData: local.reviewData, correctCount: local.correctCount, wrongCount: local.wrongCount, skippedCount: local.skippedCount }
+                : item;
+            const key = item.attemptId ? normalizeAttemptId(item.attemptId) : JSON.stringify([item.date, item.mode, item.score, item.total, item.timeUsed]);
+            const existing = historyById.get(key);
+            // Keep one row per exam attempt; prefer the copy that has its local answer snapshot.
+            if (!existing || (!existing.reviewData && merged.reviewData)) historyById.set(key, merged);
+        });
+        const history = Array.from(historyById.values()).sort((a, b) =>
+            Number(normalizeAttemptId(b.attemptId)) - Number(normalizeAttemptId(a.attemptId))
+        );
         const answered=this.getAnsweredQuestionIds();
         const total=this.questionBank.length||520;
         const attempts=history.length;
@@ -1836,10 +1856,19 @@ class MedicalExamApp {
                 if (!response || !Array.isArray(response.attempts)) throw new Error('Server progress response is incomplete.');
                 const serverAttempts = response.attempts;
                 const localAttempts = JSON.parse(localStorage.getItem(appInstance.getHistoryKey()) || '[]');
+                const normalizeAttemptId = value => String(value ?? '').split('-').pop();
+                const serverIds = new Set(serverAttempts.map(item => normalizeAttemptId(item?.attemptId)).filter(Boolean));
                 const unsyncedLocalAttempts = localAttempts.filter(item => item && item.attemptId &&
-                    !serverAttempts.some(serverItem => String(serverItem.attemptId || '').endsWith('-' + String(item.attemptId))));
-                appInstance.serverExamHistory = [...serverAttempts, ...unsyncedLocalAttempts]
-                    .sort((a, b) => String(b.submittedAt || b.date || '').localeCompare(String(a.submittedAt || a.date || '')));
+                    !serverIds.has(normalizeAttemptId(item.attemptId)));
+                const mergedById = new Map();
+                [...serverAttempts, ...unsyncedLocalAttempts].forEach(item => {
+                    if (!item) return;
+                    const key = normalizeAttemptId(item.attemptId) || JSON.stringify([item.date, item.mode, item.score, item.total]);
+                    const existing = mergedById.get(key);
+                    if (!existing || (!existing.reviewData && item.reviewData)) mergedById.set(key, item);
+                });
+                appInstance.serverExamHistory = Array.from(mergedById.values())
+                    .sort((a, b) => Number(normalizeAttemptId(b.attemptId)) - Number(normalizeAttemptId(a.attemptId)));
                 appInstance.__serverProgressFetchedAt = Date.now();
                 appInstance.loadProgressStats();
             }).catch(error => {
