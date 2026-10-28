@@ -294,16 +294,19 @@
         (row ? '<strong style="display:block;margin-top:6px;color:' + color + ';font-size:20px">#' + number(row.position) + '</strong><div style="font-size:12px;margin-top:5px;line-height:1.8">Weekly RP: <b>' + number(row.weeklyRP) + '</b><br>XP: <b>' + number(row.xp) + '</b></div>' :
         '<p style="font-size:12px;line-height:1.6;margin:6px 0 0;color:var(--muted,#64748b)">Previous-day snapshot not available yet</p>') + '</div>';
       const friendLines = Array.isArray(info.friendActivity) ? info.friendActivity : [];
-      return '<section style="margin-top:14px"><h3 style="font-size:13px;font-weight:950;margin-bottom:8px">Weekly leaderboard progress</h3><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">' +
-        card('Previous day · ' + (info.previousDate || '—'), prior, '#64748b') +
-        card('Today · live position', live, '#059669') + '</div>' +
-        '<div style="margin-top:12px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px"><strong style="font-size:13px">Friend activity · weekly RP</strong>' +
-        (friendLines.length ? '<div style="display:grid;gap:8px;margin-top:9px">' + friendLines.slice(0,12).map(item =>
+      return '<div style="display:grid;gap:9px;margin-top:14px">' +
+        '<button type="button" data-toggle-leaderboard aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;text-align:left">Leaderboard comparison <span aria-hidden="true">＋</span></button>' +
+        '<section data-leaderboard-panel hidden style="padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px"><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">' +
+        card('Previous day · ' + (info.previousDate || '—'), prior, '#64748b') + card('Today · live position', live, '#059669') +
+        '</div><p class="mat-streak-legend">Previous-day values appear after a daily leaderboard snapshot has been saved. Live values use the latest available Weekly leaderboard data.</p></section>' +
+        '<button type="button" data-toggle-friends aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;text-align:left">Friend activity · weekly RP <span aria-hidden="true">＋</span></button>' +
+        '<section data-friends-panel hidden style="padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px">' +
+        (friendLines.length ? '<div style="display:grid;gap:8px">' + friendLines.slice(0,12).map(item =>
           '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:12px;line-height:1.5"><span><b>' + esc(item.name) + '</b> ' + esc(item.message) + '</span><strong style="white-space:nowrap;color:' + (item.direction === 'friend-passed' ? '#dc2626' : '#059669') + '">' + (item.delta > 0 ? '+' : '') + number(item.delta) + ' RP</strong></div>'
-        ).join('') + '</div>' : '<p style="font-size:12px;line-height:1.6;margin:7px 0 0;color:var(--muted,#64748b)">No new friend position changes are recorded yet.</p>') +
-        '</div><p class="mat-streak-legend">Previous-day values appear after a daily leaderboard snapshot has been saved. Live values use the latest available Weekly leaderboard data.</p></section>';
+        ).join('') + '</div>' : '<p style="font-size:12px;line-height:1.6;margin:0;color:var(--muted,#64748b)">No new friend position changes are recorded yet.</p>') +
+        '</section></div>';
     })();
-    const examTimeline = examAttempts.length
+    const examTimeline    const examTimeline = examAttempts.length
       ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
           const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
           const reviewable = !!attempt.reviewData?.questions?.length && Array.isArray(attempt.reviewData.userAnswers);
@@ -349,8 +352,18 @@
       const ownId = String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || '');
       let savedSnapshots = {};
       try { savedSnapshots = JSON.parse(localStorage.getItem(weeklySnapshotKey) || '{}') || {}; } catch (_) {}
-      const weeklyRows = getWeeklyRows('weekly').slice().sort((a,b) => weeklyValue(b)-weeklyValue(a) || xpValue(b)-xpValue(a));
-      const friendIds = new Set(getWeeklyRows('friends').map(rowId).filter(id => id && id !== ownId));
+      const dedupeLatestRows = rows => {
+        const byId = new Map();
+        rows.forEach(row => {
+          const id = rowId(row);
+          if (!id) return;
+          const old = byId.get(id);
+          if (!old || weeklyValue(row) > weeklyValue(old) || (weeklyValue(row) === weeklyValue(old) && xpValue(row) > xpValue(old))) byId.set(id, row);
+        });
+        return [...byId.values()];
+      };
+      const weeklyRows = dedupeLatestRows(getWeeklyRows('weekly')).sort((a,b) => weeklyValue(b)-weeklyValue(a) || xpValue(b)-xpValue(a));
+      const friendIds = new Set(dedupeLatestRows(getWeeklyRows('friends')).map(rowId).filter(id => id && id !== ownId));
       const rankedRows = weeklyRows.map((row,index) => ({
         userId:rowId(row), name:rowName(row), position:index+1,
         weeklyRP:weeklyValue(row), xp:xpValue(row), rank:row.rank || row.currentRank || ''
@@ -446,6 +459,21 @@
     }
 
     chart?.addEventListener('click', event => {
+      const toggleLeaderboard = event.target.closest?.('[data-toggle-leaderboard]');
+      const toggleFriends = event.target.closest?.('[data-toggle-friends]');
+      const togglePanel = (button, selector) => {
+        if (!button) return false;
+        const panel = chart.querySelector(selector);
+        if (!panel) return true;
+        const opening = panel.hidden;
+        panel.hidden = !opening;
+        button.setAttribute('aria-expanded', String(opening));
+        const icon = button.querySelector('span[aria-hidden="true"]');
+        if (icon) icon.textContent = opening ? '−' : '＋';
+        return true;
+      };
+      if (togglePanel(toggleLeaderboard, '[data-leaderboard-panel]')) return;
+      if (togglePanel(toggleFriends, '[data-friends-panel]')) return;
       const reviewButton = event.target.closest?.('[data-review-attempt-id]');
       if (reviewButton) {
         if (typeof app.openSavedExamReview === 'function' && !reviewButton.disabled) app.openSavedExamReview(reviewButton.dataset.reviewAttemptId);
