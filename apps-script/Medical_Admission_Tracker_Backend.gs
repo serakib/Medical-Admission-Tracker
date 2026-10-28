@@ -891,9 +891,9 @@ function matSubmitExam_(p) {
       const calculatedRpEarned = is100MarkModelTest
         ? matCalculate100MarkModelTestRP_(correct)
         : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
-      // Practice rewards are reduced on the server; the UI never advertises the adjustment.
+      // Practice XP remains at 30% of the calculated amount; Practice RP now receives 70% (30% reduction).
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
-      const rpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedRpEarned * 0.30)) : calculatedRpEarned;
+      const rpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedRpEarned * 0.70)) : calculatedRpEarned;
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
       const rankBefore = String(freshUser.Rank || MAT_RANKS[0]);
