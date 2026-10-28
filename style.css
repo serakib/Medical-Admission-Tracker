@@ -1255,3 +1255,10 @@ html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-sta
 .mat-notification-fullscreen-note i{color:#059669;flex:0 0 auto}
 .mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-note{display:inline-flex}
 @media(max-width:640px){.mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-note{max-width:145px;font-size:9px;gap:4px}}
+
+/* Keep leaderboard in the footer for the regular popup; show it in the header only in fullscreen. */
+.mat-notification-fullscreen-leaderboard{display:none;align-items:center;justify-content:center;gap:7px;min-height:38px;flex:0 0 auto;padding:8px 11px;border:1px solid rgba(5,150,105,.22);border-radius:12px;color:#047857;background:rgba(16,185,129,.1);font:inherit;font-size:11px;font-weight:850;white-space:nowrap;cursor:pointer}
+.mat-notification-fullscreen-leaderboard:hover{background:rgba(16,185,129,.17)}
+.mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-leaderboard{display:inline-flex}
+.mat-notification-overlay.is-fullscreen .mat-notification-footer{display:none}
+@media(max-width:640px){.mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-leaderboard{min-height:34px;padding:6px 8px;gap:5px;font-size:10px}}
