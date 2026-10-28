@@ -884,10 +884,12 @@ function matSubmitExam_(p) {
       const normalizedExamMode = String(examMode).trim().toLowerCase();
       const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
       const calculatedXpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
+      // Keep the existing base RP reward. The percentage-tier system is an extra bonus,
+      // not a replacement for the original RP/XP calculation.
+      const baseRpEarned = Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
       const hasWeightedExamRule = total >= 30;
-      const calculatedRpEarned = hasWeightedExamRule
-        ? matCalculateWeightedExamRP_(correct, total)
-        : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
+      const weightedBonusRp = hasWeightedExamRule ? matCalculateWeightedExamRP_(correct, total) : 0;
+      const calculatedRpEarned = baseRpEarned + weightedBonusRp;
       // Practice XP remains at 30% of the calculated amount; Practice RP now receives 70% (30% reduction).
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
       const rpEarned = isPracticeMode && total < 30 ? Math.max(0, Math.round(calculatedRpEarned * 0.70)) : calculatedRpEarned;
