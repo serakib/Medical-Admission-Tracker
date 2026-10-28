@@ -375,9 +375,9 @@
         const delta = live.weeklyRP - Number(friend.weeklyRP || 0);
         const passedUser = previousOwn && friend.position > previousOwn.position && live.position < ownLive?.position;
         const userPassed = previousOwn && friend.position < previousOwn.position && live.position > ownLive?.position;
-        if (passedUser) friendActivity.push({name:live.name, message:'passed you today', delta, direction:'friend-passed'});
-        else if (userPassed) friendActivity.push({name:live.name, message:'you passed them today', delta, direction:'user-passed'});
-        else if (delta !== 0) friendActivity.push({name:live.name, message:(delta > 0 ? 'gained' : 'lost') + ' weekly RP today', delta, direction:delta > 0 ? 'friend-passed' : 'user-passed'});
+        if (passedUser) friendActivity.push({name:live.name, message:'passed you today · ahead by', delta:Math.max(0, live.weeklyRP - Number(ownLive?.weeklyRP || 0)), direction:'friend-passed'});
+        else if (userPassed) friendActivity.push({name:live.name, message:'you passed them today · ahead by', delta:Math.max(0, Number(ownLive?.weeklyRP || 0) - live.weeklyRP), direction:'user-passed'});
+        else if (delta !== 0) friendActivity.push({name:live.name, message:(delta > 0 ? 'gained' : 'lost') + ' weekly RP today', delta:Math.abs(delta), direction:delta > 0 ? 'friend-passed' : 'user-passed'});
       });
       const leaderboardInfo = { previousDate, previousDay:previousOwn, live:ownLive, friendActivity };
         return leaderboardInfo;
