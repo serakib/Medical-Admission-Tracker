@@ -348,10 +348,11 @@
     ownAllTime.id = ownId;
     const weeklyPlayers = mapPlayers(Array.from(weeklyById.values()), 'weekly', friendIds, ownId);
     const allTimePlayers = mapPlayers(Array.from(allTimeById.values()), 'all-time', friendIds, ownId);
-    const weeklyTop100 = topMap(weeklyPlayers, 100, new Set([ownId]));
-    const allTimeTop100 = topMap(allTimePlayers, 100, new Set([ownId]));
-    const weeklyTop10 = topMap(weeklyPlayers, 10, new Set([ownId]));
-    const allTimeTop10 = topMap(allTimePlayers, 10, new Set([ownId]));
+    const nonFriendIds = new Set([ownId].concat(Array.from(friendIds)));
+    const weeklyTop100 = topMap(weeklyPlayers, 100, nonFriendIds);
+    const allTimeTop100 = topMap(allTimePlayers, 100, nonFriendIds);
+    const weeklyTop10 = topMap(weeklyPlayers, 10, nonFriendIds);
+    const allTimeTop10 = topMap(allTimePlayers, 10, nonFriendIds);
 
     const sameRankRows = Object.keys(allTimeTop100).map(id => allTimeTop100[id])
       .filter(row => ownAllTime.rank && row.rank === ownAllTime.rank)
