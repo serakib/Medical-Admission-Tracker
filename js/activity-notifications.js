@@ -478,10 +478,13 @@
       const newFriendPosition = numeric(friend.position);
       const friendCrossed = oldOwnPosition > 0 && newOwnPosition > 0 && oldFriendPosition > oldOwnPosition && newFriendPosition < newOwnPosition;
       const userCrossed = oldOwnPosition > 0 && newOwnPosition > 0 && oldOwnPosition > oldFriendPosition && newOwnPosition < newFriendPosition;
-      const validCrossingStats = numeric(nowOwn.rp) > 0 && numeric(nowOwn.xp) > 0 && numeric(friend.rp) > 0 && numeric(friend.xp) > 0;
-      if ((friendCrossed || userCrossed) && !validCrossingStats) return;
-      const friendPassed = friendCrossed && validCrossingStats;
-      const userPassed = userCrossed && validCrossingStats;
+      // A crossing counts only if the player who passed actually gained RP.
+      // If RP is tied, XP is the tiebreaker: the player with higher XP ranks better.
+      const friendPassed = friendCrossed && numeric(friend.rp) > numeric(old.rp) &&
+        (numeric(friend.rp) > numeric(nowOwn.rp) || (numeric(friend.rp) === numeric(nowOwn.rp) && numeric(friend.xp) > numeric(nowOwn.xp)));
+      const userPassed = userCrossed && numeric(nowOwn.rp) > numeric(oldOwn.rp) &&
+        (numeric(nowOwn.rp) > numeric(friend.rp) || (numeric(nowOwn.rp) === numeric(friend.rp) && numeric(nowOwn.xp) > numeric(friend.xp)));
+      if ((friendCrossed && !friendPassed) || (userCrossed && !userPassed)) return;
       const rankIncreased = rowRankIndex(friend) > rowRankIndex(old);
       if (!friendProgressChanged && !friendPassed && !userPassed && !rankIncreased) return;
 
@@ -553,8 +556,20 @@
     });
   }
   function crossingBetween(oldOwn, newOwn, oldPeer, newPeer) {
-    if (!(numeric(newOwn && newOwn.rp) > 0 && numeric(newOwn && newOwn.xp) > 0 && numeric(newPeer && newPeer.rp) > 0 && numeric(newPeer && newPeer.xp) > 0)) return '';
-    return crossingDirection(oldOwn, newOwn, oldPeer, newPeer);
+    const direction = crossingDirection(oldOwn, newOwn, oldPeer, newPeer);
+    if (!direction) return '';
+    // The player who passed must have genuinely gained RP since the prior snapshot.
+    // Equal RP is ordered by XP; higher XP wins the tie.
+    if (direction === 'you-passed') {
+      if (!(numeric(newOwn && newOwn.rp) > numeric(oldOwn && oldOwn.rp))) return '';
+      if (numeric(newOwn && newOwn.rp) === numeric(newPeer && newPeer.rp) &&
+          !(numeric(newOwn && newOwn.xp) > numeric(newPeer && newPeer.xp))) return '';
+    } else {
+      if (!(numeric(newPeer && newPeer.rp) > numeric(oldPeer && oldPeer.rp))) return '';
+      if (numeric(newPeer && newPeer.rp) === numeric(newOwn && newOwn.rp) &&
+          !(numeric(newPeer && newPeer.xp) > numeric(newOwn && newOwn.xp))) return '';
+    }
+    return direction;
   }
   function crossingDirection(oldOwn, newOwn, oldPeer, newPeer) {
     const oldOwnPosition = numeric(oldOwn && oldOwn.position);
