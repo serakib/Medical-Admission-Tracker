@@ -295,13 +295,21 @@
         items.push({date:anchor, hour, label:hour12 + (hour < 12 ? 'am' : 'pm'), value:counts.hourly?.get(anchor + 'T' + String(hour).padStart(2,'0')) || 0, key:anchor + 'T' + String(hour).padStart(2,'0')});
       }
     } else {
-      const days = period === 'weekly' ? 7 : 10;
-      const startDate = dateOffset(anchor, -(days - 1));
+      const anchorParts = anchor.split('-').map(Number);
+      const monthFirst = period === 'monthly'
+        ? new Date(Date.UTC(anchorParts[0], anchorParts[1] - 1, 1)).toISOString().slice(0, 10)
+        : '';
+      const days = period === 'weekly'
+        ? 7
+        : period === 'monthly'
+          ? new Date(Date.UTC(anchorParts[0], anchorParts[1], 0)).getUTCDate()
+          : 10;
+      const startDate = period === 'monthly' ? monthFirst : dateOffset(anchor, -(days - 1));
       for (let i = 0; i < days; i++) {
         const date = dateOffset(startDate, i);
         const d = new Date(date + 'T00:00:00Z');
         const weekday = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()];
-        const label = period === 'weekly' ? (date.slice(8) + ' ' + weekday) : date.slice(8);
+        const label = period === 'weekly' ? (date.slice(8) + ' ' + weekday) : String(d.getUTCDate());
         items.push({date, label, value:counts.get(date) || 0, key:date});
       }
     }
@@ -333,18 +341,18 @@
       const detail = period === 'daily' ? (String(point.hour).padStart(2,'0') + ':00') : point.date;
       return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (compact && width < 400 ? 3 : 5) + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(detail + ': ' + point.value + ' attempted question(s)') + '</title></circle>';
     }).join('');
-    const labelStep = period === 'daily' ? (compact && width < 400 ? 4 : 2) : 1;
+    const labelStep = period === 'daily' ? (compact && width < 400 ? 4 : 2) : period === 'monthly' ? (compact && width < 400 ? 5 : 3) : 1;
     const labels = points.map((point,i) => {
       if (i % labelStep !== 0 && i !== points.length-1) return '';
       return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-12) + '" text-anchor="middle">' + esc(point.label) + '</text>';
     }).join('');
-    const rangeStart = dateOffset(anchor, -(period === 'weekly' ? 6 : 9));
+    const rangeStart = period === 'monthly' ? new Date(Date.UTC(Number(anchor.slice(0,4)), Number(anchor.slice(5,7)) - 1, 1)).toISOString().slice(0,10) : dateOffset(anchor, -(period === 'weekly' ? 6 : 9));
     const rangeLabel = period === 'daily'
       ? new Intl.DateTimeFormat('en', {weekday:'long', month:'short', day:'numeric', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
       : period === 'weekly'
         ? new Intl.DateTimeFormat('en', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z')) + ' · ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(rangeStart + 'T00:00:00Z')) + ' – ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
         : period === 'monthly'
-          ? new Intl.DateTimeFormat('en', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z')) + ' · ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(rangeStart + 'T00:00:00Z')) + ' – ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
+          ? new Intl.DateTimeFormat('en', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
           : rangeStart + ' — ' + anchor;
     const periodLabel = period === 'daily' ? 'Hourly attempted questions' : 'Daily attempted questions';
     return '<div class="mat-streak-range-nav"><button type="button" data-range-nav="-1" aria-label="Previous range">‹ Previous</button><div class="mat-streak-range-label">' + esc(rangeLabel) + '</div><button type="button" data-range-nav="1" aria-label="Next range">Next ›</button></div><svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + periodLabel + '"><text class="mat-streak-axis-label" x="12" y="14">' + periodLabel + '</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
@@ -563,7 +571,7 @@
         }
         if (period === 'daily') anchorDate = dateOffset(anchorDate, direction);
         else if (period === 'weekly') anchorDate = dateOffset(anchorDate, direction * 7);
-        else if (period === 'monthly') anchorDate = dateOffset(anchorDate, direction * 10);
+        else if (period === 'monthly') { const parts = anchorDate.split('-').map(Number); anchorDate = new Date(Date.UTC(parts[0], parts[1] - 1 + direction, 1)).toISOString().slice(0, 10); }
         render(period);
         if (canAnimate) {
           // Previous enters from left; Next enters from right.
