@@ -94,35 +94,48 @@
     if (last && !dates.includes(last)) dates.push(last);
     return new Set(dates.filter(value => /^\d{4}-\d{2}-\d{2}$/.test(String(value))).map(String));
   }
-  function streakGraphMarkup(period, dates) {
+  function attemptedQuestionCounts() {
+    const key = 'med_practice_attempt_history_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+    const counts = new Map();
+    try {
+      const history = JSON.parse(localStorage.getItem(key) || '{}') || {};
+      Object.values(history).forEach(entry => {
+        if (!entry || entry.attempted !== true) return;
+        let timestamps = Array.isArray(entry.attemptTimestamps) ? entry.attemptTimestamps : [];
+        if (!timestamps.length) {
+          timestamps = [entry.firstAttemptAt, entry.updatedAt]
+            .filter((value, index, values) => value != null && values.indexOf(value) === index);
+        }
+        timestamps.forEach(timestamp => {
+          const numeric = Number(timestamp);
+          if (!Number.isFinite(numeric) || numeric <= 0) return;
+          const parts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Dhaka', year: 'numeric', month: '2-digit', day: '2-digit'
+          }).formatToParts(new Date(numeric));
+          const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+          const date = values.year + '-' + values.month + '-' + values.day;
+          counts.set(date, (counts.get(date) || 0) + 1);
+        });
+      });
+    } catch (_) {}
+    return counts;
+  }
+  function streakGraphMarkup(period, counts) {
     const today = dhakaTodayDate();
     const items = [];
-    if (period === 'weekly') {
-      for (let i=6;i>=0;i--) {
-        const date = dateOffset(today, -i);
-        const d = new Date(date + 'T00:00:00Z');
-        items.push({ date, label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()], value: dates.has(date) ? 1 : 0 });
-      }
-    } else if (period === 'monthly') {
-      for (let i=29;i>=0;i--) {
-        const date = dateOffset(today, -i);
-        items.push({ date, label: date.slice(8), value: dates.has(date) ? 1 : 0 });
-      }
-    } else {
-      for (let month=0;month<12;month++) {
-        const year = Number(today.slice(0,4));
-        const currentMonth = Number(today.slice(5,7))-1;
-        const index = year*12 + currentMonth - (11-month);
-        const y = Math.floor(index/12), m = index%12;
-        const prefix = y + '-' + String(m+1).padStart(2,'0') + '-';
-        const count = Array.from(dates).filter(date => date.startsWith(prefix)).length;
-        items.push({ date: prefix.slice(0,7), label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m], value: count });
-      }
+    const days = period === 'weekly' ? 7 : period === 'monthly' ? 30 : 365;
+    for (let i = days - 1; i >= 0; i--) {
+      const date = dateOffset(today, -i);
+      const d = new Date(date + 'T00:00:00Z');
+      const label = period === 'weekly'
+        ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()]
+        : period === 'monthly' ? date.slice(8) : date.slice(5, 7) + '/' + date.slice(8);
+      items.push({ date, label, value: counts.get(date) || 0 });
     }
-    const width = 620, height = 230, left = 42, right = 12, top = 18, bottom = 34;
+    const width = 900, height = 250, left = 48, right = 14, top = 22, bottom = 38;
     const plotWidth = width-left-right, plotHeight = height-top-bottom;
-    const max = Math.max(1, ...items.map(item => item.value));
-    const yMax = period === 'yearly' ? Math.max(4, Math.ceil(max/4)*4) : 1;
+    const max = Math.max(0, ...items.map(item => item.value));
+    const yMax = Math.max(4, Math.ceil(max / 4) * 4);
     const points = items.map((item, i) => ({
       ...item,
       x: left + (items.length <= 1 ? plotWidth/2 : i*plotWidth/(items.length-1)),
@@ -131,24 +144,24 @@
     const grid = [0, .25, .5, .75, 1].map(ratio => {
       const y = top + plotHeight - ratio*plotHeight;
       const label = Math.round(yMax*ratio);
-      return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-9) + '" y="' + (y+4) + '" text-anchor="end">' + label + '</text>';
+      return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-10) + '" y="' + (y+4) + '" text-anchor="end">' + label + '</text>';
     }).join('');
     const segments = points.slice(1).map((point, i) => {
       const previous = points[i];
       const color = point.value > previous.value ? '#059669' : point.value < previous.value ? '#dc2626' : '#64748b';
-      return '<line x1="' + previous.x + '" y1="' + previous.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.8" stroke-linecap="round"/>';
+      return '<line x1="' + previous.x + '" y1="' + previous.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
     }).join('');
     const area = points.map((point, i) => (i ? 'L' : 'M') + point.x + ' ' + point.y).join(' ') + ' L ' + points[points.length-1].x + ' ' + (top+plotHeight) + ' L ' + points[0].x + ' ' + (top+plotHeight) + ' Z';
     const circles = points.map(point => {
-      const title = point.date + ': ' + point.value + (period === 'yearly' ? ' active day(s)' : ' active day');
-      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="4" fill="' + (point.value ? '#059669' : '#dc2626') + '"><title>' + esc(title) + '</title></circle>';
+      const title = point.date + ': ' + point.value + ' attempted question(s)';
+      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (period === 'yearly' ? '2.1' : '3.5') + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(title) + '</title></circle>';
     }).join('');
-    const labelStep = period === 'monthly' ? 5 : 1;
+    const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? 5 : 30;
     const labels = points.map((point, i) => {
       if (i % labelStep !== 0 && i !== points.length-1) return '';
       return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-10) + '" text-anchor="middle">' + esc(point.label) + '</text>';
     }).join('');
-    return '<svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Line graph of recorded activity trend"><text class="mat-streak-axis-label" x="12" y="12">Activity</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
+    return '<svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Daily attempted questions line graph"><text class="mat-streak-axis-label" x="12" y="12">Attempted questions</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
   function openProfileStreak() {
     const progress = profileProgress();
@@ -159,11 +172,7 @@
     const current = Math.max(0, Number(publicStudent ? (source.streak ?? 0) : (source.streak ?? app.profile?.streak ?? 0)) || 0);
     const highestFallback = publicStudent ? current : (app.profile?.highestStreak ?? current);
     const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? highestFallback) || 0);
-    const dates = publicStudent
-      ? new Set((Array.isArray(publicStudent.streakActivityDates) ? publicStudent.streakActivityDates : [])
-          .concat(publicStudent.lastStreakActivityDate || [])
-          .filter(value => /^\d{4}-\d{2}-\d{2}$/.test(String(value))).map(String))
-      : activityDates(progress);
+    const counts = publicStudent ? new Map() : attemptedQuestionCounts();
     const body = '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(249,115,22,.06)"><small>Current Streak</small><h2 style="margin:5px 0 0;color:#ea580c">' + number(current) + ' days</h2></div>' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(16,185,129,.06)"><small>Highest Streak</small><h2 style="margin:5px 0 0;color:#059669">' + number(highest) + ' days</h2></div></div>' +
@@ -177,7 +186,7 @@
     const chart = document.getElementById('mat-streak-chart');
     const render = period => {
       document.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
-      if (chart) chart.innerHTML = streakGraphMarkup(period, dates);
+      if (chart) chart.innerHTML = streakGraphMarkup(period, counts);
     };
     render('weekly');
     document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
