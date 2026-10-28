@@ -1335,3 +1335,8 @@ html.dark .mat-guest-deletion-label,body.dark .mat-guest-deletion-label,html.dar
 .mat-notification-guest-signin-recovered{flex:0 0 auto;width:100%;box-sizing:border-box;min-height:300px;height:auto;padding:28px 22px;border-top:1px solid var(--border,rgba(148,163,184,.2));}
 .mat-notification-announcement-view .mat-guest-deletion-announcement{flex-shrink:0;}
 @media(max-width:560px){.mat-notification-announcement-view .mat-guest-deletion-announcement{padding:14px 12px}.mat-notification-announcement-view .mat-guest-deletion-announcement p{font-size:12px;line-height:1.85}}
+
+/* Keep the very beginning of the Guest announcement reachable in both popup and fullscreen. */
+#mat-notification-center .mat-notification-list:has(.mat-notification-announcement-view){box-sizing:border-box;padding-top:24px!important;scroll-padding-top:24px;overflow-y:auto!important;overscroll-behavior-y:contain;}
+#mat-notification-center .mat-notification-announcement-view{position:relative!important;top:auto!important;transform:none!important;margin-top:0!important;padding-top:0!important;}
+#mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{margin-top:0!important;}
