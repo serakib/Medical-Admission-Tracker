@@ -118,27 +118,33 @@
   function rankRows() {
     const league = window.MedGlobalLeague;
     if (!league || typeof league.getCachedRows !== 'function') return [];
-    const periods = ['weekly', 'friends', 'all-time'];
     const byId = new Map();
-    periods.forEach(function (period) {
+    let weeklyRows = [];
+    try { weeklyRows = league.getCachedRows('weekly') || []; } catch (_) {}
+    weeklyRows.filter(row => row && !row.isDemo && rowId(row)).forEach(row => {
+      const id = rowId(row);
+      if (!byId.has(id)) byId.set(id, Object.assign({}, row, { userId: id }));
+    });
+    // Keep position numbering based on the Weekly leaderboard cache only.
+    // Profiles found only in Friends/All Time caches are retained for RP/trophy checks,
+    // but are not assigned a fabricated global position.
+    byId.forEach((row, id) => { row.position = 0; });
+    const sortedWeekly = Array.from(byId.values())
+      .sort((a, b) => rowRP(b) - rowRP(a) || rowXP(b) - rowXP(a) || rowName(a).localeCompare(rowName(b)));
+    sortedWeekly.forEach((row, index) => { row.position = index + 1; });
+    sortedWeekly.forEach(row => byId.set(rowId(row), row));
+    ['friends', 'all-time'].forEach(function (period) {
       let rows = [];
       try { rows = league.getCachedRows(period) || []; } catch (_) {}
       rows.forEach(function (row) {
         const id = rowId(row);
-        if (!id || row.isDemo) return;
-        const previous = byId.get(id);
-        if (!previous) {
-          byId.set(id, Object.assign({}, row));
-          return;
-        }
-        const preferred = rowRP(row) > rowRP(previous) ? row : previous;
-        byId.set(id, Object.assign({}, previous, row, preferred));
+        if (!id || row.isDemo || byId.has(id)) return;
+        byId.set(id, Object.assign({}, row, { userId: id, name: rowName(row), position: 0 }));
       });
     });
-    return Array.from(byId.values())
-      .map(row => Object.assign({}, row, { userId: rowId(row), name: rowName(row) }))
-      .sort((a, b) => rowRP(b) - rowRP(a) || rowXP(b) - rowXP(a) || rowName(a).localeCompare(rowName(b)))
-      .map((row, index) => Object.assign({}, row, { position: index + 1 }));
+    return Array.from(byId.values()).map(row => Object.assign({}, row, {
+      userId: rowId(row), name: rowName(row), position: Math.max(0, numeric(row.position))
+    }));
   }
   async function refreshWeeklyData() {
     const league = window.MedGlobalLeague;
@@ -183,8 +189,7 @@
       if (!rowMap.has(id)) rowMap.set(id, Object.assign({}, row, { userId: id, name: rowName(row) }));
     });
     const allRanked = Array.from(rowMap.values())
-      .sort((a, b) => rowRP(b) - rowRP(a) || rowXP(b) - rowXP(a) || rowName(a).localeCompare(rowName(b)))
-      .map((row, index) => Object.assign({}, row, { userId: rowId(row), position: index + 1 }));
+      .map(row => Object.assign({}, row, { userId: rowId(row), position: Math.max(0, numeric(row.position)) }));
     const ownRow = allRanked.find(row => rowId(row) === ownId) || null;
     const profile = app.profile || {};
     const own = {
@@ -257,8 +262,8 @@
         oldFriendPosition > oldOwnPosition && newFriendPosition < newOwnPosition;
       const userPassed = oldOwnPosition > 0 && newOwnPosition > 0 &&
         oldOwnPosition > oldFriendPosition && newOwnPosition < newFriendPosition;
-      const positionChanged = friendPositionChanged || (oldOwnPosition !== newOwnPosition);
-      if (!friendProgressChanged && !positionChanged && rowRankIndex(friend) <= rowRankIndex(old)) return;
+      const rankIncreased = rowRankIndex(friend) > rowRankIndex(old);
+      if (!friendProgressChanged && !friendPassed && !userPassed && !rankIncreased) return;
 
       let message = friend.name + ' · Weekly RP ' + numeric(old.rp).toLocaleString() + ' → ' +
         numeric(friend.rp).toLocaleString() + ' (' + deltaText(friendDelta) + ' RP). ' +
@@ -512,7 +517,10 @@
     });
     window.addEventListener('storage', function (event) {
       if (event.key && event.key === stateKey()) {
-        ensureAccountState();
+        const shared = parseJSON(event.newValue, null);
+        state = Object.assign(makeEmptyState(), shared || {});
+        if (!Array.isArray(state.notifications)) state.notifications = [];
+        if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
         renderFeed();
       }
     });
