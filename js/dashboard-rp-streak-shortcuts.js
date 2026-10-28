@@ -195,7 +195,9 @@
         const v = Object.fromEntries(parts.map(p => [p.type,p.value]));
         const date = v.year + '-' + v.month + '-' + v.day;
         const key = date + 'T' + v.hour;
-        items.push({date, hour:Number(v.hour), label:(zoom >= 2 ? v.hour + ':00' : v.hour + 'h'), value:counts.hourly.get(key)||0, key});
+        const hour12 = Number(v.hour) % 12 || 12;
+        const ampm = Number(v.hour) < 12 ? 'am' : 'pm';
+        items.push({date, hour:Number(v.hour), label:hour12 + ampm, value:counts.hourly.get(key)||0, key});
       }
     } else if (period === 'yearly' && zoom < 2) {
       const current = new Date(today + 'T00:00:00Z');
@@ -318,12 +320,8 @@
     const selectedLabel = new Intl.DateTimeFormat('en', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC' }).format(selectedDateObj);
     const entries = (counts.details && counts.details.get(selected)) || [];
     const examAttempts = (counts.examAttempts && counts.examAttempts.get(selected)) || [];
-    const timeline = entries.length
-      ? '<div style="display:grid;gap:6px;margin-top:10px">' + entries.slice(0,80).map(item => {
-          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(item.timestamp));
-          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line,rgba(148,163,184,.16));border-radius:10px;font-size:11px"><span>' + esc(time) + ' · Asia/Dhaka</span><strong>' + esc(item.outcome || 'Attempt recorded') + '</strong></div>';
-        }).join('') + (entries.length > 80 ? '<small>Showing first 80 of ' + entries.length + ' recorded attempts.</small>' : '') + '</div>'
-      : '<p class="mat-streak-legend">No timestamped question attempts are recorded for this date.</p>';
+    // Keep activity totals and exam review details, but remove the per-question Attempt recorded list.
+    const timeline = '';
     const examTimeline = examAttempts.length
       ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
           const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
