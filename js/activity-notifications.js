@@ -776,7 +776,8 @@
     renderFeed();
     const panel = overlay.querySelector('.mat-notification-panel');
     if (panel) panel.focus({ preventScroll: true });
-    refreshActivity(false);
+    // A deliberate open should always check the latest leaderboard and friend states.
+    refreshActivity(true);
   }
   function closeCenter() {
     const overlay = document.getElementById('mat-notification-center');
