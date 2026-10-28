@@ -2545,7 +2545,6 @@ window.handleAccountDeletion = function() {
     const answered = correctCount + wrongCount;
     const accuracy = answered ? correctCount / answered : 0;
     const baseRankPoints = Math.max(1, Math.round(accuracy * 25 + Math.min(correctCount, 100) * 0.05));
-    const wrongCount = Math.max(0, Math.floor(Number(state?.wrongCount ?? state?.wrong) || 0));
     const finalScore = Math.max(0, correctCount - wrongCount * 0.25);
     const tiers = [
       { upTo: totalQuestions * 0.40, multiplier: 1 },
