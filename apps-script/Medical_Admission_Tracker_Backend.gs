@@ -58,7 +58,7 @@ const MAT_RANKS = Object.freeze([
   'Grandmaster V', 'Grandmaster IV', 'Grandmaster III', 'Grandmaster II', 'Grandmaster I',
   'Legend V', 'Legend IV', 'Legend III', 'Legend II', 'Legend I',
   'Mythic V', 'Mythic IV', 'Mythic III', 'Mythic II', 'Mythic I',
-  'Immortal'
+  'Immortal V', 'Immortal IV', 'Immortal III', 'Immortal II', 'Immortal I'
 ]);
 
 const MAT_TOP10_PROPERTY = 'MAT_TOP10_ALLTIME_SNAPSHOT_V1';
