@@ -1631,7 +1631,9 @@
             setFriendActionStatus(successText, false);
             await new Promise(function (resolve) { setTimeout(resolve, 1800); });
           }
-          await friendsApi.loadConnections(true);
+          // Friend mutations already apply the backend's authoritative connection snapshot.
+          // Reuse it instead of forcing a second read that can race and revert the new state.
+          await friendsApi.loadConnections();
           renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
           setFriendActionStatus(successText, false);
           await loadLeaderboard(true);

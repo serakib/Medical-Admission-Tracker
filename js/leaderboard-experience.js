@@ -60,7 +60,7 @@
     if (/authentication required|token|guest session expired|invalid guest/i.test(message)) {
       return 'Friend session verify হয়নি। পেজ refresh করুন; guest session আবার তৈরি না হলে নতুন guest session চালু করুন।';
     }
-    if (/pending|already your friend|request already|request পাওয়া/i.test(message)) return message;
+    if (/pending|already your friend|request already|request পাওয়া|ইতিমধ্যে পাঠানো হয়েছে/i.test(message)) return message;
     if (/failed to fetch|networkerror|load failed|cors|redirect|network/i.test(message)) {
       return 'Friends API request browser থেকে সম্পন্ন হয়নি (network/CORS/redirect সমস্যা)। API deployment access ও Web App response পরীক্ষা করুন।';
     }
@@ -170,6 +170,11 @@
   }
   function applyConnectionSnapshot(data) {
     if (!data || typeof data !== 'object') return;
+    // A mutation response is the newest authoritative snapshot. Invalidate any
+    // overlapping friendConnections read so a late stale response cannot revert
+    // the relationship button or erase a just-updated Friends leaderboard state.
+    connectionLoadSequence += 1;
+    connectionLoadPromise = null;
     if (Array.isArray(data.friendIds)) {
       acceptedFriendIds = new Set(data.friendIds.map(String).filter(id => id && id !== userId()));
     }
@@ -198,11 +203,39 @@
     const relation = getRelationship(targetId);
     if (relation === 'friends') throw new Error('এই student ইতিমধ্যে আপনার friend।');
     if (relation === 'incoming') throw new Error('এই student-এর request আগে থেকেই এসেছে। Accept বা Reject করুন।');
-    if (relation === 'outgoing') throw new Error('Friend request ইতিমধ্যে পাঠানো হয়েছে।');
-    // The send endpoint already returns the authoritative connection snapshot.
-    // Use that response directly instead of immediately issuing another refresh that
-    // can race and repaint the profile with stale "Send Friend Request" state.
-    const sent = await friendApi('sendFriendRequest', { targetUserId: targetId });
+    // A stale button can still be clicked while another UI surface has already
+    // confirmed this request. Treat the existing outgoing request as idempotent.
+    if (relation === 'outgoing') {
+      if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
+        renderRelationshipActions(activePublicProfile);
+      }
+      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+        window.MedGlobalLeague.refreshFriendDirectory();
+      }
+      return true;
+    }
+    // The send endpoint returns the authoritative connection snapshot. If its
+    // duplicate guard wins a race against a stale connection read, reconcile once
+    // and treat the action as successful only when that pending request is confirmed.
+    let sent;
+    try {
+      sent = await friendApi('sendFriendRequest', { targetUserId: targetId });
+    } catch (error) {
+      const message = String(error?.message || error || '');
+      if (/request already sent|already sent|ইতিমধ্যে পাঠানো হয়েছে/i.test(message)) {
+        try { await loadConnections(true); } catch (_) {}
+        if (outgoingRequests.some(request => String(request.toUid) === targetId)) {
+          if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
+            renderRelationshipActions(activePublicProfile);
+          }
+          if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+            window.MedGlobalLeague.refreshFriendDirectory();
+          }
+          return true;
+        }
+      }
+      throw error;
+    }
     applyConnectionSnapshot(sent);
     return true;
   }
@@ -516,13 +549,14 @@
     try {
       if (action === 'add') {
         setFriendActionBusy(sourceButton, action);
-        await sendRequest(activePublicProfile || { userId: targetId, name: 'Student' });
-        // A successful send must render the pending-request action, never the
-        // original Send button. The request ID comes from the backend snapshot.
-        if (!outgoingRequests.some(item => String(item.toUid) === String(targetId))) {
-          await loadConnections(true);
+        const requestTargetId = String(activePublicProfile?.userId || activePublicProfile?.uid || targetId || '');
+        await sendRequest(activePublicProfile || { userId: requestTargetId, name: 'Student' });
+        // sendRequest already applies or confirms the authoritative pending snapshot.
+        // Avoid a redundant forced read here; it could race and repaint the old state.
+        if (!outgoingRequests.some(item => String(item.toUid) === requestTargetId)) {
+          await loadConnections();
         }
-        successMessage = 'Friend request successfully sent. এখন request pending আছে; চাইলে Cancel করতে পারবেন।';
+        successMessage = 'Friend request successfully sent. এখন request pending আছে; চাইলে Cancel করতে পারবেন।'
       } else if (action === 'remove') {
         if (!window.confirm('এই student-কে Friends থেকে remove করবেন?')) return;
         setFriendActionBusy(sourceButton, action);
@@ -619,7 +653,7 @@
     if (profileAction) {
       event.preventDefault();
       event.stopPropagation();
-      await handleFriendAction(profileAction.dataset.studentFriendAction, activePublicProfile?.userId, profileAction.dataset.requestId, profileAction);
+      await handleFriendAction(profileAction.dataset.studentFriendAction, String(activePublicProfile?.userId || activePublicProfile?.uid || profileAction.dataset.targetId || ''), profileAction.dataset.requestId, profileAction);
       return;
     }
     const requestAction = event.target.closest?.('[data-friend-action]');
