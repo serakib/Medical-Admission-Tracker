@@ -1292,3 +1292,5 @@ html.dark .mat-notification-item:hover,body.dark .mat-notification-item:hover{ba
   .mat-notification-item.is-collapsed .mat-notification-item-actions{flex-direction:row}
   .mat-notification-item.is-collapsed .mat-notification-action{width:25px;height:25px;flex-basis:25px}
 }
+
+.mat-notification-bulk-actions button[hidden]{display:none!important}
