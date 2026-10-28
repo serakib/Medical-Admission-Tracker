@@ -920,6 +920,7 @@
     if (!signedIn) {
       selectedIds.clear();
       list.innerHTML = guestNotificationState();
+      list.scrollTop = 0;
       renderBadge();
       return;
     }
