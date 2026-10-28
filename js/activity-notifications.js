@@ -1029,7 +1029,7 @@
       if (event.key === 'Escape' && !document.getElementById('mat-notification-center')?.hidden) closeCenter();
     });
     // Relative labels tick forward independently of leaderboard refreshes.
-    window.setInterval(updateRelativeTimes, 1000);
+    window.setInterval(updateRelativeTimes, 60000);
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) {
         updateRelativeTimes();
