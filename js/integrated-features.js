@@ -740,17 +740,13 @@
       const type = String(file.type || '').toLowerCase();
       const extension = (name.match(/\.([^.]+)$/) || [,''])[1].toLowerCase();
       const allowedExtensions = ['png','jpg','jpeg','webp','svg'];
-      const allowedTypes = ['image/png','image/jpeg','image/webp','image/svg+xml'];
-      const isSvg = extension === 'svg' || type === 'image/svg+xml';
+      const extensionTypes = { png: ['image/png'], jpg: ['image/jpeg'], jpeg: ['image/jpeg'], webp: ['image/webp'], svg: ['image/svg+xml'] };
+      const isSvg = extension === 'svg';
       if (!allowedExtensions.includes(extension)) {
         reject(new Error('Unsupported file type. Choose a real PNG, JPG/JPEG, WEBP, or SVG image.'));
         return;
       }
-      if (type && !allowedTypes.includes(type)) {
-        reject(new Error('The file content type is not supported. Please choose PNG, JPG/JPEG, WEBP, or SVG.'));
-        return;
-      }
-      if (isSvg !== (extension === 'svg' || type === 'image/svg+xml')) {
+      if (type && (!['image/png','image/jpeg','image/webp','image/svg+xml'].includes(type) || !extensionTypes[extension].includes(type))) {
         reject(new Error('The file extension and image format do not match. Please select the original image file.'));
         return;
       }
