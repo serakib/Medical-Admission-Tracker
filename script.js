@@ -1830,13 +1830,25 @@ class MedicalExamApp {
         const bar=document.getElementById('profile-progress-bar');if(bar)bar.style.width=`${coverage}%`;
         const note=document.getElementById('profile-performance-note');if(note) note.textContent=attempts?`আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`:'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
         const action=document.getElementById('profile-auth-action');if(action)action.textContent=this.authUser?'Account':'লগইন / রেজিস্টার';
+        const formatExamDate = value => {
+            if (!value) return '—';
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
+            const parts = new Intl.DateTimeFormat('en-US', {
+                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+                hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka'
+            }).formatToParts(date);
+            const part = type => parts.find(item => item.type === type)?.value || '';
+            return part('weekday') + ' ' + part('month') + ' ' + part('day') + ' ' +
+                part('year') + ' ' + part('hour') + ':' + part('minute') + part('dayPeriod').toLowerCase();
+        };
         const tbody=document.getElementById('prog-history-tbody');
         if(tbody){tbody.innerHTML=''; history.slice(0,10).forEach(item=>{
             const tr=document.createElement('tr');
             const canReview=!!item.reviewData?.questions?.length && Array.isArray(item.reviewData.userAnswers);
             tr.className='transition '+(canReview?'cursor-pointer hover:bg-medical-50 dark:hover:bg-medical-900/20':'hover:bg-gray-50 dark:hover:bg-gray-700/50');
             if(canReview){tr.tabIndex=0;tr.setAttribute('role','button');tr.title='ক্লিক করে এই পরীক্ষার Answer Review দেখুন';}
-            tr.innerHTML=`<td class="py-3 px-4 font-medium">${this.escapeHtml(item.date || '—')}</td><td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode || 'Exam')}</td><td class="py-3 px-4">${this.escapeHtml(item.subject || '—')}</td><td class="py-3 px-4 font-bold text-medical-600">${this.escapeHtml(item.score ?? '0')} / ${this.escapeHtml(item.total ?? 0)}</td><td class="py-3 px-4">${this.escapeHtml(item.accuracy || '0%')}</td><td class="py-3 px-4 text-emerald-600 font-semibold">${item.correctCount ?? '—'}</td><td class="py-3 px-4 text-rose-600 font-semibold">${item.wrongCount ?? '—'}</td><td class="py-3 px-4 text-amber-600 font-semibold">${item.skippedCount ?? '—'}</td><td class="py-3 px-4 text-gray-500">${this.escapeHtml(item.timeUsed || '—')}</td>`;
+            tr.innerHTML=`<td class="py-3 px-4 font-medium">${this.escapeHtml(formatExamDate(item.date))}</td><td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode || 'Exam')}</td><td class="py-3 px-4">${this.escapeHtml(item.subject || '—')}</td><td class="py-3 px-4 font-bold text-medical-600">${this.escapeHtml(item.score ?? '0')} / ${this.escapeHtml(item.total ?? 0)}</td><td class="py-3 px-4">${this.escapeHtml(item.accuracy || '0%')}</td><td class="py-3 px-4 text-emerald-600 font-semibold">${item.correctCount ?? '—'}</td><td class="py-3 px-4 text-rose-600 font-semibold">${item.wrongCount ?? '—'}</td><td class="py-3 px-4 text-amber-600 font-semibold">${item.skippedCount ?? '—'}</td><td class="py-3 px-4 text-gray-500">${this.escapeHtml(item.timeUsed || '—')}</td>`;
             if(canReview){
                 const open=()=>this.openSavedExamReview(item.attemptId);
                 tr.addEventListener('click',open);
