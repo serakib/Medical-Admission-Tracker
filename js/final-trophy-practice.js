@@ -148,7 +148,14 @@
     { name:'Mythic', main:'#e879f9', dark:'#701a75', shine:'#fae8ff' }
   ];
   const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
-  ['V','IV','III','II','I'].forEach(sub => trophyRanks.push(['Immortal '+sub,'#f43f5e','#4c0519','#ffe4e6','immortal',sub]));
+  // Immortal is the prestige tier: each sub-rank gets its own palette and visual identity.
+  [
+    ['V','#fb7185','#4c0519','#ffe4e6','immortal','V'],       // Crimson ember
+    ['IV','#a78bfa','#2e1065','#ede9fe','immortal','IV'],    // Void amethyst
+    ['III','#38bdf8','#082f49','#e0f2fe','immortal','III'],  // Astral blue
+    ['II','#fbbf24','#713f12','#fef3c7','immortal','II'],    // Solar gold
+    ['I','#f8fafc','#312e81','#ffffff','immortal','I']       // Celestial platinum
+  ].forEach(rank => trophyRanks.push(['Immortal '+rank[0],rank[1],rank[2],rank[3],rank[4],rank[5]]));
   function roundRankCost(value) { return Math.max(5, Math.round(Number(value || 0) / 5) * 5); }
   // Friendly curve: first promotion costs 500 RP; each next promotion costs 500 + 20% of the previous promotion cost.
   function requiredRP(index) {
@@ -191,7 +198,18 @@
       '<path d="M27 35Q34 25 42 37L50 45 58 37Q66 25 73 35L66 52 50 61 34 52Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="1.8"/><path d="M34 56 29 49M66 56 71 49" stroke="'+dark+'" stroke-width="2"/>',
       '<path d="M50 21 56 34 70 35 59 45 62 59 50 52 38 59 41 45 30 35 44 34Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="1.7"/><circle cx="50" cy="42" r="5" fill="'+main+'" stroke="'+dark+'" stroke-width="1.5"/>'
     ];
-    if (index >= 50) return '<path d="M50 12 62 28 81 22 75 42 91 52 72 62 69 82 50 72 31 82 28 62 9 52 25 42 19 22 38 28Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2.5"/><path d="M50 24Q70 43 58 59Q54 67 43 70Q50 59 42 48Q37 37 50 24Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><circle cx="50" cy="48" r="27" fill="none" stroke="'+shine+'" stroke-width="2"/>';
+    if (index >= 50) {
+      const immortalStage = index - 50;
+      const immortalEmblems = [
+        '<path d="M50 25 57 41 74 42 61 54 65 71 50 62 35 71 39 54 26 42 43 41Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><path d="M50 33V58M38 46H62" stroke="'+dark+'" stroke-width="2"/>',
+        '<path d="M50 22 57 39 76 39 61 51 67 70 50 59 33 70 39 51 24 39 43 39Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><circle cx="50" cy="47" r="10" fill="'+main+'" stroke="'+dark+'" stroke-width="2"/>',
+        '<circle cx="50" cy="47" r="23" fill="none" stroke="'+shine+'" stroke-width="3"/><circle cx="50" cy="47" r="14" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><path d="M50 30 54 43 67 47 54 51 50 64 46 51 33 47 46 43Z" fill="'+main+'" stroke="'+dark+'" stroke-width="1.5"/>',
+        '<path d="M50 25 56 40 73 40 60 51 65 68 50 58 35 68 40 51 27 40 44 40Z" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><path d="M50 31V62M34 47H66M39 36 61 58M61 36 39 58" stroke="'+dark+'" stroke-width="1.8"/>',
+        '<circle cx="50" cy="47" r="25" fill="none" stroke="'+shine+'" stroke-width="3"/><circle cx="50" cy="47" r="17" fill="'+shine+'" stroke="'+dark+'" stroke-width="2"/><path d="M50 31 54 43 67 47 54 51 50 64 46 51 33 47 46 43Z" fill="'+main+'" stroke="'+dark+'" stroke-width="1.5"/><circle cx="50" cy="47" r="5" fill="'+dark+'"/>'
+      ];
+      const crown = '<path d="M15 27 32 37 50 16 68 37 85 27 78 59H22Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2.5"/>';
+      return crown + '<path d="M50 12 62 28 81 22 75 42 91 52 72 62 69 82 50 72 31 82 28 62 9 52 25 42 19 22 38 28Z" fill="'+main+'" stroke="'+shine+'" stroke-width="2.5"/>' + immortalEmblems[immortalStage] + '<circle cx="50" cy="48" r="29" fill="none" stroke="'+shine+'" stroke-width="1.5" stroke-dasharray="'+(immortalStage===0?'3 5':immortalStage===1?'2 3':immortalStage===2?'8 3':immortalStage===3?'12 3 2 3':'none')+'"/>';
+    }
     return frames[Math.floor(index / 5)] + centers[index % 5];
   }
 
