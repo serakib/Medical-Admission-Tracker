@@ -289,12 +289,19 @@
     const selectedCount = counts.get(selected) || 0;
     const selectedDateObj = new Date(selected + 'T00:00:00Z');
     const selectedLabel = new Intl.DateTimeFormat('en', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC' }).format(selectedDateObj);
+    const entries = (counts.details && counts.details.get(selected)) || [];
+    const timeline = entries.length
+      ? '<div style="display:grid;gap:6px;margin-top:10px">' + entries.slice(0,80).map(item => {
+          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(item.timestamp));
+          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line,rgba(148,163,184,.16));border-radius:10px;font-size:11px"><span>' + esc(time) + ' · Asia/Dhaka</span><strong>' + esc(item.outcome || 'Attempt recorded') + '</strong></div>';
+        }).join('') + (entries.length > 80 ? '<small>Showing first 80 of ' + entries.length + ' recorded attempts.</small>' : '') + '</div>'
+      : '<p class="mat-streak-legend">No timestamped attempts are recorded for this date.</p>';
     return '<section class="mat-streak-calendar" aria-label="Study activity calendar">' +
       '<div class="mat-streak-calendar-head"><div class="mat-streak-calendar-month">' + esc(monthName) + '</div><div class="mat-streak-calendar-actions"><button type="button" data-calendar-nav="-1" aria-label="Previous month">‹</button><button type="button" data-calendar-nav="today">Today</button><button type="button" data-calendar-nav="1" aria-label="Next month">›</button></div></div>' +
       '<div class="mat-streak-calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>' +
       '<div class="mat-streak-calendar-days">' + cells + '</div>' +
       '<div class="mat-streak-calendar-detail"><div><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></div><div class="mat-streak-calendar-total"><b>' + number(selectedCount) + '</b><small>attempted questions</small></div></div>' +
-      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Correct and wrong answers count; skipped questions do not.</p></section>';
+      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Times use Bangladesh time (Asia/Dhaka).</p>' + timeline + '</section>';
   }
 
   function openProfileStreak() {
@@ -369,7 +376,7 @@
         if (event.ctrlKey || event.metaKey) {
           // Chrome trackpad pinch commonly arrives as Ctrl+wheel; zoom this graph only.
           event.preventDefault();
-          const nextZoom = Math.max(1, Math.min(4, zoom + (event.deltaY < 0 ? 0.25 : -0.25)));
+          const nextZoom = Math.max(0.5, Math.min(4, zoom + (event.deltaY < 0 ? 0.25 : -0.25)));
           if (nextZoom === zoom) return;
           zoom = Math.round(nextZoom * 100) / 100;
           render(activePeriod, true);
