@@ -53,6 +53,30 @@
     .mat-streak-calendar-day.is-selected .mat-streak-calendar-count{color:#fff}
     .mat-streak-calendar-day.is-outside{opacity:.35}
     .mat-streak-calendar-detail{margin-top:12px;padding:13px 14px;border-radius:14px;background:rgba(148,163,184,.09);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .mat-streak-calendar{box-sizing:border-box;width:100%;min-width:0;padding:clamp(12px,2vw,20px);border-radius:18px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 8px 28px rgba(15,23,42,.06)}
+    .mat-streak-calendar-head{padding-bottom:12px;border-bottom:1px solid var(--line,rgba(148,163,184,.18))}
+    .mat-streak-calendar-actions button{min-width:36px;background:var(--surface,#fff);cursor:pointer;transition:background .15s,border-color .15s}
+    .mat-streak-calendar-actions button:hover{background:rgba(16,185,129,.10);border-color:rgba(16,185,129,.4)}
+    .mat-streak-calendar-weekdays span{padding:8px 0}
+    .mat-streak-calendar-days{gap:clamp(3px,1vw,7px)}
+    .mat-streak-calendar-day{min-height:clamp(42px,6vw,62px);border-radius:11px;transition:transform .15s,background .15s,border-color .15s;cursor:pointer}
+    .mat-streak-calendar-day:hover{transform:translateY(-1px);border-color:rgba(16,185,129,.45)}
+    .mat-streak-calendar-detail{display:block;margin-top:16px;padding:0;background:transparent}
+    .mat-streak-calendar-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px;border:1px solid var(--line,rgba(148,163,184,.22));border-radius:14px;background:var(--surface,#fff);color:var(--text,#0f172a);text-align:left;cursor:pointer}
+    .mat-streak-calendar-summary strong{font-size:14px;line-height:1.45}
+    .mat-streak-calendar-summary small{display:block;margin-top:4px;color:var(--muted,#64748b);font-size:11px}
+    .mat-streak-calendar-summary-count{text-align:right;white-space:nowrap}
+    .mat-streak-calendar-summary-count b{display:block;font-size:22px;color:#059669}
+    .mat-streak-calendar-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+    .mat-streak-calendar-metric{min-width:0;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:13px;background:rgba(148,163,184,.045)}
+    .mat-streak-calendar-metric span{display:block;color:var(--muted,#64748b);font-size:11px;font-weight:750}
+    .mat-streak-calendar-metric b{display:block;margin-top:6px;font-size:clamp(16px,2.5vw,21px);line-height:1.2;overflow-wrap:anywhere}
+    .mat-streak-calendar-metric.is-correct b{color:#059669}
+    .mat-streak-calendar-metric.is-wrong b{color:#dc2626}
+    .mat-streak-calendar-metric.is-time b{color:#2563eb}
+    .mat-streak-calendar-details-panel{padding:12px 0 0}
+    @media(max-width:480px){.mat-streak-calendar-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.mat-streak-calendar-weekdays,.mat-streak-calendar-days{gap:3px}.mat-streak-calendar-day{min-height:39px;border-radius:8px}.mat-streak-calendar-summary{padding:12px}}
+
     .mat-streak-calendar-detail strong{font-size:12px;color:var(--text,#0f172a)}
     .mat-streak-calendar-detail small{display:block;margin-top:4px;font-size:11px;color:var(--muted,#64748b)}
     .mat-streak-calendar-total{text-align:right;white-space:nowrap}
@@ -120,6 +144,37 @@
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const number = value => Math.max(0, Number(value) || 0).toLocaleString();
+  // Count only time while this site tab is visible; persist daily totals per account.
+  const siteTimeKey = () => 'mat_site_active_time_v1_' + ((app && app.authUser && app.authUser.uid) || 'guest');
+  let siteTimeLastTick = Date.now();
+  function recordSiteTime() {
+    const now = Date.now();
+    const elapsed = Math.max(0, Math.min(now - siteTimeLastTick, 30000));
+    siteTimeLastTick = now;
+    if (document.hidden || elapsed <= 0) return;
+    try {
+      const key = siteTimeKey();
+      const data = JSON.parse(localStorage.getItem(key) || '{}') || {};
+      const date = dhakaTodayDate();
+      data[date] = Math.max(0, Number(data[date]) || 0) + elapsed;
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (_) {}
+  }
+  function siteTimeForDate(date) {
+    try {
+      const data = JSON.parse(localStorage.getItem(siteTimeKey()) || '{}') || {};
+      return Math.max(0, Number(data[date]) || 0);
+    } catch (_) { return 0; }
+  }
+  function formatSiteTime(milliseconds) {
+    const minutes = Math.floor(Math.max(0, milliseconds) / 60000);
+    const hours = Math.floor(minutes / 60);
+    return hours ? hours + 'h ' + (minutes % 60) + 'm' : (minutes % 60) + 'm';
+  }
+  setInterval(recordSiteTime, 15000);
+  document.addEventListener('visibilitychange', () => { recordSiteTime(); siteTimeLastTick = Date.now(); });
+  window.addEventListener('pagehide', recordSiteTime);
+
   function modal(title, body) {
     document.getElementById('mat-dash-modal-backdrop')?.remove();
     const backdrop = document.createElement('div');
@@ -313,10 +368,15 @@
     const selectedLabel = new Intl.DateTimeFormat('en', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC' }).format(selectedDateObj);
     const entries = (counts.details && counts.details.get(selected)) || [];
     const examAttempts = (counts.examAttempts && counts.examAttempts.get(selected)) || [];
-    const correctCount = entries.filter(item => item.outcome === 'Correct').length;
-    const wrongCount = entries.filter(item => item.outcome === 'Wrong').length;
+    const questionCorrect = entries.filter(item => item.outcome === 'Correct').length;
+    const questionWrong = entries.filter(item => item.outcome === 'Wrong').length;
+    const examCorrect = examAttempts.reduce((sum, item) => sum + Math.max(0, Number(item.correctCount) || 0), 0);
+    const examWrong = examAttempts.reduce((sum, item) => sum + Math.max(0, Number(item.wrongCount) || 0), 0);
+    const correctCount = questionCorrect + examCorrect;
+    const wrongCount = questionWrong + examWrong;
     const knownOutcomes = correctCount + wrongCount;
     const accuracy = knownOutcomes ? Math.round(correctCount / knownOutcomes * 1000) / 10 : null;
+    const siteTime = siteTimeForDate(selected);
     const practicedFrom = [...new Set(entries.map(item => item.source || item.subject).filter(Boolean))];
     const leaderboardBefore = entries.map(item => item.leaderboardStatusBefore || {}).find(item => item.rank != null || item.rp != null || item.status);
     const leaderboardActivityMarkup = (() => {
@@ -353,8 +413,19 @@
       '<div class="mat-streak-calendar-head"><div class="mat-streak-calendar-month">' + esc(monthName) + '</div><div class="mat-streak-calendar-actions"><button type="button" data-calendar-nav="-1" aria-label="Previous month">‹</button><button type="button" data-calendar-nav="today">Today</button><button type="button" data-calendar-nav="1" aria-label="Next month">›</button></div></div>' +
       '<div class="mat-streak-calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>' +
       '<div class="mat-streak-calendar-days">' + cells + '</div>' +
-      '<div class="mat-streak-calendar-detail"><div><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></div><div class="mat-streak-calendar-total"><b>' + number(selectedCount) + '</b><small>attempted questions</small></div></div>' +
-      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Times use Bangladesh time (Asia/Dhaka).</p>' + leaderboardActivityMarkup + examTimeline + '</section>';
+      '<div class="mat-streak-calendar-detail">' +
+      '<button type="button" class="mat-streak-calendar-summary" data-toggle-day-activity aria-expanded="false"><span><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount || examAttempts.length ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></span><span class="mat-streak-calendar-summary-count"><b>' + number(selectedCount) + '</b><small>attempted questions　＋</small></span></button>' +
+      '<section class="mat-streak-calendar-details-panel" data-day-activity-panel hidden>' +
+      '<div class="mat-streak-calendar-metrics">' +
+      '<div class="mat-streak-calendar-metric is-correct"><span>Right answers</span><b>' + number(correctCount) + '</b></div>' +
+      '<div class="mat-streak-calendar-metric is-wrong"><span>Wrong answers</span><b>' + number(wrongCount) + '</b></div>' +
+      '<div class="mat-streak-calendar-metric"><span>Accuracy</span><b>' + (accuracy == null ? '—' : accuracy + '%') + '</b></div>' +
+      '<div class="mat-streak-calendar-metric is-time"><span>Time on website</span><b>' + (siteTime ? esc(formatSiteTime(siteTime)) : '—') + '</b><span>' + (siteTime ? 'Visible-tab time' : 'Tracking starts after this update') + '</span></div>' +
+      '<div class="mat-streak-calendar-metric"><span>Exam sessions</span><b>' + number(examAttempts.length) + '</b></div>' +
+      '<div class="mat-streak-calendar-metric"><span>Known answers</span><b>' + number(knownOutcomes) + '</b></div>' +
+      '</div>' +
+      '<p class="mat-streak-legend" style="margin-bottom:0">Time counts while this website tab is visible, including study, practice and other pages on this site. Older dates only show time if it was tracked and saved. Times use Bangladesh time (Asia/Dhaka).</p>' +
+      leaderboardActivityMarkup + examTimeline + '</section></div>';
   }
 
   function openProfileStreak() {
@@ -578,6 +649,18 @@
     }
 
     chart?.addEventListener('click', event => {
+      const toggleDayActivity = event.target.closest?.('[data-toggle-day-activity]');
+      if (toggleDayActivity) {
+        const panel = chart.querySelector('[data-day-activity-panel]');
+        if (panel) {
+          const opening = panel.hidden;
+          panel.hidden = !opening;
+          toggleDayActivity.setAttribute('aria-expanded', String(opening));
+          const indicator = toggleDayActivity.querySelector('.mat-streak-calendar-summary-count small');
+          if (indicator) indicator.textContent = 'attempted questions　' + (opening ? '−' : '＋');
+        }
+        return;
+      }
       const toggleLeaderboard = event.target.closest?.('[data-toggle-leaderboard]');
       const toggleFriends = event.target.closest?.('[data-toggle-friends]');
       const togglePanel = (button, selector) => {
