@@ -841,6 +841,7 @@
       '<h2 id="mat-notification-title">Notifications <span data-mat-notification-count>All caught up</span></h2>' +
       '<p>Friend progress, leaderboard moves and trophy unlocks.</p></div>' +
       '<button class="mat-notification-expand" type="button" data-mat-notification-expand aria-label="Open fullscreen notifications" title="Open fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
+      '<button class="mat-notification-fullscreen-leaderboard" type="button" data-mat-open-leaderboard><i class="fa-solid fa-ranking-star" aria-hidden="true"></i> Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>' +
       '<span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
