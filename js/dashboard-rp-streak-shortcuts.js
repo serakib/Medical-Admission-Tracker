@@ -29,7 +29,11 @@
     .mat-streak-tab{padding:8px 13px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:999px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#0f172a)}
     .mat-streak-tab[aria-selected="true"]{background:#ea580c;color:#fff;border-color:#ea580c}
     .mat-streak-chart{width:100%;overflow-x:auto;padding:8px 0 0}
-    .mat-streak-chart svg{display:block;width:100%;min-width:420px;height:auto;overflow:visible}
+    .mat-streak-chart svg{display:block;width:100%;min-width:420px;height:auto;max-width:none;overflow:visible}
+    .mat-streak-zoom{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin:8px 0 0}
+    .mat-streak-zoom button{min-width:36px;padding:7px 10px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:9px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:12px;font-weight:850;cursor:pointer}
+    .mat-streak-zoom button:disabled{opacity:.4;cursor:not-allowed}
+    .mat-streak-zoom-label{min-width:42px;text-align:center;font-size:11px;color:var(--muted,#64748b)}
     .mat-streak-grid{stroke:var(--line,rgba(148,163,184,.2));stroke-width:1;stroke-dasharray:4 5}
     .mat-streak-axis-label{fill:var(--muted,#64748b);font-size:10px}
     .mat-streak-point{stroke:var(--surface,#fff);stroke-width:2}
@@ -120,7 +124,7 @@
     } catch (_) {}
     return counts;
   }
-  function streakGraphMarkup(period, counts) {
+  function streakGraphMarkup(period, counts, zoom = 1) {
     const today = dhakaTodayDate();
     const items = [];
     const days = period === 'weekly' ? 7 : period === 'monthly' ? 30 : 365;
@@ -156,12 +160,13 @@
       const title = point.date + ': ' + point.value + ' attempted question(s)';
       return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (period === 'yearly' ? '2.1' : '3.5') + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(title) + '</title></circle>';
     }).join('');
-    const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? 5 : 30;
+    const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? Math.max(1, Math.round(5 / zoom)) : Math.max(1, Math.round(30 / zoom));
     const labels = points.map((point, i) => {
       if (i % labelStep !== 0 && i !== points.length-1) return '';
       return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-10) + '" text-anchor="middle">' + esc(point.label) + '</text>';
     }).join('');
-    return '<svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Daily attempted questions line graph"><text class="mat-streak-axis-label" x="12" y="12">Attempted questions</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
+    const svgWidth = zoom > 1 ? ' style="width:' + (width * zoom) + 'px;min-width:' + (width * zoom) + 'px;max-width:none"' : '';
+    return '<svg' + svgWidth + ' viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Daily attempted questions line graph, zoom ' + zoom + 'x"><text class="mat-streak-axis-label" x="12" y="12">Attempted questions</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
   function openProfileStreak() {
     const progress = profileProgress();
@@ -180,16 +185,34 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="true">Weekly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
+      '<div class="mat-streak-zoom" aria-label="Graph zoom controls"><button type="button" data-streak-zoom="out" aria-label="Zoom out">−</button><span class="mat-streak-zoom-label" id="mat-streak-zoom-label">1×</span><button type="button" data-streak-zoom="in" aria-label="Zoom in">+</button><button type="button" data-streak-zoom="reset">Reset</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
       '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = day, Y-axis = attempted questions per day. Correct and wrong answers count; skipped questions do not.</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
-    const render = period => {
+    let activePeriod = 'weekly';
+    let zoom = 1;
+    const render = (period = activePeriod, keepScroll = false) => {
+      const previousRatio = chart && chart.scrollWidth > chart.clientWidth ? (chart.scrollLeft + chart.clientWidth / 2) / chart.scrollWidth : 0;
+      activePeriod = period;
       document.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
-      if (chart) chart.innerHTML = streakGraphMarkup(period, counts);
+      if (chart) chart.innerHTML = streakGraphMarkup(period, counts, zoom);
+      const zoomLabel = document.getElementById('mat-streak-zoom-label');
+      if (zoomLabel) zoomLabel.textContent = zoom + '×';
+      const zoomOut = document.querySelector('[data-streak-zoom="out"]');
+      const zoomIn = document.querySelector('[data-streak-zoom="in"]');
+      if (zoomOut) zoomOut.disabled = zoom <= 1;
+      if (zoomIn) zoomIn.disabled = zoom >= 4;
+      if (chart && keepScroll) chart.scrollLeft = Math.max(0, previousRatio * chart.scrollWidth - chart.clientWidth / 2);
     };
     render('weekly');
     document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
+    document.querySelectorAll('[data-streak-zoom]').forEach(button => button.addEventListener('click', () => {
+      if (button.dataset.streakZoom === 'in') zoom = Math.min(4, zoom + 1);
+      else if (button.dataset.streakZoom === 'out') zoom = Math.max(1, zoom - 1);
+      else zoom = 1;
+      render(activePeriod, true);
+    }));
   }
   function ensureProfileStreakButton() {
     let button = document.getElementById('mat-profile-streak-button');
