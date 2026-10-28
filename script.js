@@ -1550,7 +1550,20 @@ class MedicalExamApp {
                 accuracy: accuracy + '%',
                 timeUsed: minsUsed + ':' + String(secsUsed).padStart(2, '0'),
                 quizPoints,
-                modeLabel: state.mode
+                modeLabel: state.mode,
+                correctCount,
+                wrongCount,
+                skippedCount,
+                reviewData: {
+                    questions: questions.map(q => ({
+                        ...q,
+                        options: Array.isArray(q?.options) ? q.options.slice() : []
+                    })),
+                    userAnswers: answers.map(answer => answer === null || answer === undefined ? null : Number(answer)),
+                    correctCount,
+                    wrongCount,
+                    skippedCount
+                }
             });
         } catch (error) {
             console.error('[Exam] Result calculated, but saving exam history failed:', error);
@@ -1667,6 +1680,47 @@ class MedicalExamApp {
         this.setupAnswerReviewFilters();
     }
 
+    openSavedExamReview(attemptId) {
+        const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
+        const saved = localHistory.find(item => item && String(item.attemptId) === String(attemptId) && item.reviewData);
+        if (!saved || !Array.isArray(saved.reviewData.questions) || !Array.isArray(saved.reviewData.userAnswers)) {
+            alert('এই পুরোনো attempt-এর পূর্ণ Answer Review সংরক্ষিত নেই। নতুন exam attempt-গুলো থেকে review খোলা যাবে।');
+            return;
+        }
+        this.__savedReviewReturnState = {
+            examState: this.examState,
+            examActive: this.examActive,
+            preparedExam: this.preparedExam
+        };
+        this.examState = {
+            questions: saved.reviewData.questions,
+            userAnswers: saved.reviewData.userAnswers,
+            markedForReview: [],
+            currentIndex: 0,
+            timerSeconds: 0,
+            timerInterval: null,
+            timeUsedSeconds: 0,
+            submitted: true,
+            mode: saved.mode || 'saved-review'
+        };
+        this.examActive = false;
+        this.preparedExam = null;
+        this.showReviewAnswersView();
+    }
+
+    returnFromAnswerReview() {
+        if (this.__savedReviewReturnState) {
+            const previous = this.__savedReviewReturnState;
+            this.examState = previous.examState;
+            this.examActive = previous.examActive;
+            this.preparedExam = previous.preparedExam;
+            this.__savedReviewReturnState = null;
+            this.showView('profile', true);
+            return;
+        }
+        this.showView('result', true);
+    }
+
     setupAnswerReviewFilters() {
         const controls = document.getElementById('answer-review-filters');
         const container = document.getElementById('review-list-container');
@@ -1718,13 +1772,24 @@ class MedicalExamApp {
     saveExamAttempt(attempt) {
         let history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
         history.unshift(attempt);
+        // Keep full answer-review snapshots for the 20 most recent local attempts;
+        // older summary rows remain available without risking localStorage exhaustion.
+        history.forEach((item, index) => {
+            if (index >= 20 && item && item.reviewData) delete item.reviewData;
+        });
         localStorage.setItem(this.getHistoryKey(), JSON.stringify(history));
         this.loadProgressStats();
     }
 
     loadProgressStats() {
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-        const history = Array.isArray(this.serverExamHistory) ? this.serverExamHistory : localHistory;
+        const localByAttemptId = new Map(localHistory.filter(item => item && item.attemptId).map(item => [String(item.attemptId), item]));
+        const history = Array.isArray(this.serverExamHistory)
+            ? this.serverExamHistory.map(item => {
+                const local = item && item.attemptId ? localByAttemptId.get(String(item.attemptId).replace(/^.*-/, '')) || localByAttemptId.get(String(item.attemptId)) : null;
+                return local?.reviewData ? { ...item, reviewData: local.reviewData, correctCount: local.correctCount, wrongCount: local.wrongCount, skippedCount: local.skippedCount } : item;
+            })
+            : localHistory;
         const answered=this.getAnsweredQuestionIds();
         const total=this.questionBank.length||520;
         const attempts=history.length;
@@ -1746,7 +1811,19 @@ class MedicalExamApp {
         const note=document.getElementById('profile-performance-note');if(note) note.textContent=attempts?`আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`:'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
         const action=document.getElementById('profile-auth-action');if(action)action.textContent=this.authUser?'Account':'লগইন / রেজিস্টার';
         const tbody=document.getElementById('prog-history-tbody');
-        if(tbody){tbody.innerHTML=''; history.slice(0,10).forEach(item=>{const tr=document.createElement('tr');tr.className='hover:bg-gray-50 dark:hover:bg-gray-700/50 transition';tr.innerHTML=`<td class="py-3 px-4 font-medium">${this.escapeHtml(item.date || '—')}</td><td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode || 'Exam')}</td><td class="py-3 px-4">${this.escapeHtml(item.subject || '—')}</td><td class="py-3 px-4 font-bold text-medical-600">${this.escapeHtml(item.score ?? '0')} / ${this.escapeHtml(item.total ?? 0)}</td><td class="py-3 px-4">${this.escapeHtml(item.accuracy || '0%')}</td><td class="py-3 px-4 text-gray-500">${this.escapeHtml(item.timeUsed || '—')}</td>`;tbody.appendChild(tr);});}
+        if(tbody){tbody.innerHTML=''; history.slice(0,10).forEach(item=>{
+            const tr=document.createElement('tr');
+            const canReview=!!item.reviewData?.questions?.length && Array.isArray(item.reviewData.userAnswers);
+            tr.className='transition '+(canReview?'cursor-pointer hover:bg-medical-50 dark:hover:bg-medical-900/20':'hover:bg-gray-50 dark:hover:bg-gray-700/50');
+            if(canReview){tr.tabIndex=0;tr.setAttribute('role','button');tr.title='ক্লিক করে এই পরীক্ষার Answer Review দেখুন';}
+            tr.innerHTML=`<td class="py-3 px-4 font-medium">${this.escapeHtml(item.date || '—')}</td><td class="py-3 px-4 capitalize">${this.escapeHtml(item.mode || 'Exam')}</td><td class="py-3 px-4">${this.escapeHtml(item.subject || '—')}</td><td class="py-3 px-4 font-bold text-medical-600">${this.escapeHtml(item.score ?? '0')} / ${this.escapeHtml(item.total ?? 0)}</td><td class="py-3 px-4">${this.escapeHtml(item.accuracy || '0%')}</td><td class="py-3 px-4 text-emerald-600 font-semibold">${item.correctCount ?? '—'}</td><td class="py-3 px-4 text-rose-600 font-semibold">${item.wrongCount ?? '—'}</td><td class="py-3 px-4 text-amber-600 font-semibold">${item.skippedCount ?? '—'}</td><td class="py-3 px-4 text-gray-500">${this.escapeHtml(item.timeUsed || '—')}</td>`;
+            if(canReview){
+                const open=()=>this.openSavedExamReview(item.attemptId);
+                tr.addEventListener('click',open);
+                tr.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
+            }
+            tbody.appendChild(tr);
+        });}
         // Refresh account progress from the authenticated Medical Sheets API.
         // Keep local history visible until the first successful server response.
         const league = window.MedGlobalLeague;
