@@ -412,7 +412,7 @@
       return input && selectedBankKeys.has(input.dataset.qkey);
     });
     const selectButton = toolbar.querySelector('#enhanced-bank-select-visible');
-    if (selectButton) selectButton.textContent = `${allVisibleSelected ? 'Unselect All' : 'Select All'} (${selected} selected)`;
+    if (selectButton) selectButton.textContent = allVisibleSelected ? 'Unselect All' : 'Select All';
     const clearButton = toolbar.querySelector('#enhanced-bank-clear-selection');
     if (clearButton) clearButton.textContent = `Clear Selection (${selected} selected)`;
     const examButton = toolbar.querySelector('#enhanced-bank-practice-selected');
@@ -433,14 +433,14 @@
     }
     toolbar.dataset.statusFilter = 'all';
     const isBn = this.language !== 'en';
-    toolbar.innerHTML = `<div class="enhanced-bank-selection-head"><div><strong>Question Selection</strong><span data-selected-count>${selectedBankKeys.size} selected</span></div><p>Build an exam from your selected questions</p></div><div class="enhanced-bank-selection-actions"><button type="button" id="enhanced-bank-select-visible" class="enhanced-bank-action">Select All (${selectedBankKeys.size} selected)</button><button type="button" id="enhanced-bank-clear-selection" class="enhanced-bank-action">Clear Selection (${selectedBankKeys.size} selected)</button><button type="button" class="enhanced-practice-selected enhanced-bank-action-primary" id="enhanced-bank-practice-selected" ${selectedBankKeys.size?'':'disabled'}>Start Exam with ${selectedBankKeys.size} Questions</button></div>`;
+    toolbar.innerHTML = `<div class="enhanced-bank-selection-head"><div><strong>Question Selection</strong><span data-selected-count>${selectedBankKeys.size} selected</span></div><p>Build an exam from your selected questions</p></div><div class="enhanced-bank-selection-actions"><button type="button" id="enhanced-bank-select-visible" class="enhanced-bank-action">Select All</button><button type="button" id="enhanced-bank-clear-selection" class="enhanced-bank-action">Clear Selection (${selectedBankKeys.size} selected)</button><button type="button" class="enhanced-practice-selected enhanced-bank-action-primary" id="enhanced-bank-practice-selected" ${selectedBankKeys.size?'':'disabled'}>Start Exam with ${selectedBankKeys.size} Questions</button></div>`;
     const selectVisibleButton = toolbar.querySelector('#enhanced-bank-select-visible');
     const visibleCards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
     const allVisibleSelected = visibleCards.length > 0 && visibleCards.every(card => {
       const input = card.querySelector('.enhanced-bank-select');
       return input && selectedBankKeys.has(input.dataset.qkey);
     });
-    selectVisibleButton.textContent = `${allVisibleSelected ? 'Unselect All' : 'Select All'} (${selectedBankKeys.size} selected)`;
+    selectVisibleButton.textContent = allVisibleSelected ? 'Unselect All' : 'Select All';
     selectVisibleButton.onclick = () => {
       const cards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
       const allSelected = cards.length > 0 && cards.every(card => {
