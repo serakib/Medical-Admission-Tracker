@@ -714,29 +714,12 @@
     const value = numeric(timestamp);
     if (!value || !Number.isFinite(value)) return 'Time unavailable';
     const diff = Math.max(0, localTimestamp() - value);
-    if (diff < 60000) return Math.floor(diff / 1000) + 's ago';
-    if (diff < 3600000) {
-      const minutes = Math.floor(diff / 60000);
-      const seconds = Math.floor((diff % 60000) / 1000);
-      return minutes + 'm ' + seconds + 's ago';
-    }
-    if (diff < 86400000) {
-      const hours = Math.floor(diff / 3600000);
-      const minutes = Math.floor((diff % 3600000) / 60000);
-      return hours + 'h ' + minutes + 'm ago';
-    }
-    const date = new Date(value);
-    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Dhaka' }).format(date);
-  }
-  function exactTimeLabel(timestamp) {
-    const date = new Date(numeric(timestamp));
-    if (Number.isNaN(date.getTime())) return 'Time unavailable';
-    const parts = new Intl.DateTimeFormat('en-GB', {
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-      hourCycle: 'h23', timeZone: 'Asia/Dhaka'
-    }).format(date);
-    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-    return parts + '.' + milliseconds;
+    const totalMinutes = Math.floor(diff / 60000);
+    if (totalMinutes < 1) return 'Less than 1 min ago';
+    if (totalMinutes < 60) return totalMinutes + ' min ago';
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes ? hours + ' hr ' + minutes + ' min ago' : hours + ' hr ago';
   }
   function updateRelativeTimes() {
     document.querySelectorAll('#mat-notification-list time[data-mat-notification-time]').forEach(function (time) {
