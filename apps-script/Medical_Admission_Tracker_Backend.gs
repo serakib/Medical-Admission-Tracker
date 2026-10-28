@@ -257,22 +257,23 @@ function processWeeklyRankDemotions() {
       const update = { LastWeeklyDemotionWeek: currentWeekStart, UpdatedAt: now };
       processed += 1;
 
-      // Immortal has no next trophy to protect against; Bronze V has no lower rank.
+      // Bronze V is the floor: it cannot demote further. If its weekly
+      // activity also misses the Bronze V Safe Zone, reset current RP to 0.
       if (rankIndex <= 0) {
         lowestRank += 1;
+        if (weeklyRP < matRankSafeZoneThreshold_(0)) {
+          update.RP = 0;
+        }
       } else if (rankIndex >= MAT_RANKS.length - 1) {
         maximumRank += 1;
       } else {
-        const nextTrophyRequirement = matRankPromotionCost_(rankIndex);
-        const safeZoneThreshold = Math.ceil(nextTrophyRequirement * 0.30);
+        const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
         if (weeklyRP < safeZoneThreshold) {
           const demotedRankIndex = rankIndex - 1;
           update.Rank = MAT_RANKS[demotedRankIndex];
-          // Bronze V is the floor: a demotion into it starts at 0 RP.
-          // Other demotions retain the demoted rank's Safe Zone minimum.
-          update.RP = demotedRankIndex === 0
-            ? 0
-            : matRankSafeZoneThreshold_(demotedRankIndex);
+          // Start at the Safe Zone minimum of the rank the user lands in.
+          // Bronze V uses its special 5% threshold; other ranks use 30%.
+          update.RP = matRankSafeZoneThreshold_(demotedRankIndex);
           // Start the seven-day zero-RP inactivity window only for Guests.
           if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
             update.GuestZeroRPAt = now;
@@ -280,6 +281,7 @@ function processWeeklyRankDemotions() {
           update.LastError = '';
           demoted += 1;
         } else {
+          // Safe Zone protects the current rank; it never grants promotion.
           safe += 1;
         }
       }
@@ -1007,7 +1009,9 @@ function matRankPromotionCost_(rankIndex) {
 
 function matRankSafeZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.30);
+  // Bronze V uses a 5% activity threshold; every other rank uses 30%.
+  const safeZoneRate = rankIndex === 0 ? 0.05 : 0.30;
+  return Math.ceil(matRankPromotionCost_(rankIndex) * safeZoneRate);
 }
 
 function matApplyRankProgress_(rank, currentRP, earnedRP) {
