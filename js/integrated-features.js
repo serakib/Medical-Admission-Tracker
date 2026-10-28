@@ -1008,17 +1008,18 @@
   const safeRead = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (_) { return fallback; } };
   const progressKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
   const readProgress = () => safeRead(progressKey(), { rankPoints: 0, xp: 0, completedExams: 0, rewarded: [] });
-  // Rank-up PB costs are half the previous amounts: 200*n PB, with 20% extra after the first step.
+  // Friendly RP curve: each promotion costs 500 + 20% of the previous promotion cost.
   const roundRankCost = value => Math.max(5, Math.round(Number(value || 0) / 5) * 5);
   const rankUpgradeCost = step => {
     const n = Math.max(1, Math.floor(Number(step) || 1));
-    const base = n * 400;
-    return roundRankCost(n === 1 ? base : base * 1.2);
+    let cost = 500;
+    for (let i = 1; i < n; i++) cost = roundRankCost(500 + cost * 0.2);
+    return cost;
   };
   const completedRankUps = points => {
     const value = Math.max(0, Number(points) || 0);
     let total = 0, count = 0;
-    while (count < 50) {
+    while (count < 55) {
       const nextCost = rankUpgradeCost(count + 1);
       if (value < total + nextCost) break;
       total += nextCost;
@@ -1249,7 +1250,7 @@ const app=window.app;if(!app||app.__comprehensiveRequirementsInstalled)return;ap
 const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','Grandmaster','Legend','Mythic'],roman=['V','IV','III','II','I'];
 const pkey=()=>'med_account_progress_v1_'+(app.authUser?.uid||'guest');
 const progress=()=>{try{return typeof app.getAccountProgress==='function'?app.getAccountProgress():(JSON.parse(localStorage.getItem(pkey())||'{}')||{})}catch(_){return{}}};
-const rankUpgradeCost=step=>{const n=Math.max(1,Math.floor(Number(step)||1)),base=n*400;return Math.max(5,Math.round((n===1?base:base*1.2)/5)*5)};
+const rankUpgradeCost=step=>{const n=Math.max(1,Math.floor(Number(step)||1));let cost=500;for(let i=1;i<n;i++)cost=Math.max(5,Math.round((500+cost*0.2)/5)*5);return cost};
 const rank=points=>{const value=Math.max(0,Number(points)||0);let n=0,spent=0,required=rankUpgradeCost(1);while(n<55&&value>=spent+required){spent+=required;n++;required=rankUpgradeCost(n+1)}if(n>=55)return{name:'Immortal I',tier:'immortal',index:55,step:5,points:value,remaining:0,progress:100};if(n>=50)return{name:'Immortal '+roman[n-50],tier:'immortal',index:n+1,step:n-49,points:value,remaining:Math.max(0,required-(value-spent)),progress:Math.min(100,(value-spent)/required*100)};const within=value-spent;return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:Math.max(0,required-within),progress:Math.min(100,within/required*100)}};
 const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
 const hkey=()=>'med_review_history_v2_'+(app.authUser?.uid||'guest');
