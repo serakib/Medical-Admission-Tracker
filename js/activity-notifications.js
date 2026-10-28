@@ -217,16 +217,19 @@
     try { weeklyRows = league.getCachedRows('weekly') || []; } catch (_) {}
     weeklyRows.filter(row => row && !row.isDemo && rowId(row)).forEach(row => {
       const id = rowId(row);
-      if (!byId.has(id)) byId.set(id, Object.assign({}, row, { userId: id }));
+      if (!byId.has(id)) {
+        const actualPosition = numeric(row.position || (row.raw && row.raw.position) || (row.raw && row.raw.rankPosition));
+        byId.set(id, Object.assign({}, row, { userId: id, position: actualPosition }));
+      }
     });
-    // Keep position numbering based on the Weekly leaderboard cache only.
-    // Profiles found only in Friends/All Time caches are retained for RP/trophy checks,
-    // but are not assigned a fabricated global position.
-    byId.forEach((row, id) => { row.position = 0; });
+    // Backend positions are global ranks, even when an accepted friend is outside the Top 100.
+    // Only use a local ordinal as a fallback for older cache rows that have no position field.
     const sortedWeekly = Array.from(byId.values())
       .sort((a, b) => rowRP(b) - rowRP(a) || rowXP(b) - rowXP(a) || rowName(a).localeCompare(rowName(b)));
-    sortedWeekly.forEach((row, index) => { row.position = index + 1; });
-    sortedWeekly.forEach(row => byId.set(rowId(row), row));
+    sortedWeekly.forEach((row, index) => {
+      if (!(numeric(row.position) > 0)) row.position = index + 1;
+      byId.set(rowId(row), row);
+    });
     ['friends', 'all-time'].forEach(function (period) {
       let rows = [];
       try { rows = league.getCachedRows(period) || []; } catch (_) {}
@@ -240,11 +243,13 @@
       userId: rowId(row), name: rowName(row), position: Math.max(0, numeric(row.position))
     }));
   }
-  async function refreshWeeklyData() {
+  async function refreshWeeklyData(friendIds) {
     const league = window.MedGlobalLeague;
     if (!league || typeof league.loadLeaderboard !== 'function') return;
     const before = readStorage(PERIOD_KEY);
+    const priorFriendIds = window.__medActivityFriendIdsForWeeklyRefresh;
     try {
+      window.__medActivityFriendIdsForWeeklyRefresh = Array.from(new Set((friendIds || []).map(String).filter(Boolean))).slice(0, 499);
       localStorage.setItem(PERIOD_KEY, 'weekly');
       await league.loadLeaderboard(true);
     } catch (error) {
@@ -254,6 +259,11 @@
         if (before == null) localStorage.removeItem(PERIOD_KEY);
         else localStorage.setItem(PERIOD_KEY, before);
       } catch (_) {}
+      if (priorFriendIds == null) {
+        try { delete window.__medActivityFriendIdsForWeeklyRefresh; } catch (_) {}
+      } else {
+        window.__medActivityFriendIdsForWeeklyRefresh = priorFriendIds;
+      }
     }
   }
   async function acceptedFriendData() {
@@ -433,8 +443,8 @@
     refreshPromise = (async function () {
       try {
         await restoreCloudState(true);
-        await refreshWeeklyData();
         const friendsData = await acceptedFriendData();
+        await refreshWeeklyData(friendsData.ids);
         const rows = rankRows();
         if (!rows.length) {
           lastRefreshAt = localTimestamp();
