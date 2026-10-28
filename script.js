@@ -1939,27 +1939,31 @@ window.updateExamRewardDisplay = function (reward) {
     if (activeAttempt && rewardAttempt && activeAttempt !== rewardAttempt) return;
     const xpEl = document.getElementById('res-xp-earned');
     const rpEl = document.getElementById('res-rp-earned');
+    const pbEl = document.getElementById('res-pb-earned');
     const rankEl = document.getElementById('res-rank-earned');
     const statusEl = document.getElementById('res-reward-status');
     if (reward.success && !reward.pending) {
         const xp = reward.xpGained == null || !Number.isFinite(Number(reward.xpGained)) ? null : Number(reward.xpGained);
         const rp = reward.rankPointsDelta == null || !Number.isFinite(Number(reward.rankPointsDelta)) ? null : Number(reward.rankPointsDelta);
+        const pb = reward.pbGained == null || !Number.isFinite(Number(reward.pbGained)) ? null : Number(reward.pbGained);
         if (xpEl) xpEl.textContent = xp == null ? '—' : ((xp >= 0 ? '+' : '') + xp.toLocaleString() + ' XP');
         if (rpEl) rpEl.textContent = rp == null ? '—' : ((rp >= 0 ? '+' : '') + rp.toLocaleString() + ' RP');
+        if (pbEl) pbEl.textContent = pb == null ? '—' : ('+' + pb.toLocaleString() + ' PB');
         if (rankEl) rankEl.textContent = reward.rank ? ('বর্তমান Rank: ' + reward.rank) : '';
         if (statusEl) {
-            statusEl.textContent = (xp == null || rp == null)
-                ? 'API থেকে result গ্রহণ করা হয়েছে, কিন্তু earned XP/RP-এর নির্দিষ্ট amount response-এ পাওয়া যায়নি।'
+            statusEl.textContent = (xp == null || rp == null || pb == null)
+                ? 'API থেকে result এসেছে, কিন্তু XP/RP/PB-এর কোনো amount response-এ পাওয়া যায়নি।'
                 : (reward.fallbackUsed
-                    ? 'Medical API result sync হয়নি; reward নিশ্চিত হলে updated amount দেখানো হবে।'
-                    : (reward.synced ? 'Medical API থেকে XP/RP sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।'));
+                    ? 'Medical API result sync হয়নি; confirmed XP/RP/PB amount দেখানো হবে।'
+                    : (reward.synced ? 'Medical API থেকে XP/RP/PB sync হয়েছে।' : 'API থেকে reward পাওয়া গেছে।'));
         }
-        panel.dataset.rewardState = (xp == null || rp == null) ? 'amount-unavailable' : (reward.fallbackUsed ? 'fallback' : 'synced');
+        panel.dataset.rewardState = (xp == null || rp == null || pb == null) ? 'amount-unavailable' : (reward.fallbackUsed ? 'fallback' : 'synced');
         return;
     }
     if (reward.pending) {
         if (xpEl) xpEl.textContent = 'Pending';
         if (rpEl) rpEl.textContent = 'Pending';
+        if (pbEl) pbEl.textContent = 'Pending';
         if (rankEl) rankEl.textContent = '';
         if (statusEl) statusEl.textContent = reward.message || 'Medical API থেকে XP ও RP নিশ্চিত করা হচ্ছে।';
         panel.dataset.rewardState = 'pending';
@@ -1967,6 +1971,7 @@ window.updateExamRewardDisplay = function (reward) {
     }
     if (xpEl) xpEl.textContent = '—';
     if (rpEl) rpEl.textContent = '—';
+    if (pbEl) pbEl.textContent = '—';
     if (rankEl) rankEl.textContent = '';
     if (statusEl) statusEl.textContent = reward.message || 'এই result-এর reward এখনো নিশ্চিত হয়নি।';
     panel.dataset.rewardState = 'unavailable';
@@ -2562,8 +2567,8 @@ window.handleAccountDeletion = function() {
         previousLimit = tier.upTo;
       }
     }
-    const weightedBonusRp = Math.round(weightedScore * 15);
-    return { rankPoints: Math.round(baseRankPoints + weightedBonusRp), xp: 0, hasWeightedExamRule: totalQuestions >= 30 };
+    const weightedBonusPB = Math.round(weightedScore * 15);
+    return { rankPoints: Math.round(baseRankPoints), xp: 0, pb: weightedBonusPB, hasWeightedExamRule: totalQuestions >= 30 };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];

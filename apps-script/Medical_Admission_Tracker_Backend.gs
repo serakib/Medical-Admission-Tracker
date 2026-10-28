@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 
 const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
-  'XP', 'RP', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
+  'XP', 'RP', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
   'LastWeeklyDemotionWeek', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt'
 ];
@@ -40,7 +40,7 @@ const MAT_FRIEND_HEADERS = [
 
 const MAT_EXAM_HEADERS = [
   'RecordType', 'AttemptID', 'UserID', 'ExamMode', 'Subject', 'ExamYear', 'TimeUsed', 'TotalQuestions', 'Correct',
-  'Wrong', 'Score', 'XPEarned', 'RPEarned', 'RankBefore', 'RankAfter',
+  'Wrong', 'Score', 'XPEarned', 'RPEarned', 'PBEarned', 'RankBefore', 'RankAfter',
   'SubmittedAt', 'ActivityID', 'ActivityCreatedAt', 'ActivityMessage',
   'NotificationStatus', 'SentAt', 'RetryCount', 'LastError', 'RewardStatus'
 ];
@@ -115,6 +115,8 @@ function matDispatch_(action, p) {
       return matGetProgress_(p || {});
     case 'syncStreak':
       return matSyncStreak_(p || {});
+    case 'convertPB':
+      return matConvertPB_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -213,7 +215,12 @@ function setupBackend() {
 
 /** Time-driven trigger target. Do not rename without updating setupBackend(). */
 function processPendingActivityNotifications() {
-  return matDrainActivityQueue_();
+  let result = null;
+  try { result = matDrainActivityQueue_(); }
+  catch (err) { Logger.log('Activity queue will retry: ' + matErrorText_(err)); }
+  try { matSettleExpiredPBs_(); }
+  catch (err) { Logger.log('PB expiry settlement will retry: ' + matErrorText_(err)); }
+  return result;
 }
 
 /**
@@ -805,8 +812,8 @@ function matUpdateLastSeen_(user) {
 
 /* ------------------------------ Exam submission ------------------------------- */
 
-/** Calculates percentage-tier weighted RP for exams containing at least 30 questions. */
-function matCalculateWeightedExamRP_(correct, wrong, totalQuestions) {
+/** Calculates the performance-tier PB bonus for exams containing at least 30 questions. */
+function matCalculateWeightedExamPB_(correct, wrong, totalQuestions) {
   const correctCount = matSafeNonNegativeInt_(correct, 'correctCount');
   const wrongCount = matSafeNonNegativeInt_(wrong, 'wrongCount');
   const total = matSafeNonNegativeInt_(totalQuestions, 'totalQuestions');
@@ -830,7 +837,144 @@ function matCalculateWeightedExamRP_(correct, wrong, totalQuestions) {
     weightedScore += tierScore * tier.multiplier;
     previousLimit = tier.upTo;
   });
+  // The weighted tier bonus is PB, not additional Rank Points.
   return Math.round(weightedScore * 15);
+}
+
+function matParsePBEntries_(value) {
+  try {
+    const parsed = Array.isArray(value) ? value : JSON.parse(String(value || '[]'));
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map(function (entry) {
+      return {
+        amount: Math.max(0, Math.floor(matFiniteNumber_(entry.amount, 0))),
+        earnedAt: Math.max(0, matFiniteNumber_(entry.earnedAt, 0)),
+        convertsAt: Math.max(0, matFiniteNumber_(entry.convertsAt, 0))
+      };
+    }).filter(function (entry) { return entry.amount > 0 && entry.convertsAt > 0; });
+  } catch (_) { return []; }
+}
+
+/** Move expired PB to server-side RP once; callers must hold the script lock. */
+function matSettlePBForStudent_(student, nowMs, sheet) {
+  if (!student || !student._rowNumber) return 0;
+  const entries = matParsePBEntries_(student.PBEntries);
+  const remaining = [];
+  let expired = 0;
+  entries.forEach(function (entry) {
+    if (entry.convertsAt <= nowMs) expired += entry.amount;
+    else remaining.push(entry);
+  });
+  if (!expired) return 0;
+  const currentRP = Math.max(0, matFiniteNumber_(student.RP, 0));
+  const lifetimeRP = Math.max(currentRP, matFiniteNumber_(student.TotalRP, currentRP));
+  const rankResult = matApplyRankProgress_(String(student.Rank || MAT_RANKS[0]), currentRP, expired);
+  matUpdateObjectRow_(sheet || matGetStudentsSheet_(), student._rowNumber, {
+    RP: rankResult.rp,
+    TotalRP: lifetimeRP + expired,
+    Rank: rankResult.rank,
+    PB: remaining.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
+    PBEntries: JSON.stringify(remaining),
+    UpdatedAt: matNowIso_()
+  });
+  return expired;
+}
+
+/** Five-minute trigger: expire PB server-side and sync leaderboard/top-ten changes. */
+function matSettleExpiredPBs_() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sheet = matGetStudentsSheet_();
+    const students = matReadObjects_(sheet);
+    const oldSnapshot = matGetTop10Snapshot_();
+    const nowMs = Date.now();
+    let totalExpired = 0;
+    students.forEach(function (student) {
+      totalExpired += matSettlePBForStudent_(student, nowMs, sheet);
+    });
+    if (totalExpired > 0) {
+      const eventTime = matNowIso_();
+      const newSnapshot = matBuildTop10_();
+      const timeKey = Utilities.formatDate(new Date(nowMs), MAT_CONFIG.TIME_ZONE, 'yyyyMMdd-HHmm');
+      matEnqueueTop10Changes_(oldSnapshot, newSnapshot, eventTime, 'PB-EXPIRY-' + timeKey);
+      matSaveTop10Snapshot_(newSnapshot);
+    }
+    return totalExpired;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Convert PB using authoritative Sheets balances. 1 PB -> 2 XP or 1 PB -> 1 RP. */
+function matConvertPB_(p) {
+  const user = matAuthenticate_(p);
+  const amount = matSafeNonNegativeInt_(p.amount, 'amount');
+  const kind = String(p.kind || p.target || '').toLowerCase();
+  if (amount < 1) throw new Error('PB amount must be at least 1.');
+  if (kind !== 'xp' && kind !== 'rp') throw new Error('Conversion target must be xp or rp.');
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sheet = matGetStudentsSheet_();
+    let current = matFindStudentById_(user.UserID);
+    if (!current) throw new Error('Student profile not found.');
+    const oldSnapshot = matGetTop10Snapshot_();
+    const nowMs = Date.now();
+    const expired = matSettlePBForStudent_(current, nowMs, sheet);
+    current = matFindStudentById_(user.UserID);
+    const entries = matParsePBEntries_(current.PBEntries);
+    const available = entries.reduce(function (sum, entry) { return sum + entry.amount; }, 0);
+
+    if (amount > available) {
+      if (expired > 0) {
+        const updatedSnapshot = matBuildTop10_();
+        matEnqueueTop10Changes_(oldSnapshot, updatedSnapshot, matNowIso_(), 'PB-EXPIRY-' + user.UserID + '-' + nowMs);
+        matSaveTop10Snapshot_(updatedSnapshot);
+      }
+      throw new Error('Not enough convertible PB. PB older than two hours automatically converts to RP.');
+    }
+
+    let remainingToUse = amount;
+    const nextEntries = entries.slice().sort(function (a, b) { return a.earnedAt - b.earnedAt; }).map(function (entry) {
+      const used = Math.min(entry.amount, remainingToUse);
+      remainingToUse -= used;
+      return { amount: entry.amount - used, earnedAt: entry.earnedAt, convertsAt: entry.convertsAt };
+    }).filter(function (entry) { return entry.amount > 0; });
+
+    const currentXP = Math.max(0, matFiniteNumber_(current.XP, 0));
+    const currentRP = Math.max(0, matFiniteNumber_(current.RP, 0));
+    const lifetimeRP = Math.max(currentRP, matFiniteNumber_(current.TotalRP, currentRP));
+    const earnedXP = kind === 'xp' ? amount * 2 : 0;
+    const earnedRP = kind === 'rp' ? amount : 0;
+    const rankResult = matApplyRankProgress_(String(current.Rank || MAT_RANKS[0]), currentRP, earnedRP);
+    matUpdateObjectRow_(sheet, current._rowNumber, {
+      XP: currentXP + earnedXP,
+      RP: rankResult.rp,
+      TotalRP: lifetimeRP + earnedRP,
+      Rank: rankResult.rank,
+      Level: matGetLevel_(currentXP + earnedXP),
+      PB: nextEntries.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
+      PBEntries: JSON.stringify(nextEntries),
+      UpdatedAt: matNowIso_()
+    });
+    const latest = matFindStudentById_(user.UserID);
+    const newSnapshot = matBuildTop10_();
+    matEnqueueTop10Changes_(oldSnapshot, newSnapshot, matNowIso_(), 'PB-CONVERT-' + user.UserID + '-' + nowMs);
+    matSaveTop10Snapshot_(newSnapshot);
+    return {
+      success: true,
+      convertedPB: amount,
+      kind: kind,
+      earnedXP: earnedXP,
+      earnedRP: earnedRP,
+      expiredPBToRP: expired,
+      user: matApiUser_(latest)
+    };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function matSubmitExam_(p) {
@@ -861,6 +1005,7 @@ function matSubmitExam_(p) {
           attemptId: attemptId,
           xpGained: Number(existing.XPEarned || 0),
           rankPointsDelta: Number(existing.RPEarned || 0),
+          pbGained: Number(existing.PBEarned || 0),
           user: matApiUser_(current),
           message: 'Duplicate attempt ignored; rewards were not added again.'
         };
@@ -884,22 +1029,17 @@ function matSubmitExam_(p) {
       const answered = correct + wrong;
       const accuracy = answered ? correct / answered : 0;
 
-      // Medical-only rewards. Never accept XP/RP amounts supplied by the browser.
-      // Note: correctness counts still need trusted answer-key grading in the backend
-      // if the product requires tamper-resistant competitive ranking.
-      // Any exam with 30 or more questions uses percentage-tier weighted RP.
+      // XP/RP keep their existing base formulas. The performance-tier bonus is separate PB.
+      // Never accept client-supplied XP, RP, or PB amounts.
       const normalizedExamMode = String(examMode).trim().toLowerCase();
       const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
       const calculatedXpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
-      // Keep the existing base RP reward. The percentage-tier system is an extra bonus,
-      // not a replacement for the original RP/XP calculation.
       const baseRpEarned = Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
       const hasWeightedExamRule = total >= 30;
-      const weightedBonusRp = hasWeightedExamRule ? matCalculateWeightedExamRP_(correct, wrong, total) : 0;
-      const calculatedRpEarned = Math.round(baseRpEarned + weightedBonusRp);
-      // Practice XP remains at 30% of the calculated amount; Practice RP now receives 70% (30% reduction).
+      const pbEarned = hasWeightedExamRule ? matCalculateWeightedExamPB_(correct, wrong, total) : 0;
+      // Practice XP is 30% of base XP. Practice RP keeps the existing 30% reduction only below 30 questions.
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
-      const rpEarned = isPracticeMode && total < 30 ? Math.max(0, Math.round(calculatedRpEarned * 0.70)) : calculatedRpEarned;
+      const rpEarned = isPracticeMode && total < 30 ? Math.max(0, Math.round(baseRpEarned * 0.70)) : baseRpEarned;
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
       const rankBefore = String(freshUser.Rank || MAT_RANKS[0]);
@@ -922,6 +1062,7 @@ function matSubmitExam_(p) {
         Score: score,
         XPEarned: xpEarned,
         RPEarned: rpEarned,
+        PBEarned: pbEarned,
         RankBefore: rankBefore,
         RankAfter: rankPreview.rank,
         SubmittedAt: now,
@@ -956,15 +1097,21 @@ function matFinalizeProcessingExam_(attempt) {
   if (!alreadyApplied) {
     const xpEarned = Math.max(0, matFiniteNumber_(attempt.XPEarned, 0));
     const rpEarned = Math.max(0, matFiniteNumber_(attempt.RPEarned, 0));
+    const pbEarned = Math.max(0, matFiniteNumber_(attempt.PBEarned, 0));
     const currentRank = String(current.Rank || MAT_RANKS[0]);
     rankBefore = currentRank;
     const rankResult = matApplyRankProgress_(currentRank, Math.max(0, matFiniteNumber_(current.RP, 0)), rpEarned);
     rankAfter = rankResult.rank;
     const currentXP = Math.max(0, matFiniteNumber_(current.XP, 0));
     const lifetimeRP = Math.max(Math.max(0, matFiniteNumber_(current.RP, 0)), matFiniteNumber_(current.TotalRP, matFiniteNumber_(current.RP, 0)));
+    const nowMs = Date.now();
+    const pbEntries = matParsePBEntries_(current.PBEntries);
+    if (pbEarned > 0) pbEntries.push({ amount: pbEarned, earnedAt: nowMs, convertsAt: nowMs + 2 * 60 * 60 * 1000 });
     matUpdateObjectRow_(matGetStudentsSheet_(), current._rowNumber, {
       XP: currentXP + xpEarned,
       RP: rankResult.rp,
+      PB: pbEntries.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
+      PBEntries: JSON.stringify(pbEntries),
       TotalRP: lifetimeRP + rpEarned,
       Level: matGetLevel_(currentXP + xpEarned),
       Rank: rankAfter,
@@ -994,6 +1141,7 @@ function matFinalizeProcessingExam_(attempt) {
     attemptId: attemptId,
     xpGained: Math.max(0, matFiniteNumber_(attempt.XPEarned, 0)),
     rankPointsDelta: Math.max(0, matFiniteNumber_(attempt.RPEarned, 0)),
+    pbGained: Math.max(0, matFiniteNumber_(attempt.PBEarned, 0)),
     rankChanged: rankBefore !== rankAfter,
     rankBefore: rankBefore,
     rankAfter: rankAfter,
@@ -1825,6 +1973,8 @@ function matNormaliseStudent_(r) {
   row.Name = String(row.Name || (String(row.AccountType).toUpperCase() === 'GUEST' ? 'Guest Student' : 'Medical Student'));
   row.XP = Math.max(0, matFiniteNumber_(row.XP, 0));
   row.RP = Math.max(0, matFiniteNumber_(row.RP, 0));
+  row.PB = Math.max(0, matFiniteNumber_(row.PB, 0));
+  row.PBEntries = JSON.stringify(matParsePBEntries_(row.PBEntries));
   row.TotalRP = Math.max(row.RP, matFiniteNumber_(row.TotalRP, row.RP));
   row.Level = Math.max(1, matFiniteNumber_(row.Level, matGetLevel_(row.XP)));
   if (MAT_RANKS.indexOf(String(row.Rank || '')) === -1) row.Rank = MAT_RANKS[0];
@@ -1846,6 +1996,8 @@ function matPublicProfile_(r, includeEmail) {
     xp: s.XP,
     rankPoints: s.RP,
     rp: s.RP,
+    pb: s.PB,
+    pendingPB: s.PB,
     totalRP: s.TotalRP,
     level: s.Level,
     rank: s.Rank,

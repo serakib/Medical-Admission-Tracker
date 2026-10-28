@@ -264,6 +264,8 @@
     profile.avatar = incomingAvatar || previousAvatar;
     profile.accountType = user.accountType || (app.authUser ? 'REGISTERED' : 'GUEST');
     profile.xp = Math.max(0, Number(user.xp) || 0);
+    profile.pb = Math.max(0, Number(user.pb != null ? user.pb : user.pendingPB) || 0);
+    profile.pendingPB = profile.pb;
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
@@ -424,6 +426,26 @@
     var response = await request(Object.assign({ action: 'progress' }, creds));
     if (response.user) applyProfile(response.user);
     return response;
+  }
+  async function convertPB(amount, kind) {
+    var points = Number(amount);
+    var target = String(kind || '').toLowerCase();
+    if (!Number.isSafeInteger(points) || points < 1) throw new Error('একটি পূর্ণসংখ্যা PB amount লিখুন।');
+    if (target !== 'xp' && target !== 'rp') throw new Error('XP অথবা RP conversion বেছে নিন।');
+    await syncIdentity();
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'convertPB', amount: points, kind: target }, creds));
+    if (response.user) applyProfile(response.user);
+    // Refresh leaderboard after the server commits the canonical wallet conversion.
+    try { await loadLeaderboard(true); } catch (_) {}
+    return {
+      ok: true,
+      convertedPB: Number(response.convertedPB || 0),
+      earnedXP: Number(response.earnedXP || 0),
+      earnedRP: Number(response.earnedRP || 0),
+      expiredPBToRP: Number(response.expiredPBToRP || 0),
+      user: response.user || currentProfile
+    };
   }
   async function syncDailyStreak() {
     if (!navigator.onLine || typeof app.getAccountProgress !== 'function') return false;
@@ -607,7 +629,7 @@
         '<h2 id="med-rules-title">Exam, Rewards & Rank Rules</h2><p class="mat-dialog-note">পরীক্ষা দিন, reward বুঝুন এবং নিজের rank progression অনুসরণ করুন।</p>' +
         '<div class="mat-rule-list">' +
         '<details open><summary><span class="mat-rule-icon exam"><i class="fa-solid fa-clipboard-check"></i></span><span><strong>১. Exam Scoring</strong><small>নম্বর কীভাবে হিসাব হয়</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>সঠিক উত্তরে +১.০০, ভুল উত্তরে −০.২৫ এবং উত্তর না দিলে ০ নম্বর। Submit করার পর score, accuracy, correct, wrong ও skipped প্রশ্নের ফলাফল দেখুন।</div></details>' +
-        '<details><summary><span class="mat-rule-icon reward"><i class="fa-solid fa-gift"></i></span><span><strong>২. সব Exam-এর Rewards ও ৩০+ প্রশ্নের Special Rule</strong><small>সব exam reward পায়; ৩০ বা তার বেশি প্রশ্নে percentage-based special RP</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>যে কোনো exam type (Model Test, Previous Year বা অন্য exam) একবার সফলভাবে submit করলে server-confirmed XP ও RP reward পাওয়া যায়—এটি শুধু Quiz leaderboard-এর জন্য নয়। ৩০ বা তার বেশি প্রশ্নের যেকোনো পরীক্ষায় negative marking-এর পর final score-এর শতাংশ অনুযায়ী special RP bonus প্রযোজ্য; ৩০টির কম প্রশ্নে weighted bonus নেই। প্রতি ভুল উত্তরে ০.২৫ নম্বর কাটা হয়। হিসাবের range: ১–৪০% correct-answer position-এর প্রতিটি ×১, ৪১–৫০%-এর প্রতিটি ×২, ৫১–৬০%-এর প্রতিটি ×৪, ৬১–৭০%-এর প্রতিটি ×৫, ৭১–৭৯%-এর প্রতিটি ×৭ এবং ৮০–১০০%-এর প্রতিটি ×১০। প্রথমে final score হিসাব হবে (প্রতি ভুল উত্তরে ০.২৫ নম্বর কাটা হবে, score ০-এর নিচে যাবে না); তারপর final score-এর percentage range অনুযায়ী weighted bonus RP হিসাব হবে। যে range যতটুকু final score-এ পূরণ হয়, শুধু সেই অংশে ওই range-এর weight লাগবে; আগের range-এর weight বদলাবে না। এই weighted হিসাব × ১৫ করে অতিরিক্ত bonus RP যোগ হয়; আগের base RP ও XP reward বহাল থাকবে, weighted score আলাদা করে interface-এ দেখানো হবে না। Reward pending থাকলে sync status দেখুন এবং confirmed result আসা পর্যন্ত XP/RP চূড়ান্ত ধরে নেবেন না। একই attempt বারবার submit করার প্রয়োজন নেই.</div></details>' +
+        '<details><summary><span class="mat-rule-icon reward"><i class="fa-solid fa-gift"></i></span><span><strong>২. সব Exam-এর Rewards ও ৩০+ প্রশ্নের Special Rule</strong><small>সব exam reward পায়; ৩০ বা তার বেশি প্রশ্নে percentage-based special PB bonus</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>যে কোনো exam type (Model Test, Previous Year বা অন্য exam) একবার সফলভাবে submit করলে server-confirmed XP ও RP reward পাওয়া যায়—এটি শুধু Quiz leaderboard-এর জন্য নয়। ৩০ বা তার বেশি প্রশ্নের যেকোনো পরীক্ষায় negative marking-এর পর final score-এর শতাংশ অনুযায়ী performance-based PB bonus প্রযোজ্য; ৩০টির কম প্রশ্নে weighted bonus নেই। প্রতি ভুল উত্তরে ০.২৫ নম্বর কাটা হয়। হিসাবের range: ১–৪০% correct-answer position-এর প্রতিটি ×১, ৪১–৫০%-এর প্রতিটি ×২, ৫১–৬০%-এর প্রতিটি ×৪, ৬১–৭০%-এর প্রতিটি ×৫, ৭১–৭৯%-এর প্রতিটি ×৭ এবং ৮০–১০০%-এর প্রতিটি ×১০। প্রথমে final score হিসাব হবে (প্রতি ভুল উত্তরে ০.২৫ নম্বর কাটা হবে, score ০-এর নিচে যাবে না); তারপর final score-এর percentage range অনুযায়ী weighted PB হিসাব হবে। যে range যতটুকু final score-এ পূরণ হয়, শুধু সেই অংশে ওই range-এর weight লাগবে; আগের range-এর weight বদলাবে না। এই weighted হিসাব × ১৫ করে অতিরিক্ত PB যোগ হয়—PB RP নয়, আলাদা server-side wallet-এ জমা হবে; আগের base RP ও XP reward বহাল থাকবে, weighted score আলাদা করে interface-এ দেখানো হবে না। PB পাওয়ার ২ ঘণ্টার মধ্যে ১ PB → ২ XP বা ১ PB → ১ RP convert করা যাবে; সময় পেরোলে PB server-side স্বয়ংক্রিয়ভাবে RP হবে। Reward pending থাকলে sync status দেখুন এবং confirmed XP/RP/PB result আসা পর্যন্ত amount চূড়ান্ত ধরে নেবেন না। একই attempt বারবার submit করার প্রয়োজন নেই.</div></details>' +
         '<details><summary><span class="mat-rule-icon reward"><i class="fa-solid fa-bolt"></i></span><span><strong>৩. Practice Mode-এর RP Rule</strong><small>প্রশ্নসংখ্যা অনুযায়ী RP reward</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>Practice Mode-এ ৩০টির কম প্রশ্নের exam হলে হিসাব করা standard RP-এর ৭০% দেওয়া হয়—অর্থাৎ RP reward ৩০% কম। Practice Mode-এ ৩০ বা তার বেশি প্রশ্ন থাকলে পুরো calculated RP পাওয়া যাবে। অন্য exam mode-এ প্রশ্নসংখ্যা যাই হোক, এই Practice Mode reduction প্রযোজ্য নয়; সেগুলো full calculated RP পাবে। মনে রাখুন: Practice Mode-এ XP-এর আলাদা নিয়ম রয়েছে; এই অংশটি শুধু RP reward ব্যাখ্যা করে।</div></details>' +
         '<details><summary><span class="mat-rule-icon trophy"><i class="fa-solid fa-trophy"></i></span><span><strong>৪. Rank, RP Cost & Trophy Design</strong><small>promotion requirement, RP carry-over ও সব rank</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>Rank order: Bronze V → IV → III → II → I, এরপর Silver V; একইভাবে Silver, Gold, Platinum, Emerald, Diamond, Master, Grandmaster, Legend, Mythic পেরিয়ে সর্বোচ্চ Immortal I পর্যন্ত। কোনো ধাপ skip হয় না। প্রথম promotion-এর requirement 500 current RP। পরের প্রতিটি promotion-এর requirement = 500 + আগের promotion cost-এর 20%; cost নিকটতম 5 RP-তে round হয়। তাই requirement ধীরে বাড়ে (যেমন 500 → 600 → 620 → 625 RP)। প্রয়োজনীয় RP পূর্ণ হলে promotion হয় এবং অতিরিক্ত RP পরের rank-এ carry over হয়। Immortal V, IV, III, II ও I-এর trophy/emblem-এর আলাদা colour palette ও visual identity আছে।</div></details>' +
         '<details><summary><span class="mat-rule-icon weekly"><i class="fa-solid fa-shield-halved"></i></span><span><strong>৫. Weekly Safe Zone & Demotion</strong><small>সাপ্তাহিক activity, rank protection ও RP reset</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>Safe Zone হলো বর্তমান rank ধরে রাখার সাপ্তাহিক activity threshold—এটি promotion নয়। Safe Zone-এ থাকলে rank demotion হবে না; পরের subrank-এ উঠতে promotion requirement অনুযায়ী পুরো প্রয়োজনীয় current RP অর্জন করতে হবে। সপ্তাহের RP threshold-এর নিচে থাকলে এক ধাপ demotion হবে। Demotion হলে নতুন rank-এর Safe Zone minimum RP দেওয়া হবে; Bronze V-তে নামলে Bronze V-এর 5% Safe Zone minimum প্রযোজ্য। Bronze V সর্বনিম্ন rank: সেখানে আগে থেকেই থাকা user পরের weekly review-তেও Bronze V Safe Zone-এর নিচে থাকলে current RP 0 হবে, তবে rank আর কমবে না। Immortal সর্বোচ্চ rank হওয়ায় demotion হয় না। Weekly cycle শনিবার থেকে শুক্রবার; review শনিবার প্রায় রাত ১টায় (Bangladesh time) হওয়ার জন্য সেট করা। Lifetime TotalRP কমানো হয় না।</div></details>' +
@@ -1299,6 +1321,7 @@
       attemptId: String(item.attemptId || response.attemptId || ''),
       xpGained: Number(response.xpGained || 0),
       rankPointsDelta: Number(response.rankPointsDelta || 0),
+      pbGained: Number(response.pbGained || 0),
       rank: (user && user.rank) || response.rankAfter || response.rank || (currentProfile && currentProfile.rank) || '',
       rankPoints: user && user.rankPoints != null ? Number(user.rankPoints) : (response.rankPoints == null ? null : Number(response.rankPoints)),
       totalRP: user && user.totalRP != null ? Number(user.totalRP) : (response.totalRP == null ? null : Number(response.totalRP)),
@@ -1971,6 +1994,7 @@
     loadLeaderboard: loadLeaderboard,
     recordLeaderboardResult: recordLeaderboardResult,
     getProgress: getServerProgress,
+    convertPB: convertPB,
     syncIdentity: syncIdentity,
     registerUser: registerUser,
     updateProfile: updateProfile,

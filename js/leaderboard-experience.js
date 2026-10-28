@@ -589,9 +589,11 @@
     }
     let progress = {};
     try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
-    const pending = Math.max(0, Number(localProgress.pendingPB) || 0);
+    const pending = Math.max(0, Number(profile.pb != null ? profile.pb : (profile.pendingPB != null ? profile.pendingPB : 0)) || 0);
+    const serverXP = Math.max(0, Number(profile.xp != null ? profile.xp : progress.xp) || 0);
+    const serverRP = Math.max(0, Number(profile.rankPoints != null ? profile.rankPoints : (profile.rp != null ? profile.rp : progress.rankPoints)) || 0);
     const balance = panel.querySelector('#student-profile-pb-balance');
-    if (balance) balance.textContent = 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(progress.xp) + ' · RP: ' + fmt(progress.rankPoints);
+    if (balance) balance.textContent = 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(serverXP) + ' · RP: ' + fmt(serverRP);
     const input = panel.querySelector('#student-profile-pb-amount');
     const xpButton = panel.querySelector('[data-pb-convert="xp"]');
     const rpButton = panel.querySelector('[data-pb-convert="rp"]');
@@ -602,28 +604,31 @@
 
   if (!document.documentElement.dataset.pbConversionHandler) {
     document.documentElement.dataset.pbConversionHandler = '1';
-    document.addEventListener('click', event => {
+    document.addEventListener('click', async event => {
       const button = event.target.closest?.('[data-pb-convert]');
       if (!button) return;
       const panel = document.getElementById('student-profile-pb-conversion');
       const input = panel?.querySelector('#student-profile-pb-amount');
       const amount = Number(input?.value);
       const kind = button.getAttribute('data-pb-convert');
-      const method = kind === 'xp' ? app.convertPBToXP : app.convertPBToRP;
-      if (typeof method !== 'function') {
-        setStatus('PB conversion service is unavailable. Refresh the page and try again.', true);
+      const converter = window.MedGlobalLeague && window.MedGlobalLeague.convertPB;
+      if (typeof converter !== 'function') {
+        setStatus('Server-side PB conversion service is unavailable. Refresh the page and try again.', true);
         return;
       }
-      const result = method.call(app, amount);
-      if (!result?.ok) {
-        setStatus(result?.message || 'PB conversion failed.', true);
+      button.disabled = true;
+      try {
+        const result = await converter(amount, kind);
+        if (!result?.ok) throw new Error(result?.message || 'PB conversion failed.');
+        if (result.user) activePublicProfile = result.user;
+        setStatus(kind === 'xp'
+          ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
+          : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।');
         renderPBConversionPanel(activePublicProfile);
-        return;
-      }
-      setStatus(kind === 'xp'
-        ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
-        : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।');
-      renderPBConversionPanel(activePublicProfile);
+      } catch (error) {
+        setStatus(error?.message || 'PB conversion failed.', true);
+        renderPBConversionPanel(activePublicProfile);
+      } finally { button.disabled = false; }
     });
   }
 
@@ -926,7 +931,7 @@
     fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
     const star = document.getElementById('sidebar-profile-progress-star');
     if (star) star.style.left = percent + '%';
-    const pending = Math.max(0, Number(localProgress.pendingPB) || 0);
+    const pending = Math.max(0, Number(serverProfile.pb != null ? serverProfile.pb : (serverProfile.pendingPB != null ? serverProfile.pendingPB : localProgress.pendingPB)) || 0);
     write('sidebar-profile-pb-balance', 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(xp) + ' · RP: ' + fmt(currentRP));
     const input = document.getElementById('sidebar-profile-pb-amount');
     if (input) input.max = String(pending);
@@ -935,28 +940,30 @@
 
   if (!document.documentElement.dataset.sidebarProfilePBHandler) {
     document.documentElement.dataset.sidebarProfilePBHandler = '1';
-    document.addEventListener('click', event => {
+    document.addEventListener('click', async event => {
       const button = event.target.closest?.('[data-sidebar-pb-convert]');
       if (!button) return;
       const input = document.getElementById('sidebar-profile-pb-amount');
       const amount = Number(input?.value);
       const kind = button.getAttribute('data-sidebar-pb-convert');
-      const method = kind === 'xp' ? app.convertPBToXP : app.convertPBToRP;
+      const converter = window.MedGlobalLeague && window.MedGlobalLeague.convertPB;
       const status = document.getElementById('sidebar-profile-pb-status');
-      if (typeof method !== 'function') {
-        if (status) status.textContent = 'PB conversion service unavailable. Refresh and try again.';
+      if (typeof converter !== 'function') {
+        if (status) status.textContent = 'Server-side PB conversion service unavailable. Refresh and try again.';
         return;
       }
-      const result = method.call(app, amount);
-      if (!result?.ok) {
-        if (status) status.textContent = result?.message || 'PB conversion failed.';
+      button.disabled = true;
+      try {
+        const result = await converter(amount, kind);
+        if (!result?.ok) throw new Error(result?.message || 'PB conversion failed.');
+        if (status) status.textContent = kind === 'xp'
+          ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
+          : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।';
         renderSidebarStudentProfileExtras();
-        return;
-      }
-      if (status) status.textContent = kind === 'xp'
-        ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
-        : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।';
-      renderSidebarStudentProfileExtras();
+      } catch (error) {
+        if (status) status.textContent = error?.message || 'PB conversion failed.';
+        renderSidebarStudentProfileExtras();
+      } finally { button.disabled = false; }
     });
     // Local PB actions dispatch on document; the Medical Sheets API profile
     // dispatches on window. Listen to both so this progression matches the leaderboard.
