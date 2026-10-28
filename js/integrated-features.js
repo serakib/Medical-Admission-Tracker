@@ -413,6 +413,8 @@
     });
     const selectButton = toolbar.querySelector('#enhanced-bank-select-visible');
     if (selectButton) selectButton.textContent = `${allVisibleSelected ? 'Unselect All' : 'Select All'} (${selected} selected)`;
+    const clearButton = toolbar.querySelector('#enhanced-bank-clear-selection');
+    if (clearButton) clearButton.textContent = `Clear Selection (${selected} selected)`;
     const examButton = toolbar.querySelector('#enhanced-bank-practice-selected');
     if (examButton) { examButton.textContent = `Start Exam with ${selected} Questions`; examButton.disabled = selected === 0; }
   }
