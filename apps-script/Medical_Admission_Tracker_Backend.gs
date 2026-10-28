@@ -999,12 +999,12 @@ function matFinalizeProcessingExam_(attempt) {
 
 function matRankPromotionCost_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Shared smooth RP curve: first promotion costs 400 RP;
-  // later subranks scale by 20%, rounded to the nearest 5 RP.
-  const step = rankIndex + 1;
-  const base = step * 400;
-  const requirement = step === 1 ? base : base * 1.2;
-  return Math.max(5, Math.round(requirement / 5) * 5);
+  // Friendly RP curve: each promotion costs 500 + 20% of the previous promotion cost.
+  let requirement = 500;
+  for (let step = 1; step <= rankIndex; step++) {
+    requirement = Math.max(5, Math.round((500 + requirement * 0.2) / 5) * 5);
+  }
+  return requirement;
 }
 
 function matRankSafeZoneThreshold_(rankIndex) {
