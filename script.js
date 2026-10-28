@@ -2540,11 +2540,13 @@ window.handleAccountDeletion = function() {
   window.setInterval(settlePBNow, 30000);
   const calculateExamReward = (state, correct) => {
     const totalQuestions = Array.isArray(state?.questions) ? state.questions.length : 0;
-    const hasWeightedExamRule = totalQuestions >= 30;
     const correctCount = Math.max(0, Math.min(totalQuestions, Math.floor(Number(correct) || 0)));
-    let weightedCorrect = correctCount;
-    if (hasWeightedExamRule) {
-      weightedCorrect = 0;
+    const wrongCount = Math.max(0, Math.floor(Number(state?.wrongCount ?? state?.wrong) || 0));
+    const answered = correctCount + wrongCount;
+    const accuracy = answered ? correctCount / answered : 0;
+    const baseRankPoints = Math.max(1, Math.round(accuracy * 25 + Math.min(correctCount, 100) * 0.05));
+    let weightedCorrect = 0;
+    if (totalQuestions >= 30) {
       for (let answerNumber = 1; answerNumber <= correctCount; answerNumber++) {
         const correctPercent = answerNumber * 100 / totalQuestions;
         const multiplier = correctPercent <= 40 ? 1
@@ -2556,7 +2558,8 @@ window.handleAccountDeletion = function() {
         weightedCorrect += multiplier;
       }
     }
-    return { rankPoints: weightedCorrect * 15, xp: 0, weightedCorrect, hasWeightedExamRule };
+    const weightedBonusRp = weightedCorrect * 15;
+    return { rankPoints: baseRankPoints + weightedBonusRp, xp: 0, hasWeightedExamRule: totalQuestions >= 30 };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
