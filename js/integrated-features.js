@@ -404,7 +404,7 @@
     const selected = selectedBankKeys.size;
     const isBn = app.language !== 'en';
     const count = toolbar.querySelector('[data-selected-count]');
-    if (count) count.textContent = `${selected} ${isBn ? 'টি নির্বাচিত' : 'selected'}`;
+    if (count) count.textContent = `${selected} selected`;
     const list = document.getElementById('question-bank-list');
     const visibleCards = list ? Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden) : [];
     const allVisibleSelected = visibleCards.length > 0 && visibleCards.every(card => {
@@ -412,9 +412,9 @@
       return input && selectedBankKeys.has(input.dataset.qkey);
     });
     const selectButton = toolbar.querySelector('#enhanced-bank-select-visible');
-    if (selectButton) selectButton.textContent = allVisibleSelected ? (isBn ? 'সব অনির্বাচন' : 'Unselect All') : (isBn ? 'সব নির্বাচন' : 'Select All');
+    if (selectButton) selectButton.textContent = `${allVisibleSelected ? 'Unselect All' : 'Select All'} (${selected} selected)`;
     const examButton = toolbar.querySelector('#enhanced-bank-practice-selected');
-    if (examButton) examButton.disabled = selected === 0;
+    if (examButton) { examButton.textContent = `Start Exam with ${selected} Questions`; examButton.disabled = selected === 0; }
   }
   const originalRenderQuestionBank = app.renderQuestionBank.bind(app);
   app.renderQuestionBank = function() {
@@ -431,14 +431,14 @@
     }
     toolbar.dataset.statusFilter = 'all';
     const isBn = this.language !== 'en';
-    toolbar.innerHTML = `<div class="enhanced-bank-selection-head"><div><strong>${isBn?'প্রশ্ন নির্বাচন':'Question selection'}</strong><span data-selected-count>${selectedBankKeys.size} ${isBn?'টি নির্বাচিত':'selected'}</span></div><p>${isBn?'নির্বাচিত প্রশ্নগুলো দিয়ে আলাদা Exam তৈরি করুন':'Build an exam from your selected questions'}</p></div><div class="enhanced-bank-selection-actions"><button type="button" id="enhanced-bank-select-visible" class="enhanced-bank-action">${isBn?'সব নির্বাচন':'Select All'}</button><button type="button" id="enhanced-bank-clear-selection" class="enhanced-bank-action">${isBn?'নির্বাচন বাতিল':'Clear Selection'}</button><button type="button" class="enhanced-practice-selected enhanced-bank-action-primary" id="enhanced-bank-practice-selected" ${selectedBankKeys.size?'':'disabled'}>${isBn?'নির্বাচিত প্রশ্নে Exam':'Exam with Selected'}</button></div>`;
+    toolbar.innerHTML = `<div class="enhanced-bank-selection-head"><div><strong>Question Selection</strong><span data-selected-count>${selectedBankKeys.size} selected</span></div><p>Build an exam from your selected questions</p></div><div class="enhanced-bank-selection-actions"><button type="button" id="enhanced-bank-select-visible" class="enhanced-bank-action">Select All (${selectedBankKeys.size} selected)</button><button type="button" id="enhanced-bank-clear-selection" class="enhanced-bank-action">Clear Selection (${selectedBankKeys.size} selected)</button><button type="button" class="enhanced-practice-selected enhanced-bank-action-primary" id="enhanced-bank-practice-selected" ${selectedBankKeys.size?'':'disabled'}>Start Exam with ${selectedBankKeys.size} Questions</button></div>`;
     const selectVisibleButton = toolbar.querySelector('#enhanced-bank-select-visible');
     const visibleCards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
     const allVisibleSelected = visibleCards.length > 0 && visibleCards.every(card => {
       const input = card.querySelector('.enhanced-bank-select');
       return input && selectedBankKeys.has(input.dataset.qkey);
     });
-    selectVisibleButton.textContent = allVisibleSelected ? (isBn?'সব অনির্বাচন':'Unselect All') : (isBn?'সব নির্বাচন':'Select All');
+    selectVisibleButton.textContent = `${allVisibleSelected ? 'Unselect All' : 'Select All'} (${selectedBankKeys.size} selected)`;
     selectVisibleButton.onclick = () => {
       const cards = Array.from(list.querySelectorAll(':scope > article')).filter(card => !card.hidden);
       const allSelected = cards.length > 0 && cards.every(card => {
@@ -453,7 +453,10 @@
       });
       this.renderQuestionBank();
     };
-    toolbar.querySelector('#enhanced-bank-clear-selection').onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
+    const clearSelectionButton = toolbar.querySelector('#enhanced-bank-clear-selection');
+    clearSelectionButton.textContent = `Clear Selection (${selectedBankKeys.size} selected)`;
+    clearSelectionButton.title = 'Clear the current selection only. This does not delete any questions.';
+    clearSelectionButton.onclick = () => { selectedBankKeys.clear(); this.renderQuestionBank(); };
     toolbar.querySelector('#enhanced-bank-practice-selected').onclick = () => startSelectedPractice(this.questionBank.filter(q => selectedBankKeys.has(qKey(q))));
     const cards = Array.from(list.querySelectorAll(':scope > article'));
     cards.forEach((card, i) => {
