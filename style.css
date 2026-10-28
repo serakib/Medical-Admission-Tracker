@@ -1294,3 +1294,11 @@ html.dark .mat-notification-item:hover,body.dark .mat-notification-item:hover{ba
 }
 
 .mat-notification-bulk-actions button[hidden]{display:none!important}
+
+
+/* Starred notification marker */
+.mat-notification-item-meta>span{max-width:100%}
+.mat-notification-item-meta>span:empty{display:none}
+.mat-notification-item-actions [data-mat-star-one]{color:#b7791f}
+.mat-notification-item-actions [data-mat-star-one]:hover{background:rgba(245,158,11,.12);color:#d97706}
+.mat-notification-item.is-collapsed .mat-notification-item-meta{display:none}
