@@ -148,7 +148,7 @@
     { name:'Mythic', main:'#e879f9', dark:'#701a75', shine:'#fae8ff' }
   ];
   const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
-  trophyRanks.push(['Immortal','#f43f5e','#4c0519','#ffe4e6','immortal','I']);
+  ['V','IV','III','II','I'].forEach(sub => trophyRanks.push(['Immortal '+sub,'#f43f5e','#4c0519','#ffe4e6','immortal',sub]));
   function roundRankCost(value) { return Math.max(5, Math.round(Number(value || 0) / 5) * 5); }
   // Smooth RP curve: step 1 costs 400 RP; later steps scale by 400 per step plus 20%.
   function requiredRP(index) {
