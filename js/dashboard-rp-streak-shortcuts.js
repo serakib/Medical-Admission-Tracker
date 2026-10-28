@@ -341,9 +341,11 @@
     const rangeStart = dateOffset(anchor, -(period === 'weekly' ? 6 : 9));
     const rangeLabel = period === 'daily'
       ? new Intl.DateTimeFormat('en', {weekday:'long', month:'short', day:'numeric', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
-      : period === 'monthly'
-        ? new Intl.DateTimeFormat('en', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z')) + ' · ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(rangeStart + 'T00:00:00Z')) + ' – ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
-        : rangeStart + ' — ' + anchor;
+      : period === 'weekly'
+        ? new Intl.DateTimeFormat('en', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z')) + ' · ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(rangeStart + 'T00:00:00Z')) + ' – ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
+        : period === 'monthly'
+          ? new Intl.DateTimeFormat('en', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z')) + ' · ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(rangeStart + 'T00:00:00Z')) + ' – ' + new Intl.DateTimeFormat('en', {month:'short', day:'numeric', timeZone:'UTC'}).format(new Date(anchor + 'T00:00:00Z'))
+          : rangeStart + ' — ' + anchor;
     const periodLabel = period === 'daily' ? 'Hourly attempted questions' : 'Daily attempted questions';
     return '<div class="mat-streak-range-nav"><button type="button" data-range-nav="-1" aria-label="Previous range">‹ Previous</button><div class="mat-streak-range-label">' + esc(rangeLabel) + '</div><button type="button" data-range-nav="1" aria-label="Next range">Next ›</button></div><svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + periodLabel + '"><text class="mat-streak-axis-label" x="12" y="14">' + periodLabel + '</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
