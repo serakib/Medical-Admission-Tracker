@@ -30,8 +30,10 @@
     .mat-streak-tab[aria-selected="true"]{background:#ea580c;color:#fff;border-color:#ea580c}
     .mat-streak-chart{width:100%;overflow-x:auto;padding:8px 0 0}
     .mat-streak-chart svg{display:block;width:100%;min-width:420px;height:auto;max-width:none;overflow:visible}
-    .mat-streak-chart{overscroll-behavior-x:contain;cursor:grab}
+    .mat-streak-chart{overscroll-behavior-x:contain;cursor:grab;scroll-behavior:smooth;scrollbar-width:thin;touch-action:pan-x pan-y}
     .mat-streak-chart:active{cursor:grabbing}
+    .mat-streak-chart.is-dragging{scroll-behavior:auto;user-select:none}
+    .mat-streak-chart.is-dragging svg{pointer-events:none}
     .mat-streak-grid{stroke:var(--line,rgba(148,163,184,.2));stroke-width:1;stroke-dasharray:4 5}
     .mat-streak-axis-label{fill:var(--muted,#64748b);font-size:10px}
     .mat-streak-point{stroke:var(--surface,#fff);stroke-width:2}
@@ -201,14 +203,46 @@
     document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
     // Trackpad pinch zoom is commonly delivered as a Ctrl+wheel event in Chrome.
     // Capture it only over this graph so the rest of the page keeps normal browser zoom behavior.
-    if (chart) chart.addEventListener('wheel', event => {
-      if (!event.ctrlKey && !event.metaKey) return;
-      event.preventDefault();
-      const nextZoom = Math.max(1, Math.min(4, zoom + (event.deltaY < 0 ? 0.25 : -0.25)));
-      if (nextZoom === zoom) return;
-      zoom = Math.round(nextZoom * 100) / 100;
-      render(activePeriod, true);
-    }, { passive: false });
+    if (chart) {
+      chart.addEventListener('wheel', event => {
+        if (event.ctrlKey || event.metaKey) {
+          // Chrome trackpad pinch commonly arrives as Ctrl+wheel; zoom this graph only.
+          event.preventDefault();
+          const nextZoom = Math.max(1, Math.min(4, zoom + (event.deltaY < 0 ? 0.25 : -0.25)));
+          if (nextZoom === zoom) return;
+          zoom = Math.round(nextZoom * 100) / 100;
+          render(activePeriod, true);
+          return;
+        }
+        // Keep native two-finger horizontal swipes; Shift+wheel also scrolls sideways.
+        if (event.shiftKey && Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+          event.preventDefault();
+          chart.scrollBy({ left: event.deltaY, behavior: 'smooth' });
+        }
+      }, { passive: false });
+
+      // Allow smooth click-and-drag panning with a mouse; don't intercept touch/pen gestures.
+      let dragging = false, startX = 0, startScrollLeft = 0;
+      chart.addEventListener('pointerdown', event => {
+        if (event.pointerType !== 'mouse' || event.button !== 0 || chart.scrollWidth <= chart.clientWidth) return;
+        dragging = true;
+        startX = event.clientX;
+        startScrollLeft = chart.scrollLeft;
+        chart.classList.add('is-dragging');
+        chart.setPointerCapture?.(event.pointerId);
+      });
+      chart.addEventListener('pointermove', event => {
+        if (!dragging) return;
+        chart.scrollLeft = startScrollLeft - (event.clientX - startX);
+      });
+      const stopDragging = () => {
+        dragging = false;
+        chart.classList.remove('is-dragging');
+      };
+      chart.addEventListener('pointerup', stopDragging);
+      chart.addEventListener('pointercancel', stopDragging);
+      chart.addEventListener('lostpointercapture', stopDragging);
+    }
   }
   function ensureProfileStreakButton() {
     let button = document.getElementById('mat-profile-streak-button');
