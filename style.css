@@ -961,7 +961,7 @@ main,.view-section,.profile-panel,.account-action-card,.section-hero{min-width:0
 .mat-notifications-nav{position:relative}
 .mat-notifications-nav [data-mat-notification-badge]{margin-left:auto;min-width:19px;height:19px;padding:0 4px;background:#ef4444;border-color:rgba(255,255,255,.12)}
 .mat-notification-overlay[hidden]{display:none!important}
-.mat-notification-overlay{position:fixed;inset:0;z-index:20000;display:flex;align-items:stretch;justify-content:flex-end;padding:18px;background:rgba(2,6,23,.52);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);overscroll-behavior:contain;animation:mat-notification-fade-in .18s ease-out}
+.mat-notification-overlay{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:stretch;justify-content:flex-end;padding:18px;background:rgba(2,6,23,.52);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);overscroll-behavior:contain;animation:mat-notification-fade-in .18s ease-out}
 .mat-notification-backdrop{position:absolute;inset:0;cursor:pointer}
 .mat-notification-panel{position:relative;z-index:1;display:flex;flex-direction:column;width:min(610px,100%);height:100%;max-height:calc(100dvh - 36px);min-height:0;overflow:hidden;border:1px solid rgba(148,163,184,.22);border-radius:24px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 24px 80px rgba(2,6,23,.28);outline:none;animation:mat-notification-slide-in .22s cubic-bezier(.2,.8,.2,1)}
 .mat-notification-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:23px 22px 19px;color:#f8fafc;background:radial-gradient(circle at 90% 10%,rgba(20,184,166,.26),transparent 35%),linear-gradient(135deg,#0f2538,#102b3a 58%,#103b39);border-bottom:1px solid rgba(148,163,184,.17)}
@@ -1178,7 +1178,7 @@ html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-sta
 .mat-notification-expand{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid rgba(226,232,240,.2);border-radius:13px;color:#ecfeff;background:rgba(255,255,255,.07);font-size:15px;cursor:pointer}
 .mat-notification-expand:hover{background:rgba(255,255,255,.15)}
 .mat-notification-expand:focus-visible{outline:3px solid rgba(14,165,233,.65);outline-offset:3px}
-.mat-notification-overlay.is-fullscreen{padding:0;background:var(--surface,#fff);backdrop-filter:none;-webkit-backdrop-filter:none;animation:none}
+.mat-notification-overlay.is-fullscreen{z-index:2147483000;padding:0;background:var(--surface,#fff);backdrop-filter:none;-webkit-backdrop-filter:none;animation:none}
 .mat-notification-overlay.is-fullscreen .mat-notification-panel{width:100%;height:100%;max-height:none;min-height:0;border:0;border-radius:0;box-shadow:none;animation:none}
 .mat-notification-overlay.is-fullscreen .mat-notification-header{padding-top:max(18px,env(safe-area-inset-top));padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
 .mat-notification-overlay.is-fullscreen .mat-notification-list{flex:1;min-height:0;overflow-y:auto}
