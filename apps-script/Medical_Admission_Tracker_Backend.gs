@@ -817,7 +817,7 @@ function matCalculateWeightedExamPB_(correct, wrong, totalQuestions) {
   const correctCount = matSafeNonNegativeInt_(correct, 'correctCount');
   const wrongCount = matSafeNonNegativeInt_(wrong, 'wrongCount');
   const total = matSafeNonNegativeInt_(totalQuestions, 'totalQuestions');
-  if (total < 30) throw new Error('Weighted exam RP requires at least 30 questions.');
+  if (total < 30) throw new Error('Weighted exam PB requires at least 30 questions.');
   if (correctCount + wrongCount > total) throw new Error('Correct + wrong cannot exceed totalQuestions.');
 
   // Match the exam result screen: each wrong answer deducts 0.25 marks.
