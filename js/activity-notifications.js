@@ -483,6 +483,126 @@
       });
     });
   }
+  function rankLine(previousPosition, nextPosition) {
+    const oldPos = Math.max(0, numeric(previousPosition));
+    const newPos = Math.max(0, numeric(nextPosition));
+    if (!oldPos && newPos) return 'Entered at #' + newPos.toLocaleString();
+    if (oldPos && !newPos) return 'No longer in the Top 100 (was #' + oldPos.toLocaleString() + ')';
+    if (oldPos !== newPos) return '#' + oldPos.toLocaleString() + ' → #' + newPos.toLocaleString();
+    return oldPos || newPos ? '#' + (newPos || oldPos).toLocaleString() : 'position unavailable';
+  }
+  function addOwnPositionNotifications(current, baseline, currentDay, period) {
+    const weekly = period === 'weekly';
+    const oldOwn = weekly ? baseline.own : baseline.allTimeOwn;
+    const newOwn = weekly ? current.own : current.allTimeOwn;
+    if (!oldOwn || !newOwn) return;
+    const oldPosition = numeric(oldOwn.position);
+    const newPosition = numeric(newOwn.position);
+    const oldRP = numeric(oldOwn.rp);
+    const newRP = numeric(newOwn.rp);
+    if (oldPosition === newPosition && oldRP === newRP) return;
+    const label = weekly ? 'Weekly' : 'All Time';
+    upsertNotification({
+      id: 'my-leaderboard-position:' + period + ':' + current.weekKey + ':' + currentDay,
+      type: 'leaderboard',
+      title: 'Your ' + label + ' leaderboard update',
+      message: 'Your position: ' + rankLine(oldPosition, newPosition) + '. ' +
+        label + ' RP: ' + oldRP.toLocaleString() + ' → ' + newRP.toLocaleString() +
+        ' (' + deltaText(newRP - oldRP) + ' RP); XP: ' +
+        numeric(oldOwn.xp).toLocaleString() + ' → ' + numeric(newOwn.xp).toLocaleString() + '.',
+      period: period,
+      unread: true
+    });
+  }
+  function crossingBetween(oldOwn, newOwn, oldPeer, newPeer) {
+    const oldOwnPosition = numeric(oldOwn && oldOwn.position);
+    const newOwnPosition = numeric(newOwn && newOwn.position);
+    const oldPeerPosition = numeric(oldPeer && oldPeer.position);
+    const newPeerPosition = numeric(newPeer && newPeer.position);
+    if (!(oldOwnPosition > 0 && newOwnPosition > 0 && oldPeerPosition > 0 && newPeerPosition > 0)) return '';
+    if (oldPeerPosition > oldOwnPosition && newPeerPosition < newOwnPosition) return 'peer-passed';
+    if (oldOwnPosition > oldPeerPosition && newOwnPosition < newPeerPosition) return 'you-passed';
+    return '';
+  }
+  function addGlobalLeaderboardNotifications(current, baseline, currentDay, period) {
+    const weekly = period === 'weekly';
+    const playerKey = weekly ? 'weeklyPlayers' : 'allTimePlayers';
+    const topKey = weekly ? 'weeklyTop100' : 'allTimeTop100';
+    const top10Key = weekly ? 'weeklyTop10' : 'allTimeTop10';
+    const oldPlayers = baseline[playerKey] || {};
+    const newPlayers = current[playerKey] || {};
+    const oldTop = baseline[topKey] || {};
+    const newTop = current[topKey] || {};
+    const oldTop10 = baseline[top10Key] || {};
+    const newTop10 = current[top10Key] || {};
+    const oldOwn = baseline[weekly ? 'own' : 'allTimeOwn'] || {};
+    const newOwn = current[weekly ? 'own' : 'allTimeOwn'] || {};
+    const oldTier = baseline.sameRankTop10 || {};
+    const newTier = current.sameRankTop10 || {};
+    const friendIds = new Set(Object.keys(current.friends || {}).concat(Object.keys(baseline.friends || {})));
+    const ids = new Set(Object.keys(oldTop).concat(Object.keys(newTop)));
+    const label = weekly ? 'Weekly' : 'All Time';
+
+    addOwnPositionNotifications(current, baseline, currentDay, period);
+    ids.forEach(function (id) {
+      if (!id || id === accountId() || friendIds.has(id)) return;
+      const old = oldTop[id] || null;
+      const row = newTop[id] || null;
+      const oldAny = oldPlayers[id] || old;
+      const newAny = newPlayers[id] || row ||
+        (oldAny && old && !row ? Object.assign({}, oldAny, { position: 101 }) : null);
+      const oldPosition = numeric(old && old.position);
+      const newPosition = numeric(row && row.position);
+      const oldRP = old ? numeric(old.rp) : 0;
+      const newRP = row ? numeric(row.rp) : oldRP;
+      const oldXP = old ? numeric(old.xp) : 0;
+      const newXP = row ? numeric(row.xp) : oldXP;
+      const oldTierPosition = numeric(oldTier[id] && oldTier[id].tierPosition);
+      const newTierPosition = numeric(newTier[id] && newTier[id].tierPosition);
+      const crossed = crossingBetween(oldOwn, newOwn, oldAny, newAny);
+      const changedPosition = oldPosition !== newPosition;
+      const changedRP = oldRP !== newRP;
+      const changedXP = oldXP !== newXP;
+      const changedTier = period === 'all-time' && oldTierPosition !== newTierPosition &&
+        (oldTierPosition > 0 || newTierPosition > 0);
+      if (!changedPosition && !changedRP && !changedXP && !changedTier && !crossed) return;
+
+      const inTop10 = !!(oldTop10[id] || newTop10[id]);
+      const inSameRankTop10 = period === 'all-time' && (oldTierPosition > 0 || newTierPosition > 0);
+      let title;
+      if (crossed === 'peer-passed') title = rowName(row || old) + ' passed you';
+      else if (crossed === 'you-passed') title = 'You passed ' + rowName(row || old);
+      else if (inSameRankTop10) title = 'Same-rank Top 10 update';
+      else if (inTop10) title = label + ' Top 10 movement';
+      else title = label + ' Top 100 update';
+
+      let movementText;
+      if (!old && row) movementText = 'Entered the Top 100 at #' + newPosition.toLocaleString() + '.';
+      else if (old && !row) movementText = 'Moved outside the Top 100 (was #' + oldPosition.toLocaleString() + ').';
+      else movementText = 'Global position: ' + rankLine(oldPosition, newPosition) + '.';
+      const rpText = (weekly ? 'Weekly RP: ' : 'All Time RP: ') + oldRP.toLocaleString() + ' → ' +
+        newRP.toLocaleString() + ' (' + deltaText(newRP - oldRP) + ' RP).';
+      const xpText = 'XP: ' + oldXP.toLocaleString() + ' → ' + newXP.toLocaleString() + '.';
+      let passText = '';
+      if (crossed === 'peer-passed') {
+        passText = rowName(row || old) + ' passed you. Their RP lead is ' +
+          Math.max(0, newRP - numeric(newOwn.rp)).toLocaleString() + ' RP.';
+      } else if (crossed === 'you-passed') {
+        passText = 'You passed ' + rowName(row || old) + '. Your RP lead is ' +
+          Math.max(0, numeric(newOwn.rp) - newRP).toLocaleString() + ' RP.';
+      }
+      upsertNotification({
+        id: 'global-leaderboard:' + period + ':' + current.weekKey + ':' + currentDay + ':' + id,
+        type: 'leaderboard',
+        title: title,
+        message: [movementText, rpText, xpText, passText].filter(Boolean).join(' '),
+        competitorId: id,
+        competitorName: rowName(row || old),
+        period: period,
+        unread: true
+      });
+    });
+  }
   function addTrophyNotifications(current, baseline, currentDay) {
     if (!baseline) return;
     Object.keys(current.friends || {}).forEach(function (friendId) {
