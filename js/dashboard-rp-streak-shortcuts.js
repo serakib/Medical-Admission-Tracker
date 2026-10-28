@@ -34,6 +34,28 @@
     .mat-streak-chart:active{cursor:grabbing}
     .mat-streak-chart.is-dragging{scroll-behavior:auto;user-select:none}
     .mat-streak-chart.is-dragging svg{pointer-events:none}
+    .mat-streak-calendar{min-width:300px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:18px;background:var(--surface,#fff)}
+    .mat-streak-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+    .mat-streak-calendar-month{font-size:16px;font-weight:950;color:var(--text,#0f172a)}
+    .mat-streak-calendar-actions{display:flex;align-items:center;gap:5px}
+    .mat-streak-calendar-actions button{min-width:32px;height:32px;padding:0 9px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:10px;color:var(--text,#0f172a);font-size:12px;font-weight:800}
+    .mat-streak-calendar-weekdays,.mat-streak-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+    .mat-streak-calendar-weekdays{margin-bottom:6px}
+    .mat-streak-calendar-weekdays span{text-align:center;font-size:10px;font-weight:850;color:var(--muted,#64748b);padding:5px 0}
+    .mat-streak-calendar-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:52px;padding:5px 2px;border:1px solid transparent;border-radius:12px;background:rgba(148,163,184,.07);color:var(--text,#0f172a);font-size:12px;font-weight:800}
+    .mat-streak-calendar-day .mat-streak-calendar-count{font-size:9px;font-weight:800;color:var(--muted,#64748b);line-height:1}
+    .mat-streak-calendar-day.has-activity{background:rgba(16,185,129,.13);border-color:rgba(16,185,129,.18)}
+    .mat-streak-calendar-day.has-activity .mat-streak-calendar-count{color:#059669}
+    .mat-streak-calendar-day.is-today{box-shadow:inset 0 0 0 2px #ea580c}
+    .mat-streak-calendar-day.is-selected{background:#ea580c;color:#fff;border-color:#ea580c}
+    .mat-streak-calendar-day.is-selected .mat-streak-calendar-count{color:#fff}
+    .mat-streak-calendar-day.is-outside{opacity:.35}
+    .mat-streak-calendar-detail{margin-top:12px;padding:13px 14px;border-radius:14px;background:rgba(148,163,184,.09);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .mat-streak-calendar-detail strong{font-size:12px;color:var(--text,#0f172a)}
+    .mat-streak-calendar-detail small{display:block;margin-top:4px;font-size:11px;color:var(--muted,#64748b)}
+    .mat-streak-calendar-total{text-align:right;white-space:nowrap}
+    .mat-streak-calendar-total b{display:block;font-size:20px;color:#059669}
+    .mat-streak-calendar-total small{font-size:10px;color:var(--muted,#64748b)}
     .mat-streak-grid{stroke:var(--line,rgba(148,163,184,.2));stroke-width:1;stroke-dasharray:4 5}
     .mat-streak-axis-label{fill:var(--muted,#64748b);font-size:10px}
     .mat-streak-point{stroke:var(--surface,#fff);stroke-width:2}
@@ -169,6 +191,36 @@
     const svgWidth = zoom > 1 ? ' style="width:' + (width * zoom) + 'px;min-width:' + (width * zoom) + 'px;max-width:none"' : '';
     return '<svg' + svgWidth + ' viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Daily attempted questions line graph, zoom ' + zoom + 'x"><text class="mat-streak-axis-label" x="12" y="12">Attempted questions</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
+  function streakCalendarMarkup(counts, monthDate, selectedDate) {
+    const year = monthDate.getUTCFullYear();
+    const month = monthDate.getUTCMonth();
+    const first = new Date(Date.UTC(year, month, 1));
+    const monthName = new Intl.DateTimeFormat('en', { month:'long', year:'numeric', timeZone:'UTC' }).format(first);
+    const startDay = first.getUTCDay();
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    const today = dhakaTodayDate();
+    const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+    let cells = '';
+    for (let i = 0; i < totalCells; i++) {
+      const day = i - startDay + 1;
+      const date = dateOffset(year + '-' + String(month + 1).padStart(2,'0') + '-01', day - 1);
+      const inMonth = day >= 1 && day <= daysInMonth;
+      const value = counts.get(date) || 0;
+      const classes = ['mat-streak-calendar-day', inMonth ? '' : 'is-outside', date === today ? 'is-today' : '', date === selectedDate ? 'is-selected' : '', value > 0 ? 'has-activity' : ''].filter(Boolean).join(' ');
+      cells += '<button type="button" class="' + classes + '" data-calendar-date="' + date + '" aria-label="' + esc(date) + ', ' + value + ' attempted questions"' + (inMonth ? '' : ' tabindex="-1"') + '><span>' + Number(date.slice(8)) + '</span><span class="mat-streak-calendar-count">' + (value ? value + ' Q' : '—') + '</span></button>';
+    }
+    const selected = selectedDate || today;
+    const selectedCount = counts.get(selected) || 0;
+    const selectedDateObj = new Date(selected + 'T00:00:00Z');
+    const selectedLabel = new Intl.DateTimeFormat('en', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC' }).format(selectedDateObj);
+    return '<section class="mat-streak-calendar" aria-label="Study activity calendar">' +
+      '<div class="mat-streak-calendar-head"><div class="mat-streak-calendar-month">' + esc(monthName) + '</div><div class="mat-streak-calendar-actions"><button type="button" data-calendar-nav="-1" aria-label="Previous month">‹</button><button type="button" data-calendar-nav="today">Today</button><button type="button" data-calendar-nav="1" aria-label="Next month">›</button></div></div>' +
+      '<div class="mat-streak-calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>' +
+      '<div class="mat-streak-calendar-days">' + cells + '</div>' +
+      '<div class="mat-streak-calendar-detail"><div><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></div><div class="mat-streak-calendar-total"><b>' + number(selectedCount) + '</b><small>attempted questions</small></div></div>' +
+      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Correct and wrong answers count; skipped questions do not.</p></section>';
+  }
+
   function openProfileStreak() {
     const progress = profileProgress();
     const publicSection = document.getElementById('view-student-profile');
@@ -185,25 +237,58 @@
       '<div class="mat-streak-tabs" role="tablist" aria-label="Streak activity range">' +
       '<button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="true">Weekly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
-      '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
+      '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button><button class="mat-streak-tab" type="button" data-streak-period="calendar" aria-selected="false">Calendar</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph" title="Use Ctrl + touchpad pinch to zoom this graph"></div>' +
       '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = day, Y-axis = attempted questions per day. Correct and wrong answers count; skipped questions do not.</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
     let activePeriod = 'weekly';
     let zoom = 1;
+    let calendarMonth = new Date(dhakaTodayDate() + 'T00:00:00Z');
+    let selectedCalendarDate = dhakaTodayDate();
     const render = (period = activePeriod, keepScroll = false) => {
       const previousRatio = chart && chart.scrollWidth > chart.clientWidth ? (chart.scrollLeft + chart.clientWidth / 2) / chart.scrollWidth : 0;
       activePeriod = period;
       document.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
-      if (chart) chart.innerHTML = streakGraphMarkup(period, counts, zoom);
-      if (chart && keepScroll) chart.scrollLeft = Math.max(0, previousRatio * chart.scrollWidth - chart.clientWidth / 2);
+      if (chart) {
+        chart.innerHTML = period === 'calendar'
+          ? streakCalendarMarkup(counts, calendarMonth, selectedCalendarDate)
+          : streakGraphMarkup(period, counts, zoom);
+        chart.style.overflowX = period === 'calendar' ? 'visible' : '';
+        chart.style.cursor = period === 'calendar' ? 'default' : '';
+      }
+      if (chart && keepScroll && period !== 'calendar') chart.scrollLeft = Math.max(0, previousRatio * chart.scrollWidth - chart.clientWidth / 2);
     };
     render('weekly');
     document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
     // Trackpad pinch zoom is commonly delivered as a Ctrl+wheel event in Chrome.
     // Capture it only over this graph so the rest of the page keeps normal browser zoom behavior.
     if (chart) {
+      chart.addEventListener('click', event => {
+        const dateButton = event.target.closest?.('[data-calendar-date]');
+        if (dateButton) {
+          selectedCalendarDate = dateButton.dataset.calendarDate;
+          const parts = selectedCalendarDate.split('-').map(Number);
+          calendarMonth = new Date(Date.UTC(parts[0], parts[1] - 1, 1));
+          render('calendar');
+          return;
+        }
+        const nav = event.target.closest?.('[data-calendar-nav]');
+        if (nav) {
+          const direction = nav.dataset.calendarNav;
+          if (direction === 'today') {
+            selectedCalendarDate = dhakaTodayDate();
+            calendarMonth = new Date(selectedCalendarDate + 'T00:00:00Z');
+          } else {
+            calendarMonth = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + Number(direction), 1));
+            selectedCalendarDate = dateOffset(calendarMonth.getUTCFullYear() + '-' + String(calendarMonth.getUTCMonth() + 1).padStart(2,'0') + '-01', Math.min(
+              Number(selectedCalendarDate.slice(8)),
+              new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + 1, 0)).getUTCDate()
+            ) - 1);
+          }
+          render('calendar');
+        }
+      });
       chart.addEventListener('wheel', event => {
         if (event.ctrlKey || event.metaKey) {
           // Chrome trackpad pinch commonly arrives as Ctrl+wheel; zoom this graph only.
