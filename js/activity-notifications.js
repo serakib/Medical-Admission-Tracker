@@ -35,7 +35,7 @@
   let cloudWriteTimer = null;
 
   function makeEmptyState() {
-    return { notifications: [], trash: [], deletedIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
+    return { notifications: [], trash: [], deletedIds: [], restoredIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
   }
   function safeText(value, max) {
     return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max || 180);
@@ -79,10 +79,12 @@
     const local = Object.assign(makeEmptyState(), localState || {});
     const remote = Object.assign(makeEmptyState(), remoteState || {});
     const deletedIds = Array.from(new Set((remote.deletedIds || []).concat(local.deletedIds || []).map(String).filter(Boolean))).slice(-1000);
-    const deletedSet = new Set(deletedIds);
+    const restoredIds = Array.from(new Set((remote.restoredIds || []).concat(local.restoredIds || []).map(String).filter(Boolean))).slice(-1000);
+    const restoredSet = new Set(restoredIds);
+    const deletedSet = new Set(deletedIds.filter(id => !restoredSet.has(id)));
     const trashMap = new Map();
     [remote.trash || [], local.trash || []].forEach(items => items.forEach(item => {
-      if (!item || !item.id) return;
+      if (!item || !item.id || restoredSet.has(String(item.id))) return;
       const previous = trashMap.get(String(item.id));
       if (!previous || numeric(item.deletedAt) >= numeric(previous.deletedAt)) trashMap.set(String(item.id), item);
     }));
@@ -102,6 +104,7 @@
       notifications: Array.from(itemMap.values()).sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt)).slice(0, 250),
       trash: Array.from(trashMap.values()).filter(item => numeric(item.deletedAt) > localTimestamp() - 10 * 86400000).sort((a, b) => numeric(b.deletedAt) - numeric(a.deletedAt)),
       deletedIds: deletedIds,
+      restoredIds: restoredIds,
       lastSnapshot: lastSnapshot || null,
       dayKey: dayKey || '',
       dayBaseline: (baselineOptions[0] && baselineOptions[0].dayBaseline) || (dayKey === local.dayKey ? local.dayBaseline : remote.dayBaseline) || null,
@@ -176,6 +179,7 @@
     if (!Array.isArray(state.notifications)) state.notifications = [];
     if (!Array.isArray(state.trash)) state.trash = [];
     if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
+    if (!Array.isArray(state.restoredIds)) state.restoredIds = [];
     pruneTrash();
     if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
     renderBadge();
@@ -1016,6 +1020,7 @@
     moving.forEach(item => state.trash.push(Object.assign({}, item, { deletedAt: now })));
     state.notifications = state.notifications.filter(item => !wantedSet.has(String(item.id)));
     state.deletedIds = Array.from(new Set((state.deletedIds || []).concat(wanted))).slice(-1000);
+    state.restoredIds = (state.restoredIds || []).filter(id => !wantedSet.has(String(id)));
     wanted.forEach(id => selectedIds.delete(id));
     saveState();
     renderFeed();
@@ -1041,6 +1046,7 @@
     restoring.forEach(item => { const copy = Object.assign({}, item); delete copy.deletedAt; state.notifications.push(copy); });
     state.trash = state.trash.filter(item => !restoredIds.has(String(item.id)));
     state.deletedIds = (state.deletedIds || []).filter(id => !restoredIds.has(String(id)));
+    state.restoredIds = Array.from(new Set((state.restoredIds || []).concat(Array.from(restoredIds)))).slice(-1000);
     state.notifications.sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt));
     saveState();
     renderFeed();
@@ -1156,6 +1162,7 @@
         if (!Array.isArray(state.notifications)) state.notifications = [];
         if (!Array.isArray(state.trash)) state.trash = [];
         if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
+        if (!Array.isArray(state.restoredIds)) state.restoredIds = [];
         pruneTrash();
         if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
         renderFeed();
