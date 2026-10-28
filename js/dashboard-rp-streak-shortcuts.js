@@ -77,6 +77,29 @@
     .mat-streak-fullscreen .mat-streak-calendar{width:100%;max-width:620px;margin:0 auto}
     @media(max-width:640px){.mat-streak-fullscreen{padding:12px}.mat-streak-fullscreen-head{gap:9px}.mat-streak-back{padding:9px 10px;font-size:12px}.mat-streak-fullscreen .mat-streak-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.mat-streak-fullscreen .mat-streak-tab{font-size:11px;padding:10px 3px}.mat-streak-range-nav button{padding:8px 9px}.mat-streak-range-label{font-size:10px}}
     @media(max-width:640px){.mat-profile-streak-button{top:76px;right:10px;padding:9px 12px;font-size:12px}.mat-dash-modal{padding:16px;border-radius:18px}.mat-streak-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.mat-streak-tab{padding:9px 5px;font-size:11px}.mat-streak-chart{padding:10px 0 6px}.mat-streak-chart svg{min-width:720px}.mat-streak-legend{font-size:10px;line-height:1.7}}
+    /* Streak journey opens in a compact, scrollable dialog; fullscreen is opt-in. */
+    .mat-streak-popup{position:fixed;inset:0;z-index:15000;display:grid;place-items:center;overflow:hidden;padding:12px;background:rgba(2,6,23,.64);backdrop-filter:blur(4px);overscroll-behavior:contain}
+    .mat-streak-popup-card{box-sizing:border-box;width:min(94vw,900px);max-height:90vh;max-height:90dvh;overflow:auto;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:18px;padding:clamp(12px,2vw,20px);background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 24px 70px rgba(0,0,0,.28);overscroll-behavior:contain}
+    .mat-streak-popup .mat-streak-fullscreen-head{top:0;gap:8px;padding:4px 0 10px;margin:0 0 10px}
+    .mat-streak-popup .mat-streak-fullscreen-title{flex:1;min-width:0;font-size:clamp(17px,2.4vw,23px);line-height:1.25}
+    .mat-streak-popup .mat-streak-fullscreen-content{max-width:100%;margin:0}
+    .mat-streak-popup .mat-streak-back,.mat-streak-popup-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;padding:8px 10px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:11px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:12px;font-weight:850;white-space:nowrap;cursor:pointer}
+    .mat-streak-popup-toggle{border-color:rgba(16,185,129,.32);background:rgba(16,185,129,.10);color:#047857}
+    .mat-streak-popup .mat-streak-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0}
+    .mat-streak-popup .mat-streak-tab{padding:8px 4px;font-size:11px;white-space:normal}
+    .mat-streak-popup .mat-streak-chart{touch-action:pan-y;cursor:default;overflow:hidden;padding:7px;min-height:0;border-radius:12px}
+    .mat-streak-popup .mat-streak-chart svg{display:block;width:100%;min-width:0;max-width:100%;height:auto;overflow:visible}
+    .mat-streak-popup .mat-streak-axis-label{font-size:10px}
+    .mat-streak-popup .mat-streak-calendar{box-sizing:border-box;min-width:0;width:100%;max-width:none;margin:0;padding:9px;border-radius:12px}
+    .mat-streak-popup .mat-streak-calendar-weekdays,.mat-streak-popup .mat-streak-calendar-days{gap:3px}
+    .mat-streak-popup .mat-streak-calendar-day{min-height:38px;padding:3px 1px;gap:2px;border-radius:8px;font-size:11px}
+    .mat-streak-popup .mat-streak-calendar-day .mat-streak-calendar-count{font-size:8px}
+    .mat-streak-popup .mat-streak-calendar-detail{flex-wrap:wrap;padding:9px;gap:8px}
+    .mat-streak-popup .mat-streak-calendar-total b{font-size:16px}
+    .mat-streak-popup .mat-streak-legend{font-size:10px;line-height:1.5}
+    .mat-streak-fullscreen .mat-streak-popup-card{width:100%;max-height:none;overflow:visible;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+    .mat-streak-fullscreen .mat-streak-popup-toggle{border-color:rgba(16,185,129,.32);background:rgba(16,185,129,.10);color:#047857}
+    @media(max-width:420px){.mat-streak-popup{padding:7px}.mat-streak-popup-card{width:100%;max-height:94vh;max-height:94dvh;padding:12px;border-radius:14px}.mat-streak-popup .mat-streak-fullscreen-head{gap:6px;flex-wrap:wrap}.mat-streak-popup .mat-streak-fullscreen-title{order:1;flex-basis:100%;font-size:17px}.mat-streak-popup .mat-streak-tabs{gap:4px}.mat-streak-popup .mat-streak-tab{padding:7px 2px;font-size:10px}.mat-streak-popup .mat-streak-calendar-day{min-height:35px}}
     #leaderboard-body td,#leaderboard-body th{padding:9px 8px!important}
     #leaderboard-body th{white-space:nowrap;font-size:12px}
     #leaderboard-body td:last-child{min-width:0!important;font-size:17px}
@@ -207,7 +230,7 @@
     });
     return counts;
   }
-  function streakGraphMarkup(period, counts, anchorDate) {
+  function streakGraphMarkup(period, counts, anchorDate, compact = false) {
     const today = dhakaTodayDate();
     const anchor = anchorDate || today;
     const items = [];
@@ -227,7 +250,17 @@
         items.push({date, label, value:counts.get(date) || 0, key:date});
       }
     }
-    const width = 760, height = 300, left = 52, right = 18, top = 34, bottom = 52;
+    // Size the SVG to its current mode so it can fit narrow popups without
+    // horizontal page scrolling; fullscreen naturally gets a larger graph.
+    const viewportWidth = Math.max(280, Number(window.innerWidth) || 900);
+    const width = compact
+      ? Math.max(280, Math.min(760, Math.round(viewportWidth * 0.88)))
+      : Math.max(320, Math.min(960, Math.round(viewportWidth - 80)));
+    const height = Math.round(width * (compact ? 0.42 : 0.395));
+    const left = compact && width < 400 ? 34 : 52;
+    const right = compact && width < 400 ? 10 : 18;
+    const top = compact ? 30 : 34;
+    const bottom = compact && width < 400 ? 36 : 52;
     const plotWidth = width-left-right, plotHeight = height-top-bottom;
     const max = Math.max(0, ...items.map(item => item.value));
     const yMax = Math.max(4, Math.ceil(max / 4) * 4);
@@ -243,9 +276,9 @@
     const area = period === 'daily' ? '' : points.map((point,i)=>(i?'L':'M')+point.x+' '+point.y).join(' ')+' L '+points[points.length-1].x+' '+(top+plotHeight)+' L '+points[0].x+' '+(top+plotHeight)+' Z';
     const circles = points.map(point => {
       const detail = period === 'daily' ? (String(point.hour).padStart(2,'0') + ':00') : point.date;
-      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="5" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(detail + ': ' + point.value + ' attempted question(s)') + '</title></circle>';
+      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (compact && width < 400 ? 3 : 5) + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(detail + ': ' + point.value + ' attempted question(s)') + '</title></circle>';
     }).join('');
-    const labelStep = period === 'daily' ? 2 : 1;
+    const labelStep = period === 'daily' ? (compact && width < 400 ? 4 : 2) : 1;
     const labels = points.map((point,i) => {
       if (i % labelStep !== 0 && i !== points.length-1) return '';
       return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-12) + '" text-anchor="middle">' + esc(point.label) + '</text>';
@@ -325,6 +358,7 @@
   }
 
   function openProfileStreak() {
+    window.__matCloseStreakDialog?.();
     document.getElementById('mat-streak-fullscreen')?.remove();
     const progress = profileProgress();
     const publicSection = document.getElementById('view-student-profile');
@@ -398,11 +432,11 @@
     let leaderboardInfo = buildLeaderboardInfo();
     const overlay = document.createElement('section');
     overlay.id = 'mat-streak-fullscreen';
-    overlay.className = 'mat-streak-fullscreen';
+    overlay.className = 'mat-streak-popup';
     overlay.setAttribute('role','dialog');
     overlay.setAttribute('aria-modal','true');
     overlay.setAttribute('aria-label','Your Streak Journey');
-    overlay.innerHTML = '<header class="mat-streak-fullscreen-head"><button type="button" class="mat-streak-back" data-streak-back><span aria-hidden="true">←</span> Back</button><h1 class="mat-streak-fullscreen-title">Your Streak Journey</h1></header><div class="mat-streak-fullscreen-content">' +
+    overlay.innerHTML = '<div class="mat-streak-popup-card"><header class="mat-streak-fullscreen-head"><button type="button" class="mat-streak-back" data-streak-close aria-label="Close streak statistics">× Close</button><h1 class="mat-streak-fullscreen-title">Your Streak Journey</h1><button type="button" class="mat-streak-popup-toggle" data-streak-fullscreen aria-pressed="false">⛶ Fullscreen</button></header><div class="mat-streak-fullscreen-content">' +
       '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(249,115,22,.06)"><small>Current Streak</small><h2 style="margin:5px 0 0;color:#ea580c">' + number(current) + ' days</h2></div>' +
       '<div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px;background:rgba(16,185,129,.06)"><small>Highest Streak</small><h2 style="margin:5px 0 0;color:#059669">' + number(highest) + ' days</h2></div></div>' +
@@ -410,18 +444,23 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="daily" aria-selected="true">Daily</button><button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="false">Weekly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button><button class="mat-streak-tab" type="button" data-streak-period="calendar" aria-selected="false">Calendar</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
-      '<p class="mat-streak-legend"><span class="up">Green = activity</span> · <span class="down">Red = change from previous point</span> · Daily = hourly · Weekly = 7 days · Monthly = 10 days per view. Swipe left for older activity and right for newer activity. Calendar and date details remain available.</p></div>';
+      '<p class="mat-streak-legend"><span class="up">Green = activity</span> · <span class="down">Red = change from previous point</span> · Daily = hourly · Weekly = 7 days · Monthly = 10 days per view. Swipe left for older activity and right for newer activity. Calendar and date details remain available.</p></div></div>';
     document.body.appendChild(overlay);
     const chart = overlay.querySelector('#mat-streak-chart');
     let activePeriod = 'daily';
     let calendarMonth = new Date(dhakaTodayDate() + 'T00:00:00Z');
     let selectedCalendarDate = dhakaTodayDate();
     let anchorDate = dhakaTodayDate();
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const close = () => {
       overlay.remove();
+      document.body.style.overflow = previousBodyOverflow;
       document.removeEventListener('keydown', onKey);
+      if (window.__matCloseStreakDialog === close) delete window.__matCloseStreakDialog;
     };
     const onKey = event => { if (event.key === 'Escape') close(); };
+    window.__matCloseStreakDialog = close;
     document.addEventListener('keydown', onKey);
     const shiftRange = direction => {
       if (activePeriod === 'daily') anchorDate = dateOffset(anchorDate, direction);
@@ -433,25 +472,34 @@
       activePeriod = period;
       overlay.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
       if (!chart) return;
+      const compact = overlay.classList.contains('mat-streak-popup');
       chart.innerHTML = period === 'calendar'
         ? streakCalendarMarkup(counts, calendarMonth, selectedCalendarDate, leaderboardInfo)
-        : streakGraphMarkup(period, counts, anchorDate);
-      chart.style.overflowX = 'visible';
+        : streakGraphMarkup(period, counts, anchorDate, compact);
+      chart.style.overflowX = compact ? 'hidden' : 'visible';
       chart.style.cursor = 'default';
       const rangeButtons = chart.querySelectorAll('[data-range-nav]');
       rangeButtons.forEach(button => button.addEventListener('click', () => shiftRange(Number(button.dataset.rangeNav))));
     };
-    overlay.querySelector('[data-streak-back]')?.addEventListener('click', close);
+    overlay.querySelector('[data-streak-close]')?.addEventListener('click', close);
+    overlay.querySelector('[data-streak-fullscreen]')?.addEventListener('click', () => {
+      const enteringFullscreen = !overlay.classList.contains('mat-streak-fullscreen');
+      overlay.classList.toggle('mat-streak-fullscreen', enteringFullscreen);
+      overlay.classList.toggle('mat-streak-popup', !enteringFullscreen);
+      overlay.setAttribute('aria-label', enteringFullscreen ? 'Your Streak Journey fullscreen' : 'Your Streak Journey popup');
+      const toggle = overlay.querySelector('[data-streak-fullscreen]');
+      if (toggle) {
+        toggle.textContent = enteringFullscreen ? '↙ Exit fullscreen' : '⛶ Fullscreen';
+        toggle.setAttribute('aria-pressed', String(enteringFullscreen));
+      }
+      render(activePeriod);
+    });
     overlay.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
     render('daily');
-    // Refresh from the authoritative Weekly leaderboard endpoint, then restore the user's selected leaderboard tab.
+    // Refresh the currently selected leaderboard view without temporarily writing
+    // "weekly" into localStorage, which could change the tab in another open page.
     if (!publicStudent && window.MedGlobalLeague?.loadLeaderboard) {
-      const periodStorageKey = 'med_sheet_leaderboard_period_v1';
-      let previousPeriod = 'all-time';
-      try { previousPeriod = localStorage.getItem(periodStorageKey) || 'all-time'; } catch (_) {}
-      try { localStorage.setItem(periodStorageKey, 'weekly'); } catch (_) {}
       Promise.resolve(window.MedGlobalLeague.loadLeaderboard(true)).catch(() => {}).finally(() => {
-        try { localStorage.setItem(periodStorageKey, previousPeriod); } catch (_) {}
         if (!overlay.isConnected) return;
         leaderboardInfo = buildLeaderboardInfo();
         if (activePeriod === 'calendar') render('calendar');
