@@ -717,7 +717,7 @@
       const dx = event.clientX - swipeStart.x;
       const dy = event.clientY - swipeStart.y;
       if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) {
-        if (activePeriod === 'calendar') shiftCalendar(dx < 0 ? -1 : 1);
+        if (activePeriod === 'calendar') shiftCalendar(dx > 0 ? -1 : 1);
         else shiftRange(dx > 0 ? -1 : 1);
       }
       swipeStart = null;
@@ -729,7 +729,7 @@
       const now = Date.now();
       if (now - lastWheelRangeChange < 450) return;
       lastWheelRangeChange = now;
-      if (activePeriod === 'calendar') shiftCalendar(event.deltaX < 0 ? -1 : 1);
+      if (activePeriod === 'calendar') shiftCalendar(event.deltaX > 0 ? -1 : 1);
       else shiftRange(event.deltaX > 0 ? 1 : -1);
     }, {passive:true});
   }
