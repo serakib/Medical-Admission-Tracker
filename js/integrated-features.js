@@ -586,6 +586,7 @@
   const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
   const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
   const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
+  const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
   const avatarDefaultMarker = '#mat-default-avatar';
   const avatarCustomMarker = '#mat-custom-avatar';
   const stripAvatarDefaultMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
