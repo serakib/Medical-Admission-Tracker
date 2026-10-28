@@ -805,26 +805,24 @@ function matUpdateLastSeen_(user) {
 
 /* ------------------------------ Exam submission ------------------------------- */
 
-/** Calculates the special performance-weighted RP for a 100-mark Model Test. */
-function matCalculate100MarkModelTestRP_(correct) {
+/** Calculates percentage-tier weighted RP for exams containing at least 30 questions. */
+function matCalculateWeightedExamRP_(correct, totalQuestions) {
   const correctCount = matSafeNonNegativeInt_(correct, 'correctCount');
-  const blocks = [
-    { upTo: 40, multiplier: 1 },
-    { upTo: 50, multiplier: 2 },
-    { upTo: 60, multiplier: 4 },
-    { upTo: 70, multiplier: 5 },
-    { upTo: 79, multiplier: 7 },
-    { upTo: 100, multiplier: 10 }
-  ];
+  const total = matSafeNonNegativeInt_(totalQuestions, 'totalQuestions');
+  if (total < 30) throw new Error('Weighted exam RP requires at least 30 questions.');
+  if (correctCount > total) throw new Error('correctCount cannot exceed totalQuestions.');
+
   let weightedCorrect = 0;
-  let previous = 0;
-  blocks.forEach(function (block) {
-    const count = Math.max(0, Math.min(correctCount, block.upTo) - previous);
-    weightedCorrect += count * block.multiplier;
-    previous = block.upTo;
-  });
-  // For papers longer than 100 marks, each extra correct answer earns the top-tier PB weight.
-  weightedCorrect += Math.max(0, correctCount - 100) * 10;
+  for (let answerNumber = 1; answerNumber <= correctCount; answerNumber++) {
+    const correctPercent = answerNumber * 100 / total;
+    const multiplier = correctPercent <= 40 ? 1
+      : correctPercent <= 50 ? 2
+      : correctPercent <= 60 ? 4
+      : correctPercent <= 70 ? 5
+      : correctPercent <= 79 ? 7
+      : 10;
+    weightedCorrect += multiplier;
+  }
   return weightedCorrect * 15;
 }
 
@@ -882,14 +880,13 @@ function matSubmitExam_(p) {
       // Medical-only rewards. Never accept XP/RP amounts supplied by the browser.
       // Note: correctness counts still need trusted answer-key grading in the backend
       // if the product requires tamper-resistant competitive ranking.
-      // A 100-question Model Test OR a 100-question Previous Year paper uses
-      // the same special performance-weighted RP formula.
+      // Any exam with 30 or more questions uses percentage-tier weighted RP.
       const normalizedExamMode = String(examMode).trim().toLowerCase();
       const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
       const calculatedXpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
-      const is100MarkModelTest = total >= 100;
-      const calculatedRpEarned = is100MarkModelTest
-        ? matCalculate100MarkModelTestRP_(correct)
+      const hasWeightedExamRule = total >= 30;
+      const calculatedRpEarned = hasWeightedExamRule
+        ? matCalculateWeightedExamRP_(correct, total)
         : Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
       // Practice XP remains at 30% of the calculated amount; Practice RP now receives 70% (30% reduction).
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
