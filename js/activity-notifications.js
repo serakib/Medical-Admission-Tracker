@@ -64,11 +64,10 @@
       return user && user.uid ? String(user.uid) : '';
     } catch (_) { return ''; }
   }
-  function cloudStateRef(uid) {
-    try {
-      if (!uid || !window.firebase || typeof window.firebase.firestore !== 'function') return null;
-      return window.firebase.firestore().collection('studentActivityNotificationStates').doc(String(uid));
-    } catch (_) { return null; }
+  function cloudStateAvailable(uid) {
+    return !!(uid && window.MedActivityNotificationStore &&
+      typeof window.MedActivityNotificationStore.get === 'function' &&
+      typeof window.MedActivityNotificationStore.set === 'function');
   }
   function stateVersion(item) {
     return Math.max(numeric(item && (item.updatedAt || item.createdAt)), numeric(item && item.readAt));
@@ -98,15 +97,16 @@
     };
   }
   async function writeCloudState(uid) {
-    const ref = cloudStateRef(uid || signedInUid());
-    if (!ref) return;
+    const userId = String(uid || signedInUid());
+    const store = window.MedActivityNotificationStore;
+    if (!cloudStateAvailable(userId) || !store) return;
     try {
-      await ref.set({
-        userId: String(uid || signedInUid()),
+      await store.set(userId, {
+        userId: userId,
         version: 1,
         state: state,
         updatedAt: localTimestamp()
-      }, { merge: true });
+      });
     } catch (error) {
       // Local notifications continue working if the Firestore security rule is not deployed yet.
       console.warn('[Activity notifications] Cloud sync unavailable; using this browser:', error);
@@ -114,27 +114,24 @@
   }
   function queueCloudWrite() {
     const uid = signedInUid();
-    if (!uid || !cloudStateRef(uid)) return;
+    if (!cloudStateAvailable(uid)) return;
     if (cloudWriteTimer) clearTimeout(cloudWriteTimer);
     cloudWriteTimer = setTimeout(function () {
       cloudWriteTimer = null;
       writeCloudState(uid);
     }, 350);
   }
-  async function restoreCloudState() {
+  async function restoreCloudState(force) {
     const uid = signedInUid();
-    if (!uid || cloudLoadedForUid === uid) return;
+    if (!uid || !cloudStateAvailable(uid)) return;
+    if (!force && cloudLoadedForUid === uid) return;
     if (cloudRestorePromise) return cloudRestorePromise;
     cloudRestorePromise = (async function () {
       try {
-        const ref = cloudStateRef(uid);
-        if (!ref) return;
-        const document = await ref.get();
-        if (document && document.exists) {
-          const payload = document.data() || {};
-          if (payload.userId === uid && payload.state && typeof payload.state === 'object') {
-            state = mergeStateObjects(state, payload.state);
-          }
+        const store = window.MedActivityNotificationStore;
+        const payload = await store.get(uid);
+        if (payload && payload.userId === uid && payload.state && typeof payload.state === 'object') {
+          state = mergeStateObjects(state, payload.state);
         }
         cloudLoadedForUid = uid;
         saveState();
@@ -435,7 +432,7 @@
     if (!force && localTimestamp() - lastRefreshAt < 30000) return;
     refreshPromise = (async function () {
       try {
-        await restoreCloudState();
+        await restoreCloudState(true);
         await refreshWeeklyData();
         const friendsData = await acceptedFriendData();
         const rows = rankRows();
@@ -607,6 +604,11 @@
   }
   function bindEvents() {
     document.addEventListener('click', handleClick);
+    window.addEventListener('student-auth-state-resolved', function () {
+      ensureAccountState();
+      lastRefreshAt = 0;
+      refreshActivity(true);
+    });
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && !document.getElementById('mat-notification-center')?.hidden) closeCenter();
     });
