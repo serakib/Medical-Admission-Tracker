@@ -27,7 +27,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates'
+  'LastWeeklyDemotionWeek', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -172,6 +172,15 @@ function setupBackend() {
       .everyMinutes(MAT_CONFIG.TRIGGER_MINUTES)
       .create();
   }
+  const hasGuestCleanupTrigger = triggers.some(function (t) {
+    return t.getHandlerFunction() === 'cleanupExpiredGuestAccounts';
+  });
+  if (!hasGuestCleanupTrigger) {
+    ScriptApp.newTrigger('cleanupExpiredGuestAccounts')
+      .timeBased()
+      .everyHours(1)
+      .create();
+  }
   const hasWeeklyDemotionTrigger = triggers.some(function (t) {
     return t.getHandlerFunction() === 'processWeeklyRankDemotions';
   });
@@ -257,6 +266,10 @@ function processWeeklyRankDemotions() {
         if (weeklyRP < safeZoneThreshold) {
           update.Rank = MAT_RANKS[rankIndex - 1];
           update.RP = 0;
+          // Start the seven-day zero-RP inactivity window only for Guests.
+          if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
+            update.GuestZeroRPAt = now;
+          }
           update.LastError = '';
           demoted += 1;
         } else {
@@ -285,6 +298,82 @@ function processWeeklyRankDemotions() {
 }
 
 /* ------------------------------- Guest accounts ------------------------------- */
+
+/**
+ * Scheduled server-side cleanup. Guest records are removed after 90 days without
+ * a visit, or seven days without a visit after weekly demotion has reset RP to 0.
+ * Registered accounts are never eligible for this cleanup.
+ */
+function cleanupExpiredGuestAccounts() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const nowMs = Date.now();
+    const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    const studentsSheet = matGetStudentsSheet_();
+    const students = matReadObjects_(studentsSheet);
+    const expired = students.filter(function (student) {
+      if (String(student.AccountType || '').toUpperCase() !== 'GUEST' || !student._rowNumber) return false;
+
+      const lastSeenMs = Date.parse(String(student.LastSeenAt || student.CreatedAt || ''));
+      const inactive90Days = Number.isFinite(lastSeenMs) && nowMs - lastSeenMs >= ninetyDaysMs;
+      if (inactive90Days) return true;
+
+      const rp = Math.max(0, matFiniteNumber_(student.RP, 0));
+      if (rp !== 0) return false;
+      const zeroRpMs = Date.parse(String(student.GuestZeroRPAt || ''));
+      if (!Number.isFinite(zeroRpMs)) return false;
+      const inactivityAnchor = Math.max(zeroRpMs, Number.isFinite(lastSeenMs) ? lastSeenMs : zeroRpMs);
+      return nowMs - inactivityAnchor >= sevenDaysMs;
+    });
+
+    if (!expired.length) {
+      return { success: true, deletedGuests: 0, message: 'No expired Guest accounts.' };
+    }
+
+    const expiredIds = new Set(expired.map(function (student) { return String(student.UserID || ''); }).filter(Boolean));
+    const friendsSheet = matGetFriendsSheet_();
+    const friendRows = matReadObjects_(friendsSheet);
+    const friendRowNumbers = friendRows.filter(function (row) {
+      const kind = String(row.RecordType || '').toUpperCase();
+      if (kind === 'REQUEST') {
+        return expiredIds.has(String(row.FromUserID || '')) || expiredIds.has(String(row.ToUserID || ''));
+      }
+      if (kind === 'FRIENDSHIP') {
+        return expiredIds.has(String(row.UserA || '')) || expiredIds.has(String(row.UserB || ''));
+      }
+      return false;
+    }).map(function (row) { return row._rowNumber; });
+    const deletedFriendRows = matDeleteRows_(friendsSheet, friendRowNumbers);
+
+    const examSheet = matGetExamSheet_();
+    const examRows = matReadObjects_(examSheet);
+    const examRowNumbers = examRows.filter(function (row) {
+      if (matIsExamRecord_(row)) return expiredIds.has(String(row.UserID || ''));
+      if (String(row.RecordType || '').toUpperCase() !== 'ACTIVITY') return false;
+      const activityId = String(row.ActivityID || '');
+      return Array.from(expiredIds).some(function (uid) {
+        return activityId.indexOf('MAT-' + uid + '-') >= 0 || activityId.endsWith(':TOP10:' + uid);
+      });
+    }).map(function (row) { return row._rowNumber; });
+    const deletedExamAndActivityRows = matDeleteRows_(examSheet, examRowNumbers);
+
+    const deletedProfileRows = matDeleteRows_(studentsSheet, expired.map(function (student) { return student._rowNumber; }));
+    matSaveTop10Snapshot_(matBuildTop10_());
+
+    return {
+      success: true,
+      deletedGuests: expiredIds.size,
+      deletedProfileRows: deletedProfileRows,
+      deletedFriendRows: deletedFriendRows,
+      deletedExamAndActivityRows: deletedExamAndActivityRows,
+      message: 'Expired Guest account data permanently deleted.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
 
 function matCreateGuest_(p) {
   // Reuse the current Guest if its persisted token was provided.
