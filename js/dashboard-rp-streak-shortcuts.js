@@ -181,7 +181,7 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
-      '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = date/month, Y-axis = recorded active days. Graph-এ সংরক্ষিত activity date-ই দেখানো হয়।</p>';
+      '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = day, Y-axis = attempted questions per day. Graph-এ সংরক্ষিত activity date-ই দেখানো হয়।</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
     const render = period => {
