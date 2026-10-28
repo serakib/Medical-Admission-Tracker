@@ -27,6 +27,9 @@
   let lastRefreshAt = 0;
   let refreshPromise = null;
   let lastTrigger = null;
+  let cloudLoadedForUid = '';
+  let cloudRestorePromise = null;
+  let cloudWriteTimer = null;
 
   function makeEmptyState() {
     return { notifications: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
@@ -53,6 +56,98 @@
     return String(app.profile && (app.profile.userId || app.profile.uid) || 'guest');
   }
   function stateKey() { return STORAGE_PREFIX + accountId(); }
+  function signedInUid() {
+    const app = window.app || {};
+    if (app.authUser && app.authUser.uid) return String(app.authUser.uid);
+    try {
+      const user = window.firebase && typeof window.firebase.auth === 'function' && window.firebase.auth().currentUser;
+      return user && user.uid ? String(user.uid) : '';
+    } catch (_) { return ''; }
+  }
+  function cloudStateRef(uid) {
+    try {
+      if (!uid || !window.firebase || typeof window.firebase.firestore !== 'function') return null;
+      return window.firebase.firestore().collection('studentActivityNotificationStates').doc(String(uid));
+    } catch (_) { return null; }
+  }
+  function stateVersion(item) {
+    return Math.max(numeric(item && (item.updatedAt || item.createdAt)), numeric(item && item.readAt));
+  }
+  function mergeStateObjects(localState, remoteState) {
+    const local = Object.assign(makeEmptyState(), localState || {});
+    const remote = Object.assign(makeEmptyState(), remoteState || {});
+    const itemMap = new Map();
+    [remote.notifications || [], local.notifications || []].forEach(items => items.forEach(item => {
+      if (!item || !item.id) return;
+      const existing = itemMap.get(item.id);
+      if (!existing || stateVersion(item) >= stateVersion(existing)) itemMap.set(item.id, item);
+    }));
+    const dayKey = String(local.dayKey || '') > String(remote.dayKey || '') ? local.dayKey : remote.dayKey;
+    const baselineOptions = [local, remote].filter(item => item.dayKey === dayKey && item.dayBaseline);
+    baselineOptions.sort((a, b) => numeric(a.dayBaseline && a.dayBaseline.capturedAt) - numeric(b.dayBaseline && b.dayBaseline.capturedAt));
+    const lastSnapshot = numeric(local.lastSnapshot && local.lastSnapshot.capturedAt) >= numeric(remote.lastSnapshot && remote.lastSnapshot.capturedAt)
+      ? (local.lastSnapshot || remote.lastSnapshot) : (remote.lastSnapshot || local.lastSnapshot);
+    const trophies = Object.assign({}, remote.trophyEvents || {}, local.trophyEvents || {});
+    return {
+      notifications: Array.from(itemMap.values()).sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt)).slice(0, 100),
+      lastSnapshot: lastSnapshot || null,
+      dayKey: dayKey || '',
+      dayBaseline: (baselineOptions[0] && baselineOptions[0].dayBaseline) || (dayKey === local.dayKey ? local.dayBaseline : remote.dayBaseline) || null,
+      trophyEvents: trophies,
+      stateUpdatedAt: Math.max(numeric(local.stateUpdatedAt), numeric(remote.stateUpdatedAt))
+    };
+  }
+  async function writeCloudState(uid) {
+    const ref = cloudStateRef(uid || signedInUid());
+    if (!ref) return;
+    try {
+      await ref.set({
+        userId: String(uid || signedInUid()),
+        version: 1,
+        state: state,
+        updatedAt: localTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      // Local notifications continue working if the Firestore security rule is not deployed yet.
+      console.warn('[Activity notifications] Cloud sync unavailable; using this browser:', error);
+    }
+  }
+  function queueCloudWrite() {
+    const uid = signedInUid();
+    if (!uid || !cloudStateRef(uid)) return;
+    if (cloudWriteTimer) clearTimeout(cloudWriteTimer);
+    cloudWriteTimer = setTimeout(function () {
+      cloudWriteTimer = null;
+      writeCloudState(uid);
+    }, 350);
+  }
+  async function restoreCloudState() {
+    const uid = signedInUid();
+    if (!uid || cloudLoadedForUid === uid) return;
+    if (cloudRestorePromise) return cloudRestorePromise;
+    cloudRestorePromise = (async function () {
+      try {
+        const ref = cloudStateRef(uid);
+        if (!ref) return;
+        const document = await ref.get();
+        if (document && document.exists) {
+          const payload = document.data() || {};
+          if (payload.userId === uid && payload.state && typeof payload.state === 'object') {
+            state = mergeStateObjects(state, payload.state);
+          }
+        }
+        cloudLoadedForUid = uid;
+        saveState();
+      } catch (error) {
+        // Fail safely to local browser storage; never fabricate a successful cloud sync.
+        cloudLoadedForUid = uid;
+        console.warn('[Activity notifications] Could not load cloud state; using this browser:', error);
+      } finally {
+        cloudRestorePromise = null;
+      }
+    })();
+    return cloudRestorePromise;
+  }
   function ensureAccountState() {
     const key = stateKey();
     if (key === activeAccountKey) return;
@@ -67,8 +162,10 @@
     try { return localStorage.getItem(key); } catch (_) { return null; }
   }
   function saveState() {
+    state.stateUpdatedAt = localTimestamp();
     try { localStorage.setItem(activeAccountKey || stateKey(), JSON.stringify(state)); } catch (_) {}
     renderBadge();
+    queueCloudWrite();
   }
   function dayKey() {
     const parts = new Intl.DateTimeFormat('en-CA', {
@@ -232,6 +329,7 @@
       state.notifications[index] = Object.assign({}, previous, item, {
         createdAt: previous.createdAt || now,
         updatedAt: changed ? now : (previous.updatedAt || previous.createdAt || now),
+        readAt: changed ? 0 : numeric(previous.readAt),
         unread: changed ? true : !!previous.unread
       });
     } else {
@@ -337,6 +435,7 @@
     if (!force && localTimestamp() - lastRefreshAt < 30000) return;
     refreshPromise = (async function () {
       try {
+        await restoreCloudState();
         await refreshWeeklyData();
         const friendsData = await acceptedFriendData();
         const rows = rankRows();
@@ -472,7 +571,8 @@
     });
   }
   function markAllRead() {
-    state.notifications.forEach(item => { item.unread = false; });
+    const readAt = localTimestamp();
+    state.notifications.forEach(item => { item.unread = false; item.readAt = readAt; });
     saveState();
     renderFeed();
   }
@@ -480,6 +580,7 @@
     const item = state.notifications.find(entry => entry.id === id);
     if (!item) return;
     item.unread = false;
+    item.readAt = localTimestamp();
     saveState();
     renderFeed();
   }
