@@ -1110,3 +1110,47 @@ html.dark .mat-notification-item-copy p,body.dark .mat-notification-item-copy p{
 /* Distinguish leaderboard movement from friend and trophy events in notification cards. */
 .mat-notification-item-icon.type-leaderboard{color:#5b21b6;background:rgba(139,92,246,.13)}
 html.dark .mat-notification-item-icon.type-leaderboard,body.dark .mat-notification-item-icon.type-leaderboard{color:#c4b5fd;background:rgba(139,92,246,.18)}
+
+
+/* Notification bulk selection, per-item actions and deletion controls. */
+.mat-notification-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.mat-notification-toolbar-main{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.mat-notification-selection-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding-top:10px;border-top:1px solid rgba(148,163,184,.16)}
+.mat-notification-selection-toolbar>button,.mat-notification-bulk-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:7px 10px;border:1px solid rgba(148,163,184,.26);border-radius:9px;color:var(--text,#334155);background:rgba(148,163,184,.06);font:inherit;font-size:10px;font-weight:850;cursor:pointer;transition:background .15s ease,border-color .15s ease,opacity .15s ease}
+.mat-notification-selection-toolbar>button:hover:not(:disabled),.mat-notification-bulk-actions button:hover:not(:disabled){border-color:rgba(13,148,136,.3);background:rgba(16,185,129,.1)}
+.mat-notification-selection-toolbar button:disabled{opacity:.42;cursor:not-allowed}
+.mat-notification-selection-toolbar>span{margin-left:auto;color:var(--muted,#64748b);font-size:10px;font-weight:900;white-space:nowrap}
+.mat-notification-bulk-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;width:100%}
+.mat-notification-bulk-actions [data-mat-selected-read],.mat-notification-bulk-actions [data-mat-selected-unread]{color:#047857;border-color:rgba(5,150,105,.2);background:rgba(16,185,129,.07)}
+.mat-notification-selection-toolbar button.is-danger,.mat-notification-bulk-actions button.is-danger{color:#b91c1c;border-color:rgba(220,38,38,.2);background:rgba(239,68,68,.06)}
+.mat-notification-selection-toolbar button.is-danger:hover:not(:disabled),.mat-notification-bulk-actions button.is-danger:hover:not(:disabled){color:#fff;border-color:#dc2626;background:#dc2626}
+.mat-notification-item.is-selected{border-color:rgba(14,165,233,.52);box-shadow:0 0 0 2px rgba(14,165,233,.08)}
+.mat-notification-select-wrap{display:flex;align-items:flex-start;justify-content:center;flex:0 0 20px;width:20px;padding-top:10px;cursor:pointer}
+.mat-notification-select{width:17px;height:17px;margin:0;accent-color:#059669;cursor:pointer}
+.mat-notification-item-actions{display:flex;flex:0 0 auto;flex-direction:column;gap:6px}
+.mat-notification-action{display:grid;place-items:center;flex:0 0 31px;width:31px;height:31px;border:1px solid rgba(13,148,136,.22);border-radius:9px;color:#047857;background:rgba(16,185,129,.07);font-size:12px;cursor:pointer}
+.mat-notification-action:hover{color:#fff;background:#059669}
+.mat-notification-action.is-danger{color:#b91c1c;border-color:rgba(220,38,38,.2);background:rgba(239,68,68,.05)}
+.mat-notification-action.is-danger:hover{color:#fff;border-color:#dc2626;background:#dc2626}
+html.dark .mat-notification-selection-toolbar>button,body.dark .mat-notification-selection-toolbar>button,html.dark .mat-notification-bulk-actions button,body.dark .mat-notification-bulk-actions button{color:#dbeafe;background:rgba(148,163,184,.08);border-color:rgba(148,163,184,.2)}
+html.dark .mat-notification-bulk-actions [data-mat-selected-read],html.dark .mat-notification-bulk-actions [data-mat-selected-unread],body.dark .mat-notification-bulk-actions [data-mat-selected-read],body.dark .mat-notification-bulk-actions [data-mat-selected-unread]{color:#6ee7b7;background:rgba(16,185,129,.09)}
+html.dark .mat-notification-selection-toolbar button.is-danger,body.dark .mat-notification-selection-toolbar button.is-danger,html.dark .mat-notification-bulk-actions button.is-danger,body.dark .mat-notification-bulk-actions button.is-danger{color:#fca5a5;background:rgba(239,68,68,.08)}
+@media(max-width:767px){
+  .mat-notification-toolbar{gap:9px}
+  .mat-notification-toolbar-main{gap:7px}
+  .mat-notification-selection-toolbar{gap:6px;padding-top:9px}
+  .mat-notification-selection-toolbar>button,.mat-notification-bulk-actions button{min-height:38px;padding:8px 9px;font-size:10px}
+  .mat-notification-selection-toolbar>span{margin-left:auto}
+  .mat-notification-bulk-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .mat-notification-bulk-actions button{width:100%}
+  .mat-notification-bulk-actions [data-mat-delete-selected]{grid-column:1/-1}
+  .mat-notification-select-wrap{flex-basis:18px;width:18px}
+  .mat-notification-select{width:18px;height:18px}
+  .mat-notification-item-actions{gap:5px}
+  .mat-notification-action{flex-basis:30px;width:30px;height:30px}
+}
+@media(max-width:360px){
+  .mat-notification-toolbar-main{align-items:flex-start;flex-direction:column}
+  .mat-notification-mark-all{align-self:flex-end}
+  .mat-notification-selection-toolbar>button,.mat-notification-bulk-actions button{font-size:9px;padding-left:6px;padding-right:6px}
+}
