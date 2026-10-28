@@ -1030,7 +1030,7 @@
     const tiers = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Legend', 'Mythic'];
     const roman = ['V', 'IV', 'III', 'II', 'I'];
     const rankIndex = completedRankUps(points);
-    return rankIndex >= 50 ? 'Immortal' : tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
+    return rankIndex >= 50 ? 'Immortal ' + roman[Math.min(4, rankIndex - 50)] : tiers[Math.floor(rankIndex / 5)] + ' ' + roman[rankIndex % 5];
   };
   function ensureStudentSettings() {
     // App-wide preferences now live exclusively under the sidebar's App Settings.
@@ -1250,7 +1250,7 @@ const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','G
 const pkey=()=>'med_account_progress_v1_'+(app.authUser?.uid||'guest');
 const progress=()=>{try{return typeof app.getAccountProgress==='function'?app.getAccountProgress():(JSON.parse(localStorage.getItem(pkey())||'{}')||{})}catch(_){return{}}};
 const rankUpgradeCost=step=>{const n=Math.max(1,Math.floor(Number(step)||1)),base=n*400;return Math.max(5,Math.round((n===1?base:base*1.2)/5)*5)};
-const rank=points=>{const value=Math.max(0,Number(points)||0);let n=0,spent=0,required=rankUpgradeCost(1);while(n<50&&value>=spent+required){spent+=required;n++;required=rankUpgradeCost(n+1)}if(n>=50)return{name:'Immortal',tier:'immortal',index:51,step:1,points:value,remaining:0,progress:100};const within=value-spent;return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:Math.max(0,required-within),progress:Math.min(100,within/required*100)}};
+const rank=points=>{const value=Math.max(0,Number(points)||0);let n=0,spent=0,required=rankUpgradeCost(1);while(n<55&&value>=spent+required){spent+=required;n++;required=rankUpgradeCost(n+1)}if(n>=55)return{name:'Immortal I',tier:'immortal',index:55,step:5,points:value,remaining:0,progress:100};if(n>=50)return{name:'Immortal '+roman[n-50],tier:'immortal',index:n+1,step:n-49,points:value,remaining:Math.max(0,required-(value-spent)),progress:Math.min(100,(value-spent)/required*100)};const within=value-spent;return{name:tiers[Math.floor(n/5)]+' '+roman[n%5],tier:tiers[Math.floor(n/5)].toLowerCase(),index:n+1,step:n%5+1,points:value,remaining:Math.max(0,required-within),progress:Math.min(100,within/required*100)}};
 const qkey=q=>String(q?.id||[q?.subject,q?.year,q?.question||q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
 const hkey=()=>'med_review_history_v2_'+(app.authUser?.uid||'guest');
 const readHistory=()=>{try{return JSON.parse(localStorage.getItem(hkey())||'{}')||{}}catch(_){return{}}};
