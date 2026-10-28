@@ -24,7 +24,7 @@ Profile fields are stored in the private `Students` spreadsheet. Do not make the
 
 The Medical API is the source of truth for Medical XP, current RP, Total RP, level, and rank. The UI does not award a second browser-only XP/RP balance. Each completed exam uses an account-prefixed unique attempt ID; repeated submissions are intended to return the previously saved reward rather than award it twice.
 
-Rank progression is configured server-side as Bronze V → IV → III → II → I, then Silver V through I, Gold, Platinum, Diamond, Master, Grandmaster, and Immortal. The top leaderboard uses Total RP. Weekly leaderboard values are calculated from RP awarded during the current week, based on the Bangladesh time-zone policy in Apps Script.
+Rank progression is configured server-side as Bronze V → IV → III → II → I, then Silver, Gold, Platinum, Emerald, Diamond, Master, Grandmaster, Legend, and Mythic (each V through I), followed by Immortal V → IV → III → II → I. Each promotion costs 500 RP for the first step, then 500 RP plus 20% of the previous promotion cost, rounded to the nearest 5 RP. The cost therefore levels off at about 625 RP per promotion, keeping progression approachable; reaching Immortal I takes about 33,595 cumulative RP from Bronze V under this curve. The top leaderboard uses Total RP. Weekly leaderboard values are calculated from RP awarded during the current week, based on the Bangladesh time-zone policy in Apps Script.
 
 The backend currently receives the correct/wrong counts from the frontend. For tamper-resistant competitive scoring, move answer-key grading to a trusted server before relying on rank as a high-stakes result.
 
