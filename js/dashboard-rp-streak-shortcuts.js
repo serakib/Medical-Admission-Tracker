@@ -306,7 +306,7 @@
         ).join('') + '</div>' : '<p style="font-size:12px;line-height:1.6;margin:0;color:var(--muted,#64748b)">No new friend position changes are recorded yet.</p>') +
         '</section></div>';
     })();
-    const examTimeline    const examTimeline = examAttempts.length
+    const examTimeline = examAttempts.length
       ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
           const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
           const reviewable = !!attempt.reviewData?.questions?.length && Array.isArray(attempt.reviewData.userAnswers);
