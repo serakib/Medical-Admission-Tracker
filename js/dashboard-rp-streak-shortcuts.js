@@ -171,7 +171,16 @@
       });
     } catch (_) {}
     counts.details.forEach(list => list.sort((a,b) => a.timestamp-b.timestamp));
-    counts.examAttempts.forEach(list => list.sort((a,b) => Number(a.attemptId)-Number(b.attemptId)));
+    counts.examAttempts.forEach(list => {
+      const unique = new Map();
+      list.forEach(attempt => {
+        const key = String(attempt?.attemptId ?? '').split('-').pop();
+        if (!key) return;
+        const previous = unique.get(key);
+        if (!previous || (!previous.reviewData && attempt.reviewData)) unique.set(key, attempt);
+      });
+      list.splice(0, list.length, ...Array.from(unique.values()).sort((a,b) => Number(a.attemptId)-Number(b.attemptId)));
+    });
     return counts;
   }
   function streakGraphMarkup(period, counts, zoom = 1) {
