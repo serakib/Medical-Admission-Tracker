@@ -102,11 +102,17 @@
           const previous = history[key];
           const correctIndex = Number(question && question.answer);
           const correct = Number(answerIndex) === correctIndex;
+          const attemptTimestamps = Array.isArray(previous && previous.attemptTimestamps)
+            ? previous.attemptTimestamps.slice()
+            : [previous && previous.firstAttemptAt, previous && previous.updatedAt]
+                .filter((timestamp, i, values) => Number.isFinite(Number(timestamp)) && values.indexOf(timestamp) === i)
+                .map(Number);
+          attemptTimestamps.push(now);
           history[key] = {
             key, question, subject: question && question.subject || 'Medical',
             userAnswerIndex: Number(answerIndex), correctAnswerIndex: correctIndex,
             correct, attempted: true, attempts: Math.max(0, Number(previous && previous.attempts) || 0) + 1,
-            firstAttemptAt: previous && previous.firstAttemptAt || now, updatedAt: now
+            attemptTimestamps, firstAttemptAt: previous && previous.firstAttemptAt || now, updatedAt: now
           };
         });
         safeWrite(history);
