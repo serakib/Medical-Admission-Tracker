@@ -667,8 +667,18 @@
         if (baseline && baseline.capturedAt !== current.capturedAt) {
           addFriendStatusNotifications(current, baseline, today);
           addTrophyNotifications(current, baseline, today);
-          addGlobalLeaderboardNotifications(current, baseline, today, 'all-time');
-          addGlobalLeaderboardNotifications(current, baseline, today, 'weekly');
+          const supportsGlobalSnapshots = !!(baseline.weeklyPlayers && baseline.allTimePlayers &&
+            baseline.weeklyTop100 && baseline.allTimeTop100);
+          if (supportsGlobalSnapshots) {
+            // Public Top 100/Top 10 alerts use the All Time board; Weekly alerts focus
+            // on the student's own position while friend-by-friend weekly RP stays separate.
+            addGlobalLeaderboardNotifications(current, baseline, today, 'all-time');
+            addOwnPositionNotifications(current, baseline, today, 'weekly');
+          } else {
+            // First visit after this snapshot schema upgrade: establish the new baseline
+            // without announcing every existing Top-100 player as a fresh entrant.
+            state.dayBaseline = current;
+          }
         }
         state.lastSnapshot = current;
         if (!state.dayBaseline) state.dayBaseline = current;
