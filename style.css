@@ -1344,3 +1344,6 @@ html.dark .mat-guest-deletion-label,body.dark .mat-guest-deletion-label,html.dar
 /* Transparent Guest announcement card */
 #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{background:transparent!important;box-shadow:none!important;}
 html.dark #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement,body.dark #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{background:transparent!important;box-shadow:none!important;}
+
+/* Transparent background for the Announcement filter button (including active state). */
+#mat-notification-center .mat-notification-filters button.mat-notification-announcement-filter,#mat-notification-center .mat-notification-filters button.mat-notification-announcement-filter.is-active{background:transparent!important;box-shadow:none!important;}
