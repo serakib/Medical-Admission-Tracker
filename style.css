@@ -1154,3 +1154,21 @@ html.dark .mat-notification-selection-toolbar button.is-danger,body.dark .mat-no
   .mat-notification-mark-all{align-self:flex-end}
   .mat-notification-selection-toolbar>button,.mat-notification-bulk-actions button{font-size:9px;padding-left:6px;padding-right:6px}
 }
+
+
+/* Guest-only notification prompt; personal feed and controls remain sign-in gated. */
+.mat-notification-guest-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:330px;height:100%;padding:30px 22px;text-align:center}
+.mat-notification-guest-icon{display:grid;place-items:center;width:66px;height:66px;border:1px solid rgba(13,148,136,.2);border-radius:22px;color:#0f766e;background:rgba(16,185,129,.1);font-size:24px}
+.mat-notification-guest-state h3{max-width:390px;margin:17px 0 0;color:var(--text,#0f172a);font-size:17px;line-height:1.5;font-weight:950}
+.mat-notification-guest-state p{max-width:380px;margin:9px auto 0;color:var(--muted,#64748b);font-size:12px;line-height:1.8}
+.mat-notification-guest-state button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;margin-top:19px;padding:11px 19px;border:1px solid rgba(5,150,105,.2);border-radius:13px;color:#fff;background:linear-gradient(135deg,#047857,#0284c7);font:inherit;font-size:12px;font-weight:900;box-shadow:0 7px 16px rgba(5,150,105,.14);cursor:pointer}
+.mat-notification-guest-state button:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.mat-notification-guest-state small{max-width:350px;margin-top:14px;color:var(--muted,#64748b);font-size:10px;line-height:1.7}
+html.dark .mat-notification-guest-icon,body.dark .mat-notification-guest-icon{color:#6ee7b7;background:rgba(16,185,129,.13)}
+html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-state h3{color:#f1f5f9}
+@media(max-width:767px){
+  .mat-notification-guest-state{min-height:300px;padding:24px 15px}
+  .mat-notification-guest-state h3{font-size:15px}
+  .mat-notification-guest-state p{font-size:11px}
+  .mat-notification-guest-state button{width:100%;max-width:300px;min-height:48px}
+}
