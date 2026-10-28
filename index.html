@@ -1203,7 +1203,7 @@ function toggleAppSidebarCollapse(){
                     <p class="text-xs text-gray-500 dark:text-gray-400">সঠিক ও ভুল উত্তরগুলোর বিশদ বিশ্লেষণ ও বাংলা ব্যাখ্যা</p>
                 </div>
 
-                <button onclick="window.app.showView('result')" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-xs font-bold rounded-xl transition">
+                <button onclick="window.app.returnFromAnswerReview()" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-xs font-bold rounded-xl transition">
                     ফলাফলে ফিরে যান
                 </button>
             </div>
@@ -1337,6 +1337,9 @@ function toggleAppSidebarCollapse(){
                                     <th class="py-3 px-4">বিষয়</th>
                                     <th class="py-3 px-4">স্কোর</th>
                                     <th class="py-3 px-4">নির্ভুলতা</th>
+                                    <th class="py-3 px-4 text-emerald-600">সঠিক</th>
+                                    <th class="py-3 px-4 text-rose-600">ভুল</th>
+                                    <th class="py-3 px-4 text-amber-600">স্কিপ</th>
                                     <th class="py-3 px-4 rounded-l-xl">সময়</th>
                                 </tr>
                             </thead>
@@ -1632,7 +1635,7 @@ function toggleAppSidebarCollapse(){
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=question-refresh-button-1"></script>
+<script type="module" src="script.js?v=attempt-review-history-1"></script>
 <script type="module" src="./js/integrated-features.js?v=question-bank-selection-polish-1"></script>
 <script src="./js/final-trophy-practice.js?v=medical-feature-set-5" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-4" defer></script>
