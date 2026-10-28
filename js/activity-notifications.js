@@ -843,7 +843,7 @@
       '<small>Activity is checked when you open the website or return to this tab.</small></div>';
   }
   function guestNotificationState() {
-    return '<section class="mat-notification-guest-state" role="status">' +
+    return '<section class="mat-notification-guest-state mat-notification-announcement-view" role="region" aria-labelledby="mat-guest-deletion-title">' +
       '<article class="mat-guest-deletion-announcement" role="note" aria-labelledby="mat-guest-deletion-title">' +
       '<div class="mat-guest-deletion-label"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> IMPORTANT GUEST ANNOUNCEMENT · স্থায়ী ঘোষণা</div>' +
       '<h3 id="mat-guest-deletion-title">গেস্ট অ্যাকাউন্ট মুছে ফেলার নিয়ম</h3>' +
@@ -852,13 +852,8 @@
       '<p><strong>৩. সময় কীভাবে গণনা হবে:</strong> ওই ৭ দিনের মধ্যে ওয়েবসাইটে ফিরে এলে inactivity timer আপনার সর্বশেষ visit থেকে আবার গণনা হবে। মুছে ফেলার আগে RP আবার ০-এর বেশি হলে zero-RP নিয়মে account মুছে ফেলা হবে না। তবে ৯০ দিনের inactivity নিয়ম আলাদাভাবে প্রযোজ্য থাকবে।</p>' +
       '<p><strong>৪. Registered account:</strong> এই Guest deletion policy কোনো registered account-এর জন্য প্রযোজ্য নয়।</p>' +
       '<div class="mat-guest-deletion-footnote"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> এটি বাধ্যতামূলক ঘোষণা। Guest ব্যবহারকারীরা এই ঘোষণাটি delete, archive বা permanently remove করতে পারবেন না।</div>' +
-      '</article>' +
-      '<div class="mat-notification-guest-icon"><i class="fa-solid fa-user-lock" aria-hidden="true"></i></div>' +
-      '<h3>You have to sign in to see personalised notifications</h3>' +
-      '<p>Sign in or create an account to see updates about your friends, your leaderboard progress and trophy unlocks.</p>' +
-      '<button type="button" data-mat-notification-login><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in / Sign up</button>' +
-      '<small>Personal notifications are available inside the website. No phone push alerts.</small>' +
-      '</section>';
+      '<div class="mat-guest-signin-prompt"><h4><i class="fa-solid fa-user-lock" aria-hidden="true"></i> You have to sign in to see personalised notifications</h4><p>Sign in or create an account to see updates about your friends, your leaderboard progress and trophy unlocks.</p><button type="button" data-mat-notification-login><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in / Sign up</button></div>' +
+      '</article></section>';
   }
   function visibleNotifications() {
     if (activeFilter === 'trash') return state.trash.slice().sort((a, b) => numeric(b.deletedAt) - numeric(a.deletedAt));
@@ -912,7 +907,8 @@
     if (!list) { renderBadge(); return; }
     const toolbar = document.querySelector('#mat-notification-center .mat-notification-toolbar');
     const signedIn = !!signedInUid();
-    if (toolbar) toolbar.style.display = signedIn ? '' : 'none';
+    if (toolbar) toolbar.style.display = '';
+    renderFilterState();
     if (!signedIn) {
       selectedIds.clear();
       list.innerHTML = guestNotificationState();
@@ -974,6 +970,7 @@
       '<span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
+      '<button type="button" data-mat-filter="announcement" class="mat-notification-announcement-filter" aria-pressed="false"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Announcement</button>' +
       '<button type="button" data-mat-filter="all" class="is-active" aria-pressed="true">All</button><button type="button" data-mat-filter="unread" aria-pressed="false">Unread</button><button type="button" data-mat-filter="starred" aria-pressed="false">Starred</button><button type="button" data-mat-filter="archived" aria-pressed="false">Archive</button><button type="button" data-mat-filter="trash" aria-pressed="false">Trash</button></div>' +
       '<button type="button" class="mat-notification-mark-all" data-mat-mark-all>Read all</button></div>' +
       '<div class="mat-notification-selection-toolbar" role="group" aria-label="Select and manage notifications">' +
@@ -997,7 +994,7 @@
     const overlay = document.getElementById('mat-notification-center');
     overlay.hidden = false;
     document.body.classList.add('mat-notification-open');
-    activeFilter = 'all';
+    activeFilter = signedInUid() ? 'all' : 'announcement';
     renderFilterState();
     renderFeed();
     const panel = overlay.querySelector('.mat-notification-panel');
@@ -1034,11 +1031,19 @@
     }
   }
   function renderFilterState() {
+    const signedIn = !!signedInUid();
     document.querySelectorAll('[data-mat-filter]').forEach(function (button) {
-      const active = button.getAttribute('data-mat-filter') === activeFilter;
+      const filter = button.getAttribute('data-mat-filter');
+      const active = filter === activeFilter;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
+      button.hidden = signedIn ? filter === 'announcement' : filter !== 'announcement';
     });
+    const toolbar = document.querySelector('#mat-notification-center .mat-notification-toolbar');
+    const markAll = toolbar && toolbar.querySelector('[data-mat-mark-all]');
+    const selectionToolbar = toolbar && toolbar.querySelector('.mat-notification-selection-toolbar');
+    if (markAll) markAll.hidden = !signedIn;
+    if (selectionToolbar) selectionToolbar.hidden = !signedIn;
   }
   function markAllRead() {
     const readAt = localTimestamp();
