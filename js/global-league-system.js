@@ -1037,36 +1037,85 @@
       leaderboardRefreshTimer = null;
     }, 1800);
   }
+  function renderLeaderboardLoadingSkeleton() {
+    var podium = document.getElementById('leaderboard-podium');
+    var body = document.getElementById('leaderboard-body');
+    var mePanel = document.getElementById('leaderboard-me');
+    if (podium) {
+      podium.innerHTML = Array.from({ length: 3 }, function () {
+        return '<article class="podium-card animate-pulse" aria-hidden="true">' +
+          '<div class="h-3 w-10 mx-auto rounded bg-gray-200 dark:bg-gray-700"></div>' +
+          '<div class="h-14 w-14 mx-auto my-3 rounded-full bg-gray-200 dark:bg-gray-700"></div>' +
+          '<div class="h-3 w-24 mx-auto rounded bg-gray-200 dark:bg-gray-700"></div>' +
+          '<div class="h-3 w-16 mx-auto mt-2 rounded bg-gray-200 dark:bg-gray-700"></div>' +
+          '</article>';
+      }).join('');
+    }
+    if (body) {
+      body.innerHTML = Array.from({ length: 5 }, function () {
+        var cell = '<div class="h-3 w-20 mx-auto rounded bg-gray-200 dark:bg-gray-700"></div>';
+        return '<tr class="animate-pulse" aria-hidden="true">' +
+          '<td class="py-4 px-3"><div class="flex items-center gap-3"><div class="h-9 w-9 shrink-0 rounded-full bg-gray-200 dark:bg-gray-700"></div><div class="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700"></div></div></td>' +
+          '<td class="py-4 px-3">' + cell + '</td><td class="py-4 px-3">' + cell + '</td>' +
+          '<td class="py-4 px-3">' + cell + '</td><td class="py-4 px-3">' + cell + '</td></tr>';
+      }).join('');
+    }
+    if (mePanel) {
+      mePanel.innerHTML = '';
+      mePanel.classList.add('hidden');
+    }
+  }
+
   async function loadLeaderboard(silent) {
     // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
     if (!silent) setLeaderboardRefreshBusy(true);
     ensureUI();
     selectedPeriod = readPeriod();
+    var periodForRequest = selectedPeriod;
+    // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
+    // Otherwise a slow friendConnections call leaves the old All-Time request valid long enough
+    // to repaint the table after the user has already switched to Friends.
+    var requestId = ++loadSequence;
     var leaderboardView = document.getElementById('view-leaderboard');
     if (leaderboardView && !leaderboardView.classList.contains('hidden') && !hasRequiredLeaderboardProfile()) {
       showLeaderboardProfileGate();
       setLeaderboardRefreshBusy(false);
       return;
     }
-    if (selectedPeriod === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
-      try { await window.MedStudentFriends.loadConnections(); }
-      catch (friendError) {
-        var friendsErrorText = window.MedStudentFriends && typeof window.MedStudentFriends.getLastConnectionError === 'function'
-          ? window.MedStudentFriends.getLastConnectionError() : '';
-        setStatus(friendsErrorText || 'Friends list load হয়নি। Existing Google Sheets API/deployment পরীক্ষা করুন।', true);
-      }
-    }
-    var requestId = ++loadSequence;
-    var cache = cachedRowsForDisplay();
+
+    // Paint this tab's own local snapshot before waiting on the API.
+    var cache = getCache(periodForRequest);
     if (cache.length) {
       rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
       renderRows(cache);
     } else {
-      // Clear the previous tab immediately; never leave All-Time rows masquerading
-      // as Weekly data while the weekly endpoint is loading or failing.
       rawRows = [];
       renderRows([]);
+      if (periodForRequest === 'friends') renderLeaderboardLoadingSkeleton();
     }
+
+    if (periodForRequest === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
+      try { await window.MedStudentFriends.loadConnections(); }
+      catch (friendError) {
+        if (requestId === loadSequence) {
+          var friendsErrorText = window.MedStudentFriends && typeof window.MedStudentFriends.getLastConnectionError === 'function'
+            ? window.MedStudentFriends.getLastConnectionError() : '';
+          setStatus(friendsErrorText || 'Friends list load হয়নি। Existing Google Sheets API/deployment পরীক্ষা করুন।', true);
+        }
+      }
+      if (requestId !== loadSequence) return;
+      // Re-filter the cached Friends snapshot using the freshly loaded friend IDs.
+      cache = getCache(periodForRequest);
+      if (cache.length) {
+        rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
+        renderRows(cache);
+      } else {
+        rawRows = [];
+        renderRows([]);
+        renderLeaderboardLoadingSkeleton();
+      }
+    }
+    if (requestId !== loadSequence) return;
     if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); setLeaderboardRefreshBusy(false); return; }
     if (!app.authStateResolved && !app.authUser) {
       setStatus('Account session যাচাই হচ্ছে…', false);
@@ -1081,24 +1130,25 @@
     var refreshSucceeded = false;
     try {
       await syncIdentity();
-      var apiPeriod = selectedPeriod === 'weekly' ? 'weekly' : 'all-time';
+      if (requestId !== loadSequence) return;
+      var apiPeriod = periodForRequest === 'weekly' ? 'weekly' : 'all-time';
       var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
-      if (selectedPeriod !== 'friends' && currentUserId()) {
+      if (periodForRequest !== 'friends' && currentUserId()) {
         // The notification center can request exact global positions for accepted friends,
         // including those outside the public Top-100 list. Normal navigation stays unchanged.
-        var activityFriendIds = selectedPeriod === 'weekly'
+        var activityFriendIds = periodForRequest === 'weekly'
           ? (Array.isArray(window.__medActivityFriendIdsForWeeklyRefresh) ? window.__medActivityFriendIdsForWeeklyRefresh : [])
           : (Array.isArray(window.__medActivityFriendIdsForAllTimeRefresh) ? window.__medActivityFriendIdsForAllTimeRefresh : []);
         leaderboardPayload.includeUserIds = Array.from(new Set([currentUserId()].concat(activityFriendIds.map(String).filter(Boolean)))).slice(0, 500);
       }
-      if (selectedPeriod === 'friends') {
+      if (periodForRequest === 'friends') {
         var friendIds = window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function'
           ? window.MedStudentFriends.getFriendIds().map(String) : [];
         var myId = currentUserId();
         if (myId) friendIds.push(String(myId));
         leaderboardPayload.userIds = Array.from(new Set(friendIds)).slice(0, 500);
       }
-      var response = await request(leaderboardPayload, { method: selectedPeriod === 'friends' ? 'POST' : 'GET' });
+      var response = await request(leaderboardPayload, { method: periodForRequest === 'friends' ? 'POST' : 'GET' });
       if (requestId !== loadSequence) return;
       var entries = extractEntries(response);
       var responsePeriod = String(response && (response.period || response.scope) || '').toLowerCase();
@@ -1106,14 +1156,14 @@
         return entry && (Object.prototype.hasOwnProperty.call(entry, 'weeklyRP') ||
           Object.prototype.hasOwnProperty.call(entry, 'weeklyRankPoints'));
       });
-      if (selectedPeriod === 'weekly' && response &&
+      if (periodForRequest === 'weekly' && response &&
           response.weekly !== true && responsePeriod !== 'weekly' && !hasWeeklyScores) {
         throw new Error('Apps Script Web App থেকে Weekly RP data আসেনি। Latest Medical_Admission_Tracker_Backend.gs version deploy করতে হবে।');
       }
       rawRows = entries.slice();
       var rows = normalizeRows(entries);
-      saveCache(rows, selectedPeriod);
-      if (selectedPeriod === 'all-time') {
+      saveCache(rows, periodForRequest);
+      if (periodForRequest === 'all-time') {
         var directoryQuery = String((document.getElementById('leaderboard-friend-search') || {}).value || '').trim();
         // Search results come from the full server-side directory; never replace
         // them with only the public Top-100 leaderboard cache.
