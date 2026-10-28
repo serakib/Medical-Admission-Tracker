@@ -733,7 +733,8 @@
 
     if (years > 0) {
       const parts = [years + (years === 1 ? ' year' : ' years')];
-      if (monthsAfterYears > 0) parts.push(monthsAfterYears + (monthsAfterYears === 1 ? ' month' : ' months'));
+      parts.push(monthsAfterYears + (monthsAfterYears === 1 ? ' month' : ' months'));
+      parts.push(daysAfterMonths + (daysAfterMonths === 1 ? ' day' : ' days'));
       return parts.join(' ') + ' ago';
     }
 
