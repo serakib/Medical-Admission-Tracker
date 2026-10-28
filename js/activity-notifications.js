@@ -569,9 +569,10 @@
       const inTop10 = !!(oldTop10[id] || newTop10[id]);
       const inSameRankTop10 = period === 'all-time' && (oldTierPosition > 0 || newTierPosition > 0);
 
-      // Do not create routine activity alerts for non-friends across the entire Top 100.
-      // Keep only Top 10, same-rank Top 10, or a direct pass involving the current user.
-      if (!inTop10 && !inSameRankTop10 && !crossed) return;
+      // Do not monitor non-friends across the whole Top 100.
+      // Only the Global Top 10 and the user's same-rank Top 10 are followed.
+      // Friends are handled by their dedicated activity feed.
+      if (!inTop10 && !inSameRankTop10) return;
       if (!changedPosition && !changedRP && !changedXP && !changedTier && !crossed) return;
 
       let title;
