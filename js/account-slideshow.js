@@ -12,7 +12,8 @@
   var autoplay = false;
   var touchStartX = null;
   var previousFocus = null;
-  var intervalMs = 6500;
+  var intervalMs = 12000;
+  var slideElapsedMs = 0;
 
   var slides = [
     { icon: 'fa-hand-wave', title: 'Welcome to your guide', subtitle: 'আপনার medical website সহজে ব্যবহার করার ছোট্ট tour', render: renderWelcome },
@@ -21,6 +22,8 @@
     { icon: 'fa-bullseye', title: 'Practice & Model Test', subtitle: 'practice এবং timed exam-এর ব্যবহার', render: renderPractice },
     { icon: 'fa-clock-rotate-left', title: 'Previous Year Questions', subtitle: 'আগের বছরের প্রশ্ন অনুশীলন করুন', render: renderPrevious },
     { icon: 'fa-trophy', title: 'Leaderboard & Progress', subtitle: 'নিজের অগ্রগতি ও available ranking দেখুন', render: renderProgress },
+    { icon: 'fa-chart-line', title: 'Streak Journey & Daily Activity', subtitle: 'Daily, weekly, monthly progress এক জায়গায় দেখুন', render: renderStreakJourney },
+    { icon: 'fa-bell', title: 'Notifications', subtitle: 'Notification পড়া, বাছাই ও manage করার নিয়ম', render: renderNotifications },
     { icon: 'fa-book-open', title: 'Syllabus & Medical Info', subtitle: 'পড়াশোনার গাইড ও প্রয়োজনীয় তথ্য', render: renderResources },
     { icon: 'fa-users', title: 'Community & support', subtitle: 'Friends, help, AI assistant এবং student resources', render: renderCommunity },
     { icon: 'fa-user-gear', title: 'Your account & settings', subtitle: 'আপনার profile ও preferences', render: renderAccount },
@@ -97,6 +100,12 @@
   function renderProgress() {
     return '<p class="mws-intro">আপনার website-এ সংরক্ষিত study progress ও available leaderboard information এখানে কীভাবে খুঁজবেন।</p><div class="mws-grid">' + card('fa-book-open-reader','Questions seen',textOf('profile-seen-count','—'),'Student Profile-এর saved count') + card('fa-clipboard-check','Exam attempts',textOf('profile-attempt-count','—'),'Recorded attempts') + card('fa-trophy','Best score',textOf('profile-best-score','—'),'Saved best score') + card('fa-bullseye','Accuracy',textOf('profile-accuracy','—'),'Recorded accuracy') + '</div>' + steps(['Student Profile খুলে progress summary ও exam history দেখুন।','Leaderboard খুলে available ranking দেখুন।','Network বা saved data unavailable হলে value না-ও দেখা যেতে পারে; এখানে কোনো score বানিয়ে দেখানো হয় না।']) + '<div class="mws-action-list">' + action('Student Profile','profile','fa-user-graduate','Your progress and history') + action('Leaderboard','leaderboard','fa-trophy','Available rankings') + '</div>';
   }
+  function renderStreakJourney() {
+    return '<p class="mws-intro">Streak Journey-তে নিজের study activity-র trend, calendar এবং daily details এক জায়গায় review করতে পারবেন।</p>' + steps(['Daily view-তে দিনের ঘণ্টাভিত্তিক attempted-question activity দেখুন।','Weekly view-তে ৭ দিনের graph এবং Monthly view-তে পুরো calendar month (২৮–৩১ দিন) একসঙ্গে দেখুন।','Previous/Next দিয়ে আগের বা পরের day, week বা month-এ যান; graph-এ point-এর ওপর hover/tap করলে value দেখুন।','Calendar থেকে নির্দিষ্ট date বেছে attempted, correct/wrong answer, accuracy, website active time এবং exam session-এর available details দেখুন।','Leaderboard comparison, Friend activity এবং Exam attempted section প্রয়োজনমতো expand/collapse করুন।']) + '<div class="mws-callout"><i class="fa-solid fa-chart-line" aria-hidden="true"></i><span>Website active-time tracking চালু হওয়ার আগের সময় retroactively হিসাব করা যায় না; তাই পুরোনো দিনের time কম বা unavailable হতে পারে।</span></div><div class="mws-action-list">' + action('Open Dashboard','dashboard','fa-gauge-high','Find Streak Journey and activity tools') + '</div>';
+  }
+  function renderNotifications() {
+    return '<p class="mws-intro">Notification Center-এর controls দিয়ে notification পড়া ও list manage করুন।</p>' + steps(['Notification item খুলে details পড়ুন।','Read / Unread দিয়ে status বদলান; Read all দিয়ে সব notification একসঙ্গে read করুন।','এক বা একাধিক item select করুন; Select all দিয়ে সব select এবং আবার চাপলে selection clear করুন।','Clear selection দিয়ে নির্বাচিত item-এর selection সরান; Delete বা Clear notifications ব্যবহার করার আগে selection দেখে নিন।','Guest mode-এ personalised notification দেখতে sign in করতে হবে।']) + '<div class="mws-callout"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Delete বা clear action করলে confirmation ও selection carefully যাচাই করুন।</span></div><div class="mws-action-list">' + action('Open Dashboard','dashboard','fa-gauge-high','Open the site and access notifications') + '</div>';
+  }
   function renderResources() {
     return '<p class="mws-intro">Study planning এবং medical admission সম্পর্কিত reference information-এর জন্য এই sections ব্যবহার করুন।</p>' + steps(['Syllabus খুলে syllabus-related content দেখুন।','Medical Info section-এ medical/HSC information ও available guidance পড়ুন।','কোনো তথ্য update বা eligibility-related হলে official source দিয়ে যাচাই করুন।']) + '<div class="mws-action-list">' + action('Open Syllabus','syllabus','fa-book-open','Study topics') + action('Open Medical Info','medical-info','fa-hospital','Medical admission information') + '</div>';
   }
@@ -133,7 +142,7 @@
       .mws-action-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}.mws-action{display:flex;align-items:center;gap:10px;min-width:0;padding:13px;border:1px solid #dbe3eb;border-radius:14px;background:#fff;color:#0f172a;text-align:left;cursor:pointer;transition:border-color .18s,transform .18s}.mws-action:hover{border-color:#10b981;transform:translateY(-1px)}.mws-action-icon{display:grid;place-items:center;flex:0 0 35px;width:35px;height:35px;border-radius:11px;background:#ecfdf5;color:#059669}.mws-action-copy{display:grid;gap:3px;min-width:0}.mws-action-copy strong{font-size:12px;font-weight:850}.mws-action-copy small{font-size:10px;color:#64748b;line-height:1.4}.mws-action-end{margin-left:auto;color:#94a3b8;font-size:11px}
       .mws-account-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:17px}.mws-account-item{display:flex;flex-direction:column;gap:7px;min-width:0;padding:14px;border:1px solid #e2e8f0;border-radius:15px}.mws-account-item span{font-size:11px;color:#64748b}.mws-account-item strong{font-size:13px;font-weight:800;overflow-wrap:anywhere}
       .mws-next-hero{text-align:center;padding:12px 12px 22px}.mws-next-icon{display:grid;place-items:center;width:62px;height:62px;margin:0 auto 15px;border-radius:20px;background:#ecfdf5;color:#059669;font-size:24px}
-      .mws-footer{display:flex;flex-direction:column;gap:12px;padding:15px 20px;border-top:1px solid #e2e8f0;background:#f8fafc}.mws-progress-row{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#64748b;font-size:11px;font-weight:800}.mws-progress-track{height:5px;overflow:hidden;border-radius:999px;background:#e2e8f0}.mws-progress-fill{height:100%;width:11%;border-radius:inherit;background:linear-gradient(90deg,#059669,#0284c7);transition:width .25s ease}.mws-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}.mws-control-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.mws-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:39px;padding:9px 12px;border:1px solid #dbe3eb;border-radius:12px;background:#fff;color:#334155;font-size:11px;font-weight:800;cursor:pointer}.mws-btn:disabled{opacity:.4;cursor:not-allowed}.mws-btn-primary{border-color:#059669;background:#059669;color:#fff}.mws-btn[aria-pressed="true"]{border-color:#0284c7;background:#eff6ff;color:#0369a1}
+      .mws-footer{display:flex;flex-direction:column;gap:12px;padding:15px 20px;border-top:1px solid #e2e8f0;background:#f8fafc}.mws-progress-row{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#64748b;font-size:11px;font-weight:800}.mws-progress-track{height:5px;overflow:hidden;border-radius:999px;background:#e2e8f0}.mws-progress-fill{height:100%;width:11%;border-radius:inherit;background:linear-gradient(90deg,#059669,#0284c7);transition:width .25s ease}.mws-time-row{display:flex;justify-content:space-between;align-items:center;color:#64748b;font-size:10px;font-weight:800;margin-top:-5px}.mws-time-track{height:4px;overflow:hidden;border-radius:999px;background:#e2e8f0}.mws-time-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#10b981,#0ea5e9);transition:width .1s linear}html.dark .mws-time-track,body.dark .mws-time-track{background:#334155}.mws-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}.mws-control-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.mws-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:39px;padding:9px 12px;border:1px solid #dbe3eb;border-radius:12px;background:#fff;color:#334155;font-size:11px;font-weight:800;cursor:pointer}.mws-btn:disabled{opacity:.4;cursor:not-allowed}.mws-btn-primary{border-color:#059669;background:#059669;color:#fff}.mws-btn[aria-pressed="true"]{border-color:#0284c7;background:#eff6ff;color:#0369a1}
       #mws-overlay button:focus-visible,#mws-launch:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}
       html.dark .mws-stat,body.dark .mws-stat,html.dark .mws-steps li,body.dark .mws-steps li,html.dark .mws-action,body.dark .mws-action,html.dark .mws-account-item,body.dark .mws-account-item,html.dark .mws-btn,body.dark .mws-btn{background:#111c2e;color:#e2e8f0;border-color:#334155}
       html.dark .mws-stat-label,body.dark .mws-stat-label,html.dark .mws-account-item span,body.dark .mws-account-item span,html.dark .mws-action-copy small,body.dark .mws-action-copy small{color:#94a3b8}html.dark .mws-steps p,body.dark .mws-steps p{color:#cbd5e1}
@@ -175,6 +184,11 @@
     overlay.querySelector('#mws-slide-content').innerHTML = '<div class="mws-slide-heading"><span class="mws-slide-icon"><i class="fa-solid ' + slide.icon + '" aria-hidden="true"></i></span><div><h2 id="mws-slide-title">' + esc(slide.title) + '</h2><p>' + esc(slide.subtitle) + '</p></div></div><div class="mws-slide-body">' + slide.render() + '</div>';
     overlay.querySelector('#mws-slide-count').textContent = 'Slide ' + (activeIndex + 1) + ' of ' + slides.length;
     overlay.querySelector('#mws-progress-fill').style.width = (((activeIndex + 1) / slides.length) * 100) + '%';
+    slideElapsedMs = 0;
+    var timeFill = overlay.querySelector('#mws-time-fill');
+    var timeRemaining = overlay.querySelector('#mws-time-remaining');
+    if (timeFill) timeFill.style.width = '0%';
+    if (timeRemaining) timeRemaining.textContent = '00:' + String(Math.ceil(intervalMs / 1000)).padStart(2, '0');
     overlay.querySelector('[data-mws-prev]').disabled = activeIndex === 0;
     overlay.querySelector('[data-mws-next]').disabled = activeIndex === slides.length - 1;
     overlay.querySelector('#mws-autoplay-status').textContent = autoplay ? 'Auto slideshow on' : 'Manual mode';
@@ -191,12 +205,24 @@
     if (!overlay || overlay.hidden) return;
     if (timer) window.clearInterval(timer);
     autoplay = true;
+    slideElapsedMs = 0;
+    render();
     timer = window.setInterval(function () {
+      if (!overlay || overlay.hidden || !autoplay) return;
+      slideElapsedMs = Math.min(intervalMs, slideElapsedMs + 100);
+      var progress = Math.min(100, (slideElapsedMs / intervalMs) * 100);
+      var fill = overlay.querySelector('#mws-time-fill');
+      var remaining = overlay.querySelector('#mws-time-remaining');
+      if (fill) fill.style.width = progress + '%';
+      if (remaining) {
+        var seconds = Math.ceil(Math.max(0, intervalMs - slideElapsedMs) / 1000);
+        remaining.textContent = '00:' + String(seconds).padStart(2, '0');
+      }
+      if (slideElapsedMs < intervalMs) return;
       if (activeIndex >= slides.length - 1) { stopTimer(); render(); return; }
       activeIndex += 1;
       render();
-    }, intervalMs);
-    render();
+    }, 100);
   }
   function go(index) {
     if (index < 0 || index >= slides.length) return;
