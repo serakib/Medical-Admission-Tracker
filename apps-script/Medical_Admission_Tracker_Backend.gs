@@ -181,17 +181,19 @@ function setupBackend() {
       .everyHours(1)
       .create();
   }
-  const hasWeeklyDemotionTrigger = triggers.some(function (t) {
-    return t.getHandlerFunction() === 'processWeeklyRankDemotions';
+  // Reconcile the weekly trigger on every setup run so older Monday-based
+  // deployments are migrated to the Saturday-start/Saturday-review schedule.
+  triggers.forEach(function (t) {
+    if (t.getHandlerFunction() === 'processWeeklyRankDemotions') {
+      ScriptApp.deleteTrigger(t);
+    }
   });
-  if (!hasWeeklyDemotionTrigger) {
-    ScriptApp.newTrigger('processWeeklyRankDemotions')
-      .timeBased()
-      .onWeekDay(ScriptApp.WeekDay.MONDAY)
-      .atHour(MAT_CONFIG.WEEKLY_DEMOTION_HOUR)
-      .inTimezone(MAT_CONFIG.TIME_ZONE)
-      .create();
-  }
+  ScriptApp.newTrigger('processWeeklyRankDemotions')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .atHour(MAT_CONFIG.WEEKLY_DEMOTION_HOUR)
+    .inTimezone(MAT_CONFIG.TIME_ZONE)
+    .create();
 
   const result = {
     success: true,
@@ -203,7 +205,7 @@ function setupBackend() {
     friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
-    weeklyDemotion: 'Runs every Monday at about 01:00 Asia/Dhaka; one subrank maximum per student'
+    weeklyDemotion: 'Runs every Saturday at about 01:00 Asia/Dhaka; reviews the previous Saturday-Friday week and applies at most one subrank demotion per student'
   };
   Logger.log(JSON.stringify(result, null, 2));
   return result;
@@ -215,8 +217,8 @@ function processPendingActivityNotifications() {
 }
 
 /**
- * Weekly rank review, scheduled for Monday around 01:00 Asia/Dhaka.
- * It evaluates the completed Monday-to-Monday week, applies at most one
+ * Weekly rank review, scheduled for Saturday around 01:00 Asia/Dhaka.
+ * It evaluates the completed Saturday-to-Saturday week, applies at most one
  * subrank demotion, resets only current RP for demoted users, and never reduces
  * lifetime TotalRP. Per-user markers make interrupted runs safely repeatable.
  */
@@ -1923,12 +1925,15 @@ function matStreakLength_(dates, today) {
 }
 
 function matWeekStartKey_() {
+  // Weekly leaderboard runs Saturday through Friday in Asia/Dhaka.
+  // matDateKey_ converts the current instant to the Dhaka-local calendar date;
+  // UTC is used below only for safe calendar-day arithmetic on that date key.
   const today = matDateKey_(matNowIso_());
   const parts = today.split('-').map(Number);
   const utc = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
   const weekday = utc.getUTCDay(); // Sunday=0
-  const daysSinceMonday = (weekday + 6) % 7;
-  utc.setUTCDate(utc.getUTCDate() - daysSinceMonday);
+  const daysSinceSaturday = (weekday + 1) % 7;
+  utc.setUTCDate(utc.getUTCDate() - daysSinceSaturday);
   return Utilities.formatDate(utc, 'UTC', 'yyyy-MM-dd');
 }
 
