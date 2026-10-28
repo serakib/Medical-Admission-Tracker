@@ -2563,7 +2563,7 @@ window.handleAccountDeletion = function() {
       }
     }
     const weightedBonusRp = Math.round(weightedScore * 15);
-    return { rankPoints: baseRankPoints + weightedBonusRp, xp: 0, hasWeightedExamRule: totalQuestions >= 30 };
+    return { rankPoints: Math.round(baseRankPoints + weightedBonusRp), xp: 0, hasWeightedExamRule: totalQuestions >= 30 };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
