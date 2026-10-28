@@ -990,17 +990,80 @@
       button.style.setProperty('border-color', active ? '#059669' : 'rgba(148,163,184,.38)', 'important');
       button.style.setProperty('box-shadow', active ? '0 5px 14px rgba(5,150,105,.20)' : 'none', 'important');
     });
-    var note = document.getElementById('leaderboard-period-note');
-    if (note) {
-      note.classList.toggle('hidden', selectedPeriod === 'all-time');
-      note.textContent = selectedPeriod === 'weekly'
-        ? 'Weekly RP অনুযায়ী ranking। Safe Zone line-এর নিচে থাকলে কত RP প্রয়োজন তা দেখানো হবে।'
-        : selectedPeriod === 'friends'
-          ? 'শুধু accepted friends-দের ranking। Friend request আপনার student profile থেকেই পরিচালনা করুন।'
-          : '';
-    }
+    renderLeaderboardPeriodNote();
     var friendsPanel = document.getElementById('leaderboard-friends-panel');
     if (friendsPanel) friendsPanel.classList.remove('hidden');
+  }
+  var leaderboardNoteClockStarted = false;
+  function dhakaDateParts(date) {
+    var parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Dhaka', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(date || new Date());
+    var out = {};
+    parts.forEach(function (part) { if (part.type !== 'literal') out[part.type] = part.value; });
+    return { year: Number(out.year), month: Number(out.month), day: Number(out.day) };
+  }
+  function dateKeyFromParts(parts) {
+    return String(parts.year) + '-' + String(parts.month).padStart(2, '0') + '-' + String(parts.day).padStart(2, '0');
+  }
+  function displayDateKey(key) {
+    var parts = String(key || '').split('-').map(Number);
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return key || '';
+    return new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric', month: 'short', timeZone: 'UTC'
+    }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])));
+  }
+  function renderLeaderboardPeriodNote() {
+    var note = document.getElementById('leaderboard-period-note');
+    if (!note) return;
+    note.classList.toggle('hidden', selectedPeriod === 'all-time');
+    if (selectedPeriod === 'friends') {
+      note.className = 'mb-4 rounded-2xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200';
+      note.setAttribute('role', 'status');
+      note.textContent = 'শুধু accepted friends-দের ranking। Friend request আপনার student profile থেকেই পরিচালনা করুন।';
+      return;
+    }
+    if (selectedPeriod !== 'weekly') return;
+    note.className = 'mb-4 rounded-2xl border border-blue-200 dark:border-blue-900/70 bg-blue-50 dark:bg-blue-950/30 p-4 text-sm text-blue-950 dark:text-blue-100';
+    note.setAttribute('role', 'status');
+    var now = new Date();
+    var today = dhakaDateParts(now);
+    var todayUtc = new Date(Date.UTC(today.year, today.month - 1, today.day));
+    var weekday = todayUtc.getUTCDay(); // Sunday=0
+    var daysSinceSaturday = (weekday + 1) % 7;
+    var weekStartDate = new Date(todayUtc);
+    weekStartDate.setUTCDate(weekStartDate.getUTCDate() - daysSinceSaturday);
+    var weekEndDate = new Date(weekStartDate);
+    weekEndDate.setUTCDate(weekEndDate.getUTCDate() + 6);
+    var weekStartKey = dateKeyFromParts({ year: weekStartDate.getUTCFullYear(), month: weekStartDate.getUTCMonth() + 1, day: weekStartDate.getUTCDate() });
+    var weekEndKey = dateKeyFromParts({ year: weekEndDate.getUTCFullYear(), month: weekEndDate.getUTCMonth() + 1, day: weekEndDate.getUTCDate() });
+    var daysUntilSaturday = (6 - weekday + 7) % 7;
+    if (daysUntilSaturday === 0) daysUntilSaturday = 7;
+    // Bangladesh is UTC+6; next Saturday at 00:00 Dhaka is Friday 18:00 UTC.
+    var nextSaturdayUtc = Date.UTC(today.year, today.month - 1, today.day + daysUntilSaturday, -6, 0, 0);
+    var remainingMs = Math.max(0, nextSaturdayUtc - now.getTime());
+    var totalMinutes = Math.floor(remainingMs / 60000);
+    var days = Math.floor(totalMinutes / 1440);
+    var hours = Math.floor((totalMinutes % 1440) / 60);
+    var minutes = totalMinutes % 60;
+    var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট';
+    note.innerHTML =
+      '<div class="flex items-start gap-3">' +
+        '<span class="mt-0.5 text-xl" aria-hidden="true">📅</span>' +
+        '<div class="min-w-0 flex-1">' +
+          '<p class="font-extrabold">এই সপ্তাহের Weekly Leaderboard</p>' +
+          '<p class="mt-1 text-xs leading-relaxed text-blue-800 dark:text-blue-200">সময়কাল: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)</p>' +
+          '<p class="mt-2 text-sm font-bold"><span aria-hidden="true">⏳ </span>নতুন সপ্তাহ শুরু হতে বাকি: <span data-weekly-countdown>' + countdown + '</span></p>' +
+          '<p class="mt-1 text-xs leading-relaxed text-blue-800 dark:text-blue-200">শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে। তখন Weekly RP-এর হিসাব নতুন সময়সীমা থেকে গণনা হবে; All Time RP অপরিবর্তিত থাকবে।</p>' +
+        '</div>' +
+      '</div>';
+  }
+  function startLeaderboardNoteClock() {
+    if (leaderboardNoteClockStarted) return;
+    leaderboardNoteClockStarted = true;
+    window.setInterval(function () {
+      if (selectedPeriod === 'weekly') renderLeaderboardPeriodNote();
+    }, 30000);
   }
   function cachedRowsForDisplay() {
     // All Time, Friends and Weekly each get their own cache so one tab never
