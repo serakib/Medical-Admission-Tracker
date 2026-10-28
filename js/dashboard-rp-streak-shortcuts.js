@@ -501,6 +501,44 @@
         rangeAnimating = false;
       }
     };
+    const shiftCalendar = async direction => {
+      if (activePeriod !== 'calendar' || rangeAnimating) return;
+      rangeAnimating = true;
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      const canAnimate = !reduceMotion && typeof chart?.animate === 'function';
+      const outgoingX = direction < 0 ? 22 : -22;
+      try {
+        if (canAnimate) {
+          const outgoing = chart.animate(
+            [{opacity:1, transform:'translateX(0)'},{opacity:0, transform:'translateX(' + outgoingX + 'px)'}],
+            {duration:130, easing:'ease-in', fill:'both'}
+          );
+          await outgoing.finished.catch(() => {});
+          outgoing.cancel();
+          chart.style.opacity = '0';
+          chart.style.transform = 'translateX(' + outgoingX + 'px)';
+        }
+        const year = calendarMonth.getUTCFullYear();
+        const month = calendarMonth.getUTCMonth() + direction;
+        calendarMonth = new Date(Date.UTC(year, month, 1));
+        const monthStart = calendarMonth.getUTCFullYear() + '-' + String(calendarMonth.getUTCMonth() + 1).padStart(2,'0') + '-01';
+        const day = Math.min(Number(selectedCalendarDate.slice(8)), new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + 1, 0)).getUTCDate());
+        selectedCalendarDate = dateOffset(monthStart, day - 1);
+        render('calendar');
+        if (canAnimate) {
+          const incomingX = direction < 0 ? -22 : 22;
+          const incoming = chart.animate(
+            [{opacity:0, transform:'translateX(' + incomingX + 'px)'},{opacity:1, transform:'translateX(0)'}],
+            {duration:190, easing:'ease-out', fill:'both'}
+          );
+          await incoming.finished.catch(() => {});
+          incoming.cancel();
+        }
+      } finally {
+        if (chart) { chart.style.opacity = ''; chart.style.transform = ''; }
+        rangeAnimating = false;
+      }
+    };
     const render = (period = activePeriod) => {
       activePeriod = period;
       overlay.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
@@ -588,26 +626,28 @@
     let swipeStart = null;
     // Pointer events cover touchscreens, pens and mouse/trackpad drags consistently.
     chart?.addEventListener('pointerdown', event => {
-      if (activePeriod === 'calendar' || event.button !== 0) return;
+      if (event.button !== 0) return;
       swipeStart = {x:event.clientX, y:event.clientY, pointerId:event.pointerId};
     }, {passive:true});
     chart?.addEventListener('pointerup', event => {
-      if (!swipeStart || activePeriod === 'calendar' || event.pointerId !== swipeStart.pointerId) { swipeStart = null; return; }
+      if (!swipeStart || event.pointerId !== swipeStart.pointerId) { swipeStart = null; return; }
       const dx = event.clientX - swipeStart.x;
       const dy = event.clientY - swipeStart.y;
-      // Finger moving right => Previous (older); moving left => Next (newer).
-      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) shiftRange(dx > 0 ? -1 : 1);
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+        if (activePeriod === 'calendar') shiftCalendar(dx < 0 ? -1 : 1);
+        else shiftRange(dx > 0 ? -1 : 1);
+      }
       swipeStart = null;
     }, {passive:true});
     chart?.addEventListener('pointercancel', () => { swipeStart = null; }, {passive:true});
     let lastWheelRangeChange = 0;
     chart?.addEventListener('wheel', event => {
-      if (activePeriod === 'calendar' || Math.abs(event.deltaX) < 30 || Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
+      if (Math.abs(event.deltaX) < 30 || Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
       const now = Date.now();
       if (now - lastWheelRangeChange < 450) return;
       lastWheelRangeChange = now;
-      // Horizontal wheel right => Next (newer); left => Previous (older).
-      shiftRange(event.deltaX > 0 ? 1 : -1);
+      if (activePeriod === 'calendar') shiftCalendar(event.deltaX < 0 ? -1 : 1);
+      else shiftRange(event.deltaX > 0 ? 1 : -1);
     }, {passive:true});
   }
   function ensureProfileStreakButton() {
