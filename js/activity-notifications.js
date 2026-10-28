@@ -294,45 +294,108 @@
       return { ids: [], rows: [] };
     }
   }
-  function buildSnapshot(rows, friendsData, periodWeek) {
+  function snapshotRow(row, period, positionOverride) {
+    return {
+      id: rowId(row),
+      name: rowName(row),
+      rp: rowPoints(row, period),
+      weeklyRP: rowRP(row),
+      totalRP: rowPoints(row, 'all-time'),
+      xp: rowXP(row),
+      position: Math.max(0, numeric(positionOverride != null ? positionOverride : row.position)),
+      rank: rowRank(row),
+      avatar: safeText(row && (row.avatar || row.Avatar) || '', 1000)
+    };
+  }
+  function mapPlayers(rows, period, friendIds, ownId) {
+    const players = {};
+    (rows || []).forEach(function (row) {
+      const id = rowId(row);
+      if (!id || !numeric(row.position)) return;
+      const item = snapshotRow(row, period);
+      if (numeric(item.position) <= 100 || id === ownId || friendIds.has(id)) players[id] = item;
+    });
+    return players;
+  }
+  function topMap(players, maxPosition, excludedIds) {
+    const result = {};
+    Object.keys(players || {}).forEach(function (id) {
+      const row = players[id];
+      if (excludedIds.has(id) || numeric(row.position) < 1 || numeric(row.position) > maxPosition) return;
+      result[id] = row;
+    });
+    return result;
+  }
+  function buildSnapshot(weeklyRows, allTimeRows, friendsData, periodWeek) {
     const app = window.app || {};
     const ownId = accountId();
-    const allRows = rows.slice();
-    const rowMap = new Map(allRows.map(row => [rowId(row), row]));
-    const friendIds = new Set(friendsData.ids);
+    const friendIds = new Set((friendsData.ids || []).map(String).filter(id => id && id !== ownId));
+    const weeklyById = new Map((weeklyRows || []).map(row => [rowId(row), row]).filter(entry => entry[0]));
+    const allTimeById = new Map((allTimeRows || []).map(row => [rowId(row), row]).filter(entry => entry[0]));
     (friendsData.rows || []).forEach(function (row) {
       const id = rowId(row);
       if (!id || id === ownId) return;
       friendIds.add(id);
-      if (!rowMap.has(id)) rowMap.set(id, Object.assign({}, row, { userId: id, name: rowName(row) }));
+      if (!weeklyById.has(id)) weeklyById.set(id, Object.assign({}, row, { userId: id, position: 0 }));
+      if (!allTimeById.has(id)) allTimeById.set(id, Object.assign({}, row, { userId: id, position: 0 }));
     });
-    const allRanked = Array.from(rowMap.values())
-      .map(row => Object.assign({}, row, { userId: rowId(row), position: Math.max(0, numeric(row.position)) }));
-    const ownRow = allRanked.find(row => rowId(row) === ownId) || null;
     const profile = app.profile || {};
-    const own = {
-      id: ownId,
-      name: rowName(ownRow || profile),
-      rp: ownRow ? rowRP(ownRow) : Math.max(0, numeric(profile.weeklyRP != null ? profile.weeklyRP : profile.weeklyRankPoints)),
-      xp: ownRow ? rowXP(ownRow) : rowXP(profile),
-      position: ownRow ? Number(ownRow.position) || 0 : 0,
-      rank: rowRank(ownRow || profile)
-    };
+    const weeklyOwnRow = weeklyById.get(ownId) || null;
+    const allTimeOwnRow = allTimeById.get(ownId) || null;
+    const ownWeekly = snapshotRow(weeklyOwnRow || profile, 'weekly', weeklyOwnRow ? weeklyOwnRow.position : 0);
+    ownWeekly.id = ownId;
+    const ownAllTime = snapshotRow(allTimeOwnRow || profile, 'all-time', allTimeOwnRow ? allTimeOwnRow.position : 0);
+    ownAllTime.id = ownId;
+    const weeklyPlayers = mapPlayers(Array.from(weeklyById.values()), 'weekly', friendIds, ownId);
+    const allTimePlayers = mapPlayers(Array.from(allTimeById.values()), 'all-time', friendIds, ownId);
+    const weeklyTop100 = topMap(weeklyPlayers, 100, new Set([ownId]));
+    const allTimeTop100 = topMap(allTimePlayers, 100, new Set([ownId]));
+    const weeklyTop10 = topMap(weeklyPlayers, 10, new Set([ownId]));
+    const allTimeTop10 = topMap(allTimePlayers, 10, new Set([ownId]));
+
+    const sameRankRows = Object.keys(allTimeTop100).map(id => allTimeTop100[id])
+      .filter(row => ownAllTime.rank && row.rank === ownAllTime.rank)
+      .sort((a, b) => numeric(a.position) - numeric(b.position) || numeric(b.totalRP) - numeric(a.totalRP));
+    const sameRankTop10 = {};
+    sameRankRows.slice(0, 10).forEach(function (row, index) {
+      sameRankTop10[row.id] = Object.assign({}, row, { tierPosition: index + 1 });
+    });
+
     const friends = {};
-    allRanked.forEach(function (row) {
-      const id = rowId(row);
-      if (!id || id === ownId || !friendIds.has(id)) return;
+    friendIds.forEach(function (id) {
+      const weeklyRow = weeklyById.get(id) || friendsData.rows.find(row => rowId(row) === id) || null;
+      const allTimeRow = allTimeById.get(id) || weeklyRow;
+      if (!weeklyRow && !allTimeRow) return;
+      const weeklySnapshot = snapshotRow(weeklyRow || allTimeRow, 'weekly', weeklyRow ? weeklyRow.position : 0);
+      const allTimeSnapshot = snapshotRow(allTimeRow || weeklyRow, 'all-time', allTimeRow ? allTimeRow.position : 0);
       friends[id] = {
         id: id,
-        name: rowName(row),
-        rp: rowRP(row),
-        xp: rowXP(row),
-        position: Number(row.position) || 0,
-        rank: rowRank(row),
-        avatar: safeText(row.avatar || row.Avatar || '', 1000)
+        name: rowName(weeklyRow || allTimeRow),
+        rp: weeklySnapshot.rp,
+        xp: weeklySnapshot.xp,
+        position: weeklySnapshot.position,
+        rank: rowRank(allTimeRow || weeklyRow),
+        avatar: weeklySnapshot.avatar || allTimeSnapshot.avatar || '',
+        allTimeRP: allTimeSnapshot.rp,
+        allTimeXP: allTimeSnapshot.xp,
+        allTimePosition: allTimeSnapshot.position
       };
     });
-    return { capturedAt: localTimestamp(), date: dayKey(), weekKey: periodWeek, own: own, friends: friends };
+    return {
+      capturedAt: localTimestamp(),
+      date: dayKey(),
+      weekKey: periodWeek,
+      own: ownWeekly,
+      allTimeOwn: ownAllTime,
+      friends: friends,
+      weeklyPlayers: weeklyPlayers,
+      allTimePlayers: allTimePlayers,
+      weeklyTop100: weeklyTop100,
+      allTimeTop100: allTimeTop100,
+      weeklyTop10: weeklyTop10,
+      allTimeTop10: allTimeTop10,
+      sameRankTop10: sameRankTop10
+    };
   }
   function deltaText(value) {
     const n = numeric(value);
