@@ -24,6 +24,7 @@
   let activeAccountKey = '';
   let state = makeEmptyState();
   let activeFilter = 'all';
+  let selectedIds = new Set();
   let lastRefreshAt = 0;
   let refreshPromise = null;
   let lastTrigger = null;
@@ -34,7 +35,7 @@
   let cloudWriteTimer = null;
 
   function makeEmptyState() {
-    return { notifications: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
+    return { notifications: [], deletedIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
   }
   function safeText(value, max) {
     return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max || 180);
@@ -72,14 +73,16 @@
       typeof window.MedActivityNotificationStore.set === 'function');
   }
   function stateVersion(item) {
-    return Math.max(numeric(item && (item.updatedAt || item.createdAt)), numeric(item && item.readAt));
+    return Math.max(numeric(item && (item.updatedAt || item.createdAt)), numeric(item && item.readAt), numeric(item && item.statusUpdatedAt));
   }
   function mergeStateObjects(localState, remoteState) {
     const local = Object.assign(makeEmptyState(), localState || {});
     const remote = Object.assign(makeEmptyState(), remoteState || {});
+    const deletedIds = Array.from(new Set((remote.deletedIds || []).concat(local.deletedIds || []).map(String).filter(Boolean))).slice(-1000);
+    const deletedSet = new Set(deletedIds);
     const itemMap = new Map();
     [remote.notifications || [], local.notifications || []].forEach(items => items.forEach(item => {
-      if (!item || !item.id) return;
+      if (!item || !item.id || deletedSet.has(String(item.id))) return;
       const existing = itemMap.get(item.id);
       if (!existing || stateVersion(item) >= stateVersion(existing)) itemMap.set(item.id, item);
     }));
@@ -91,6 +94,7 @@
     const trophies = Object.assign({}, remote.trophyEvents || {}, local.trophyEvents || {});
     return {
       notifications: Array.from(itemMap.values()).sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt)).slice(0, 250),
+      deletedIds: deletedIds,
       lastSnapshot: lastSnapshot || null,
       dayKey: dayKey || '',
       dayBaseline: (baselineOptions[0] && baselineOptions[0].dayBaseline) || (dayKey === local.dayKey ? local.dayBaseline : remote.dayBaseline) || null,
@@ -163,6 +167,7 @@
     const saved = parseJSON(readStorage(key), null);
     state = Object.assign(makeEmptyState(), saved || {});
     if (!Array.isArray(state.notifications)) state.notifications = [];
+    if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
     if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
     renderBadge();
   }
@@ -406,6 +411,7 @@
     return row && row.position ? '#' + Number(row.position).toLocaleString() : '—';
   }
   function upsertNotification(item) {
+    if (Array.isArray(state.deletedIds) && state.deletedIds.includes(String(item && item.id || ''))) return;
     const now = localTimestamp();
     const index = state.notifications.findIndex(entry => entry.id === item.id);
     if (index >= 0) {
@@ -415,6 +421,7 @@
         createdAt: previous.createdAt || now,
         updatedAt: changed ? now : (previous.updatedAt || previous.createdAt || now),
         readAt: changed ? 0 : numeric(previous.readAt),
+        statusUpdatedAt: changed ? now : numeric(previous.statusUpdatedAt),
         unread: changed ? true : !!previous.unread
       });
     } else {
@@ -729,23 +736,70 @@
       '<h3>You are all caught up</h3><p>Updates appear here when a friend changes weekly RP, passes you, unlocks a trophy, or someone moves in the Global Top 10 or your same-rank Top 10.</p>' +
       '<small>Activity is checked when you open the website or return to this tab.</small></div>';
   }
+  function visibleNotifications() {
+    return state.notifications.filter(item => activeFilter === 'unread' ? item.unread : true);
+  }
+  function pruneSelection() {
+    const available = new Set(state.notifications.map(item => String(item.id)));
+    selectedIds = new Set(Array.from(selectedIds).filter(id => available.has(id)));
+    return Array.from(selectedIds);
+  }
+  function renderSelectionToolbar(items) {
+    const overlay = document.getElementById('mat-notification-center');
+    if (!overlay) return;
+    const visible = items || visibleNotifications();
+    const selected = pruneSelection();
+    const selectedSet = new Set(selected);
+    const selectAll = overlay.querySelector('[data-mat-select-all]');
+    const clearSelection = overlay.querySelector('[data-mat-clear-selection]');
+    const selectedCount = overlay.querySelector('[data-mat-selected-count]');
+    const deleteSelected = overlay.querySelector('[data-mat-delete-selected]');
+    const readSelected = overlay.querySelector('[data-mat-selected-read]');
+    const unreadSelected = overlay.querySelector('[data-mat-selected-unread]');
+    const allVisibleSelected = visible.length > 0 && visible.every(item => selectedSet.has(String(item.id)));
+    if (selectAll) {
+      selectAll.textContent = allVisibleSelected ? 'Unselect all' : 'Select all';
+      selectAll.setAttribute('aria-pressed', String(allVisibleSelected));
+      selectAll.disabled = visible.length === 0;
+    }
+    if (selectedCount) selectedCount.textContent = selected.length + ' selected';
+    if (clearSelection) clearSelection.disabled = selected.length === 0;
+    if (deleteSelected) {
+      deleteSelected.textContent = selected.length ? 'Delete (' + selected.length + ' selected)' : 'Delete selected';
+      deleteSelected.disabled = selected.length === 0;
+    }
+    if (readSelected) readSelected.disabled = selected.length === 0;
+    if (unreadSelected) unreadSelected.disabled = selected.length === 0;
+  }
   function renderFeed() {
     ensureAccountState();
     const list = document.getElementById('mat-notification-list');
     if (!list) { renderBadge(); return; }
-    const items = state.notifications.filter(item => activeFilter === 'unread' ? item.unread : true);
+    const items = visibleNotifications();
+    const selected = new Set(pruneSelection());
     list.innerHTML = items.length ? items.map(function (item) {
       const icon = notificationIcon(item.type);
       const typeLabel = item.type === 'trophy' ? 'TROPHY UNLOCKED' : item.type === 'friend' ? 'FRIEND ACTIVITY' : item.type === 'leaderboard' ? (item.period === 'weekly' ? 'WEEKLY LEADERBOARD' : 'GLOBAL LEADERBOARD') : 'ACTIVITY';
-      return '<article class="mat-notification-item ' + (item.unread ? 'is-unread' : '') + '" role="listitem">' +
+      const id = escapeHTML(item.id);
+      const label = escapeHTML(item.title || 'Notification');
+      const datetime = new Date(numeric(item.updatedAt || item.createdAt));
+      const validDatetime = Number.isNaN(datetime.getTime()) ? new Date(0).toISOString() : datetime.toISOString();
+      return '<article class="mat-notification-item ' + (item.unread ? 'is-unread' : '') + (selected.has(String(item.id)) ? ' is-selected' : '') + '" role="listitem">' +
+        '<label class="mat-notification-select-wrap"><input type="checkbox" class="mat-notification-select" data-mat-select-item="' + id + '"' +
+        (selected.has(String(item.id)) ? ' checked' : '') + ' aria-label="Select notification: ' + label + '"></label>' +
         '<div class="mat-notification-item-icon type-' + escapeHTML(item.type || 'activity') + '">' + icon + '</div>' +
-        '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + escapeHTML(item.title) + '</strong><time datetime="' +
-        escapeHTML(new Date(numeric(item.updatedAt || item.createdAt)).toISOString()) + '">' + escapeHTML(relativeTime(item.updatedAt || item.createdAt)) + '</time></div>' +
+        '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + label + '</strong><time datetime="' +
+        escapeHTML(validDatetime) + '">' + escapeHTML(relativeTime(item.updatedAt || item.createdAt)) + '</time></div>' +
         '<p>' + escapeHTML(item.message) + '</p><div class="mat-notification-item-meta"><span>' + typeLabel + '</span>' +
         (item.unread ? '<b>NEW</b>' : '<span>Read</span>') + '</div></div>' +
-        (item.unread ? '<button class="mat-notification-mark-one" type="button" data-mat-mark-read="' + escapeHTML(item.id) + '" aria-label="Mark as read"><i class="fa-solid fa-check" aria-hidden="true"></i></button>' : '') +
-        '</article>';
+        '<div class="mat-notification-item-actions">' +
+        '<button class="mat-notification-action" type="button" data-mat-toggle-read="' + id + '" data-mat-next-unread="' + (item.unread ? 'false' : 'true') + '" aria-label="' +
+        (item.unread ? 'Mark as read' : 'Mark as unread') + '" title="' + (item.unread ? 'Mark as read' : 'Mark as unread') + '">' +
+        (item.unread ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '<i class="fa-solid fa-envelope" aria-hidden="true"></i>') + '</button>' +
+        '<button class="mat-notification-action is-danger" type="button" data-mat-delete-one="' + id + '" aria-label="Delete notification" title="Delete notification"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>' +
+        '</div></article>';
     }).join('') : emptyState();
+    renderSelectionToolbar(items);
     renderBadge();
   }
   function ensureCenter() {
@@ -761,9 +815,15 @@
       '<h2 id="mat-notification-title">Notifications <span data-mat-notification-count>All caught up</span></h2>' +
       '<p>Friend progress, leaderboard moves and trophy unlocks.</p></div>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
-      '<div class="mat-notification-toolbar"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
+      '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
       '<button type="button" data-mat-filter="all" class="is-active" aria-pressed="true">All</button><button type="button" data-mat-filter="unread" aria-pressed="false">Unread</button></div>' +
-      '<button type="button" class="mat-notification-mark-all" data-mat-mark-all>Mark all as read</button></div>' +
+      '<button type="button" class="mat-notification-mark-all" data-mat-mark-all>Read all</button></div>' +
+      '<div class="mat-notification-selection-toolbar" role="group" aria-label="Select and manage notifications">' +
+      '<button type="button" data-mat-select-all>Select all</button><button type="button" data-mat-clear-selection disabled>Clear selection</button>' +
+      '<span data-mat-selected-count aria-live="polite">0 selected</span>' +
+      '<div class="mat-notification-bulk-actions"><button type="button" data-mat-selected-read disabled>Mark selected read</button>' +
+      '<button type="button" data-mat-selected-unread disabled>Mark selected unread</button>' +
+      '<button type="button" class="is-danger" data-mat-delete-selected disabled>Delete selected</button></div></div></div>' +
       '<div id="mat-notification-list" class="mat-notification-list" role="list" aria-live="polite"></div>' +
       '<footer class="mat-notification-footer"><span><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button type="button" data-mat-open-leaderboard>Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></footer></section>';
@@ -800,18 +860,44 @@
   }
   function markAllRead() {
     const readAt = localTimestamp();
-    state.notifications.forEach(item => { item.unread = false; item.readAt = readAt; });
+    state.notifications.forEach(item => { item.unread = false; item.readAt = readAt; item.statusUpdatedAt = readAt; });
     saveState();
     renderFeed();
   }
-  function markOneRead(id) {
-    const item = state.notifications.find(entry => entry.id === id);
-    if (!item) return;
-    item.unread = false;
-    item.readAt = localTimestamp();
+  function markNotifications(ids, unread) {
+    const wanted = new Set((ids || []).map(String));
+    if (!wanted.size) return;
+    const timestamp = localTimestamp();
+    state.notifications.forEach(item => {
+      if (!wanted.has(String(item.id))) return;
+      item.unread = !!unread;
+      item.readAt = unread ? 0 : timestamp;
+      item.statusUpdatedAt = timestamp;
+    });
     saveState();
     renderFeed();
   }
+  function markOneStatus(id, unread) { markNotifications([id], unread); }
+  function deleteNotifications(ids) {
+    const wanted = Array.from(new Set((ids || []).map(String).filter(Boolean)));
+    if (!wanted.length) return;
+    state.deletedIds = Array.from(new Set((state.deletedIds || []).concat(wanted))).slice(-1000);
+    const deleted = new Set(wanted);
+    state.notifications = state.notifications.filter(item => !deleted.has(String(item.id)));
+    wanted.forEach(id => selectedIds.delete(id));
+    saveState();
+    renderFeed();
+  }
+  function deleteSelectedNotifications() { deleteNotifications(pruneSelection()); }
+  function toggleSelectAllVisible() {
+    const items = visibleNotifications();
+    if (!items.length) return;
+    const allSelected = items.every(item => selectedIds.has(String(item.id)));
+    items.forEach(item => { if (allSelected) selectedIds.delete(String(item.id)); else selectedIds.add(String(item.id)); });
+    renderFeed();
+  }
+  function clearSelection() { selectedIds.clear(); renderFeed(); }
+  function markSelected(unread) { markNotifications(pruneSelection(), unread); }
   function handleClick(event) {
     const target = event.target && event.target.closest ? event.target : null;
     if (!target) return;
@@ -821,10 +907,28 @@
     if (closeButton) { closeCenter(); return; }
     const filter = target.closest('[data-mat-filter]');
     if (filter) { activeFilter = filter.getAttribute('data-mat-filter') || 'all'; renderFilterState(); renderFeed(); return; }
+    const selectedCheckbox = target.closest('[data-mat-select-item]');
+    if (selectedCheckbox) {
+      const id = String(selectedCheckbox.getAttribute('data-mat-select-item') || '');
+      if (id) { if (selectedCheckbox.checked) selectedIds.add(id); else selectedIds.delete(id); renderFeed(); }
+      return;
+    }
+    const selectAll = target.closest('[data-mat-select-all]');
+    if (selectAll) { toggleSelectAllVisible(); return; }
+    const clearSelected = target.closest('[data-mat-clear-selection]');
+    if (clearSelected) { clearSelection(); return; }
     const markAll = target.closest('[data-mat-mark-all]');
     if (markAll) { markAllRead(); return; }
-    const markRead = target.closest('[data-mat-mark-read]');
-    if (markRead) { markOneRead(markRead.getAttribute('data-mat-mark-read')); return; }
+    const markSelectedRead = target.closest('[data-mat-selected-read]');
+    if (markSelectedRead) { markSelected(false); return; }
+    const markSelectedUnread = target.closest('[data-mat-selected-unread]');
+    if (markSelectedUnread) { markSelected(true); return; }
+    const deleteSelected = target.closest('[data-mat-delete-selected]');
+    if (deleteSelected) { deleteSelectedNotifications(); return; }
+    const toggleRead = target.closest('[data-mat-toggle-read]');
+    if (toggleRead) { markOneStatus(toggleRead.getAttribute('data-mat-toggle-read'), toggleRead.getAttribute('data-mat-next-unread') === 'true'); return; }
+    const deleteOne = target.closest('[data-mat-delete-one]');
+    if (deleteOne) { deleteNotifications([deleteOne.getAttribute('data-mat-delete-one')]); return; }
     const openLeaderboard = target.closest('[data-mat-open-leaderboard]');
     if (openLeaderboard) {
       closeCenter();
@@ -854,6 +958,7 @@
         const shared = parseJSON(event.newValue, null);
         state = Object.assign(makeEmptyState(), shared || {});
         if (!Array.isArray(state.notifications)) state.notifications = [];
+        if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
         if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
         renderFeed();
       }
@@ -877,6 +982,10 @@
     close: closeCenter,
     refresh: function () { return refreshActivity(true); },
     getNotifications: function () { ensureAccountState(); return state.notifications.slice(); },
-    markAllRead: markAllRead
+    markAllRead: markAllRead,
+    markSelectedRead: function () { markSelected(false); },
+    markSelectedUnread: function () { markSelected(true); },
+    deleteSelected: deleteSelectedNotifications,
+    clearSelection: clearSelection
   });
 })();
