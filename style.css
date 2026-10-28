@@ -1249,3 +1249,9 @@ html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-sta
   .mat-notification-bulk-actions [data-mat-delete-selected]{grid-column:auto}
   .mat-notification-list{padding:9px 10px 14px}
 }
+
+/* Show the in-site-only notice beside the fullscreen control only while fullscreen is active. */
+.mat-notification-fullscreen-note{display:none;align-items:center;justify-content:center;gap:6px;max-width:260px;color:var(--muted,#64748b);font-size:10px;line-height:1.4;text-align:right}
+.mat-notification-fullscreen-note i{color:#059669;flex:0 0 auto}
+.mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-note{display:inline-flex}
+@media(max-width:640px){.mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-note{max-width:145px;font-size:9px;gap:4px}}
