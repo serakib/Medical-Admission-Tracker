@@ -694,6 +694,7 @@
   function notificationIcon(type) {
     if (type === 'trophy') return '<i class="fa-solid fa-trophy" aria-hidden="true"></i>';
     if (type === 'friend') return '<i class="fa-solid fa-chart-line" aria-hidden="true"></i>';
+    if (type === 'leaderboard') return '<i class="fa-solid fa-ranking-star" aria-hidden="true"></i>';
     return '<i class="fa-solid fa-bell" aria-hidden="true"></i>';
   }
   function unreadCount() { return state.notifications.filter(item => item.unread).length; }
@@ -710,7 +711,7 @@
   }
   function emptyState() {
     return '<div class="mat-notification-empty"><div class="mat-notification-empty-icon"><i class="fa-regular fa-bell-slash" aria-hidden="true"></i></div>' +
-      '<h3>You are all caught up</h3><p>When a friend changes weekly RP, passes you on the leaderboard, or unlocks a new trophy rank, the update will appear here.</p>' +
+      '<h3>You are all caught up</h3><p>Updates appear here when a friend changes weekly RP, passes you, unlocks a trophy, or someone moves in the global Top 100/Top 10 or your same-rank leaderboard.</p>' +
       '<small>Activity is checked when you open the website or return to this tab.</small></div>';
   }
   function renderFeed() {
@@ -720,7 +721,7 @@
     const items = state.notifications.filter(item => activeFilter === 'unread' ? item.unread : true);
     list.innerHTML = items.length ? items.map(function (item) {
       const icon = notificationIcon(item.type);
-      const typeLabel = item.type === 'trophy' ? 'TROPHY UNLOCKED' : item.type === 'friend' ? 'WEEKLY LEADERBOARD' : 'ACTIVITY';
+      const typeLabel = item.type === 'trophy' ? 'TROPHY UNLOCKED' : item.type === 'friend' ? 'FRIEND ACTIVITY' : item.type === 'leaderboard' ? (item.period === 'weekly' ? 'WEEKLY LEADERBOARD' : 'GLOBAL LEADERBOARD') : 'ACTIVITY';
       return '<article class="mat-notification-item ' + (item.unread ? 'is-unread' : '') + '" role="listitem">' +
         '<div class="mat-notification-item-icon type-' + escapeHTML(item.type || 'activity') + '">' + icon + '</div>' +
         '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + escapeHTML(item.title) + '</strong><time datetime="' +
