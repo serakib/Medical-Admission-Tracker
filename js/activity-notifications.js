@@ -711,12 +711,29 @@
     return refreshPromise;
   }
   function relativeTime(timestamp) {
-    const diff = Math.max(0, localTimestamp() - numeric(timestamp));
+    const value = numeric(timestamp);
+    if (!value || !Number.isFinite(value)) return 'Time unavailable';
+    const diff = Math.max(0, localTimestamp() - value);
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
     if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-    const date = new Date(numeric(timestamp));
+    const date = new Date(value);
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Dhaka' }).format(date);
+  }
+  function updateRelativeTimes() {
+    document.querySelectorAll('#mat-notification-list time[data-mat-notification-time]').forEach(function (time) {
+      const timestamp = numeric(time.getAttribute('data-mat-notification-time'));
+      if (!timestamp) {
+        time.textContent = 'Time unavailable';
+        time.removeAttribute('title');
+        return;
+      }
+      const detectedAt = new Date(timestamp);
+      time.textContent = relativeTime(timestamp);
+      time.title = 'Detected by this site at ' + new Intl.DateTimeFormat('en-GB', {
+        dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka'
+      }).format(detectedAt) + ' (Bangladesh time)';
+    });
   }
   function notificationIcon(type) {
     if (type === 'trophy') return '<i class="fa-solid fa-trophy" aria-hidden="true"></i>';
@@ -815,7 +832,8 @@
         (selected.has(String(item.id)) ? ' checked' : '') + ' aria-label="Select notification: ' + label + '"></label>' +
         '<div class="mat-notification-item-icon type-' + escapeHTML(item.type || 'activity') + '">' + icon + '</div>' +
         '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + label + '</strong><time datetime="' +
-        escapeHTML(validDatetime) + '">' + escapeHTML(relativeTime(item.updatedAt || item.createdAt)) + '</time></div>' +
+        escapeHTML(validDatetime) + '" data-mat-notification-time="' + numeric(item.updatedAt || item.createdAt) + '">' +
+        escapeHTML(relativeTime(item.updatedAt || item.createdAt)) + '</time></div>' +
         '<p>' + escapeHTML(item.message) + '</p><div class="mat-notification-item-meta"><span>' + typeLabel + '</span>' +
         (item.unread ? '<b>NEW</b>' : '<span>Read</span>') + '</div></div>' +
         '<div class="mat-notification-item-actions">' +
@@ -1006,10 +1024,16 @@
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && !document.getElementById('mat-notification-center')?.hidden) closeCenter();
     });
+    // Relative labels tick forward independently of leaderboard refreshes.
+    window.setInterval(updateRelativeTimes, 30000);
     document.addEventListener('visibilitychange', function () {
-      if (!document.hidden && localTimestamp() - lastRefreshAt > 30000) refreshActivity(true);
+      if (!document.hidden) {
+        updateRelativeTimes();
+        if (localTimestamp() - lastRefreshAt > 30000) refreshActivity(true);
+      }
     });
     window.addEventListener('focus', function () {
+      updateRelativeTimes();
       if (localTimestamp() - lastRefreshAt > 30000) refreshActivity(true);
     });
     window.addEventListener('storage', function (event) {
