@@ -1352,3 +1352,7 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
 #mat-notification-center .mat-notification-toolbar{position:relative!important;z-index:2;flex:0 0 auto;}
 #mat-notification-center .mat-notification-list:has(.mat-notification-announcement-view){position:relative!important;z-index:1;display:block!important;flex:1 1 auto;min-width:0;margin-top:0!important;}
 #mat-notification-center .mat-notification-announcement-view{display:block!important;clear:both;width:100%;box-sizing:border-box;}
+
+/* Announcement is a compact filter button, not a full-width row. */
+#mat-notification-center .mat-notification-filters{display:flex!important;align-items:center;justify-content:flex-start!important;flex-wrap:wrap;}
+#mat-notification-center .mat-notification-filters button.mat-notification-announcement-filter{display:inline-flex!important;flex:0 0 auto!important;width:auto!important;max-width:max-content!important;align-self:center!important;}
