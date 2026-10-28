@@ -470,7 +470,8 @@
       rangeAnimating = true;
       try {
         const canAnimate = !reduceMotion && typeof chart?.animate === 'function';
-        const outgoingX = direction < 0 ? -22 : 22;
+        // Previous (-1) exits right; Next (+1) exits left.
+        const outgoingX = direction < 0 ? 22 : -22;
         if (canAnimate) {
           const outgoing = chart.animate(
             [{opacity:1, transform:'translateX(0)'},{opacity:0, transform:'translateX(' + outgoingX + 'px)'}],
@@ -486,7 +487,8 @@
         else if (period === 'monthly') anchorDate = dateOffset(anchorDate, direction * 10);
         render(period);
         if (canAnimate) {
-          const incomingX = direction < 0 ? 22 : -22;
+          // Previous enters from left; Next enters from right.
+          const incomingX = direction < 0 ? -22 : 22;
           const incoming = chart.animate(
             [{opacity:0, transform:'translateX(' + incomingX + 'px)'},{opacity:1, transform:'translateX(0)'}],
             {duration:190, easing:'ease-out', fill:'both'}
@@ -593,7 +595,8 @@
       if (!swipeStart || activePeriod === 'calendar' || event.pointerId !== swipeStart.pointerId) { swipeStart = null; return; }
       const dx = event.clientX - swipeStart.x;
       const dy = event.clientY - swipeStart.y;
-      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) shiftRange(dx < 0 ? -1 : 1);
+      // Finger moving right => Previous (older); moving left => Next (newer).
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) shiftRange(dx > 0 ? -1 : 1);
       swipeStart = null;
     }, {passive:true});
     chart?.addEventListener('pointercancel', () => { swipeStart = null; }, {passive:true});
@@ -603,7 +606,8 @@
       const now = Date.now();
       if (now - lastWheelRangeChange < 450) return;
       lastWheelRangeChange = now;
-      shiftRange(event.deltaX > 0 ? -1 : 1);
+      // Horizontal wheel right => Next (newer); left => Previous (older).
+      shiftRange(event.deltaX > 0 ? 1 : -1);
     }, {passive:true});
   }
   function ensureProfileStreakButton() {
