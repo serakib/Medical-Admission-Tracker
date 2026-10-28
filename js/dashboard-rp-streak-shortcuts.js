@@ -416,6 +416,7 @@
       '<div class="mat-streak-calendar-detail">' +
       '<button type="button" class="mat-streak-calendar-summary" data-toggle-day-activity aria-expanded="false"><span><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount || examAttempts.length ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></span><span class="mat-streak-calendar-summary-count"><b>' + number(selectedCount) + '</b><small>attempted questions　＋</small></span></button>' +
       '<section class="mat-streak-calendar-details-panel" data-day-activity-panel hidden>' +
+      (examAttempts.length ? '<button type="button" data-toggle-exam-attempts aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;text-align:left">Exam attempted (' + number(examAttempts.length) + ') <span aria-hidden="true">＋</span></button><section data-exam-attempts-panel hidden>' + examTimeline + '</section>' : '') +
       '<div class="mat-streak-calendar-metrics">' +
       '<div class="mat-streak-calendar-metric is-correct"><span>Right answers</span><b>' + number(correctCount) + '</b></div>' +
       '<div class="mat-streak-calendar-metric is-wrong"><span>Wrong answers</span><b>' + number(wrongCount) + '</b></div>' +
@@ -425,7 +426,7 @@
       '<div class="mat-streak-calendar-metric"><span>Known answers</span><b>' + number(knownOutcomes) + '</b></div>' +
       '</div>' +
       '<p class="mat-streak-legend" style="margin-bottom:0">Time counts while this website tab is visible, including study, practice and other pages on this site. Older dates only show time if it was tracked and saved. Times use Bangladesh time (Asia/Dhaka).</p>' +
-      leaderboardActivityMarkup + examTimeline + '</section></div>';
+      leaderboardActivityMarkup + '</section></div>';
   }
 
   function openProfileStreak() {
@@ -663,6 +664,7 @@
       }
       const toggleLeaderboard = event.target.closest?.('[data-toggle-leaderboard]');
       const toggleFriends = event.target.closest?.('[data-toggle-friends]');
+      const toggleExamAttempts = event.target.closest?.('[data-toggle-exam-attempts]');
       const togglePanel = (button, selector) => {
         if (!button) return false;
         const panel = chart.querySelector(selector);
@@ -676,6 +678,7 @@
       };
       if (togglePanel(toggleLeaderboard, '[data-leaderboard-panel]')) return;
       if (togglePanel(toggleFriends, '[data-friends-panel]')) return;
+      if (togglePanel(toggleExamAttempts, '[data-exam-attempts-panel]')) return;
       const reviewButton = event.target.closest?.('[data-review-attempt-id]');
       if (reviewButton) {
         if (typeof app.openSavedExamReview === 'function' && !reviewButton.disabled) app.openSavedExamReview(reviewButton.dataset.reviewAttemptId);
