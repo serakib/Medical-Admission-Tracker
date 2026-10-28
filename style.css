@@ -1356,3 +1356,11 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
 /* Announcement is a compact filter button, not a full-width row. */
 #mat-notification-center .mat-notification-filters{display:flex!important;align-items:center;justify-content:flex-start!important;flex-wrap:wrap;}
 #mat-notification-center .mat-notification-filters button.mat-notification-announcement-filter{display:inline-flex!important;flex:0 0 auto!important;width:auto!important;max-width:max-content!important;align-self:center!important;}
+
+/* Final fix: one scroll container only; keep the first policy fully visible at the top. */
+#mat-notification-center .mat-notification-panel{min-height:0!important;overflow:hidden!important;}
+#mat-notification-center #mat-notification-list{display:block!important;flex:1 1 0!important;min-height:0!important;height:0!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scroll-padding-top:0!important;padding:12px 16px 18px!important;}
+#mat-notification-center #mat-notification-list:has(.mat-notification-announcement-view){display:block!important;overflow-x:hidden!important;overflow-y:auto!important;padding-top:12px!important;}
+#mat-notification-center .mat-notification-announcement-view{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;transform:none!important;position:static!important;}
+#mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{display:block!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0 auto 8px!important;}
+#mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement p{display:block!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;clip:auto!important;clip-path:none!important;}
