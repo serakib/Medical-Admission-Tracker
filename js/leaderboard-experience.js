@@ -12,6 +12,7 @@
   let connectionLoadPromise = null;
   let connectionLoadSequence = 0;
   let cancelledFeedback = new Map();
+  const pendingFriendActions = new Map();
   let activePublicProfile = null;
   let lastFriendError = '';
 
@@ -273,52 +274,56 @@
     if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
     const targetId = String(target?.userId || target?.uid || '');
     if (!targetId || userId() === targetId) throw new Error('নিজের account-এ friend request পাঠানো যাবে না।');
-    await loadConnections(true);
-    const relation = getRelationship(targetId);
-    if (relation === 'friends') throw new Error('এই student ইতিমধ্যে আপনার friend।');
-    if (relation === 'incoming') throw new Error('এই student-এর request আগে থেকেই এসেছে। Accept বা Reject করুন।');
-    // A stale button can still be clicked while another UI surface has already
-    // confirmed this request. Treat the existing outgoing request as idempotent.
-    if (relation === 'outgoing') {
-      if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
-        renderRelationshipActions(activePublicProfile);
-      }
-      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
-        window.MedGlobalLeague.refreshFriendDirectory();
-      }
-      return true;
-    }
-    // The send endpoint returns the authoritative connection snapshot. If its
-    // duplicate guard wins a race against a stale connection read, reconcile once
-    // and treat the action as successful only when that pending request is confirmed.
-    let sent;
+    // Keep the profile button loading during both the initial connection check
+    // and the send request itself; connection refreshes also repaint profile actions.
+    pendingFriendActions.set(targetId, 'add');
     try {
-      sent = await friendApi('sendFriendRequest', { targetUserId: targetId });
-    } catch (error) {
-      const message = String(error?.message || error || '');
-      if (/request already sent|already sent|ইতিমধ্যে পাঠানো হয়েছে/i.test(message)) {
-        try { await loadConnections(true); } catch (_) {}
-        if (outgoingRequests.some(request => String(request.toUid) === targetId)) {
-          if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
-            renderRelationshipActions(activePublicProfile);
+      await loadConnections(true);
+      const relation = getRelationship(targetId);
+      if (relation === 'friends') throw new Error('এই student ইতিমধ্যে আপনার friend।');
+      if (relation === 'incoming') throw new Error('এই student-এর request আগে থেকেই এসেছে। Accept বা Reject করুন।');
+      // The connection response itself may confirm a request already sent from another UI.
+      if (relation === 'outgoing') {
+        if (!outgoingRequests.some(request => String(request.toUid) === targetId)) {
+          rememberUnresolvedOutgoingRequest(targetId, target?.name || target?.displayName || 'Student');
+        }
+        if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+          window.MedGlobalLeague.refreshFriendDirectory();
+        }
+        return true;
+      }
+      let sent;
+      try {
+        sent = await friendApi('sendFriendRequest', { targetUserId: targetId });
+      } catch (error) {
+        const message = String(error?.message || error || '');
+        if (/request already sent|already sent|ইতিমধ্যে পাঠানো হয়েছে/i.test(message)) {
+          try { await loadConnections(true); } catch (_) {}
+          if (!outgoingRequests.some(request => String(request.toUid) === targetId)) {
+            // The backend confirmed an existing request even if the list has not caught up yet.
+            rememberUnresolvedOutgoingRequest(targetId, target?.name || target?.displayName || 'Student');
           }
           if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
             window.MedGlobalLeague.refreshFriendDirectory();
           }
           return true;
         }
-        // Duplicate confirmation means the backend already has this pending request.
-        // Keep the UI in a non-duplicating pending state while the real request ID syncs.
-        rememberUnresolvedOutgoingRequest(targetId, target?.name || target?.displayName || 'Student');
-        if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
-          window.MedGlobalLeague.refreshFriendDirectory();
-        }
-        return true;
+        throw error;
       }
-      throw error;
+      applyConnectionSnapshot(sent);
+      if (!outgoingRequests.some(request => String(request.toUid) === targetId) &&
+          !acceptedFriendIds.has(targetId) &&
+          !incomingRequests.some(request => String(request.fromUid) === targetId)) {
+        // Preserve the confirmed send state if the mutation snapshot temporarily omits its request row.
+        rememberUnresolvedOutgoingRequest(targetId, target?.name || target?.displayName || 'Student');
+      }
+      return true;
+    } finally {
+      pendingFriendActions.delete(targetId);
+      if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === targetId) {
+        renderRelationshipActions(activePublicProfile);
+      }
     }
-    applyConnectionSnapshot(sent);
-    return true;
   }
   async function acceptRequest(requestId) {
     if (!canManageFriends()) throw new Error('Guest session প্রস্তুত নয়। পেজ refresh করে আবার চেষ্টা করুন।');
@@ -424,6 +429,10 @@
     }
     if (!canManageFriends()) {
       host.innerHTML = '<button type="button" data-student-friend-action="login"><i class="fa-solid fa-user-plus ml-1" aria-hidden="true"></i> Start Guest Session to Add Friend</button>';
+      return;
+    }
+    if (pendingFriendActions.get(targetId) === 'add') {
+      host.innerHTML = '<button type="button" class="primary is-refreshing" disabled aria-busy="true"><i class="fa-solid fa-spinner fa-spin ml-1" aria-hidden="true"></i> Sending Request…</button>';
       return;
     }
     const relation = getRelationship(targetId);

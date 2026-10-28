@@ -1548,6 +1548,32 @@
     el.classList.add(isError ? 'text-red-600' : 'text-emerald-700');
   }
 
+  function markFriendRequestSentButton(button, friendsApi, targetId) {
+    if (!button) return '';
+    var connections = friendsApi && typeof friendsApi.getConnectionData === 'function'
+      ? friendsApi.getConnectionData() : { outgoing: [] };
+    var pending = (Array.isArray(connections.outgoing) ? connections.outgoing : [])
+      .find(function (request) { return String(request.toUid || '') === String(targetId || ''); });
+    var requestId = String(pending && pending.id || '');
+    button.classList.remove('is-loading');
+    button.classList.add('is-success');
+    button.removeAttribute('data-med-friend-send');
+    button.removeAttribute('data-med-friend-name');
+    button.setAttribute('aria-label', requestId
+      ? 'Friend request sent. Activate to cancel.'
+      : 'Friend request sent. Waiting for cancellation details to sync.');
+    if (requestId) {
+      button.setAttribute('data-med-friend-cancel-request', requestId);
+      button.innerHTML = '<i class="fa-solid fa-clock" aria-hidden="true"></i> Request Sent · Cancel';
+      button.disabled = false;
+    } else {
+      button.removeAttribute('data-med-friend-cancel-request');
+      button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Request Sent · Syncing';
+      button.disabled = true;
+    }
+    return requestId;
+  }
+
   function ensureUI() {
     injectStyles();
     ensureTopControls();
@@ -1655,16 +1681,13 @@
         }
         try {
           if (friendAction === 'send') {
+            // Keep this button loading until sendRequest's API/duplicate reconciliation
+            // has finished; only then change the same button into Cancel.
             await friendsApi.sendRequest({ userId: targetId, uid: targetId, name: friendName });
             friendRequestSendSucceeded = true;
-            // Keep the confirmed sent state visible while the connections list refreshes.
             try { localStorage.setItem('med_friend_request_sent_v1_' + accountKey() + '_' + targetId, 'sent'); } catch (_) {}
-            friendActionButton.classList.remove('is-loading');
-            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent · Pending';
-            friendActionButton.classList.add('is-success');
-            friendActionButton.disabled = true;
-            friendActionButton.setAttribute('aria-label', 'Friend request sent and pending');
-            setFriendActionStatus('✓ Friend request sent to ' + friendName + '. Requestটি এখন pending; অন্যজন accept করলে Friends-এ যুক্ত হবে।', false);
+            markFriendRequestSentButton(friendActionButton, friendsApi, targetId);
+            setFriendActionStatus('✓ Friend request sent to ' + friendName + '. Requestটি pending; চাইলে Cancel করতে পারবেন।', false);
           } else if (friendAction === 'cancel') {
             var cancelRow = friendActionButton.closest('.mat-friend-search-result');
             var cancelTargetId = cancelRow ? String(cancelRow.dataset.medFriendOpenProfile || '') : '';
@@ -1697,12 +1720,8 @@
             friendActionButton.disabled = false;
             setFriendActionStatus(String(error && error.message || error || 'Friend request পাঠানো যায়নি। আবার চেষ্টা করুন।'), true);
           } else if (friendAction === 'send' && friendRequestSendSucceeded) {
-            // Sending succeeded even if a later background refresh failed.
-            friendActionButton.classList.remove('is-loading');
-            friendActionButton.innerHTML = '<i class="fa-solid fa-check-circle" aria-hidden="true"></i> Request Sent · Pending';
-            friendActionButton.classList.add('is-success');
-            friendActionButton.disabled = true;
-            friendActionButton.setAttribute('aria-label', 'Friend request sent successfully');
+            // Sending succeeded even if a later background refresh failed. Preserve Cancel.
+            markFriendRequestSentButton(friendActionButton, friendsApi, targetId);
             setFriendActionStatus('✓ Friend request sent to ' + friendName + '. Requestটি pending আছে।', false);
           } else {
             setFriendActionStatus(String(error && error.message || error || 'Friend action সম্পন্ন হয়নি।'), true);
