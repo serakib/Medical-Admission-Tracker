@@ -1842,7 +1842,7 @@ class MedicalExamApp {
                 const parsed = new Date(item.date);
                 if (!Number.isNaN(parsed.getTime()) && parsed.getFullYear() >= 2020) date = parsed;
             }
-            if (!date || Number.isNaN(date.getTime())) return '—';
+            if (!date || Number.isNaN(date.getTime())) return 'সময় পাওয়া যায়নি';
             const parts = new Intl.DateTimeFormat('en-US', {
                 weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
                 hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka'
