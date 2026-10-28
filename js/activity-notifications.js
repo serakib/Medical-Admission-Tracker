@@ -860,7 +860,6 @@
       '<button type="button" data-mat-notification-login><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in / Sign up</button>' +
       '<small>Personal notifications are available inside the website. No phone push alerts.</small>' +
       '</section></section>';
-      '</article></section>';
   }
   function visibleNotifications() {
     if (activeFilter === 'trash') return state.trash.slice().sort((a, b) => numeric(b.deletedAt) - numeric(a.deletedAt));
