@@ -1014,6 +1014,7 @@
     }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])));
   }
   function renderLeaderboardPeriodNote() {
+    startLeaderboardNoteClock();
     var note = document.getElementById('leaderboard-period-note');
     if (!note) return;
     note.classList.toggle('hidden', selectedPeriod === 'all-time');
