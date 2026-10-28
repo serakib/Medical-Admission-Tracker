@@ -140,7 +140,10 @@
       const history = JSON.parse(localStorage.getItem(key) || '{}') || {};
       Object.entries(history).forEach(([questionKey, entry]) => {
         if (!entry || entry.attempted !== true) return;
-        let timestamps = Array.isArray(entry.attemptTimestamps) ? entry.attemptTimestamps : [];
+        const attemptRecords = Array.isArray(entry.attemptRecords) ? entry.attemptRecords : [];
+        let timestamps = attemptRecords.length
+          ? attemptRecords.map(record => record && record.timestamp)
+          : Array.isArray(entry.attemptTimestamps) ? entry.attemptTimestamps : [];
         if (!timestamps.length) timestamps = [entry.firstAttemptAt, entry.updatedAt].filter((value, index, values) => value != null && values.indexOf(value) === index);
         timestamps = [...new Set(timestamps.map(Number).filter(value => Number.isFinite(value) && value > 0))];
         timestamps.forEach(timestamp => {
@@ -150,9 +153,16 @@
           counts.hourly.set(hourKey, (counts.hourly.get(hourKey) || 0) + 1);
           counts.monthly.set(parts.month, (counts.monthly.get(parts.month) || 0) + 1);
           if (!counts.details.has(parts.date)) counts.details.set(parts.date, []);
+          const record = attemptRecords.find(item => Number(item && item.timestamp) === timestamp) || {};
           const status = String(entry.answerStatus ?? entry.status ?? entry.result ?? '').toLowerCase();
-          const outcome = /correct|right|success/.test(status) ? 'Correct' : /wrong|incorrect|incorrect|fail/.test(status) ? 'Wrong' : '';
-          counts.details.get(parts.date).push({ timestamp, outcome, questionKey });
+          const isCorrect = typeof record.correct === 'boolean' ? record.correct : typeof entry.correct === 'boolean' ? entry.correct : /correct|right|success/.test(status);
+          const isWrong = typeof record.correct === 'boolean' ? !record.correct : typeof entry.correct === 'boolean' ? !entry.correct : /wrong|incorrect|fail/.test(status);
+          const outcome = isCorrect ? 'Correct' : isWrong ? 'Wrong' : '';
+          const question = entry.question || {};
+          const source = String(record.source || question.source || entry.source || question.year || entry.year || '').trim();
+          const subject = String(record.subject || question.subject || entry.subject || '').trim();
+          const before = record.leaderboardStatusBefore || entry.leaderboardStatusBefore || {};
+          counts.details.get(parts.date).push({ timestamp, outcome, correct:isCorrect, questionKey, source, subject, leaderboardStatusBefore:before });
         });
       });
     } catch (_) {}
@@ -230,11 +240,11 @@
       const y = top + plotHeight - ratio*plotHeight;
       return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-10) + '" y="' + (y+4) + '" text-anchor="end">' + Math.round(yMax*ratio) + '</text>';
     }).join('');
-    const segments = points.slice(1).map((point,i) => {
+    const segments = period === 'daily' ? '' : points.slice(1).map((point,i) => {
       const prev = points[i], color = point.value > prev.value ? '#059669' : point.value < prev.value ? '#dc2626' : '#64748b';
       return '<line x1="' + prev.x + '" y1="' + prev.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
     }).join('');
-    const area = points.map((point,i)=>(i?'L':'M')+point.x+' '+point.y).join(' ')+' L '+points[points.length-1].x+' '+(top+plotHeight)+' L '+points[0].x+' '+(top+plotHeight)+' Z';
+    const area = period === 'daily' ? '' : points.map((point,i)=>(i?'L':'M')+point.x+' '+point.y).join(' ')+' L '+points[points.length-1].x+' '+(top+plotHeight)+' L '+points[0].x+' '+(top+plotHeight)+' Z';
     const circles = points.map(point => {
       const fullDate = point.date.length === 7 ? point.date : point.date;
       const timeLabel = point.hour != null ? String(point.hour).padStart(2,'0') + ':00–' + String((point.hour+1)%24).padStart(2,'0') + ':00' : '';
@@ -250,51 +260,6 @@
     const svgWidth = zoom > 1 ? ' style="width:' + (width*zoom) + 'px;min-width:' + (width*zoom) + 'px;max-width:none"' : '';
     const periodLabel = period === 'daily' ? 'Hourly attempted questions' : period === 'yearly' && zoom < 2 ? 'Monthly attempted questions' : 'Daily attempted questions';
     return '<svg' + svgWidth + ' viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + periodLabel + ', zoom ' + zoom + 'x"><text class="mat-streak-axis-label" x="12" y="14">' + periodLabel + '</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
-  }
-  function streakGraphMarkup(period, counts, zoom = 1) {
-    const today = dhakaTodayDate();
-    const items = [];
-    const days = period === 'weekly' ? 7 : period === 'monthly' ? 30 : 365;
-    for (let i = days - 1; i >= 0; i--) {
-      const date = dateOffset(today, -i);
-      const d = new Date(date + 'T00:00:00Z');
-      const label = period === 'weekly'
-        ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()]
-        : period === 'monthly' ? date.slice(8) : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
-      items.push({ date, label, value: counts.get(date) || 0 });
-    }
-    const width = 900, height = 250, left = 48, right = 14, top = 22, bottom = 38;
-    const plotWidth = width-left-right, plotHeight = height-top-bottom;
-    const max = Math.max(0, ...items.map(item => item.value));
-    const yMax = Math.max(4, Math.ceil(max / 4) * 4);
-    const points = items.map((item, i) => ({
-      ...item,
-      x: left + (items.length <= 1 ? plotWidth/2 : i*plotWidth/(items.length-1)),
-      y: top + plotHeight - (item.value/yMax)*plotHeight
-    }));
-    const grid = [0, .25, .5, .75, 1].map(ratio => {
-      const y = top + plotHeight - ratio*plotHeight;
-      const label = Math.round(yMax*ratio);
-      return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-10) + '" y="' + (y+4) + '" text-anchor="end">' + label + '</text>';
-    }).join('');
-    const segments = points.slice(1).map((point, i) => {
-      const previous = points[i];
-      const color = point.value > previous.value ? '#059669' : point.value < previous.value ? '#dc2626' : '#64748b';
-      return '<line x1="' + previous.x + '" y1="' + previous.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
-    }).join('');
-    const area = points.map((point, i) => (i ? 'L' : 'M') + point.x + ' ' + point.y).join(' ') + ' L ' + points[points.length-1].x + ' ' + (top+plotHeight) + ' L ' + points[0].x + ' ' + (top+plotHeight) + ' Z';
-    const circles = points.map(point => {
-      const title = point.date + ': ' + point.value + ' attempted question(s)';
-      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (period === 'yearly' ? '2.1' : '3.5') + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(title) + '</title></circle>';
-    }).join('');
-    const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? Math.max(1, Math.round(5 / zoom)) : 1;
-    const labels = points.map((point, i) => {
-      if (period === 'yearly' && i > 0 && point.date.slice(5, 7) === points[i-1].date.slice(5, 7)) return '';
-      if (period !== 'yearly' && i % labelStep !== 0 && i !== points.length-1) return '';
-      return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-10) + '" text-anchor="middle">' + esc(point.label) + '</text>';
-    }).join('');
-    const svgWidth = zoom > 1 ? ' style="width:' + (width * zoom) + 'px;min-width:' + (width * zoom) + 'px;max-width:none"' : '';
-    return '<svg' + svgWidth + ' viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Daily attempted questions line graph, zoom ' + zoom + 'x"><text class="mat-streak-axis-label" x="12" y="12">Attempted questions</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
   function streakCalendarMarkup(counts, monthDate, selectedDate) {
     const year = monthDate.getUTCFullYear();
@@ -320,8 +285,25 @@
     const selectedLabel = new Intl.DateTimeFormat('en', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC' }).format(selectedDateObj);
     const entries = (counts.details && counts.details.get(selected)) || [];
     const examAttempts = (counts.examAttempts && counts.examAttempts.get(selected)) || [];
-    // Keep activity totals and exam review details, but remove the per-question Attempt recorded list.
-    const timeline = '';
+    const correctCount = entries.filter(item => item.outcome === 'Correct').length;
+    const wrongCount = entries.filter(item => item.outcome === 'Wrong').length;
+    const knownOutcomes = correctCount + wrongCount;
+    const accuracy = knownOutcomes ? Math.round(correctCount / knownOutcomes * 1000) / 10 : null;
+    const practicedFrom = [...new Set(entries.map(item => item.source || item.subject).filter(Boolean))];
+    const leaderboardBefore = entries.map(item => item.leaderboardStatusBefore || {}).find(item => item.rank != null || item.rp != null || item.status);
+    const timeline = entries.length
+      ? '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px">' +
+          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Right answers</small><strong style="display:block;color:#059669;font-size:18px">' + number(correctCount) + '</strong></div>' +
+          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Wrong answers</small><strong style="display:block;color:#dc2626;font-size:18px">' + number(wrongCount) + '</strong></div>' +
+          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Accuracy</small><strong style="display:block;font-size:18px">' + (accuracy == null ? '—' : accuracy + '%') + '</strong></div>' +
+          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Practiced from</small><strong style="display:block;font-size:12px;margin-top:4px">' + esc(practicedFrom.join(', ') || 'Not recorded') + '</strong></div>' +
+        '</div><p class="mat-streak-legend" style="margin-top:8px">Leaderboard status before: ' + esc(leaderboardBefore ? [leaderboardBefore.status, leaderboardBefore.rank != null ? 'Rank ' + leaderboardBefore.rank : '', leaderboardBefore.rp != null ? number(leaderboardBefore.rp) + ' RP' : ''].filter(Boolean).join(' · ') : 'Not recorded') + '</p>' +
+        '<div style="display:grid;gap:6px;margin-top:10px">' + entries.slice(0,80).map(item => {
+          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(item.timestamp));
+          const origin = [item.subject, item.source].filter(Boolean).filter((value,index,array) => array.indexOf(value) === index).join(' · ');
+          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line,rgba(148,163,184,.16));border-radius:10px;font-size:11px"><span>' + esc(time + (origin ? ' · ' + origin : '')) + '</span><strong style="color:' + (item.outcome === 'Correct' ? '#059669' : item.outcome === 'Wrong' ? '#dc2626' : 'var(--text,#0f172a)') + '">' + esc(item.outcome || 'Answered') + '</strong></div>';
+        }).join('') + (entries.length > 80 ? '<small>Showing first 80 of ' + entries.length + ' recorded attempts.</small>' : '') + '</div>'
+      : '<p class="mat-streak-legend">No timestamped question attempts are recorded for this date.</p>';
     const examTimeline = examAttempts.length
       ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
           const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
