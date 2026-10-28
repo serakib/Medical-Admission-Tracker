@@ -1638,6 +1638,8 @@ function toggleAppSidebarCollapse(){
         visibility: visible;
         transform: translateY(-50%) scale(1);
     }
+/* Only the selected top-level app view may be visible. */
+main > .view-section.hidden { display: none !important; }
 </style>
 <!-- =================== AI Floating Button End =================== -->
 
