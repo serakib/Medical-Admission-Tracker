@@ -1888,6 +1888,28 @@ class MedicalExamApp {
 
 window.app = new MedicalExamApp();
 
+/* Private per-account activity notification state adapter.
+ * This reuses the modular Firestore instance already owned by the app.
+ * The notification UI checks auth.currentUser matches the target uid before every read/write.
+ */
+window.MedActivityNotificationStore = Object.freeze({
+    async get(uid) {
+        const user = auth.currentUser;
+        if (!user || !uid || user.uid !== String(uid)) {
+            throw new Error('Activity notification storage requires the matching signed-in user.');
+        }
+        const snapshot = await getDoc(doc(db, 'studentActivityNotificationStates', String(uid)));
+        return snapshot && snapshot.exists() ? snapshot.data() : null;
+    },
+    async set(uid, payload) {
+        const user = auth.currentUser;
+        if (!user || !uid || user.uid !== String(uid)) {
+            throw new Error('Activity notification storage requires the matching signed-in user.');
+        }
+        await setDoc(doc(db, 'studentActivityNotificationStates', String(uid)), payload, { merge: true });
+    }
+});
+
 window.updateExamRewardDisplay = function (reward) {
     const panel = document.getElementById('exam-reward-summary');
     if (!panel || !reward) return;
