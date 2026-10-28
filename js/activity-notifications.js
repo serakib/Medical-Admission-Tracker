@@ -35,7 +35,7 @@
   let cloudWriteTimer = null;
 
   function makeEmptyState() {
-    return { notifications: [], deletedIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
+    return { notifications: [], trash: [], deletedIds: [], lastSnapshot: null, dayKey: '', dayBaseline: null, trophyEvents: {} };
   }
   function safeText(value, max) {
     return String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max || 180);
@@ -80,6 +80,12 @@
     const remote = Object.assign(makeEmptyState(), remoteState || {});
     const deletedIds = Array.from(new Set((remote.deletedIds || []).concat(local.deletedIds || []).map(String).filter(Boolean))).slice(-1000);
     const deletedSet = new Set(deletedIds);
+    const trashMap = new Map();
+    [remote.trash || [], local.trash || []].forEach(items => items.forEach(item => {
+      if (!item || !item.id) return;
+      const previous = trashMap.get(String(item.id));
+      if (!previous || numeric(item.deletedAt) >= numeric(previous.deletedAt)) trashMap.set(String(item.id), item);
+    }));
     const itemMap = new Map();
     [remote.notifications || [], local.notifications || []].forEach(items => items.forEach(item => {
       if (!item || !item.id || deletedSet.has(String(item.id))) return;
@@ -94,6 +100,7 @@
     const trophies = Object.assign({}, remote.trophyEvents || {}, local.trophyEvents || {});
     return {
       notifications: Array.from(itemMap.values()).sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt)).slice(0, 250),
+      trash: Array.from(trashMap.values()).filter(item => numeric(item.deletedAt) > localTimestamp() - 10 * 86400000).sort((a, b) => numeric(b.deletedAt) - numeric(a.deletedAt)),
       deletedIds: deletedIds,
       lastSnapshot: lastSnapshot || null,
       dayKey: dayKey || '',
@@ -167,7 +174,9 @@
     const saved = parseJSON(readStorage(key), null);
     state = Object.assign(makeEmptyState(), saved || {});
     if (!Array.isArray(state.notifications)) state.notifications = [];
+    if (!Array.isArray(state.trash)) state.trash = [];
     if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
+    pruneTrash();
     if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
     renderBadge();
   }
@@ -175,6 +184,7 @@
     try { return localStorage.getItem(key); } catch (_) { return null; }
   }
   function saveState() {
+    pruneTrash();
     state.stateUpdatedAt = localTimestamp();
     try { localStorage.setItem(activeAccountKey || stateKey(), JSON.stringify(state)); } catch (_) {}
     renderBadge();
@@ -198,6 +208,13 @@
   function numeric(value) {
     const result = Number(value);
     return Number.isFinite(result) ? result : 0;
+  }
+  function pruneTrash() {
+    if (!Array.isArray(state.trash)) state.trash = [];
+    const before = state.trash.length;
+    const cutoff = localTimestamp() - 10 * 86400000;
+    state.trash = state.trash.filter(item => item && item.id && numeric(item.deletedAt) > cutoff);
+    return state.trash.length !== before;
   }
   function rowId(row) {
     return String(row && (row.userId || row.uid || row.playerId || row.id || row.raw && row.raw.userId) || '');
@@ -771,6 +788,7 @@
   function renderBadge() {
     const signedIn = !!signedInUid();
     const count = signedIn ? unreadCount() : 0;
+    const total = signedIn ? state.notifications.length : 0;
     document.querySelectorAll('[data-mat-notification-badge]').forEach(function (badge) {
       badge.textContent = count > 99 ? '99+' : String(count);
       badge.hidden = count === 0;
@@ -778,7 +796,7 @@
     });
     document.querySelectorAll('[data-mat-notification-count]').forEach(function (label) {
       label.textContent = signedIn
-        ? (count ? count.toLocaleString() + ' unread' : 'All caught up')
+        ? (total.toLocaleString() + ' total · ' + count.toLocaleString() + ' unread')
         : 'Sign-in required';
     });
   }
@@ -797,10 +815,12 @@
       '</section>';
   }
   function visibleNotifications() {
-    return state.notifications.filter(item => activeFilter === 'unread' ? item.unread : true);
+    if (activeFilter === 'trash') return state.trash.slice().sort((a, b) => numeric(b.deletedAt) - numeric(a.deletedAt));
+    if (activeFilter === 'archived') return state.notifications.filter(item => !!item.archivedAt);
+    return state.notifications.filter(item => !item.archivedAt && (activeFilter === 'unread' ? item.unread : true));
   }
   function pruneSelection() {
-    const available = new Set(state.notifications.map(item => String(item.id)));
+    const available = new Set(state.notifications.concat(state.trash || []).map(item => String(item.id)));
     selectedIds = new Set(Array.from(selectedIds).filter(id => available.has(id)));
     return Array.from(selectedIds);
   }
@@ -814,6 +834,8 @@
     const clearSelection = overlay.querySelector('[data-mat-clear-selection]');
     const selectedCount = overlay.querySelector('[data-mat-selected-count]');
     const deleteSelected = overlay.querySelector('[data-mat-delete-selected]');
+    const archiveSelected = overlay.querySelector('[data-mat-archive-selected]');
+    const restoreSelected = overlay.querySelector('[data-mat-restore-selected]');
     const readSelected = overlay.querySelector('[data-mat-selected-read]');
     const unreadSelected = overlay.querySelector('[data-mat-selected-unread]');
     const allVisibleSelected = visible.length > 0 && visible.every(item => selectedSet.has(String(item.id)));
@@ -829,7 +851,10 @@
       deleteSelected.disabled = selected.length === 0;
     }
     if (readSelected) readSelected.disabled = selected.length === 0;
-    if (unreadSelected) unreadSelected.disabled = selected.length === 0;
+    if (unreadSelected) unreadSelected.disabled = selected.length === 0 || activeFilter === 'trash';
+    if (archiveSelected) { archiveSelected.disabled = selected.length === 0 || activeFilter === 'trash'; archiveSelected.hidden = activeFilter === 'trash'; }
+    if (restoreSelected) { restoreSelected.disabled = selected.length === 0; restoreSelected.hidden = activeFilter !== 'trash'; }
+    if (deleteSelected) deleteSelected.textContent = activeFilter === 'trash' ? 'Delete permanently' : (selected.length ? 'Move to Trash (' + selected.length + ')' : 'Move to Trash');
   }
   function renderFeed() {
     ensureAccountState();
@@ -846,27 +871,35 @@
     }
     const items = visibleNotifications();
     const selected = new Set(pruneSelection());
-    list.innerHTML = items.length ? items.map(function (item) {
+    const allOrdered = state.notifications.slice().sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt));
+    list.innerHTML = items.length ? items.map(function (item, index) {
       const icon = notificationIcon(item.type);
       const typeLabel = item.type === 'trophy' ? 'TROPHY UNLOCKED' : item.type === 'friend' ? 'FRIEND ACTIVITY' : item.type === 'leaderboard' ? (item.period === 'weekly' ? 'WEEKLY LEADERBOARD' : 'GLOBAL LEADERBOARD') : 'ACTIVITY';
       const id = escapeHTML(item.id);
       const label = escapeHTML(item.title || 'Notification');
       const datetime = new Date(numeric(item.updatedAt || item.createdAt));
+      const serial = activeFilter === 'trash' ? 'T' + (index + 1) : '#' + (allOrdered.findIndex(entry => String(entry.id) === String(item.id)) + 1);
+      const isTrash = activeFilter === 'trash';
+      const isArchived = !!item.archivedAt && !isTrash;
       const validDatetime = Number.isNaN(datetime.getTime()) ? new Date(0).toISOString() : datetime.toISOString();
-      return '<article class="mat-notification-item ' + (item.unread ? 'is-unread' : '') + (selected.has(String(item.id)) ? ' is-selected' : '') + '" role="listitem">' +
+      return '<article class="mat-notification-item is-collapsed ' + (item.unread ? 'is-unread' : '') + (selected.has(String(item.id)) ? ' is-selected' : '') + '" role="listitem" aria-expanded="false" data-mat-notification-row="' + id + '">' +
+        '<span class="mat-notification-serial" aria-label="Notification number">' + serial + '</span>' +
         '<label class="mat-notification-select-wrap"><input type="checkbox" class="mat-notification-select" data-mat-select-item="' + id + '"' +
         (selected.has(String(item.id)) ? ' checked' : '') + ' aria-label="Select notification: ' + label + '"></label>' +
         '<div class="mat-notification-item-icon type-' + escapeHTML(item.type || 'activity') + '">' + icon + '</div>' +
         '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + label + '</strong><time datetime="' +
         escapeHTML(validDatetime) + '" data-mat-notification-time="' + numeric(item.updatedAt || item.createdAt) + '">' +
         escapeHTML(relativeTime(item.updatedAt || item.createdAt)) + '</time></div>' +
-        '<p>' + escapeHTML(item.message) + '</p><div class="mat-notification-item-meta"><span>' + typeLabel + '</span>' +
-        (item.unread ? '<b>NEW</b>' : '<span>Read</span>') + '</div></div>' +
+        '<p>' + escapeHTML(item.message) + '</p><div class="mat-notification-item-meta"><span>' + (isTrash ? 'RECENTLY DELETED' : isArchived ? 'ARCHIVED' : typeLabel) + '</span>' +
+        (item.unread ? '<b>NEW</b>' : '<span>Read</span>') + (isTrash ? '<span class="mat-notification-expiry">Recover within 10 days</span>' : '') + '</div></div>' +
         '<div class="mat-notification-item-actions">' +
+        (isTrash ? '<button class="mat-notification-action" type="button" data-mat-restore-one="' + id + '" aria-label="Restore notification" title="Restore notification"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>' +
+        '<button class="mat-notification-action is-danger" type="button" data-mat-purge-one="' + id + '" aria-label="Delete permanently" title="Delete permanently"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>' :
         '<button class="mat-notification-action" type="button" data-mat-toggle-read="' + id + '" data-mat-next-unread="' + (item.unread ? 'false' : 'true') + '" aria-label="' +
         (item.unread ? 'Mark as read' : 'Mark as unread') + '" title="' + (item.unread ? 'Mark as read' : 'Mark as unread') + '">' +
         (item.unread ? '<i class="fa-solid fa-check" aria-hidden="true"></i>' : '<i class="fa-solid fa-envelope" aria-hidden="true"></i>') + '</button>' +
-        '<button class="mat-notification-action is-danger" type="button" data-mat-delete-one="' + id + '" aria-label="Delete notification" title="Delete notification"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>' +
+        '<button class="mat-notification-action" type="button" data-mat-archive-one="' + id + '" aria-label="' + (isArchived ? 'Unarchive notification' : 'Archive notification') + '" title="' + (isArchived ? 'Unarchive' : 'Archive') + '"><i class="fa-solid ' + (isArchived ? 'fa-box-open' : 'fa-box-archive') + '" aria-hidden="true"></i></button>' +
+        '<button class="mat-notification-action is-danger" type="button" data-mat-delete-one="' + id + '" aria-label="Move to recently deleted" title="Move to recently deleted"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>') +
         '</div></article>';
     }).join('') : emptyState();
     renderSelectionToolbar(items);
@@ -889,13 +922,15 @@
       '<span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
-      '<button type="button" data-mat-filter="all" class="is-active" aria-pressed="true">All</button><button type="button" data-mat-filter="unread" aria-pressed="false">Unread</button></div>' +
+      '<button type="button" data-mat-filter="all" class="is-active" aria-pressed="true">All</button><button type="button" data-mat-filter="unread" aria-pressed="false">Unread</button><button type="button" data-mat-filter="archived" aria-pressed="false">Archive</button><button type="button" data-mat-filter="trash" aria-pressed="false">Trash</button></div>' +
       '<button type="button" class="mat-notification-mark-all" data-mat-mark-all>Read all</button></div>' +
       '<div class="mat-notification-selection-toolbar" role="group" aria-label="Select and manage notifications">' +
       '<button type="button" data-mat-select-all>Select all</button><button type="button" data-mat-clear-selection disabled>Clear selection</button>' +
       '<span data-mat-selected-count aria-live="polite">0 selected</span>' +
       '<div class="mat-notification-bulk-actions"><button type="button" data-mat-selected-read disabled>Mark selected read</button>' +
       '<button type="button" data-mat-selected-unread disabled>Mark selected unread</button>' +
+      '<button type="button" data-mat-archive-selected disabled>Archive selected</button>' +
+      '<button type="button" data-mat-restore-selected hidden>Restore selected</button>' +
       '<button type="button" class="is-danger" data-mat-delete-selected disabled>Delete selected</button></div></div></div>' +
       '<div id="mat-notification-list" class="mat-notification-list" role="list" aria-live="polite"></div>' +
       '<footer class="mat-notification-footer">' +
@@ -975,9 +1010,45 @@
   function deleteNotifications(ids) {
     const wanted = Array.from(new Set((ids || []).map(String).filter(Boolean)));
     if (!wanted.length) return;
+    const wantedSet = new Set(wanted);
+    const now = localTimestamp();
+    const moving = state.notifications.filter(item => wantedSet.has(String(item.id)));
+    moving.forEach(item => state.trash.push(Object.assign({}, item, { deletedAt: now })));
+    state.notifications = state.notifications.filter(item => !wantedSet.has(String(item.id)));
     state.deletedIds = Array.from(new Set((state.deletedIds || []).concat(wanted))).slice(-1000);
-    const deleted = new Set(wanted);
-    state.notifications = state.notifications.filter(item => !deleted.has(String(item.id)));
+    wanted.forEach(id => selectedIds.delete(id));
+    saveState();
+    renderFeed();
+  }
+  function archiveNotifications(ids, archived) {
+    const wanted = new Set((ids || []).map(String));
+    if (!wanted.size) return;
+    const now = localTimestamp();
+    state.notifications.forEach(item => {
+      if (!wanted.has(String(item.id))) return;
+      item.archivedAt = archived ? now : 0;
+      item.updatedAt = item.updatedAt || item.createdAt || now;
+    });
+    saveState();
+    renderFeed();
+  }
+  function restoreNotifications(ids) {
+    const wanted = new Set((ids || []).map(String));
+    if (!wanted.size) return;
+    const restoring = state.trash.filter(item => wanted.has(String(item.id)) && numeric(item.deletedAt) > localTimestamp() - 10 * 86400000);
+    const restoredIds = new Set(restoring.map(item => String(item.id)));
+    state.notifications = state.notifications.filter(item => !restoredIds.has(String(item.id)));
+    restoring.forEach(item => { const copy = Object.assign({}, item); delete copy.deletedAt; state.notifications.push(copy); });
+    state.trash = state.trash.filter(item => !restoredIds.has(String(item.id)));
+    state.deletedIds = (state.deletedIds || []).filter(id => !restoredIds.has(String(id)));
+    state.notifications.sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt));
+    saveState();
+    renderFeed();
+  }
+  function permanentlyDelete(ids) {
+    const wanted = new Set((ids || []).map(String));
+    if (!wanted.size) return;
+    state.trash = state.trash.filter(item => !wanted.has(String(item.id)));
     wanted.forEach(id => selectedIds.delete(id));
     saveState();
     renderFeed();
@@ -1020,7 +1091,17 @@
     const markSelectedUnread = target.closest('[data-mat-selected-unread]');
     if (markSelectedUnread) { markSelected(true); return; }
     const deleteSelected = target.closest('[data-mat-delete-selected]');
-    if (deleteSelected) { deleteSelectedNotifications(); return; }
+    if (deleteSelected) { if (activeFilter === 'trash') permanentlyDelete(pruneSelection()); else deleteSelectedNotifications(); return; }
+    const archiveSelected = target.closest('[data-mat-archive-selected]');
+    if (archiveSelected) { archiveNotifications(pruneSelection(), true); return; }
+    const restoreSelected = target.closest('[data-mat-restore-selected]');
+    if (restoreSelected) { restoreNotifications(pruneSelection()); return; }
+    const archiveOne = target.closest('[data-mat-archive-one]');
+    if (archiveOne) { const id = archiveOne.getAttribute('data-mat-archive-one'); const item = state.notifications.find(entry => String(entry.id) === String(id)); archiveNotifications([id], !(item && item.archivedAt)); return; }
+    const restoreOne = target.closest('[data-mat-restore-one]');
+    if (restoreOne) { restoreNotifications([restoreOne.getAttribute('data-mat-restore-one')]); return; }
+    const purgeOne = target.closest('[data-mat-purge-one]');
+    if (purgeOne) { permanentlyDelete([purgeOne.getAttribute('data-mat-purge-one')]); return; }
     const toggleRead = target.closest('[data-mat-toggle-read]');
     if (toggleRead) { markOneStatus(toggleRead.getAttribute('data-mat-toggle-read'), toggleRead.getAttribute('data-mat-next-unread') === 'true'); return; }
     const deleteOne = target.closest('[data-mat-delete-one]');
@@ -1037,6 +1118,12 @@
       const app = window.app;
       if (app && typeof app.openLeaderboard === 'function') app.openLeaderboard();
       else if (app && typeof app.showView === 'function') app.showView('leaderboard');
+      return;
+    }
+    const notificationRow = target.closest('[data-mat-notification-row]');
+    if (notificationRow && !target.closest('button, input, label, time, a')) {
+      notificationRow.classList.toggle('is-collapsed');
+      notificationRow.setAttribute('aria-expanded', String(!notificationRow.classList.contains('is-collapsed')));
     }
   }
   function bindEvents() {
@@ -1051,7 +1138,7 @@
       if (event.key === 'Escape' && !document.getElementById('mat-notification-center')?.hidden) closeCenter();
     });
     // Relative labels tick forward independently of leaderboard refreshes.
-    window.setInterval(updateRelativeTimes, 60000);
+    window.setInterval(function () { updateRelativeTimes(); if (pruneTrash()) saveState(); }, 60000);
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) {
         updateRelativeTimes();
@@ -1067,7 +1154,9 @@
         const shared = parseJSON(event.newValue, null);
         state = Object.assign(makeEmptyState(), shared || {});
         if (!Array.isArray(state.notifications)) state.notifications = [];
+        if (!Array.isArray(state.trash)) state.trash = [];
         if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
+        pruneTrash();
         if (!state.trophyEvents || typeof state.trophyEvents !== 'object') state.trophyEvents = {};
         renderFeed();
       }
