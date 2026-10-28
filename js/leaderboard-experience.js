@@ -306,7 +306,9 @@
           if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
             window.MedGlobalLeague.refreshFriendDirectory();
           }
-          return true;
+          // Do not hide the API error as a success. The UI catch will show the actual
+          // reason while keeping the confirmed/potential pending state visible.
+          throw error;
         }
         throw error;
       }
@@ -735,6 +737,12 @@
           window.MedGlobalLeague.refreshFriendDirectory();
         }
         renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+      } catch (_) {}
+      // Keep the Friends request panel/leaderboard aligned even when an API action errors.
+      try {
+        if (window.MedGlobalLeague && typeof window.MedGlobalLeague.reload === 'function') {
+          await window.MedGlobalLeague.reload();
+        }
       } catch (_) {}
       setStatus(errorMessage(error), true);
       setFriendPanelStatus(errorMessage(error), true);

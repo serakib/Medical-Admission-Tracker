@@ -1479,7 +1479,12 @@
       if (relation === 'friends') {
         relationLabel = '<span class="mat-friend-state">Friends</span><button type="button" class="mat-row-friend-button danger" data-med-friend-remove="' + escapeHtml(uid) + '"><i class="fa-solid fa-user-minus" aria-hidden="true"></i> Remove Friend</button>';
       } else if (relation === 'outgoing') {
-        relationLabel = '<span class="mat-friend-state pending"><i class="fa-solid fa-clock" aria-hidden="true"></i> Request Sent · Pending</span><button type="button" class="mat-row-friend-button" data-med-friend-cancel-request="' + escapeHtml(outRequest && outRequest.id || '') + '"' + (!outRequest ? ' disabled title="Request sync হচ্ছে; একটু পরে আবার দেখুন"' : '') + '><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>';
+        var outgoingRequestId = String(outRequest && outRequest.id || '');
+        relationLabel = '<span class="mat-friend-state pending"><i class="fa-solid fa-clock" aria-hidden="true"></i> ' +
+          (outgoingRequestId ? 'Request Sent · Pending' : 'Request Sent · Syncing') +
+          '</span><button type="button" class="mat-row-friend-button" data-med-friend-cancel-request="' + escapeHtml(outgoingRequestId) + '"' +
+          (!outgoingRequestId ? ' disabled title="Request ID sync হচ্ছে; একটু পরে আবার দেখুন"' : '') +
+          '><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>';
       } else if (relation === 'incoming') {
         relationLabel = '<span class="mat-friend-state incoming">Incoming Request</span><button type="button" class="mat-row-friend-button" data-med-friend-accept-request="' + escapeHtml(inRequest && inRequest.id || '') + '"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Accept</button><button type="button" class="mat-row-friend-button danger" data-med-friend-reject-request="' + escapeHtml(inRequest && inRequest.id || '') + '">Reject</button>';
       } else {
@@ -1712,13 +1717,28 @@
           await loadLeaderboard(true);
         } catch (error) {
           if (friendAction === 'send' && !friendRequestSendSucceeded) {
-            // A failed send must visibly restore the retry action; do not leave the
-            // button disabled or stuck in its sending/success appearance.
-            friendActionButton.innerHTML = '<i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend';
-            friendActionButton.classList.remove('is-success', 'is-loading');
-            friendActionButton.removeAttribute('aria-label');
-            friendActionButton.disabled = false;
-            setFriendActionStatus(String(error && error.message || error || 'Friend request পাঠানো যায়নি। আবার চেষ্টা করুন।'), true);
+            var sendErrorMessage = String(error && error.message || error || 'Friend request পাঠানো যায়নি। আবার চেষ্টা করুন।');
+            // Reconcile first: a request can succeed server-side even when the client
+            // doesn't receive a valid response, and a duplicate error means it exists.
+            try { await friendsApi.loadConnections(true); } catch (_) {}
+            var connectionSnapshot = friendsApi.getConnectionData && friendsApi.getConnectionData();
+            var isPendingAfterError = !!(connectionSnapshot &&
+              Array.isArray(connectionSnapshot.outgoing) &&
+              connectionSnapshot.outgoing.some(function (request) { return String(request.toUid || '') === targetId; }));
+            if (isPendingAfterError || (friendsApi.getRelationship && friendsApi.getRelationship(targetId) === 'outgoing')) {
+              try { localStorage.setItem('med_friend_request_sent_v1_' + accountKey() + '_' + targetId, 'sent'); } catch (_) {}
+              // Preserve the pending UI, but never hide the actual API error.
+              markFriendRequestSentButton(friendActionButton, friendsApi, targetId);
+            } else {
+              try { localStorage.removeItem('med_friend_request_sent_v1_' + accountKey() + '_' + targetId); } catch (_) {}
+              friendActionButton.innerHTML = '<i class="fa-solid fa-user-plus" aria-hidden="true"></i> Add Friend';
+              friendActionButton.classList.remove('is-success', 'is-loading');
+              friendActionButton.removeAttribute('aria-label');
+              friendActionButton.disabled = false;
+            }
+            renderFriendDirectory((document.getElementById('leaderboard-friend-search') || {}).value || '');
+            try { await loadLeaderboard(true); } catch (_) {}
+            setFriendActionStatus(sendErrorMessage, true);
           } else if (friendAction === 'send' && friendRequestSendSucceeded) {
             // Sending succeeded even if a later background refresh failed. Preserve Cancel.
             markFriendRequestSentButton(friendActionButton, friendsApi, targetId);
