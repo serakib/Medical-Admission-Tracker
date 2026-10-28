@@ -52,11 +52,29 @@
   var suppressRankClickUntil = 0;
   var rankSelectionTouched = false;
 
+  function normalizePeriod(value) {
+    return value === 'all-time' || value === 'weekly' || value === 'friends' ? value : '';
+  }
   function readPeriod() {
+    // Keep this browser tab's selected period across a full page refresh.
     try {
-      var saved = localStorage.getItem(PERIOD_KEY);
-      return saved === 'weekly' || saved === 'friends' ? saved : 'all-time';
-    } catch (_) { return 'all-time'; }
+      var sessionSaved = normalizePeriod(sessionStorage.getItem(PERIOD_KEY));
+      if (sessionSaved) return sessionSaved;
+    } catch (_) {}
+    try {
+      var saved = normalizePeriod(localStorage.getItem(PERIOD_KEY));
+      if (saved) {
+        try { sessionStorage.setItem(PERIOD_KEY, saved); } catch (_) {}
+        return saved;
+      }
+    } catch (_) {}
+    return 'all-time';
+  }
+  function savePeriod(value) {
+    var period = normalizePeriod(value) || 'all-time';
+    try { sessionStorage.setItem(PERIOD_KEY, period); } catch (_) {}
+    try { localStorage.setItem(PERIOD_KEY, period); } catch (_) {}
+    return period;
   }
   function accountKey() {
     return (app.authUser && app.authUser.uid) || localStorage.getItem(GUEST_ID_KEY) || 'guest';
@@ -1070,7 +1088,6 @@
     // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
     if (!silent) setLeaderboardRefreshBusy(true);
     ensureUI();
-    selectedPeriod = readPeriod();
     var periodForRequest = selectedPeriod;
     // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
     // Otherwise a slow friendConnections call leaves the old All-Time request valid long enough
@@ -1588,7 +1605,8 @@
     ensureFriendDirectory();
     ensureOverlays();
     ensureRankBanner();
-    selectedPeriod = readPeriod();
+    // selectedPeriod is the live UI state. Do not overwrite it here during
+    // refreshes or background syncs; only boot/storage/tab events may change it.
     updatePeriodTabs();
   }
   window.addEventListener('resize', function () {
@@ -1620,8 +1638,7 @@
             try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
           }
         }
-        selectedPeriod = nextPeriod;
-        try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
+        selectedPeriod = savePeriod(nextPeriod);
         updatePeriodTabs();
         await loadLeaderboard();
         if (selectedPeriod === 'friends') {
@@ -1941,7 +1958,15 @@
     syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
   });
   window.addEventListener('storage', function (event) {
-    if (event.key === PERIOD_KEY || event.key === GUEST_TOKEN_KEY) { selectedPeriod = readPeriod(); loadLeaderboard(true); }
+    if (event.key === PERIOD_KEY) {
+      // An explicit selection made in another tab is allowed to sync here; a
+      // same-tab refresh never re-reads stale localStorage over the active choice.
+      selectedPeriod = normalizePeriod(event.newValue) || readPeriod();
+      try { sessionStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
+      loadLeaderboard(true);
+    } else if (event.key === GUEST_TOKEN_KEY) {
+      loadLeaderboard(true);
+    }
   });
   if (app.authStateResolved) {
     syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
