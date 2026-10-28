@@ -1251,7 +1251,7 @@ class MedicalExamApp {
                 this.t(`All ${cfg.questions.length} questions from the selected year are included`, `নির্বাচিত বছরের সব ${cfg.questions.length}টি প্রশ্ন থাকবে`),
                 this.t(`Time limit: ${cfg.durationMins} minutes`, `সময়: ${cfg.durationMins} মিনিট`),
                 this.t('+1 for correct, −0.25 for wrong, 0 for skipped', 'সঠিক +১, ভুল −০.২৫, স্কিপ ০'),
-                this.t('Any exam of 100 marks or more uses the special PB earning rule', '১০০ বা তার বেশি মার্কের যেকোনো পরীক্ষায় বিশেষ PB earning rule প্রযোজ্য'),
+                this.t('Exams with 30 or more questions use the percentage-based special reward rule', '৩০ বা তার বেশি প্রশ্নের পরীক্ষায় percentage-based special reward rule প্রযোজ্য'),
                 this.t('Time ending submits automatically', 'সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')
             ]
             : (cfg.mode === 'challenge')
@@ -2539,28 +2539,24 @@ window.handleAccountDeletion = function() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) settlePBNow(); });
   window.setInterval(settlePBNow, 30000);
   const calculateExamReward = (state, correct) => {
-    const is100MarkModelTest = Array.isArray(state?.questions) && state.questions.length >= 100;
-    let weightedCorrect = Math.max(0, Number(correct) || 0);
-    if (is100MarkModelTest) {
-      const blocks = [
-        { upTo: 40, multiplier: 1 },
-        { upTo: 50, multiplier: 2 },
-        { upTo: 60, multiplier: 4 },
-        { upTo: 70, multiplier: 5 },
-        { upTo: 79, multiplier: 7 },
-        { upTo: 100, multiplier: 10 }
-      ];
-      let previous = 0;
+    const totalQuestions = Array.isArray(state?.questions) ? state.questions.length : 0;
+    const hasWeightedExamRule = totalQuestions >= 30;
+    const correctCount = Math.max(0, Math.min(totalQuestions, Math.floor(Number(correct) || 0)));
+    let weightedCorrect = correctCount;
+    if (hasWeightedExamRule) {
       weightedCorrect = 0;
-      for (const block of blocks) {
-        const count = Math.max(0, Math.min(Number(correct) || 0, block.upTo) - previous);
-        weightedCorrect += count * block.multiplier;
-        previous = block.upTo;
+      for (let answerNumber = 1; answerNumber <= correctCount; answerNumber++) {
+        const correctPercent = answerNumber * 100 / totalQuestions;
+        const multiplier = correctPercent <= 40 ? 1
+          : correctPercent <= 50 ? 2
+          : correctPercent <= 60 ? 4
+          : correctPercent <= 70 ? 5
+          : correctPercent <= 79 ? 7
+          : 10;
+        weightedCorrect += multiplier;
       }
-      // Exams above 100 marks keep the top-tier PB multiplier for every additional correct answer.
-      weightedCorrect += Math.max(0, (Number(correct) || 0) - 100) * 10;
     }
-    return { rankPoints: weightedCorrect * 15, xp: 0, weightedCorrect, is100MarkModelTest };
+    return { rankPoints: weightedCorrect * 15, xp: 0, weightedCorrect, hasWeightedExamRule };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
