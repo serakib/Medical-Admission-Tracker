@@ -241,8 +241,9 @@
       let target=0;
       for(let j=0;j<i;j++)target+=requiredRP(j);
       const earned=points>=target;
-      // Show the cost of that rank's next upgrade; Immortal shows its cumulative unlock threshold.
-      const required=i<trophyRanks.length-1?requiredRP(i):target;
+      // Every card shows the cumulative lifetime RP threshold to unlock that rank.
+      // The per-rank upgrade cost is used internally by rankFromPoints(), not as the displayed threshold.
+      const required=target;
       const c=rank[1],d=rank[2],s=rank[3];
       const emblem=buildTrophyEmblem(i,c,d,s);
       const stage=i%5+1;
@@ -250,7 +251,7 @@
 
       cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="exam-trophy-rp-caption">RP: '+required.toLocaleString()+'</div><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+d+'">'+required.toLocaleString()+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'REQUIRES '+required.toLocaleString()+' RP')+'</small></article>';
     });
-    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show their RP target.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
+    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show the total lifetime RP needed to unlock them.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
     // Make all ranks visually distinguishable, even within the same colour tier.
     host.querySelectorAll('.exam-trophy-item').forEach(function(card,index){
       const stage=index%3;
