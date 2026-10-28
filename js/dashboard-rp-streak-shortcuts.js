@@ -28,13 +28,14 @@
     .mat-streak-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 12px}
     .mat-streak-tab{padding:8px 13px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:999px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#0f172a)}
     .mat-streak-tab[aria-selected="true"]{background:#ea580c;color:#fff;border-color:#ea580c}
-    .mat-streak-chart{display:flex;align-items:stretch;gap:5px;min-height:150px;padding:12px 8px 0;border-bottom:1px solid var(--line,rgba(148,163,184,.2));overflow-x:auto}
-    .mat-streak-column{display:flex;flex:1 0 18px;min-width:18px;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px}
-    .mat-streak-bar-wrap{display:flex;align-items:flex-end;justify-content:center;height:112px;width:100%}
-    .mat-streak-bar{width:min(100%,22px);min-height:3px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#fb923c,#ea580c)}
-    .mat-streak-bar.is-active{background:linear-gradient(180deg,#34d399,#059669)}
-    .mat-streak-label{font-size:9px;line-height:1.2;color:var(--muted,#64748b);white-space:nowrap}
-    .mat-streak-legend{font-size:11px;color:var(--muted,#64748b);margin-top:10px}
+    .mat-streak-chart{width:100%;overflow-x:auto;padding:8px 0 0}
+    .mat-streak-chart svg{display:block;width:100%;min-width:420px;height:auto;overflow:visible}
+    .mat-streak-grid{stroke:var(--line,rgba(148,163,184,.2));stroke-width:1;stroke-dasharray:4 5}
+    .mat-streak-axis-label{fill:var(--muted,#64748b);font-size:10px}
+    .mat-streak-point{stroke:var(--surface,#fff);stroke-width:2}
+    .mat-streak-legend{font-size:11px;line-height:1.6;color:var(--muted,#64748b);margin-top:10px}
+    .mat-streak-legend .up{color:#059669;font-weight:900}
+    .mat-streak-legend .down{color:#dc2626;font-weight:900}
     @media(max-width:640px){.mat-profile-streak-button{top:76px;right:10px;padding:9px 12px;font-size:12px}.mat-streak-chart{gap:3px;padding-left:3px;padding-right:3px}.mat-streak-label{font-size:8px}}
     #leaderboard-body td,#leaderboard-body th{padding:9px 8px!important}
     #leaderboard-body th{white-space:nowrap;font-size:12px}
@@ -95,17 +96,17 @@
   }
   function streakGraphMarkup(period, dates) {
     const today = dhakaTodayDate();
-    let items = [];
+    const items = [];
     if (period === 'weekly') {
       for (let i=6;i>=0;i--) {
         const date = dateOffset(today, -i);
         const d = new Date(date + 'T00:00:00Z');
-        items.push({ date, label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()], active: dates.has(date) ? 1 : 0 });
+        items.push({ date, label: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()], value: dates.has(date) ? 1 : 0 });
       }
     } else if (period === 'monthly') {
       for (let i=29;i>=0;i--) {
         const date = dateOffset(today, -i);
-        items.push({ date, label: date.slice(8), active: dates.has(date) ? 1 : 0 });
+        items.push({ date, label: date.slice(8), value: dates.has(date) ? 1 : 0 });
       }
     } else {
       for (let month=0;month<12;month++) {
@@ -115,15 +116,39 @@
         const y = Math.floor(index/12), m = index%12;
         const prefix = y + '-' + String(m+1).padStart(2,'0') + '-';
         const count = Array.from(dates).filter(date => date.startsWith(prefix)).length;
-        items.push({ date: prefix.slice(0,7), label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m], active: count, month:true });
+        items.push({ date: prefix.slice(0,7), label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m], value: count });
       }
     }
-    const max = Math.max(1, ...items.map(item => item.active));
-    return items.map(item => {
-      const height = item.active ? Math.max(12, Math.round(item.active / max * 100)) : 3;
-      const title = item.month ? item.date + ': ' + item.active + ' active day(s)' : item.date + ': ' + (item.active ? 'Active' : 'No activity recorded');
-      return '<div class="mat-streak-column" title="' + esc(title) + '"><div class="mat-streak-bar-wrap"><div class="mat-streak-bar ' + (item.active ? 'is-active' : '') + '" style="height:' + height + '%"></div></div><span class="mat-streak-label">' + esc(item.label) + '</span></div>';
+    const width = 620, height = 230, left = 42, right = 12, top = 18, bottom = 34;
+    const plotWidth = width-left-right, plotHeight = height-top-bottom;
+    const max = Math.max(1, ...items.map(item => item.value));
+    const yMax = period === 'yearly' ? Math.max(4, Math.ceil(max/4)*4) : 1;
+    const points = items.map((item, i) => ({
+      ...item,
+      x: left + (items.length <= 1 ? plotWidth/2 : i*plotWidth/(items.length-1)),
+      y: top + plotHeight - (item.value/yMax)*plotHeight
+    }));
+    const grid = [0, .25, .5, .75, 1].map(ratio => {
+      const y = top + plotHeight - ratio*plotHeight;
+      const label = Math.round(yMax*ratio);
+      return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-9) + '" y="' + (y+4) + '" text-anchor="end">' + label + '</text>';
     }).join('');
+    const segments = points.slice(1).map((point, i) => {
+      const previous = points[i];
+      const color = point.value > previous.value ? '#059669' : point.value < previous.value ? '#dc2626' : '#64748b';
+      return '<line x1="' + previous.x + '" y1="' + previous.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.8" stroke-linecap="round"/>';
+    }).join('');
+    const area = points.map((point, i) => (i ? 'L' : 'M') + point.x + ' ' + point.y).join(' ') + ' L ' + points[points.length-1].x + ' ' + (top+plotHeight) + ' L ' + points[0].x + ' ' + (top+plotHeight) + ' Z';
+    const circles = points.map(point => {
+      const title = point.date + ': ' + point.value + (period === 'yearly' ? ' active day(s)' : ' active day');
+      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="4" fill="' + (point.value ? '#059669' : '#dc2626') + '"><title>' + esc(title) + '</title></circle>';
+    }).join('');
+    const labelStep = period === 'monthly' ? 5 : 1;
+    const labels = points.map((point, i) => {
+      if (i % labelStep !== 0 && i !== points.length-1) return '';
+      return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-10) + '" text-anchor="middle">' + esc(point.label) + '</text>';
+    }).join('');
+    return '<svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Line graph of recorded activity trend"><text class="mat-streak-axis-label" x="12" y="12">Activity</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
   function openProfileStreak() {
     const progress = profileProgress();
@@ -147,7 +172,7 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
-      '<p class="mat-streak-legend">সবুজ bar = activity recorded · ফাঁকা/কমলা bar = activity record নেই। Graph-এ সংরক্ষিত activity date-ই দেখানো হয়।</p>';
+      '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = date/month, Y-axis = recorded active days. Graph-এ সংরক্ষিত activity date-ই দেখানো হয়।</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
     const render = period => {
