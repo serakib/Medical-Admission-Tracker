@@ -113,7 +113,7 @@ If the Friends panel reports a permission error, the deployed rules do not yet a
 
 The notification center can sync its read/unread state, friend activity snapshots and trophy-rank alerts for **registered, signed-in accounts** using the studentActivityNotificationStates collection. Guest accounts continue to use browser-local storage. Merge the following match into the existing Firestore rules; this repository does not deploy rules to Firebase automatically.
 
-\`\`\`javascript
+```javascript
 match /studentActivityNotificationStates/{uid} {
   allow get: if request.auth != null && request.auth.uid == uid;
   allow list: if false;
@@ -133,6 +133,6 @@ match /studentActivityNotificationStates/{uid} {
 
   allow delete: if false;
 }
-\`\`\`
+```
 
 This collection contains only the signed-in user's private notification state. Do not add a broad public read rule. If the match above has not been deployed in Firebase Console, the app falls back to local browser storage and the feed will not sync between devices until the rule is merged and deployed.
