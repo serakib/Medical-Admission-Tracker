@@ -72,8 +72,7 @@
     .mat-streak-range-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 12px}
     .mat-streak-range-nav button{padding:9px 13px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:11px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#0f172a)}
     .mat-streak-range-label{font-size:12px;font-weight:850;color:var(--muted,#64748b);text-align:center}
-    .mat-streak-chart{touch-action:pan-y;cursor:default}
-    .mat-streak-chart svg{min-width:0;width:100%;max-width:100%;height:auto}
+    .mat-streak-chart{touch-action:pan-y;cursor:default;overflow-x:hidden;padding:12px;min-height:250px}\n    .mat-streak-chart svg{display:block;min-width:0;width:100%;max-width:100%;height:auto;overflow:visible}\n    .mat-streak-chart .mat-streak-axis-label{font-size:12px}\n    .mat-streak-chart .mat-streak-point{stroke:var(--surface,#fff);stroke-width:2.5}
     .mat-streak-fullscreen .mat-streak-tabs{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:16px}
     .mat-streak-fullscreen .mat-streak-calendar{width:100%;max-width:620px;margin:0 auto}
     @media(max-width:640px){.mat-streak-fullscreen{padding:12px}.mat-streak-fullscreen-head{gap:9px}.mat-streak-back{padding:9px 10px;font-size:12px}.mat-streak-fullscreen .mat-streak-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.mat-streak-fullscreen .mat-streak-tab{font-size:11px;padding:10px 3px}.mat-streak-range-nav button{padding:8px 9px}.mat-streak-range-label{font-size:10px}}
@@ -228,7 +227,7 @@
         items.push({date, label, value:counts.get(date) || 0, key:date});
       }
     }
-    const width = 900, height = 270, left = 48, right = 14, top = 28, bottom = 48;
+    const width = 760, height = 300, left = 52, right = 18, top = 34, bottom = 52;
     const plotWidth = width-left-right, plotHeight = height-top-bottom;
     const max = Math.max(0, ...items.map(item => item.value));
     const yMax = Math.max(4, Math.ceil(max / 4) * 4);
@@ -237,14 +236,14 @@
       const y = top + plotHeight - ratio*plotHeight;
       return '<line class="mat-streak-grid" x1="' + left + '" y1="' + y + '" x2="' + (width-right) + '" y2="' + y + '"/><text class="mat-streak-axis-label" x="' + (left-10) + '" y="' + (y+4) + '" text-anchor="end">' + Math.round(yMax*ratio) + '</text>';
     }).join('');
-    const segments = period === 'daily' ? '' : points.slice(1).map((point,i) => {
+    const segments = points.slice(1).map((point,i) => {
       const prev = points[i], color = point.value > prev.value ? '#059669' : point.value < prev.value ? '#dc2626' : '#64748b';
       return '<line x1="' + prev.x + '" y1="' + prev.y + '" x2="' + point.x + '" y2="' + point.y + '" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
     }).join('');
     const area = period === 'daily' ? '' : points.map((point,i)=>(i?'L':'M')+point.x+' '+point.y).join(' ')+' L '+points[points.length-1].x+' '+(top+plotHeight)+' L '+points[0].x+' '+(top+plotHeight)+' Z';
     const circles = points.map(point => {
       const detail = period === 'daily' ? (String(point.hour).padStart(2,'0') + ':00') : point.date;
-      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="4" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(detail + ': ' + point.value + ' attempted question(s)') + '</title></circle>';
+      return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="5" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(detail + ': ' + point.value + ' attempted question(s)') + '</title></circle>';
     }).join('');
     const labelStep = period === 'daily' ? 2 : 1;
     const labels = points.map((point,i) => {
@@ -257,7 +256,7 @@
     const periodLabel = period === 'daily' ? 'Hourly attempted questions' : 'Daily attempted questions';
     return '<div class="mat-streak-range-nav"><button type="button" data-range-nav="-1" aria-label="Previous range">‹ Previous</button><div class="mat-streak-range-label">' + esc(rangeLabel) + '</div><button type="button" data-range-nav="1" aria-label="Next range">Next ›</button></div><svg viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + periodLabel + '"><text class="mat-streak-axis-label" x="12" y="14">' + periodLabel + '</text>' + grid + '<path d="' + area + '" fill="rgba(16,185,129,.10)"/>' + segments + circles + labels + '</svg>';
   }
-  function streakCalendarMarkup(counts, monthDate, selectedDate) {
+  function streakCalendarMarkup(counts, monthDate, selectedDate, leaderboardInfo) {
     const year = monthDate.getUTCFullYear();
     const month = monthDate.getUTCMonth();
     const first = new Date(Date.UTC(year, month, 1));
@@ -287,19 +286,23 @@
     const accuracy = knownOutcomes ? Math.round(correctCount / knownOutcomes * 1000) / 10 : null;
     const practicedFrom = [...new Set(entries.map(item => item.source || item.subject).filter(Boolean))];
     const leaderboardBefore = entries.map(item => item.leaderboardStatusBefore || {}).find(item => item.rank != null || item.rp != null || item.status);
-    const timeline = entries.length
-      ? '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px">' +
-          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Right answers</small><strong style="display:block;color:#059669;font-size:18px">' + number(correctCount) + '</strong></div>' +
-          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Wrong answers</small><strong style="display:block;color:#dc2626;font-size:18px">' + number(wrongCount) + '</strong></div>' +
-          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Accuracy</small><strong style="display:block;font-size:18px">' + (accuracy == null ? '—' : accuracy + '%') + '</strong></div>' +
-          '<div style="padding:10px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:11px"><small style="color:var(--muted,#64748b)">Practiced from</small><strong style="display:block;font-size:12px;margin-top:4px">' + esc(practicedFrom.join(', ') || 'Not recorded') + '</strong></div>' +
-        '</div><p class="mat-streak-legend" style="margin-top:8px">Leaderboard status before: ' + esc(leaderboardBefore ? [leaderboardBefore.status, leaderboardBefore.rank != null ? 'Rank ' + leaderboardBefore.rank : '', leaderboardBefore.rp != null ? number(leaderboardBefore.rp) + ' RP' : ''].filter(Boolean).join(' · ') : 'Not recorded') + '</p>' +
-        '<div style="display:grid;gap:6px;margin-top:10px">' + entries.slice(0,80).map(item => {
-          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(item.timestamp));
-          const origin = [item.subject, item.source].filter(Boolean).filter((value,index,array) => array.indexOf(value) === index).join(' · ');
-          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line,rgba(148,163,184,.16));border-radius:10px;font-size:11px"><span>' + esc(time + (origin ? ' · ' + origin : '')) + '</span><strong style="color:' + (item.outcome === 'Correct' ? '#059669' : item.outcome === 'Wrong' ? '#dc2626' : 'var(--text,#0f172a)') + '">' + esc(item.outcome || 'Answered') + '</strong></div>';
-        }).join('') + (entries.length > 80 ? '<small>Showing first 80 of ' + entries.length + ' recorded attempts.</small>' : '') + '</div>'
-      : '<p class="mat-streak-legend">No timestamped question attempts are recorded for this date.</p>';
+    const leaderboardActivityMarkup = (() => {
+      const info = leaderboardInfo || {};
+      const prior = info.previousDay || null;
+      const live = info.live || null;
+      const card = (title, row, color) => '<div style="padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px;min-width:0"><small style="display:block;color:var(--muted,#64748b);font-weight:800">' + title + '</small>' +
+        (row ? '<strong style="display:block;margin-top:6px;color:' + color + ';font-size:20px">#' + number(row.position) + '</strong><div style="font-size:12px;margin-top:5px;line-height:1.8">Weekly RP: <b>' + number(row.weeklyRP) + '</b><br>XP: <b>' + number(row.xp) + '</b></div>' :
+        '<p style="font-size:12px;line-height:1.6;margin:6px 0 0;color:var(--muted,#64748b)">Previous-day snapshot not available yet</p>') + '</div>';
+      const friendLines = Array.isArray(info.friendActivity) ? info.friendActivity : [];
+      return '<section style="margin-top:14px"><h3 style="font-size:13px;font-weight:950;margin-bottom:8px">Weekly leaderboard progress</h3><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">' +
+        card('Previous day · ' + (info.previousDate || '—'), prior, '#64748b') +
+        card('Today · live position', live, '#059669') + '</div>' +
+        '<div style="margin-top:12px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px"><strong style="font-size:13px">Friend activity · weekly RP</strong>' +
+        (friendLines.length ? '<div style="display:grid;gap:8px;margin-top:9px">' + friendLines.slice(0,12).map(item =>
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:12px;line-height:1.5"><span><b>' + esc(item.name) + '</b> ' + esc(item.message) + '</span><strong style="white-space:nowrap;color:' + (item.direction === 'friend-passed' ? '#dc2626' : '#059669') + '">' + (item.delta > 0 ? '+' : '') + number(item.delta) + ' RP</strong></div>'
+        ).join('') + '</div>' : '<p style="font-size:12px;line-height:1.6;margin:7px 0 0;color:var(--muted,#64748b)">No new friend position changes are recorded yet.</p>') +
+        '</div><p class="mat-streak-legend">Previous-day values appear after a daily leaderboard snapshot has been saved. Live values use the latest available Weekly leaderboard data.</p></section>';
+    })();
     const examTimeline = examAttempts.length
       ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
           const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
@@ -315,7 +318,7 @@
       '<div class="mat-streak-calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>' +
       '<div class="mat-streak-calendar-days">' + cells + '</div>' +
       '<div class="mat-streak-calendar-detail"><div><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></div><div class="mat-streak-calendar-total"><b>' + number(selectedCount) + '</b><small>attempted questions</small></div></div>' +
-      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Times use Bangladesh time (Asia/Dhaka).</p>' + timeline + examTimeline + '</section>';
+      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Times use Bangladesh time (Asia/Dhaka).</p>' + leaderboardActivityMarkup + examTimeline + '</section>';
   }
 
   function openProfileStreak() {
@@ -329,6 +332,53 @@
     const highestFallback = publicStudent ? current : (app.profile?.highestStreak ?? current);
     const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? highestFallback) || 0);
     const counts = publicStudent ? new Map() : attemptedQuestionCounts();
+    const weeklySnapshotKey = 'med_streak_weekly_snapshots_v1_' + String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || 'guest');
+    const today = dhakaTodayDate();
+    const previousDate = dateOffset(today, -1);
+    const getWeeklyRows = period => {
+      try {
+        const rows = window.MedGlobalLeague?.getCachedRows?.(period) || [];
+        return Array.isArray(rows) ? rows.map(row => row && row.raw ? row.raw : row).filter(Boolean) : [];
+      } catch (_) { return []; }
+    };
+    const rowId = row => String(row?.userId || row?.uid || row?.playerId || row?.id || '');
+    const rowName = row => String(row?.name || row?.username || 'Student');
+    const weeklyValue = row => Math.max(0, Number(row?.weeklyRP ?? row?.weeklyRankPoints ?? row?.boardPoints ?? row?.WeeklyRP ?? 0) || 0);
+    const xpValue = row => Math.max(0, Number(row?.xp ?? row?.XP ?? 0) || 0);
+    const ownId = String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || '');
+    let savedSnapshots = {};
+    try { savedSnapshots = JSON.parse(localStorage.getItem(weeklySnapshotKey) || '{}') || {}; } catch (_) {}
+    const weeklyRows = getWeeklyRows('weekly').slice().sort((a,b) => weeklyValue(b)-weeklyValue(a) || xpValue(b)-xpValue(a));
+    const friendIds = new Set(getWeeklyRows('friends').map(rowId).filter(id => id && id !== ownId));
+    const rankedRows = weeklyRows.map((row,index) => ({
+      userId:rowId(row), name:rowName(row), position:index+1,
+      weeklyRP:weeklyValue(row), xp:xpValue(row), rank:row.rank || row.currentRank || ''
+    }));
+    const ownLive = rankedRows.find(row => row.userId === ownId) || null;
+    const friendsLive = rankedRows.filter(row => friendIds.has(row.userId));
+    if (ownLive) {
+      savedSnapshots[today] = { date:today, own:ownLive, friends:friendsLive };
+      const snapshotDates = Object.keys(savedSnapshots).sort();
+      snapshotDates.slice(0, Math.max(0, snapshotDates.length - 45)).forEach(date => delete savedSnapshots[date]);
+      try { localStorage.setItem(weeklySnapshotKey, JSON.stringify(savedSnapshots)); } catch (_) {}
+    }
+    const priorSnapshot = savedSnapshots[previousDate] || null;
+    const previousOwn = priorSnapshot?.own || null;
+    const previousFriends = Array.isArray(priorSnapshot?.friends) ? priorSnapshot.friends : [];
+    const liveFriendById = new Map(friendsLive.map(row => [row.userId, row]));
+    const previousFriendById = new Map(previousFriends.map(row => [row.userId, row]));
+    const friendActivity = [];
+    previousFriends.forEach(friend => {
+      const live = liveFriendById.get(friend.userId);
+      if (!live) return;
+      const delta = live.weeklyRP - Number(friend.weeklyRP || 0);
+      const passedUser = previousOwn && friend.position > previousOwn.position && live.position < ownLive?.position;
+      const userPassed = previousOwn && friend.position < previousOwn.position && live.position > ownLive?.position;
+      if (passedUser) friendActivity.push({name:live.name, message:'passed you today', delta, direction:'friend-passed'});
+      else if (userPassed) friendActivity.push({name:live.name, message:'you passed them today', delta, direction:'user-passed'});
+      else if (delta !== 0) friendActivity.push({name:live.name, message:(delta > 0 ? 'gained' : 'lost') + ' weekly RP today', delta, direction:delta > 0 ? 'friend-passed' : 'user-passed'});
+    });
+    const leaderboardInfo = { previousDate, previousDay:previousOwn, live:ownLive, friendActivity };
     const overlay = document.createElement('section');
     overlay.id = 'mat-streak-fullscreen';
     overlay.className = 'mat-streak-fullscreen';
@@ -367,7 +417,7 @@
       overlay.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
       if (!chart) return;
       chart.innerHTML = period === 'calendar'
-        ? streakCalendarMarkup(counts, calendarMonth, selectedCalendarDate)
+        ? streakCalendarMarkup(counts, calendarMonth, selectedCalendarDate, leaderboardInfo)
         : streakGraphMarkup(period, counts, anchorDate);
       chart.style.overflowX = 'visible';
       chart.style.cursor = 'default';
@@ -421,10 +471,13 @@
       if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.25) shiftRange(dx < 0 ? -1 : 1);
       swipeStart = null;
     }, {passive:true});
+    let lastWheelRangeChange = 0;
     chart?.addEventListener('wheel', event => {
-      if (activePeriod === 'calendar' || Math.abs(event.deltaX) < 25 || Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
-      if (event.deltaX > 0) shiftRange(-1);
-      else shiftRange(1);
+      if (activePeriod === 'calendar' || Math.abs(event.deltaX) < 30 || Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
+      const now = Date.now();
+      if (now - lastWheelRangeChange < 450) return;
+      lastWheelRangeChange = now;
+      shiftRange(event.deltaX > 0 ? -1 : 1);
     }, {passive:true});
   }
   function ensureProfileStreakButton() {
