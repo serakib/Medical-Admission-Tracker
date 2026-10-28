@@ -1330,4 +1330,8 @@ html.dark .mat-guest-deletion-label,body.dark .mat-guest-deletion-label,html.dar
 .mat-notification-announcement-filter:not([hidden]){display:inline-flex;align-items:center;gap:7px}
 .mat-notification-toolbar [hidden],.mat-notification-toolbar-main [hidden],.mat-notification-filters [hidden]{display:none!important}
 .mat-notification-list:has(.mat-notification-announcement-view){overflow-y:auto;overflow-x:hidden;align-items:stretch}
+.mat-notification-list:has(.mat-notification-announcement-view){height:auto;min-height:0;max-height:100%;}
+.mat-notification-announcement-view .mat-guest-deletion-announcement p{display:block;height:auto;min-height:0;max-height:none;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;}
+.mat-notification-guest-signin-recovered{flex:0 0 auto;width:100%;box-sizing:border-box;min-height:300px;height:auto;padding:28px 22px;border-top:1px solid var(--border,rgba(148,163,184,.2));}
+.mat-notification-announcement-view .mat-guest-deletion-announcement{flex-shrink:0;}
 @media(max-width:560px){.mat-notification-announcement-view .mat-guest-deletion-announcement{padding:14px 12px}.mat-notification-announcement-view .mat-guest-deletion-announcement p{font-size:12px;line-height:1.85}}
