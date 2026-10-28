@@ -531,7 +531,7 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="daily" aria-selected="true">Daily</button><button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="false">Weekly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button><button class="mat-streak-tab" type="button" data-streak-period="calendar" aria-selected="false">Calendar</button></div>' +
       '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
-      '<p class="mat-streak-legend"><span class="up">Green = activity</span> · <span class="down">Red = change from previous point</span> · Daily = hourly · Weekly = 7 days · Monthly = 10 days per view. Swipe left for older activity and right for newer activity. Calendar and date details remain available.</p></div></div>';
+      '<p class="mat-streak-legend"><span class="up">Green = activity</span> · <span class="down">Red = change from previous point</span> · Daily = hourly · Weekly = 7 days · Monthly = full calendar month (28–31 days). Swipe left for older activity and right for newer activity. Calendar and date details remain available.</p></div></div>';
     document.body.appendChild(overlay);
     const chart = overlay.querySelector('#mat-streak-chart');
     let activePeriod = 'daily';
