@@ -732,7 +732,7 @@
       const detectedAt = new Date(timestamp);
       // Exact event time (including milliseconds) keeps distinct timestamps visibly distinct,
       // while the relative age advances live.
-      time.textContent = exactTimeLabel(timestamp) + ' · ' + relativeTime(timestamp);
+      time.textContent = relativeTime(timestamp);
       time.title = 'Detected by this site at ' + new Intl.DateTimeFormat('en-GB', {
         dateStyle: 'medium', hour: '2-digit', minute: '2-digit', second: '2-digit',
         hourCycle: 'h23', timeZone: 'Asia/Dhaka'
