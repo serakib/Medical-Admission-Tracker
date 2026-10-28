@@ -108,11 +108,24 @@
                 .filter((timestamp, i, values) => Number.isFinite(Number(timestamp)) && values.indexOf(timestamp) === i)
                 .map(Number);
           attemptTimestamps.push(now);
+          const attemptRecords = Array.isArray(previous && previous.attemptRecords) ? previous.attemptRecords.slice() : [];
+          const profile = app.profile || {};
+          const leaderboardStatusBefore = {
+            rank: profile.rank ?? profile.currentRank ?? null,
+            rp: profile.totalRP ?? profile.rankPoints ?? profile.currentRP ?? null,
+            status: profile.leaderboardStatus ?? null
+          };
+          attemptRecords.push({
+            timestamp: now, correct, subject: question && question.subject || 'Medical',
+            source: question && (question.source || question.year) || '',
+            leaderboardStatusBefore
+          });
           history[key] = {
             key, question, subject: question && question.subject || 'Medical',
             userAnswerIndex: Number(answerIndex), correctAnswerIndex: correctIndex,
             correct, attempted: true, attempts: Math.max(0, Number(previous && previous.attempts) || 0) + 1,
-            attemptTimestamps, firstAttemptAt: previous && previous.firstAttemptAt || now, updatedAt: now
+            attemptTimestamps, attemptRecords, leaderboardStatusBefore,
+            firstAttemptAt: previous && previous.firstAttemptAt || now, updatedAt: now
           };
         });
         safeWrite(history);
