@@ -1084,11 +1084,12 @@
       var apiPeriod = selectedPeriod === 'weekly' ? 'weekly' : 'all-time';
       var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
       if (selectedPeriod !== 'friends' && currentUserId()) {
-        // The notification center can request exact weekly positions for accepted friends,
+        // The notification center can request exact global positions for accepted friends,
         // including those outside the public Top-100 list. Normal navigation stays unchanged.
-        var activityFriendIds = Array.isArray(window.__medActivityFriendIdsForWeeklyRefresh)
-          ? window.__medActivityFriendIdsForWeeklyRefresh.map(String).filter(Boolean) : [];
-        leaderboardPayload.includeUserIds = Array.from(new Set([currentUserId()].concat(activityFriendIds))).slice(0, 500);
+        var activityFriendIds = selectedPeriod === 'weekly'
+          ? (Array.isArray(window.__medActivityFriendIdsForWeeklyRefresh) ? window.__medActivityFriendIdsForWeeklyRefresh : [])
+          : (Array.isArray(window.__medActivityFriendIdsForAllTimeRefresh) ? window.__medActivityFriendIdsForAllTimeRefresh : []);
+        leaderboardPayload.includeUserIds = Array.from(new Set([currentUserId()].concat(activityFriendIds.map(String).filter(Boolean)))).slice(0, 500);
       }
       if (selectedPeriod === 'friends') {
         var friendIds = window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function'
