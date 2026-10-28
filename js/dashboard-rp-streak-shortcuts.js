@@ -65,7 +65,7 @@
     .mat-streak-legend .up{color:#059669;font-weight:900}
     .mat-streak-legend .down{color:#dc2626;font-weight:900}
     .mat-streak-fullscreen{position:fixed;inset:0;z-index:15000;overflow:auto;background:var(--surface,#fff);color:var(--text,#0f172a);padding:clamp(12px,2.5vw,30px);overscroll-behavior:contain}
-    .mat-streak-fullscreen-head{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:8px 0 16px;margin-bottom:14px;background:var(--surface,#fff);border-bottom:1px solid var(--line,rgba(148,163,184,.2))}
+    .mat-streak-fullscreen-head{position:static;top:auto;z-index:5;display:flex;align-items:center;gap:14px;padding:8px 0 16px;margin-bottom:14px;background:var(--surface,#fff);border-bottom:1px solid var(--line,rgba(148,163,184,.2))}
     .mat-streak-back{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;padding:10px 14px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;cursor:pointer}
     .mat-streak-fullscreen-title{font-size:clamp(20px,3vw,30px);font-weight:950;margin:0}
     .mat-streak-fullscreen-content{max-width:1250px;margin:0 auto}
@@ -553,17 +553,19 @@
     });
 
     let swipeStart = null;
-    chart?.addEventListener('touchstart', event => {
-      if (activePeriod === 'calendar' || !event.touches?.length) return;
-      swipeStart = {x:event.touches[0].clientX, y:event.touches[0].clientY};
+    // Pointer events cover touchscreens, pens and mouse/trackpad drags consistently.
+    chart?.addEventListener('pointerdown', event => {
+      if (activePeriod === 'calendar' || event.button !== 0) return;
+      swipeStart = {x:event.clientX, y:event.clientY, pointerId:event.pointerId};
     }, {passive:true});
-    chart?.addEventListener('touchend', event => {
-      if (!swipeStart || activePeriod === 'calendar' || !event.changedTouches?.length) { swipeStart = null; return; }
-      const dx = event.changedTouches[0].clientX - swipeStart.x;
-      const dy = event.changedTouches[0].clientY - swipeStart.y;
-      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.25) shiftRange(dx < 0 ? -1 : 1);
+    chart?.addEventListener('pointerup', event => {
+      if (!swipeStart || activePeriod === 'calendar' || event.pointerId !== swipeStart.pointerId) { swipeStart = null; return; }
+      const dx = event.clientX - swipeStart.x;
+      const dy = event.clientY - swipeStart.y;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.25) shiftRange(dx < 0 ? -1 : 1);
       swipeStart = null;
     }, {passive:true});
+    chart?.addEventListener('pointercancel', () => { swipeStart = null; }, {passive:true});
     let lastWheelRangeChange = 0;
     chart?.addEventListener('wheel', event => {
       if (activePeriod === 'calendar' || Math.abs(event.deltaX) < 30 || Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
