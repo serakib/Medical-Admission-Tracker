@@ -1481,9 +1481,9 @@
       } else if (relation === 'outgoing') {
         var outgoingRequestId = String(outRequest && outRequest.id || '');
         relationLabel = '<span class="mat-friend-state pending"><i class="fa-solid fa-clock" aria-hidden="true"></i> ' +
-          (outgoingRequestId ? 'Request Sent · Pending' : 'Request Sent · Syncing') +
+          (outgoingRequestId ? 'Request Sent · Pending' : outRequest && outRequest.idSyncFailed ? 'Request Sent · ID unavailable' : 'Request Sent · Syncing') +
           '</span><button type="button" class="mat-row-friend-button" data-med-friend-cancel-request="' + escapeHtml(outgoingRequestId) + '"' +
-          (!outgoingRequestId ? ' disabled title="Request ID sync হচ্ছে; একটু পরে আবার দেখুন"' : '') +
+          (!outgoingRequestId ? ' disabled title="' + (outRequest && outRequest.idSyncFailed ? 'Backend request ID পাওয়া যায়নি; API deployment পরীক্ষা করুন' : 'Request ID sync হচ্ছে; একটু পরে আবার দেখুন') + '"' : '') +
           '><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel Request</button>';
       } else if (relation === 'incoming') {
         relationLabel = '<span class="mat-friend-state incoming">Incoming Request</span><button type="button" class="mat-row-friend-button" data-med-friend-accept-request="' + escapeHtml(inRequest && inRequest.id || '') + '"><i class="fa-solid fa-user-check" aria-hidden="true"></i> Accept</button><button type="button" class="mat-row-friend-button danger" data-med-friend-reject-request="' + escapeHtml(inRequest && inRequest.id || '') + '">Reject</button>';
@@ -1573,7 +1573,9 @@
       button.disabled = false;
     } else {
       button.removeAttribute('data-med-friend-cancel-request');
-      button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Request Sent · Syncing';
+      var syncFailed = !!(pending && pending.idSyncFailed);
+      button.innerHTML = '<i class="fa-solid fa-' + (syncFailed ? 'triangle-exclamation' : 'clock') + '" aria-hidden="true"></i> Request Sent · ' + (syncFailed ? 'ID unavailable' : 'Syncing');
+      button.title = syncFailed ? 'Backend request ID পাওয়া যায়নি; API deployment পরীক্ষা করুন' : 'Request ID sync হচ্ছে';
       button.disabled = true;
     }
     return requestId;

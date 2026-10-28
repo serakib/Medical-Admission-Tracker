@@ -13,12 +13,32 @@
   let connectionLoadSequence = 0;
   let cancelledFeedback = new Map();
   const pendingFriendActions = new Map();
+  const requestIdSyncStates = new Map();
+  const requestIdSyncFailedTargets = new Set();
+  const REQUEST_ID_SYNC_DELAY_MS = 2500;
+  const REQUEST_ID_SYNC_MAX_ATTEMPTS = 4;
   let activePublicProfile = null;
   let lastFriendError = '';
 
   const safeText = (value, max = 180) => String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const fmt = value => Math.max(0, Number(value) || 0).toLocaleString();
+  function normalizeFriendRequest(request, defaultDirection) {
+    const item = request && typeof request === 'object' ? request : {};
+    const first = (...values) => values.find(value => value !== undefined && value !== null && String(value).trim() !== '');
+    return Object.assign({}, item, {
+      id: String(first(item.id, item.requestId, item.requestID, item.request_id, item.RequestID, item.recordId, item.recordID, item.record_id, item.RecordID, item.ID) || ''),
+      fromUid: String(first(item.fromUid, item.fromUserId, item.FromUserID, item.from_user_id) || ''),
+      toUid: String(first(item.toUid, item.toUserId, item.ToUserID, item.to_user_id) || ''),
+      fromName: String(first(item.fromName, item.FromName, item.senderName) || 'Student'),
+      toName: String(first(item.toName, item.ToName, item.recipientName) || 'Student'),
+      status: String(first(item.status, item.Status) || 'pending'),
+      direction: String(first(item.direction, defaultDirection) || '')
+    });
+  }
+  function normalizeFriendRequestList(requests, direction) {
+    return (Array.isArray(requests) ? requests : []).map(request => normalizeFriendRequest(request, direction));
+  }
   const guestToken = () => {
     try { return String(localStorage.getItem('med_sheet_guest_token_v1') || '').trim(); }
     catch (_) { return ''; }
@@ -60,15 +80,16 @@
   function mergeRecentOutgoingRequests(serverOutgoing) {
     const now = Date.now();
     const serverByTarget = new Map();
-    (Array.isArray(serverOutgoing) ? serverOutgoing : []).forEach(request => {
-      const targetId = String(request && request.toUid || '');
+    normalizeFriendRequestList(serverOutgoing, 'outgoing').forEach(request => {
+      const targetId = String(request.toUid || '');
       if (targetId) serverByTarget.set(targetId, request);
     });
     const cachedByTarget = new Map();
     readOutgoingRequestCache().forEach(entry => {
-      const targetId = String(entry.request.toUid || '');
+      const cachedRequest = normalizeFriendRequest(entry.request, 'outgoing');
+      const targetId = String(cachedRequest.toUid || '');
       if (targetId && now - Number(entry.seenAt) <= OUTGOING_REQUEST_CACHE_TTL_MS) {
-        cachedByTarget.set(targetId, entry);
+        cachedByTarget.set(targetId, { request: cachedRequest, seenAt: entry.seenAt });
       }
     });
     serverByTarget.forEach((request, targetId) => {
@@ -100,6 +121,91 @@
     if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === id) {
       renderRelationshipActions(activePublicProfile);
     }
+    syncMissingRequestIds();
+  }
+
+  function stopRequestIdSync(targetId) {
+    const id = String(targetId || '');
+    const state = requestIdSyncStates.get(id);
+    if (state && state.timer) clearTimeout(state.timer);
+    requestIdSyncStates.delete(id);
+  }
+  function scheduleRequestIdSync(targetId, attempt = 0) {
+    const id = String(targetId || '');
+    if (!id || requestIdSyncStates.has(id) || requestIdSyncFailedTargets.has(id)) return;
+    const state = { timer: null, attempt: attempt };
+    state.timer = setTimeout(async () => {
+      if (requestIdSyncStates.get(id) !== state) return;
+      state.timer = null;
+      const before = outgoingRequests.find(request => String(request.toUid || '') === id);
+      if (!before) {
+        requestIdSyncStates.delete(id);
+        requestIdSyncFailedTargets.delete(id);
+        return;
+      }
+      if (before.id) {
+        stopRequestIdSync(id);
+        requestIdSyncFailedTargets.delete(id);
+        return;
+      }
+      try { await loadConnections(true); } catch (_) {}
+      const current = outgoingRequests.find(request => String(request.toUid || '') === id);
+      if (!current) {
+        requestIdSyncStates.delete(id);
+        requestIdSyncFailedTargets.delete(id);
+        return;
+      }
+      if (current.id) {
+        stopRequestIdSync(id);
+        requestIdSyncFailedTargets.delete(id);
+        if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+          window.MedGlobalLeague.refreshFriendDirectory();
+        }
+        return;
+      }
+      if (attempt + 1 < REQUEST_ID_SYNC_MAX_ATTEMPTS) {
+        requestIdSyncStates.delete(id);
+        scheduleRequestIdSync(id, attempt + 1);
+        return;
+      }
+      requestIdSyncStates.delete(id);
+      requestIdSyncFailedTargets.add(id);
+      outgoingRequests = outgoingRequests.map(request => String(request.toUid || '') === id
+        ? Object.assign({}, request, { idSyncFailed: true }) : request);
+      rememberOutgoingRequestSnapshot(outgoingRequests);
+      renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+      if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === id) {
+        renderRelationshipActions(activePublicProfile);
+        setStatus('Friend request আছে, কিন্তু API request ID দিচ্ছে না। Apps Script backend deployment পরীক্ষা করতে হবে।', true);
+      }
+      setFriendPanelStatus('Friend request pending থাকতে পারে, কিন্তু API request ID দিচ্ছে না। Apps Script backend deployment পরীক্ষা করুন।', true);
+      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+        window.MedGlobalLeague.refreshFriendDirectory();
+      }
+    }, REQUEST_ID_SYNC_DELAY_MS);
+    requestIdSyncStates.set(id, state);
+  }
+  function syncMissingRequestIds() {
+    const pendingTargets = new Set();
+    outgoingRequests = outgoingRequests.map(request => {
+      const targetId = String(request.toUid || '');
+      if (!targetId) return request;
+      pendingTargets.add(targetId);
+      if (request.id) {
+        stopRequestIdSync(targetId);
+        requestIdSyncFailedTargets.delete(targetId);
+        return Object.assign({}, request, { idSyncFailed: false });
+      }
+      const failed = requestIdSyncFailedTargets.has(targetId);
+      if (!failed) scheduleRequestIdSync(targetId, 0);
+      return Object.assign({}, request, { idSyncFailed: failed });
+    });
+    Array.from(requestIdSyncStates.keys()).forEach(targetId => {
+      if (!pendingTargets.has(targetId)) stopRequestIdSync(targetId);
+    });
+    Array.from(requestIdSyncFailedTargets).forEach(targetId => {
+      if (!pendingTargets.has(targetId)) requestIdSyncFailedTargets.delete(targetId);
+    });
   }
 
   const ownProfile = () => Object.assign({}, app.profile || {}, {
@@ -203,8 +309,9 @@
 
         acceptedFriendIds = new Set((data.friendIds || []).map(String).filter(id => id && id !== userId()));
         acceptedFriends = Array.isArray(data.friends) ? data.friends : [];
-        incomingRequests = Array.isArray(data.incoming) ? data.incoming : [];
-        outgoingRequests = mergeRecentOutgoingRequests(Array.isArray(data.outgoing) ? data.outgoing : []);
+        incomingRequests = normalizeFriendRequestList(data.incoming, 'incoming');
+        outgoingRequests = mergeRecentOutgoingRequests(data.outgoing);
+        syncMissingRequestIds();
         if (!acceptedFriends.length && acceptedFriendIds.size && window.MedGlobalLeague?.getCachedRows) {
           const cachedProfiles = ['all-time', 'weekly', 'friends'].flatMap(period => window.MedGlobalLeague.getCachedRows(period) || []);
           acceptedFriends = Array.from(acceptedFriendIds).map(id => cachedProfiles.find(row =>
@@ -251,11 +358,12 @@
       acceptedFriendIds = new Set(data.friendIds.map(String).filter(id => id && id !== userId()));
     }
     if (Array.isArray(data.friends)) acceptedFriends = data.friends;
-    if (Array.isArray(data.incoming)) incomingRequests = data.incoming;
+    if (Array.isArray(data.incoming)) incomingRequests = normalizeFriendRequestList(data.incoming, 'incoming');
     if (Array.isArray(data.outgoing)) {
-      outgoingRequests = data.outgoing;
+      outgoingRequests = normalizeFriendRequestList(data.outgoing, 'outgoing');
       rememberOutgoingRequestSnapshot(outgoingRequests);
     }
+    syncMissingRequestIds();
     lastConnectionLoad = Date.now();
     lastFriendError = '';
     renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
@@ -378,7 +486,7 @@
     const outgoingMarkup = outgoingRequests.map(request =>
       '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' +
       avatarMarkup({ userId: request.toUid, name: request.toName }) +
-      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + escapeHTML(request.toName || 'Student') + '</button><small>' + (request.id ? 'Request sent · pending' : 'Request sent · syncing request ID') + '</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id || '') + '"' + (!request.id ? ' disabled title="Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন"' : '') + '>Cancel</button></div></div>'
+      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + escapeHTML(request.toName || 'Student') + '</button><small>' + (request.id ? 'Request sent · pending' : request.idSyncFailed ? 'Request sent · ID unavailable' : 'Request sent · syncing request ID') + '</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id || '') + '"' + (!request.id ? ' disabled title="' + (request.idSyncFailed ? 'Backend request ID পাওয়া যায়নি; API deployment পরীক্ষা করুন' : 'Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন') + '"' : '') + '>Cancel</button></div></div>'
     ).join('');
     const friendsMarkup = acceptedFriends.map(friend => {
       const id = String(friend.userId || friend.uid || friend.playerId || '');
@@ -453,8 +561,8 @@
     } else if (relation === 'outgoing') {
       const outgoingRequestId = String(requestFromThisUser?.id || '');
       host.innerHTML = '<button type="button" data-student-friend-action="cancel" data-request-id="' + escapeHTML(outgoingRequestId) + '"' +
-        (!outgoingRequestId ? ' disabled title="Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন"' : '') +
-        '><i class="fa-solid fa-clock ml-1" aria-hidden="true"></i> ' + (outgoingRequestId ? 'Request Sent · Cancel' : 'Request Sent · Syncing') + '</button>';
+        (!outgoingRequestId ? ' disabled title="' + (requestFromThisUser?.idSyncFailed ? 'Backend request ID পাওয়া যায়নি; API deployment পরীক্ষা করুন' : 'Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন') + '"' : '') +
+        '><i class="fa-solid fa-clock ml-1" aria-hidden="true"></i> ' + (outgoingRequestId ? 'Request Sent · Cancel' : requestFromThisUser?.idSyncFailed ? 'Request Sent · ID unavailable' : 'Request Sent · Syncing') + '</button>';
     } else if (relation === 'incoming') {
       host.innerHTML = '<button type="button" class="primary" data-student-friend-action="accept" data-request-id="' + escapeHTML(requestToThisUser?.id || '') + '"><i class="fa-solid fa-user-check ml-1" aria-hidden="true"></i> Accept Request</button><button type="button" data-student-friend-action="reject" data-request-id="' + escapeHTML(requestToThisUser?.id || '') + '">Reject</button>';
     } else {
