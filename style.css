@@ -1072,3 +1072,37 @@ html.dark .mat-notification-item-copy p,body.dark .mat-notification-item-copy p{
   .mat-notification-overlay,.mat-notification-panel{animation:none!important}
   #mat-notification-open-dashboard{transition:none}
 }
+
+
+/* Final touch, safe-area and grid refinements for the whole site on touch devices. */
+@media (max-width:767px){
+  main{padding-top:calc(70px + env(safe-area-inset-top,0px))!important;padding-left:14px!important;padding-right:14px!important;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important}
+  .sidebar-toggle{top:calc(12px + env(safe-area-inset-top,0px))!important;left:calc(12px + env(safe-area-inset-left,0px))!important}
+  #theme-toggle{right:calc(14px + env(safe-area-inset-right,0px))!important;bottom:calc(14px + env(safe-area-inset-bottom,0px))!important}
+  .ai-float-btn{right:calc(14px + env(safe-area-inset-right,0px))!important;bottom:calc(74px + env(safe-area-inset-bottom,0px))!important}
+  .app-sidebar{padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  #view-home>.relative.overflow-hidden.rounded-3xl{padding:22px 18px!important;border-radius:22px!important}
+  #view-home .grid.grid-cols-4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #view-home .grid.grid-cols-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  main input,main select,main textarea{font-size:16px}
+  main table{max-width:100%}
+  main .overflow-x-auto{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .sidebar-nav button,.sidebar-action{min-height:46px}
+}
+@media (max-width:390px){
+  main{padding-left:11px!important;padding-right:11px!important}
+  #view-home>.relative.overflow-hidden.rounded-3xl{padding:19px 15px!important}
+  #view-home .grid.grid-cols-4,#view-home .grid.grid-cols-3{gap:9px!important}
+  #view-home .grid.grid-cols-2{gap:9px!important}
+  .ai-float-btn{width:44px!important;height:44px!important}
+  #theme-toggle{width:44px!important;height:44px!important}
+}
+@media (min-width:768px) and (max-width:1024px){
+  main{padding-top:22px!important;padding-left:18px!important;padding-right:18px!important}
+  #view-home>.relative.overflow-hidden.rounded-3xl{padding:28px!important}
+  #view-home .grid.grid-cols-4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:767px){
+  main{padding-top:calc(60px + env(safe-area-inset-top,0px))!important}
+  .sidebar-toggle{width:40px;height:40px}
+}
