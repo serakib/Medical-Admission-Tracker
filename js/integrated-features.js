@@ -578,6 +578,21 @@
   document.head.appendChild(humanAvatarStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
+  // Keep broken remote avatar URLs from exposing their alt text in profile circles.
+  // This embedded portrait is local, so it also works offline and when the avatar CDN fails.
+  const avatarFallbackDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="60" fill="#e2e8f0"/><circle cx="60" cy="43" r="22" fill="#64748b"/><path d="M18 112c2-26 19-41 42-41s40 15 42 41" fill="#64748b"/></svg>'
+  );
+  document.addEventListener('error', event => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement)) return;
+    const isAvatarImage = /avatar/i.test(image.alt || '') ||
+      !!image.closest('.profile-avatar,.leader-avatar,.podium-avatar,.mat-student-profile-avatar,.profile-avatar-choice,.profile-avatar-comparison');
+    if (!isAvatarImage || image.dataset.avatarFallbackApplied === '1') return;
+    image.dataset.avatarFallbackApplied = '1';
+    image.alt = '';
+    image.src = avatarFallbackDataUri;
+  }, true);
   const avatarAccountId = () => {
     const known = app.authUser?.uid || app.profile?.userId || app.profile?.uid;
     if (known) return String(known);
