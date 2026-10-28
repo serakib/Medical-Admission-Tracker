@@ -840,6 +840,7 @@
       '<span class="mat-notification-eyebrow"><i class="fa-solid fa-signal" aria-hidden="true"></i> YOUR STUDY CIRCLE</span>' +
       '<h2 id="mat-notification-title">Notifications <span data-mat-notification-count>All caught up</span></h2>' +
       '<p>Friend progress, leaderboard moves and trophy unlocks.</p></div>' +
+      '<button class="mat-notification-expand" type="button" data-mat-notification-expand aria-label="Open fullscreen notifications" title="Open fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
       '<button type="button" data-mat-filter="all" class="is-active" aria-pressed="true">All</button><button type="button" data-mat-filter="unread" aria-pressed="false">Unread</button></div>' +
@@ -874,8 +875,29 @@
     const overlay = document.getElementById('mat-notification-center');
     if (!overlay) return;
     overlay.hidden = true;
+    overlay.classList.remove('is-fullscreen');
+    const expandButton = overlay.querySelector('[data-mat-notification-expand]');
+    if (expandButton) {
+      expandButton.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
+      expandButton.setAttribute('aria-label', 'Open fullscreen notifications');
+      expandButton.title = 'Open fullscreen';
+    }
     document.body.classList.remove('mat-notification-open');
     if (lastTrigger && typeof lastTrigger.focus === 'function') lastTrigger.focus({ preventScroll: true });
+  }
+  function toggleFullscreen() {
+    const overlay = document.getElementById('mat-notification-center');
+    if (!overlay || overlay.hidden) return;
+    const fullscreen = !overlay.classList.contains('is-fullscreen');
+    overlay.classList.toggle('is-fullscreen', fullscreen);
+    const button = overlay.querySelector('[data-mat-notification-expand]');
+    if (button) {
+      button.innerHTML = fullscreen
+        ? '<i class="fa-solid fa-compress" aria-hidden="true"></i>'
+        : '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
+      button.setAttribute('aria-label', fullscreen ? 'Exit fullscreen notifications' : 'Open fullscreen notifications');
+      button.title = fullscreen ? 'Exit fullscreen' : 'Open fullscreen';
+    }
   }
   function renderFilterState() {
     document.querySelectorAll('[data-mat-filter]').forEach(function (button) {
@@ -929,6 +951,8 @@
     if (!target) return;
     const openButton = target.closest('#mat-notification-open-dashboard, #mat-notifications-nav');
     if (openButton) { event.preventDefault(); openCenter(openButton); return; }
+    const expandButton = target.closest('[data-mat-notification-expand]');
+    if (expandButton) { toggleFullscreen(); return; }
     const closeButton = target.closest('[data-mat-notification-close]');
     if (closeButton) { closeCenter(); return; }
     const filter = target.closest('[data-mat-filter]');

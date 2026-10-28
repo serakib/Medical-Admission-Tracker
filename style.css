@@ -1172,3 +1172,14 @@ html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-sta
   .mat-notification-guest-state p{font-size:11px}
   .mat-notification-guest-state button{width:100%;max-width:300px;min-height:48px}
 }
+
+
+/* Optional fullscreen mode for the activity notification center. The default remains the existing popup. */
+.mat-notification-expand{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid rgba(226,232,240,.2);border-radius:13px;color:#ecfeff;background:rgba(255,255,255,.07);font-size:15px;cursor:pointer}
+.mat-notification-expand:hover{background:rgba(255,255,255,.15)}
+.mat-notification-expand:focus-visible{outline:3px solid rgba(14,165,233,.65);outline-offset:3px}
+.mat-notification-overlay.is-fullscreen{padding:0;background:var(--surface,#fff);backdrop-filter:none;-webkit-backdrop-filter:none;animation:none}
+.mat-notification-overlay.is-fullscreen .mat-notification-panel{width:100%;height:100%;max-height:none;min-height:0;border:0;border-radius:0;box-shadow:none;animation:none}
+.mat-notification-overlay.is-fullscreen .mat-notification-header{padding-top:max(18px,env(safe-area-inset-top));padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
+.mat-notification-overlay.is-fullscreen .mat-notification-list{flex:1;min-height:0;overflow-y:auto}
+@media(max-width:640px){.mat-notification-overlay{padding:10px}.mat-notification-overlay.is-fullscreen{padding:0}.mat-notification-overlay.is-fullscreen .mat-notification-header{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}}
