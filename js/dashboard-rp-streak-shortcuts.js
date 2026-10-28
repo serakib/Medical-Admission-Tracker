@@ -19,17 +19,19 @@
     .mat-dash-shortcut-copy strong{font-size:14px;font-weight:950}
     .mat-dash-shortcut-copy small{font-size:11px;line-height:1.45;color:var(--muted,#64748b)}
     .mat-dash-modal-backdrop{position:fixed;inset:0;z-index:13000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.66);backdrop-filter:blur(5px)}
-    .mat-dash-modal{width:min(100%,560px);max-height:85vh;overflow:auto;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:22px;padding:22px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 24px 80px rgba(0,0,0,.24)}
+    .mat-dash-modal{width:min(96vw,1000px);max-height:88vh;overflow:auto;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:22px;padding:24px;background:var(--surface,#fff);color:var(--text,#0f172a);box-shadow:0 24px 80px rgba(0,0,0,.24)}
+    .mat-dash-modal:has(#mat-streak-chart){width:min(96vw,1000px)}
+    .mat-dash-modal:has(#mat-streak-chart) h2{margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line,rgba(148,163,184,.16))}
     .mat-dash-modal h2{font-size:21px;font-weight:950;margin:0 0 10px}
     .mat-dash-modal p,.mat-dash-modal li{font-size:13px;line-height:1.8;color:var(--muted,#64748b)}
     .mat-dash-modal-close{display:block;margin:16px 0 0 auto;padding:9px 14px;border-radius:11px;background:#059669;color:white;font-size:12px;font-weight:900}
     .mat-profile-streak-button{position:fixed;top:88px;right:18px;z-index:12000;display:none;align-items:center;gap:8px;padding:10px 15px;border:1px solid rgba(249,115,22,.35);border-radius:999px;background:linear-gradient(135deg,#fff7ed,#ffedd5);color:#9a3412;font-size:13px;font-weight:950;box-shadow:0 8px 24px rgba(124,45,18,.16);cursor:pointer}
     .mat-profile-streak-button i{font-size:16px;color:#ea580c}
-    .mat-streak-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 12px}
-    .mat-streak-tab{padding:8px 13px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:999px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#0f172a)}
+    .mat-streak-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:18px 0 16px}
+    .mat-streak-tab{min-width:0;padding:10px 8px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:12px;font-size:12px;font-weight:850;background:var(--surface,#fff);color:var(--text,#0f172a);white-space:nowrap}
     .mat-streak-tab[aria-selected="true"]{background:#ea580c;color:#fff;border-color:#ea580c}
-    .mat-streak-chart{width:100%;overflow-x:auto;padding:8px 0 0}
-    .mat-streak-chart svg{display:block;width:100%;min-width:420px;height:auto;max-width:none;overflow:visible}
+    .mat-streak-chart{width:100%;overflow-x:auto;overflow-y:hidden;padding:14px 0 8px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:14px;background:var(--surface,#fff)}
+    .mat-streak-chart svg{display:block;width:100%;min-width:760px;height:auto;max-width:none;overflow:visible}
     .mat-streak-chart{overscroll-behavior-x:contain;cursor:grab;scroll-behavior:smooth;scrollbar-width:thin;touch-action:pan-x pan-y}
     .mat-streak-chart:active{cursor:grabbing}
     .mat-streak-chart.is-dragging{scroll-behavior:auto;user-select:none}
@@ -62,7 +64,7 @@
     .mat-streak-legend{font-size:11px;line-height:1.6;color:var(--muted,#64748b);margin-top:10px}
     .mat-streak-legend .up{color:#059669;font-weight:900}
     .mat-streak-legend .down{color:#dc2626;font-weight:900}
-    @media(max-width:640px){.mat-profile-streak-button{top:76px;right:10px;padding:9px 12px;font-size:12px}.mat-streak-chart{gap:3px;padding-left:3px;padding-right:3px}.mat-streak-label{font-size:8px}}
+    @media(max-width:640px){.mat-profile-streak-button{top:76px;right:10px;padding:9px 12px;font-size:12px}.mat-dash-modal{padding:16px;border-radius:18px}.mat-streak-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.mat-streak-tab{padding:9px 5px;font-size:11px}.mat-streak-chart{padding:10px 0 6px}.mat-streak-chart svg{min-width:720px}.mat-streak-legend{font-size:10px;line-height:1.7}}
     #leaderboard-body td,#leaderboard-body th{padding:9px 8px!important}
     #leaderboard-body th{white-space:nowrap;font-size:12px}
     #leaderboard-body td:last-child{min-width:0!important;font-size:17px}
