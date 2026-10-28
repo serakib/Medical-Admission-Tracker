@@ -128,6 +128,7 @@
     counts.hourly = new Map();
     counts.monthly = new Map();
     counts.details = new Map();
+    counts.examAttempts = new Map();
     const dhakaParts = timestamp => {
       const parts = new Intl.DateTimeFormat('en-CA', {
         timeZone:'Asia/Dhaka', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hourCycle:'h23'
@@ -155,7 +156,22 @@
         });
       });
     } catch (_) {}
+    try {
+      const examHistoryKey = typeof app.getHistoryKey === 'function'
+        ? app.getHistoryKey()
+        : 'med_history_' + ((app.authUser && app.authUser.uid) || 'guest');
+      const attempts = JSON.parse(localStorage.getItem(examHistoryKey) || '[]');
+      if (Array.isArray(attempts)) attempts.forEach(attempt => {
+        if (!attempt || !attempt.attemptId) return;
+        const timestamp = Number(attempt.attemptId);
+        if (!Number.isFinite(timestamp) || timestamp < 100000000000) return;
+        const date = dhakaParts(timestamp).date;
+        if (!counts.examAttempts.has(date)) counts.examAttempts.set(date, []);
+        counts.examAttempts.get(date).push(attempt);
+      });
+    } catch (_) {}
     counts.details.forEach(list => list.sort((a,b) => a.timestamp-b.timestamp));
+    counts.examAttempts.forEach(list => list.sort((a,b) => Number(a.attemptId)-Number(b.attemptId)));
     return counts;
   }
   function streakGraphMarkup(period, counts, zoom = 1) {
@@ -292,18 +308,29 @@
     const selectedDateObj = new Date(selected + 'T00:00:00Z');
     const selectedLabel = new Intl.DateTimeFormat('en', { weekday:'long', month:'long', day:'numeric', year:'numeric', timeZone:'UTC' }).format(selectedDateObj);
     const entries = (counts.details && counts.details.get(selected)) || [];
+    const examAttempts = (counts.examAttempts && counts.examAttempts.get(selected)) || [];
     const timeline = entries.length
       ? '<div style="display:grid;gap:6px;margin-top:10px">' + entries.slice(0,80).map(item => {
           const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(item.timestamp));
           return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line,rgba(148,163,184,.16));border-radius:10px;font-size:11px"><span>' + esc(time) + ' · Asia/Dhaka</span><strong>' + esc(item.outcome || 'Attempt recorded') + '</strong></div>';
         }).join('') + (entries.length > 80 ? '<small>Showing first 80 of ' + entries.length + ' recorded attempts.</small>' : '') + '</div>'
-      : '<p class="mat-streak-legend">No timestamped attempts are recorded for this date.</p>';
+      : '<p class="mat-streak-legend">No timestamped question attempts are recorded for this date.</p>';
+    const examTimeline = examAttempts.length
+      ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
+          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
+          const reviewable = !!attempt.reviewData?.questions?.length && Array.isArray(attempt.reviewData.userAnswers);
+          const label = attempt.modeLabel || attempt.mode || 'Exam';
+          const countsText = 'Correct ' + (attempt.correctCount ?? '—') + ' · Wrong ' + (attempt.wrongCount ?? '—') + ' · Skipped ' + (attempt.skippedCount ?? '—');
+          return '<article style="padding:11px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;display:grid;gap:7px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong style="font-size:12px">' + esc(label) + ' · ' + esc(time) + '</strong><span style="font-size:11px;font-weight:800">' + esc(attempt.score ?? '—') + ' / ' + esc(attempt.total ?? '—') + '</span></div><small style="font-size:11px;color:var(--muted,#64748b)">' + esc(countsText) + ' · Accuracy ' + esc(attempt.accuracy || '—') + '</small><button type="button" data-review-attempt-id="' + esc(attempt.attemptId) + '" ' + (reviewable ? '' : 'disabled') + ' style="justify-self:start;padding:7px 10px;border-radius:9px;background:' + (reviewable ? '#059669;color:white;cursor:pointer' : '#94a3b8;color:white;cursor:not-allowed') + ';font-size:11px;font-weight:800">' + (reviewable ? 'Open Answer Review' : 'Review unavailable for this attempt') + '</button></article>';
+        }).join('') + '</div>'
+      : '';
+    
     return '<section class="mat-streak-calendar" aria-label="Study activity calendar">' +
       '<div class="mat-streak-calendar-head"><div class="mat-streak-calendar-month">' + esc(monthName) + '</div><div class="mat-streak-calendar-actions"><button type="button" data-calendar-nav="-1" aria-label="Previous month">‹</button><button type="button" data-calendar-nav="today">Today</button><button type="button" data-calendar-nav="1" aria-label="Next month">›</button></div></div>' +
       '<div class="mat-streak-calendar-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>' +
       '<div class="mat-streak-calendar-days">' + cells + '</div>' +
       '<div class="mat-streak-calendar-detail"><div><strong>' + esc(selectedLabel) + '</strong><small>' + (selected === today ? 'Today · ' : '') + (selectedCount ? 'Study activity recorded' : 'No attempted questions recorded') + '</small></div><div class="mat-streak-calendar-total"><b>' + number(selectedCount) + '</b><small>attempted questions</small></div></div>' +
-      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Times use Bangladesh time (Asia/Dhaka).</p>' + timeline + '</section>';
+      '<p class="mat-streak-legend" style="margin-bottom:0">Green = activity · Orange outline = today · Tap a date for details. Times use Bangladesh time (Asia/Dhaka).</p>' + timeline + examTimeline + '</section>';
   }
 
   function openProfileStreak() {
@@ -350,6 +377,11 @@
     // Capture it only over this graph so the rest of the page keeps normal browser zoom behavior.
     if (chart) {
       chart.addEventListener('click', event => {
+        const reviewButton = event.target.closest?.('[data-review-attempt-id]');
+        if (reviewButton) {
+          if (typeof app.openSavedExamReview === 'function' && !reviewButton.disabled) app.openSavedExamReview(reviewButton.dataset.reviewAttemptId);
+          return;
+        }
         const dateButton = event.target.closest?.('[data-calendar-date]');
         if (dateButton) {
           selectedCalendarDate = dateButton.dataset.calendarDate;
