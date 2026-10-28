@@ -29,6 +29,8 @@
   let lastTrigger = null;
   let cloudLoadedForUid = '';
   let cloudRestorePromise = null;
+  let cloudRestorePromiseUid = '';
+  let cloudRestoreSequence = 0;
   let cloudWriteTimer = null;
 
   function makeEmptyState() {
@@ -125,11 +127,15 @@
     const uid = signedInUid();
     if (!uid || !cloudStateAvailable(uid)) return;
     if (!force && cloudLoadedForUid === uid) return;
-    if (cloudRestorePromise) return cloudRestorePromise;
+    if (cloudRestorePromise && cloudRestorePromiseUid === uid) return cloudRestorePromise;
+    // Ignore a slower response from a previously signed-in account after account switching.
+    const sequence = ++cloudRestoreSequence;
+    cloudRestorePromiseUid = uid;
     cloudRestorePromise = (async function () {
       try {
         const store = window.MedActivityNotificationStore;
         const payload = await store.get(uid);
+        if (sequence !== cloudRestoreSequence || accountId() !== uid || signedInUid() !== uid) return;
         if (payload && payload.userId === uid && payload.state && typeof payload.state === 'object') {
           state = mergeStateObjects(state, payload.state);
         }
@@ -137,10 +143,15 @@
         saveState();
       } catch (error) {
         // Fail safely to local browser storage; never fabricate a successful cloud sync.
-        cloudLoadedForUid = uid;
-        console.warn('[Activity notifications] Could not load cloud state; using this browser:', error);
+        if (sequence === cloudRestoreSequence && accountId() === uid && signedInUid() === uid) {
+          cloudLoadedForUid = uid;
+          console.warn('[Activity notifications] Could not load cloud state; using this browser:', error);
+        }
       } finally {
-        cloudRestorePromise = null;
+        if (sequence === cloudRestoreSequence) {
+          cloudRestorePromise = null;
+          cloudRestorePromiseUid = '';
+        }
       }
     })();
     return cloudRestorePromise;
