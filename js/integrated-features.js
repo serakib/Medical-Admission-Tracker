@@ -722,26 +722,58 @@
     if (serialized.length > 50 * 1024) throw new Error('The cleaned SVG must be smaller than 50 KB. Try a simpler SVG avatar.');
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(serialized).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
   }
+  function validateAvatarImageSource(source) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        if (image.naturalWidth > 0 && image.naturalHeight > 0) resolve(source);
+        else reject(new Error('This image could not be decoded. Please choose a different image file.'));
+      };
+      image.onerror = () => reject(new Error('This image is damaged or cannot be displayed. Please choose a valid PNG, JPG/JPEG, WEBP, or SVG image.'));
+      image.src = source;
+    });
+  }
   function processUploadedAvatar(file) {
     return new Promise((resolve, reject) => {
-      const name = String(file?.name || '');
-      const type = String(file?.type || '').toLowerCase();
-      const isSvg = type === 'image/svg+xml' || /\.svg$/i.test(name);
       if (!file) { reject(new Error('Choose an image file first.')); return; }
-      if (file.size > 5 * 1024 * 1024) { reject(new Error('Each avatar file must be 5 MB or smaller.')); return; }
-      if (isSvg) {
-        file.text().then(source => resolve(sanitizeUploadedSvg(source))).catch(() => reject(new Error('The SVG file could not be read.')));
+      const name = String(file.name || '');
+      const type = String(file.type || '').toLowerCase();
+      const extension = (name.match(/\.([^.]+)$/) || [,''])[1].toLowerCase();
+      const allowedExtensions = ['png','jpg','jpeg','webp','svg'];
+      const allowedTypes = ['image/png','image/jpeg','image/webp','image/svg+xml'];
+      const isSvg = extension === 'svg' || type === 'image/svg+xml';
+      if (!allowedExtensions.includes(extension)) {
+        reject(new Error('Unsupported file type. Choose a real PNG, JPG/JPEG, WEBP, or SVG image.'));
         return;
       }
-      if (!['image/png','image/jpeg','image/webp'].includes(type)) {
-        reject(new Error('Supported formats: SVG, PNG, JPG/JPEG, and WEBP.'));
+      if (type && !allowedTypes.includes(type)) {
+        reject(new Error('The file content type is not supported. Please choose PNG, JPG/JPEG, WEBP, or SVG.'));
+        return;
+      }
+      if (isSvg !== (extension === 'svg' || type === 'image/svg+xml')) {
+        reject(new Error('The file extension and image format do not match. Please select the original image file.'));
+        return;
+      }
+      if (!file.size) { reject(new Error('This file is empty. Please choose a valid image.')); return; }
+      if (file.size > 5 * 1024 * 1024) { reject(new Error('Each avatar file must be 5 MB or smaller.')); return; }
+      if (isSvg) {
+        if (file.size > 50 * 1024) { reject(new Error('SVG avatars must be 50 KB or smaller.')); return; }
+        file.text().then(source => {
+          const cleaned = sanitizeUploadedSvg(source);
+          return validateAvatarImageSource(cleaned);
+        }).then(resolve).catch(error => reject(error instanceof Error ? error : new Error('The SVG file is invalid or could not be read.')));
+        return;
+      }
+      if (type && !['image/png','image/jpeg','image/webp'].includes(type)) {
+        reject(new Error('Supported formats: PNG, JPG/JPEG, and WEBP.'));
         return;
       }
       const objectUrl = URL.createObjectURL(file);
       const image = new Image();
       image.onload = () => {
         try {
-          if (!image.naturalWidth || !image.naturalHeight || image.naturalWidth > 8000 || image.naturalHeight > 8000) {
+          if (!image.naturalWidth || !image.naturalHeight) throw new Error('This file is not a readable image. Please choose another file.');
+          if (image.naturalWidth > 8000 || image.naturalHeight > 8000) {
             throw new Error('Image dimensions must be no larger than 8000 × 8000 pixels.');
           }
           const side = 256;
@@ -760,7 +792,10 @@
         } catch (error) { reject(error); }
         finally { URL.revokeObjectURL(objectUrl); }
       };
-      image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('The selected image could not be opened.')); };
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('This image is damaged or cannot be opened. Please choose a valid PNG, JPG/JPEG, or WEBP image.'));
+      };
       image.src = objectUrl;
     });
   }
@@ -814,7 +849,7 @@
       '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
       '<div class="profile-avatar-options" aria-label="Available avatars">' + presetOptions + uploadedOptions + '</div>' +
       compareMarkup +
-      '<small class="profile-avatar-upload-hint">SVG, PNG, JPG/JPEG, WEBP · Up to 8 uploaded avatars per account on this device. Select a thumbnail to preview it, then confirm to apply it.</small>' +
+      '<small class="profile-avatar-upload-hint">Choose a valid PNG, JPG/JPEG, WEBP, or SVG image. Raster images: max 5 MB and 8000 × 8000 px; SVG: max 50 KB. Renaming a non-image file will not work—damaged or unreadable images are rejected immediately. Up to 8 uploaded avatars per account on this device. Preview and confirm before applying.</small>' +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
   }
