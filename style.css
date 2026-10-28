@@ -1262,3 +1262,33 @@ html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-sta
 .mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-leaderboard{display:inline-flex}
 .mat-notification-overlay.is-fullscreen .mat-notification-footer{display:none}
 @media(max-width:640px){.mat-notification-overlay.is-fullscreen .mat-notification-fullscreen-leaderboard{min-height:34px;padding:6px 8px;gap:5px;font-size:10px}}
+
+
+/* Compact Gmail-like activity notifications, archive and recoverable trash */
+.mat-notification-item{position:relative;align-items:center;gap:9px;cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease}
+.mat-notification-item:hover{transform:translateY(-1px);border-color:rgba(13,148,136,.42);box-shadow:0 7px 20px rgba(15,118,110,.10);background:rgba(16,185,129,.045)}
+.mat-notification-item:focus-within{border-color:rgba(14,165,233,.55);box-shadow:0 0 0 3px rgba(14,165,233,.10)}
+.mat-notification-serial{display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;min-width:30px;height:24px;padding:0 4px;border-radius:7px;color:var(--muted,#64748b);background:rgba(148,163,184,.10);font-size:9px;font-weight:900;font-variant-numeric:tabular-nums}
+.mat-notification-item.is-collapsed{align-items:center;padding-top:9px;padding-bottom:9px}
+.mat-notification-item.is-collapsed .mat-notification-item-icon{flex-basis:32px;width:32px;height:32px;border-radius:10px;font-size:12px}
+.mat-notification-item.is-collapsed .mat-notification-item-head{align-items:center}
+.mat-notification-item.is-collapsed .mat-notification-item-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;text-overflow:ellipsis;white-space:normal;margin-top:3px;line-height:1.45}
+.mat-notification-item.is-collapsed .mat-notification-item-meta{display:none}
+.mat-notification-item.is-collapsed .mat-notification-item-actions{gap:4px}
+.mat-notification-item.is-collapsed .mat-notification-action{width:28px;height:28px;flex-basis:28px;border-radius:8px}
+.mat-notification-item:not(.is-collapsed) .mat-notification-serial{align-self:flex-start;margin-top:7px}
+.mat-notification-expiry{color:#b45309;font-size:9px;font-weight:800;letter-spacing:0}
+html.dark .mat-notification-serial,body.dark .mat-notification-serial{color:#cbd5e1;background:rgba(148,163,184,.14)}
+html.dark .mat-notification-item:hover,body.dark .mat-notification-item:hover{background:rgba(16,185,129,.08);border-color:rgba(52,211,153,.35);box-shadow:0 7px 20px rgba(0,0,0,.16)}
+.mat-notification-filters{flex-wrap:wrap}
+.mat-notification-filters button{white-space:nowrap}
+@media(max-width:640px){
+  .mat-notification-item{gap:6px;padding-left:7px;padding-right:7px}
+  .mat-notification-serial{flex-basis:25px;min-width:25px;height:22px;font-size:8px}
+  .mat-notification-item.is-collapsed .mat-notification-item-icon{flex-basis:28px;width:28px;height:28px}
+  .mat-notification-item.is-collapsed .mat-notification-item-head{flex-direction:row;align-items:center;gap:6px}
+  .mat-notification-item.is-collapsed .mat-notification-item-head strong{min-width:0;flex:1}
+  .mat-notification-item.is-collapsed .mat-notification-item-head time{font-size:8px}
+  .mat-notification-item.is-collapsed .mat-notification-item-actions{flex-direction:row}
+  .mat-notification-item.is-collapsed .mat-notification-action{width:25px;height:25px;flex-basis:25px}
+}
