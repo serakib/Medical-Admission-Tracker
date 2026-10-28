@@ -160,7 +160,7 @@
     }).join('');
     const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? Math.max(1, Math.round(5 / zoom)) : 1;
     const labels = points.map((point, i) => {
-      if (period === 'yearly' && point.date.slice(8, 10) !== '01') return '';
+      if (period === 'yearly' && i > 0 && point.date.slice(5, 7) === points[i-1].date.slice(5, 7)) return '';
       if (period !== 'yearly' && i % labelStep !== 0 && i !== points.length-1) return '';
       return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-10) + '" text-anchor="middle">' + esc(point.label) + '</text>';
     }).join('');
