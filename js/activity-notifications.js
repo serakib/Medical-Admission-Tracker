@@ -843,7 +843,7 @@
       '<small>Activity is checked when you open the website or return to this tab.</small></div>';
   }
   function guestNotificationState() {
-    return '<section class="mat-notification-guest-state mat-notification-announcement-view" role="region" aria-labelledby="mat-guest-deletion-title">' +
+    return '<section class="mat-notification-announcement-view" role="region" aria-labelledby="mat-guest-deletion-title">' +
       '<article class="mat-guest-deletion-announcement" role="note" aria-labelledby="mat-guest-deletion-title">' +
       '<div class="mat-guest-deletion-label"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> IMPORTANT GUEST ANNOUNCEMENT · স্থায়ী ঘোষণা</div>' +
       '<h3 id="mat-guest-deletion-title">গেস্ট অ্যাকাউন্ট মুছে ফেলার নিয়ম</h3>' +
