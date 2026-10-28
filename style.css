@@ -1183,3 +1183,69 @@ html.dark .mat-notification-guest-state h3,body.dark .mat-notification-guest-sta
 .mat-notification-overlay.is-fullscreen .mat-notification-header{padding-top:max(18px,env(safe-area-inset-top));padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
 .mat-notification-overlay.is-fullscreen .mat-notification-list{flex:1;min-height:0;overflow-y:auto}
 @media(max-width:640px){.mat-notification-overlay{padding:10px}.mat-notification-overlay.is-fullscreen{padding:0}.mat-notification-overlay.is-fullscreen .mat-notification-header{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}}
+
+
+/* Compact notification actions: keep the feed visible while preserving every control. */
+.mat-notification-toolbar{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:6px;
+  padding:8px 12px;
+}
+.mat-notification-toolbar-main{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:34px;
+}
+.mat-notification-selection-toolbar{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:5px;
+  min-width:0;
+  padding-top:6px;
+  border-top:1px solid rgba(148,163,184,.12);
+}
+.mat-notification-selection-toolbar>button,
+.mat-notification-bulk-actions button{
+  min-height:29px;
+  padding:5px 7px;
+  gap:4px;
+  border-radius:8px;
+  font-size:9px;
+  line-height:1.15;
+  white-space:nowrap;
+}
+.mat-notification-selection-toolbar>span{
+  margin-left:auto;
+  flex:0 0 auto;
+  font-size:9px;
+}
+.mat-notification-bulk-actions{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:5px;
+  width:auto;
+  margin-left:auto;
+}
+.mat-notification-filters{gap:3px;padding:3px;border-radius:10px}
+.mat-notification-filters button{min-height:29px;padding:5px 10px;font-size:10px}
+.mat-notification-mark-all{min-height:30px;padding:5px 8px;font-size:10px}
+.mat-notification-list{padding-top:9px}
+@media(max-width:767px){
+  .mat-notification-toolbar{gap:5px;padding:7px 9px}
+  .mat-notification-toolbar-main{min-height:30px}
+  .mat-notification-selection-toolbar{flex-wrap:wrap;gap:5px;padding-top:5px}
+  .mat-notification-selection-toolbar>button,
+  .mat-notification-bulk-actions button{min-height:29px;padding:5px 7px;font-size:9px}
+  .mat-notification-selection-toolbar>span{margin-left:auto}
+  .mat-notification-bulk-actions{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-left:0}
+  .mat-notification-bulk-actions button{width:100%;white-space:normal;text-align:center}
+  .mat-notification-bulk-actions [data-mat-delete-selected]{grid-column:auto}
+  .mat-notification-list{padding:9px 10px 14px}
+}
