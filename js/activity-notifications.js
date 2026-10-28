@@ -851,7 +851,7 @@
       '<p><strong>২. Weekly demotion-এর পর RP শূন্য হলে:</strong> আপনার Guest account-এর RP ০ হয়ে গেলে এবং পরবর্তী ৭ দিন আপনি ওয়েবসাইটে না এলে—এই সময় RP ০ থাকলে—Guest account ও সংশ্লিষ্ট সার্ভার ডেটা স্থায়ীভাবে মুছে ফেলা হবে।</p>' +
       '<p><strong>৩. সময় কীভাবে গণনা হবে:</strong> ওই ৭ দিনের মধ্যে ওয়েবসাইটে ফিরে এলে inactivity timer আপনার সর্বশেষ visit থেকে আবার গণনা হবে। মুছে ফেলার আগে RP আবার ০-এর বেশি হলে zero-RP নিয়মে account মুছে ফেলা হবে না। তবে ৯০ দিনের inactivity নিয়ম আলাদাভাবে প্রযোজ্য থাকবে।</p>' +
       '<p><strong>৪. Registered account:</strong> এই Guest deletion policy কোনো registered account-এর জন্য প্রযোজ্য নয়।</p>' +
-      '<div class="mat-guest-deletion-footnote"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> এটি বাধ্যতামূলক ঘোষণা। Guest ব্যবহারকারীরা এই ঘোষণাটি delete, archive বা permanently remove করতে পারবেন না।</div>' +
+
       '<div class="mat-guest-signin-prompt"><h4><i class="fa-solid fa-user-lock" aria-hidden="true"></i> You have to sign in to see personalised notifications</h4><p>Sign in or create an account to see updates about your friends, your leaderboard progress and trophy unlocks.</p><button type="button" data-mat-notification-login><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Log in / Sign up</button></div>' +
       '</article></section>';
   }
