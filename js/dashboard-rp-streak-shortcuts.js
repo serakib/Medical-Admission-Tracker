@@ -30,10 +30,8 @@
     .mat-streak-tab[aria-selected="true"]{background:#ea580c;color:#fff;border-color:#ea580c}
     .mat-streak-chart{width:100%;overflow-x:auto;padding:8px 0 0}
     .mat-streak-chart svg{display:block;width:100%;min-width:420px;height:auto;max-width:none;overflow:visible}
-    .mat-streak-zoom{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin:8px 0 0}
-    .mat-streak-zoom button{min-width:36px;padding:7px 10px;border:1px solid var(--line,rgba(148,163,184,.24));border-radius:9px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:12px;font-weight:850;cursor:pointer}
-    .mat-streak-zoom button:disabled{opacity:.4;cursor:not-allowed}
-    .mat-streak-zoom-label{min-width:42px;text-align:center;font-size:11px;color:var(--muted,#64748b)}
+    .mat-streak-chart{overscroll-behavior-x:contain;cursor:grab}
+    .mat-streak-chart:active{cursor:grabbing}
     .mat-streak-grid{stroke:var(--line,rgba(148,163,184,.2));stroke-width:1;stroke-dasharray:4 5}
     .mat-streak-axis-label{fill:var(--muted,#64748b);font-size:10px}
     .mat-streak-point{stroke:var(--surface,#fff);stroke-width:2}
@@ -133,7 +131,7 @@
       const d = new Date(date + 'T00:00:00Z');
       const label = period === 'weekly'
         ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()]
-        : period === 'monthly' ? date.slice(8) : date.slice(5, 7) + '/' + date.slice(8);
+        : period === 'monthly' ? date.slice(8) : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
       items.push({ date, label, value: counts.get(date) || 0 });
     }
     const width = 900, height = 250, left = 48, right = 14, top = 22, bottom = 38;
@@ -160,9 +158,10 @@
       const title = point.date + ': ' + point.value + ' attempted question(s)';
       return '<circle class="mat-streak-point" cx="' + point.x + '" cy="' + point.y + '" r="' + (period === 'yearly' ? '2.1' : '3.5') + '" fill="' + (point.value ? '#059669' : '#94a3b8') + '"><title>' + esc(title) + '</title></circle>';
     }).join('');
-    const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? Math.max(1, Math.round(5 / zoom)) : Math.max(1, Math.round(30 / zoom));
+    const labelStep = period === 'weekly' ? 1 : period === 'monthly' ? Math.max(1, Math.round(5 / zoom)) : 1;
     const labels = points.map((point, i) => {
-      if (i % labelStep !== 0 && i !== points.length-1) return '';
+      if (period === 'yearly' && point.date.slice(8, 10) !== '01') return '';
+      if (period !== 'yearly' && i % labelStep !== 0 && i !== points.length-1) return '';
       return '<text class="mat-streak-axis-label" x="' + point.x + '" y="' + (height-10) + '" text-anchor="middle">' + esc(point.label) + '</text>';
     }).join('');
     const svgWidth = zoom > 1 ? ' style="width:' + (width * zoom) + 'px;min-width:' + (width * zoom) + 'px;max-width:none"' : '';
@@ -185,8 +184,7 @@
       '<button class="mat-streak-tab" type="button" data-streak-period="weekly" aria-selected="true">Weekly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="monthly" aria-selected="false">Monthly</button>' +
       '<button class="mat-streak-tab" type="button" data-streak-period="yearly" aria-selected="false">Yearly</button></div>' +
-      '<div class="mat-streak-zoom" aria-label="Graph zoom controls"><button type="button" data-streak-zoom="out" aria-label="Zoom out">−</button><span class="mat-streak-zoom-label" id="mat-streak-zoom-label">1×</span><button type="button" data-streak-zoom="in" aria-label="Zoom in">+</button><button type="button" data-streak-zoom="reset">Reset</button></div>' +
-      '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph"></div>' +
+      '<div id="mat-streak-chart" class="mat-streak-chart" aria-label="Recorded streak activity graph" title="Use Ctrl + touchpad pinch to zoom this graph"></div>' +
       '<p class="mat-streak-legend"><span class="up">↗ Green = trend up</span> · <span class="down">↘ Red = trend down</span> · X-axis = day, Y-axis = attempted questions per day. Correct and wrong answers count; skipped questions do not.</p>';
     modal('Your Streak Journey', body);
     const chart = document.getElementById('mat-streak-chart');
@@ -197,22 +195,20 @@
       activePeriod = period;
       document.querySelectorAll('[data-streak-period]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.streakPeriod === period)));
       if (chart) chart.innerHTML = streakGraphMarkup(period, counts, zoom);
-      const zoomLabel = document.getElementById('mat-streak-zoom-label');
-      if (zoomLabel) zoomLabel.textContent = zoom + '×';
-      const zoomOut = document.querySelector('[data-streak-zoom="out"]');
-      const zoomIn = document.querySelector('[data-streak-zoom="in"]');
-      if (zoomOut) zoomOut.disabled = zoom <= 1;
-      if (zoomIn) zoomIn.disabled = zoom >= 4;
       if (chart && keepScroll) chart.scrollLeft = Math.max(0, previousRatio * chart.scrollWidth - chart.clientWidth / 2);
     };
     render('weekly');
     document.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
-    document.querySelectorAll('[data-streak-zoom]').forEach(button => button.addEventListener('click', () => {
-      if (button.dataset.streakZoom === 'in') zoom = Math.min(4, zoom + 1);
-      else if (button.dataset.streakZoom === 'out') zoom = Math.max(1, zoom - 1);
-      else zoom = 1;
+    // Trackpad pinch zoom is commonly delivered as a Ctrl+wheel event in Chrome.
+    // Capture it only over this graph so the rest of the page keeps normal browser zoom behavior.
+    if (chart) chart.addEventListener('wheel', event => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const nextZoom = Math.max(1, Math.min(4, zoom + (event.deltaY < 0 ? 0.25 : -0.25)));
+      if (nextZoom === zoom) return;
+      zoom = Math.round(nextZoom * 100) / 100;
       render(activePeriod, true);
-    }));
+    }, { passive: false });
   }
   function ensureProfileStreakButton() {
     let button = document.getElementById('mat-profile-streak-button');
