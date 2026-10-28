@@ -1095,7 +1095,7 @@
     }
 
     if (periodForRequest === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
-      try { await window.MedStudentFriends.loadConnections(); }
+      try { await window.MedStudentFriends.loadConnections(true); }
       catch (friendError) {
         if (requestId === loadSequence) {
           var friendsErrorText = window.MedStudentFriends && typeof window.MedStudentFriends.getLastConnectionError === 'function'

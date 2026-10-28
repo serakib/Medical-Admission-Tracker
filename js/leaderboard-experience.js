@@ -30,6 +30,77 @@
     } catch (_) {}
     return String(app.profile?.userId || app.profile?.uid || '');
   };
+  const OUTGOING_REQUEST_CACHE_TTL_MS = 2 * 60 * 1000;
+  const outgoingCacheKey = () => {
+    const uid = userId();
+    return uid ? 'med_friend_outgoing_cache_v1_' + uid : '';
+  };
+  function readOutgoingRequestCache() {
+    const key = outgoingCacheKey();
+    if (!key) return [];
+    try {
+      const cached = JSON.parse(localStorage.getItem(key) || '[]');
+      return Array.isArray(cached) ? cached.filter(item =>
+        item && item.request && String(item.request.toUid || '') && Number(item.seenAt) > 0
+      ) : [];
+    } catch (_) { return []; }
+  }
+  function writeOutgoingRequestCache(entries) {
+    const key = outgoingCacheKey();
+    if (!key) return;
+    try { localStorage.setItem(key, JSON.stringify(entries)); } catch (_) {}
+  }
+  function rememberOutgoingRequestSnapshot(requests) {
+    const now = Date.now();
+    writeOutgoingRequestCache((Array.isArray(requests) ? requests : [])
+      .filter(request => request && String(request.toUid || ''))
+      .map(request => ({ request, seenAt: now })));
+  }
+  function mergeRecentOutgoingRequests(serverOutgoing) {
+    const now = Date.now();
+    const serverByTarget = new Map();
+    (Array.isArray(serverOutgoing) ? serverOutgoing : []).forEach(request => {
+      const targetId = String(request && request.toUid || '');
+      if (targetId) serverByTarget.set(targetId, request);
+    });
+    const cachedByTarget = new Map();
+    readOutgoingRequestCache().forEach(entry => {
+      const targetId = String(entry.request.toUid || '');
+      if (targetId && now - Number(entry.seenAt) <= OUTGOING_REQUEST_CACHE_TTL_MS) {
+        cachedByTarget.set(targetId, entry);
+      }
+    });
+    serverByTarget.forEach((request, targetId) => {
+      cachedByTarget.set(targetId, { request, seenAt: now });
+    });
+    const merged = new Map(serverByTarget);
+    const incomingIds = new Set(incomingRequests.map(request => String(request.fromUid || '')));
+    cachedByTarget.forEach((entry, targetId) => {
+      if (merged.has(targetId) || acceptedFriendIds.has(targetId) || incomingIds.has(targetId)) return;
+      // Prevent a stale connection response from erasing a recently confirmed outgoing request.
+      merged.set(targetId, entry.request);
+    });
+    writeOutgoingRequestCache(Array.from(cachedByTarget.entries())
+      .filter(([targetId]) => merged.has(targetId) && !acceptedFriendIds.has(targetId) && !incomingIds.has(targetId))
+      .map(([, entry]) => entry));
+    return Array.from(merged.values());
+  }
+  function rememberUnresolvedOutgoingRequest(targetId, targetName) {
+    const id = String(targetId || '');
+    if (!id || acceptedFriendIds.has(id) || incomingRequests.some(request => String(request.fromUid) === id)) return;
+    const existing = outgoingRequests.find(request => String(request.toUid) === id);
+    const request = existing || { id: '', toUid: id, toName: safeText(targetName || 'Student', 80), status: 'pending', direction: 'outgoing' };
+    if (!existing) outgoingRequests = outgoingRequests.concat(request);
+    const entries = readOutgoingRequestCache().filter(entry => String(entry.request.toUid || '') !== id);
+    entries.push({ request, seenAt: Date.now() });
+    writeOutgoingRequestCache(entries);
+    lastFriendError = '';
+    renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+    if (activePublicProfile && String(activePublicProfile.userId || activePublicProfile.uid || '') === id) {
+      renderRelationshipActions(activePublicProfile);
+    }
+  }
+
   const ownProfile = () => Object.assign({}, app.profile || {}, {
     name: app.profile?.name || app.authUser?.displayName || '',
     college: app.profile?.college || '',
@@ -132,7 +203,7 @@
         acceptedFriendIds = new Set((data.friendIds || []).map(String).filter(id => id && id !== userId()));
         acceptedFriends = Array.isArray(data.friends) ? data.friends : [];
         incomingRequests = Array.isArray(data.incoming) ? data.incoming : [];
-        outgoingRequests = Array.isArray(data.outgoing) ? data.outgoing : [];
+        outgoingRequests = mergeRecentOutgoingRequests(Array.isArray(data.outgoing) ? data.outgoing : []);
         if (!acceptedFriends.length && acceptedFriendIds.size && window.MedGlobalLeague?.getCachedRows) {
           const cachedProfiles = ['all-time', 'weekly', 'friends'].flatMap(period => window.MedGlobalLeague.getCachedRows(period) || []);
           acceptedFriends = Array.from(acceptedFriendIds).map(id => cachedProfiles.find(row =>
@@ -180,7 +251,10 @@
     }
     if (Array.isArray(data.friends)) acceptedFriends = data.friends;
     if (Array.isArray(data.incoming)) incomingRequests = data.incoming;
-    if (Array.isArray(data.outgoing)) outgoingRequests = data.outgoing;
+    if (Array.isArray(data.outgoing)) {
+      outgoingRequests = data.outgoing;
+      rememberOutgoingRequestSnapshot(outgoingRequests);
+    }
     lastConnectionLoad = Date.now();
     lastFriendError = '';
     renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
@@ -233,6 +307,13 @@
           }
           return true;
         }
+        // Duplicate confirmation means the backend already has this pending request.
+        // Keep the UI in a non-duplicating pending state while the real request ID syncs.
+        rememberUnresolvedOutgoingRequest(targetId, target?.name || target?.displayName || 'Student');
+        if (window.MedGlobalLeague && typeof window.MedGlobalLeague.refreshFriendDirectory === 'function') {
+          window.MedGlobalLeague.refreshFriendDirectory();
+        }
+        return true;
       }
       throw error;
     }
@@ -290,7 +371,7 @@
     const outgoingMarkup = outgoingRequests.map(request =>
       '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' +
       avatarMarkup({ userId: request.toUid, name: request.toName }) +
-      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + escapeHTML(request.toName || 'Student') + '</button><small>Request sent · pending</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id) + '">Cancel</button></div></div>'
+      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + escapeHTML(request.toName || 'Student') + '</button><small>' + (request.id ? 'Request sent · pending' : 'Request sent · syncing request ID') + '</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id || '') + '"' + (!request.id ? ' disabled title="Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন"' : '') + '>Cancel</button></div></div>'
     ).join('');
     const friendsMarkup = acceptedFriends.map(friend => {
       const id = String(friend.userId || friend.uid || friend.playerId || '');
@@ -359,7 +440,10 @@
     } else if (relation === 'friends') {
       host.innerHTML = '<button type="button" data-student-friend-action="remove" data-target-id="' + escapeHTML(targetId) + '" class="danger"><i class="fa-solid fa-user-minus ml-1" aria-hidden="true"></i> Remove Friend</button><span class="inline-flex items-center text-xs font-bold text-emerald-700 dark:text-emerald-300"><i class="fa-solid fa-check ml-1"></i> Friends</span>';
     } else if (relation === 'outgoing') {
-      host.innerHTML = '<button type="button" data-student-friend-action="cancel" data-request-id="' + escapeHTML(requestFromThisUser?.id || '') + '"><i class="fa-solid fa-clock ml-1" aria-hidden="true"></i> Request Sent · Cancel</button>';
+      const outgoingRequestId = String(requestFromThisUser?.id || '');
+      host.innerHTML = '<button type="button" data-student-friend-action="cancel" data-request-id="' + escapeHTML(outgoingRequestId) + '"' +
+        (!outgoingRequestId ? ' disabled title="Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন"' : '') +
+        '><i class="fa-solid fa-clock ml-1" aria-hidden="true"></i> ' + (outgoingRequestId ? 'Request Sent · Cancel' : 'Request Sent · Syncing') + '</button>';
     } else if (relation === 'incoming') {
       host.innerHTML = '<button type="button" class="primary" data-student-friend-action="accept" data-request-id="' + escapeHTML(requestToThisUser?.id || '') + '"><i class="fa-solid fa-user-check ml-1" aria-hidden="true"></i> Accept Request</button><button type="button" data-student-friend-action="reject" data-request-id="' + escapeHTML(requestToThisUser?.id || '') + '">Reject</button>';
     } else {
