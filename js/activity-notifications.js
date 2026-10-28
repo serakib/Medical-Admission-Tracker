@@ -714,11 +714,29 @@
     const value = numeric(timestamp);
     if (!value || !Number.isFinite(value)) return 'Time unavailable';
     const diff = Math.max(0, localTimestamp() - value);
-    if (diff < 60000) return 'Just now';
-    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    if (diff < 60000) return Math.floor(diff / 1000) + 's ago';
+    if (diff < 3600000) {
+      const minutes = Math.floor(diff / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      return minutes + 'm ' + seconds + 's ago';
+    }
+    if (diff < 86400000) {
+      const hours = Math.floor(diff / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      return hours + 'h ' + minutes + 'm ago';
+    }
     const date = new Date(value);
     return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Dhaka' }).format(date);
+  }
+  function exactTimeLabel(timestamp) {
+    const date = new Date(numeric(timestamp));
+    if (Number.isNaN(date.getTime())) return 'Time unavailable';
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hourCycle: 'h23', timeZone: 'Asia/Dhaka'
+    }).format(date);
+    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+    return parts + '.' + milliseconds;
   }
   function updateRelativeTimes() {
     document.querySelectorAll('#mat-notification-list time[data-mat-notification-time]').forEach(function (time) {
@@ -729,10 +747,13 @@
         return;
       }
       const detectedAt = new Date(timestamp);
-      time.textContent = relativeTime(timestamp);
+      // Exact event time (including milliseconds) keeps distinct timestamps visibly distinct,
+      // while the relative age advances live.
+      time.textContent = exactTimeLabel(timestamp) + ' · ' + relativeTime(timestamp);
       time.title = 'Detected by this site at ' + new Intl.DateTimeFormat('en-GB', {
-        dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka'
-      }).format(detectedAt) + ' (Bangladesh time)';
+        dateStyle: 'medium', hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hourCycle: 'h23', timeZone: 'Asia/Dhaka'
+      }).format(detectedAt) + '.' + String(detectedAt.getMilliseconds()).padStart(3, '0') + ' (Bangladesh time)';
     });
   }
   function notificationIcon(type) {
@@ -1025,7 +1046,7 @@
       if (event.key === 'Escape' && !document.getElementById('mat-notification-center')?.hidden) closeCenter();
     });
     // Relative labels tick forward independently of leaderboard refreshes.
-    window.setInterval(updateRelativeTimes, 30000);
+    window.setInterval(updateRelativeTimes, 1000);
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) {
         updateRelativeTimes();
