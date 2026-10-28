@@ -543,7 +543,8 @@ function matAuthenticate_(p) {
   if (guestToken) {
     const guest = matFindGuestByToken_(guestToken);
     if (!guest) throw new Error('Guest session expired or invalid. Create a new Guest session.');
-    return guest;
+    matUpdateLastSeen_(guest);
+    return matFindStudentById_(guest.UserID) || guest;
   }
   const idToken = String(p.idToken || p.firebaseIdToken || '').trim();
   if (idToken) {
