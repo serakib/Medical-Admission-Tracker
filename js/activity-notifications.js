@@ -209,6 +209,18 @@
       row.rankScore != null ? row.rankScore : 0
     )));
   }
+  function rowPoints(row, period) {
+    if (period === 'all-time') {
+      return Math.max(0, numeric(row && (
+        row.totalRP != null ? row.totalRP :
+        row.raw && row.raw.totalRP != null ? row.raw.totalRP :
+        row.raw && row.raw.TotalRP != null ? row.raw.TotalRP :
+        row.rankPoints != null ? row.rankPoints :
+        row.raw && row.raw.rankPoints != null ? row.raw.rankPoints : 0
+      )));
+    }
+    return rowRP(row);
+  }
   function rowXP(row) {
     return Math.max(0, numeric(row && (row.xp != null ? row.xp : row.XP)));
   }
@@ -220,61 +232,52 @@
     const rank = rowRank(row);
     return RANKS.indexOf(rank);
   }
-  function rankRows() {
+  function rankRows(period) {
     const league = window.MedGlobalLeague;
     if (!league || typeof league.getCachedRows !== 'function') return [];
+    const selected = period === 'all-time' ? 'all-time' : 'weekly';
+    let rows = [];
+    try { rows = league.getCachedRows(selected) || []; } catch (_) {}
     const byId = new Map();
-    let weeklyRows = [];
-    try { weeklyRows = league.getCachedRows('weekly') || []; } catch (_) {}
-    weeklyRows.filter(row => row && !row.isDemo && rowId(row)).forEach(row => {
+    rows.filter(row => row && !row.isDemo && rowId(row)).forEach(row => {
       const id = rowId(row);
-      if (!byId.has(id)) {
-        const actualPosition = numeric(row.position || (row.raw && row.raw.position) || (row.raw && row.raw.rankPosition));
-        byId.set(id, Object.assign({}, row, { userId: id, position: actualPosition }));
-      }
+      const actualPosition = numeric(row.position || (row.raw && row.raw.position) || (row.raw && row.raw.rankPosition));
+      const previous = byId.get(id);
+      const candidate = Object.assign({}, row, { userId: id, position: actualPosition });
+      if (!previous || rowPoints(candidate, selected) > rowPoints(previous, selected)) byId.set(id, candidate);
     });
-    // Backend positions are global ranks, even when an accepted friend is outside the Top 100.
-    // Only use a local ordinal as a fallback for older cache rows that have no position field.
-    const sortedWeekly = Array.from(byId.values())
-      .sort((a, b) => rowRP(b) - rowRP(a) || rowXP(b) - rowXP(a) || rowName(a).localeCompare(rowName(b)));
-    sortedWeekly.forEach((row, index) => {
-      if (!(numeric(row.position) > 0)) row.position = index + 1;
-      byId.set(rowId(row), row);
-    });
-    ['friends', 'all-time'].forEach(function (period) {
-      let rows = [];
-      try { rows = league.getCachedRows(period) || []; } catch (_) {}
-      rows.forEach(function (row) {
-        const id = rowId(row);
-        if (!id || row.isDemo || byId.has(id)) return;
-        byId.set(id, Object.assign({}, row, { userId: id, name: rowName(row), position: 0 }));
-      });
-    });
-    return Array.from(byId.values()).map(row => Object.assign({}, row, {
+    const ranked = Array.from(byId.values()).sort((a, b) =>
+      numeric(a.position) - numeric(b.position) ||
+      rowPoints(b, selected) - rowPoints(a, selected) ||
+      rowXP(b) - rowXP(a) ||
+      rowName(a).localeCompare(rowName(b))
+    );
+    ranked.forEach((row, index) => { if (!(numeric(row.position) > 0)) row.position = index + 1; });
+    return ranked.map(row => Object.assign({}, row, {
       userId: rowId(row), name: rowName(row), position: Math.max(0, numeric(row.position))
     }));
   }
-  async function refreshWeeklyData(friendIds) {
+  async function refreshPeriodData(period, friendIds) {
     const league = window.MedGlobalLeague;
     if (!league || typeof league.loadLeaderboard !== 'function') return;
     const before = readStorage(PERIOD_KEY);
-    const priorFriendIds = window.__medActivityFriendIdsForWeeklyRefresh;
+    const isWeekly = period === 'weekly';
+    const variableName = isWeekly ? '__medActivityFriendIdsForWeeklyRefresh' : '__medActivityFriendIdsForAllTimeRefresh';
+    const previousFriendIds = window[variableName];
     try {
-      window.__medActivityFriendIdsForWeeklyRefresh = Array.from(new Set((friendIds || []).map(String).filter(Boolean))).slice(0, 499);
-      localStorage.setItem(PERIOD_KEY, 'weekly');
+      window[variableName] = Array.from(new Set((friendIds || []).map(String).filter(Boolean))).slice(0, 499);
+      localStorage.setItem(PERIOD_KEY, isWeekly ? 'weekly' : 'all-time');
       await league.loadLeaderboard(true);
     } catch (error) {
-      console.warn('[Activity notifications] Weekly leaderboard refresh failed:', error);
+      console.warn('[Activity notifications] ' + period + ' leaderboard refresh failed:', error);
     } finally {
       try {
         if (before == null) localStorage.removeItem(PERIOD_KEY);
         else localStorage.setItem(PERIOD_KEY, before);
       } catch (_) {}
-      if (priorFriendIds == null) {
-        try { delete window.__medActivityFriendIdsForWeeklyRefresh; } catch (_) {}
-      } else {
-        window.__medActivityFriendIdsForWeeklyRefresh = priorFriendIds;
-      }
+      if (previousFriendIds == null) {
+        try { delete window[variableName]; } catch (_) {}
+      } else window[variableName] = previousFriendIds;
     }
   }
   async function acceptedFriendData() {
