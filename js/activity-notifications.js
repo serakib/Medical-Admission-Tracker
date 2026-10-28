@@ -854,7 +854,7 @@
       deleteSelected.textContent = selected.length ? 'Delete (' + selected.length + ' selected)' : 'Delete selected';
       deleteSelected.disabled = selected.length === 0;
     }
-    if (readSelected) readSelected.disabled = selected.length === 0;
+    if (readSelected) readSelected.disabled = selected.length === 0 || activeFilter === 'trash';
     if (unreadSelected) unreadSelected.disabled = selected.length === 0 || activeFilter === 'trash';
     if (archiveSelected) { archiveSelected.disabled = selected.length === 0 || activeFilter === 'trash'; archiveSelected.hidden = activeFilter === 'trash'; }
     if (restoreSelected) { restoreSelected.disabled = selected.length === 0; restoreSelected.hidden = activeFilter !== 'trash'; }
@@ -1032,6 +1032,7 @@
     state.notifications.forEach(item => {
       if (!wanted.has(String(item.id))) return;
       item.archivedAt = archived ? now : 0;
+      item.statusUpdatedAt = now;
       item.updatedAt = item.updatedAt || item.createdAt || now;
     });
     saveState();
