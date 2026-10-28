@@ -1340,3 +1340,7 @@ html.dark .mat-guest-deletion-label,body.dark .mat-guest-deletion-label,html.dar
 #mat-notification-center .mat-notification-list:has(.mat-notification-announcement-view){box-sizing:border-box;padding-top:24px!important;scroll-padding-top:24px;overflow-y:auto!important;overscroll-behavior-y:contain;}
 #mat-notification-center .mat-notification-announcement-view{position:relative!important;top:auto!important;transform:none!important;margin-top:0!important;padding-top:0!important;}
 #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{margin-top:0!important;}
+
+/* Transparent Guest announcement card */
+#mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{background:transparent!important;box-shadow:none!important;}
+html.dark #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement,body.dark #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{background:transparent!important;box-shadow:none!important;}
