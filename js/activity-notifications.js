@@ -593,6 +593,8 @@
       const oldTierPosition = numeric(oldTier[id] && oldTier[id].tierPosition);
       const newTierPosition = numeric(newTier[id] && newTier[id].tierPosition);
       const crossed = crossingBetween(oldOwn, newOwn, oldAny, newAny);
+      const rawCrossing = crossingDirection(oldOwn, newOwn, oldAny, newAny);
+      if (rawCrossing && !crossed) return;
       const changedPosition = oldPosition !== newPosition;
       const changedRP = oldRP !== newRP;
       const changedXP = oldXP !== newXP;
