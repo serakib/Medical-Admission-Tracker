@@ -332,53 +332,57 @@
     const highestFallback = publicStudent ? current : (app.profile?.highestStreak ?? current);
     const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? highestFallback) || 0);
     const counts = publicStudent ? new Map() : attemptedQuestionCounts();
-    const weeklySnapshotKey = 'med_streak_weekly_snapshots_v1_' + String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || 'guest');
-    const today = dhakaTodayDate();
-    const previousDate = dateOffset(today, -1);
-    const getWeeklyRows = period => {
-      try {
-        const rows = window.MedGlobalLeague?.getCachedRows?.(period) || [];
-        return Array.isArray(rows) ? rows.map(row => row && row.raw ? row.raw : row).filter(Boolean) : [];
-      } catch (_) { return []; }
+    const buildLeaderboardInfo = () => {
+      const weeklySnapshotKey = 'med_streak_weekly_snapshots_v1_' + String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || 'guest');
+      const today = dhakaTodayDate();
+      const previousDate = dateOffset(today, -1);
+      const getWeeklyRows = period => {
+        try {
+          const rows = window.MedGlobalLeague?.getCachedRows?.(period) || [];
+          return Array.isArray(rows) ? rows.map(row => row && row.raw ? row.raw : row).filter(Boolean) : [];
+        } catch (_) { return []; }
+      };
+      const rowId = row => String(row?.userId || row?.uid || row?.playerId || row?.id || '');
+      const rowName = row => String(row?.name || row?.username || 'Student');
+      const weeklyValue = row => Math.max(0, Number(row?.weeklyRP ?? row?.weeklyRankPoints ?? row?.boardPoints ?? row?.WeeklyRP ?? 0) || 0);
+      const xpValue = row => Math.max(0, Number(row?.xp ?? row?.XP ?? 0) || 0);
+      const ownId = String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || '');
+      let savedSnapshots = {};
+      try { savedSnapshots = JSON.parse(localStorage.getItem(weeklySnapshotKey) || '{}') || {}; } catch (_) {}
+      const weeklyRows = getWeeklyRows('weekly').slice().sort((a,b) => weeklyValue(b)-weeklyValue(a) || xpValue(b)-xpValue(a));
+      const friendIds = new Set(getWeeklyRows('friends').map(rowId).filter(id => id && id !== ownId));
+      const rankedRows = weeklyRows.map((row,index) => ({
+        userId:rowId(row), name:rowName(row), position:index+1,
+        weeklyRP:weeklyValue(row), xp:xpValue(row), rank:row.rank || row.currentRank || ''
+      }));
+      const ownLive = rankedRows.find(row => row.userId === ownId) || null;
+      const friendsLive = rankedRows.filter(row => friendIds.has(row.userId));
+      if (ownLive) {
+        savedSnapshots[today] = { date:today, own:ownLive, friends:friendsLive };
+        const snapshotDates = Object.keys(savedSnapshots).sort();
+        snapshotDates.slice(0, Math.max(0, snapshotDates.length - 45)).forEach(date => delete savedSnapshots[date]);
+        try { localStorage.setItem(weeklySnapshotKey, JSON.stringify(savedSnapshots)); } catch (_) {}
+      }
+      const priorSnapshot = savedSnapshots[previousDate] || null;
+      const previousOwn = priorSnapshot?.own || null;
+      const previousFriends = Array.isArray(priorSnapshot?.friends) ? priorSnapshot.friends : [];
+      const liveFriendById = new Map(friendsLive.map(row => [row.userId, row]));
+      const previousFriendById = new Map(previousFriends.map(row => [row.userId, row]));
+      const friendActivity = [];
+      previousFriends.forEach(friend => {
+        const live = liveFriendById.get(friend.userId);
+        if (!live) return;
+        const delta = live.weeklyRP - Number(friend.weeklyRP || 0);
+        const passedUser = previousOwn && friend.position > previousOwn.position && live.position < ownLive?.position;
+        const userPassed = previousOwn && friend.position < previousOwn.position && live.position > ownLive?.position;
+        if (passedUser) friendActivity.push({name:live.name, message:'passed you today', delta, direction:'friend-passed'});
+        else if (userPassed) friendActivity.push({name:live.name, message:'you passed them today', delta, direction:'user-passed'});
+        else if (delta !== 0) friendActivity.push({name:live.name, message:(delta > 0 ? 'gained' : 'lost') + ' weekly RP today', delta, direction:delta > 0 ? 'friend-passed' : 'user-passed'});
+      });
+      const leaderboardInfo = { previousDate, previousDay:previousOwn, live:ownLive, friendActivity };
+        return leaderboardInfo;
     };
-    const rowId = row => String(row?.userId || row?.uid || row?.playerId || row?.id || '');
-    const rowName = row => String(row?.name || row?.username || 'Student');
-    const weeklyValue = row => Math.max(0, Number(row?.weeklyRP ?? row?.weeklyRankPoints ?? row?.boardPoints ?? row?.WeeklyRP ?? 0) || 0);
-    const xpValue = row => Math.max(0, Number(row?.xp ?? row?.XP ?? 0) || 0);
-    const ownId = String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || '');
-    let savedSnapshots = {};
-    try { savedSnapshots = JSON.parse(localStorage.getItem(weeklySnapshotKey) || '{}') || {}; } catch (_) {}
-    const weeklyRows = getWeeklyRows('weekly').slice().sort((a,b) => weeklyValue(b)-weeklyValue(a) || xpValue(b)-xpValue(a));
-    const friendIds = new Set(getWeeklyRows('friends').map(rowId).filter(id => id && id !== ownId));
-    const rankedRows = weeklyRows.map((row,index) => ({
-      userId:rowId(row), name:rowName(row), position:index+1,
-      weeklyRP:weeklyValue(row), xp:xpValue(row), rank:row.rank || row.currentRank || ''
-    }));
-    const ownLive = rankedRows.find(row => row.userId === ownId) || null;
-    const friendsLive = rankedRows.filter(row => friendIds.has(row.userId));
-    if (ownLive) {
-      savedSnapshots[today] = { date:today, own:ownLive, friends:friendsLive };
-      const snapshotDates = Object.keys(savedSnapshots).sort();
-      snapshotDates.slice(0, Math.max(0, snapshotDates.length - 45)).forEach(date => delete savedSnapshots[date]);
-      try { localStorage.setItem(weeklySnapshotKey, JSON.stringify(savedSnapshots)); } catch (_) {}
-    }
-    const priorSnapshot = savedSnapshots[previousDate] || null;
-    const previousOwn = priorSnapshot?.own || null;
-    const previousFriends = Array.isArray(priorSnapshot?.friends) ? priorSnapshot.friends : [];
-    const liveFriendById = new Map(friendsLive.map(row => [row.userId, row]));
-    const previousFriendById = new Map(previousFriends.map(row => [row.userId, row]));
-    const friendActivity = [];
-    previousFriends.forEach(friend => {
-      const live = liveFriendById.get(friend.userId);
-      if (!live) return;
-      const delta = live.weeklyRP - Number(friend.weeklyRP || 0);
-      const passedUser = previousOwn && friend.position > previousOwn.position && live.position < ownLive?.position;
-      const userPassed = previousOwn && friend.position < previousOwn.position && live.position > ownLive?.position;
-      if (passedUser) friendActivity.push({name:live.name, message:'passed you today', delta, direction:'friend-passed'});
-      else if (userPassed) friendActivity.push({name:live.name, message:'you passed them today', delta, direction:'user-passed'});
-      else if (delta !== 0) friendActivity.push({name:live.name, message:(delta > 0 ? 'gained' : 'lost') + ' weekly RP today', delta, direction:delta > 0 ? 'friend-passed' : 'user-passed'});
-    });
-    const leaderboardInfo = { previousDate, previousDay:previousOwn, live:ownLive, friendActivity };
+    let leaderboardInfo = buildLeaderboardInfo();
     const overlay = document.createElement('section');
     overlay.id = 'mat-streak-fullscreen';
     overlay.className = 'mat-streak-fullscreen';
@@ -427,6 +431,19 @@
     overlay.querySelector('[data-streak-back]')?.addEventListener('click', close);
     overlay.querySelectorAll('[data-streak-period]').forEach(button => button.addEventListener('click', () => render(button.dataset.streakPeriod)));
     render('daily');
+    // Refresh from the authoritative Weekly leaderboard endpoint, then restore the user's selected leaderboard tab.
+    if (!publicStudent && window.MedGlobalLeague?.loadLeaderboard) {
+      const periodStorageKey = 'med_sheet_leaderboard_period_v1';
+      let previousPeriod = 'all-time';
+      try { previousPeriod = localStorage.getItem(periodStorageKey) || 'all-time'; } catch (_) {}
+      try { localStorage.setItem(periodStorageKey, 'weekly'); } catch (_) {}
+      Promise.resolve(window.MedGlobalLeague.loadLeaderboard(true)).catch(() => {}).finally(() => {
+        try { localStorage.setItem(periodStorageKey, previousPeriod); } catch (_) {}
+        if (!overlay.isConnected) return;
+        leaderboardInfo = buildLeaderboardInfo();
+        if (activePeriod === 'calendar') render('calendar');
+      });
+    }
 
     chart?.addEventListener('click', event => {
       const reviewButton = event.target.closest?.('[data-review-attempt-id]');
