@@ -2545,20 +2545,25 @@ window.handleAccountDeletion = function() {
     const answered = correctCount + wrongCount;
     const accuracy = answered ? correctCount / answered : 0;
     const baseRankPoints = Math.max(1, Math.round(accuracy * 25 + Math.min(correctCount, 100) * 0.05));
-    let weightedCorrect = 0;
+    const wrongCount = Math.max(0, Math.floor(Number(state?.wrongCount ?? state?.wrong) || 0));
+    const finalScore = Math.max(0, correctCount - wrongCount * 0.25);
+    const tiers = [
+      { upTo: totalQuestions * 0.40, multiplier: 1 },
+      { upTo: totalQuestions * 0.50, multiplier: 2 },
+      { upTo: totalQuestions * 0.60, multiplier: 4 },
+      { upTo: totalQuestions * 0.70, multiplier: 5 },
+      { upTo: totalQuestions * 0.79, multiplier: 7 },
+      { upTo: totalQuestions, multiplier: 10 }
+    ];
+    let weightedScore = 0;
     if (totalQuestions >= 30) {
-      for (let answerNumber = 1; answerNumber <= correctCount; answerNumber++) {
-        const correctPercent = answerNumber * 100 / totalQuestions;
-        const multiplier = correctPercent <= 40 ? 1
-          : correctPercent <= 50 ? 2
-          : correctPercent <= 60 ? 4
-          : correctPercent <= 70 ? 5
-          : correctPercent <= 79 ? 7
-          : 10;
-        weightedCorrect += multiplier;
+      let previousLimit = 0;
+      for (const tier of tiers) {
+        weightedScore += Math.max(0, Math.min(finalScore, tier.upTo) - previousLimit) * tier.multiplier;
+        previousLimit = tier.upTo;
       }
     }
-    const weightedBonusRp = weightedCorrect * 15;
+    const weightedBonusRp = Math.round(weightedScore * 15);
     return { rankPoints: baseRankPoints + weightedBonusRp, xp: 0, hasWeightedExamRule: totalQuestions >= 30 };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
