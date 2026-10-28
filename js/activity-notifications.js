@@ -908,6 +908,8 @@
     const toolbar = document.querySelector('#mat-notification-center .mat-notification-toolbar');
     const signedIn = !!signedInUid();
     if (toolbar) toolbar.style.display = '';
+    if (signedIn && activeFilter === 'announcement') activeFilter = 'all';
+    if (!signedIn) activeFilter = 'announcement';
     renderFilterState();
     if (!signedIn) {
       selectedIds.clear();
