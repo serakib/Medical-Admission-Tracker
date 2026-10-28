@@ -90,7 +90,7 @@
       ? (local.lastSnapshot || remote.lastSnapshot) : (remote.lastSnapshot || local.lastSnapshot);
     const trophies = Object.assign({}, remote.trophyEvents || {}, local.trophyEvents || {});
     return {
-      notifications: Array.from(itemMap.values()).sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt)).slice(0, 100),
+      notifications: Array.from(itemMap.values()).sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt)).slice(0, 250),
       lastSnapshot: lastSnapshot || null,
       dayKey: dayKey || '',
       dayBaseline: (baselineOptions[0] && baselineOptions[0].dayBaseline) || (dayKey === local.dayKey ? local.dayBaseline : remote.dayBaseline) || null,
@@ -422,7 +422,7 @@
       }, item));
     }
     state.notifications.sort((a, b) => numeric(b.updatedAt || b.createdAt) - numeric(a.updatedAt || a.createdAt));
-    state.notifications = state.notifications.slice(0, 100);
+    state.notifications = state.notifications.slice(0, 250);
   }
   function addFriendStatusNotifications(current, baseline, currentDay) {
     if (!baseline || !baseline.own) return;
@@ -641,16 +641,20 @@
       try {
         await restoreCloudState(true);
         const friendsData = await acceptedFriendData();
-        await refreshWeeklyData(friendsData.ids);
-        const rows = rankRows();
-        if (!rows.length) {
+        // Keep global competitors separate from accepted friends while tracking each
+        // public All Time/Weekly ranking with its authoritative backend position.
+        await refreshPeriodData('all-time', friendsData.ids);
+        await refreshPeriodData('weekly', friendsData.ids);
+        const weeklyRows = rankRows('weekly');
+        const allTimeRows = rankRows('all-time');
+        if (!weeklyRows.length && !allTimeRows.length) {
           lastRefreshAt = localTimestamp();
           renderBadge();
           return;
         }
         const today = dayKey();
         const week = weekKey(today);
-        const current = buildSnapshot(rows, friendsData, week);
+        const current = buildSnapshot(weeklyRows, allTimeRows, friendsData, week);
         let baseline;
         if (state.dayKey !== today) {
           baseline = state.lastSnapshot && state.lastSnapshot.weekKey === week ? state.lastSnapshot : current;
@@ -662,6 +666,8 @@
         if (baseline && baseline.capturedAt !== current.capturedAt) {
           addFriendStatusNotifications(current, baseline, today);
           addTrophyNotifications(current, baseline, today);
+          addGlobalLeaderboardNotifications(current, baseline, today, 'all-time');
+          addGlobalLeaderboardNotifications(current, baseline, today, 'weekly');
         }
         state.lastSnapshot = current;
         if (!state.dayBaseline) state.dayBaseline = current;
