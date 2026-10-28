@@ -266,8 +266,13 @@ function processWeeklyRankDemotions() {
         const nextTrophyRequirement = matRankPromotionCost_(rankIndex);
         const safeZoneThreshold = Math.ceil(nextTrophyRequirement * 0.30);
         if (weeklyRP < safeZoneThreshold) {
-          update.Rank = MAT_RANKS[rankIndex - 1];
-          update.RP = 0;
+          const demotedRankIndex = rankIndex - 1;
+          update.Rank = MAT_RANKS[demotedRankIndex];
+          // Bronze V is the floor: a demotion into it starts at 0 RP.
+          // Other demotions retain the demoted rank's Safe Zone minimum.
+          update.RP = demotedRankIndex === 0
+            ? 0
+            : matRankSafeZoneThreshold_(demotedRankIndex);
           // Start the seven-day zero-RP inactivity window only for Guests.
           if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
             update.GuestZeroRPAt = now;
