@@ -73,7 +73,7 @@
       typeof window.MedActivityNotificationStore.set === 'function');
   }
   function stateVersion(item) {
-    return Math.max(numeric(item && (item.updatedAt || item.createdAt)), numeric(item && item.readAt), numeric(item && item.statusUpdatedAt));
+    return Math.max(numeric(item && (item.updatedAt || item.createdAt)), numeric(item && item.readAt), numeric(item && item.statusUpdatedAt), numeric(item && item.archivedAt), numeric(item && item.deletedAt));
   }
   function mergeStateObjects(localState, remoteState) {
     const local = Object.assign(makeEmptyState(), localState || {});
