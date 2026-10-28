@@ -33,7 +33,7 @@
     'Grandmaster V','Grandmaster IV','Grandmaster III','Grandmaster II','Grandmaster I',
     'Legend V','Legend IV','Legend III','Legend II','Legend I',
     'Mythic V','Mythic IV','Mythic III','Mythic II','Mythic I',
-    'Immortal'
+    'Immortal V','Immortal IV','Immortal III','Immortal II','Immortal I'
   ];
   var PERIOD_KEY = 'med_sheet_leaderboard_period_v1';
   var GUEST_TOKEN_KEY = 'med_sheet_guest_token_v1';
