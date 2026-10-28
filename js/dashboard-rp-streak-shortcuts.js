@@ -379,6 +379,15 @@
     const siteTime = siteTimeForDate(selected);
     const practicedFrom = [...new Set(entries.map(item => item.source || item.subject).filter(Boolean))];
     const leaderboardBefore = entries.map(item => item.leaderboardStatusBefore || {}).find(item => item.rank != null || item.rp != null || item.status);
+    const examTimeline = examAttempts.length
+      ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
+          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
+          const reviewable = !!attempt.reviewData?.questions?.length && Array.isArray(attempt.reviewData.userAnswers);
+          const label = attempt.modeLabel || attempt.mode || 'Exam';
+          const countsText = 'Correct ' + (attempt.correctCount ?? '—') + ' · Wrong ' + (attempt.wrongCount ?? '—') + ' · Skipped ' + (attempt.skippedCount ?? '—');
+          return '<article style="padding:11px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;display:grid;gap:7px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong style="font-size:12px">' + esc(label) + ' · ' + esc(time) + '</strong><span style="font-size:11px;font-weight:800">' + esc(attempt.score ?? '—') + ' / ' + esc(attempt.total ?? '—') + '</span></div><small style="font-size:11px;color:var(--muted,#64748b)">' + esc(countsText) + ' · Accuracy ' + esc(attempt.accuracy || '—') + '</small><button type="button" data-review-attempt-id="' + esc(attempt.attemptId) + '" ' + (reviewable ? '' : 'disabled') + ' style="justify-self:start;padding:7px 10px;border-radius:9px;background:' + (reviewable ? '#059669;color:white;cursor:pointer' : '#94a3b8;color:white;cursor:not-allowed') + ';font-size:11px;font-weight:800">' + (reviewable ? 'Open Answer Review' : 'Review unavailable for this attempt') + '</button></article>';
+        }).join('') + '</div>'
+      : '';
     const leaderboardActivityMarkup = (() => {
       const info = leaderboardInfo || {};
       const prior = info.previousDay || null;
@@ -401,15 +410,7 @@
         (examAttempts.length ? '<button type="button" data-toggle-exam-attempts aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;background:var(--surface,#fff);color:var(--text,#0f172a);font-weight:850;text-align:left">Exam attempted (' + number(examAttempts.length) + ') <span aria-hidden="true">＋</span></button><section data-exam-attempts-panel hidden style="padding:12px;border:1px solid var(--line,rgba(148,163,184,.18));border-radius:13px">' + examTimeline + '</section>' : '') +
         '</div>';
     })();
-    const examTimeline = examAttempts.length
-      ? '<div style="display:grid;gap:8px;margin-top:14px"><strong style="font-size:12px">Exam attempts (' + examAttempts.length + ')</strong>' + examAttempts.map((attempt, index) => {
-          const time = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(Number(attempt.attemptId)));
-          const reviewable = !!attempt.reviewData?.questions?.length && Array.isArray(attempt.reviewData.userAnswers);
-          const label = attempt.modeLabel || attempt.mode || 'Exam';
-          const countsText = 'Correct ' + (attempt.correctCount ?? '—') + ' · Wrong ' + (attempt.wrongCount ?? '—') + ' · Skipped ' + (attempt.skippedCount ?? '—');
-          return '<article style="padding:11px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:12px;display:grid;gap:7px"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong style="font-size:12px">' + esc(label) + ' · ' + esc(time) + '</strong><span style="font-size:11px;font-weight:800">' + esc(attempt.score ?? '—') + ' / ' + esc(attempt.total ?? '—') + '</span></div><small style="font-size:11px;color:var(--muted,#64748b)">' + esc(countsText) + ' · Accuracy ' + esc(attempt.accuracy || '—') + '</small><button type="button" data-review-attempt-id="' + esc(attempt.attemptId) + '" ' + (reviewable ? '' : 'disabled') + ' style="justify-self:start;padding:7px 10px;border-radius:9px;background:' + (reviewable ? '#059669;color:white;cursor:pointer' : '#94a3b8;color:white;cursor:not-allowed') + ';font-size:11px;font-weight:800">' + (reviewable ? 'Open Answer Review' : 'Review unavailable for this attempt') + '</button></article>';
-        }).join('') + '</div>'
-      : '';
+
     
     return '<section class="mat-streak-calendar" aria-label="Study activity calendar">' +
       '<div class="mat-streak-calendar-head"><div class="mat-streak-calendar-month">' + esc(monthName) + '</div><div class="mat-streak-calendar-actions"><button type="button" data-calendar-nav="-1" aria-label="Previous month">‹</button><button type="button" data-calendar-nav="today">Today</button><button type="button" data-calendar-nav="1" aria-label="Next month">›</button></div></div>' +
