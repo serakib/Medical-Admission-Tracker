@@ -613,6 +613,22 @@ function matGetProfile_(p) {
  * ExamAttempts sheet. XP/RP remain sourced from the Students sheet; browser
  * localStorage is not trusted as the canonical progress record.
  */
+function matFormatTimeUsed_(value) {
+  if (value == null || value === '') return '—';
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    const clock = Utilities.formatDate(value, MAT_CONFIG.TIME_ZONE, 'H:mm');
+    const parts = clock.split(':');
+    return String(Number(parts[0])) + ':' + String(parts[1] || '00').padStart(2, '0');
+  }
+  const raw = String(value).trim();
+  // Defensive compatibility for records that already contain a serialized 1899 date.
+  const legacy = raw.match(/1899.*?\b(\d{1,2}):(\d{2})(?::\d{2})?/);
+  if (legacy) return String(Number(legacy[1])) + ':' + legacy[2];
+  const duration = raw.match(/^(\d{1,3}):(\d{2})(?::\d{2})?$/);
+  if (duration) return String(Number(duration[1])) + ':' + duration[2];
+  return raw;
+}
+
 function matGetProgress_(p) {
   const user = matAuthenticate_(p);
   const userId = String(user.UserID || '');
@@ -640,7 +656,7 @@ function matGetProgress_(p) {
         score: String(matFiniteNumber_(row.Score, 0).toFixed(2)),
         total: total,
         accuracy: (answered ? correct / answered * 100 : 0).toFixed(1) + '%',
-        timeUsed: String(row.TimeUsed || '—'),
+        timeUsed: matFormatTimeUsed_(row.TimeUsed),
         correct: correct,
         wrong: wrong,
         submittedAt: stamp
@@ -1951,8 +1967,51 @@ function matGetFriendsSheet_() {
 }
 
 function matGetExamSheet_() {
-  return matEnsureSheet_(MAT_CONFIG.EXAM_SPREADSHEET_ID, MAT_CONFIG.EXAM_TAB,
+  const sheet = matEnsureSheet_(MAT_CONFIG.EXAM_SPREADSHEET_ID, MAT_CONFIG.EXAM_TAB,
     MAT_EXAM_HEADERS, ['AttemptID', 'UserID']);
+  matNormalizeExamSheetFormats_(sheet);
+  return sheet;
+}
+
+/**
+ * Prevent Google Sheets from interpreting an exam duration such as "1:30"
+ * as a clock time. Older rows that were auto-converted to a Date (1899) are
+ * restored to the original minutes:seconds display before being stored as text.
+ */
+function matNormalizeExamSheetFormats_(sheet) {
+  const headers = matHeaders_(sheet);
+  const timeCol = headers.indexOf('TimeUsed') + 1;
+  const submittedCol = headers.indexOf('SubmittedAt') + 1;
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  if (timeCol > 0) {
+    const range = sheet.getRange(2, timeCol, lastRow - 1, 1);
+    const values = range.getValues();
+    let changed = false;
+    values.forEach(function (row, i) {
+      const value = row[0];
+      if (value instanceof Date && !isNaN(value.getTime())) {
+        // The legacy "m:ss" value was auto-parsed as a clock time. Its hour
+        // and minute components correspond to the original minutes/seconds.
+        const clock = Utilities.formatDate(value, sheet.getParent().getSpreadsheetTimeZone(), 'H:mm');
+        const parts = clock.split(':');
+        row[0] = String(Number(parts[0])) + ':' + String(parts[1] || '00').padStart(2, '0');
+        changed = true;
+      } else if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value < 1) {
+        // Repair duration serials already stored as a fraction of a day.
+        const totalSeconds = Math.round(value * 24 * 60 * 60);
+        row[0] = Math.floor(totalSeconds / 60) + ':' + String(totalSeconds % 60).padStart(2, '0');
+        changed = true;
+      }
+    });
+    range.setNumberFormat('@');
+    if (changed) range.setValues(values);
+  }
+
+  if (submittedCol > 0) {
+    sheet.getRange(2, submittedCol, lastRow - 1, 1).setNumberFormat('dd mmm yyyy, hh:mm AM/PM');
+  }
 }
 
 function matEnsureSheet_(spreadsheetId, desiredName, requiredHeaders, identityHeaders) {
