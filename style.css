@@ -1839,3 +1839,78 @@ body.dark #mat-notification-center .mat-notification-bulk-actions button:hover:n
     height: 24px !important;
   }
 }
+
+
+/* Hard force each notification's action icons into one CSS grid row (not a wrapping/vertical flex stack). */
+#mat-notification-center .mat-notification-item {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+#mat-notification-center .mat-notification-item-copy {
+  display: block !important;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  width: 0 !important;
+}
+#mat-notification-center .mat-notification-item-actions {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: 28px !important;
+  grid-template-rows: 28px !important;
+  grid-template-columns: none !important;
+  align-items: center !important;
+  justify-content: end !important;
+  align-self: center !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  gap: 3px !important;
+  position: static !important;
+  inset: auto !important;
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+#mat-notification-center .mat-notification-item-actions .mat-notification-action {
+  display: inline-grid !important;
+  grid-row: 1 !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  max-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+  flex: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+@media (max-width: 767px) {
+  #mat-notification-center .mat-notification-item {
+    gap: 5px !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+  #mat-notification-center .mat-notification-item-actions {
+    grid-auto-columns: 23px !important;
+    grid-template-rows: 23px !important;
+    gap: 2px !important;
+  }
+  #mat-notification-center .mat-notification-item-actions .mat-notification-action {
+    width: 23px !important;
+    min-width: 23px !important;
+    max-width: 23px !important;
+    height: 23px !important;
+    min-height: 23px !important;
+    max-height: 23px !important;
+  }
+}
