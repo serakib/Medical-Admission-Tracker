@@ -51,6 +51,39 @@
     } catch (_) {}
     return String(app.profile?.userId || app.profile?.uid || '');
   };
+  // Per-account local snapshot keeps Friends & Requests immediately usable while a refresh runs.
+  const CONNECTION_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+  const connectionCacheKey = () => {
+    const uid = userId();
+    return uid ? 'med_friend_connections_cache_v1_' + uid : '';
+  };
+  function saveConnectionCache() {
+    const key = connectionCacheKey();
+    if (!key) return;
+    try {
+      localStorage.setItem(key, JSON.stringify({
+        savedAt: Date.now(),
+        friendIds: Array.from(acceptedFriendIds),
+        friends: acceptedFriends,
+        incoming: incomingRequests,
+        outgoing: outgoingRequests
+      }));
+    } catch (_) {}
+  }
+  function hydrateConnectionCache() {
+    if (acceptedFriends.length || incomingRequests.length || outgoingRequests.length || acceptedFriendIds.size) return false;
+    const key = connectionCacheKey();
+    if (!key) return false;
+    try {
+      const cached = JSON.parse(localStorage.getItem(key) || 'null');
+      if (!cached || !Number(cached.savedAt) || Date.now() - Number(cached.savedAt) > CONNECTION_CACHE_TTL_MS) return false;
+      acceptedFriendIds = new Set((Array.isArray(cached.friendIds) ? cached.friendIds : []).map(String).filter(Boolean));
+      acceptedFriends = Array.isArray(cached.friends) ? cached.friends : [];
+      incomingRequests = normalizeFriendRequestList(cached.incoming, 'incoming');
+      outgoingRequests = normalizeFriendRequestList(cached.outgoing, 'outgoing');
+      return true;
+    } catch (_) { return false; }
+  }
   const OUTGOING_REQUEST_CACHE_TTL_MS = 2 * 60 * 1000;
   const outgoingCacheKey = () => {
     const uid = userId();
@@ -293,6 +326,10 @@
       lastConnectionLoad = Date.now();
       return getConnectionData();
     }
+    // Paint a recent local snapshot first; the API refresh below remains authoritative.
+    if (hydrateConnectionCache()) {
+      renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
+    }
     if (!force && connectionLoadPromise) return connectionLoadPromise;
     if (!force && Date.now() - lastConnectionLoad < 4000) {
       return getConnectionData();
@@ -312,6 +349,7 @@
         incomingRequests = normalizeFriendRequestList(data.incoming, 'incoming');
         outgoingRequests = mergeRecentOutgoingRequests(data.outgoing);
         syncMissingRequestIds();
+        saveConnectionCache();
         if (!acceptedFriends.length && acceptedFriendIds.size && window.MedGlobalLeague?.getCachedRows) {
           const cachedProfiles = ['all-time', 'weekly', 'friends'].flatMap(period => window.MedGlobalLeague.getCachedRows(period) || []);
           acceptedFriends = Array.from(acceptedFriendIds).map(id => cachedProfiles.find(row =>
@@ -364,6 +402,7 @@
       rememberOutgoingRequestSnapshot(outgoingRequests);
     }
     syncMissingRequestIds();
+    saveConnectionCache();
     lastConnectionLoad = Date.now();
     lastFriendError = '';
     renderRequestPanel(document.querySelector('[data-leaderboard-period="friends"]')?.getAttribute('aria-selected') === 'true');
