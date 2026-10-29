@@ -759,8 +759,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var serverProgress = me.rankProgress && typeof me.rankProgress === 'object' ? me.rankProgress : {};
     var threshold = Math.max(0, Number(serverProgress.safeZoneRP) || Math.ceil(required * 0.30));
     var promotionThreshold = Math.max(0, Number(serverProgress.promotionZoneRP) || Math.ceil(required * 0.70));
-    var weeklyMode = selectedPeriod === 'weekly';
-    var earnedThisPeriod = Math.max(0, Number(weeklyMode ? me.weeklyRankPoints : me.rankPoints) || 0);
+    // The rank progress panel always uses current RP, even while viewing the weekly leaderboard.
+    var weeklyMode = false;
+    var earnedThisPeriod = Math.max(0, Number(me.rankPoints) || 0);
     var atMax = !!(info && info.atMax) || String(me.rank || '').toLowerCase() === 'immortal';
     if (atMax || !required) {
       area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal') + ' · সর্বোচ্চ Trophy</strong><small>আপনি সর্বোচ্চ rank-এ পৌঁছেছেন।</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + Math.floor(Number(me.totalRP || me.rankPoints) || 0).toLocaleString() + ' RP</span></div><div class="mat-safe-zone-caption"><i class="fa-solid fa-shield-check"></i> সর্বোচ্চ rank · আর promotion zone নেই</div>';
