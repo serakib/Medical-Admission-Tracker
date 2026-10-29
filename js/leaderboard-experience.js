@@ -683,17 +683,35 @@
       button.setAttribute('aria-busy', 'true');
       button.classList.add('opacity-80', 'cursor-wait');
       if (status) {
-        status.classList.remove('hidden');
-        status.classList.add('flex');
+        if (status._pbSuccessTimeout) clearTimeout(status._pbSuccessTimeout);
+        if (status._pbHideTimeout) clearTimeout(status._pbHideTimeout);
+        status.classList.remove('hidden', 'opacity-0');
+        status.classList.add('flex', 'transition-opacity', 'duration-500', 'opacity-100');
         status.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i><span>Converting PB to ' + (kind === 'xp' ? 'XP' : 'RP') + '… Please wait.</span>';
       }
       try {
         const result = await converter(amount, kind);
         if (!result?.ok) throw new Error(result?.message || 'PB conversion failed.');
         if (result.user) activePublicProfile = result.user;
-        if (status) status.textContent = kind === 'xp'
-          ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
-          : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।';
+        if (status) {
+          status.textContent = kind === 'xp'
+            ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
+            : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।';
+          status.classList.remove('hidden', 'opacity-0');
+          status.classList.add('flex', 'transition-opacity', 'duration-500', 'opacity-100');
+          if (status._pbSuccessTimeout) clearTimeout(status._pbSuccessTimeout);
+          if (status._pbHideTimeout) clearTimeout(status._pbHideTimeout);
+          status._pbSuccessTimeout = setTimeout(() => {
+            status.classList.add('opacity-0');
+            status._pbHideTimeout = setTimeout(() => {
+              status.classList.add('hidden');
+              status.classList.remove('flex', 'opacity-0');
+              status.textContent = '';
+              status._pbSuccessTimeout = null;
+              status._pbHideTimeout = null;
+            }, 550);
+          }, 2500);
+        }
         setStatus(kind === 'xp'
           ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
           : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।');
