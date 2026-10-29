@@ -1754,124 +1754,162 @@ main > .view-section.hidden { display: none !important; }
   'use strict';
   if (window.__matGlobalLoadingBarInstalled) return;
   window.__matGlobalLoadingBarInstalled = true;
-  var pending = 0, progress = 0, active = false, frame = 0, finishTimer = 0, interactionTimer = 0, startedAt = 0;
+
+  var pending = 0, progress = 0, active = false, rafId = 0;
+  var startedAt = 0, lastStartedAt = 0, hideTimer = 0, minShowTimer = 0;
   var bar, fill;
+  var MIN_VISIBLE_MS = 260;
+  var HIDE_DELAY_MS = 180;
+
   function ensureBar() {
-    if (bar && bar.isConnected) return;
     bar = document.getElementById('mat-global-loading-bar');
-    if (!bar) {
-      bar = document.createElement('div'); bar.id = 'mat-global-loading-bar';
-      bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-label', 'Loading');
-      bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.setAttribute('aria-valuenow', '0');
-      fill = document.createElement('div'); fill.id = 'mat-global-loading-bar-fill';
-      bar.appendChild(fill);
-      (document.body || document.documentElement).appendChild(bar);
-    } else fill = document.getElementById('mat-global-loading-bar-fill');
+    fill = document.getElementById('mat-global-loading-bar-fill');
+    if (bar && fill) return;
+    bar = document.createElement('div');
+    bar.id = 'mat-global-loading-bar';
+    bar.setAttribute('role', 'progressbar');
+    bar.setAttribute('aria-label', 'Loading');
+    bar.setAttribute('aria-valuemin', '0');
+    bar.setAttribute('aria-valuemax', '100');
+    bar.setAttribute('aria-valuenow', '0');
+    fill = document.createElement('div');
+    fill.id = 'mat-global-loading-bar-fill';
+    bar.appendChild(fill);
+    (document.body || document.documentElement).appendChild(bar);
   }
-  function paint(value) {
-    ensureBar(); progress = Math.max(progress, Math.min(99, value));
-    fill.style.width = progress + '%'; bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+
+  function setProgress(value) {
+    ensureBar();
+    progress = Math.max(progress, Math.min(99, value));
+    fill.style.width = progress + '%';
+    bar.setAttribute('aria-valuenow', String(Math.round(progress)));
   }
+
+  function animate() {
+    if (!active) { rafId = 0; return; }
+    var elapsed = Date.now() - startedAt;
+    // Reach about 80% quickly, then creep toward 98% until tracked work settles.
+    var target = elapsed < 650
+      ? 80 * (1 - Math.exp(-elapsed / 175))
+      : 80 + 18 * (1 - Math.exp(-(elapsed - 650) / 2100));
+    if (target > progress) setProgress(target);
+    rafId = window.requestAnimationFrame(animate);
+  }
+
   function start() {
     ensureBar();
-    clearTimeout(finishTimer); clearTimeout(interactionTimer);
-    if (!active) { active = true; progress = 0; startedAt = Date.now(); bar.classList.remove('is-finishing'); bar.classList.add('is-visible'); fill.style.width = '0%'; }
-    if (!frame) animate();
+    clearTimeout(hideTimer);
+    clearTimeout(minShowTimer);
+    if (!active) {
+      active = true;
+      progress = 0;
+      startedAt = Date.now();
+      lastStartedAt = startedAt;
+      bar.classList.remove('is-finishing');
+      bar.classList.add('is-visible');
+      fill.style.width = '0%';
+      bar.setAttribute('aria-valuenow', '0');
+      if (!rafId) rafId = window.requestAnimationFrame(animate);
+    }
   }
-  function animate() {
-    if (!active) { frame = 0; return; }
-    var elapsed = Date.now() - startedAt;
-    var target = elapsed < 700 ? 80 * (1 - Math.exp(-elapsed / 190)) : 80 + 18 * (1 - Math.exp(-(elapsed - 700) / 2200));
-    if (target > progress) paint(target);
-    frame = window.requestAnimationFrame(animate);
-  }
-  function scheduleFinish(delay) {
-    clearTimeout(finishTimer);
-    finishTimer = setTimeout(function () {
-      if (pending > 0) return;
-      ensureBar(); bar.classList.add('is-finishing'); paint(100);
-      bar.setAttribute('aria-valuenow', '100');
-      setTimeout(function () {
-        if (pending > 0) { bar.classList.remove('is-finishing'); return; }
-        active = false; bar.classList.remove('is-visible', 'is-finishing');
-        if (frame) { cancelAnimationFrame(frame); frame = 0; }
-        progress = 0; fill.style.width = '0%'; bar.setAttribute('aria-valuenow', '0');
-      }, 230);
-    }, delay == null ? 180 : delay);
-  }
-  function activity() {
-    start();
-    clearTimeout(interactionTimer);
-    interactionTimer = setTimeout(function () { if (pending === 0) scheduleFinish(160); }, 650);
-  }
-  function requestStart() { start(); pending += 1; clearTimeout(finishTimer); clearTimeout(interactionTimer); }
-  function requestEnd() { pending = Math.max(0, pending - 1); if (pending === 0) scheduleFinish(180); }
 
-  // Hook Fetch: progress stays active until each promise resolves or rejects.
+  function finishIfIdle() {
+    if (pending !== 0 || !active) return;
+    var remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - lastStartedAt));
+    clearTimeout(minShowTimer);
+    minShowTimer = setTimeout(function () {
+      if (pending !== 0 || !active) return;
+      clearTimeout(hideTimer);
+      bar.classList.add('is-finishing');
+      progress = 100;
+      fill.style.width = '100%';
+      bar.setAttribute('aria-valuenow', '100');
+      hideTimer = setTimeout(function () {
+        if (pending !== 0) {
+          bar.classList.remove('is-finishing');
+          return;
+        }
+        active = false;
+        bar.classList.remove('is-visible', 'is-finishing');
+        fill.style.width = '0%';
+        bar.setAttribute('aria-valuenow', '0');
+        progress = 0;
+        if (rafId) {
+          window.cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+      }, HIDE_DELAY_MS);
+    }, remaining);
+  }
+
+  function requestStart() {
+    pending += 1;
+    start();
+  }
+  function requestEnd() {
+    pending = Math.max(0, pending - 1);
+    if (pending === 0) finishIfIdle();
+  }
+
+  // Keep network tracking lightweight: don't wrap response-body methods or delay button events.
   if (typeof window.fetch === 'function') {
-    var nativeFetch = window.fetch.bind(window);
+    var nativeFetch = window.fetch;
     window.fetch = function () {
       requestStart();
-      var ended = false, bodyConsumptionStarted = false;
-      function endOnce() { if (ended) return; ended = true; requestEnd(); }
-      try {
-        return nativeFetch.apply(this, arguments).then(function (response) {
-          // Keep the bar active through response-body parsing, not just until headers arrive.
-          ['text', 'json', 'blob', 'arrayBuffer', 'formData'].forEach(function (method) {
-            if (!response || typeof response[method] !== 'function') return;
-            var original = response[method].bind(response);
-            try {
-              response[method] = function () {
-                bodyConsumptionStarted = true;
-                var bodyPromise;
-                try { bodyPromise = original.apply(response, arguments); }
-                catch (error) { endOnce(); throw error; }
-                if (bodyPromise && typeof bodyPromise.then === 'function') {
-                  return bodyPromise.then(function (value) { endOnce(); return value; }, function (error) { endOnce(); throw error; });
-                }
-                endOnce();
-                return bodyPromise;
-              };
-            } catch (_) {}
-          });
-          // Release requests whose response body is intentionally never consumed (e.g. no-cors forms).
-          setTimeout(function () { if (!bodyConsumptionStarted) endOnce(); }, 900);
-          return response;
-        }, function (error) { endOnce(); throw error; });
-      } catch (error) { endOnce(); throw error; }
+      var result;
+      try { result = nativeFetch.apply(this, arguments); }
+      catch (error) { requestEnd(); throw error; }
+      return Promise.resolve(result).then(function (response) {
+        requestEnd();
+        return response;
+      }, function (error) {
+        requestEnd();
+        throw error;
+      });
     };
   }
-  // Hook XMLHttpRequest too, covering libraries that use XHR (including Axios defaults).
+
   if (window.XMLHttpRequest && window.XMLHttpRequest.prototype) {
     var xhrProto = window.XMLHttpRequest.prototype;
     var nativeSend = xhrProto.send;
     xhrProto.send = function () {
       var xhr = this, ended = false;
-      function endOnce() { if (ended) return; ended = true; requestEnd(); }
+      function endOnce() {
+        if (ended) return;
+        ended = true;
+        requestEnd();
+      }
       requestStart();
       xhr.addEventListener('loadend', endOnce, { once: true });
       try { return nativeSend.apply(xhr, arguments); }
       catch (error) { endOnce(); throw error; }
     };
   }
-  // User interactions that do not call a network API still get a short, honest UI cue.
+
+  // Never intercept, prevent, or stop clicks. Clicks without async work get only a brief cue.
   document.addEventListener('click', function (event) {
-    var target = event.target && event.target.closest ? event.target.closest('button, [role="button"], a[href]') : null;
+    var target = event.target && event.target.closest
+      ? event.target.closest('button, [role="button"], a[href]')
+      : null;
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
     if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
-    activity();
+    if (pending === 0) {
+      start();
+      finishIfIdle();
+    }
   }, true);
-  document.addEventListener('submit', activity, true);
-  window.addEventListener('popstate', activity);
-  window.addEventListener('hashchange', activity);
-  ['pushState', 'replaceState'].forEach(function (method) {
-    var original = window.history && window.history[method];
-    if (typeof original !== 'function') return;
-    window.history[method] = function () {
-      var result = original.apply(this, arguments);
-      activity();
-      return result;
-    };
+
+  document.addEventListener('submit', function () {
+    if (pending === 0) {
+      start();
+      finishIfIdle();
+    }
+  }, true);
+  window.addEventListener('popstate', function () {
+    if (pending === 0) { start(); finishIfIdle(); }
+  });
+  window.addEventListener('hashchange', function () {
+    if (pending === 0) { start(); finishIfIdle(); }
   });
 })();
 </script>
