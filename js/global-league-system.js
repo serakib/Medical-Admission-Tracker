@@ -875,14 +875,14 @@ document.head.appendChild(style);
         if (selectedPeriod === 'weekly' && !promotionDividerInserted && index === promotionRows.length && (safeRows.length || riskRows.length)) {
           var promotionDivider = document.createElement('tr');
           promotionDivider.className = 'promotion-zone-divider';
-          promotionDivider.innerHTML = '<td colspan="5"><i class="fa-solid fa-trophy"></i> PROMOTION ZONE BOUNDARY <span class="sr-only">Students above this line have reached the weekly promotion threshold.</span></td>';
+          promotionDivider.innerHTML = '<td colspan="4"><i class="fa-solid fa-trophy"></i> PROMOTION ZONE BOUNDARY <span class="sr-only">Students above this line have reached the weekly promotion threshold.</span></td>';
           body.appendChild(promotionDivider);
           promotionDividerInserted = true;
         }
         if (selectedPeriod === 'weekly' && !safeDividerInserted && index === promotionRows.length + safeRows.length && riskRows.length) {
           var divider = document.createElement('tr');
           divider.className = 'safe-zone-divider';
-          divider.innerHTML = '<td colspan="5"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">Students below this line have not reached the required weekly RP threshold.</span></td>';
+          divider.innerHTML = '<td colspan="4"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">Students below this line have not reached the required weekly RP threshold.</span></td>';
           body.appendChild(divider);
           safeDividerInserted = true;
         }
@@ -906,25 +906,24 @@ document.head.appendChild(style);
           : isInWeeklyPromotionZone(row)
             ? '<small class="leader-safe-status" title="Promotion Zone অর্জিত"><i class="fa-solid fa-arrow-trend-up"></i> Promotion Zone Reached</small>'
             : isInWeeklySafeZone(row)
-              ? '<small class="leader-safe-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to Promotion Zone</small>'
-              : '<small class="leader-risk-status" title="Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-down"></i> +' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP</small>';
+              ? '<small class="leader-safe-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> +' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to promote</small>'
+              : '<small class="leader-risk-status" title="Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-down"></i> +' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP to safe</small>';
         tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div></td>' +
           '<td class="py-4 px-3 leader-college" title="' + escapeHtml(row.college || '—') + '">' + escapeHtml(row.college || '—') + '</td>' +
           '<td class="py-4 px-3 leader-batch" title="' + escapeHtml(row.batch || '—') + '">' + escapeHtml(row.batch || '—') + '</td>' +
-          '<td class="py-4 px-3 leader-xp">' + Number(row.xp || 0).toLocaleString() + ' XP</td>' +
           '<td class="leader-rank-points py-4 px-3" title="' + Number(row.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + '"><strong class="leader-rank-number">#' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + safeStatus + '</td>';
         body.appendChild(tr);
       });
       if (selectedPeriod === 'weekly' && !promotionDividerInserted && promotionRows.length && !safeRows.length && !riskRows.length) {
         var finalPromotionDivider = document.createElement('tr');
         finalPromotionDivider.className = 'promotion-zone-divider';
-        finalPromotionDivider.innerHTML = '<td colspan="5"><i class="fa-solid fa-trophy"></i> PROMOTION ZONE BOUNDARY <span class="sr-only">All listed students have reached the weekly promotion threshold.</span></td>';
+        finalPromotionDivider.innerHTML = '<td colspan="4"><i class="fa-solid fa-trophy"></i> PROMOTION ZONE BOUNDARY <span class="sr-only">All listed students have reached the weekly promotion threshold.</span></td>';
         body.appendChild(finalPromotionDivider);
       }
       if (selectedPeriod === 'weekly' && !safeDividerInserted && safeRows.length && !riskRows.length) {
         var finalDivider = document.createElement('tr');
         finalDivider.className = 'safe-zone-divider';
-        finalDivider.innerHTML = '<td colspan="5"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">All listed students are above this line.</span></td>';
+        finalDivider.innerHTML = '<td colspan="4"><i class="fa-solid fa-shield-halved"></i> SAFE ZONE BOUNDARY <span class="sr-only">All listed students are above this line.</span></td>';
         body.appendChild(finalDivider);
       }
       if (mePanel && me && displayRows.some(function (row) { return row.isMine || String(row.userId) === String(me.userId); })) {
@@ -938,7 +937,7 @@ document.head.appendChild(style);
         : selectedPeriod === 'weekly'
           ? 'Weekly leaderboard লোড হচ্ছে। এই সপ্তাহের RP sync হলে ranking এখানে দেখাবে।'
           : 'এই leaderboard-এ এখনো দেখানোর মতো student নেই।';
-      body.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">' + emptyText + '</td></tr>';
+      body.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-sm text-gray-500">' + emptyText + '</td></tr>';
     }
     renderRankRail(all);
     updateTopControls(me);
