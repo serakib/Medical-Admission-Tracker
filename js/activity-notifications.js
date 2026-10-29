@@ -905,9 +905,9 @@
     if (readSelected) readSelected.disabled = selected.length === 0 || activeFilter === 'trash';
     if (unreadSelected) unreadSelected.disabled = selected.length === 0 || activeFilter === 'trash';
     if (archiveSelected) { archiveSelected.disabled = selected.length === 0 || activeFilter === 'trash'; archiveSelected.hidden = activeFilter === 'trash'; }
-    if (starSelected) { starSelected.disabled = selected.length === 0 || activeFilter === 'trash'; starSelected.hidden = activeFilter === 'trash'; starSelected.textContent = activeFilter === 'starred' ? 'Unstar selected' : 'Star selected'; }
+    if (starSelected) { starSelected.disabled = selected.length === 0 || activeFilter === 'trash'; starSelected.hidden = activeFilter === 'trash'; starSelected.textContent = (activeFilter === 'starred' ? 'Unstar selected' : 'Star selected') + (selected.length ? ' (' + selected.length + ')' : ''); }
     if (restoreSelected) { restoreSelected.disabled = selected.length === 0; restoreSelected.hidden = activeFilter !== 'trash'; }
-    if (deleteSelected) deleteSelected.textContent = activeFilter === 'trash' ? 'Delete permanently' : (selected.length ? 'Move to Trash (' + selected.length + ')' : 'Move to Trash');
+    if (deleteSelected) deleteSelected.textContent = (activeFilter === 'trash' ? 'Delete permanently' : 'Move to Trash') + (selected.length ? ' (' + selected.length + ')' : '');
     if (archiveSelected) archiveSelected.textContent = activeFilter === 'archived' ? 'Unarchive selected' : 'Archive selected';
   }
   function renderFeed() {
