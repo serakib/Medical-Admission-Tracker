@@ -2096,7 +2096,7 @@ onAuthStateChanged(auth, (user) => {
 
 // গ্লোবাল রিডাইরেক্ট এবং লগআউট ফাংশন
 window.redirectToLogin = function() {
-    if (!window.confirm("আপনি কি লগইন পেজে যেতে চান?")) return;
+    // Login is a full-page destination; avoid an extra confirmation popup.
     window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 };
 
