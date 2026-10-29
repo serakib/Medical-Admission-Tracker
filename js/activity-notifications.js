@@ -1010,7 +1010,8 @@
     const bulkActions = overlay.querySelector('.mat-notification-bulk-actions');
     if (headerActions && selectionToolbar && bulkActions) {
       selectionToolbar.insertBefore(headerActions, bulkActions);
-      ['[data-mat-star-selected]', '[data-mat-selected-read]', '[data-mat-delete-selected]'].forEach(function (selector) {
+      // Order actions by common workflow: mark read, star, then destructive trash action.
+      ['[data-mat-selected-read]', '[data-mat-star-selected]', '[data-mat-delete-selected]'].forEach(function (selector) {
         const action = bulkActions.querySelector(selector);
         if (action) headerActions.appendChild(action);
       });
