@@ -366,10 +366,22 @@ class MedicalExamApp {
 
             onAuthStateChanged(this.auth, async user => {
                 this.authStateResolved = false;
-                this.setAuthState(user);
-                if (user) await this.loadUserProfile();
-                this.authStateResolved = true;
-                try { window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: user || null } })); } catch (_) {}
+                try {
+                    this.setAuthState(user);
+                    if (user) await this.loadUserProfile();
+                } catch (error) {
+                    // Auth readiness must resolve even if a secondary UI/profile step fails.
+                    console.error('Auth state UI update failed:', error);
+                } finally {
+                    this.authStateResolved = true;
+                    try {
+                        window.dispatchEvent(new CustomEvent('student-auth-state-resolved', {
+                            detail: { user: user || null }
+                        }));
+                    } catch (eventError) {
+                        console.warn('Could not dispatch auth-resolved event:', eventError);
+                    }
+                }
             });
             this.authReady = true;
         } catch (error) {
