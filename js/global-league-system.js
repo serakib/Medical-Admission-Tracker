@@ -872,7 +872,7 @@ document.head.appendChild(style);
       var safeDividerInserted = false;
       var promotionDividerInserted = false;
       displayRows.forEach(function (row, index) {
-        if (selectedPeriod === 'weekly' && !promotionDividerInserted && promotionRows.length && index === promotionRows.length && (safeRows.length || riskRows.length)) {
+        if (selectedPeriod === 'weekly' && !promotionDividerInserted && index === promotionRows.length && (safeRows.length || riskRows.length)) {
           var promotionDivider = document.createElement('tr');
           promotionDivider.className = 'promotion-zone-divider';
           promotionDivider.innerHTML = '<td colspan="5"><i class="fa-solid fa-trophy"></i> PROMOTION ZONE BOUNDARY <span class="sr-only">Students above this line have reached the weekly promotion threshold.</span></td>';
