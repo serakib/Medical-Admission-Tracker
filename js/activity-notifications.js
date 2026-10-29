@@ -885,7 +885,6 @@
     const archiveSelected = overlay.querySelector('[data-mat-archive-selected]');
     const starSelected = overlay.querySelector('[data-mat-star-selected]');
     const restoreSelected = overlay.querySelector('[data-mat-restore-selected]');
-    const readSelected = overlay.querySelector('[data-mat-selected-read]');
     const unreadSelected = overlay.querySelector('[data-mat-selected-unread]');
     const allVisibleSelected = visible.length > 0 && visible.every(item => selectedSet.has(String(item.id)));
     if (selectAll) {
@@ -895,14 +894,12 @@
     }
     if (selectedCount) selectedCount.textContent = selected.length + ' selected';
     if (starSelected) starSelected.textContent = (activeFilter === 'starred' ? 'Unstar selected' : 'Star selected') + (selected.length ? ' (' + selected.length + ')' : '');
-    if (readSelected) readSelected.textContent = 'Mark selected';
     if (deleteSelected) deleteSelected.textContent = (activeFilter === 'trash' ? 'Delete permanently' : 'Move to Trash') + (selected.length ? ' (' + selected.length + ')' : '');
     if (clearSelection) clearSelection.disabled = selected.length === 0;
     if (deleteSelected) {
       deleteSelected.textContent = selected.length ? 'Delete (' + selected.length + ' selected)' : 'Delete selected';
       deleteSelected.disabled = selected.length === 0;
     }
-    if (readSelected) readSelected.disabled = selected.length === 0 || activeFilter === 'trash';
     if (unreadSelected) unreadSelected.disabled = selected.length === 0 || activeFilter === 'trash';
     if (archiveSelected) { archiveSelected.disabled = selected.length === 0 || activeFilter === 'trash'; archiveSelected.hidden = activeFilter === 'trash'; }
     if (starSelected) { starSelected.disabled = selected.length === 0 || activeFilter === 'trash'; starSelected.hidden = activeFilter === 'trash'; starSelected.textContent = (activeFilter === 'starred' ? 'Unstar selected' : 'Star selected') + (selected.length ? ' (' + selected.length + ')' : ''); }
@@ -994,8 +991,7 @@
       '<div class="mat-notification-selection-toolbar" role="group" aria-label="Select and manage notifications">' +
       '<button type="button" data-mat-select-all>Select all</button><button type="button" data-mat-clear-selection disabled>Clear selection</button>' +
       '<span data-mat-selected-count aria-live="polite">0 selected</span>' +
-      '<div class="mat-notification-bulk-actions"><button type="button" data-mat-selected-read disabled>Mark selected</button>' +
-      '<button type="button" data-mat-selected-unread disabled>Mark selected unread</button>' +
+      '<div class="mat-notification-bulk-actions"><button type="button" data-mat-selected-unread disabled>Mark selected unread</button>' +
       '<button type="button" data-mat-star-selected disabled>Star selected</button>' +
       '<button type="button" data-mat-archive-selected disabled>Archive selected</button>' +
       '<button type="button" data-mat-restore-selected hidden>Restore selected</button>' +
@@ -1009,7 +1005,6 @@
     const bulkActions = overlay.querySelector('.mat-notification-bulk-actions');
     if (bulkActions) {
       [
-        '[data-mat-selected-read]',
         '[data-mat-selected-unread]',
         '[data-mat-star-selected]',
         '[data-mat-archive-selected]',
@@ -1203,8 +1198,6 @@
     if (clearSelected) { clearSelection(); return; }
     const markAll = target.closest('[data-mat-mark-all]');
     if (markAll) { markAllRead(); return; }
-    const markSelectedRead = target.closest('[data-mat-selected-read]');
-    if (markSelectedRead) { markSelected(false); return; }
     const markSelectedUnread = target.closest('[data-mat-selected-unread]');
     if (markSelectedUnread) { markSelected(true); return; }
     const deleteSelected = target.closest('[data-mat-delete-selected]');
