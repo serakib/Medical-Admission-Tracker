@@ -764,44 +764,41 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     var vault = window.MedAchievementVaultTrophies;
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(me.rank) : null;
-    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(me.totalRP || me.rankPoints || 0);
-    var required = Math.max(0, Number(info && info.required) || 0);
-    var serverProgress = me.rankProgress && typeof me.rankProgress === 'object' ? me.rankProgress : {};
-    var threshold = Math.max(0, Number(serverProgress.safeZoneRP) || Math.ceil(required * 0.30));
-    var promotionThreshold = Math.max(0, Number(serverProgress.promotionZoneRP) || Math.ceil(required * 0.70));
-    // The rank progress panel always uses current RP, even while viewing the weekly leaderboard.
-    var weeklyMode = false;
-    var earnedThisPeriod = Math.max(0, Number(me.rankPoints) || 0);
-    var atMax = !!(info && info.atMax) || String(me.rank || '').toLowerCase() === 'immortal';
-    if (atMax || !required) {
-      var maxSafeRP = Math.max(0, Number(serverProgress.safeZoneRP) || 0);
-      var maxCurrentRP = Math.max(0, Number(me.rankPoints) || 0);
-      var maxSafe = maxCurrentRP >= maxSafeRP;
-      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal I') + ' · সর্বোচ্চ Trophy</strong><small>' + maxCurrentRP.toLocaleString() + ' / ' + maxSafeRP.toLocaleString() + ' Safe Zone RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + Math.floor(Number(me.totalRP || me.rankPoints) || 0).toLocaleString() + ' RP</span></div><div class="mat-safe-zone-caption ' + (maxSafe ? '' : 'at-risk') + '"><i class="fa-solid ' + (maxSafe ? 'fa-shield-check' : 'fa-triangle-exclamation') + '"></i><span><strong>' + (maxSafe ? 'Safe Zone · rank protected' : 'Safe Zone-এর নিচে · weekly demotion হতে পারে') + '</strong><small>সর্বোচ্চ rank হওয়ায় Promotion Zone নেই; Safe Zone ও weekly demotion নিয়ম প্রযোজ্য। Safe Zone: ' + maxSafeRP.toLocaleString() + ' RP</small></span></div>';
+    var rankIndex = RANKS.indexOf(me.rank);
+    if (rankIndex < 0) rankIndex = 0;
+    function promotionCost(index) {
+      if (index < 0 || index >= RANKS.length - 1) return 0;
+      var cost = 500;
+      for (var step = 1; step <= index; step++) cost = Math.max(5, Math.round((500 + cost * 0.2) / 5) * 5);
+      return cost;
+    }
+    var currentRankTarget = 0;
+    for (var ri = 0; ri < rankIndex; ri++) currentRankTarget += promotionCost(ri);
+    var nextRankTarget = currentRankTarget + promotionCost(rankIndex);
+    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var internalProgress = me.rankProgress && typeof me.rankProgress === 'object' ? me.rankProgress : {};
+    var internalRP = Math.max(0, Number(me.rankPoints) || 0);
+    var safeThreshold = Math.max(0, Number(internalProgress.safeZoneRP) || 0);
+    var promotionThreshold = Math.max(0, Number(internalProgress.promotionZoneRP) || 0);
+    var safe = safeThreshold > 0 && internalRP >= safeThreshold;
+    var promotion = promotionThreshold > 0 && internalRP >= promotionThreshold;
+    var atMax = !!(info && info.atMax) || rankIndex >= RANKS.length - 1;
+    if (atMax || nextRankTarget <= 0) {
+      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal I') + ' · সর্বোচ্চ Trophy</strong><small>Lifetime RP: ' + lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + lifetimeRP.toLocaleString() + ' RP</span></div><div class="mat-safe-zone-caption ' + (safe ? '' : 'at-risk') + '"><i class="fa-solid ' + (safe ? 'fa-shield-check' : 'fa-triangle-exclamation') + '"></i><span><strong>' + (safe ? 'Safe Zone · rank protected' : 'Safe Zone-এর নিচে · weekly demotion হতে পারে') + '</strong><small>সর্বোচ্চ rank হওয়ায় Promotion Zone নেই; Safe Zone ও weekly demotion নিয়ম প্রযোজ্য।</small></span></div>';
       return;
     }
-    var pct = Math.max(0, Math.min(100, earnedThisPeriod / required * 100));
-    if (weeklyMode && earnedThisPeriod > 0) pct = Math.max(1, pct);
-    if (!weeklyMode) {
-      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>বর্তমান: ' + escapeHtml(me.rank) + ' · পরের Trophy: ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' Current RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
-        '<div class="mat-rank-track" role="progressbar" aria-label="Trophy rank progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '"><span style="width:' + pct + '%;background:linear-gradient(90deg,#a78bfa,#10b981)"></span><span class="mat-progress-star" style="left:' + pct + '%" aria-hidden="true"><i class="fa-solid fa-star"></i></span><small class="mat-progress-star-label" style="left:' + pct + '%" aria-hidden="true">RP</small></div>' +
-        '<div class="mat-rank-foot"><span>' + earnedThisPeriod.toLocaleString() + ' RP</span><span>' + required.toLocaleString() + ' RP</span></div>';
-      return;
-    }
-    var safePct = Math.max(0, Math.min(100, threshold / required * 100));
-    var promotionPct = Math.max(safePct, Math.min(100, promotionThreshold / required * 100));
-    var safe = earnedThisPeriod >= threshold;
-    var promotion = earnedThisPeriod >= promotionThreshold;
-    var safeRemaining = Math.max(0, threshold - earnedThisPeriod);
-    var promotionRemaining = Math.max(0, promotionThreshold - earnedThisPeriod);
-    var zoneTitle = promotion ? 'পরবর্তী rank upgrade-এর RP requirement পূরণ হয়েছে' : (safe ? 'Safe Zone পার করেছেন · rank upgrade-এর পথে' : 'Safe Zone-এ যেতে আরও ' + safeRemaining.toLocaleString() + ' RP প্রয়োজন');
-    var zoneDetail = promotion ? 'প্রয়োজনীয় RP পূরণ হলেই backend rank upgrade করে' : (safe ? 'পরবর্তী rank-এর জন্য আরও ' + promotionRemaining.toLocaleString() + ' RP প্রয়োজন' : 'Safe Zone: ' + threshold.toLocaleString() + ' RP · Rank upgrade: ' + promotionThreshold.toLocaleString() + ' RP');
+    var pct = Math.max(0, Math.min(100, lifetimeRP / nextRankTarget * 100));
+    var safePct = Math.max(0, Math.min(100, safeThreshold / Math.max(1, promotionCost(rankIndex)) * 100));
+    var promotionPct = Math.max(safePct, Math.min(100, promotionThreshold / Math.max(1, promotionCost(rankIndex)) * 100));
+    var promotionRemaining = Math.max(0, promotionThreshold - internalRP);
+    var zoneTitle = promotion ? 'Promotion Zone অর্জিত' : (safe ? 'Safe Zone পার করেছেন · rank upgrade-এর পথে' : 'Safe Zone-এর নিচে · weekly review প্রযোজ্য');
+    var zoneDetail = promotion ? 'Weekly review-তে Promotion Zone অনুযায়ী rank upgrade হবে; 100% cost হলে immediate promotion হয়।' : (safe ? 'Promotion Zone-এ যেতে আরও ' + promotionRemaining.toLocaleString() + ' progression RP প্রয়োজন।' : 'Safe Zone threshold: ' + safeThreshold.toLocaleString() + ' · Promotion Zone: ' + promotionThreshold.toLocaleString() + ' progression RP');
     var fillGradient = promotion ? 'linear-gradient(90deg,#10b981,#14b8a6,#a78bfa,#f0abfc)' : (safe ? 'linear-gradient(90deg,#059669,#34d399)' : 'linear-gradient(90deg,#f59e0b,#fb923c)');
-    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(info.nextName || 'পরবর্তী Trophy') + '</strong><small>' + earnedThisPeriod.toLocaleString() + ' / ' + required.toLocaleString() + ' Weekly RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + earnedThisPeriod.toLocaleString() + ' RP</span></div>' +
-      '<div class="mat-rank-track mat-rank-zones ' + (safe ? 'is-safe' : 'is-at-risk') + (promotion ? ' is-promotion' : '') + '" role="progressbar" aria-label="Safe Zone and Promotion Zone progress" aria-valuemin="0" aria-valuemax="' + required + '" aria-valuenow="' + Math.min(earnedThisPeriod, required) + '">' +
+    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(info && info.nextName || RANKS[rankIndex + 1] || 'পরবর্তী Trophy') + '</strong><small>Lifetime RP: ' + lifetimeRP.toLocaleString() + ' / ' + nextRankTarget.toLocaleString() + ' RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + lifetimeRP.toLocaleString() + ' RP</span></div>' +
+      '<div class="mat-rank-track mat-rank-zones ' + (safe ? 'is-safe' : 'is-at-risk') + (promotion ? ' is-promotion' : '') + '" role="progressbar" aria-label="Lifetime RP rank progression" aria-valuemin="0" aria-valuemax="' + nextRankTarget + '" aria-valuenow="' + Math.min(lifetimeRP, nextRankTarget) + '">' +
       '<span class="mat-rank-fill" style="width:' + pct + '%;background:' + fillGradient + '"></span><i class="mat-safe-zone-marker" style="left:' + safePct + '%" aria-label="Safe Zone threshold"></i><i class="mat-promotion-zone-marker" style="left:' + promotionPct + '%" aria-label="Promotion Zone threshold"></i><span class="mat-progress-star" style="left:' + pct + '%" aria-hidden="true"><i class="fa-solid fa-star"></i></span></div>' +
-      '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe Zone · ' + threshold.toLocaleString() + ' RP</span><span class="mat-zone-legend-promotion"><i></i> Promotion Zone · ' + promotionThreshold.toLocaleString() + ' RP</span></div>' +
-      '<div class="mat-rank-foot"><span>' + earnedThisPeriod.toLocaleString() + ' RP earned</span><span>' + required.toLocaleString() + ' RP to upgrade</span></div>' +
+      '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe Zone</span><span class="mat-zone-legend-promotion"><i></i> Promotion Zone</span></div>' +
+      '<div class="mat-rank-foot"><span>Current Rank target: ' + currentRankTarget.toLocaleString() + ' RP</span><span>Next Rank target: ' + nextRankTarget.toLocaleString() + ' RP</span></div>' +
       '<div class="mat-safe-zone-caption ' + (promotion ? 'is-promotion' : (safe ? '' : 'at-risk')) + '"><i class="fa-solid ' + (promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) + '"></i><span><strong>' + zoneTitle + '</strong><small>' + zoneDetail + '</small></span></div>';
   }
   function updateTopControls(me) {
