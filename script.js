@@ -1005,6 +1005,14 @@ class MedicalExamApp {
                 : 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100';
         }
         if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
+        const accountAuthTarget = document.getElementById('account-profile-auth-target');
+        if (accountAuthTarget) {
+            accountAuthTarget.innerHTML = user
+                ? '<button type="button" class="account-auth-button account-auth-logout" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>'
+                : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
+        }
+        const logoutCard = document.getElementById('account-logout-card');
+        if (logoutCard) logoutCard.classList.toggle('hidden', !user);
         const deleteCard = document.getElementById('account-delete-card');
         const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
             user.providerData.some(provider => provider && provider.providerId === 'password'));
@@ -2074,15 +2082,21 @@ window.handleSubmit = async function() {
 
 // ফায়ারবেস অথেন্টিকেশন লিসেনার ও ডাইনামিক বাটন আপডেট
 onAuthStateChanged(auth, (user) => {
-    const sidebarAuthButton = document.getElementById('sidebar-auth-action');
-    if (sidebarAuthButton) {
-        sidebarAuthButton.setAttribute('aria-label', user ? 'Logout' : 'Login');
-        sidebarAuthButton.setAttribute('title', user ? 'Logout' : 'Login');
-        sidebarAuthButton.classList.toggle('auth-logout', !!user);
-        sidebarAuthButton.classList.toggle('auth-login', !user);
-        const icon = sidebarAuthButton.querySelector('i');
-        if (icon) icon.className = user ? 'fa-solid fa-door-open' : 'fa-solid fa-user-plus';
+    const sidebarSettingsButton = document.getElementById('sidebar-account-settings-button');
+    if (sidebarSettingsButton) {
+        sidebarSettingsButton.setAttribute('aria-label', 'Account settings');
+        sidebarSettingsButton.setAttribute('title', 'Account settings');
+        const icon = sidebarSettingsButton.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-gear';
     }
+    const accountAuthTarget = document.getElementById('account-profile-auth-target');
+    if (accountAuthTarget) {
+        accountAuthTarget.innerHTML = user
+            ? '<button type="button" class="account-auth-button account-auth-logout" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>'
+            : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
+    }
+    const accountLogoutCard = document.getElementById('account-logout-card');
+    if (accountLogoutCard) accountLogoutCard.classList.toggle('hidden', !user);
     const authContainers = document.querySelectorAll('.auth-btn-target');
     authContainers.forEach(container => {
         container.innerHTML = user
