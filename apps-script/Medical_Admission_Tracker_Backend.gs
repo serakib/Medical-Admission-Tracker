@@ -851,8 +851,9 @@ function matCalculateWeightedExamPB_(correct, wrong, totalQuestions) {
 
   // Match the exam result screen: each wrong answer deducts 0.25 marks.
   const finalScore = Math.max(0, correctCount - wrongCount * 0.25);
+  // The first 40% is the qualifying baseline, not a PB-earning tier.
+  // Only score above 40% earns PB, weighted by the band it falls into.
   const tiers = [
-    { upTo: total * 0.40, multiplier: 1 },
     { upTo: total * 0.50, multiplier: 2 },
     { upTo: total * 0.60, multiplier: 4 },
     { upTo: total * 0.70, multiplier: 5 },
@@ -860,14 +861,14 @@ function matCalculateWeightedExamPB_(correct, wrong, totalQuestions) {
     { upTo: total, multiplier: 10 }
   ];
   let weightedScore = 0;
-  let previousLimit = 0;
+  let previousLimit = total * 0.40;
   tiers.forEach(function (tier) {
     const tierScore = Math.max(0, Math.min(finalScore, tier.upTo) - previousLimit);
     weightedScore += tierScore * tier.multiplier;
     previousLimit = tier.upTo;
   });
-  // The weighted tier bonus is PB, not additional Rank Points.
-  return Math.round(weightedScore * 15);
+  // PB is a separate performance wallet; no extra multiplier and no RP changes.
+  return Math.round(weightedScore);
 }
 
 function matParsePBEntries_(value) {
