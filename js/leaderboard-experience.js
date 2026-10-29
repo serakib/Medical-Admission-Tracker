@@ -805,7 +805,6 @@
     write('student-profile-xp', fmt(row.xp) + ' XP');
     write('student-profile-total-rp', fmt(row.totalRP) + ' RP');
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
-    write('student-profile-current-rp', fmt(row.rankPoints) + ' RP');
     write('student-profile-level', 'Lv. ' + Math.max(1, Number(row.level) || 1));
     renderAccountLevelProgress(row);
     write('student-profile-exams', Number.isFinite(Number(row.quizzes)) && Number(row.quizzes) > 0 ? fmt(row.quizzes) : '—');
@@ -1019,9 +1018,9 @@
     const serverProfile = eventProfile || app.profile || {};
     const hasServerBalance = serverProfile.xp != null || serverProfile.rankPoints != null || serverProfile.totalRP != null;
     const xp = Math.max(0, Number(hasServerBalance ? serverProfile.xp : (localProgress.xp ?? localProgress.totalXP)) || 0);
-    const currentRP = Math.max(0, Number(hasServerBalance
-      ? (serverProfile.rankPoints ?? serverProfile.rp ?? 0)
-      : (localProgress.rankPoints ?? localProgress.currentRP ?? 0)) || 0);
+    const lifetimeRP = Math.max(0, Number(hasServerBalance
+      ? (serverProfile.totalRP ?? serverProfile.TotalRP ?? 0)
+      : (localProgress.totalRP ?? localProgress.lifetimeRP ?? 0)) || 0);
     const levelProgress = typeof app.getPerformanceLevelProgress === 'function'
       ? app.getPerformanceLevelProgress(xp)
       : { level: Math.max(1, Number(localProgress.level) || 1), required: 500, remaining: xp, percent: Math.min(100, Math.round(xp / 500 * 100)) };
@@ -1035,14 +1034,14 @@
     write('sidebar-profile-xp-progress', fmt(earned) + ' / ' + fmt(required) + ' XP · ' + fmt(Math.max(0, required - earned)) + ' XP to go');
     write('sidebar-profile-level-percent', percent + '%');
     write('sidebar-profile-total-xp', fmt(xp));
-    write('sidebar-profile-total-rp', fmt(currentRP));
+    write('sidebar-profile-total-rp', fmt(lifetimeRP));
     const fill = document.getElementById('sidebar-profile-level-fill');
     if (fill) fill.style.width = percent + '%';
     fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
     const star = document.getElementById('sidebar-profile-progress-star');
     if (star) star.style.left = percent + '%';
     const pending = Math.max(0, Number(serverProfile.pb != null ? serverProfile.pb : (serverProfile.pendingPB != null ? serverProfile.pendingPB : localProgress.pendingPB)) || 0);
-    write('sidebar-profile-pb-balance', 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(xp) + ' · RP: ' + fmt(currentRP));
+    write('sidebar-profile-pb-balance', 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(xp) + ' · Lifetime RP: ' + fmt(lifetimeRP));
     const input = document.getElementById('sidebar-profile-pb-amount');
     if (input) input.max = String(pending);
     section.querySelectorAll('[data-sidebar-pb-convert]').forEach(button => { button.disabled = pending < 1; });
