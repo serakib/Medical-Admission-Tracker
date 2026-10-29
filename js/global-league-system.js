@@ -1127,6 +1127,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (event.target === popup || (event.target.closest && event.target.closest('[data-week-popup-close]'))) {
         closePopup();
       }
+      if (event.target.closest && event.target.closest('#leaderboard-manage-friends')) {
+        closePopup();
+      }
       var fullscreenButton = event.target.closest && event.target.closest('[data-week-popup-fullscreen]');
       if (fullscreenButton) {
         var enabled = popup.classList.toggle('is-fullscreen');
