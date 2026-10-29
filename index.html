@@ -1757,6 +1757,8 @@ main > .view-section.hidden { display: none !important; }
 
   var pending = 0, progress = 0, active = false, rafId = 0;
   var startedAt = 0, lastStartedAt = 0, hideTimer = 0, minShowTimer = 0;
+  var pageHasBeenVisible = !document.hidden;
+  var lastInteractionAt = 0;
   var bar, fill;
   var MIN_VISIBLE_MS = 260;
   var HIDE_DELAY_MS = 180;
@@ -1797,6 +1799,8 @@ main > .view-section.hidden { display: none !important; }
   }
 
   function start() {
+    // Do not show a progress bar merely because a user returns to an already-open tab.
+    // Real fetch/XHR requests still call requestStart() and show the bar when work begins.
     ensureBar();
     clearTimeout(hideTimer);
     clearTimeout(minShowTimer);
@@ -1887,30 +1891,26 @@ main > .view-section.hidden { display: none !important; }
   }
 
   // Never intercept, prevent, or stop clicks. Clicks without async work get only a brief cue.
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) pageHasBeenVisible = true;
+  });
+
   document.addEventListener('click', function (event) {
     var target = event.target && event.target.closest
       ? event.target.closest('button, [role="button"], a[href]')
       : null;
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
     if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
-    if (pending === 0) {
-      start();
-      finishIfIdle();
-    }
+    // A click by itself is not evidence of loading. Only tracked async work should
+    // display the global bar; this avoids a fake bar on dashboard tab switches.
+    lastInteractionAt = Date.now();
   }, true);
 
-  document.addEventListener('submit', function () {
-    if (pending === 0) {
-      start();
-      finishIfIdle();
-    }
-  }, true);
-  window.addEventListener('popstate', function () {
-    if (pending === 0) { start(); finishIfIdle(); }
-  });
-  window.addEventListener('hashchange', function () {
-    if (pending === 0) { start(); finishIfIdle(); }
-  });
+  // Do not show the bar for submit/history events alone. Their actual fetch/XHR
+  // activity is tracked above, and a restored browser tab should remain quiet.
+  document.addEventListener('submit', function () { lastInteractionAt = Date.now(); }, true);
+  window.addEventListener('popstate', function () { lastInteractionAt = Date.now(); });
+  window.addEventListener('hashchange', function () { lastInteractionAt = Date.now(); });
 })();
 </script>
 
