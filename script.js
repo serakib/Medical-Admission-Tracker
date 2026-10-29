@@ -2586,10 +2586,10 @@ window.handleAccountDeletion = function() {
     // The first 40% earns no PB; only score beyond that threshold is weighted.
     const tiers = [
       { upTo: totalQuestions * 0.50, multiplier: 2 },
-      { upTo: totalQuestions * 0.60, multiplier: 4 },
-      { upTo: totalQuestions * 0.70, multiplier: 5 },
-      { upTo: totalQuestions * 0.79, multiplier: 7 },
-      { upTo: totalQuestions, multiplier: 10 }
+      { upTo: totalQuestions * 0.60, multiplier: 3 },
+      { upTo: totalQuestions * 0.70, multiplier: 4 },
+      { upTo: totalQuestions * 0.79, multiplier: 5 },
+      { upTo: totalQuestions, multiplier: 6 }
     ];
     let weightedScore = 0;
     if (totalQuestions >= 30) {
