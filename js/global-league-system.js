@@ -1094,13 +1094,61 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       day: 'numeric', month: 'short', timeZone: 'UTC'
     }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])));
   }
+  function ensureLeaderboardWeekPopup() {
+    var popup = document.getElementById('leaderboard-week-popup');
+    if (popup) return popup;
+    popup = document.createElement('div');
+    popup.id = 'leaderboard-week-popup';
+    popup.className = 'leaderboard-week-popup';
+    popup.hidden = true;
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-modal', 'true');
+    popup.setAttribute('aria-labelledby', 'leaderboard-week-popup-title');
+    popup.innerHTML =
+      '<div class="leaderboard-week-popup-panel">' +
+        '<div class="leaderboard-week-popup-header">' +
+          '<h2 id="leaderboard-week-popup-title">⏳ Weekly Ranking — নতুন সপ্তাহের countdown</h2>' +
+          '<div class="leaderboard-week-popup-controls">' +
+            '<button type="button" data-week-popup-fullscreen aria-label="Fullscreen on/off" title="Fullscreen on/off"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
+            '<button type="button" data-week-popup-close aria-label="Close popup" title="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="leaderboard-week-popup-content" data-week-popup-content></div>' +
+      '</div>';
+    document.body.appendChild(popup);
+    function closePopup() {
+      popup.hidden = true;
+      popup.classList.remove('is-fullscreen');
+      document.body.classList.remove('leaderboard-week-popup-open');
+      var toggle = popup.querySelector('[data-week-popup-fullscreen]');
+      if (toggle) toggle.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
+    }
+    popup.addEventListener('click', function (event) {
+      if (event.target === popup || (event.target.closest && event.target.closest('[data-week-popup-close]'))) {
+        closePopup();
+      }
+      var fullscreenButton = event.target.closest && event.target.closest('[data-week-popup-fullscreen]');
+      if (fullscreenButton) {
+        var enabled = popup.classList.toggle('is-fullscreen');
+        fullscreenButton.innerHTML = enabled
+          ? '<i class="fa-solid fa-compress" aria-hidden="true"></i>'
+          : '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
+        fullscreenButton.title = enabled ? 'Exit fullscreen' : 'Fullscreen on/off';
+        fullscreenButton.setAttribute('aria-label', fullscreenButton.title);
+      }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !popup.hidden) closePopup();
+    });
+    popup._closeLeaderboardWeekPopup = closePopup;
+    return popup;
+  }
   function renderLeaderboardPeriodNote() {
     startLeaderboardNoteClock();
     var note = document.getElementById('leaderboard-period-note');
     if (!note) return;
     note.classList.toggle('hidden', selectedPeriod !== 'weekly');
     if (selectedPeriod !== 'weekly') return;
-    var wasOpen = !!(note.querySelector('details') && note.querySelector('details').open);
     var now = new Date();
     var today = dhakaDateParts(now);
     var todayUtc = new Date(Date.UTC(today.year, today.month - 1, today.day));
@@ -1122,13 +1170,23 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var hours = Math.floor((totalMinutes % 1440) / 60);
     var minutes = totalMinutes % 60;
     var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট';
+    var weekDescription = 'এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, All Time RP অপরিবর্তিত থাকবে।';
     note.className = 'leaderboard-week-countdown';
     note.setAttribute('role', 'status');
-    note.innerHTML =
-      '<details class="leaderboard-week-details"' + (wasOpen ? ' open' : '') + '>' +
-        '<summary><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>' +
-        '<div class="leaderboard-week-details-body">এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, All Time RP অপরিবর্তিত থাকবে।</div>' +
-      '</details>';
+    note.innerHTML = '<button type="button" class="leaderboard-week-details" data-open-week-popup aria-haspopup="dialog"><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
+    var popup = ensureLeaderboardWeekPopup();
+    var popupContent = popup.querySelector('[data-week-popup-content]');
+    if (popupContent) popupContent.innerHTML =
+      '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong>' + countdown + '</strong></p>' +
+      '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
+      '<p>Weekly ranking প্রতি শনিবার রাত ১২টায় নতুন সময়সীমা থেকে গণনা শুরু করে। এই পরিবর্তনে All Time RP পরিবর্তিত হবে না।</p>';
+    var openButton = note.querySelector('[data-open-week-popup]');
+    if (openButton) openButton.addEventListener('click', function () {
+      popup.hidden = false;
+      document.body.classList.add('leaderboard-week-popup-open');
+      var closeButton = popup.querySelector('[data-week-popup-close]');
+      if (closeButton) closeButton.focus();
+    });
   }
   function startLeaderboardNoteClock() {
     if (leaderboardNoteClockStarted) return;
