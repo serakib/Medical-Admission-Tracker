@@ -544,8 +544,10 @@
     var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
     var rank = RANKS.indexOf(raw.rank || raw.Rank) >= 0 ? (raw.rank || raw.Rank) : RANKS[0];
     var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
-    var totalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
+    var storedTotalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
     var weeklyRP = Math.max(0, Number(raw.weeklyRP != null ? raw.weeklyRP : raw.weeklyRankPoints != null ? raw.weeklyRankPoints : 0) || 0);
+    // Keep the lifetime >= current-week invariant even when consuming a stale/legacy API payload.
+    var totalRP = Math.max(storedTotalRP, weeklyRP);
     var xp = Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0);
     // Account profile's XP progression is the canonical display rule. The API's
     // stored Level may have been calculated with an older/different formula.
