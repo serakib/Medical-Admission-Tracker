@@ -481,7 +481,7 @@
           local.streakActivityDates = Array.from(new Set(
             (Array.isArray(local.streakActivityDates) ? local.streakActivityDates : [])
               .concat(Array.isArray(response.streakActivityDates) ? response.streakActivityDates : [])
-              .filter(function (date) { return /^\\d{4}-\\d{2}-\\d{2}$/.test(String(date)); })
+              .filter(function (date) { return /^\d{4}-\d{2}-\d{2}$/.test(String(date)); })
           )).sort().slice(-366);
           local.streakSyncPending = false;
           localStorage.setItem(key, JSON.stringify(local));
