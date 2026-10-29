@@ -849,13 +849,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     // 70% begins the weekly Promotion Zone; reaching 100% promotes immediately server-side.
     return Math.ceil(Math.max(0, Number(info && info.required) || 0) * 0.70);
   }
+  function isMaxRankRow(row) {
+    var vault = window.MedAchievementVaultTrophies;
+    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
+    return !!(info && info.atMax) || String(row && row.rank || '').trim().toLowerCase() === 'immortal';
+  }
+  function weeklyPointsForRow(row) {
+    return Math.max(0, Number(row && row.weeklyRankPoints) || Number(row && row.boardPoints) || 0);
+  }
   function isInWeeklyPromotionZone(row) {
-    if (String(row && row.rank || '').toLowerCase() === 'immortal') return false;
-    return Math.max(0, Number(row && row.rankPoints) || 0) >= promotionZoneThresholdFor(row);
+    if (isMaxRankRow(row)) return false;
+    return weeklyPointsForRow(row) >= promotionZoneThresholdFor(row);
   }
   function isInWeeklySafeZone(row) {
     var threshold = safeZoneThresholdFor(row);
-    return Math.max(0, Number(row && row.rankPoints) || 0) >= threshold;
+    return weeklyPointsForRow(row) >= threshold;
   }
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
@@ -929,7 +937,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var safeThreshold = safeZoneThresholdFor(row);
         var promotionThreshold = promotionZoneThresholdFor(row);
         var weeklyRP = Math.max(0, Number(row.weeklyRankPoints) || 0);
-        var isMaxRank = String(row.rank || '').toLowerCase() === 'immortal';
+        var isMaxRank = isMaxRankRow(row);
         var safeStatus = selectedPeriod !== 'weekly' ? '' : isMaxRank
           ? '<small class="leader-safe-status" title="আপনি সর্বোচ্চ rank-এ আছেন"><i class="fa-solid fa-arrow-trend-up"></i> Max Rank</small>'
           : isInWeeklyPromotionZone(row)
