@@ -236,15 +236,15 @@ function processWeeklyRankDemotions() {
     const currentWeekStart = matWeekStartKey_();
     const props = PropertiesService.getScriptProperties();
     if (props.getProperty(MAT_WEEKLY_DEMOTION_PROPERTY) === currentWeekStart) {
-      return { success: true, skipped: true, weekStart: currentWeekStart, message: 'Weekly review already completed.' };
+      return { success: true, skipped: true, weekStart: currentWeekStart, message: 'Weekly rank review already completed.' };
     }
 
     const previousWeekStart = matOffsetDateKey_(currentWeekStart, -7);
-    const weeklyRPByUser = matGetWeeklyRPByUser_(previousWeekStart, currentWeekStart);
     const sheet = matGetStudentsSheet_();
     const students = matReadObjects_(sheet);
     const now = matNowIso_();
     let processed = 0;
+    let promoted = 0;
     let demoted = 0;
     let safe = 0;
     let lowestRank = 0;
@@ -258,38 +258,47 @@ function processWeeklyRankDemotions() {
         alreadyProcessed += 1;
         return;
       }
+
       const normalized = matNormaliseStudent_(student);
       const rankIndex = MAT_RANKS.indexOf(String(normalized.Rank || MAT_RANKS[0]));
-      const weeklyRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[uid], 0));
+      const currentRP = Math.max(0, matFiniteNumber_(normalized.RP, 0));
       const update = { LastWeeklyDemotionWeek: currentWeekStart, UpdatedAt: now };
       processed += 1;
 
-      // Bronze V is the floor: it cannot demote further. If its weekly
-      // activity also misses the Bronze V Safe Zone, reset current RP to 0.
-      if (rankIndex <= 0) {
-        lowestRank += 1;
-        if (weeklyRP < matRankSafeZoneThreshold_(0)) {
-          update.RP = 0;
-        }
-      } else if (rankIndex >= MAT_RANKS.length - 1) {
+      if (rankIndex >= MAT_RANKS.length - 1) {
+        // Immortal is the ceiling: no promotion or demotion beyond this rank.
         maximumRank += 1;
+        update.RP = matRankSafeZoneReward_(rankIndex);
       } else {
         const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
-        if (weeklyRP < safeZoneThreshold) {
+        const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
+
+        if (currentRP >= promotionZoneThreshold) {
+          // Promotion Zone takes priority over Safe Zone and grants one rank only.
+          const promotedRankIndex = rankIndex + 1;
+          update.Rank = MAT_RANKS[promotedRankIndex];
+          update.RP = matRankSafeZoneReward_(promotedRankIndex);
+          update.LastError = '';
+          promoted += 1;
+        } else if (currentRP >= safeZoneThreshold) {
+          // Safe Zone protects the current rank. The next week starts with
+          // 30% of this rank's Safe Zone threshold as requested.
+          update.RP = matRankSafeZoneReward_(rankIndex);
+          safe += 1;
+        } else if (rankIndex <= 0) {
+          // Bronze V is the floor; it cannot demote, but its RP is reset to
+          // the same 30%-of-Safe-Zone weekly starting amount.
+          update.RP = matRankSafeZoneReward_(0);
+          lowestRank += 1;
+        } else {
           const demotedRankIndex = rankIndex - 1;
           update.Rank = MAT_RANKS[demotedRankIndex];
-          // Start at the Safe Zone minimum of the rank the user lands in.
-          // Bronze V uses its special 5% threshold; other ranks use 30%.
-          update.RP = matRankSafeZoneThreshold_(demotedRankIndex);
-          // Start the seven-day zero-RP inactivity window only for Guests.
+          update.RP = matRankSafeZoneReward_(demotedRankIndex);
           if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
             update.GuestZeroRPAt = now;
           }
           update.LastError = '';
           demoted += 1;
-        } else {
-          // Safe Zone protects the current rank; it never grants promotion.
-          safe += 1;
         }
       }
       matUpdateObjectRow_(sheet, student._rowNumber, update);
@@ -301,18 +310,18 @@ function processWeeklyRankDemotions() {
       weekReviewed: previousWeekStart,
       weekStart: currentWeekStart,
       processed: processed,
+      promoted: promoted,
       demoted: demoted,
       safe: safe,
       lowestRankProtected: lowestRank,
       immortalProtected: maximumRank,
       alreadyProcessed: alreadyProcessed,
-      message: 'Weekly Safe Zone review completed. Demotions are limited to one subrank and lifetime TotalRP is unchanged.'
+      message: 'Weekly Safe Zone and Promotion Zone review completed. At most one rank promotion or demotion is applied per student; lifetime TotalRP is unchanged.'
     };
   } finally {
     lock.releaseLock();
   }
 }
-
 /* ------------------------------- Guest accounts ------------------------------- */
 
 /**
@@ -1024,20 +1033,24 @@ function matSubmitExam_(p) {
       if (total < 1) throw new Error('totalQuestions must be at least 1.');
       if (correct + wrong > total) throw new Error('Correct + wrong cannot exceed totalQuestions.');
       if (total > 1000) throw new Error('totalQuestions exceeds the allowed limit.');
-      const score = matFiniteNumber_(p.score != null ? p.score : p.quizPoints, 0);
+      // Recalculate final score server-side: +1 per correct answer, -0.25 per wrong answer,
+      // and no negative final score. Client-provided score is not trusted for rewards.
+      const negativeMarks = wrong * 0.25;
+      const score = Math.max(0, correct - negativeMarks);
       const examMode = matCleanText_(p.examMode || p.mode || 'Exam', 60) || 'Exam';
       const answered = correct + wrong;
       const accuracy = answered ? correct / answered : 0;
 
-      // XP/RP keep their existing base formulas. The performance-tier bonus is separate PB.
+      // Base rewards use the server-calculated final score after negative marking.
+      // Each final-score point grants 5 RP and 8 XP. Weighted performance bonus stays PB.
       // Never accept client-supplied XP, RP, or PB amounts.
       const normalizedExamMode = String(examMode).trim().toLowerCase();
       const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
-      const calculatedXpEarned = Math.max(5, Math.round(5 + correct * 2 + accuracy * 10));
-      const baseRpEarned = Math.max(1, Math.round(accuracy * 25 + Math.min(correct, 100) * 0.05));
+      const calculatedXpEarned = Math.max(0, Math.round(score * 8));
+      const baseRpEarned = Math.max(0, Math.round(score * 5));
       const hasWeightedExamRule = total >= 30;
       const pbEarned = hasWeightedExamRule ? matCalculateWeightedExamPB_(correct, wrong, total) : 0;
-      // Practice XP is 30% of base XP. Practice RP keeps the existing 30% reduction only below 30 questions.
+      // Preserve the existing Practice-mode reductions.
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
       const rpEarned = isPracticeMode && total < 30 ? Math.max(0, Math.round(baseRpEarned * 0.70)) : baseRpEarned;
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
@@ -1163,27 +1176,80 @@ function matRankPromotionCost_(rankIndex) {
 
 function matRankSafeZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Bronze V uses a 5% activity threshold; every other rank uses 30%.
-  const safeZoneRate = rankIndex === 0 ? 0.05 : 0.30;
-  return Math.ceil(matRankPromotionCost_(rankIndex) * safeZoneRate);
+  // Safe Zone starts at 30% of the RP required to upgrade from this rank.
+  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.30);
+}
+
+function matRankPromotionZoneThreshold_(rankIndex) {
+  if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
+  // Promotion Zone starts at 70% of the RP required for the next rank.
+  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.70);
+}
+
+function matRankSafeZoneReward_(rankIndex) {
+  // Weekly starting RP is 30% of the Safe Zone threshold for the resulting rank.
+  return Math.ceil(matRankSafeZoneThreshold_(rankIndex) * 0.30);
+}
+
+function matGetRankProgress_(rank, currentRP) {
+  let index = MAT_RANKS.indexOf(String(rank || ''));
+  if (index < 0) index = 0;
+  const rp = Math.max(0, matFiniteNumber_(currentRP, 0));
+  const isFinalRank = index >= MAT_RANKS.length - 1;
+  const safeZoneRP = matRankSafeZoneThreshold_(index);
+  const promotionZoneRP = isFinalRank ? 0 : matRankPromotionZoneThreshold_(index);
+  const promotionRequiredRP = isFinalRank ? 0 : matRankPromotionCost_(index);
+  return {
+    currentRP: rp,
+    safeZoneRP: safeZoneRP,
+    promotionZoneRP: promotionZoneRP,
+    promotionRequiredRP: promotionRequiredRP,
+    rpToSafeZone: Math.max(0, safeZoneRP - rp),
+    rpToPromotionZone: isFinalRank ? 0 : Math.max(0, promotionZoneRP - rp),
+    safeZoneReached: rp >= safeZoneRP,
+    promotionZoneReached: !isFinalRank && rp >= promotionZoneRP,
+    zone: isFinalRank ? 'max-rank' : (rp >= promotionZoneRP ? 'promotion' : (rp >= safeZoneRP ? 'safe' : 'below-safe')),
+    progressPercent: promotionRequiredRP > 0 ? Math.min(100, Math.round((rp / promotionRequiredRP) * 1000) / 10) : 100,
+    isFinalRank: isFinalRank
+  };
 }
 
 function matApplyRankProgress_(rank, currentRP, earnedRP) {
   let index = MAT_RANKS.indexOf(String(rank || ''));
   if (index < 0) index = 0;
-  let rp = Math.max(0, matFiniteNumber_(currentRP, 0)) + Math.max(0, matFiniteNumber_(earnedRP, 0));
-  const before = MAT_RANKS[index];
-  while (index < MAT_RANKS.length - 1 && rp >= matRankPromotionCost_(index)) {
-    rp -= matRankPromotionCost_(index);
-    index += 1;
+  // Promotions/demotions are settled once weekly. During the week RP accumulates
+  // toward the Safe Zone (30%) and Promotion Zone (70%) thresholds.
+  const rp = Math.max(0, matFiniteNumber_(currentRP, 0)) + Math.max(0, matFiniteNumber_(earnedRP, 0));
+  return { rank: MAT_RANKS[index], rp: rp, before: MAT_RANKS[index] };
+}
+
+function matLevelRequiredXP_(level) {
+  const safeLevel = Math.max(1, Math.floor(matFiniteNumber_(level, 1)));
+  // Approved smooth progression curve: XP required from this level to the next.
+  return Math.round(150 + 18 * safeLevel + 4.5 * Math.pow(safeLevel, 1.5));
+}
+
+function matGetLevelProgress_(totalXP) {
+  let remainingXP = Math.max(0, matFiniteNumber_(totalXP, 0));
+  let level = 1;
+  let requiredXP = matLevelRequiredXP_(level);
+  // XP is cumulative. Each level consumes only its own threshold; extra XP carries over.
+  while (remainingXP >= requiredXP && level < 100000) {
+    remainingXP -= requiredXP;
+    level += 1;
+    requiredXP = matLevelRequiredXP_(level);
   }
-  // Immortal is the final trophy; lifetime TotalRP is stored separately and never reset.
-  return { rank: MAT_RANKS[index], rp: rp, before: before };
+  return {
+    level: level,
+    xpIntoLevel: remainingXP,
+    xpRequiredForNextLevel: requiredXP,
+    xpRemaining: Math.max(0, requiredXP - remainingXP),
+    progressPercent: requiredXP > 0 ? Math.min(100, Math.round((remainingXP / requiredXP) * 1000) / 10) : 0
+  };
 }
 
 function matGetLevel_(xp) {
-  // Simple educational progression: one level per 100 accumulated Medical XP.
-  return Math.max(1, Math.floor(Math.max(0, Number(xp) || 0) / 100) + 1);
+  return matGetLevelProgress_(xp).level;
 }
 
 /* -------------------------- Leaderboard and Top 10 ---------------------------- */
@@ -1222,6 +1288,8 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rank: s.Rank || MAT_RANKS[0],
       rankPoints: Number(s.RP || 0),
       rp: Number(s.RP || 0),
+      rankProgress: matGetRankProgress_(s.Rank, s.RP),
+      levelProgress: matGetLevelProgress_(s.XP),
       totalRP: Number(s.TotalRP || 0),
       weeklyRP: weeklyRP,
       weeklyRankPoints: weeklyRP,
@@ -1976,7 +2044,8 @@ function matNormaliseStudent_(r) {
   row.PB = Math.max(0, matFiniteNumber_(row.PB, 0));
   row.PBEntries = JSON.stringify(matParsePBEntries_(row.PBEntries));
   row.TotalRP = Math.max(row.RP, matFiniteNumber_(row.TotalRP, row.RP));
-  row.Level = Math.max(1, matFiniteNumber_(row.Level, matGetLevel_(row.XP)));
+  // Recalculate level from authoritative cumulative XP using the current progression curve.
+  row.Level = matGetLevel_(row.XP);
   if (MAT_RANKS.indexOf(String(row.Rank || '')) === -1) row.Rank = MAT_RANKS[0];
   return row;
 }
@@ -2000,7 +2069,9 @@ function matPublicProfile_(r, includeEmail) {
     pendingPB: s.PB,
     totalRP: s.TotalRP,
     level: s.Level,
+    levelProgress: matGetLevelProgress_(s.XP),
     rank: s.Rank,
+    rankProgress: matGetRankProgress_(s.Rank, s.RP),
     streak: (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak))) ? Math.max(0, Math.floor(Number(s.Streak))) : 0,
     highestStreak: Math.max(
       (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak))) ? Math.max(0, Math.floor(Number(s.Streak))) : 0,
