@@ -458,10 +458,9 @@ function syncSidebarUserProfile(){
 }
 document.addEventListener('DOMContentLoaded',function(){
   syncSidebarUserProfile();
-  var profileAvatar=document.querySelector('#view-account .profile-hero .profile-avatar');
-  if(profileAvatar&&typeof MutationObserver!=='undefined'){
-    new MutationObserver(function(){syncSidebarUserProfile();}).observe(profileAvatar,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
-  }
+  // Do not observe the account avatar that syncSidebarUserProfile() itself updates.
+  // That creates a self-triggering MutationObserver loop and can freeze all UI input.
+  // Avatar sync is handled by auth-resolved, storage, and sidebar-trigger events below.
 });
 window.addEventListener('storage',function(event){if(event.key&&/med_profile_avatar|med_sheet_profile/.test(event.key))syncSidebarUserProfile();});
 window.addEventListener('student-auth-state-resolved',function(event){
