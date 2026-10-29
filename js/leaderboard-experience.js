@@ -632,13 +632,28 @@
     const serverXP = Math.max(0, Number(profile.xp != null ? profile.xp : progress.xp) || 0);
     const serverRP = Math.max(0, Number(profile.rankPoints != null ? profile.rankPoints : (profile.rp != null ? profile.rp : progress.rankPoints)) || 0);
     const balance = panel.querySelector('#student-profile-pb-balance');
-    if (balance) balance.textContent = 'Available PB: ' + fmt(pending) + ' · XP: ' + fmt(serverXP) + ' · RP: ' + fmt(serverRP);
     const input = panel.querySelector('#student-profile-pb-amount');
     const xpButton = panel.querySelector('[data-pb-convert="xp"]');
     const rpButton = panel.querySelector('[data-pb-convert="rp"]');
+    // XP/RP here are live conversion previews for the entered PB amount,
+    // not the user's existing total XP/RP balances.
+    const updatePBConversionPreview = () => {
+      const entered = Number(input && input.value);
+      const amount = Number.isSafeInteger(entered) && entered > 0 ? entered : 0;
+      if (balance) {
+        balance.textContent = 'Available PB: ' + fmt(pending) +
+          ' · XP: ' + fmt(amount * 2) + ' · RP: ' + fmt(amount);
+      }
+      if (input) input.setAttribute('aria-describedby', 'student-profile-pb-balance');
+    };
+    if (input && input.dataset.previewBound !== '1') {
+      input.dataset.previewBound = '1';
+      input.addEventListener('input', updatePBConversionPreview);
+    }
     if (input) input.max = String(pending);
     if (xpButton) xpButton.disabled = pending < 1;
     if (rpButton) rpButton.disabled = pending < 1;
+    updatePBConversionPreview();
   }
 
   if (!document.documentElement.dataset.pbConversionHandler) {
