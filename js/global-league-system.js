@@ -568,6 +568,7 @@
       xp: xp,
       level: boardLevel,
       rank: rank, rankPoints: currentRP, totalRP: totalRP,
+      rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
       weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
       accuracy: Math.max(0, Number(raw.accuracy) || 0),
@@ -776,8 +777,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
     var internalProgress = me.rankProgress && typeof me.rankProgress === 'object' ? me.rankProgress : {};
     var internalRP = Math.max(0, Number(me.rankPoints) || 0);
-    var safeThreshold = Math.max(0, Number(internalProgress.safeZoneRP) || 0);
-    var promotionThreshold = Math.max(0, Number(internalProgress.promotionZoneRP) || 0);
+    var safeThreshold = Math.max(0, Number(internalProgress.safeZoneRP) || Number(info && info.safeZoneRP) || Math.ceil(rankCost * 0.30));
+    var promotionThreshold = Math.max(0, Number(internalProgress.promotionZoneRP) || Math.ceil(rankCost * 0.70));
     var requiredRP = Math.max(0, Number(internalProgress.promotionRequiredRP) || rankCost);
     var safe = safeThreshold > 0 && internalRP >= safeThreshold;
     var promotion = promotionThreshold > 0 && internalRP >= promotionThreshold;
