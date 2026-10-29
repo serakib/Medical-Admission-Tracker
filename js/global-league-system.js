@@ -2019,10 +2019,20 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           var leaderboardView = document.getElementById('view-leaderboard');
           if (leaderboardView && leaderboardView.classList.contains('hidden') && typeof app.showView === 'function') app.showView('leaderboard');
           ensureFriendDirectory();
+          // Refresh the latest incoming and sent/pending requests before opening the request list.
+          var friendsApi = window.MedStudentFriends;
+          if (friendsApi && typeof friendsApi.loadConnections === 'function') {
+            try { await friendsApi.loadConnections(true); }
+            catch (error) { setFriendActionStatus(String(error && error.message || error || 'Friend requests refresh হয়নি।'), true); }
+          }
           await loadLeaderboard(true);
           loadFriendDirectoryRows().catch(function () {});
-          var friendsPanel = document.getElementById('leaderboard-friends-panel');
-          if (friendsPanel) friendsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          var requestList = document.getElementById('leaderboard-friend-request-list');
+          if (requestList) requestList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          else {
+            var friendsPanel = document.getElementById('leaderboard-friends-panel');
+            if (friendsPanel) friendsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
           return;
         }
         if (action.dataset.medAction === 'rules') showOverlay('med-rules-modal');
