@@ -2192,6 +2192,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   var originalShowViewWithLeaderboardGate = app.showView.bind(app);
   app.showView = function (viewName, force) {
+    // Opening the leaderboard defaults the rank filter to this user's current
+    // authoritative subrank, rather than a previously browsed subrank.
+    // Manual rank selection remains available after the leaderboard opens.
+    if (viewName === 'leaderboard') {
+      rankSelectionTouched = false;
+      var ownRank = (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || '';
+      if (RANKS.indexOf(ownRank) >= 0) selectedRank = ownRank;
+    }
     // Opening the leaderboard must not be blocked by optional profile fields.
     var result = originalShowViewWithLeaderboardGate(viewName, force);
     var controls = document.getElementById('med-rank-controls');
