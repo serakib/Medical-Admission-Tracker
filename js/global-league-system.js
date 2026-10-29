@@ -2056,22 +2056,15 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   var originalShowViewWithLeaderboardGate = app.showView.bind(app);
   app.showView = function (viewName, force) {
-    if (viewName === 'leaderboard' && !hasRequiredLeaderboardProfile()) {
-      showLeaderboardProfileGate();
-      return false;
-    }
+    // Opening the leaderboard must not be blocked by optional profile fields.
     var result = originalShowViewWithLeaderboardGate(viewName, force);
     var controls = document.getElementById('med-rank-controls');
     if (controls) controls.style.display = viewName === 'home' ? 'flex' : 'none';
+    if (viewName === 'leaderboard') loadLeaderboard();
     return result;
   };
   app.openLeaderboard = function () {
-    if (!hasRequiredLeaderboardProfile()) {
-      showLeaderboardProfileGate();
-      return false;
-    }
     app.showView('leaderboard');
-    loadLeaderboard();
     return true;
   };
   ensureUI();
