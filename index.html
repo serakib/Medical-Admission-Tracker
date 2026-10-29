@@ -1749,19 +1749,51 @@ main > .view-section.hidden { display: none !important; }
     
 
 <!-- Global top progress bar: local animation, tracks Fetch/XHR, works offline. -->
+<style id="mat-github-loading-bar-styles">
+  #mat-global-loading-bar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 3px !important;
+    z-index: 2147483647 !important;
+    pointer-events: none !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms ease;
+  }
+  #mat-global-loading-bar.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  #mat-global-loading-bar-fill {
+    width: 0;
+    height: 100%;
+    background: #2f81f7;
+    box-shadow: 0 0 8px rgba(47,129,247,.55), 0 0 3px rgba(47,129,247,.8);
+    transform-origin: left center;
+    transition: width 180ms ease;
+  }
+  #mat-global-loading-bar.is-finishing {
+    opacity: 0;
+    transition: opacity 220ms ease 100ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #mat-global-loading-bar, #mat-global-loading-bar-fill { transition-duration: 0ms !important; }
+  }
+</style>
 <script id="mat-global-loading-bar-runtime">
 (function () {
   'use strict';
-  if (window.__matGlobalLoadingBarInstalled) return;
-  window.__matGlobalLoadingBarInstalled = true;
+  if (window.__matGithubLoadingBarInstalled) return;
+  window.__matGithubLoadingBarInstalled = true;
 
-  var pending = 0, progress = 0, active = false, rafId = 0;
-  var startedAt = 0, lastStartedAt = 0, hideTimer = 0, minShowTimer = 0;
-  var watchdogTimer = 0, clickFinishTimer = 0;
-  var bar, fill;
-  var MIN_VISIBLE_MS = 260;
-  var HIDE_DELAY_MS = 180;
-  var MAX_ACTIVE_MS = 12000;
+  var bar, fill, progress = 0, active = false, pending = 0;
+  var trickleTimer = 0, hideTimer = 0, watchdogTimer = 0, idleTimer = 0;
+  var startedAt = 0, generation = 0;
+  var MIN_VISIBLE_MS = 280;
+  var HIDE_DELAY_MS = 220;
+  var MAX_ACTIVE_MS = 15000;
 
   function ensureBar() {
     bar = document.getElementById('mat-global-loading-bar');
@@ -1770,7 +1802,7 @@ main > .view-section.hidden { display: none !important; }
     bar = document.createElement('div');
     bar.id = 'mat-global-loading-bar';
     bar.setAttribute('role', 'progressbar');
-    bar.setAttribute('aria-label', 'Loading');
+    bar.setAttribute('aria-label', 'Page loading');
     bar.setAttribute('aria-valuemin', '0');
     bar.setAttribute('aria-valuemax', '100');
     bar.setAttribute('aria-valuenow', '0');
@@ -1787,99 +1819,95 @@ main > .view-section.hidden { display: none !important; }
     bar.setAttribute('aria-valuenow', String(Math.round(progress)));
   }
 
-  function animate() {
-    if (!active) { rafId = 0; return; }
-    var elapsed = Date.now() - startedAt;
-    // Reach about 80% quickly, then creep toward 98% until tracked work settles.
-    var target = elapsed < 650
-      ? 80 * (1 - Math.exp(-elapsed / 175))
-      : 80 + 18 * (1 - Math.exp(-(elapsed - 650) / 2100));
-    if (target > progress) setProgress(target);
-    rafId = window.requestAnimationFrame(animate);
+  function stopTimers() {
+    clearInterval(trickleTimer);
+    clearTimeout(hideTimer);
+    clearTimeout(watchdogTimer);
+    clearTimeout(idleTimer);
+    trickleTimer = hideTimer = watchdogTimer = idleTimer = 0;
   }
 
-  function start(fromUserClick) {
+  function trickle() {
+    if (!active) return;
+    // Fast initial ramp to ~80%, then progressively smaller increments toward 99%.
+    var step = progress < 30 ? 12 : progress < 55 ? 7 : progress < 80 ? 3.2 : progress < 90 ? 1.1 : 0.35;
+    setProgress(progress + step);
+  }
+
+  function start() {
     ensureBar();
-    clearTimeout(hideTimer);
-    clearTimeout(minShowTimer);
-    clearTimeout(clickFinishTimer);
-    clearTimeout(watchdogTimer);
-
-    // Every deliberate button/link click starts a fresh progress cycle.
-    if (fromUserClick || !active) {
-      active = true;
-      progress = 0;
-      startedAt = Date.now();
-      lastStartedAt = startedAt;
-      bar.classList.remove('is-finishing');
-      bar.classList.add('is-visible');
-      fill.style.width = '0%';
-      bar.setAttribute('aria-valuenow', '0');
-      if (rafId) {
-        window.cancelAnimationFrame(rafId);
-        rafId = 0;
-      }
-      if (!rafId) rafId = window.requestAnimationFrame(animate);
-    }
-
-    // A broken/never-settling request must never leave the bar stuck forever.
+    stopTimers();
+    generation += 1;
+    active = true;
+    pending = 0;
+    progress = 0;
+    startedAt = Date.now();
+    bar.classList.remove('is-finishing');
+    bar.classList.add('is-visible');
+    fill.style.width = '0%';
+    bar.setAttribute('aria-valuenow', '0');
+    trickleTimer = setInterval(trickle, 160);
     watchdogTimer = setTimeout(function () {
       pending = 0;
-      finishIfIdle();
+      finish();
     }, MAX_ACTIVE_MS);
   }
 
-  function finishIfIdle() {
-    if (pending !== 0 || !active) return;
-    var remaining = Math.max(0, MIN_VISIBLE_MS - (Date.now() - lastStartedAt));
-    clearTimeout(minShowTimer);
-    minShowTimer = setTimeout(function () {
-      if (pending !== 0 || !active) return;
-      clearTimeout(hideTimer);
-      bar.classList.add('is-finishing');
+  function finish() {
+    if (!active || pending > 0) return;
+    var thisGeneration = generation;
+    var wait = Math.max(0, MIN_VISIBLE_MS - (Date.now() - startedAt));
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      if (!active || pending > 0 || thisGeneration !== generation) return;
+      clearInterval(trickleTimer);
+      trickleTimer = 0;
       progress = 100;
       fill.style.width = '100%';
       bar.setAttribute('aria-valuenow', '100');
+      bar.classList.add('is-finishing');
       hideTimer = setTimeout(function () {
-        if (pending !== 0) {
-          bar.classList.remove('is-finishing');
-          return;
-        }
+        if (thisGeneration !== generation || pending > 0) return;
         active = false;
-        pending = 0;
-        clearTimeout(watchdogTimer);
-        clearTimeout(clickFinishTimer);
         bar.classList.remove('is-visible', 'is-finishing');
         fill.style.width = '0%';
         bar.setAttribute('aria-valuenow', '0');
         progress = 0;
-        if (rafId) {
-          window.cancelAnimationFrame(rafId);
-          rafId = 0;
-        }
+        clearTimeout(watchdogTimer);
+        watchdogTimer = 0;
       }, HIDE_DELAY_MS);
-    }, remaining);
+    }, wait);
+  }
+
+  function beginForAction() {
+    start();
+    // No-network actions (for example local dashboard tab buttons) still finish cleanly.
+    idleTimer = setTimeout(function () {
+      if (pending === 0) finish();
+    }, 650);
   }
 
   function requestStart() {
-    // Ignore automatic page-load/background requests. The bar is user-action driven.
-    if (!active) return;
+    if (!active) return; // Never auto-start on initial page load or tab return.
     pending += 1;
+    clearTimeout(idleTimer);
+    clearTimeout(hideTimer);
     clearTimeout(watchdogTimer);
+    bar.classList.remove('is-finishing');
     watchdogTimer = setTimeout(function () {
       pending = 0;
-      finishIfIdle();
+      finish();
     }, MAX_ACTIVE_MS);
   }
+
   function requestEnd() {
     if (!active) return;
     pending = Math.max(0, pending - 1);
-    if (pending === 0) finishIfIdle();
+    if (pending === 0) finish();
   }
 
-  // Keep network tracking lightweight: don't wrap response-body methods or delay button events.
   if (typeof window.fetch === 'function') {
-    var nativeFetch = window.fetch.bind(window);
+    var nativeFetch = window.fetch;
     window.fetch = function () {
       requestStart();
       var result;
@@ -1912,27 +1940,29 @@ main > .view-section.hidden { display: none !important; }
     };
   }
 
-  // Returning to the tab never starts the bar; deliberate in-app clicks do.
+  // Start before an in-app action; leave native navigation untouched so auth,
+  // downloads, external links and the existing multi-view app keep working.
   document.addEventListener('click', function (event) {
     var target = event.target && event.target.closest
-      ? event.target.closest('button, [role="button"], a[href], input[type="submit"]')
+      ? event.target.closest('a[href], button, [role="button"], input[type="submit"]')
       : null;
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
     if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
-
-    start(true);
-    // If this click does not start async work, finish the cue instead of leaving it visible.
-    clickFinishTimer = setTimeout(function () {
-      if (pending === 0) finishIfIdle();
-    }, 700);
+    if (target.matches('a[href]')) {
+      var href = target.getAttribute('href') || '';
+      if (!href || href.charAt(0) === 'javascript:') return;
+      try {
+        var destination = new URL(target.href, window.location.href);
+        if (destination.origin !== window.location.origin) return;
+      } catch (_) { return; }
+    }
+    beginForAction();
   }, true);
 
-  // Submitting a form is also an intentional user action.
-  document.addEventListener('submit', function () {
-    if (!active) start(true);
-    clickFinishTimer = setTimeout(function () {
-      if (pending === 0) finishIfIdle();
-    }, 700);
+  document.addEventListener('submit', function (event) {
+    var form = event.target;
+    if (!form || form.matches('[target="_blank"]')) return;
+    beginForAction();
   }, true);
 })();
 </script>
