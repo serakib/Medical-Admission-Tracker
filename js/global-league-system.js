@@ -1201,13 +1201,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var rpBadge = document.querySelector('#view-leaderboard .mat-top-rp');
       var friendsButton = document.getElementById('leaderboard-manage-friends');
       if (rpBadge && rpBadge.parentNode !== popupTools) popupTools.appendChild(rpBadge);
-      // Friends & Requests belongs only to the Friends leaderboard, never in the weekly popup.
-      if (toolbarActions && friendsButton && friendsButton.parentNode !== toolbarActions) toolbarActions.insertBefore(friendsButton, refreshButton || null);
-      if (friendsButton) {
-        var showFriendsButton = selectedPeriod === 'friends';
-        friendsButton.style.setProperty('display', showFriendsButton ? 'inline-flex' : 'none', 'important');
-        friendsButton.style.setProperty('visibility', showFriendsButton ? 'visible' : 'hidden', 'important');
-        friendsButton.style.setProperty('opacity', showFriendsButton ? '1' : '0', 'important');
+      // Keep the Friends & Requests control out of the weekly countdown popup.
+      // Its normal Friends leaderboard functionality remains unchanged.
+      if (friendsButton && popupTools.contains(friendsButton)) {
+        if (toolbarActions) toolbarActions.insertBefore(friendsButton, refreshButton || null);
+        else friendsButton.remove();
       }
     }
     if (refreshButton && refreshButton.parentNode !== note) note.appendChild(refreshButton);
