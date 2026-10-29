@@ -840,8 +840,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
     if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && (row.totalRP || row.rankPoints) || 0);
     if (info && info.atMax) return 0;
-    // Rank promotion is immediate only when the full next-rank RP requirement is reached.
-    return Math.max(0, Number(info && info.required) || 0);
+    // 70% begins the weekly Promotion Zone; reaching 100% promotes immediately server-side.
+    return Math.ceil(Math.max(0, Number(info && info.required) || 0) * 0.70);
   }
   function isInWeeklyPromotionZone(row) {
     if (String(row && row.rank || '').toLowerCase() === 'immortal') return false;
