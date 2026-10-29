@@ -1,117 +1,13 @@
-# Firestore rules for Student Friends
+# Firebase Firestore rules used by the current Medical Admission Tracker
 
-The website's Friends feature stores only **friend requests** and accepted friend links in two Firestore collections:
+## Current implementation
 
-- `studentFriendRequests`
-- `studentFriendships`
+- **Friend requests and accepted friendships:** handled by the Medical Apps Script API and stored in the private `StudentFriends` tab. The old `studentFriendRequests` and `studentFriendships` Firestore matches below were for an earlier implementation and are not required by the current Friends UI. Do not replace existing Firestore rules with this document.
+- **In-site activity notification state:** registered, signed-in users may sync private state at `studentActivityNotificationStates/{uid}`. Guest users use browser-local storage. This state is separate from Apps Script's Telegram activity queue and does not create OS/browser push notifications.
 
-Registered Firebase users can send, accept, reject, cancel, and remove friend links. Guest sessions can use All Time and Weekly ranking, but must sign in to use the Friends actions.
+## Notification-state rule to merge
 
-## Important deployment note
-
-This repository does not deploy Firebase Security Rules. Open **Firebase Console → Firestore Database → Rules** and merge the following matches into your existing rules. **Do not replace existing rules wholesale**: your private `students/{uid}` data and any other app collections may have rules that must remain intact. Test with two registered test accounts before launch.
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    match /studentFriendRequests/{requestId} {
-      allow get, list: if signedIn()
-        && (resource.data.fromUid == request.auth.uid
-          || resource.data.toUid == request.auth.uid);
-
-      allow create: if signedIn()
-        && request.resource.data.keys().hasOnly([
-          'fromUid', 'toUid', 'fromName', 'fromCollege', 'fromBatch',
-          'toName', 'status', 'createdAt', 'updatedAt'
-        ])
-        && request.resource.data.fromUid == request.auth.uid
-        && request.resource.data.toUid is string
-        && request.resource.data.toUid.size() > 0
-        && request.resource.data.toUid.size() <= 160
-        && request.resource.data.toUid != request.auth.uid
-        && request.resource.data.fromName is string
-        && request.resource.data.fromName.size() >= 2
-        && request.resource.data.fromName.size() <= 80
-        && request.resource.data.toName is string
-        && request.resource.data.toName.size() <= 80
-        && request.resource.data.status == 'pending';
-
-      allow update: if signedIn()
-        && resource.data.status == 'pending'
-        && request.resource.data.fromUid == resource.data.fromUid
-        && request.resource.data.toUid == resource.data.toUid
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['status', 'updatedAt'])
-        && (
-          (resource.data.toUid == request.auth.uid
-            && request.resource.data.status in ['accepted', 'rejected'])
-          || (resource.data.fromUid == request.auth.uid
-            && request.resource.data.status == 'cancelled')
-        );
-
-      allow delete: if false;
-    }
-
-    match /studentFriendships/{friendshipId} {
-      allow get, list: if signedIn()
-        && (resource.data.userA == request.auth.uid
-          || resource.data.userB == request.auth.uid);
-
-      allow create: if signedIn()
-        && request.resource.data.status == 'accepted'
-        && request.resource.data.userA is string
-        && request.resource.data.userB is string
-        && request.resource.data.userA < request.resource.data.userB
-        && request.resource.data.requestId is string
-        && (
-          request.resource.data.userA == request.auth.uid
-          || request.resource.data.userB == request.auth.uid
-        )
-        && existsAfter(
-          /databases/$(database)/documents/studentFriendRequests/$(request.resource.data.requestId)
-        )
-        && getAfter(
-          /databases/$(database)/documents/studentFriendRequests/$(request.resource.data.requestId)
-        ).data.status == 'accepted'
-        && getAfter(
-          /databases/$(database)/documents/studentFriendRequests/$(request.resource.data.requestId)
-        ).data.toUid == request.auth.uid
-        && getAfter(
-          /databases/$(database)/documents/studentFriendRequests/$(request.resource.data.requestId)
-        ).data.fromUid == (
-          request.resource.data.userA == request.auth.uid
-            ? request.resource.data.userB
-            : request.resource.data.userA
-        );
-
-      allow update: if false;
-      allow delete: if signedIn()
-        && (resource.data.userA == request.auth.uid
-          || resource.data.userB == request.auth.uid);
-    }
-  }
-}
-```
-
-## Test before enabling for everyone
-
-1. Use two registered test accounts (A and B).
-2. From A, send B a friend request. Check that B sees it in the Friends tab.
-3. Accept it as B. Both accounts should see each other in Friends.
-4. Test reject, cancel, and remove. Confirm that unrelated users cannot read either student's request or friendship documents.
-5. Verify all existing private student profile rules still behave as expected.
-
-If the Friends panel reports a permission error, the deployed rules do not yet allow this collection flow, or another existing rule is conflicting. The website intentionally shows a failure message rather than pretending the request succeeded.
-
-
-## Rules for cross-device in-site activity notifications
-
-The notification center can sync its read/unread state, friend activity snapshots and trophy-rank alerts for **registered, signed-in accounts** using the studentActivityNotificationStates collection. Guest accounts continue to use browser-local storage. Merge the following match into the existing Firestore rules; this repository does not deploy rules to Firebase automatically.
+Open **Firebase Console → Firestore Database → Rules** and merge this match inside your existing `match /databases/{database}/documents` block. Keep existing rules for `students/{uid}` and all unrelated collections.
 
 ```javascript
 match /studentActivityNotificationStates/{uid} {
@@ -127,12 +23,12 @@ match /studentActivityNotificationStates/{uid} {
     && request.resource.data.version == 1
     && request.resource.data.state is map
     && request.resource.data.state.keys().hasOnly([
-      'notifications', 'lastSnapshot', 'dayKey',
-      'dayBaseline', 'trophyEvents', 'stateUpdatedAt'
+      'notifications', 'trash', 'deletedIds', 'restoredIds', 'purgedIds',
+      'lastSnapshot', 'dayKey', 'dayBaseline', 'trophyEvents', 'stateUpdatedAt'
     ]);
 
   allow delete: if false;
 }
 ```
 
-This collection contains only the signed-in user's private notification state. Do not add a broad public read rule. If the match above has not been deployed in Firebase Console, the app falls back to local browser storage and the feed will not sync between devices until the rule is merged and deployed.
+The app falls back to browser-local storage if the rules are missing or reject a request, so cross-device state sync only works after the rule is merged and deployed. Deploy Firestore rules separately from GitHub Pages and the Google Apps Script Web App.
