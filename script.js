@@ -2313,6 +2313,15 @@ window.handleAccountDeletion = function() {
               throw new Error(apiError);
             }
 
+            // Remove private cross-device notification state while the user is still authenticated.
+            // If the matching Firestore rule has not been deployed, log the issue but do not
+            // strand the account after its Medical Sheets data has already been deleted.
+            try {
+              await deleteDoc(doc(db, 'studentActivityNotificationStates', liveUser.uid));
+            } catch (notificationStateError) {
+              console.warn('[Account deletion] Could not remove activity notification state; merge the owner-delete rule:', notificationStateError);
+            }
+
             // 3. Remove the user's Firestore profile, then remove Firebase Auth access.
             try {
               await deleteDoc(doc(db, 'students', liveUser.uid));
@@ -2334,7 +2343,8 @@ window.handleAccountDeletion = function() {
               'med_profile_avatar_manual_v1_' + uid,
               'med_sheet_profile_v1_' + uid,
               'med_account_progress_v1_' + uid,
-              'med_sheet_selected_rank_v1_' + uid
+              'med_sheet_selected_rank_v1_' + uid,
+              'med_activity_notifications_v2_' + uid
             ].forEach(key => { try { localStorage.removeItem(key); } catch (_) {} });
 
             try {
