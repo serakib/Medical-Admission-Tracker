@@ -1557,3 +1557,209 @@ html.dark .mat-notification-overlay.is-fullscreen .mat-notification-selection-to
 html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button,body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button{color:#dbeafe!important;background:rgba(148,163,184,.08)!important;border-color:rgba(148,163,184,.2)!important}
 html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read],body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read]{color:#6ee7b7!important;background:rgba(16,185,129,.09)!important}
 html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected],body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected]{color:#fca5a5!important;background:rgba(239,68,68,.08)!important}
+
+
+/* Notification UX correction: Gmail-style single-row message actions and fullscreen bulk toolbar. */
+#mat-notification-center .mat-notification-item {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  column-gap: 9px !important;
+  row-gap: 0 !important;
+}
+#mat-notification-center .mat-notification-item-copy {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  padding-right: 0 !important;
+}
+#mat-notification-center .mat-notification-item-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+  padding-right: 0 !important;
+  position: static !important;
+}
+#mat-notification-center .mat-notification-item-head strong {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#mat-notification-center .mat-notification-item-head time {
+  position: static !important;
+  inset: auto !important;
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  white-space: nowrap !important;
+}
+#mat-notification-center .mat-notification-item-actions {
+  position: static !important;
+  inset: auto !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 3px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none;
+  opacity: 0;
+  visibility: hidden;
+}
+#mat-notification-center .mat-notification-item:hover .mat-notification-item-actions,
+#mat-notification-center .mat-notification-item:focus-within .mat-notification-item-actions {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+#mat-notification-center .mat-notification-action {
+  display: inline-grid !important;
+  place-items: center !important;
+  flex: 0 0 29px !important;
+  width: 29px !important;
+  min-width: 29px !important;
+  height: 29px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+}
+html.dark #mat-notification-center .mat-notification-item-actions,
+body.dark #mat-notification-center .mat-notification-item-actions {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+@media (hover: none) {
+  #mat-notification-center .mat-notification-item-actions {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+@media (max-width: 767px) {
+  #mat-notification-center .mat-notification-item { column-gap: 6px !important; }
+  #mat-notification-center .mat-notification-action {
+    flex-basis: 26px !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    height: 26px !important;
+  }
+}
+
+/* The bulk row stays on one line; selected primary actions live at its far right in fullscreen. */
+#mat-notification-center .mat-notification-selection-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+}
+#mat-notification-center .mat-notification-selection-toolbar > button,
+#mat-notification-center .mat-notification-selection-toolbar > span {
+  flex: 0 0 auto !important;
+  margin-left: 0 !important;
+  white-space: nowrap;
+}
+#mat-notification-center .mat-notification-selection-toolbar .mat-notification-bulk-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  gap: 5px !important;
+  width: auto !important;
+  margin-left: auto !important;
+}
+#mat-notification-center .mat-notification-selection-toolbar .mat-notification-bulk-actions button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  white-space: nowrap !important;
+}
+#mat-notification-center:not(.is-fullscreen) .mat-notification-selection-toolbar [data-mat-header-selection-actions] {
+  display: none !important;
+}
+#mat-notification-center:not(.is-fullscreen) .mat-notification-selection-toolbar .mat-notification-bulk-actions {
+  display: flex !important;
+}
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] {
+  display: flex !important;
+  position: static !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  gap: 5px !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  min-height: 34px !important;
+  padding: 7px 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+  color: var(--muted, #64748b) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button:hover:not(:disabled) {
+  border-color: rgba(13, 148, 136, .2) !important;
+  color: #047857 !important;
+  background: rgba(16, 185, 129, .08) !important;
+}
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button:disabled {
+  opacity: .42 !important;
+  cursor: not-allowed !important;
+}
+html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button,
+body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button {
+  color: var(--muted, #a5b4c5) !important;
+}
+html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button:hover:not(:disabled),
+body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button:hover:not(:disabled) {
+  color: #6ee7b7 !important;
+  background: rgba(16, 185, 129, .12) !important;
+}
+@media (max-width: 767px) {
+  #mat-notification-center .mat-notification-selection-toolbar {
+    gap: 5px !important;
+  }
+  #mat-notification-center .mat-notification-selection-toolbar .mat-notification-bulk-actions,
+  #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] {
+    gap: 4px !important;
+  }
+  #mat-notification-center .mat-notification-selection-toolbar .mat-notification-bulk-actions button,
+  #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] button {
+    min-height: 30px !important;
+    padding: 6px 8px !important;
+    font-size: 9px !important;
+  }
+}
