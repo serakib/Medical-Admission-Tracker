@@ -836,8 +836,12 @@
   });
   const refresh = () => { renderShortcuts(); ensureProfileStreakButton(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh, { once: true }); else refresh();
-  const observer = new MutationObserver(() => ensureProfileStreakButton());
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class','aria-hidden'] });
+  // Observe only the profile views whose visibility controls this button.
+  // A body-wide subtree observer reruns this DOM scan for unrelated page updates.
+  const profileObserver = new MutationObserver(() => ensureProfileStreakButton());
+  [document.getElementById('view-profile'), document.getElementById('view-student-profile')]
+    .filter(Boolean)
+    .forEach(section => profileObserver.observe(section, { attributes: true, attributeFilter: ['class','aria-hidden'] }));
   window.addEventListener('student-progress-updated', refresh);
   window.addEventListener('medical-profile-updated', refresh);
 })();
