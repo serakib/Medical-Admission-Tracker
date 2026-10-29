@@ -998,7 +998,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (!view) return null;
       tabs = document.createElement('div');
       tabs.id = 'leaderboard-period-tabs';
-      tabs.className = 'flex flex-wrap gap-2 mb-5';
+      tabs.className = 'flex flex-wrap gap-2';
       tabs.setAttribute('role', 'tablist');
       tabs.setAttribute('aria-label', 'Leaderboard period');
       var anchor = document.getElementById('leaderboard-period-note') ||
@@ -1008,9 +1008,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       else view.appendChild(tabs);
     }
     // Rebuild the period controls once per script version to remove stale/duplicate markup.
-    if (tabs.dataset.medicalTabBuildVersion !== '31') {
+    if (tabs.dataset.medicalTabBuildVersion !== '32') {
       tabs.replaceChildren();
-      tabs.dataset.medicalTabBuildVersion = '31';
+      tabs.dataset.medicalTabBuildVersion = '32';
     }
     var definitions = [
       { key: 'all-time', label: '🏆 All Time' },
@@ -1046,9 +1046,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     tabs.style.setProperty('display', 'flex', 'important');
     tabs.style.setProperty('visibility', 'visible', 'important');
     tabs.style.setProperty('opacity', '1', 'important');
-    tabs.style.setProperty('flex-wrap', 'wrap', 'important');
+    tabs.style.setProperty('flex-wrap', 'nowrap', 'important');
     tabs.style.setProperty('gap', '8px', 'important');
-    tabs.style.setProperty('width', '100%', 'important');
+    tabs.style.setProperty('width', 'auto', 'important');
+    tabs.style.setProperty('margin', '0', 'important');
     tabs.style.setProperty('min-height', '40px', 'important');
     tabs.style.setProperty('position', 'relative', 'important');
     tabs.style.setProperty('z-index', '5', 'important');
@@ -1097,16 +1098,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     startLeaderboardNoteClock();
     var note = document.getElementById('leaderboard-period-note');
     if (!note) return;
-    note.classList.toggle('hidden', selectedPeriod === 'all-time');
-    if (selectedPeriod === 'friends') {
-      note.className = 'mb-4 rounded-2xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 text-sm text-sky-800 dark:text-sky-200';
-      note.setAttribute('role', 'status');
-      note.textContent = 'শুধু accepted friends-দের ranking। Friend request আপনার student profile থেকেই পরিচালনা করুন।';
-      return;
-    }
+    note.classList.toggle('hidden', selectedPeriod !== 'weekly');
     if (selectedPeriod !== 'weekly') return;
-    note.className = 'mb-4 rounded-2xl border border-blue-200 dark:border-blue-900/70 bg-blue-50 dark:bg-blue-950/30 p-4 text-sm text-blue-950 dark:text-blue-100';
-    note.setAttribute('role', 'status');
+    var wasOpen = !!(note.querySelector('details') && note.querySelector('details').open);
     var now = new Date();
     var today = dhakaDateParts(now);
     var todayUtc = new Date(Date.UTC(today.year, today.month - 1, today.day));
@@ -1128,16 +1122,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var hours = Math.floor((totalMinutes % 1440) / 60);
     var minutes = totalMinutes % 60;
     var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট';
+    note.className = 'leaderboard-week-countdown';
+    note.setAttribute('role', 'status');
     note.innerHTML =
-      '<div class="flex items-start gap-3">' +
-        '<span class="mt-0.5 text-xl" aria-hidden="true">📅</span>' +
-        '<div class="min-w-0 flex-1">' +
-          '<p class="font-extrabold">এই সপ্তাহের Weekly Leaderboard</p>' +
-          '<p class="mt-1 text-xs leading-relaxed text-blue-800 dark:text-blue-200">সময়কাল: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)</p>' +
-          '<p class="mt-2 text-sm font-bold"><span aria-hidden="true">⏳ </span>নতুন সপ্তাহ শুরু হতে বাকি: <span data-weekly-countdown>' + countdown + '</span></p>' +
-          '<p class="mt-1 text-xs leading-relaxed text-blue-800 dark:text-blue-200">শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে। তখন Weekly RP-এর হিসাব নতুন সময়সীমা থেকে গণনা হবে; All Time RP অপরিবর্তিত থাকবে।</p>' +
-        '</div>' +
-      '</div>';
+      '<details class="leaderboard-week-details"' + (wasOpen ? ' open' : '') + '>' +
+        '<summary><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>' +
+        '<div class="leaderboard-week-details-body">এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, All Time RP অপরিবর্তিত থাকবে।</div>' +
+      '</details>';
   }
   function startLeaderboardNoteClock() {
     if (leaderboardNoteClockStarted) return;
