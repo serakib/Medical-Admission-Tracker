@@ -1321,7 +1321,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
     ? includeUserIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)
     : String(includeUserIds || '').split(',').map(function (id) { return String(id || '').trim(); }).filter(Boolean);
   const includeIdSet = new Set(includeIds);
-  const allStudents = matReadObjects_(matGetStudentsSheet_()).map(matNormaliseStudent_);
+  const allStudents = matReadObjects_(matGetStudentsSheet_()).map(matReconcileStoredRankProgress_);
   const students = requestedIdSet.size ? allStudents.filter(function (s) { return requestedIdSet.has(s.UserID); }) : allStudents;
   // Include current-week RP in every profile payload, even on All Time/Friends tabs.
   const weeklyByUser = matGetWeeklyRPByUser_();
@@ -2151,8 +2151,32 @@ function matNormaliseStudent_(r) {
   return row;
 }
 
+function matReconcileStoredRankProgress_(source) {
+  const student = matNormaliseStudent_(source);
+  const rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
+  if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return student;
+
+  // Repair accounts that already had enough RP before immediate promotion was
+  // deployed, so profile/leaderboard reads cannot leave them stuck in an old rank.
+  const rankResult = matApplyRankProgress_(student.Rank, student.RP, 0);
+  if (rankResult.promoted <= 0) return student;
+
+  student.Rank = rankResult.rank;
+  student.RP = rankResult.rp;
+  student.TotalRP = Math.max(student.TotalRP, student.RP);
+  student.UpdatedAt = matNowIso_();
+  if (student._rowNumber) {
+    matUpdateObjectRow_(matGetStudentsSheet_(), student._rowNumber, {
+      Rank: student.Rank,
+      RP: student.RP,
+      UpdatedAt: student.UpdatedAt
+    });
+  }
+  return student;
+}
+
 function matPublicProfile_(r, includeEmail) {
-  const s = matNormaliseStudent_(r);
+  const s = matReconcileStoredRankProgress_(r);
   const result = {
     userId: s.UserID,
     uid: s.UserID,
