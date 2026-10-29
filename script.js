@@ -2580,10 +2580,9 @@ window.handleAccountDeletion = function() {
     const totalQuestions = Array.isArray(state?.questions) ? state.questions.length : 0;
     const correctCount = Math.max(0, Math.min(totalQuestions, Math.floor(Number(correct) || 0)));
     const wrongCount = Math.max(0, Math.floor(Number(state?.wrongCount ?? state?.wrong) || 0));
-    const answered = correctCount + wrongCount;
-    const accuracy = answered ? correctCount / answered : 0;
-    const baseRankPoints = Math.max(1, Math.round(accuracy * 25 + Math.min(correctCount, 100) * 0.05));
     const finalScore = Math.max(0, correctCount - wrongCount * 0.25);
+    const baseRankPoints = Math.max(0, Math.round(finalScore * 5));
+    const baseXP = Math.max(0, Math.round(finalScore * 8));
     const tiers = [
       { upTo: totalQuestions * 0.40, multiplier: 1 },
       { upTo: totalQuestions * 0.50, multiplier: 2 },
@@ -2601,7 +2600,7 @@ window.handleAccountDeletion = function() {
       }
     }
     const weightedBonusPB = Math.round(weightedScore * 15);
-    return { rankPoints: Math.round(baseRankPoints), xp: 0, pb: weightedBonusPB, hasWeightedExamRule: totalQuestions >= 30 };
+    return { rankPoints: baseRankPoints, xp: baseXP, pb: weightedBonusPB, hasWeightedExamRule: totalQuestions >= 30 };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
   const modelCounts = [20, 30, 50, 75, 100];
