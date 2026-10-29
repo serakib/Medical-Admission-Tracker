@@ -1506,6 +1506,18 @@ const oldBrowser=app.renderPracticeBrowser?.bind(app);if(oldBrowser)app.renderPr
 const oldAuth=app.setAuthState.bind(app);app.setAuthState=function(user,...args){const r=oldAuth(user,...args);renderSidebarAuth();renderRankCard();setupPracticeUI();updatePracticeUI();return r};
 const oldShow=app.showView.bind(app);app.showView=function(name,...args){const r=oldShow(name,...args);if(name==='profile')renderRankCard();if(name==='practice'){setupPracticeUI();updatePracticeUI()}renderSidebarAuth();return r};
 const oldLeaderboard=app.renderLeaderboardRows?.bind(app);
+// This leaderboard enhancement is a separate IIFE from the avatar picker above.
+// Recreate its account-scoped storage helpers locally instead of referencing
+// lexical constants that are not visible across IIFE boundaries.
+const avatarAccountId = () => {
+  const known = app.authUser?.uid || app.profile?.userId || app.profile?.uid;
+  if (known) return String(known);
+  try { return String(localStorage.getItem('med_sheet_guest_id_v1') || 'guest'); } catch (_) { return 'guest'; }
+};
+const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
+const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
+const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
 const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
 function portraitDefaultForId(userId){
   const key=String(userId||'guest');let hash=2166136261;
