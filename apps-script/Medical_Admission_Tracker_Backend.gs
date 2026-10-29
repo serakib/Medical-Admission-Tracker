@@ -294,9 +294,14 @@ function processWeeklyRankDemotions() {
       } else {
         const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
 
-        // Promotions happen immediately inside matApplyRankProgress_ when RP is
-        // earned. The weekly review only evaluates Safe Zone protection/demotion.
-        if (currentRP >= safeZoneThreshold) {
+        const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
+        if (currentRP >= promotionZoneThreshold) {
+          // Promotion Zone (70% to below 100%) still promotes at weekly review.
+          // At 100%, matApplyRankProgress_ promotes immediately when RP is earned.
+          update.Rank = MAT_RANKS[rankIndex + 1];
+          update.RP = matRankSafeZoneReward_(rankIndex + 1);
+          promoted += 1;
+        } else if (currentRP >= safeZoneThreshold) {
           // Safe Zone protects the current rank. The next week starts with
           // 30% of this rank's Safe Zone threshold as requested.
           update.RP = matRankSafeZoneReward_(rankIndex);
@@ -332,7 +337,7 @@ function processWeeklyRankDemotions() {
       lowestRankProtected: lowestRank,
       immortalProtected: maximumRank,
       alreadyProcessed: alreadyProcessed,
-      message: 'Weekly Safe Zone review completed. Rank promotions are immediate when the full RP requirement is reached; this review only handles Safe Zone protection and demotion. Lifetime TotalRP is unchanged.'
+      message: 'Weekly rank review completed. Users in the 70%-to-under-100% Promotion Zone are promoted here; users reaching 100% are promoted immediately. Safe Zone protection and demotion remain unchanged. Lifetime TotalRP is unchanged.'
     };
   } finally {
     lock.releaseLock();
@@ -1214,8 +1219,9 @@ function matRankSafeZoneThreshold_(rankIndex) {
 
 function matRankPromotionZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Rank promotion is immediate at the full RP cost; no weekly promotion zone remains.
-  return matRankPromotionCost_(rankIndex);
+  // Promotion Zone starts at 70%: these users promote at weekly review.
+  // Reaching 100% is handled immediately by matApplyRankProgress_.
+  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.70);
 }
 
 function matRankSafeZoneReward_(rankIndex) {
@@ -1230,8 +1236,9 @@ function matGetRankProgress_(rank, currentRP) {
   const isFinalRank = index >= MAT_RANKS.length - 1;
   const safeZoneRP = matRankSafeZoneThreshold_(index);
   const promotionRequiredRP = isFinalRank ? 0 : matRankPromotionCost_(index);
-  // The UI must show the full RP requirement because promotion is immediate at 100%.
-  const promotionZoneRP = promotionRequiredRP;
+  // Keep the 70% Promotion Zone threshold for weekly review; full cost triggers
+  // immediate promotion in matApplyRankProgress_ before the weekly review. 
+  const promotionZoneRP = isFinalRank ? 0 : matRankPromotionZoneThreshold_(index);
   return {
     currentRP: rp,
     safeZoneRP: safeZoneRP,
