@@ -546,6 +546,14 @@
     var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
     var totalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
     var weeklyRP = Math.max(0, Number(raw.weeklyRP != null ? raw.weeklyRP : raw.weeklyRankPoints != null ? raw.weeklyRankPoints : 0) || 0);
+    var xp = Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0);
+    // Account profile's XP progression is the canonical display rule. The API's
+    // stored Level may have been calculated with an older/different formula.
+    var accountLevelProgress = typeof app.getPerformanceLevelProgress === 'function'
+      ? app.getPerformanceLevelProgress(xp)
+      : null;
+    var boardLevel = Math.max(1, Number(accountLevelProgress && accountLevelProgress.level) ||
+      Number(raw.level != null ? raw.level : raw.Level) || 1);
     var boardPoints = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? weeklyRP : totalRP;
     return {
       uid: id, userId: id, playerId: id,
@@ -555,8 +563,8 @@
       // Server-owned profile avatar is authoritative for every viewer; local storage is fallback only.
       avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
-      xp: Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0),
-      level: Math.max(1, Number(raw.level != null ? raw.level : raw.Level) || 1),
+      xp: xp,
+      level: boardLevel,
       rank: rank, rankPoints: currentRP, totalRP: totalRP,
       weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
