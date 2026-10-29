@@ -1757,11 +1757,11 @@ main > .view-section.hidden { display: none !important; }
 
   var pending = 0, progress = 0, active = false, rafId = 0;
   var startedAt = 0, lastStartedAt = 0, hideTimer = 0, minShowTimer = 0;
-  var pageHasBeenVisible = !document.hidden;
-  var lastInteractionAt = 0;
+  var watchdogTimer = 0, clickFinishTimer = 0;
   var bar, fill;
   var MIN_VISIBLE_MS = 260;
   var HIDE_DELAY_MS = 180;
+  var MAX_ACTIVE_MS = 12000;
 
   function ensureBar() {
     bar = document.getElementById('mat-global-loading-bar');
@@ -1798,13 +1798,15 @@ main > .view-section.hidden { display: none !important; }
     rafId = window.requestAnimationFrame(animate);
   }
 
-  function start() {
-    // Do not show a progress bar merely because a user returns to an already-open tab.
-    // Real fetch/XHR requests still call requestStart() and show the bar when work begins.
+  function start(fromUserClick) {
     ensureBar();
     clearTimeout(hideTimer);
     clearTimeout(minShowTimer);
-    if (!active) {
+    clearTimeout(clickFinishTimer);
+    clearTimeout(watchdogTimer);
+
+    // Every deliberate button/link click starts a fresh progress cycle.
+    if (fromUserClick || !active) {
       active = true;
       progress = 0;
       startedAt = Date.now();
@@ -1813,8 +1815,18 @@ main > .view-section.hidden { display: none !important; }
       bar.classList.add('is-visible');
       fill.style.width = '0%';
       bar.setAttribute('aria-valuenow', '0');
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
       if (!rafId) rafId = window.requestAnimationFrame(animate);
     }
+
+    // A broken/never-settling request must never leave the bar stuck forever.
+    watchdogTimer = setTimeout(function () {
+      pending = 0;
+      finishIfIdle();
+    }, MAX_ACTIVE_MS);
   }
 
   function finishIfIdle() {
@@ -1834,6 +1846,9 @@ main > .view-section.hidden { display: none !important; }
           return;
         }
         active = false;
+        pending = 0;
+        clearTimeout(watchdogTimer);
+        clearTimeout(clickFinishTimer);
         bar.classList.remove('is-visible', 'is-finishing');
         fill.style.width = '0%';
         bar.setAttribute('aria-valuenow', '0');
@@ -1847,10 +1862,17 @@ main > .view-section.hidden { display: none !important; }
   }
 
   function requestStart() {
+    // Ignore automatic page-load/background requests. The bar is user-action driven.
+    if (!active) return;
     pending += 1;
-    start();
+    clearTimeout(watchdogTimer);
+    watchdogTimer = setTimeout(function () {
+      pending = 0;
+      finishIfIdle();
+    }, MAX_ACTIVE_MS);
   }
   function requestEnd() {
+    if (!active) return;
     pending = Math.max(0, pending - 1);
     if (pending === 0) finishIfIdle();
   }
@@ -1890,27 +1912,28 @@ main > .view-section.hidden { display: none !important; }
     };
   }
 
-  // Never intercept, prevent, or stop clicks. Clicks without async work get only a brief cue.
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) pageHasBeenVisible = true;
-  });
-
+  // Returning to the tab never starts the bar; deliberate in-app clicks do.
   document.addEventListener('click', function (event) {
     var target = event.target && event.target.closest
-      ? event.target.closest('button, [role="button"], a[href]')
+      ? event.target.closest('button, [role="button"], a[href], input[type="submit"]')
       : null;
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
     if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
-    // A click by itself is not evidence of loading. Only tracked async work should
-    // display the global bar; this avoids a fake bar on dashboard tab switches.
-    lastInteractionAt = Date.now();
+
+    start(true);
+    // If this click does not start async work, finish the cue instead of leaving it visible.
+    clickFinishTimer = setTimeout(function () {
+      if (pending === 0) finishIfIdle();
+    }, 700);
   }, true);
 
-  // Do not show the bar for submit/history events alone. Their actual fetch/XHR
-  // activity is tracked above, and a restored browser tab should remain quiet.
-  document.addEventListener('submit', function () { lastInteractionAt = Date.now(); }, true);
-  window.addEventListener('popstate', function () { lastInteractionAt = Date.now(); });
-  window.addEventListener('hashchange', function () { lastInteractionAt = Date.now(); });
+  // Submitting a form is also an intentional user action.
+  document.addEventListener('submit', function () {
+    if (!active) start(true);
+    clickFinishTimer = setTimeout(function () {
+      if (pending === 0) finishIfIdle();
+    }, 700);
+  }, true);
 })();
 </script>
 
