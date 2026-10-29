@@ -1050,9 +1050,9 @@ function matSubmitExam_(p) {
       const baseRpEarned = Math.max(0, Math.round(score * 5));
       const hasWeightedExamRule = total >= 30;
       const pbEarned = hasWeightedExamRule ? matCalculateWeightedExamPB_(correct, wrong, total) : 0;
-      // Preserve the existing Practice-mode reductions.
+      // Practice XP has its own rule. RP is never reduced by exam mode or question count.
       const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
-      const rpEarned = isPracticeMode && total < 30 ? Math.max(0, Math.round(baseRpEarned * 0.70)) : baseRpEarned;
+      const rpEarned = baseRpEarned;
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
       const rankBefore = String(freshUser.Rank || MAT_RANKS[0]);
