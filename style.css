@@ -1420,3 +1420,81 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
     height: 32px !important;
   }
 }
+
+
+/* Gmail-inspired notification rows: actions stay beside the message and appear on hover. */
+.mat-notification-item{position:relative;align-items:flex-start;padding-right:12px;transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.mat-notification-item:hover{border-color:rgba(100,116,139,.32);background:color-mix(in srgb,#64748b 3%,var(--surface,#fff));box-shadow:0 5px 16px rgba(15,23,42,.065)}
+.mat-notification-item.is-unread{background:linear-gradient(110deg,rgba(16,185,129,.075),rgba(14,165,233,.025))}
+.mat-notification-item.is-unread:hover{background:linear-gradient(110deg,rgba(16,185,129,.12),rgba(14,165,233,.045))}
+.mat-notification-item-copy{flex:1 1 0;min-width:0}
+.mat-notification-item-head{padding-right:142px;min-height:32px}
+.mat-notification-item-head strong{font-size:13px;line-height:1.5}
+.mat-notification-item-head time{position:absolute;top:17px;right:150px;font-size:10px}
+.mat-notification-item-actions{position:absolute;top:10px;right:10px;z-index:2;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:3px;padding:2px;border:1px solid transparent;border-radius:12px;background:var(--surface,#fff);box-shadow:0 1px 4px rgba(15,23,42,.04);opacity:0;visibility:hidden;transform:translateY(-2px);transition:opacity .16s ease,transform .16s ease,visibility .16s ease}
+.mat-notification-item:hover .mat-notification-item-actions,.mat-notification-item:focus-within .mat-notification-item-actions{opacity:1;visibility:visible;transform:translateY(0)}
+.mat-notification-action{display:inline-grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border:1px solid transparent;border-radius:50%;color:#475569;background:transparent;font-size:12px;transition:color .16s ease,background-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.mat-notification-action:hover{color:#0f766e;background:rgba(16,185,129,.13);box-shadow:0 1px 4px rgba(15,23,42,.08);transform:translateY(-1px)}
+.mat-notification-action:focus-visible{outline:2px solid #10b981;outline-offset:1px}
+.mat-notification-action.is-danger{color:#64748b;border-color:transparent;background:transparent}
+.mat-notification-action.is-danger:hover{color:#b91c1c;border-color:transparent;background:rgba(239,68,68,.1)}
+html.dark .mat-notification-item-actions,body.dark .mat-notification-item-actions{background:#111f32;box-shadow:0 1px 5px rgba(0,0,0,.25)}
+html.dark .mat-notification-action,body.dark .mat-notification-action{color:#cbd5e1}
+html.dark .mat-notification-action:hover,body.dark .mat-notification-action:hover{color:#6ee7b7;background:rgba(16,185,129,.16)}
+@media(hover:none){
+ .mat-notification-item-actions{opacity:1;visibility:visible;transform:none;background:transparent;box-shadow:none}
+}
+@media(max-width:767px){
+ .mat-notification-item{gap:8px;padding:12px 9px}
+ .mat-notification-item-icon{flex-basis:34px;width:34px;height:34px;border-radius:11px}
+ .mat-notification-item-head{padding-right:118px;min-height:29px}
+ .mat-notification-item-head time{top:13px;right:126px;font-size:9px}
+ .mat-notification-item-actions{top:8px;right:6px;gap:0;padding:1px}
+ .mat-notification-action{flex-basis:27px;width:27px;height:27px;font-size:11px}
+ .mat-notification-item-head strong{font-size:12px}
+ .mat-notification-item-copy p{font-size:11px}
+}
+@media(max-width:420px){
+ .mat-notification-item{gap:6px;padding:10px 7px}
+ .mat-notification-serial{display:none}
+ .mat-notification-item-head{padding-right:108px}
+ .mat-notification-item-head time{right:114px}
+ .mat-notification-item-actions{right:4px}
+ .mat-notification-action{flex-basis:25px;width:25px;height:25px}
+}
+
+/* Every rule heading/content gets the full dialog width in both window modes. */
+.mat-rules-dialog .mat-rule-list{grid-template-columns:minmax(0,1fr)!important;align-items:stretch}
+.mat-rules-dialog.is-fullscreen .mat-rule-list{grid-template-columns:minmax(0,1fr)!important;align-items:stretch}
+.mat-rules-dialog .mat-rule-list details{width:100%;min-width:0}
+.mat-rules-dialog .mat-rule-list summary{min-height:66px;gap:13px;padding:15px 17px;transition:background-color .18s ease}
+.mat-rules-dialog .mat-rule-list summary:hover{background:rgba(16,185,129,.055)}
+.mat-rules-dialog .mat-rule-list summary strong{font-size:14px;line-height:1.55}
+.mat-rules-dialog .mat-rule-list summary small{font-size:11px;line-height:1.6}
+.mat-rules-dialog .mat-rule-list details>div{padding:2px 18px 18px 66px;font-size:13px;line-height:1.9}
+.mat-rules-dialog .mat-rule-list details>div p{margin:0 0 11px}
+.mat-rules-dialog .mat-rule-list details>div p:last-child{margin-bottom:0}
+.mat-rules-dialog .mat-rule-list details>div .mat-rule-highlight{margin:10px 0;padding:11px 13px;border:1px solid rgba(16,185,129,.2);border-radius:12px;background:rgba(16,185,129,.065);color:var(--text,#334155)}
+.mat-rules-dialog .mat-score-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:5px 0 12px}
+.mat-rules-dialog .mat-score-card{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid rgba(148,163,184,.2);border-radius:13px;background:var(--surface,#fff)}
+.mat-rules-dialog .mat-score-card strong{display:block;font-size:17px;line-height:1.3;font-weight:950}
+.mat-rules-dialog .mat-score-card small{display:block;margin-top:3px;color:var(--muted,#64748b);font-size:10px;line-height:1.5}
+.mat-rules-dialog .mat-score-card i{font-size:15px;color:#059669}
+.mat-rules-dialog .mat-score-card.is-wrong i,.mat-rules-dialog .mat-score-card.is-wrong strong{color:#dc2626}
+.mat-rules-dialog .mat-score-card.is-skip i{color:#64748b}
+.mat-rules-dialog .mat-pb-ranges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 13px}
+.mat-rules-dialog .mat-pb-range{padding:10px 11px;border:1px solid rgba(148,163,184,.2);border-radius:11px;background:var(--surface,#fff)}
+.mat-rules-dialog .mat-pb-range strong{display:block;color:var(--text,#0f172a);font-size:12px}
+.mat-rules-dialog .mat-pb-range span{display:block;margin-top:3px;color:#059669;font-size:12px;font-weight:900}
+.mat-rules-dialog .mat-rule-note{display:flex;gap:9px;align-items:flex-start;margin-top:11px;padding:11px 13px;border-radius:11px;background:rgba(14,165,233,.07);color:var(--muted,#475569);font-size:12px;line-height:1.75}
+.mat-rules-dialog .mat-rule-note i{margin-top:3px;color:#0284c7}
+@media(max-width:680px){
+ .mat-rules-dialog .mat-rule-list summary{gap:9px;padding:12px 11px}
+ .mat-rules-dialog .mat-rule-list details>div{padding:2px 12px 14px 12px;font-size:12px;line-height:1.85}
+ .mat-rules-dialog .mat-score-grid{gap:6px}
+ .mat-rules-dialog .mat-score-card{display:block;padding:9px 8px}
+ .mat-rules-dialog .mat-score-card i{margin-bottom:6px}
+ .mat-rules-dialog .mat-score-card strong{font-size:15px}
+ .mat-rules-dialog .mat-score-card small{font-size:9px}
+ .mat-rules-dialog .mat-pb-ranges{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
