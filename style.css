@@ -1366,15 +1366,28 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
 #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement p{display:block!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;clip:auto!important;clip-path:none!important;}
 
 
-/* Notification action buttons: keep read/star/archive/delete controls in one horizontal row. */
+/* Notification action buttons: horizontal toolbar beside each notification message. */
+#mat-notification-center .mat-notification-item {
+  align-items: flex-start !important;
+  flex-wrap: wrap !important;
+  column-gap: 10px !important;
+  row-gap: 8px !important;
+}
+#mat-notification-center .mat-notification-item-copy {
+  flex: 1 1 220px !important;
+  min-width: 0 !important;
+}
 #mat-notification-center .mat-notification-item-actions {
   display: flex !important;
+  flex: 1 1 100% !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 6px !important;
-  min-width: max-content;
+  gap: 7px !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  padding-top: 2px;
 }
 #mat-notification-center .mat-notification-action {
   display: inline-flex !important;
@@ -1384,21 +1397,26 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
   height: 34px !important;
   align-items: center !important;
   justify-content: center !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 5px rgba(15,23,42,.045);
 }
-#mat-notification-center .mat-notification-item {
-  min-width: 0;
-}
-#mat-notification-center .mat-notification-item-copy {
-  min-width: 0;
+#mat-notification-center .mat-notification-action:focus-visible {
+  outline: 2px solid rgba(14,165,233,.7);
+  outline-offset: 2px;
 }
 @media (max-width: 560px) {
+  #mat-notification-center .mat-notification-item {
+    column-gap: 8px !important;
+    padding: 11px 9px !important;
+  }
   #mat-notification-center .mat-notification-item-actions {
-    gap: 4px !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
   }
   #mat-notification-center .mat-notification-action {
-    flex-basis: 30px !important;
-    width: 30px !important;
-    min-width: 30px !important;
-    height: 30px !important;
+    flex-basis: 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
   }
 }
