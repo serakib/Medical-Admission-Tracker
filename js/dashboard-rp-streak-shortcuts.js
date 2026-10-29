@@ -281,7 +281,7 @@
         const previous = unique.get(key);
         if (!previous || (!previous.reviewData && attempt.reviewData)) unique.set(key, attempt);
       });
-      list.splice(0, list.length, ...Array.from(unique.values()).sort((a,b) => Number(a.attemptId)-Number(b.attemptId)));
+      list.splice(0, list.length, ...Array.from(unique.values()).sort((a,b) => Number(b.attemptId)-Number(a.attemptId)));
     });
     return counts;
   }
