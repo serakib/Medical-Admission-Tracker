@@ -1522,18 +1522,19 @@ html.dark .mat-notification-header-selection-actions [data-mat-delete-selected],
 }
 
 
-/* Keep fullscreen selection controls and the three primary bulk actions on one shared row. */
-.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
-.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar>span{margin-left:0}
-.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions{display:flex;position:static;grid-column:auto;width:auto;max-width:100%;flex:0 1 auto;justify-content:flex-start;gap:6px;padding:0;margin:0;border:0}
-.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions button{min-height:34px;padding:7px 9px}
+/* Keep fullscreen selection controls and bulk actions aligned with clear spacing on one row. */
+.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar{display:flex;align-items:center;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar>button,
+.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar>span{flex:0 0 auto;margin-left:0}
+.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions{display:flex;position:static;grid-column:auto;width:auto;max-width:none;flex:0 0 auto;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:8px;padding:0;margin:0;border:0}
+.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions button{min-height:34px;padding:7px 10px;flex:0 0 auto;white-space:nowrap;line-height:1.2}
 .mat-notification-overlay.is-fullscreen .mat-notification-header-selection-actions{display:none}
 .mat-notification-item-actions{flex-direction:row;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px;max-width:100%}
 .mat-notification-item:not(.is-collapsed) .mat-notification-item-actions{align-self:center}
 @media(max-width:767px){
- .mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar{align-items:center;gap:6px}
- .mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions{flex-wrap:wrap;flex-basis:auto}
- .mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions button{font-size:9px;padding:7px 7px;white-space:normal}
+ .mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar{align-items:center;gap:7px}
+ .mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions{flex-wrap:nowrap;flex-basis:auto;gap:6px}
+ .mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-header-selection-actions button{font-size:9px;padding:7px 8px;white-space:nowrap}
  .mat-notification-item-actions{flex-direction:row;flex-wrap:nowrap;gap:3px}
  .mat-notification-item-actions .mat-notification-action{width:27px;height:27px;flex-basis:27px}
 }
