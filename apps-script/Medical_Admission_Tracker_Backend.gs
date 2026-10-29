@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.29';
+const MAT_API_VERSION = '2026.10.29.1';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -33,6 +33,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'full-rp-all-exam-modes-and-question-counts',
   'final-score-5-rp-8-xp-all-modes-including-practice',
   'weighted-pb-for-30-plus-question-exams',
+  'pb-only-above-40-percent-no-extra-multiplier',
   'pb-wallet-conversion-and-two-hour-expiry',
   'all-time-weekly-and-friends-leaderboards',
   'student-search-and-friend-requests',
