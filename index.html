@@ -1812,8 +1812,32 @@ main > .view-section.hidden { display: none !important; }
     var nativeFetch = window.fetch.bind(window);
     window.fetch = function () {
       requestStart();
-      try { return nativeFetch.apply(this, arguments).finally(requestEnd); }
-      catch (error) { requestEnd(); throw error; }
+      var ended = false;
+      function endOnce() { if (ended) return; ended = true; requestEnd(); }
+      try {
+        return nativeFetch.apply(this, arguments).then(function (response) {
+          // Keep the bar active through response-body parsing, not just until headers arrive.
+          ['text', 'json', 'blob', 'arrayBuffer', 'formData'].forEach(function (method) {
+            if (!response || typeof response[method] !== 'function') return;
+            var original = response[method].bind(response);
+            try {
+              response[method] = function () {
+                var bodyPromise;
+                try { bodyPromise = original.apply(response, arguments); }
+                catch (error) { endOnce(); throw error; }
+                if (bodyPromise && typeof bodyPromise.then === 'function') {
+                  return bodyPromise.then(function (value) { endOnce(); return value; }, function (error) { endOnce(); throw error; });
+                }
+                endOnce();
+                return bodyPromise;
+              };
+            } catch (_) {}
+          });
+          // Release requests whose response body is intentionally never consumed (e.g. no-cors forms).
+          setTimeout(endOnce, 900);
+          return response;
+        }, function (error) { endOnce(); throw error; });
+      } catch (error) { endOnce(); throw error; }
     };
   }
   // Hook XMLHttpRequest too, covering libraries that use XHR (including Axios defaults).
