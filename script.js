@@ -1271,7 +1271,7 @@ class MedicalExamApp {
                 this.t(`All ${cfg.questions.length} questions from the selected year are included`, `নির্বাচিত বছরের সব ${cfg.questions.length}টি প্রশ্ন থাকবে`),
                 this.t(`Time limit: ${cfg.durationMins} minutes`, `সময়: ${cfg.durationMins} মিনিট`),
                 this.t('+1 for correct, −0.25 for wrong, 0 for skipped', 'সঠিক +১, ভুল −০.২৫, স্কিপ ০'),
-                this.t('Exams with 30 or more questions use the percentage-based special reward rule', '৩০ বা তার বেশি প্রশ্নের পরীক্ষায় percentage-based special reward rule প্রযোজ্য'),
+                this.t('All exams earn 5 RP and 8 XP per final-score point; exams with 30+ questions also earn a separate weighted PB bonus', 'সব পরীক্ষায় প্রতি final score-এ ৫ RP ও ৮ XP; ৩০+ প্রশ্নে আলাদা weighted PB bonus'),
                 this.t('Time ending submits automatically', 'সময় শেষ হলে পরীক্ষা স্বয়ংক্রিয়ভাবে জমা হবে')
             ]
             : (cfg.mode === 'challenge')
