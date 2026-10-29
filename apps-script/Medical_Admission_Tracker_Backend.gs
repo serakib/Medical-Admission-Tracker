@@ -23,6 +23,24 @@ const MAT_CONFIG = Object.freeze({
   WEEKLY_DEMOTION_HOUR: 1
 });
 
+// Public, non-secret version/capability metadata for deployment verification.
+const MAT_API_VERSION = '2026.10.29';
+const MAT_API_CAPABILITIES = Object.freeze([
+  'firebase-token-auth',
+  'persistent-guest-accounts',
+  'server-profile-management',
+  'exam-rewards-idempotency',
+  'full-rp-all-exam-modes-and-question-counts',
+  'weighted-pb-for-30-plus-question-exams',
+  'pb-wallet-conversion-and-two-hour-expiry',
+  'all-time-weekly-and-friends-leaderboards',
+  'student-search-and-friend-requests',
+  'daily-streak-sync',
+  'top-ten-activity-telegram-queue',
+  'weekly-rank-review-saturday-asia-dhaka',
+  'expired-guest-cleanup'
+]);
+
 const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
@@ -70,7 +88,7 @@ const MAT_LOCK_WAIT_MS = 20000;
 function doGet(e) {
   try {
     const action = String((e && e.parameter && e.parameter.action) || 'health');
-    if (action === 'health') return matJson_({ success: true, service: 'Medical Admission Tracker API', status: 'ok' });
+    if (action === 'health' || action === 'capabilities') return matJson_(matApiHealth_());
     if (action === 'leaderboard' || action === 'getLeaderboard') {
       return matJson_(matGetLeaderboard_(String((e.parameter && e.parameter.period) || 'all-time'), String((e.parameter && e.parameter.ids) || ''), String((e.parameter && e.parameter.includeIds) || '')));
     }
@@ -96,7 +114,8 @@ function doPost(e) {
 function matDispatch_(action, p) {
   switch (action) {
     case 'health':
-      return { success: true, service: 'Medical Admission Tracker API', status: 'ok' };
+    case 'capabilities':
+      return matApiHealth_();
     case 'setupBackend':
       // This action intentionally does not run over the public API.
       throw new Error('Run setupBackend() manually from the Apps Script editor.');
@@ -2094,6 +2113,16 @@ function matApiUser_(r) {
 
 function matScriptProperty_(key) {
   return String(PropertiesService.getScriptProperties().getProperty(key) || '').trim();
+}
+
+function matApiHealth_() {
+  return {
+    success: true,
+    service: 'Medical Admission Tracker API',
+    status: 'ok',
+    apiVersion: MAT_API_VERSION,
+    capabilities: MAT_API_CAPABILITIES.slice()
+  };
 }
 
 function matJson_(payload) {
