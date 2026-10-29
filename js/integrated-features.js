@@ -602,6 +602,19 @@
   const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
   const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
   const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
+  // Google/Gmail photo is saved separately in the Avatar Vault; it is not an uploaded/custom avatar.
+  const googleAvatarKey = () => 'med_profile_google_avatar_v1_' + avatarAccountId();
+  const readGoogleAvatar = () => {
+    const user = app.authUser || {};
+    const photo = String(user.photoURL || user.photoUrl || user.avatarUrl || '').trim();
+    let saved = '';
+    try { saved = String(localStorage.getItem(googleAvatarKey()) || '').trim(); } catch (_) {}
+    if (photo && /^https:\/\//i.test(photo)) {
+      try { localStorage.setItem(googleAvatarKey(), photo); } catch (_) {}
+      return photo;
+    }
+    return saved && /^https:\/\//i.test(saved) ? saved : '';
+  };
   const avatarDefaultMarker = '#mat-default-avatar';
   const avatarCustomMarker = '#mat-custom-avatar';
   const stripAvatarDefaultMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
@@ -627,7 +640,7 @@
       return Array.isArray(saved) ? saved.filter(isUploadedAvatarSource).slice(0, maxUploadedAvatars) : [];
     } catch (_) { return []; }
   };
-  const isAvatarSource = value => avatarChoices.includes(value) || readUploadedAvatars().includes(value);
+  const isAvatarSource = value => avatarChoices.includes(value) || readUploadedAvatars().includes(value) || (!!readGoogleAvatar() && value === readGoogleAvatar());
   const isRenderableAvatarSource = value => {
     const avatar = String(value || '').trim();
     return !!avatar && (
@@ -640,6 +653,8 @@
     const id = avatarAccountId();
     let manual = false;
     try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
+    const googleAvatar = readGoogleAvatar();
+    if (googleAvatar && !manual) return googleAvatar;
     const sharedRaw = String(app.profile?.avatar || '').trim();
     if (isRenderableAvatarSource(sharedRaw)) {
       const shared = stripAvatarDefaultMarker(sharedRaw);
@@ -671,11 +686,13 @@
       let manual = false;
       try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
       const isOldAutoDefault = shared === avatarChoices[0] && !isStoredDefaultAvatar(shared) && !isStoredCustomAvatar(shared) && !manual;
-      if (isRenderableAvatarSource(shared) && !isOldAutoDefault) return;
+      const isMarkedAutoDefault = isStoredDefaultAvatar(shared) || isOldAutoDefault;
+      const googleAvatar = readGoogleAvatar();
+      if (isRenderableAvatarSource(shared) && !isMarkedAutoDefault && !(googleAvatar && !manual)) return;
       let saved = '';
       try { saved = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || ''; } catch (_) {}
       const savedIsExplicit = isAvatarSource(saved) && (saved !== avatarChoices[0] || manual);
-      const candidate = savedIsExplicit ? stripAvatarDefaultMarker(saved) : storedDefaultAvatarForUser(accountId);
+      const candidate = !manual && googleAvatar ? googleAvatar : (savedIsExplicit ? stripAvatarDefaultMarker(saved) : storedDefaultAvatarForUser(accountId));
       const updated = await window.MedGlobalLeague.updateProfile({ avatar: candidate });
       const sharedAvatar = String(updated?.avatar || '').trim();
       if (sharedAvatar !== candidate) {
@@ -826,6 +843,8 @@
       const stateLabel = isCurrent && isPending ? 'Current selection' : isPending ? 'Preview candidate' : isCurrent ? 'Current avatar' : 'Choose avatar';
       return '<button type="button" class="' + classes + '" data-avatar-source="' + source + '" data-avatar-index="' + index + '" aria-pressed="' + String(isPending) + '" aria-label="' + stateLabel + ': ' + label + '"><img src="' + value + '" alt="' + label + '" loading="lazy"></button>';
     };
+    const googleAvatar = readGoogleAvatar();
+    const googleOptions = googleAvatar ? optionButton(googleAvatar, 0, 'google', 'Saved Google profile photo') : '';
     const presetOptions = avatarChoices.map((value, i) => optionButton(value, i, 'preset', 'Preset avatar ' + (i+1))).join('');
     const uploadedOptions = uploaded.map((value, i) => optionButton(value, i, 'uploaded', 'Uploaded avatar ' + (i+1))).join('');
     let compareMarkup = '';
@@ -844,7 +863,7 @@
       '<label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Upload avatar images</label>' +
       '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
       '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
-      '<div class="profile-avatar-options" aria-label="Available avatars">' + presetOptions + uploadedOptions + '</div>' +
+      '<div class="profile-avatar-options" aria-label="Available avatars">' + googleOptions + presetOptions + uploadedOptions + '</div>' +
       compareMarkup +
       '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span class="avatar-guide-icon" aria-hidden="true"><i class="fa-solid fa-image"></i></span><span class="avatar-guide-title">ছবি আপলোডের নিয়ম</span><span class="avatar-guide-badges"><span class="avatar-guide-badge">PNG</span><span class="avatar-guide-badge">JPG/JPEG</span><span class="avatar-guide-badge">WEBP</span><span class="avatar-guide-badge">SVG</span></span><span class="avatar-guide-copy">ছবি: ≤ <strong>5 MB</strong> · <strong>8000 × 8000 px</strong>; SVG: ≤ <strong>50 KB</strong></span><span class="avatar-guide-warning"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>নষ্ট/অপাঠ্য ছবি বা শুধু extension বদলানো ফাইল চলবে না; ভুল ফাইলে সঙ্গে সঙ্গে error দেখাবে।</span></span><span class="avatar-guide-foot">সর্বোচ্চ 8টি custom avatar · Preview দেখে Confirm করুন।</span></div>' +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
@@ -1015,7 +1034,9 @@
     const source = avatarChoice.dataset.avatarSource;
     const index = Number(avatarChoice.dataset.avatarIndex);
     let value = null;
-    if (source === 'preset' && Number.isInteger(index) && index >= 0 && index < avatarChoices.length) {
+    if (source === 'google') {
+      value = readGoogleAvatar() || null;
+    } else if (source === 'preset' && Number.isInteger(index) && index >= 0 && index < avatarChoices.length) {
       value = avatarChoices[index];
     } else if (source === 'uploaded') {
       const uploaded = readUploadedAvatars();
