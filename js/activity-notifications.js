@@ -894,6 +894,9 @@
       selectAll.disabled = visible.length === 0;
     }
     if (selectedCount) selectedCount.textContent = selected.length + ' selected';
+    if (starSelected) starSelected.textContent = (activeFilter === 'starred' ? 'Unstar selected' : 'Star selected') + (selected.length ? ' (' + selected.length + ')' : '');
+    if (readSelected) readSelected.textContent = 'Mark selected' + (selected.length ? ' (' + selected.length + ')' : '');
+    if (deleteSelected) deleteSelected.textContent = (activeFilter === 'trash' ? 'Delete permanently' : 'Move to Trash') + (selected.length ? ' (' + selected.length + ')' : '');
     if (clearSelection) clearSelection.disabled = selected.length === 0;
     if (deleteSelected) {
       deleteSelected.textContent = selected.length ? 'Delete (' + selected.length + ' selected)' : 'Delete selected';
@@ -982,7 +985,7 @@
       '<p>Friend progress, leaderboard moves and trophy unlocks.</p></div>' +
       '<button class="mat-notification-expand" type="button" data-mat-notification-expand aria-label="Open fullscreen notifications" title="Open fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
       '<button class="mat-notification-fullscreen-leaderboard" type="button" data-mat-open-leaderboard><i class="fa-solid fa-ranking-star" aria-hidden="true"></i> Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>' +
-      '<span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
+      '<div class="mat-notification-header-selection-actions" role="group" aria-label="Selected notification actions" data-mat-header-selection-actions></div><span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
       '<button type="button" data-mat-filter="announcement" class="mat-notification-announcement-filter" aria-pressed="false"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Announcement</button>' +
@@ -1001,6 +1004,15 @@
       '<footer class="mat-notification-footer">' +
       '<button type="button" data-mat-open-leaderboard>Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></footer></section>';
     document.body.appendChild(overlay);
+    // Keep the three primary bulk actions in the header for fullscreen mode.
+    const headerActions = overlay.querySelector('[data-mat-header-selection-actions]');
+    const bulkActions = overlay.querySelector('.mat-notification-bulk-actions');
+    if (headerActions && bulkActions) {
+      ['[data-mat-star-selected]', '[data-mat-selected-read]', '[data-mat-delete-selected]'].forEach(function (selector) {
+        const action = bulkActions.querySelector(selector);
+        if (action) headerActions.appendChild(action);
+      });
+    }
   }
   function openCenter(trigger) {
     ensureAccountState();
