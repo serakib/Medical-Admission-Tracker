@@ -546,7 +546,7 @@
     var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
     var totalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
     var weeklyRP = Math.max(0, Number(raw.weeklyRP != null ? raw.weeklyRP : raw.weeklyRankPoints != null ? raw.weeklyRankPoints : 0) || 0);
-    var boardPoints = selectedPeriod === 'weekly' ? weeklyRP : totalRP;
+    var boardPoints = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? weeklyRP : totalRP;
     return {
       uid: id, userId: id, playerId: id,
       name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
@@ -573,8 +573,8 @@
   }
   function sortRows(rows) {
     return (Array.isArray(rows) ? rows : []).slice().sort(function (a, b) {
-      var pa = selectedPeriod === 'weekly' ? Number(a.weeklyRP != null ? a.weeklyRP : a.weeklyRankPoints || 0) : Number(a.totalRP != null ? a.totalRP : a.rankPoints || a.rp || 0);
-      var pb = selectedPeriod === 'weekly' ? Number(b.weeklyRP != null ? b.weeklyRP : b.weeklyRankPoints || 0) : Number(b.totalRP != null ? b.totalRP : b.rankPoints || b.rp || 0);
+      var pa = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? Number(a.weeklyRP != null ? a.weeklyRP : a.weeklyRankPoints || 0) : Number(a.totalRP != null ? a.totalRP : a.rankPoints || a.rp || 0);
+      var pb = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? Number(b.weeklyRP != null ? b.weeklyRP : b.weeklyRankPoints || 0) : Number(b.totalRP != null ? b.totalRP : b.rankPoints || b.rp || 0);
       return pb - pa || Number(b.xp || 0) - Number(a.xp || 0) ||
         String(a.name || a.username || '').localeCompare(String(b.name || b.username || ''));
     });
@@ -901,7 +901,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Total RP') + '</span>' +
+            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + '</span>' +
             '<small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
@@ -963,7 +963,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (mePanel && me && displayRows.some(function (row) { return row.isMine || String(row.userId) === String(me.userId); })) {
         var ownIndex = displayRows.findIndex(function (row) { return row.isMine || String(row.userId) === String(me.userId); });
         mePanel.classList.remove('hidden');
-        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(selectedRank) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + (selectedPeriod === 'weekly' ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(selectedRank) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
       }
     } else {
       var emptyText = selectedPeriod === 'friends'
