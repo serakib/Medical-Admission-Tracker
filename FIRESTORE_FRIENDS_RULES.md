@@ -27,7 +27,8 @@ match /studentActivityNotificationStates/{uid} {
       'lastSnapshot', 'dayKey', 'dayBaseline', 'trophyEvents', 'stateUpdatedAt'
     ]);
 
-  allow delete: if false;
+  // Account deletion must be able to remove its own cross-device notification state.
+  allow delete: if request.auth != null && request.auth.uid == uid;
 }
 ```
 
