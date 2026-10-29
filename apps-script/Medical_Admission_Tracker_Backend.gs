@@ -1999,9 +1999,10 @@ function matNormalizeExamSheetFormats_(sheet) {
         row[0] = String(Number(parts[0])) + ':' + String(parts[1] || '00').padStart(2, '0');
         changed = true;
       } else if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value < 1) {
-        // Repair duration serials already stored as a fraction of a day.
-        const totalSeconds = Math.round(value * 24 * 60 * 60);
-        row[0] = Math.floor(totalSeconds / 60) + ':' + String(totalSeconds % 60).padStart(2, '0');
+        // A legacy "m:ss" clock parse stores the first field as hours and
+        // the second as minutes. Restore those components as minutes:seconds.
+        const totalMinutes = Math.round(value * 24 * 60);
+        row[0] = Math.floor(totalMinutes / 60) + ':' + String(totalMinutes % 60).padStart(2, '0');
         changed = true;
       }
     });
