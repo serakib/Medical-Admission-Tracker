@@ -1812,7 +1812,7 @@ main > .view-section.hidden { display: none !important; }
     var nativeFetch = window.fetch.bind(window);
     window.fetch = function () {
       requestStart();
-      var ended = false;
+      var ended = false, bodyConsumptionStarted = false;
       function endOnce() { if (ended) return; ended = true; requestEnd(); }
       try {
         return nativeFetch.apply(this, arguments).then(function (response) {
@@ -1822,6 +1822,7 @@ main > .view-section.hidden { display: none !important; }
             var original = response[method].bind(response);
             try {
               response[method] = function () {
+                bodyConsumptionStarted = true;
                 var bodyPromise;
                 try { bodyPromise = original.apply(response, arguments); }
                 catch (error) { endOnce(); throw error; }
@@ -1834,7 +1835,7 @@ main > .view-section.hidden { display: none !important; }
             } catch (_) {}
           });
           // Release requests whose response body is intentionally never consumed (e.g. no-cors forms).
-          setTimeout(endOnce, 900);
+          setTimeout(function () { if (!bodyConsumptionStarted) endOnce(); }, 900);
           return response;
         }, function (error) { endOnce(); throw error; });
       } catch (error) { endOnce(); throw error; }
