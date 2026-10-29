@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.29.1';
+const MAT_API_VERSION = '2026.10.30.1';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -1214,8 +1214,8 @@ function matRankSafeZoneThreshold_(rankIndex) {
 
 function matRankPromotionZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Promotion Zone starts at 70% of the RP required for the next rank.
-  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.70);
+  // Rank promotion is immediate at the full RP cost; no weekly promotion zone remains.
+  return matRankPromotionCost_(rankIndex);
 }
 
 function matRankSafeZoneReward_(rankIndex) {
