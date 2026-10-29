@@ -839,17 +839,17 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
     if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && (row.totalRP || row.rankPoints) || 0);
     if (info && info.atMax) return 0;
-    // Match the backend weekly-review rule: Promotion Zone starts at 70% of the next-rank RP requirement.
-    return Math.max(0, Math.ceil((Number(info && info.required) || 0) * 0.70));
+    // Rank promotion is immediate only when the full next-rank RP requirement is reached.
+    return Math.max(0, Number(info && info.required) || 0);
   }
   function isInWeeklyPromotionZone(row) {
     if (String(row && row.rank || '').toLowerCase() === 'immortal') return false;
-    return Math.max(0, Number(row && row.weeklyRankPoints) || 0) >= promotionZoneThresholdFor(row);
+    return Math.max(0, Number(row && row.rankPoints) || 0) >= promotionZoneThresholdFor(row);
   }
   function isInWeeklySafeZone(row) {
     if (String(row && row.rank || '').toLowerCase() === 'immortal') return true;
     var threshold = safeZoneThresholdFor(row);
-    return Math.max(0, Number(row && row.weeklyRankPoints) || 0) >= threshold;
+    return Math.max(0, Number(row && row.rankPoints) || 0) >= threshold;
   }
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
