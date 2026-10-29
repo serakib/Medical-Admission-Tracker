@@ -363,6 +363,15 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
 @media(max-width:767px){.sidebar-collapse-toggle{display:none}main{padding-top:70px!important}}
 @media(prefers-reduced-motion:reduce){.app-sidebar,.sidebar-nav button,.sidebar-action,.sidebar-collapse-toggle{transition:none}.ai-float-btn{animation:none!important}}
 </style>
+
+    <!-- Offline-ready global top loading bar (no libraries or remote assets). -->
+    <style id="mat-global-loading-bar-styles">
+      #mat-global-loading-bar{position:fixed;top:0;left:0;width:100%;height:3px;z-index:2147483647;pointer-events:none;opacity:0;transition:opacity .22s ease;contain:strict}
+      #mat-global-loading-bar.is-visible{opacity:1}
+      #mat-global-loading-bar-fill{height:100%;width:0%;transform-origin:left center;background:linear-gradient(90deg,#10b981 0%,#06b6d4 55%,#38bdf8 100%);box-shadow:0 0 10px rgba(16,185,129,.45);transition:width .18s ease-out}
+      #mat-global-loading-bar.is-finishing #mat-global-loading-bar-fill{width:100%!important;transition:width .18s ease-out}
+      @media(prefers-reduced-motion:reduce){#mat-global-loading-bar,#mat-global-loading-bar-fill{transition:none!important}}
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
 
@@ -1738,7 +1747,110 @@ main > .view-section.hidden { display: none !important; }
 
 
     
-<script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
+
+<!-- Global top progress bar: local animation, tracks Fetch/XHR, works offline. -->
+<script id="mat-global-loading-bar-runtime">
+(function () {
+  'use strict';
+  if (window.__matGlobalLoadingBarInstalled) return;
+  window.__matGlobalLoadingBarInstalled = true;
+  var pending = 0, progress = 0, active = false, frame = 0, finishTimer = 0, interactionTimer = 0, startedAt = 0;
+  var bar, fill;
+  function ensureBar() {
+    if (bar && bar.isConnected) return;
+    bar = document.getElementById('mat-global-loading-bar');
+    if (!bar) {
+      bar = document.createElement('div'); bar.id = 'mat-global-loading-bar';
+      bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-label', 'Loading');
+      bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', '100'); bar.setAttribute('aria-valuenow', '0');
+      fill = document.createElement('div'); fill.id = 'mat-global-loading-bar-fill';
+      bar.appendChild(fill);
+      (document.body || document.documentElement).appendChild(bar);
+    } else fill = document.getElementById('mat-global-loading-bar-fill');
+  }
+  function paint(value) {
+    ensureBar(); progress = Math.max(progress, Math.min(99, value));
+    fill.style.width = progress + '%'; bar.setAttribute('aria-valuenow', String(Math.round(progress)));
+  }
+  function start() {
+    ensureBar();
+    clearTimeout(finishTimer); clearTimeout(interactionTimer);
+    if (!active) { active = true; progress = 0; startedAt = Date.now(); bar.classList.remove('is-finishing'); bar.classList.add('is-visible'); fill.style.width = '0%'; }
+    if (!frame) animate();
+  }
+  function animate() {
+    if (!active) { frame = 0; return; }
+    var elapsed = Date.now() - startedAt;
+    var target = elapsed < 700 ? 80 * (1 - Math.exp(-elapsed / 190)) : 80 + 18 * (1 - Math.exp(-(elapsed - 700) / 2200));
+    if (target > progress) paint(target);
+    frame = window.requestAnimationFrame(animate);
+  }
+  function scheduleFinish(delay) {
+    clearTimeout(finishTimer);
+    finishTimer = setTimeout(function () {
+      if (pending > 0) return;
+      ensureBar(); bar.classList.add('is-finishing'); paint(100);
+      bar.setAttribute('aria-valuenow', '100');
+      setTimeout(function () {
+        if (pending > 0) { bar.classList.remove('is-finishing'); return; }
+        active = false; bar.classList.remove('is-visible', 'is-finishing');
+        if (frame) { cancelAnimationFrame(frame); frame = 0; }
+        progress = 0; fill.style.width = '0%'; bar.setAttribute('aria-valuenow', '0');
+      }, 230);
+    }, delay == null ? 180 : delay);
+  }
+  function activity() {
+    start();
+    clearTimeout(interactionTimer);
+    interactionTimer = setTimeout(function () { if (pending === 0) scheduleFinish(160); }, 650);
+  }
+  function requestStart() { start(); pending += 1; clearTimeout(finishTimer); clearTimeout(interactionTimer); }
+  function requestEnd() { pending = Math.max(0, pending - 1); if (pending === 0) scheduleFinish(180); }
+
+  // Hook Fetch: progress stays active until each promise resolves or rejects.
+  if (typeof window.fetch === 'function') {
+    var nativeFetch = window.fetch.bind(window);
+    window.fetch = function () {
+      requestStart();
+      try { return nativeFetch.apply(this, arguments).finally(requestEnd); }
+      catch (error) { requestEnd(); throw error; }
+    };
+  }
+  // Hook XMLHttpRequest too, covering libraries that use XHR (including Axios defaults).
+  if (window.XMLHttpRequest && window.XMLHttpRequest.prototype) {
+    var xhrProto = window.XMLHttpRequest.prototype;
+    var nativeSend = xhrProto.send;
+    xhrProto.send = function () {
+      var xhr = this, ended = false;
+      function endOnce() { if (ended) return; ended = true; requestEnd(); }
+      requestStart();
+      xhr.addEventListener('loadend', endOnce, { once: true });
+      try { return nativeSend.apply(xhr, arguments); }
+      catch (error) { endOnce(); throw error; }
+    };
+  }
+  // User interactions that do not call a network API still get a short, honest UI cue.
+  document.addEventListener('click', function (event) {
+    var target = event.target && event.target.closest ? event.target.closest('button, [role="button"], a[href]') : null;
+    if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+    if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
+    activity();
+  }, true);
+  document.addEventListener('submit', activity, true);
+  window.addEventListener('popstate', activity);
+  window.addEventListener('hashchange', activity);
+  ['pushState', 'replaceState'].forEach(function (method) {
+    var original = window.history && window.history[method];
+    if (typeof original !== 'function') return;
+    window.history[method] = function () {
+      var result = original.apply(this, arguments);
+      activity();
+      return result;
+    };
+  });
+})();
+</script>
+\n<script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
 <script type="module" src="script.js?v=exam-tier-bonus-pb-v6-auth-ready"></script>
