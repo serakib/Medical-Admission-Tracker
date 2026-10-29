@@ -764,7 +764,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var earnedThisPeriod = Math.max(0, Number(me.rankPoints) || 0);
     var atMax = !!(info && info.atMax) || String(me.rank || '').toLowerCase() === 'immortal';
     if (atMax || !required) {
-      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal') + ' · সর্বোচ্চ Trophy</strong><small>আপনি সর্বোচ্চ rank-এ পৌঁছেছেন।</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + Math.floor(Number(me.totalRP || me.rankPoints) || 0).toLocaleString() + ' RP</span></div><div class="mat-safe-zone-caption"><i class="fa-solid fa-shield-check"></i> সর্বোচ্চ rank · আর promotion zone নেই</div>';
+      var maxSafeRP = Math.max(0, Number(serverProgress.safeZoneRP) || 0);
+      var maxCurrentRP = Math.max(0, Number(me.rankPoints) || 0);
+      var maxSafe = maxCurrentRP >= maxSafeRP;
+      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal I') + ' · সর্বোচ্চ Trophy</strong><small>' + maxCurrentRP.toLocaleString() + ' / ' + maxSafeRP.toLocaleString() + ' Safe Zone RP</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + Math.floor(Number(me.totalRP || me.rankPoints) || 0).toLocaleString() + ' RP</span></div><div class="mat-safe-zone-caption ' + (maxSafe ? '' : 'at-risk') + '"><i class="fa-solid ' + (maxSafe ? 'fa-shield-check' : 'fa-triangle-exclamation') + '"></i><span><strong>' + (maxSafe ? 'Safe Zone · rank protected' : 'Safe Zone-এর নিচে · weekly demotion হতে পারে') + '</strong><small>সর্বোচ্চ rank হওয়ায় Promotion Zone নেই; Safe Zone ও weekly demotion নিয়ম প্রযোজ্য। Safe Zone: ' + maxSafeRP.toLocaleString() + ' RP</small></span></div>';
       return;
     }
     var pct = Math.max(0, Math.min(100, earnedThisPeriod / required * 100));
