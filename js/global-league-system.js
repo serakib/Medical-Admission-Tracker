@@ -1113,7 +1113,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             '<button type="button" data-week-popup-close aria-label="Close popup" title="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
           '</div>' +
         '</div>' +
-        '<div class="leaderboard-week-popup-content" data-week-popup-content></div>' +
+        '<div class="leaderboard-week-popup-tools" data-week-popup-tools></div>' + '<div class="leaderboard-week-popup-content" data-week-popup-content></div>' +
       '</div>';
     document.body.appendChild(popup);
     function closePopup() {
@@ -1148,7 +1148,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var note = document.getElementById('leaderboard-period-note');
     if (!note) return;
     note.classList.toggle('hidden', selectedPeriod !== 'weekly');
-    if (selectedPeriod !== 'weekly') return;
+    var toolbarActions = document.querySelector('#view-leaderboard .leaderboard-toolbar-actions');
+    var refreshButton = document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
+    if (selectedPeriod !== 'weekly') {
+      if (toolbarActions && refreshButton && refreshButton.parentNode !== toolbarActions) toolbarActions.appendChild(refreshButton);
+      return;
+    }
     var now = new Date();
     var today = dhakaDateParts(now);
     var todayUtc = new Date(Date.UTC(today.year, today.month - 1, today.day));
@@ -1175,6 +1180,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     note.setAttribute('role', 'status');
     note.innerHTML = '<button type="button" class="leaderboard-week-details" data-open-week-popup aria-haspopup="dialog"><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
     var popup = ensureLeaderboardWeekPopup();
+    var popupTools = popup.querySelector('[data-week-popup-tools]');
+    if (popupTools) {
+      var rpBadge = document.querySelector('#view-leaderboard .mat-top-rp');
+      var friendsButton = document.getElementById('leaderboard-manage-friends');
+      if (rpBadge && rpBadge.parentNode !== popupTools) popupTools.appendChild(rpBadge);
+      if (friendsButton && friendsButton.parentNode !== popupTools) popupTools.appendChild(friendsButton);
+    }
+    if (refreshButton && refreshButton.parentNode !== note) note.appendChild(refreshButton);
     var popupContent = popup.querySelector('[data-week-popup-content]');
     if (popupContent) popupContent.innerHTML =
       '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong>' + countdown + '</strong></p>' +
