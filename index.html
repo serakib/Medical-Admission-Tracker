@@ -1789,7 +1789,7 @@ main > .view-section.hidden { display: none !important; }
   window.__matGithubLoadingBarInstalled = true;
 
   var bar, fill, progress = 0, active = false, pending = 0;
-  var trickleTimer = 0, hideTimer = 0, watchdogTimer = 0, idleTimer = 0;
+  var trickleTimer = 0, hideTimer = 0, watchdogTimer = 0, idleTimer = 0, notificationFinishTimer = 0;
   var startedAt = 0, generation = 0;
   var MIN_VISIBLE_MS = 280;
   var HIDE_DELAY_MS = 220;
@@ -1824,7 +1824,8 @@ main > .view-section.hidden { display: none !important; }
     clearTimeout(hideTimer);
     clearTimeout(watchdogTimer);
     clearTimeout(idleTimer);
-    trickleTimer = hideTimer = watchdogTimer = idleTimer = 0;
+    clearTimeout(notificationFinishTimer);
+    trickleTimer = hideTimer = watchdogTimer = idleTimer = notificationFinishTimer = 0;
   }
 
   function trickle() {
@@ -1957,6 +1958,18 @@ main > .view-section.hidden { display: none !important; }
       } catch (_) { return; }
     }
     beginForAction();
+    // Notification center is an in-page view. Do not let background Firebase
+    // sync/polling keep its navigation progress bar visible indefinitely.
+    if (target.matches('#mat-notifications-nav, #mat-notification-open-dashboard')) {
+      var notificationGeneration = generation;
+      clearTimeout(notificationFinishTimer);
+      notificationFinishTimer = setTimeout(function () {
+        if (active && generation === notificationGeneration) {
+          pending = 0;
+          finish();
+        }
+      }, 900);
+    }
   }, true);
 
   document.addEventListener('submit', function (event) {
