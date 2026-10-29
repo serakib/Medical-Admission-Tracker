@@ -1229,8 +1229,9 @@ function matGetRankProgress_(rank, currentRP) {
   const rp = Math.max(0, matFiniteNumber_(currentRP, 0));
   const isFinalRank = index >= MAT_RANKS.length - 1;
   const safeZoneRP = matRankSafeZoneThreshold_(index);
-  const promotionZoneRP = isFinalRank ? 0 : matRankPromotionZoneThreshold_(index);
   const promotionRequiredRP = isFinalRank ? 0 : matRankPromotionCost_(index);
+  // The UI must show the full RP requirement because promotion is immediate at 100%.
+  const promotionZoneRP = promotionRequiredRP;
   return {
     currentRP: rp,
     safeZoneRP: safeZoneRP,
