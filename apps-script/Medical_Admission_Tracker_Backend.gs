@@ -344,8 +344,8 @@ function processWeeklyRankDemotions() {
 
 /**
  * Scheduled server-side cleanup. Guest records are removed after 90 days without
- * a visit, or seven days without a visit after weekly demotion has reset RP to 0.
- * Registered accounts are never eligible for this cleanup.
+ * a visit, or seven days without a visit after weekly RP is 0 and the existing
+ * zero-RP timestamp window has elapsed. Registered accounts are never eligible.
  */
 function cleanupExpiredGuestAccounts() {
   const lock = LockService.getScriptLock();
@@ -356,6 +356,9 @@ function cleanupExpiredGuestAccounts() {
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
     const studentsSheet = matGetStudentsSheet_();
     const students = matReadObjects_(studentsSheet);
+    // Guest deletion's seven-day rule must use this week's earned RP, not
+    // the stored rank-progression RP or lifetime RP.
+    const weeklyRPByUser = matGetWeeklyRPByUser_();
     const expired = students.filter(function (student) {
       if (String(student.AccountType || '').toUpperCase() !== 'GUEST' || !student._rowNumber) return false;
 
@@ -363,8 +366,8 @@ function cleanupExpiredGuestAccounts() {
       const inactive90Days = Number.isFinite(lastSeenMs) && nowMs - lastSeenMs >= ninetyDaysMs;
       if (inactive90Days) return true;
 
-      const rp = Math.max(0, matFiniteNumber_(student.RP, 0));
-      if (rp !== 0) return false;
+      const weeklyRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[String(student.UserID || '')], 0));
+      if (weeklyRP !== 0) return false;
       const zeroRpMs = Date.parse(String(student.GuestZeroRPAt || ''));
       if (!Number.isFinite(zeroRpMs)) return false;
       const inactivityAnchor = Math.max(zeroRpMs, Number.isFinite(lastSeenMs) ? lastSeenMs : zeroRpMs);
