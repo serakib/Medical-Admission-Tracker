@@ -145,8 +145,14 @@
     const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');
     if(live)live.textContent=index>=0?'#'+(index+1):'—';if(best)best.textContent=index>=0?'#'+(index+1):'—';
   };
-  const observer=new MutationObserver(()=>removeWeeklyUI());
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  // Only observe the leaderboard area. Watching the entire document makes
+  // every unrelated UI update trigger a full-page cleanup scan and can stall
+  // the main thread while the app is rendering.
+  const leaderboardRoot=document.getElementById('view-leaderboard');
+  if(leaderboardRoot){
+    const observer=new MutationObserver(()=>removeWeeklyUI());
+    observer.observe(leaderboardRoot,{childList:true,subtree:true});
+  }
   window.addEventListener('load',()=>{installExamTypeUI();removeWeeklyUI();},{once:true});
   document.addEventListener('DOMContentLoaded',()=>{installExamTypeUI();removeWeeklyUI();},{once:true});
   installExamTypeUI();removeWeeklyUI();
