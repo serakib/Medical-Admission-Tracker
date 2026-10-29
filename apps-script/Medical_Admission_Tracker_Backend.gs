@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.2';
+const MAT_API_VERSION = '2026.10.30.3';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -42,7 +42,9 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-rank-review-saturday-asia-dhaka',
   'immediate-rank-promotion',
   'expired-guest-cleanup',
-  'guest-cleanup-weekly-rp-zero'
+  'guest-cleanup-weekly-rp-zero',
+  'weekly-rp-ledger-includes-pb-and-promotion-rewards',
+  'promotion-reward-safe-zone-thirty-percent'
 ]);
 
 const MAT_STUDENT_HEADERS = [
@@ -286,6 +288,7 @@ function processWeeklyRankDemotions() {
       const rankIndex = MAT_RANKS.indexOf(String(normalized.Rank || MAT_RANKS[0]));
       const currentRP = Math.max(0, matFiniteNumber_(normalized.RP, 0));
       const update = { LastWeeklyDemotionWeek: currentWeekStart, UpdatedAt: now };
+      let transitionRewardRP = 0;
       processed += 1;
 
       const isMaxRank = rankIndex >= MAT_RANKS.length - 1;
@@ -297,6 +300,7 @@ function processWeeklyRankDemotions() {
         // At 100%, matApplyRankProgress_ promotes immediately when RP is earned.
         update.Rank = MAT_RANKS[rankIndex + 1];
         update.RP = matRankSafeZoneReward_(rankIndex + 1);
+        transitionRewardRP = update.RP;
         promoted += 1;
       } else if (currentRP >= safeZoneThreshold) {
         // Safe Zone protects every rank, including Immortal I. Reset RP to
@@ -314,13 +318,16 @@ function processWeeklyRankDemotions() {
         const demotedRankIndex = rankIndex - 1;
         update.Rank = MAT_RANKS[demotedRankIndex];
         update.RP = matRankSafeZoneReward_(demotedRankIndex);
+        transitionRewardRP = update.RP;
         if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
           update.GuestZeroRPAt = now;
         }
         update.LastError = '';
         demoted += 1;
       }
+      if (transitionRewardRP > 0) update.TotalRP = Math.max(0, matFiniteNumber_(normalized.TotalRP, 0)) + transitionRewardRP;
       matUpdateObjectRow_(sheet, student._rowNumber, update);
+      if (transitionRewardRP > 0) matAppendRPEvent_(uid, transitionRewardRP, 'RANK-REVIEW-BONUS-' + uid + '-' + currentWeekStart, now);
     });
 
     props.setProperty(MAT_WEEKLY_DEMOTION_PROPERTY, currentWeekStart);
@@ -919,12 +926,14 @@ function matSettlePBForStudent_(student, nowMs, sheet) {
   const rankResult = matApplyRankProgress_(String(student.Rank || MAT_RANKS[0]), currentRP, expired);
   matUpdateObjectRow_(sheet || matGetStudentsSheet_(), student._rowNumber, {
     RP: rankResult.rp,
-    TotalRP: lifetimeRP + expired,
+    TotalRP: lifetimeRP + expired + rankResult.bonusRP,
     Rank: rankResult.rank,
     PB: remaining.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
     PBEntries: JSON.stringify(remaining),
     UpdatedAt: matNowIso_()
   });
+  matAppendRPEvent_(student.UserID, expired, 'PB-EXPIRY-' + String(student.UserID || '') + '-' + String(student._rowNumber) + '-' + String(Math.floor(nowMs / 1000)), matNowIso_());
+  if (rankResult.bonusRP > 0) matAppendRPEvent_(student.UserID, rankResult.bonusRP, 'RANK-BONUS-PB-EXPIRY-' + String(student.UserID || '') + '-' + String(Math.floor(nowMs / 1000)), matNowIso_());
   return expired;
 }
 
@@ -1000,13 +1009,15 @@ function matConvertPB_(p) {
     matUpdateObjectRow_(sheet, current._rowNumber, {
       XP: currentXP + earnedXP,
       RP: rankResult.rp,
-      TotalRP: lifetimeRP + earnedRP,
+      TotalRP: lifetimeRP + earnedRP + rankResult.bonusRP,
       Rank: rankResult.rank,
       Level: matGetLevel_(currentXP + earnedXP),
       PB: nextEntries.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
       PBEntries: JSON.stringify(nextEntries),
       UpdatedAt: matNowIso_()
     });
+    if (earnedRP > 0) matAppendRPEvent_(user.UserID, earnedRP, 'PB-CONVERT-RP-' + String(user.UserID) + '-' + String(nowMs), matNowIso_());
+    if (rankResult.bonusRP > 0) matAppendRPEvent_(user.UserID, rankResult.bonusRP, 'RANK-BONUS-PB-CONVERT-' + String(user.UserID) + '-' + String(nowMs), matNowIso_());
     const latest = matFindStudentById_(user.UserID);
     const newSnapshot = matBuildTop10_();
     matEnqueueTop10Changes_(oldSnapshot, newSnapshot, matNowIso_(), 'PB-CONVERT-' + user.UserID + '-' + nowMs);
@@ -1163,7 +1174,7 @@ function matFinalizeProcessingExam_(attempt) {
       RP: rankResult.rp,
       PB: pbEntries.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
       PBEntries: JSON.stringify(pbEntries),
-      TotalRP: lifetimeRP + rpEarned,
+      TotalRP: lifetimeRP + rpEarned + rankResult.bonusRP,
       Level: matGetLevel_(currentXP + xpEarned),
       Rank: rankAfter,
       UpdatedAt: matNowIso_(),
@@ -1171,6 +1182,7 @@ function matFinalizeProcessingExam_(attempt) {
       LastError: '',
       LastRewardAttemptID: attemptId
     });
+    if (rankResult.bonusRP > 0) matAppendRPEvent_(userId, rankResult.bonusRP, 'RANK-BONUS-EXAM-' + String(userId) + '-' + String(attemptId), matNowIso_());
   }
 
   // Generate activity IDs deterministically from attempt + user to avoid duplicate
@@ -1265,23 +1277,22 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
   let rp = Math.max(0, matFiniteNumber_(currentRP, 0)) + Math.max(0, matFiniteNumber_(earnedRP, 0));
   const before = MAT_RANKS[index];
   let promoted = 0;
+  let bonusRP = 0;
 
-  // Rank promotion is immediate when the full RP cost for the next rank is met.
-  // Carry surplus RP forward and allow multiple promotions if enough RP was earned.
+  // Carry surplus RP forward and award the resulting rank's Safe Zone reward
+  // (30% of that Safe Zone threshold) on each immediate promotion.
   while (index < MAT_RANKS.length - 1) {
     const requiredRP = matRankPromotionCost_(index);
     if (requiredRP <= 0 || rp < requiredRP) break;
     rp -= requiredRP;
     index += 1;
     promoted += 1;
+    const rewardRP = matRankSafeZoneReward_(index);
+    rp += rewardRP;
+    bonusRP += rewardRP;
   }
 
-  return {
-    rank: MAT_RANKS[index],
-    rp: rp,
-    before: before,
-    promoted: promoted
-  };
+  return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP };
 }
 
 function matLevelRequiredXP_(level) {
@@ -1419,7 +1430,8 @@ function matGetWeeklyRPByUser_(startInclusive, endExclusive) {
   const exams = matReadObjects_(matGetExamSheet_());
   const totals = {};
   exams.forEach(function (r) {
-    if (!matIsExamRecord_(r)) return;
+    const recordType = String(r.RecordType || '').toUpperCase();
+    if (!matIsExamRecord_(r) && recordType !== 'RP_EVENT') return;
     const dateKey = matDateKey_(r.SubmittedAt);
     if (!dateKey || dateKey < weekStart || (weekEnd && dateKey >= weekEnd)) return;
     const uid = String(r.UserID || '');
@@ -1427,6 +1439,23 @@ function matGetWeeklyRPByUser_(startInclusive, endExclusive) {
     totals[uid] = (totals[uid] || 0) + Math.max(0, matFiniteNumber_(r.RPEarned, 0));
   });
   return totals;
+}
+
+function matAppendRPEvent_(userId, amount, eventId, timestamp) {
+  const uid = String(userId || '').trim();
+  const points = Math.max(0, matFiniteNumber_(amount, 0));
+  const id = String(eventId || '').trim();
+  if (!uid || !id || points <= 0) return false;
+  const sheet = matGetExamSheet_();
+  const exists = matReadObjects_(sheet).some(function (row) {
+    return String(row.RecordType || '').toUpperCase() === 'RP_EVENT' && String(row.AttemptID || '') === id;
+  });
+  if (exists) return false;
+  matAppendObject_(sheet, {
+    RecordType: 'RP_EVENT', AttemptID: id, UserID: uid, RPEarned: points,
+    SubmittedAt: timestamp || matNowIso_(), RewardStatus: 'COMMITTED'
+  });
+  return true;
 }
 
 function matGetExamStatsByUser_() {
