@@ -1498,3 +1498,25 @@ html.dark .mat-notification-action:hover,body.dark .mat-notification-action:hove
  .mat-rules-dialog .mat-score-card small{font-size:9px}
  .mat-rules-dialog .mat-pb-ranges{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* Put primary bulk actions in the notification header only while fullscreen is active. */
+.mat-notification-header-selection-actions{display:none;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;min-width:0;max-width:100%}
+.mat-notification-header-selection-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:8px 11px;border:1px solid rgba(148,163,184,.25);border-radius:11px;color:var(--text,#334155);background:rgba(148,163,184,.07);font:inherit;font-size:11px;font-weight:850;white-space:nowrap;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease}
+.mat-notification-header-selection-actions button:hover:not(:disabled){border-color:rgba(13,148,136,.35);background:rgba(16,185,129,.12);transform:translateY(-1px)}
+.mat-notification-header-selection-actions button:disabled{opacity:.42;cursor:not-allowed}
+.mat-notification-header-selection-actions [data-mat-selected-read]{color:#047857;border-color:rgba(5,150,105,.22);background:rgba(16,185,129,.09)}
+.mat-notification-header-selection-actions [data-mat-delete-selected]{color:#b91c1c;border-color:rgba(220,38,38,.2);background:rgba(239,68,68,.06)}
+.mat-notification-header-selection-actions [data-mat-delete-selected]:hover:not(:disabled){color:#fff;border-color:#dc2626;background:#dc2626}
+.mat-notification-overlay.is-fullscreen .mat-notification-header-selection-actions{display:flex;grid-column:1/-1;width:100%;justify-content:flex-start;padding-top:12px;margin-top:10px;border-top:1px solid rgba(148,163,184,.16)}
+.mat-notification-overlay:not(.is-fullscreen) .mat-notification-header-selection-actions{display:none!important}
+.mat-notification-overlay:not(.is-fullscreen) .mat-notification-selection-toolbar .mat-notification-bulk-actions{display:none!important}
+.mat-notification-overlay.is-fullscreen .mat-notification-selection-toolbar .mat-notification-bulk-actions{display:flex;flex-wrap:wrap}
+.mat-notification-overlay.is-fullscreen .mat-notification-header-selection-actions button{min-height:36px}
+html.dark .mat-notification-header-selection-actions button,body.dark .mat-notification-header-selection-actions button{color:#e2e8f0;background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.22)}
+html.dark .mat-notification-header-selection-actions [data-mat-selected-read],body.dark .mat-notification-header-selection-actions [data-mat-selected-read]{color:#6ee7b7;background:rgba(16,185,129,.12)}
+html.dark .mat-notification-header-selection-actions [data-mat-delete-selected],body.dark .mat-notification-header-selection-actions [data-mat-delete-selected]{color:#fca5a5;background:rgba(239,68,68,.09)}
+@media(max-width:760px){
+ .mat-notification-overlay.is-fullscreen .mat-notification-header-selection-actions{justify-content:flex-start;gap:5px}
+ .mat-notification-header-selection-actions button{padding:7px 8px;font-size:10px;gap:4px}
+}
