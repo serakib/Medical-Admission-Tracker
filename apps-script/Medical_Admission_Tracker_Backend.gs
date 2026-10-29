@@ -856,10 +856,10 @@ function matCalculateWeightedExamPB_(correct, wrong, totalQuestions) {
   // Only score above 40% earns PB, weighted by the band it falls into.
   const tiers = [
     { upTo: total * 0.50, multiplier: 2 },
-    { upTo: total * 0.60, multiplier: 4 },
-    { upTo: total * 0.70, multiplier: 5 },
-    { upTo: total * 0.79, multiplier: 7 },
-    { upTo: total, multiplier: 10 }
+    { upTo: total * 0.60, multiplier: 3 },
+    { upTo: total * 0.70, multiplier: 4 },
+    { upTo: total * 0.79, multiplier: 5 },
+    { upTo: total, multiplier: 6 }
   ];
   let weightedScore = 0;
   let previousLimit = total * 0.40;
