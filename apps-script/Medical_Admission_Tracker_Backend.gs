@@ -40,6 +40,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'daily-streak-sync',
   'top-ten-activity-telegram-queue',
   'weekly-rank-review-saturday-asia-dhaka',
+  'immediate-rank-promotion',
   'expired-guest-cleanup'
 ]);
 
@@ -292,16 +293,10 @@ function processWeeklyRankDemotions() {
         update.RP = matRankSafeZoneReward_(rankIndex);
       } else {
         const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
-        const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
 
-        if (currentRP >= promotionZoneThreshold) {
-          // Promotion Zone takes priority over Safe Zone and grants one rank only.
-          const promotedRankIndex = rankIndex + 1;
-          update.Rank = MAT_RANKS[promotedRankIndex];
-          update.RP = matRankSafeZoneReward_(promotedRankIndex);
-          update.LastError = '';
-          promoted += 1;
-        } else if (currentRP >= safeZoneThreshold) {
+        // Promotions happen immediately inside matApplyRankProgress_ when RP is
+        // earned. The weekly review only evaluates Safe Zone protection/demotion.
+        if (currentRP >= safeZoneThreshold) {
           // Safe Zone protects the current rank. The next week starts with
           // 30% of this rank's Safe Zone threshold as requested.
           update.RP = matRankSafeZoneReward_(rankIndex);
@@ -337,7 +332,7 @@ function processWeeklyRankDemotions() {
       lowestRankProtected: lowestRank,
       immortalProtected: maximumRank,
       alreadyProcessed: alreadyProcessed,
-      message: 'Weekly Safe Zone and Promotion Zone review completed. At most one rank promotion or demotion is applied per student; lifetime TotalRP is unchanged.'
+      message: 'Weekly Safe Zone review completed. Rank promotions are immediate when the full RP requirement is reached; this review only handles Safe Zone protection and demotion. Lifetime TotalRP is unchanged.'
     };
   } finally {
     lock.releaseLock();
@@ -1254,10 +1249,26 @@ function matGetRankProgress_(rank, currentRP) {
 function matApplyRankProgress_(rank, currentRP, earnedRP) {
   let index = MAT_RANKS.indexOf(String(rank || ''));
   if (index < 0) index = 0;
-  // Promotions/demotions are settled once weekly. During the week RP accumulates
-  // toward the Safe Zone (30%) and Promotion Zone (70%) thresholds.
-  const rp = Math.max(0, matFiniteNumber_(currentRP, 0)) + Math.max(0, matFiniteNumber_(earnedRP, 0));
-  return { rank: MAT_RANKS[index], rp: rp, before: MAT_RANKS[index] };
+  let rp = Math.max(0, matFiniteNumber_(currentRP, 0)) + Math.max(0, matFiniteNumber_(earnedRP, 0));
+  const before = MAT_RANKS[index];
+  let promoted = 0;
+
+  // Rank promotion is immediate when the full RP cost for the next rank is met.
+  // Carry surplus RP forward and allow multiple promotions if enough RP was earned.
+  while (index < MAT_RANKS.length - 1) {
+    const requiredRP = matRankPromotionCost_(index);
+    if (requiredRP <= 0 || rp < requiredRP) break;
+    rp -= requiredRP;
+    index += 1;
+    promoted += 1;
+  }
+
+  return {
+    rank: MAT_RANKS[index],
+    rp: rp,
+    before: before,
+    promoted: promoted
+  };
 }
 
 function matLevelRequiredXP_(level) {
