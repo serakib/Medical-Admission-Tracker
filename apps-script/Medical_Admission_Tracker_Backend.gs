@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.3';
+const MAT_API_VERSION = '2026.10.30.4';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -44,7 +44,8 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'expired-guest-cleanup',
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-pb-and-promotion-rewards',
-  'promotion-reward-safe-zone-thirty-percent'
+  'weekly-promotion-reward-safe-zone-thirty-percent',
+  'immediate-promotion-no-extra-rp-bonus'
 ]);
 
 const MAT_STUDENT_HEADERS = [
@@ -1279,17 +1280,17 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
   let promoted = 0;
   let bonusRP = 0;
 
-  // Carry surplus RP forward and award the resulting rank's Safe Zone reward
-  // (30% of that Safe Zone threshold) on each immediate promotion.
+  // Carry surplus earned RP forward on an immediate (100%) promotion.
+  // Manual/immediate promotion itself never grants bonus RP; the separate
+  // weekly Promotion Zone review may grant the new rank's Safe Zone reward.
   while (index < MAT_RANKS.length - 1) {
     const requiredRP = matRankPromotionCost_(index);
     if (requiredRP <= 0 || rp < requiredRP) break;
     rp -= requiredRP;
     index += 1;
     promoted += 1;
-    const rewardRP = matRankSafeZoneReward_(index);
-    rp += rewardRP;
-    bonusRP += rewardRP;
+    // Intentionally no promotion bonus here. Only the weekly Promotion Zone
+    // transition grants the resulting rank's Safe Zone starting reward.
   }
 
   return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP };
