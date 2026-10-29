@@ -392,6 +392,21 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
       </div>
     </aside>
     <script>
+function syncSidebarAuthButton(user){
+  var button=document.getElementById('sidebar-auth-action');
+  if(!button)return;
+  var loggedIn=!!user;
+  button.setAttribute('aria-label',loggedIn?'Logout':'Login');
+  button.setAttribute('title',loggedIn?'Logout':'Login');
+  button.innerHTML=loggedIn
+    ? '<i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>'
+    : '<i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>';
+  button.onclick=function(){
+    var app=window.app||{};
+    if(loggedIn && app.authUser && typeof window.handleLogout==='function') window.handleLogout();
+    else if(!loggedIn && typeof window.redirectToLogin==='function') window.redirectToLogin();
+  };
+}
 function syncSidebarUserProfile(){
   var nameEl=document.getElementById('sidebar-user-name');
   var batchEl=document.getElementById('sidebar-user-batch');
@@ -399,6 +414,7 @@ function syncSidebarUserProfile(){
   var dotEl=document.getElementById('sidebar-user-notification-dot');
   var app=window.app||{};
   var user=app.authUser||null;
+  syncSidebarAuthButton(user);
   var name=(user&&(user.displayName||user.name))||(document.getElementById('profile-name')&&document.getElementById('profile-name').textContent.trim())||'Guest Student';
   if(nameEl)nameEl.textContent=name;
   var batch='HSC 27';
@@ -413,6 +429,10 @@ function syncSidebarUserProfile(){
   if(dotEl)dotEl.style.display=badge&&!badge.hidden&&Number(badge.textContent)>0?'block':'none';
 }
 document.addEventListener('DOMContentLoaded',syncSidebarUserProfile);
+window.addEventListener('student-auth-state-resolved',function(event){
+  syncSidebarAuthButton(event.detail&&event.detail.user||null);
+  syncSidebarUserProfile();
+});
 document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#sidebar-user-trigger'))syncSidebarUserProfile();});
 function toggleAccountSettings(){
   var content=document.getElementById('account-settings-content'),button=document.getElementById('account-settings-toggle');
