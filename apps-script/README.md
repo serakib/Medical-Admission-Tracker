@@ -11,7 +11,7 @@ The standalone backend source is in [Medical_Admission_Tracker_Backend.gs](./Med
 - All Time and Weekly leaderboard results, plus Friends queries by explicit user IDs.
 - Friends and friend requests for both registered Firebase accounts and persistent Google Sheets guest sessions. The matching guest token or Firebase ID token is required for each Friends action; the server stores requests centrally in the `StudentFriends` tab.
 - Daily visit streaks, counted once per Asia/Dhaka calendar day (00:00–23:59:59), with offline activity history merged idempotently into the Students sheet. Current streak, highest streak, last activity date, and up to 366 activity dates are returned in profile and leaderboard payloads; committed exam dates are only a legacy fallback until a daily streak is saved.
-- A weekly Safe Zone review. Each Monday, the previous Monday-to-Monday week is checked once. Students below the threshold for the next trophy are demoted by exactly one subrank; Bronze V and Immortal are protected. Demotion resets current RP but does not reduce lifetime TotalRP.
+- A weekly Safe Zone review. Each Saturday around 01:00 Asia/Dhaka, the completed previous Saturday-to-Friday week is checked once. Students below the threshold for the next trophy are demoted by exactly one subrank; Bronze V and Immortal are protected. Demotion resets current RP but does not reduce lifetime TotalRP.
 - The existing persistent FIFO leaderboard-activity notification queue and the separate signup notification.
 - Scheduled Guest cleanup: permanently removes server-side Guest profile, exam/activity records, and friend/request records after 90 days without a visit. If weekly demotion resets a Guest's current RP to 0, the Guest is also removed after 7 days without a visit while RP remains 0. Registered accounts are excluded.
 
@@ -25,7 +25,7 @@ Committing this file to GitHub does **not** change the live Apps Script deployme
 4. Run `setupBackend()` once from the Apps Script editor and approve requested permissions. It verifies the Students and ExamAttempts tabs, adds missing headers without clearing existing records, and ensures the notification and weekly-review triggers exist.
 5. Open **Deploy → Manage deployments**, edit the existing Web App deployment, choose **New version**, and deploy it using the same access settings as the current working deployment. Keep the Web App URL configured in `js/leaderboard-config.js` unchanged unless the deployment URL itself has changed.
 6. Guest Friends support specifically requires this new backend version: `matFriendAuthenticate_` must accept validated `guestToken` sessions, and the send-request action must allow any existing guest or registered student as a target. A GitHub commit does not publish Apps Script by itself.
-6. Verify the execution log for the setup result, then test the health endpoint, profile update, exam reward sync, All Time/Weekly/Friends leaderboard responses, and the next scheduled weekly review.
+7. Verify the execution log, then open `.../exec?action=health` or `.../exec?action=capabilities`. The response should include `apiVersion: "2026.10.29"` and the supported `capabilities` list. Then test profile updates, exam reward sync, duplicate-attempt handling, PB conversion/expiry, All Time/Weekly/Friends leaderboards, friend requests, streak sync, account deletion, the daily activity queue, and the next scheduled weekly review.
 
 ## Weekly Safe Zone behavior
 
