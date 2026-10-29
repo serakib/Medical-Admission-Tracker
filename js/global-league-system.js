@@ -896,6 +896,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           body.appendChild(divider);
           safeDividerInserted = true;
         }
+        // The first three students are already displayed in the podium cards above.
+        // Keep their position in ranking calculations and zone boundaries, but do not duplicate them in the list.
+        if (index < 3) return;
         var tr = document.createElement('tr');
         tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + (selectedPeriod === 'weekly' && !isInWeeklySafeZone(row) ? ' is-below-safe-zone' : '');
         tr.dataset.medPlayer = String(row.userId || '');
