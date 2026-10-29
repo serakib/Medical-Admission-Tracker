@@ -1008,14 +1008,14 @@
     lastTrigger = trigger || document.activeElement;
     const overlay = document.getElementById('mat-notification-center');
     overlay.hidden = false;
-    // Open notifications as a dedicated full-page view, consistent with the app's
-    // other sidebar destinations instead of a floating drawer/modal.
-    overlay.classList.add('is-fullscreen');
+    // Default to the regular popup/drawer. Fullscreen remains available
+    // through the explicit expand button.
+    overlay.classList.remove('is-fullscreen');
     const expandButton = overlay.querySelector('[data-mat-notification-expand]');
     if (expandButton) {
-      expandButton.innerHTML = '<i class="fa-solid fa-compress" aria-hidden="true"></i>';
-      expandButton.setAttribute('aria-label', 'Exit fullscreen notifications');
-      expandButton.title = 'Exit fullscreen';
+      expandButton.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
+      expandButton.setAttribute('aria-label', 'Open fullscreen notifications');
+      expandButton.title = 'Open fullscreen';
     }
     document.body.classList.add('mat-notification-open');
     activeFilter = signedInUid() ? 'all' : 'announcement';
