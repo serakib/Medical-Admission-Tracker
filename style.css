@@ -1763,3 +1763,34 @@ body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-too
     font-size: 9px !important;
   }
 }
+
+
+/* Match Read and Trash bulk buttons exactly to the filter-tab button treatment. */
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read],
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected] {
+  color: var(--muted, #64748b) !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read]:hover:not(:disabled),
+#mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected]:hover:not(:disabled) {
+  color: #047857 !important;
+  border-color: rgba(13, 148, 136, .2) !important;
+  background: rgba(16, 185, 129, .08) !important;
+}
+html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read],
+html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected],
+body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read],
+body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected] {
+  color: var(--muted, #a5b4c5) !important;
+  border-color: transparent !important;
+  background: transparent !important;
+}
+html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read]:hover:not(:disabled),
+html.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected]:hover:not(:disabled),
+body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-selected-read]:hover:not(:disabled),
+body.dark #mat-notification-center.is-fullscreen .mat-notification-selection-toolbar [data-mat-header-selection-actions] [data-mat-delete-selected]:hover:not(:disabled) {
+  color: #6ee7b7 !important;
+  background: rgba(16, 185, 129, .12) !important;
+}
