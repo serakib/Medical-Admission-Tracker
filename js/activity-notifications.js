@@ -1004,10 +1004,12 @@
       '<footer class="mat-notification-footer">' +
       '<button type="button" data-mat-open-leaderboard>Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></footer></section>';
     document.body.appendChild(overlay);
-    // Keep the three primary bulk actions in the header for fullscreen mode.
+    // Keep the primary bulk actions beside selection controls, not in a separate header row.
     const headerActions = overlay.querySelector('[data-mat-header-selection-actions]');
+    const selectionToolbar = overlay.querySelector('.mat-notification-selection-toolbar');
     const bulkActions = overlay.querySelector('.mat-notification-bulk-actions');
-    if (headerActions && bulkActions) {
+    if (headerActions && selectionToolbar && bulkActions) {
+      selectionToolbar.insertBefore(headerActions, bulkActions);
       ['[data-mat-star-selected]', '[data-mat-selected-read]', '[data-mat-delete-selected]'].forEach(function (selector) {
         const action = bulkActions.querySelector(selector);
         if (action) headerActions.appendChild(action);
