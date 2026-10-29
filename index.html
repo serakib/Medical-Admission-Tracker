@@ -419,13 +419,46 @@ function syncSidebarUserProfile(){
   if(batchSource&&/HSC\s*\d{2}/i.test(batchSource.textContent))batch=batchSource.textContent.match(/HSC\s*\d{2}/i)[0].toUpperCase().replace(/\s+/g,' ');
   if(batchEl)batchEl.textContent=batch;
   if(avatarEl){
+    var accountId=(user&&user.uid)||((function(){try{return localStorage.getItem('med_sheet_guest_id_v1')||'guest';}catch(_){return 'guest';}})());
+    var savedAvatar='',manualAvatar=false;
+    try{
+      savedAvatar=localStorage.getItem('med_profile_avatar_v1_'+accountId)||'';
+      manualAvatar=localStorage.getItem('med_profile_avatar_manual_v1_'+accountId)==='1';
+    }catch(_){}
+    var cleanSaved=savedAvatar.replace(/#mat-(?:default|custom)-avatar$/i,'');
+    var savedIsDefault=/#mat-default-avatar$/i.test(savedAvatar);
+    var sharedAvatar=app.profile&&app.profile.avatar?String(app.profile.avatar):'';
+    var sharedIsDefault=/#mat-default-avatar$/i.test(sharedAvatar);
     var photo=user&&(user.photoURL||user.photoUrl||user.avatarUrl);
-    avatarEl.innerHTML=photo?'<img alt="" src="'+String(photo).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">':'<i class="fa-solid fa-user-graduate" aria-hidden="true"></i>';
+    var selectedAvatar=(manualAvatar&&cleanSaved)?cleanSaved:((sharedAvatar&&!sharedIsDefault&&!/#mat-custom-avatar$/i.test(sharedAvatar))?sharedAvatar:(!user&&cleanSaved?cleanSaved:''));
+    var avatarSource=selectedAvatar||photo||(!user&&cleanSaved)||'';
+    if(!avatarSource&&!user){
+      var hash=2166136261,key=String(accountId);
+      for(var ai=0;ai<key.length;ai++)hash=Math.imul(hash^key.charCodeAt(ai),16777619);
+      avatarSource='https://i.pravatar.cc/120?img='+((hash>>>0)%24+1);
+    }
+    avatarEl.innerHTML=avatarSource?'<img alt="Profile avatar" src="'+String(avatarSource).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">':'<i class="fa-solid fa-user-graduate" aria-hidden="true"></i>';
+  }
+  var accountAvatar=document.querySelector('#view-account .profile-hero .profile-avatar');
+  if(accountAvatar&&avatarEl){
+    var avatarImage=avatarEl.querySelector('img');
+    if(avatarImage){
+      accountAvatar.innerHTML='<img src="'+avatarImage.src.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" alt="Profile avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    }else{
+      accountAvatar.innerHTML='<i class="fa-solid fa-user" aria-hidden="true"></i>';
+    }
   }
   var badge=document.querySelector('[data-mat-notification-badge]');
   if(dotEl)dotEl.style.display=badge&&!badge.hidden&&Number(badge.textContent)>0?'block':'none';
 }
-document.addEventListener('DOMContentLoaded',syncSidebarUserProfile);
+document.addEventListener('DOMContentLoaded',function(){
+  syncSidebarUserProfile();
+  var profileAvatar=document.querySelector('#view-account .profile-hero .profile-avatar');
+  if(profileAvatar&&typeof MutationObserver!=='undefined'){
+    new MutationObserver(function(){syncSidebarUserProfile();}).observe(profileAvatar,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+  }
+});
+window.addEventListener('storage',function(event){if(event.key&&/med_profile_avatar|med_sheet_profile/.test(event.key))syncSidebarUserProfile();});
 window.addEventListener('student-auth-state-resolved',function(event){
   syncSidebarAuthButton(event.detail&&event.detail.user||null);
   syncSidebarUserProfile();
