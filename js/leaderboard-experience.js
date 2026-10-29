@@ -623,7 +623,7 @@
       panel = document.createElement('section');
       panel.id = 'student-profile-pb-conversion';
       panel.className = 'mt-4 rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/70 dark:bg-emerald-950/20 p-4';
-      panel.innerHTML = '<div class="flex items-start justify-between gap-3"><div><h3 class="font-extrabold text-sm">PB Conversion</h3><p class="text-xs text-gray-600 dark:text-gray-300 mt-1">1 PB → 2 XP অথবা 1 PB → 1 RP। PB পাওয়ার ২ ঘণ্টার মধ্যে convert করুন; সময় পার হলে PB স্বয়ংক্রিয়ভাবে RP হবে।</p></div><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">My Account</span></div><div class="mt-3 flex flex-col sm:flex-row gap-2"><label class="flex-1 text-xs font-semibold">PB amount<input id="student-profile-pb-amount" type="number" min="1" step="1" value="1" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" /></label><div class="flex items-end gap-2"><button type="button" data-pb-convert="xp" class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white">Convert to XP</button><button type="button" data-pb-convert="rp" class="rounded-xl border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">Convert to RP</button></div></div><p id="student-profile-pb-balance" class="mt-2 text-xs font-bold text-gray-700 dark:text-gray-200" aria-live="polite"></p>';
+      panel.innerHTML = '<div class="flex items-start justify-between gap-3"><div><h3 class="font-extrabold text-sm">PB Conversion</h3><p class="text-xs text-gray-600 dark:text-gray-300 mt-1">1 PB → 2 XP অথবা 1 PB → 1 RP। PB পাওয়ার ২ ঘণ্টার মধ্যে convert করুন; সময় পার হলে PB স্বয়ংক্রিয়ভাবে RP হবে।</p></div><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">My Account</span></div><div class="mt-3 flex flex-col sm:flex-row gap-2"><label class="flex-1 text-xs font-semibold">PB amount<input id="student-profile-pb-amount" type="number" min="1" step="1" value="1" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" /></label><div class="flex items-end gap-2"><button type="button" data-pb-convert="xp" class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white">Convert to XP</button><button type="button" data-pb-convert="rp" class="rounded-xl border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">Convert to RP</button></div></div><p id="student-profile-pb-balance" class="mt-2 text-xs font-bold text-gray-700 dark:text-gray-200" aria-live="polite"></p><p id="student-profile-pb-conversion-status" class="mt-2 hidden items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300" role="status" aria-live="polite"></p>';
       host.insertAdjacentElement('afterend', panel);
     }
     const pending = Math.max(0, Number(profile.pb != null ? profile.pb : (profile.pendingPB != null ? profile.pendingPB : 0)) || 0);
@@ -661,6 +661,7 @@
       if (!button) return;
       const panel = document.getElementById('student-profile-pb-conversion');
       const input = panel?.querySelector('#student-profile-pb-amount');
+      if (!panel || panel.dataset.converting === '1') return;
       const amount = Number(input?.value);
       const kind = button.getAttribute('data-pb-convert');
       const converter = window.MedGlobalLeague && window.MedGlobalLeague.convertPB;
@@ -668,19 +669,58 @@
         setStatus('Server-side PB conversion service is unavailable. Refresh the page and try again.', true);
         return;
       }
-      button.disabled = true;
+      const xpButton = panel.querySelector('[data-pb-convert="xp"]');
+      const rpButton = panel.querySelector('[data-pb-convert="rp"]');
+      const status = panel.querySelector('#student-profile-pb-conversion-status');
+      const originalLabel = button.innerHTML;
+      panel.dataset.converting = '1';
+      [xpButton, rpButton].filter(Boolean).forEach(item => {
+        item.disabled = true;
+        item.setAttribute('aria-disabled', 'true');
+      });
+      if (input) input.disabled = true;
+      button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1" aria-hidden="true"></i> Converting…';
+      button.setAttribute('aria-busy', 'true');
+      button.classList.add('opacity-80', 'cursor-wait');
+      if (status) {
+        status.classList.remove('hidden');
+        status.classList.add('flex');
+        status.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i><span>Converting PB to ' + (kind === 'xp' ? 'XP' : 'RP') + '… Please wait.</span>';
+      }
       try {
         const result = await converter(amount, kind);
         if (!result?.ok) throw new Error(result?.message || 'PB conversion failed.');
         if (result.user) activePublicProfile = result.user;
+        if (status) status.textContent = kind === 'xp'
+          ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
+          : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।';
         setStatus(kind === 'xp'
           ? fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedXP) + ' XP যোগ হয়েছে।'
           : fmt(result.convertedPB) + ' PB থেকে ' + fmt(result.earnedRP) + ' RP যোগ হয়েছে।');
         renderPBConversionPanel(activePublicProfile);
       } catch (error) {
+        if (status) {
+          status.classList.remove('hidden');
+          status.classList.add('flex');
+          status.textContent = error?.message || 'PB conversion failed.';
+        }
         setStatus(error?.message || 'PB conversion failed.', true);
         renderPBConversionPanel(activePublicProfile);
-      } finally { button.disabled = false; }
+      } finally {
+        delete panel.dataset.converting;
+        if (input) input.disabled = false;
+        button.innerHTML = originalLabel;
+        button.removeAttribute('aria-busy');
+        button.classList.remove('opacity-80', 'cursor-wait');
+        if (xpButton) {
+          xpButton.disabled = Math.max(0, Number(panel.dataset.availablePb) || 0) < 1;
+          xpButton.removeAttribute('aria-disabled');
+        }
+        if (rpButton) {
+          rpButton.disabled = Math.max(0, Number(panel.dataset.availablePb) || 0) < 1;
+          rpButton.removeAttribute('aria-disabled');
+        }
+      }
     });
   }
 
