@@ -287,40 +287,37 @@ function processWeeklyRankDemotions() {
       const update = { LastWeeklyDemotionWeek: currentWeekStart, UpdatedAt: now };
       processed += 1;
 
-      if (rankIndex >= MAT_RANKS.length - 1) {
-        // Immortal is the ceiling: no promotion or demotion beyond this rank.
-        maximumRank += 1;
-        update.RP = matRankSafeZoneReward_(rankIndex);
-      } else {
-        const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
+      const isMaxRank = rankIndex >= MAT_RANKS.length - 1;
+      const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
+      const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
 
-        const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
-        if (currentRP >= promotionZoneThreshold) {
-          // Promotion Zone (70% to below 100%) still promotes at weekly review.
-          // At 100%, matApplyRankProgress_ promotes immediately when RP is earned.
-          update.Rank = MAT_RANKS[rankIndex + 1];
-          update.RP = matRankSafeZoneReward_(rankIndex + 1);
-          promoted += 1;
-        } else if (currentRP >= safeZoneThreshold) {
-          // Safe Zone protects the current rank. The next week starts with
-          // 30% of this rank's Safe Zone threshold as requested.
-          update.RP = matRankSafeZoneReward_(rankIndex);
-          safe += 1;
-        } else if (rankIndex <= 0) {
-          // Bronze V is the floor; it cannot demote, but its RP is reset to
-          // the same 30%-of-Safe-Zone weekly starting amount.
-          update.RP = matRankSafeZoneReward_(0);
-          lowestRank += 1;
-        } else {
-          const demotedRankIndex = rankIndex - 1;
-          update.Rank = MAT_RANKS[demotedRankIndex];
-          update.RP = matRankSafeZoneReward_(demotedRankIndex);
-          if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
-            update.GuestZeroRPAt = now;
-          }
-          update.LastError = '';
-          demoted += 1;
+      if (!isMaxRank && currentRP >= promotionZoneThreshold) {
+        // Promotion Zone (70% to below 100%) promotes at weekly review.
+        // At 100%, matApplyRankProgress_ promotes immediately when RP is earned.
+        update.Rank = MAT_RANKS[rankIndex + 1];
+        update.RP = matRankSafeZoneReward_(rankIndex + 1);
+        promoted += 1;
+      } else if (currentRP >= safeZoneThreshold) {
+        // Safe Zone protects every rank, including Immortal I. Reset RP to
+        // the weekly starting reward while preserving the current rank.
+        update.RP = matRankSafeZoneReward_(rankIndex);
+        safe += 1;
+        if (isMaxRank) maximumRank += 1;
+      } else if (rankIndex <= 0) {
+        // Bronze V is the floor; it cannot demote.
+        update.RP = matRankSafeZoneReward_(0);
+        lowestRank += 1;
+      } else {
+        // Immortal I can demote to Immortal II when it misses the Safe Zone,
+        // but it has no Promotion Zone because no higher rank exists.
+        const demotedRankIndex = rankIndex - 1;
+        update.Rank = MAT_RANKS[demotedRankIndex];
+        update.RP = matRankSafeZoneReward_(demotedRankIndex);
+        if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
+          update.GuestZeroRPAt = now;
         }
+        update.LastError = '';
+        demoted += 1;
       }
       matUpdateObjectRow_(sheet, student._rowNumber, update);
     });
@@ -1212,9 +1209,13 @@ function matRankPromotionCost_(rankIndex) {
 }
 
 function matRankSafeZoneThreshold_(rankIndex) {
-  if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Safe Zone starts at 30% of the RP required to upgrade from this rank.
-  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.30);
+  if (rankIndex < 0 || rankIndex >= MAT_RANKS.length) return 0;
+  // Safe Zone is retained at Immortal I too, using the cost of reaching it
+  // (the previous subrank's promotion cost) because there is no next rank.
+  const cost = rankIndex >= MAT_RANKS.length - 1
+    ? matRankPromotionCost_(rankIndex - 1)
+    : matRankPromotionCost_(rankIndex);
+  return Math.ceil(cost * 0.30);
 }
 
 function matRankPromotionZoneThreshold_(rankIndex) {
