@@ -1331,7 +1331,10 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   const weeklyByUser = matGetWeeklyRPByUser_();
   const examStatsByUser = matGetExamStatsByUser_();
   const rows = students.map(function (s) {
-    const weeklyRP = Number(weeklyByUser[s.UserID] || 0);
+    const weeklyRP = Math.max(0, Number(weeklyByUser[s.UserID] || 0));
+    // A week's earned RP is a subset of lifetime earned RP. Preserve this invariant
+    // in API output even for legacy rows whose stored TotalRP is undercounted.
+    const lifetimeRP = Math.max(0, Number(s.TotalRP || 0), weeklyRP);
     const examStats = examStatsByUser[s.UserID] || { matches: 0, correct: 0, wrong: 0, accuracy: 0 };
     return {
       userId: s.UserID,
@@ -1351,11 +1354,11 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rp: Number(s.RP || 0),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       levelProgress: matGetLevelProgress_(s.XP),
-      totalRP: Number(s.TotalRP || 0),
+      totalRP: lifetimeRP,
       weeklyRP: weeklyRP,
       weeklyRankPoints: weeklyRP,
-      rankScore: safePeriod === 'weekly' ? weeklyRP : Number(s.TotalRP || 0),
-      score: safePeriod === 'weekly' ? weeklyRP : Number(s.TotalRP || 0),
+      rankScore: safePeriod === 'weekly' ? weeklyRP : lifetimeRP,
+      score: safePeriod === 'weekly' ? weeklyRP : lifetimeRP,
       matches: Number(examStats.matches || 0),
       completedExams: Number(examStats.matches || 0),
       correctCount: Number(examStats.correct || 0),
