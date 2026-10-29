@@ -1313,7 +1313,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   async function loadLeaderboard(silent) {
     // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
+    // If a silent refresh supersedes a manual refresh, release the old button state immediately.
     if (!silent) setLeaderboardRefreshBusy(true);
+    else if (leaderboardManualRefreshActive) setLeaderboardRefreshBusy(false, false);
     ensureUI();
     var periodForRequest = selectedPeriod;
     // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
@@ -2019,13 +2021,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           var leaderboardView = document.getElementById('view-leaderboard');
           if (leaderboardView && leaderboardView.classList.contains('hidden') && typeof app.showView === 'function') app.showView('leaderboard');
           ensureFriendDirectory();
-          // Refresh the latest incoming and sent/pending requests before opening the request list.
-          var friendsApi = window.MedStudentFriends;
-          if (friendsApi && typeof friendsApi.loadConnections === 'function') {
-            try { await friendsApi.loadConnections(true); }
-            catch (error) { setFriendActionStatus(String(error && error.message || error || 'Friend requests refresh হয়নি।'), true); }
-          }
-          await loadLeaderboard(true);
+          // Open the cached request list immediately; refresh connection/leaderboard data in the background.
+          // loadLeaderboard refreshes the friend connection snapshot and renders it when the request completes.
+          loadLeaderboard(true).catch(function () {});
           loadFriendDirectoryRows().catch(function () {});
           var requestList = document.getElementById('leaderboard-friend-request-list');
           if (requestList) requestList.scrollIntoView({ behavior: 'smooth', block: 'start' });
