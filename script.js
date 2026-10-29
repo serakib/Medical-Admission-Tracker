@@ -2074,23 +2074,18 @@ window.handleSubmit = async function() {
 
 // ফায়ারবেস অথেন্টিকেশন লিসেনার ও ডাইনামিক বাটন আপডেট
 onAuthStateChanged(auth, (user) => {
+    const sidebarAuthButton = document.getElementById('sidebar-auth-action');
+    if (sidebarAuthButton) {
+        sidebarAuthButton.setAttribute('aria-label', user ? 'Logout' : 'Login');
+        sidebarAuthButton.setAttribute('title', user ? 'Logout' : 'Login');
+        const icon = sidebarAuthButton.querySelector('i');
+        if (icon) icon.className = user ? 'fa-solid fa-right-from-bracket' : 'fa-solid fa-right-to-bracket';
+    }
     const authContainers = document.querySelectorAll('.auth-btn-target');
     authContainers.forEach(container => {
-        if (user) {
-            container.innerHTML = `
-                <button onclick="window.handleLogout()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>লগআউট</span>
-                </button>
-            `;
-        } else {
-            container.innerHTML = `
-                <button onclick="window.redirectToLogin()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>Login / Sign up</span>
-                </button>
-            `;
-        }
+        container.innerHTML = user
+            ? `<button type="button" aria-label="Logout" title="Logout" onclick="window.handleLogout()" class="inline-flex items-center justify-center w-9 h-9 p-0 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></button>`
+            : `<button type="button" aria-label="Login" title="Login" onclick="window.redirectToLogin()" class="inline-flex items-center justify-center w-9 h-9 p-0 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i></button>`;
     });
 });
 
@@ -2100,53 +2095,14 @@ window.redirectToLogin = function() {
     window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 };
 
-window.handleLogout = function() {
-    // Use an in-page confirmation dialog so the logout action always has a visible prompt.
-    if (document.getElementById('logout-confirmation-modal')) return;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'logout-confirmation-modal';
-    overlay.className = 'fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/60 p-4';
-    overlay.setAttribute('role', 'presentation');
-    overlay.innerHTML = `
-        <section role="dialog" aria-modal="true" aria-labelledby="logout-confirmation-title"
-            class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <div class="mb-3 flex items-center gap-3">
-                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-300">
-                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-                </span>
-                <h2 id="logout-confirmation-title" class="text-lg font-bold text-slate-900 dark:text-white">লগআউট নিশ্চিত করুন</h2>
-            </div>
-            <p class="mb-5 text-sm leading-6 text-slate-600 dark:text-slate-300">আপনি কি সত্যিই আপনার অ্যাকাউন্ট থেকে লগআউট করতে চান?</p>
-            <div class="flex justify-end gap-2">
-                <button type="button" data-logout-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">বাতিল</button>
-                <button type="button" data-logout-confirm class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">লগআউট</button>
-            </div>
-        </section>`;
-    document.body.appendChild(overlay);
-
-    const closeDialog = () => overlay.remove();
-    overlay.querySelector('[data-logout-cancel]').addEventListener('click', closeDialog);
-    overlay.addEventListener('click', event => {
-        if (event.target === overlay) closeDialog();
-    });
-    overlay.addEventListener('keydown', event => {
-        if (event.key === 'Escape') closeDialog();
-    });
-    const confirmButton = overlay.querySelector('[data-logout-confirm]');
-    confirmButton.addEventListener('click', async () => {
-        confirmButton.disabled = true;
-        confirmButton.textContent = 'লগআউট হচ্ছে...';
-        try {
-            await signOut(auth);
-            window.location.reload();
-        } catch (error) {
-            console.error('Logout Error:', error);
-            closeDialog();
-            alert('লগআউট করতে ব্যর্থ হয়েছে।');
-        }
-    });
-    overlay.querySelector('[data-logout-cancel]').focus();
+window.handleLogout = async function() {
+    try {
+        await signOut(auth);
+        window.location.reload();
+    } catch (error) {
+        // Keep logout free of confirmation dialogs and extra message popups.
+        console.error('Logout Error:', error);
+    }
 };
 
 /**
