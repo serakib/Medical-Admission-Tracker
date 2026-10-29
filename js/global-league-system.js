@@ -832,7 +832,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var vault = window.MedAchievementVaultTrophies;
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
     if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && (row.totalRP || row.rankPoints) || 0);
-    if (info && info.atMax) return 0;
+    if (info && info.atMax) {
+      var previous = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName('Immortal II') : null;
+      return Math.ceil(Math.max(0, Number(previous && previous.required) || 0) * 0.30);
+    }
     return Math.max(0, Number(info && info.safeZoneRP) || 0);
   }
   function promotionZoneThresholdFor(row) {
@@ -848,7 +851,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return Math.max(0, Number(row && row.rankPoints) || 0) >= promotionZoneThresholdFor(row);
   }
   function isInWeeklySafeZone(row) {
-    if (String(row && row.rank || '').toLowerCase() === 'immortal') return true;
     var threshold = safeZoneThresholdFor(row);
     return Math.max(0, Number(row && row.rankPoints) || 0) >= threshold;
   }
