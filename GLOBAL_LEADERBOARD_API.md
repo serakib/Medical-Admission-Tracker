@@ -1,45 +1,68 @@
 # Medical Admission Tracker API
 
-## Independent backend
+## Architecture and source of truth
 
-Medical Admission Tracker uses Firebase Authentication for registered users and its own Google Apps Script + Google Sheets API for profiles, exam results, Medical XP/RP, rank progression, and leaderboard data. It uses no external game account session or shared game-reward balance.
+The website uses Firebase Authentication for registered accounts and a dedicated Google Apps Script + Google Sheets API for Medical profiles, exam attempts, XP/RP/PB, ranks, streaks, friends, leaderboards, and server-side maintenance. The Google Apps Script backend source lives in `apps-script/Medical_Admission_Tracker_Backend.gs`; its Web App URL is set in `js/leaderboard-config.js`.
 
-The direct Medical Apps Script URL is configured in `js/leaderboard-config.js`. The website's separate Get in Touch form is intentionally left unchanged and continues to use the existing portfolio messaging endpoint; it is not replaced by this Medical rewards API.
+The Medical API is independent of the site's Get in Touch/contact endpoint. Do not route contact messages through the reward API.
 
-## API actions used by the website
+## Deployment and health check
 
-- `createGuest`: create or recover a Guest profile using a persistent Guest token.
-- `registerUser`: verify a Firebase ID token, create a Medical profile once, and send a first-registration Telegram notification.
-- `updateProfile`: update name, college, batch, and avatar.
-- `leaderboard`: read All Time or Weekly Medical rankings.
-- `submitExam`: save an exam attempt and let the Medical backend award XP/RP exactly once per attempt ID.
+After deploying the newest `Medical_Admission_Tracker_Backend.gs` as a new version of the existing Apps Script Web App, open the same Web App URL with `?action=health` or `?action=capabilities`. The response should contain `success: true`, `status: "ok"`, the `apiVersion`, and a public, non-secret `capabilities` list. This confirms which source version is live; committing to GitHub alone does not update Apps Script.
 
-## Identity and profile
+Keep the existing Apps Script project's Script Properties, spreadsheet IDs, and deployment URL. Do not put Firebase or Telegram secrets in the repository.
 
-Registered users authenticate with Firebase. The frontend sends the user's Firebase ID token to the Medical API; the Apps Script checks it with Firebase before reading or changing the registered profile. Guest users receive a random persistent token and a default name such as `Guest Student 4821`; Guest profiles can also update their name, college, batch, and avatar. The Guest token is not a Firebase account and is scoped to that browser unless the user registers and transfers progress in a future feature.
+## Current API actions
 
-Profile fields are stored in the private `Students` spreadsheet. Do not make the spreadsheet public.
+### GET
+- `health` / `capabilities`: non-secret service version and feature list.
+- `leaderboard` / `getLeaderboard`: read All Time or Weekly rankings. Optional `period`, `ids`, and `includeIds` parameters are supported.
 
-## Rewards, rank, and leaderboard
+### POST
+- `createGuest` / `guestCreate`: create or recover a Guest profile using a random persistent Guest token.
+- `registerUser` / `signup` / `login`: validate a Firebase ID token and create or refresh a registered profile. The first registration queues/sends the signup Telegram alert.
+- `profile` / `getProfile`: return the authenticated profile.
+- `progress` / `getProgress`: return the authenticated profile and committed exam-attempt history.
+- `updateProfile` / `saveProfile`: update name, college, batch, or avatar.
+- `syncStreak`: merge current/recent device activity into server-side streak fields.
+- `submitExam` / `recordExam` / legacy `gameEnd`: record an attempt idempotently and grant server-calculated XP, full RP, and eligible PB.
+- `convertPB`: convert available PB to XP (1 PB → 2 XP) or RP (1 PB → 1 RP).
+- `searchStudents`: search public student-directory fields for the Friends UI.
+- `friendConnections`, `sendFriendRequest`, `acceptFriendRequest`, `rejectFriendRequest`, `cancelFriendRequest`, `removeFriend`: manage friendships in the `StudentFriends` Google Sheet tab. Both registered users and authenticated Guest sessions are supported by the current backend.
+- `deleteAccount`: remove registered-account data from Medical Sheets; the client then removes its Firebase profile and Auth account.
+- `processPendingActivityNotifications`: intentionally trigger-only; public calls are rejected.
+- `setupBackend`: manual Apps Script setup only; public calls are rejected.
 
-The Medical API is the source of truth for Medical XP, current RP, Total RP, level, and rank. The UI does not award a second browser-only XP/RP balance. Each completed exam uses an account-prefixed unique attempt ID; repeated submissions are intended to return the previously saved reward rather than award it twice.
+## Rewards and rank progression
 
-Rank progression is configured server-side as Bronze V → IV → III → II → I, then Silver, Gold, Platinum, Emerald, Diamond, Master, Grandmaster, Legend, and Mythic (each V through I), followed by Immortal V → IV → III → II → I. Each promotion costs 500 RP for the first step, then 500 RP plus 20% of the previous promotion cost, rounded to the nearest 5 RP. The cost therefore levels off at about 625 RP per promotion, keeping progression approachable; reaching Immortal I takes about 33,595 cumulative RP from Bronze V under this curve. The top leaderboard uses Total RP. Weekly leaderboard values are calculated from RP awarded during the current week, based on the Bangladesh time-zone policy in Apps Script.
+The backend recalculates the final score from submitted counts as `max(0, correct - 0.25 × wrong)`. RP is the full server-calculated amount `max(0, round(final score × 5))` in every exam mode and at every question count. Practice-mode XP keeps its separate rule.
 
-The backend currently receives the correct/wrong counts from the frontend. For tamper-resistant competitive scoring, move answer-key grading to a trusted server before relying on rank as a high-stakes result.
+For exams with at least 30 questions, weighted performance PB is computed on the server from progressive score bands at 40%, 50%, 60%, 70%, 79%, and 100%, using multipliers `1× / 2× / 4× / 5× / 7× / 10×`, then rounded after multiplying the weighted score by 15. Exams under 30 questions receive no weighted PB. PB is kept in a separate wallet for two hours, may be converted sooner, and then automatically converts to RP. XP/RP/PB amounts supplied by the browser are not trusted.
 
-## Telegram alerts
+Each attempt ID can be rewarded once. A retry returns the stored reward; an interrupted `PROCESSING` attempt is recovered before a newer attempt is accepted. Rank progression and weekly review are enforced in Apps Script, not localStorage. All Time uses lifetime Total RP; Weekly ranks use RP earned in the current Saturday–Friday week in Asia/Dhaka.
 
-The backend sends a Telegram notification when a registered user is first created in the Medical Students sheet. Repeated login/profile reads do not send a new signup alert after the `SignupTelegramSent` status is `SENT`.
+**Scoring limitation:** the API recomputes the score from the received correct/wrong counts, but the browser still supplies those counts. This is not equivalent to securely grading the original answers against a server-held answer key.
 
-Top-10 leaderboard movement notifications are queued with their original timestamps. The backend sends at most 20 activity notifications per day and keeps leftovers in a persistent FIFO queue for later days. Signup alerts are outside that daily activity cap.
+## Background jobs and data storage
 
-Bot token and owner Chat ID belong in Apps Script Script Properties only; never put them in client-side JavaScript or public repository code.
+The two main spreadsheets and tabs are configured in the backend:
+- `Students`: profile, XP/RP/PB, rank, guest-token hash, and streak fields.
+- `ExamAttempts`: attempts, committed rewards, and the persistent FIFO leaderboard-activity notification queue.
+- `StudentFriends`: friend requests and accepted links.
 
-## Direct Apps Script connectivity
+`setupBackend()` ensures the five-minute notification/PB-expiry trigger, hourly Guest cleanup trigger, and Saturday ~01:00 Asia/Dhaka weekly rank-review trigger exist. The weekly review checks the just-completed Saturday–Friday week, applies at most one rank change per student, and does not reduce lifetime Total RP. Activity Telegram notifications have a daily cap of 20 and unsent activity remains queued. Signup alerts are separate from that cap.
 
-The frontend requests the dedicated Medical Apps Script endpoint directly. Apps Script deployments can return redirects or trigger browser CORS restrictions depending on how the Web App is deployed. If browser calls are blocked, direct client-side reads cannot be claimed as working until the deployment response path is adjusted. The separate portfolio/Get in Touch messaging endpoint is not part of this API and must remain unchanged.
+## In-site Notifications are separate from Apps Script
 
-## Tests before launch
+The bell/notification center builds activity and trophy notifications in the browser from leaderboard/friend snapshots. Registered, signed-in users can sync notification state to the Firebase Firestore document `studentActivityNotificationStates/{uid}` through `MedActivityNotificationStore`; Guest users use browser-local storage. This collection is not an Apps Script action or a Google Sheet. The matching Firestore security rule is described in `FIRESTORE_FRIENDS_RULES.md`, and must be merged into the existing Firebase rules separately. Do not confuse these in-site notifications with the Apps Script Telegram activity queue.
 
-Test Guest creation and profile editing; registered Firebase signup and one-time Telegram alert; repeated login without repeated signup alerts; duplicate exam submission; XP/RP synchronization; rank promotions; All Time and Weekly leaderboard; the 20-per-day activity cap with pending carry-forward; and the API health endpoint.
+## Manual deployment checklist
+
+1. Open the existing Medical Admission Tracker Apps Script project.
+2. Replace its backend source with `apps-script/Medical_Admission_Tracker_Backend.gs` and save it.
+3. Keep its existing Script Properties, private Google Sheets permissions, and deployment identity.
+4. Run `setupBackend()` once and verify the execution log.
+5. Deploy **Manage deployments → Edit → New version** using the same Web App access settings.
+6. Test the deployed `?action=health` and `?action=capabilities` endpoints before checking profile, rewards, PB conversion/expiry, leaderboards, friends, streaks, and scheduled jobs.
+
+Apps Script deployment and Firebase Firestore Security Rules are separate operations; neither is updated by a GitHub commit.
