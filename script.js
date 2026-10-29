@@ -1594,7 +1594,7 @@ class MedicalExamApp {
         const rewardPanel = document.getElementById('exam-reward-summary');
         if (rewardPanel) rewardPanel.dataset.attemptId = attemptId;
         if (typeof window.updateExamRewardDisplay === 'function') {
-            window.updateExamRewardDisplay({ attemptId, pending: true, message: 'XP ও RP হিসাব করে আনা হচ্ছে…' });
+            window.updateExamRewardDisplay({ attemptId, pending: true, message: 'XP, RP ও PB হিসাব করে আনা হচ্ছে…' });
         }
         try {
             Promise.resolve(this.recordLeaderboardResult({
@@ -2583,8 +2583,8 @@ window.handleAccountDeletion = function() {
     const finalScore = Math.max(0, correctCount - wrongCount * 0.25);
     const baseRankPoints = Math.max(0, Math.round(finalScore * 5));
     const baseXP = Math.max(0, Math.round(finalScore * 8));
+    // The first 40% earns no PB; only score beyond that threshold is weighted.
     const tiers = [
-      { upTo: totalQuestions * 0.40, multiplier: 1 },
       { upTo: totalQuestions * 0.50, multiplier: 2 },
       { upTo: totalQuestions * 0.60, multiplier: 4 },
       { upTo: totalQuestions * 0.70, multiplier: 5 },
@@ -2593,13 +2593,13 @@ window.handleAccountDeletion = function() {
     ];
     let weightedScore = 0;
     if (totalQuestions >= 30) {
-      let previousLimit = 0;
+      let previousLimit = totalQuestions * 0.40;
       for (const tier of tiers) {
         weightedScore += Math.max(0, Math.min(finalScore, tier.upTo) - previousLimit) * tier.multiplier;
         previousLimit = tier.upTo;
       }
     }
-    const weightedBonusPB = Math.round(weightedScore * 15);
+    const weightedBonusPB = Math.round(weightedScore);
     return { rankPoints: baseRankPoints, xp: baseXP, pb: weightedBonusPB, hasWeightedExamRule: totalQuestions >= 30 };
   };
   const durationFor = (count, ratio = 0.5) => Math.max(1, Math.round(Number(count || 0) * ratio));
