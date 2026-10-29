@@ -2078,8 +2078,10 @@ onAuthStateChanged(auth, (user) => {
     if (sidebarAuthButton) {
         sidebarAuthButton.setAttribute('aria-label', user ? 'Logout' : 'Login');
         sidebarAuthButton.setAttribute('title', user ? 'Logout' : 'Login');
+        sidebarAuthButton.classList.toggle('auth-logout', !!user);
+        sidebarAuthButton.classList.toggle('auth-login', !user);
         const icon = sidebarAuthButton.querySelector('i');
-        if (icon) icon.className = user ? 'fa-solid fa-right-from-bracket' : 'fa-solid fa-right-to-bracket';
+        if (icon) icon.className = user ? 'fa-solid fa-door-open' : 'fa-solid fa-user-plus';
     }
     const authContainers = document.querySelectorAll('.auth-btn-target');
     authContainers.forEach(container => {
