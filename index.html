@@ -443,8 +443,13 @@ function syncSidebarUserProfile(){
   if(accountAvatar&&avatarEl){
     var avatarImage=avatarEl.querySelector('img');
     if(avatarImage){
-      accountAvatar.innerHTML='<img src="'+avatarImage.src.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" alt="Profile avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-    }else{
+      var currentAccountImage=accountAvatar.querySelector('img');
+      // This element is observed below. Only write when the avatar actually changes,
+      // otherwise the observer would trigger itself indefinitely.
+      if(!currentAccountImage||currentAccountImage.src!==avatarImage.src){
+        accountAvatar.innerHTML='<img src="'+avatarImage.src.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" alt="Profile avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      }
+    }else if(!accountAvatar.querySelector('i')){
       accountAvatar.innerHTML='<i class="fa-solid fa-user" aria-hidden="true"></i>';
     }
   }
