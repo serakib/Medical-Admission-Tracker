@@ -626,11 +626,8 @@
       panel.innerHTML = '<div class="flex items-start justify-between gap-3"><div><h3 class="font-extrabold text-sm">PB Conversion</h3><p class="text-xs text-gray-600 dark:text-gray-300 mt-1">1 PB → 2 XP অথবা 1 PB → 1 RP। PB পাওয়ার ২ ঘণ্টার মধ্যে convert করুন; সময় পার হলে PB স্বয়ংক্রিয়ভাবে RP হবে।</p></div><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">My Account</span></div><div class="mt-3 flex flex-col sm:flex-row gap-2"><label class="flex-1 text-xs font-semibold">PB amount<input id="student-profile-pb-amount" type="number" min="1" step="1" value="1" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" /></label><div class="flex items-end gap-2"><button type="button" data-pb-convert="xp" class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white">Convert to XP</button><button type="button" data-pb-convert="rp" class="rounded-xl border border-emerald-600 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">Convert to RP</button></div></div><p id="student-profile-pb-balance" class="mt-2 text-xs font-bold text-gray-700 dark:text-gray-200" aria-live="polite"></p>';
       host.insertAdjacentElement('afterend', panel);
     }
-    let progress = {};
-    try { progress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
     const pending = Math.max(0, Number(profile.pb != null ? profile.pb : (profile.pendingPB != null ? profile.pendingPB : 0)) || 0);
-    const serverXP = Math.max(0, Number(profile.xp != null ? profile.xp : progress.xp) || 0);
-    const serverRP = Math.max(0, Number(profile.rankPoints != null ? profile.rankPoints : (profile.rp != null ? profile.rp : progress.rankPoints)) || 0);
+    panel.dataset.availablePb = String(pending);
     const balance = panel.querySelector('#student-profile-pb-balance');
     const input = panel.querySelector('#student-profile-pb-amount');
     const xpButton = panel.querySelector('[data-pb-convert="xp"]');
@@ -641,7 +638,8 @@
       const entered = Number(input && input.value);
       const amount = Number.isSafeInteger(entered) && entered > 0 ? entered : 0;
       if (balance) {
-        balance.textContent = 'Available PB: ' + fmt(pending) +
+        const availablePB = Math.max(0, Number(panel.dataset.availablePb) || 0);
+        balance.textContent = 'Available PB: ' + fmt(availablePB) +
           ' · XP: ' + fmt(amount * 2) + ' · RP: ' + fmt(amount);
       }
       if (input) input.setAttribute('aria-describedby', 'student-profile-pb-balance');
