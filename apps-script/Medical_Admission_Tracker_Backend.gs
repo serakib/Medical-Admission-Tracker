@@ -31,6 +31,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'server-profile-management',
   'exam-rewards-idempotency',
   'full-rp-all-exam-modes-and-question-counts',
+  'final-score-5-rp-8-xp-all-modes-including-practice',
   'weighted-pb-for-30-plus-question-exams',
   'pb-wallet-conversion-and-two-hour-expiry',
   'all-time-weekly-and-friends-leaderboards',
