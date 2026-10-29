@@ -898,10 +898,16 @@ document.head.appendChild(style);
         tr.setAttribute('role', 'button');
         tr.setAttribute('aria-label', 'Open ' + row.name + ' student profile');
         var safeThreshold = safeZoneThresholdFor(row);
+        var promotionThreshold = promotionZoneThresholdFor(row);
         var weeklyRP = Math.max(0, Number(row.weeklyRankPoints) || 0);
-        var safeStatus = selectedPeriod !== 'weekly' ? '' : isInWeeklySafeZone(row)
-          ? '<small class="leader-safe-status" title="Safe Zone-এর ওপরে ' + Math.max(0, weeklyRP - safeThreshold).toLocaleString() + ' RP"><i class="fa-solid fa-arrow-trend-up"></i> +' + Math.max(0, weeklyRP - safeThreshold).toLocaleString() + ' RP</small>'
-          : '<small class="leader-risk-status" title="Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-down"></i> +' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP</small>';
+        var isMaxRank = String(row.rank || '').toLowerCase() === 'immortal';
+        var safeStatus = selectedPeriod !== 'weekly' ? '' : isMaxRank
+          ? '<small class="leader-safe-status" title="আপনি সর্বোচ্চ rank-এ আছেন"><i class="fa-solid fa-arrow-trend-up"></i> Max Rank</small>'
+          : isInWeeklyPromotionZone(row)
+            ? '<small class="leader-safe-status" title="Promotion Zone অর্জিত"><i class="fa-solid fa-arrow-trend-up"></i> Promotion Zone Reached</small>'
+            : isInWeeklySafeZone(row)
+              ? '<small class="leader-safe-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to Promotion Zone</small>'
+              : '<small class="leader-risk-status" title="Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-down"></i> +' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP</small>';
         tr.innerHTML = '<td class="py-4 px-3"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div></td>' +
           '<td class="py-4 px-3 leader-college" title="' + escapeHtml(row.college || '—') + '">' + escapeHtml(row.college || '—') + '</td>' +
           '<td class="py-4 px-3 leader-batch" title="' + escapeHtml(row.batch || '—') + '">' + escapeHtml(row.batch || '—') + '</td>' +
