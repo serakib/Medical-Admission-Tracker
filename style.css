@@ -1364,3 +1364,41 @@ html.dark #mat-notification-center .mat-notification-announcement-view .mat-gues
 #mat-notification-center .mat-notification-announcement-view{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;transform:none!important;position:static!important;}
 #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement{display:block!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0 auto 8px!important;}
 #mat-notification-center .mat-notification-announcement-view .mat-guest-deletion-announcement p{display:block!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;clip:auto!important;clip-path:none!important;}
+
+
+/* Notification action buttons: keep read/star/archive/delete controls in one horizontal row. */
+#mat-notification-center .mat-notification-item-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  min-width: max-content;
+}
+#mat-notification-center .mat-notification-action {
+  display: inline-flex !important;
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#mat-notification-center .mat-notification-item {
+  min-width: 0;
+}
+#mat-notification-center .mat-notification-item-copy {
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  #mat-notification-center .mat-notification-item-actions {
+    gap: 4px !important;
+  }
+  #mat-notification-center .mat-notification-action {
+    flex-basis: 30px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+  }
+}
