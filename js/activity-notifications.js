@@ -1004,17 +1004,17 @@
       '<footer class="mat-notification-footer">' +
       '<button type="button" data-mat-open-leaderboard>Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></footer></section>';
     document.body.appendChild(overlay);
-    // Keep the primary bulk actions beside selection controls, not in a separate header row.
+    // Keep the three primary actions at the far end of the selection row.
+    // The secondary unread/archive controls stay immediately before them.
     const headerActions = overlay.querySelector('[data-mat-header-selection-actions]');
     const selectionToolbar = overlay.querySelector('.mat-notification-selection-toolbar');
     const bulkActions = overlay.querySelector('.mat-notification-bulk-actions');
     if (headerActions && selectionToolbar && bulkActions) {
-      selectionToolbar.insertBefore(headerActions, bulkActions);
-      // Order actions by common workflow: mark read, star, then destructive trash action.
-      ['[data-mat-selected-read]', '[data-mat-star-selected]', '[data-mat-delete-selected]'].forEach(function (selector) {
+      ['[data-mat-star-selected]', '[data-mat-selected-read]', '[data-mat-delete-selected]'].forEach(function (selector) {
         const action = bulkActions.querySelector(selector);
         if (action) headerActions.appendChild(action);
       });
+      selectionToolbar.appendChild(headerActions);
     }
   }
   function openCenter(trigger) {
