@@ -2199,14 +2199,18 @@ function matReconcileStoredRankProgress_(source) {
 
   student.Rank = rankResult.rank;
   student.RP = rankResult.rp;
-  student.TotalRP = Math.max(student.TotalRP, student.RP);
+  student.TotalRP = Math.max(student.TotalRP, student.RP) + rankResult.bonusRP;
   student.UpdatedAt = matNowIso_();
   if (student._rowNumber) {
     matUpdateObjectRow_(matGetStudentsSheet_(), student._rowNumber, {
       Rank: student.Rank,
       RP: student.RP,
+      TotalRP: student.TotalRP,
       UpdatedAt: student.UpdatedAt
     });
+    if (rankResult.bonusRP > 0) {
+      matAppendRPEvent_(student.UserID, rankResult.bonusRP, 'RANK-BONUS-REPAIR-' + String(student.UserID) + '-' + String(student.UpdatedAt), student.UpdatedAt);
+    }
   }
   return student;
 }
