@@ -985,7 +985,7 @@
       '<p>Friend progress, leaderboard moves and trophy unlocks.</p></div>' +
       '<button class="mat-notification-expand" type="button" data-mat-notification-expand aria-label="Open fullscreen notifications" title="Open fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
       '<button class="mat-notification-fullscreen-leaderboard" type="button" data-mat-open-leaderboard><i class="fa-solid fa-ranking-star" aria-hidden="true"></i> Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>' +
-      '<div class="mat-notification-header-selection-actions" role="group" aria-label="Selected notification actions" data-mat-header-selection-actions></div><span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
+      '<span class="mat-notification-fullscreen-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> In-site updates only · No phone push alerts</span>' +
       '<button class="mat-notification-close" type="button" data-mat-notification-close aria-label="Close notifications"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>' +
       '<div class="mat-notification-toolbar"><div class="mat-notification-toolbar-main"><div class="mat-notification-filters" role="group" aria-label="Filter notifications">' +
       '<button type="button" data-mat-filter="announcement" class="mat-notification-announcement-filter" aria-pressed="false"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Announcement</button>' +
@@ -1004,17 +1004,21 @@
       '<footer class="mat-notification-footer">' +
       '<button type="button" data-mat-open-leaderboard>Open leaderboard <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></footer></section>';
     document.body.appendChild(overlay);
-    // Keep the three primary actions at the far end of the selection row.
-    // The secondary unread/archive controls stay immediately before them.
-    const headerActions = overlay.querySelector('[data-mat-header-selection-actions]');
-    const selectionToolbar = overlay.querySelector('.mat-notification-selection-toolbar');
+    // Keep every selection action in the same button group so styling stays identical.
+    // Archive is deliberately immediately before the destructive Trash action.
     const bulkActions = overlay.querySelector('.mat-notification-bulk-actions');
-    if (headerActions && selectionToolbar && bulkActions) {
-      ['[data-mat-star-selected]', '[data-mat-selected-read]', '[data-mat-delete-selected]'].forEach(function (selector) {
+    if (bulkActions) {
+      [
+        '[data-mat-selected-unread]',
+        '[data-mat-star-selected]',
+        '[data-mat-selected-read]',
+        '[data-mat-archive-selected]',
+        '[data-mat-restore-selected]',
+        '[data-mat-delete-selected]'
+      ].forEach(function (selector) {
         const action = bulkActions.querySelector(selector);
-        if (action) headerActions.appendChild(action);
+        if (action) bulkActions.appendChild(action);
       });
-      selectionToolbar.appendChild(headerActions);
     }
   }
   function openCenter(trigger) {
