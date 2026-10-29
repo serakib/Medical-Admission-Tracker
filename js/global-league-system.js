@@ -447,52 +447,63 @@
       user: response.user || currentProfile
     };
   }
-  async function syncDailyStreak() {
-    if (!navigator.onLine || typeof app.getAccountProgress !== 'function') return false;
-    var progress = app.getAccountProgress() || {};
-    if (!progress.streakSyncPending) return true;
-    try {
-      await syncIdentity();
-      var creds = await credentialsForCurrentUser();
-      var response = await request(Object.assign({
-        action: 'syncStreak',
-        streak: Math.max(0, Number(progress.streak) || 0),
-        lastStreakActivityDate: String(progress.lastStreakActivityDate || ''),
-        highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0),
-        streakActivityDates: Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates.slice(-366) : []
-      }, creds));
-      if (response.user) applyProfile(response.user);
-      var key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
-      var local = parseJson(localStorage.getItem(key), {}) || {};
-      // Only clear the pending marker when the backend explicitly confirms success.
-      if (response.success === true || response.synced === true || response.streakSynced === true) {
-        // Server current streak may correctly reset after a missed day; Highest Streak never decreases.
-        if (response.streak != null) local.streak = Math.max(0, Number(response.streak) || 0);
-        local.highestStreak = Math.max(Number(local.highestStreak || local.maxStreak) || 0, Number(local.streak) || 0, Number(response.highestStreak) || 0);
-        local.lastStreakActivityDate = String(response.lastStreakActivityDate || (response.user && response.user.lastStreakActivityDate) || local.lastStreakActivityDate || '');
-        local.streakActivityDates = Array.from(new Set(
-          (Array.isArray(local.streakActivityDates) ? local.streakActivityDates : [])
-            .concat(Array.isArray(response.streakActivityDates) ? response.streakActivityDates : [])
-            .filter(function (date) { return /^\d{4}-\d{2}-\d{2}$/.test(String(date)); })
-        )).sort().slice(-366);
-        local.streakSyncPending = false;
-        localStorage.setItem(key, JSON.stringify(local));
-        if (app.profile) {
-          app.profile.streak = local.streak;
-          app.profile.highestStreak = local.highestStreak;
-          app.profile.lastStreakActivityDate = local.lastStreakActivityDate;
-          app.profile.streakActivityDates = local.streakActivityDates.slice();
+  // Deduplicate concurrent streak synchronizations. applyProfile() dispatches
+  // student-progress-updated before syncDailyStreak clears the pending flag, so
+  // without this guard that event can recursively start another API sync.
+  var streakSyncPromise = null;
+  function syncDailyStreak() {
+    if (streakSyncPromise) return streakSyncPromise;
+    // Defer work one microtask so the guard is installed before getAccountProgress()
+    // can synchronously dispatch another student-progress-updated event.
+    streakSyncPromise = Promise.resolve().then(async function () {
+      if (!navigator.onLine || typeof app.getAccountProgress !== 'function') return false;
+      var progress = app.getAccountProgress() || {};
+      if (!progress.streakSyncPending) return true;
+      try {
+        await syncIdentity();
+        var creds = await credentialsForCurrentUser();
+        var response = await request(Object.assign({
+          action: 'syncStreak',
+          streak: Math.max(0, Number(progress.streak) || 0),
+          lastStreakActivityDate: String(progress.lastStreakActivityDate || ''),
+          highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0),
+          streakActivityDates: Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates.slice(-366) : []
+        }, creds));
+        if (response.user) applyProfile(response.user);
+        var key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+        var local = parseJson(localStorage.getItem(key), {}) || {};
+        // Only clear the pending marker when the backend explicitly confirms success.
+        if (response.success === true || response.synced === true || response.streakSynced === true) {
+          // Server current streak may correctly reset after a missed day; Highest Streak never decreases.
+          if (response.streak != null) local.streak = Math.max(0, Number(response.streak) || 0);
+          local.highestStreak = Math.max(Number(local.highestStreak || local.maxStreak) || 0, Number(local.streak) || 0, Number(response.highestStreak) || 0);
+          local.lastStreakActivityDate = String(response.lastStreakActivityDate || (response.user && response.user.lastStreakActivityDate) || local.lastStreakActivityDate || '');
+          local.streakActivityDates = Array.from(new Set(
+            (Array.isArray(local.streakActivityDates) ? local.streakActivityDates : [])
+              .concat(Array.isArray(response.streakActivityDates) ? response.streakActivityDates : [])
+              .filter(function (date) { return /^\\d{4}-\\d{2}-\\d{2}$/.test(String(date)); })
+          )).sort().slice(-366);
+          local.streakSyncPending = false;
+          localStorage.setItem(key, JSON.stringify(local));
+          if (app.profile) {
+            app.profile.streak = local.streak;
+            app.profile.highestStreak = local.highestStreak;
+            app.profile.lastStreakActivityDate = local.lastStreakActivityDate;
+            app.profile.streakActivityDates = local.streakActivityDates.slice();
+          }
+          updateTopControls(currentProfile || app.profile || {});
+          return true;
         }
-        updateTopControls(currentProfile || app.profile || {});
-        return true;
+        return false;
+      } catch (_) {
+        // Keep the local streak and pending marker for the next reconnect.
+        return false;
       }
-      return false;
-    } catch (_) {
-      // Keep the local streak and pending marker for the next reconnect.
-      return false;
-    }
+    }).finally(function () {
+      streakSyncPromise = null;
+    });
+    return streakSyncPromise;
   }
-
   async function updateProfile(fields) {
     fields = fields || {};
     var allowed = {};
