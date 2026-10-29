@@ -1063,14 +1063,13 @@ function matSubmitExam_(p) {
       // Base rewards use the server-calculated final score after negative marking.
       // Each final-score point grants 5 RP and 8 XP. Weighted performance bonus stays PB.
       // Never accept client-supplied XP, RP, or PB amounts.
-      const normalizedExamMode = String(examMode).trim().toLowerCase();
-      const isPracticeMode = normalizedExamMode === 'practice' || normalizedExamMode === 'practice exam';
       const calculatedXpEarned = Math.max(0, Math.round(score * 8));
       const baseRpEarned = Math.max(0, Math.round(score * 5));
       const hasWeightedExamRule = total >= 30;
       const pbEarned = hasWeightedExamRule ? matCalculateWeightedExamPB_(correct, wrong, total) : 0;
-      // Practice XP has its own rule. RP is never reduced by exam mode or question count.
-      const xpEarned = isPracticeMode ? Math.max(0, Math.round(calculatedXpEarned * 0.30)) : calculatedXpEarned;
+      // All exam modes, including Practice, use the same final-score base rewards.
+      // Each final-score point grants 5 RP and 8 XP; weighted performance bonus stays PB.
+      const xpEarned = calculatedXpEarned;
       const rpEarned = baseRpEarned;
       const freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
