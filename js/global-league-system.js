@@ -1073,7 +1073,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     });
     renderLeaderboardPeriodNote();
     var friendsPanel = document.getElementById('leaderboard-friends-panel');
-    if (friendsPanel) friendsPanel.classList.remove('hidden');
+    if (friendsPanel) friendsPanel.classList.toggle('hidden', selectedPeriod !== 'friends');
+    var manageFriendsButton = document.getElementById('leaderboard-manage-friends');
+    if (manageFriendsButton) {
+      var showManageFriends = selectedPeriod === 'friends';
+      manageFriendsButton.style.setProperty('display', showManageFriends ? 'inline-flex' : 'none', 'important');
+      manageFriendsButton.style.setProperty('visibility', showManageFriends ? 'visible' : 'hidden', 'important');
+      manageFriendsButton.style.setProperty('opacity', showManageFriends ? '1' : '0', 'important');
+      manageFriendsButton.setAttribute('aria-hidden', showManageFriends ? 'false' : 'true');
+      manageFriendsButton.tabIndex = showManageFriends ? 0 : -1;
+    }
   }
   var leaderboardNoteClockStarted = false;
   function dhakaDateParts(date) {
@@ -1154,6 +1163,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var toolbarActions = document.querySelector('#view-leaderboard .leaderboard-toolbar-actions');
     var refreshButton = document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
     if (selectedPeriod !== 'weekly') {
+      var rpBadgeOutsideWeekly = document.querySelector('#view-leaderboard .mat-top-rp');
+      var friendsButtonOutsideWeekly = document.getElementById('leaderboard-manage-friends');
+      if (toolbarActions && rpBadgeOutsideWeekly && rpBadgeOutsideWeekly.parentNode !== toolbarActions) toolbarActions.insertBefore(rpBadgeOutsideWeekly, toolbarActions.firstChild);
+      if (toolbarActions && friendsButtonOutsideWeekly && friendsButtonOutsideWeekly.parentNode !== toolbarActions) toolbarActions.insertBefore(friendsButtonOutsideWeekly, refreshButton || null);
       if (toolbarActions && refreshButton && refreshButton.parentNode !== toolbarActions) toolbarActions.appendChild(refreshButton);
       return;
     }
@@ -1188,7 +1201,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var rpBadge = document.querySelector('#view-leaderboard .mat-top-rp');
       var friendsButton = document.getElementById('leaderboard-manage-friends');
       if (rpBadge && rpBadge.parentNode !== popupTools) popupTools.appendChild(rpBadge);
-      if (friendsButton && friendsButton.parentNode !== popupTools) popupTools.appendChild(friendsButton);
+      // Friends & Requests belongs only to the Friends leaderboard, never in the weekly popup.
+      if (toolbarActions && friendsButton && friendsButton.parentNode !== toolbarActions) toolbarActions.insertBefore(friendsButton, refreshButton || null);
+      if (friendsButton) {
+        var showFriendsButton = selectedPeriod === 'friends';
+        friendsButton.style.setProperty('display', showFriendsButton ? 'inline-flex' : 'none', 'important');
+        friendsButton.style.setProperty('visibility', showFriendsButton ? 'visible' : 'hidden', 'important');
+        friendsButton.style.setProperty('opacity', showFriendsButton ? '1' : '0', 'important');
+      }
     }
     if (refreshButton && refreshButton.parentNode !== note) note.appendChild(refreshButton);
     var popupContent = popup.querySelector('[data-week-popup-content]');
@@ -1615,9 +1635,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       button.innerHTML = '<i class="fa-solid fa-user-group" aria-hidden="true"></i> Friends &amp; Requests';
       refresh.parentNode.insertBefore(button, refresh);
     }
-    button.style.setProperty('display', 'inline-flex', 'important');
-    button.style.setProperty('visibility', 'visible', 'important');
-    button.style.setProperty('opacity', '1', 'important');
+    var showButton = selectedPeriod === 'friends';
+    button.style.setProperty('display', showButton ? 'inline-flex' : 'none', 'important');
+    button.style.setProperty('visibility', showButton ? 'visible' : 'hidden', 'important');
+    button.style.setProperty('opacity', showButton ? '1' : '0', 'important');
+    button.setAttribute('aria-hidden', showButton ? 'false' : 'true');
+    button.tabIndex = showButton ? 0 : -1;
     return button;
   }
 
@@ -1989,6 +2012,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var action = event.target.closest && event.target.closest('[data-med-action]');
       if (action) {
         if (action.dataset.medAction === 'manage-friends') {
+          // This control is valid only while the Friends leaderboard is selected.
+          if (selectedPeriod !== 'friends') return;
           selectedPeriod = 'friends';
           try { localStorage.setItem(PERIOD_KEY, selectedPeriod); } catch (_) {}
           rankSelectionTouched = false;
