@@ -2234,16 +2234,34 @@ function refreshGuestDeletionCard() {
       start.classList.toggle('hidden', isPending);
       start.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete Guest account';
     }
+    const deadline = isPending ? Date.parse(profile.guestDeletionScheduledAt) : NaN;
+    const remainingMs = Number.isFinite(deadline) ? Math.max(0, deadline - Date.now()) : 0;
+    const countdownActive = isPending && remainingMs > 0;
     if (pending) {
       pending.classList.toggle('hidden', !isPending);
       if (isPending) {
-        const until = new Date(profile.guestDeletionScheduledAt);
-        pending.textContent = 'Deletion pending · ' + (Number.isNaN(until.getTime()) ? profile.guestDeletionScheduledAt : until.toLocaleString()) + ' পর্যন্ত account চালু থাকবে।';
+        if (countdownActive) {
+          const totalSeconds = Math.floor(remainingMs / 1000);
+          const days = Math.floor(totalSeconds / 86400);
+          const hours = Math.floor((totalSeconds % 86400) / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          const parts = [];
+          if (days) parts.push(days + 'd');
+          parts.push(String(hours).padStart(2, '0') + 'h', String(minutes).padStart(2, '0') + 'm', String(seconds).padStart(2, '0') + 's');
+          pending.innerHTML = '<strong>Deletion pending</strong><div style="font-size:1.35rem;font-weight:900;letter-spacing:.04em;margin:5px 0">' + parts.join(' ') + ' remaining</div><small>সময় শেষ না হওয়া পর্যন্ত আপনার Guest account চালু থাকবে।</small>';
+        } else {
+          pending.textContent = '২৪ ঘণ্টার সময়সীমা শেষ হয়েছে। Server cleanup শিগগিরই deletion সম্পন্ন করবে; এই পর্যায়ে cancellation আর সম্ভব নয়।';
+        }
       }
     }
-    if (cancel) cancel.classList.toggle('hidden', !isPending);
+    if (cancel) cancel.classList.toggle('hidden', !countdownActive);
+    if (start) start.classList.toggle('hidden', isPending);
 }
 window.addEventListener('student-progress-updated', refreshGuestDeletionCard);
+if (!window.__guestDeletionCountdownTimer) {
+    window.__guestDeletionCountdownTimer = window.setInterval(refreshGuestDeletionCard, 1000);
+}
 
 window.handleAccountDeletion = function() {
     if (document.getElementById('account-delete-confirmation-modal')) return;
