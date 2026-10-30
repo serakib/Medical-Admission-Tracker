@@ -912,11 +912,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     } else if (!promotion) {
       stateTitle = 'Safe Zone অর্জিত';
       stateDetail = 'Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
-      rightLabel = '+' + remainingToPromotion.toLocaleString() + ' RP';
     } else {
       stateTitle = 'Promotion Zone অর্জিত';
       stateDetail = 'পরের sub-rank-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
-      rightLabel = '+' + remainingToRank.toLocaleString() + ' RP';
       trackState = 'is-safe is-promotion';
     }
 
