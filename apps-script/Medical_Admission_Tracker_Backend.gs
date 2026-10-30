@@ -237,7 +237,7 @@ function setupBackend() {
     friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
-    weeklyDemotion: 'Runs every Saturday at about 01:00 Asia/Dhaka; reviews the previous Saturday-Friday week and applies at most one subrank demotion per student'
+    weeklyRankReview: 'Runs every Saturday at about 01:00 Asia/Dhaka; reviews the previous Saturday-Friday week, applies one rank-zone outcome, resets weekly RP, and grants the new rank Safe Zone starting RP'
   };
   Logger.log(JSON.stringify(result, null, 2));
   return result;
