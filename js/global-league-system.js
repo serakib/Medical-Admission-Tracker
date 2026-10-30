@@ -1023,19 +1023,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var explicitWeekly = row.weeklyRankPoints != null ? row.weeklyRankPoints : row.weeklyRP;
     return Math.max(0, Number(explicitWeekly != null ? explicitWeekly : row.boardPoints) || 0);
   }
-  // Weekly leaderboard zones are determined by RP earned inside the selected sub-rank.
-  // Do not use weekly leaderboard score or lifetime RP for zone membership/order.
+  // Weekly leaderboard progress and zone membership must use only RP earned
+  // during the current week. Lifetime rank is still used to choose the applicable
+  // rank threshold, but lifetime RP/rankProgress must never drive weekly progress.
   function subRankPointsForRow(row) {
-    if (!row) return 0;
-    // Use the same canonical sub-rank RP calculation as the trophy progress panel.
-    // rankPoints is tier-cumulative, so subtract the already completed milestones.
-    if (typeof getTierRankProgressView === 'function') {
-      var progress = getTierRankProgressView(row);
-      if (progress && Number.isFinite(Number(progress.subrankEarnedRP))) {
-        return Math.max(0, Number(progress.subrankEarnedRP) || 0);
-      }
-    }
-    return Math.max(0, Number(row.rankPoints != null ? row.rankPoints : row.rp) || 0);
+    return weeklyPointsForRow(row);
   }
   function isInWeeklyPromotionZone(row) {
     if (isMaxRankRow(row)) return false;
