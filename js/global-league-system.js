@@ -546,7 +546,14 @@
     var rank = RANKS.indexOf(raw.rank || raw.Rank) >= 0 ? (raw.rank || raw.Rank) : RANKS[0];
     var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
     var storedTotalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
-    var weeklyRP = Math.max(0, Number(raw.weeklyRP != null ? raw.weeklyRP : raw.weeklyRankPoints != null ? raw.weeklyRankPoints : 0) || 0);
+    // Prefer explicit week totals. Older API deployments may expose the requested
+    // period score as rankScore/score/boardPoints instead of weeklyRP fields.
+    var weeklySource = raw.weeklyRP != null ? raw.weeklyRP
+      : raw.weeklyRankPoints != null ? raw.weeklyRankPoints
+      : ((selectedPeriod === 'weekly' || selectedPeriod === 'friends')
+        ? (raw.rankScore != null ? raw.rankScore : raw.score != null ? raw.score : raw.boardPoints != null ? raw.boardPoints : 0)
+        : 0);
+    var weeklyRP = Math.max(0, Number(weeklySource) || 0);
     // Keep the lifetime >= current-week invariant even when consuming a stale/legacy API payload.
     var totalRP = Math.max(storedTotalRP, weeklyRP);
     var xp = Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0);
@@ -875,7 +882,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var safe = isCompleted || (safeThreshold > 0 && earnedRP >= safeThreshold);
     var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
     var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
-    var selectedTier = RANKS[selectedRankIndex].split(' ')[0];
     var selectedNextRank = isFinalTrophy ? '' : RANKS[selectedRankIndex + 1];
 
     // A future trophy has no personal RP progress yet. It becomes active only
@@ -897,25 +903,22 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var rightLabel;
     var trackState = safe ? 'is-safe' : 'is-at-risk';
     if (isCompleted) {
-      stateTitle = 'Sub-rank completed · ✓';
-      stateDetail = RANKS[selectedRankIndex] + ' আগেই সম্পন্ন হয়েছে। এই sub-rank-এর milestone পুরোপুরি পূর্ণ।';
+      stateTitle = 'Completed ✓';
+      stateDetail = 'এই sub-rank unlock হয়েছে।';
       rightLabel = 'COMPLETED';
       trackState = 'is-safe is-promotion';
     } else if (!safe) {
       stateTitle = 'Safe Zone-এর নিচে';
-      stateDetail = 'Safe Zone-এ যেতে আরও ' + remainingToSafe.toLocaleString() + ' RP প্রয়োজন। Safe boundary ' +
-        safeThreshold.toLocaleString() + ' RP; Promotion boundary ' + promotionThreshold.toLocaleString() + ' RP।';
-      rightLabel = '+' + remainingToSafe.toLocaleString() + ' RP to Safe';
+      stateDetail = 'Safe Zone-এ যেতে আরও ' + remainingToSafe.toLocaleString() + ' RP দরকার।';
+      rightLabel = '+' + remainingToSafe.toLocaleString() + ' RP';
     } else if (!promotion) {
-      stateTitle = 'Safe Zone অর্জিত · Promotion Zone বাকি';
-      stateDetail = 'Safe Zone পার হয়েছে। Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() +
-        ' RP প্রয়োজন। Promotion boundary ' + promotionThreshold.toLocaleString() + ' RP।';
-      rightLabel = '+' + remainingToPromotion.toLocaleString() + ' RP to Promotion';
+      stateTitle = 'Safe Zone অর্জিত';
+      stateDetail = 'Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
+      rightLabel = '+' + remainingToPromotion.toLocaleString() + ' RP';
     } else {
       stateTitle = 'Promotion Zone অর্জিত';
-      stateDetail = 'Promotion Zone পার হয়েছে। পরের sub-rank-এ উঠতে আরও ' + remainingToRank.toLocaleString() +
-        ' RP প্রয়োজন; ' + requiredRP.toLocaleString() + ' RP হলে milestone সম্পূর্ণ হবে।';
-      rightLabel = '+' + remainingToRank.toLocaleString() + ' RP to Rank';
+      stateDetail = 'পরের sub-rank-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
+      rightLabel = '+' + remainingToRank.toLocaleString() + ' RP';
       trackState = 'is-safe is-promotion';
     }
 
@@ -936,25 +939,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         promotionThreshold.toLocaleString() + ' RP</span></div>'
       : '<div class="mat-rank-locked"><i class="fa-solid fa-trophy"></i><span>এই সর্বোচ্চ sub-rank-এর পরে আর কোনো promotion milestone নেই।</span></div>';
 
-    var relationshipText = isCompleted
-      ? 'এই Trophy current rank-এর আগের completed milestone।'
-      : (isCurrent
-        ? 'এটি তোমার current sub-rank; RP এই rank-এর milestone থেকেই গণনা হচ্ছে।'
-        : 'এটি পরবর্তী sub-rank; আগের milestone সম্পূর্ণ হলে এখানে RP জমা শুরু হবে।');
-
     area.innerHTML =
       '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) + ' → ' +
-      escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>Individual Sub-rank RP: ' +
-      earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' · Current rank: ' +
-      escapeHtml(me.rank) + ' · Lifetime RP: ' + lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp">' +
+      escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
+      earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
+      escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp">' +
       rightLabel + '</span></div>' + track +
-      '<div class="mat-rank-foot"><span>' + escapeHtml(selectedTier) + ' Tier · ' +
-      (isCompleted ? 'Previous milestone completed' : (isCurrent ? 'Current milestone' : 'Upcoming milestone')) +
-      '</span><span>' + progressPercent.toFixed(1) + '% complete</span></div>' +
       '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
       '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
-      '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) + ' ' +
-      escapeHtml(relationshipText) + '</small></span></div>';
+      '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) +
+      '</small></span></div>';
   }
   function updateTopControls(me) {
     var rp = document.getElementById('med-top-rp');
@@ -988,9 +982,15 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   function extractEntries(response) {
     if (Array.isArray(response)) return response;
     if (!response) return [];
-    if (Array.isArray(response.entries)) return response.entries;
-    if (Array.isArray(response.users)) return response.users;
-    if (Array.isArray(response.leaderboard)) return response.leaderboard;
+    // Prefer the first non-empty supported collection. Some older deployments
+    // include an empty "entries" array beside a populated "users" or "weeklyEntries".
+    var collections = [response.entries, response.weeklyEntries, response.users, response.leaderboard];
+    for (var i = 0; i < collections.length; i++) {
+      if (Array.isArray(collections[i]) && collections[i].length) return collections[i];
+    }
+    for (var j = 0; j < collections.length; j++) {
+      if (Array.isArray(collections[j])) return collections[j];
+    }
     return [];
   }
   function safeZoneThresholdFor(row) {
@@ -1576,12 +1576,23 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var entries = extractEntries(response);
       var responsePeriod = String(response && (response.period || response.scope) || '').toLowerCase();
       var hasWeeklyScores = entries.length > 0 && entries.every(function (entry) {
-        return entry && (Object.prototype.hasOwnProperty.call(entry, 'weeklyRP') ||
-          Object.prototype.hasOwnProperty.call(entry, 'weeklyRankPoints'));
+        return entry && (
+          Object.prototype.hasOwnProperty.call(entry, 'weeklyRP') ||
+          Object.prototype.hasOwnProperty.call(entry, 'weeklyRankPoints') ||
+          Object.prototype.hasOwnProperty.call(entry, 'rankScore') ||
+          Object.prototype.hasOwnProperty.call(entry, 'score') ||
+          Object.prototype.hasOwnProperty.call(entry, 'boardPoints')
+        );
       });
-      if (periodForRequest === 'weekly' && response &&
-          response.weekly !== true && responsePeriod !== 'weekly' && !hasWeeklyScores) {
-        throw new Error('Apps Script Web App থেকে Weekly RP data আসেনি। Latest Medical_Admission_Tracker_Backend.gs version deploy করতে হবে।');
+      var explicitWrongPeriod = !!responsePeriod && responsePeriod !== 'weekly';
+      if (periodForRequest === 'weekly' && response && explicitWrongPeriod) {
+        throw new Error('Weekly tab-এ API থেকে All-time data এসেছে। Apps Script deployment-এর period handling যাচাই করুন।');
+      }
+      // An empty weekly board is a valid result. Legacy deployments may omit period
+      // metadata, so only reject populated rows that contain no weekly/period score.
+      if (periodForRequest === 'weekly' && entries.length > 0 &&
+          response.weekly !== true && !hasWeeklyScores) {
+        throw new Error('Weekly RP fields পাওয়া যায়নি। Apps Script leaderboard response-এর weekly score fields যাচাই করুন।');
       }
       rawRows = entries.slice();
       var rows = normalizeRows(entries);
