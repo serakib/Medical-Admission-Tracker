@@ -1085,7 +1085,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
     if (selectedPeriod === 'friends') {
-      if (window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function') {
+      if (window.MedStudentFriends && typeof window.MedStudentFriends.getLeaderboardFriendIds === 'function') {
+        var friendIds = new Set(window.MedStudentFriends.getLeaderboardFriendIds().map(String));
+        all = all.filter(function (row) { return row.isMine || friendIds.has(String(row.userId)); });
+      } else if (window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function') {
         var friendIds = new Set(window.MedStudentFriends.getFriendIds().map(String));
         all = all.filter(function (row) { return row.isMine || friendIds.has(String(row.userId)); });
       } else {
