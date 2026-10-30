@@ -806,6 +806,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     };
   }
   function renderRankRail(rows) {
+    var banner = document.getElementById('med-sheet-rank-banner');
+    if (banner) banner.style.display = selectedPeriod === 'friends' ? 'none' : '';
+    if (selectedPeriod === 'friends') return;
     var rail = document.getElementById('med-rank-rail');
     if (!rail) return;
     bindRankRailSwipe(rail);
@@ -1165,7 +1168,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     renderRankRail(all);
     updateTopControls(me);
-    if (window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.paint === 'function') {
+    if (selectedPeriod !== 'friends' && window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.paint === 'function') {
       window.MedAchievementVaultTrophies.paint(displayRows);
     }
     if (window.MedStudentFriends && typeof window.MedStudentFriends.renderRequestPanel === 'function') {
@@ -1277,6 +1280,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       button.style.setProperty('box-shadow', active ? '0 5px 14px rgba(5,150,105,.20)' : 'none', 'important');
     });
     renderLeaderboardPeriodNote();
+    var rankBanner = document.getElementById('med-sheet-rank-banner');
+    if (rankBanner) rankBanner.style.display = selectedPeriod === 'friends' ? 'none' : '';
     var friendsPanel = document.getElementById('leaderboard-friends-panel');
     if (friendsPanel) friendsPanel.classList.toggle('hidden', selectedPeriod !== 'friends');
     var manageFriendsButton = document.getElementById('leaderboard-manage-friends');
