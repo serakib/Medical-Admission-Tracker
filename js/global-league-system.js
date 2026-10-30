@@ -936,7 +936,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isWeeklyLeaderboard = selectedPeriod === 'weekly';
     var isCurrent = selectedRankIndex === currentRankIndex;
     var baseRequiredRP = rankPromotionCostForIndex(selectedRankIndex);
-    var requiredRPMultiplier = selectedPeriod === 'alltime'
+    var requiredRPMultiplier = selectedPeriod === 'all-time'
       ? Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5)
       : 1;
     var requiredRP = baseRequiredRP * requiredRPMultiplier;
