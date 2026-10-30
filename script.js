@@ -1029,7 +1029,9 @@ class MedicalExamApp {
         const deleteCard = document.getElementById('account-delete-card');
         const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
             user.providerData.some(provider => provider && provider.providerId === 'password'));
-        if (deleteCard) deleteCard.classList.toggle('hidden', !hasEmailPassword);
+        const isGuestProfile = !user && String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+        if (deleteCard) deleteCard.classList.toggle('hidden', !(hasEmailPassword || isGuestProfile));
+        refreshGuestDeletionCard();
     }
 
     openAccountAuth(mode = 'login') {
@@ -2180,9 +2182,119 @@ window.handleLogout = function() {
  * Password reset exactly reuses Firebase sendPasswordResetEmail from the existing
  * Medical-Admission-Tracker-login website's Forgot Password flow.
  */
+function refreshGuestDeletionCard() {
+    const card = document.getElementById('account-delete-card');
+    if (!card) return;
+    const profile = window.app?.profile || {};
+    const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' && !auth.currentUser;
+    if (isGuest) card.classList.remove('hidden');
+    const title = card.querySelector('h3');
+    const description = card.querySelector('p');
+    const start = card.querySelector('#account-delete-start');
+    let pending = card.querySelector('#guest-deletion-pending');
+    let cancel = card.querySelector('#guest-deletion-cancel');
+    if (!pending) {
+      pending = document.createElement('div');
+      pending.id = 'guest-deletion-pending';
+      pending.className = 'hidden mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200';
+      card.appendChild(pending);
+    }
+    if (!cancel) {
+      cancel = document.createElement('button');
+      cancel.id = 'guest-deletion-cancel';
+      cancel.type = 'button';
+      cancel.className = 'hidden mt-2 rounded-xl border border-amber-500 px-4 py-2 text-sm font-bold text-amber-800 hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-amber-950/50';
+      cancel.textContent = 'Cancel deletion';
+      card.appendChild(cancel);
+      cancel.addEventListener('click', async () => {
+        cancel.disabled = true;
+        try {
+          const api = window.MedGlobalLeague;
+          if (!api?.cancelGuestDeletion) throw new Error('Guest deletion API এখনো প্রস্তুত নয়।');
+          await api.cancelGuestDeletion();
+          refreshGuestDeletionCard();
+          alert('Guest account deletion cancelled. আপনার account স্বাভাবিকভাবে চালু আছে।');
+        } catch (error) {
+          alert(error?.message || 'Deletion cancel করা যায়নি।');
+        } finally { cancel.disabled = false; }
+      });
+    }
+    if (!isGuest) {
+      if (title) title.textContent = 'Delete Account';
+      if (pending) pending.classList.add('hidden');
+      if (cancel) cancel.classList.add('hidden');
+      return;
+    }
+    const isPending = profile.guestDeletionPending === true && !!profile.guestDeletionScheduledAt;
+    if (title) title.textContent = isPending ? 'Guest deletion pending' : 'Delete Guest Account';
+    if (description) description.textContent = isPending
+      ? 'আপনার Guest account এখনো চালু আছে। নির্ধারিত সময় শেষ হওয়ার আগে চাইলে deletion cancel করতে পারবেন।'
+      : 'Password ছাড়াই Guest account delete request করা যাবে। দুইবার confirmation-এর পর ২৪ ঘণ্টা pending থাকবে; এই সময়ে account ব্যবহার করতে পারবেন।';
+    if (start) {
+      start.classList.toggle('hidden', isPending);
+      start.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete Guest account';
+    }
+    if (pending) {
+      pending.classList.toggle('hidden', !isPending);
+      if (isPending) {
+        const until = new Date(profile.guestDeletionScheduledAt);
+        pending.textContent = 'Deletion pending · ' + (Number.isNaN(until.getTime()) ? profile.guestDeletionScheduledAt : until.toLocaleString()) + ' পর্যন্ত account চালু থাকবে।';
+      }
+    }
+    if (cancel) cancel.classList.toggle('hidden', !isPending);
+}
+window.addEventListener('student-progress-updated', refreshGuestDeletionCard);
+
 window.handleAccountDeletion = function() {
     if (document.getElementById('account-delete-confirmation-modal')) return;
     const user = auth.currentUser || window.app?.authUser;
+    const guestProfile = window.app?.profile || {};
+    if (!user && String(guestProfile.accountType || '').toUpperCase() === 'GUEST') {
+      const overlay = document.createElement('div');
+      overlay.id = 'account-delete-confirmation-modal';
+      overlay.className = 'fixed inset-0 z-[10001] flex items-center justify-center bg-slate-950/70 p-4';
+      overlay.innerHTML = `
+        <section role="dialog" aria-modal="true" class="w-full max-w-md rounded-2xl border border-red-200 bg-white p-5 shadow-2xl dark:border-red-900 dark:bg-slate-900">
+          <div class="mb-3 flex items-center gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600"><i class="fa-solid fa-hourglass-half"></i></span><h2 class="text-lg font-bold text-slate-900 dark:text-white">Guest account delete করবেন?</h2></div>
+          <p class="mb-4 text-sm leading-6 text-slate-600 dark:text-slate-300">প্রথম confirmation-এর পরও account delete হবে না। দ্বিতীয় confirmation দিলে ২৪ ঘণ্টার pending period শুরু হবে। এই সময়ে আপনি এই Guest account-এই পড়াশোনা ও পরীক্ষা চালিয়ে যেতে পারবেন।</p>
+          <div class="flex justify-end gap-2"><button type="button" data-guest-delete-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold">Cancel</button><button type="button" data-guest-delete-next class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white">Continue</button></div>
+        </section>`;
+      document.body.appendChild(overlay);
+      const close = () => overlay.remove();
+      overlay.querySelector('[data-guest-delete-cancel]').onclick = close;
+      overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+      overlay.querySelector('[data-guest-delete-next]').onclick = () => {
+        const dialog = overlay.querySelector('[role="dialog"]');
+        dialog.innerHTML = `
+          <div class="mb-3 flex items-center gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600"><i class="fa-solid fa-triangle-exclamation"></i></span><h2 class="text-lg font-bold text-slate-900 dark:text-white">Final confirmation</h2></div>
+          <p class="mb-4 text-sm leading-6 text-slate-600 dark:text-slate-300">আপনি কি নিশ্চিতভাবে এই Guest account delete করতে চান? Confirm করলে ২৪ ঘণ্টার countdown শুরু হবে। এই সময় account চালু থাকবে এবং Cancel deletion করা যাবে। সময় শেষ হলে account ও সংশ্লিষ্ট data স্থায়ীভাবে মুছে যাবে।</p>
+          <p id="guest-delete-status" class="hidden mb-3 rounded-xl p-3 text-sm" role="status"></p>
+          <div class="flex justify-end gap-2"><button type="button" data-guest-delete-back class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold">Go back</button><button type="button" data-guest-delete-confirm class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white">Confirm 24-hour deletion</button></div>`;
+        dialog.querySelector('[data-guest-delete-back]').onclick = () => { close(); };
+        dialog.querySelector('[data-guest-delete-confirm]').onclick = async event => {
+          const button = event.currentTarget;
+          const status = dialog.querySelector('#guest-delete-status');
+          button.disabled = true;
+          button.textContent = 'Requesting…';
+          status.textContent = 'Deletion request save হচ্ছে…';
+          status.className = 'mb-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200';
+          status.classList.remove('hidden');
+          try {
+            const api = window.MedGlobalLeague;
+            if (!api?.requestGuestDeletion) throw new Error('Guest deletion API এখনো প্রস্তুত নয়।');
+            await api.requestGuestDeletion();
+            close();
+            refreshGuestDeletionCard();
+            alert('আপনার Guest account-এর deletion ২৪ ঘণ্টার জন্য pending করা হয়েছে। এই সময় account ব্যবহার করতে পারবেন এবং Danger Zone থেকে cancel করতে পারবেন।');
+          } catch (error) {
+            status.textContent = error?.message || 'Deletion request save হয়নি।';
+            button.disabled = false;
+            button.textContent = 'Confirm 24-hour deletion';
+          }
+        };
+      };
+      return;
+    }
     const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
         user.providerData.some(provider => provider && provider.providerId === 'password'));
     if (!hasEmailPassword) {
