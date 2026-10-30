@@ -865,7 +865,7 @@
       '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
       '<div class="profile-avatar-options" aria-label="Available avatars">' + googleOptions + presetOptions + uploadedOptions + '</div>' +
       compareMarkup +
-      '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span>PNG/JPG/JPEG/WEBP/SVG · ছবি ≤ 5 MB (8000×8000 px), SVG ≤ 50 KB · ভুল/নষ্ট ফাইলে সঙ্গে সঙ্গে error · সর্বোচ্চ ৮টি avatar · Preview দেখে Confirm করুন</span></div>' +
+      '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span>PNG/JPG/JPEG/WEBP/SVG · ছবি ≤ 5 MB (8000×8000 px), SVG ≤ 50 KB</span></div>' +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
   }
