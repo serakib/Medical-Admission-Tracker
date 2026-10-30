@@ -1017,9 +1017,14 @@ function matGetPBExpirySettings_(student) {
 function matPBExpiryAt_(earnedAt, value, unit) {
   const date = new Date(Math.max(0, Number(earnedAt) || Date.now()));
   const amount = Math.max(1, Math.min(999, Math.floor(Number(value) || 2)));
-  if (unit === 'year') date.setFullYear(date.getFullYear() + amount);
-  else if (unit === 'month') date.setMonth(date.getMonth() + amount);
-  else if (unit === 'day') date.setDate(date.getDate() + amount);
+  if (unit === 'year' || unit === 'month') {
+    const originalDay = date.getDate();
+    date.setDate(1);
+    if (unit === 'year') date.setFullYear(date.getFullYear() + amount);
+    else date.setMonth(date.getMonth() + amount);
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    date.setDate(Math.min(originalDay, lastDay));
+  } else if (unit === 'day') date.setDate(date.getDate() + amount);
   else date.setHours(date.getHours() + amount);
   return date.getTime();
 }
