@@ -286,12 +286,11 @@ function processWeeklyRankDemotions() {
         return;
       }
 
-      const student = matPrepareRankProgress_(matNormaliseStudent_(source), studentsSheet);
+      const student = matReconcileStoredRankProgress_(source);
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
 
       const currentMilestoneRP = matRankMilestoneCap_(rankIndex);
-      const currentRankCost = matRankPromotionCost_(rankIndex);
       const subRankEarnedRP = Math.max(0, matFiniteNumber_(student.RP, 0) - currentMilestoneRP);
       const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
