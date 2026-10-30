@@ -343,8 +343,28 @@
     const switcher = host.querySelector('#achievement-vault-switch');
     if (switcher) {
       const toggle = function() {
-        activeVaultType = activeVaultType === 'alltime' ? 'weekly' : 'alltime';
-        renderCollection();
+        if (switcher.dataset.transitioning === 'true') return;
+        const nextType = activeVaultType === 'alltime' ? 'weekly' : 'alltime';
+        const slider = switcher.querySelector('.slider');
+        const label = switcher.querySelector('.text-content');
+        if (!slider || !label) {
+          activeVaultType = nextType;
+          renderCollection();
+          return;
+        }
+        switcher.dataset.transitioning = 'true';
+        activeVaultType = nextType;
+        const nextIsAllTime = nextType === 'alltime';
+        switcher.classList.toggle('alltime-active', nextIsAllTime);
+        switcher.setAttribute('aria-checked', String(nextIsAllTime));
+        label.textContent = nextIsAllTime ? 'Weekly Vault' : 'Alltime Vault';
+        const finishTransition = function(event) {
+          if (event && (event.target !== slider || event.propertyName !== 'transform')) return;
+          slider.removeEventListener('transitionend', finishTransition);
+          switcher.dataset.transitioning = 'false';
+          renderCollection();
+        };
+        slider.addEventListener('transitionend', finishTransition);
       };
       switcher.addEventListener('click', toggle);
       switcher.addEventListener('keydown', function(event) {
