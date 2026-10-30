@@ -1146,13 +1146,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + safeStatus + '</div></div></td>';
         body.appendChild(tr);
       });
-      if (selectedPeriod === 'weekly' && !promotionDividerInserted && promotionRows.length && !safeRows.length && !riskRows.length) {
-        var finalPromotionDivider = document.createElement('tr');
-        finalPromotionDivider.className = 'promotion-zone-divider';
-        finalPromotionDivider.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content"><i class="fa-solid fa-trophy"></i><span>PROMOTION ZONE BOUNDARY</span><span class="sr-only">All listed students have reached the weekly promotion threshold.</span></div></td>';
-        body.appendChild(finalPromotionDivider);
-      }
-      if (selectedPeriod === 'weekly' && !safeDividerInserted && safeRows.length && !riskRows.length) {
+      if (selectedPeriod === 'weekly' && !safeDividerInserted && (safeRows.length || promotionRows.length) && !riskRows.length) {
         var finalDivider = document.createElement('tr');
         finalDivider.className = 'safe-zone-divider';
         finalDivider.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content"><i class="fa-solid fa-shield-halved"></i><span>SAFE ZONE BOUNDARY</span><span class="sr-only">All listed students are above this line.</span></div></td>';
