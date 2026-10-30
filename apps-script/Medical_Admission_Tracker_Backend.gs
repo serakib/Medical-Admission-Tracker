@@ -58,7 +58,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending'
+  'LastWeeklyDemotionWeek', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -176,6 +176,10 @@ function matDispatch_(action, p) {
       return matRemoveFriend_(p || {});
     case 'deleteAccount':
       return matDeleteAccount_(p || {});
+    case 'requestGuestDeletion':
+      return matRequestGuestDeletion_(p || {});
+    case 'cancelGuestDeletion':
+      return matCancelGuestDeletion_(p || {});
     case 'submitExam':
     case 'recordExam':
     case 'gameEnd': // compatibility action name only; uses Medical-only rewards.
@@ -410,6 +414,8 @@ function cleanupExpiredGuestAccounts() {
     const expired = students.filter(function (student) {
       if (String(student.AccountType || '').toUpperCase() !== 'GUEST' || !student._rowNumber) return false;
 
+      const scheduledDeletionMs = Date.parse(String(student.GuestDeletionScheduledAt || ''));
+      if (Number.isFinite(scheduledDeletionMs) && scheduledDeletionMs > 0 && scheduledDeletionMs <= nowMs) return true;
       const lastSeenMs = Date.parse(String(student.LastSeenAt || student.CreatedAt || ''));
       const inactive90Days = Number.isFinite(lastSeenMs) && nowMs - lastSeenMs >= ninetyDaysMs;
       if (inactive90Days) return true;
@@ -476,7 +482,8 @@ function matCreateGuest_(p) {
     const existing = matFindGuestByToken_(providedToken);
     if (existing) {
       matUpdateLastSeen_(existing);
-      return { success: true, user: matPublicProfile_(existing, true), guestToken: providedToken, existing: true };
+      const latest = matFindStudentById_(existing.UserID) || existing;
+      return { success: true, user: matPublicProfile_(latest, true), guestToken: providedToken, existing: true, deletionPending: !!latest.GuestDeletionScheduledAt };
     }
   }
 
@@ -2146,6 +2153,61 @@ function matRemoveFriend_(p) {
  * Remove the authenticated account's Medical Sheets data. This validates Firebase
  * directly so cleanup can be retried if a client-side deletion step fails later.
  */
+function matRequestGuestDeletion_(p) {
+  const user = matAuthenticate_(p);
+  if (String(user.AccountType || '').toUpperCase() !== 'GUEST') throw new Error('This flow is only for Guest accounts.');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const latest = matFindStudentById_(user.UserID);
+    if (!latest || String(latest.AccountType || '').toUpperCase() !== 'GUEST') throw new Error('Guest account not found.');
+    if (latest.GuestDeletionScheduledAt) {
+      const scheduled = Date.parse(String(latest.GuestDeletionScheduledAt));
+      if (Number.isFinite(scheduled) && scheduled > Date.now()) {
+        return { success: true, pending: true, requestedAt: String(latest.GuestDeletionRequestedAt || ''), scheduledAt: String(latest.GuestDeletionScheduledAt), user: matPublicProfile_(latest, true) };
+      }
+    }
+    const now = Date.now();
+    const requestedAt = new Date(now).toISOString();
+    const scheduledAt = new Date(now + 24 * 60 * 60 * 1000).toISOString();
+    matUpdateObjectRow_(matGetStudentsSheet_(), latest._rowNumber, {
+      GuestDeletionRequestedAt: requestedAt,
+      GuestDeletionScheduledAt: scheduledAt,
+      LastSeenAt: requestedAt,
+      UpdatedAt: requestedAt
+    });
+    const updated = matFindStudentById_(user.UserID);
+    return { success: true, pending: true, requestedAt: requestedAt, scheduledAt: scheduledAt, user: matPublicProfile_(updated, true) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function matCancelGuestDeletion_(p) {
+  const user = matAuthenticate_(p);
+  if (String(user.AccountType || '').toUpperCase() !== 'GUEST') throw new Error('This flow is only for Guest accounts.');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const latest = matFindStudentById_(user.UserID);
+    if (!latest || String(latest.AccountType || '').toUpperCase() !== 'GUEST') throw new Error('Guest account not found.');
+    const scheduled = Date.parse(String(latest.GuestDeletionScheduledAt || ''));
+    if (!Number.isFinite(scheduled) || !latest.GuestDeletionScheduledAt || scheduled <= Date.now()) {
+      throw new Error('The deletion window has ended or no deletion is pending.');
+    }
+    matUpdateObjectRow_(matGetStudentsSheet_(), latest._rowNumber, {
+      GuestDeletionRequestedAt: '',
+      GuestDeletionScheduledAt: '',
+      LastSeenAt: matNowIso_(),
+      UpdatedAt: matNowIso_()
+    });
+    const updated = matFindStudentById_(user.UserID);
+    return { success: true, pending: false, user: matPublicProfile_(updated, true) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function matDeleteAccount_(p) {
   p = p || {};
   const idToken = String(p.idToken || p.firebaseIdToken || '').trim();
@@ -2437,6 +2499,9 @@ function matPublicProfile_(r, includeEmail) {
     name: s.Name,
     username: s.Name,
     accountType: String(s.AccountType || 'GUEST'),
+    guestDeletionPending: String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt,
+    guestDeletionRequestedAt: String(s.GuestDeletionRequestedAt || ''),
+    guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
     college: String(s.College || ''),
     batch: String(s.Batch || ''),
     avatar: String(s.Avatar || ''),
