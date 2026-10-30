@@ -269,6 +269,7 @@ function processWeeklyRankDemotions() {
     const weekStart = matWeekStartKey_();
     const previousWeekStart = matOffsetDateKey_(weekStart, -7);
     const previousWeekRPByUser = matGetWeeklyRPByUser_(previousWeekStart, weekStart);
+    const historicalHighestWeeklyRPByUser = matGetHighestWeeklyRPByUser_(weekStart);
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
     let processed = 0;
@@ -315,6 +316,7 @@ function processWeeklyRankDemotions() {
       const highestWeeklyRP = Math.max(
         0,
         matFiniteNumber_(student.HighestWeeklyRP, 0),
+        matFiniteNumber_(historicalHighestWeeklyRPByUser[userId], 0),
         previousWeekRP
       );
       const eventId = 'WEEKLY-START-' + weekStart + '-' + userId;
@@ -1488,6 +1490,44 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   };
   if (safePeriod === 'weekly') response.weeklyEntries = limited;
   return response;
+}
+
+function matWeekStartKeyForDate_(dateKey) {
+  const parts = String(dateKey || '').split('-').map(Number);
+  if (parts.length !== 3 || !parts.every(Number.isFinite)) return '';
+  const utc = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+  const daysSinceSaturday = (utc.getUTCDay() + 1) % 7;
+  utc.setUTCDate(utc.getUTCDate() - daysSinceSaturday);
+  return Utilities.formatDate(utc, 'UTC', 'yyyy-MM-dd');
+}
+
+// Backfill the all-time weekly record from existing exam and RP event history,
+// so the new profile stat does not start at zero for accounts with older data.
+function matGetHighestWeeklyRPByUser_(endExclusive) {
+  const weekEnd = String(endExclusive || '');
+  const totalsByWeek = {};
+  matReadObjects_(matGetExamSheet_()).forEach(function (row) {
+    const recordType = String(row.RecordType || '').toUpperCase();
+    if (!matIsExamRecord_(row) && recordType !== 'RP_EVENT') return;
+    const dateKey = matDateKey_(row.SubmittedAt);
+    if (!dateKey || (weekEnd && dateKey >= weekEnd)) return;
+    const userId = String(row.UserID || '');
+    const weekKey = matWeekStartKeyForDate_(dateKey);
+    if (!userId || !weekKey) return;
+    if (!totalsByWeek[weekKey]) totalsByWeek[weekKey] = {};
+    totalsByWeek[weekKey][userId] = (totalsByWeek[weekKey][userId] || 0) +
+      Math.max(0, matFiniteNumber_(row.RPEarned, 0));
+  });
+  const highestByUser = {};
+  Object.keys(totalsByWeek).forEach(function (weekKey) {
+    Object.keys(totalsByWeek[weekKey]).forEach(function (userId) {
+      highestByUser[userId] = Math.max(
+        highestByUser[userId] || 0,
+        totalsByWeek[weekKey][userId]
+      );
+    });
+  });
+  return highestByUser;
 }
 
 function matGetWeeklyRPByUser_(startInclusive, endExclusive) {
