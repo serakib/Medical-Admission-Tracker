@@ -646,6 +646,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     style.textContent += '.mat-rules-dialog{width:min(100%,780px);max-height:min(84vh,860px);padding:clamp(18px,3vw,30px);border-radius:26px}.mat-rules-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-right:44px}.mat-rules-heading h2{font-size:clamp(21px,2.4vw,28px);line-height:1.25;margin-bottom:8px}.mat-rules-window-actions{flex:0 0 auto}.mat-window-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid rgba(16,185,129,.28);border-radius:12px;background:rgba(16,185,129,.09);color:#059669;font-size:12px;font-weight:850;cursor:pointer}.mat-window-toggle:hover{background:rgba(16,185,129,.16)}.mat-rules-dialog.is-fullscreen{position:fixed;inset:10px;width:auto;max-width:none;max-height:none;height:auto;border-radius:20px;padding:clamp(16px,2.5vw,32px)}.mat-rules-dialog.is-fullscreen .mat-rule-list{grid-template-columns:minmax(0,1fr);align-items:stretch}.mat-rules-dialog.is-fullscreen .mat-rules-heading{position:sticky;top:-1px;z-index:2;background:inherit;padding:0 48px 12px 0}.mat-rules-dialog.is-fullscreen .mat-rule-list details>div{font-size:13px}.mat-rules-dialog .mat-rules-kicker{letter-spacing:.02em;font-size:11px}.mat-rules-dialog .mat-rule-list summary{padding:14px}.mat-rules-dialog .mat-rule-list summary strong{font-size:14px}.mat-rules-dialog .mat-rule-list details>div{font-size:13px;line-height:1.85}.mat-rules-dialog .mat-rules-foot{padding:12px 14px;border:1px solid rgba(16,185,129,.18);border-radius:13px;background:rgba(16,185,129,.06)}@media(max-width:680px){.mat-rules-heading{display:block;padding-right:42px}.mat-rules-window-actions{margin-top:10px}.mat-rules-dialog.is-fullscreen{inset:5px;border-radius:15px;padding:15px 12px}.mat-rules-dialog.is-fullscreen .mat-rule-list{grid-template-columns:minmax(0,1fr)}.mat-rules-dialog .mat-rule-list summary{gap:8px;padding:11px}.mat-rules-dialog .mat-rule-icon{flex-basis:32px;width:32px;height:32px}.mat-rules-dialog .mat-rule-list details>div{padding:0 12px 13px 51px;font-size:12px}}  /* Accessible, color-coded rule details: make key values and cautions easy to scan. */ .mat-rules-dialog .mat-rule-list details>div{color:var(--text,#334155)} .mat-rules-dialog .mat-rule-list details>div p{color:var(--text,#334155)} .mat-rules-dialog .mat-rule-list details>div p strong{color:#075985} .mat-rules-dialog .mat-score-card{background:linear-gradient(145deg,#ecfdf5,#f0fdfa);border-color:#a7f3d0} .mat-rules-dialog .mat-score-card i,.mat-rules-dialog .mat-score-card strong{color:#047857} .mat-rules-dialog .mat-score-card.is-wrong{background:linear-gradient(145deg,#fff1f2,#fff7ed);border-color:#fecaca} .mat-rules-dialog .mat-score-card.is-wrong i,.mat-rules-dialog .mat-score-card.is-wrong strong{color:#b91c1c} .mat-rules-dialog .mat-score-card.is-skip{background:linear-gradient(145deg,#f1f5f9,#f8fafc);border-color:#cbd5e1} .mat-rules-dialog .mat-score-card.is-skip i,.mat-rules-dialog .mat-score-card.is-skip strong{color:#475569} .mat-rules-dialog .mat-rule-highlight{color:#854d0e!important;background:#fffbeb!important;border-color:#fcd34d!important} .mat-rules-dialog .mat-rule-highlight strong{color:#92400e} .mat-rules-dialog .mat-pb-range{background:linear-gradient(145deg,#eff6ff,#f5f3ff);border-color:#c7d2fe} .mat-rules-dialog .mat-pb-range strong{color:#3730a3!important} .mat-rules-dialog .mat-pb-range span{color:#047857!important} .mat-rules-dialog .mat-rule-note{color:#075985!important;background:#eff6ff!important;border:1px solid #bfdbfe} .mat-rules-dialog .mat-rule-note i{color:#2563eb!important} .mat-rules-dialog .mat-rule-list details:nth-child(3) .mat-rule-highlight{color:#9f1239!important;background:#fff1f2!important;border-color:#fda4af!important} .mat-rules-dialog .mat-rule-list details:nth-child(3) .mat-rule-highlight strong{color:#9f1239} html.dark .mat-rules-dialog .mat-rule-list details>div,body.dark .mat-rules-dialog .mat-rule-list details>div, html.dark .mat-rules-dialog .mat-rule-list details>div p,body.dark .mat-rules-dialog .mat-rule-list details>div p{color:#e2e8f0} html.dark .mat-rules-dialog .mat-score-card,body.dark .mat-rules-dialog .mat-score-card{background:linear-gradient(145deg,#12372f,#102a36);border-color:#246653} html.dark .mat-rules-dialog .mat-score-card i,html.dark .mat-rules-dialog .mat-score-card strong,body.dark .mat-rules-dialog .mat-score-card i,body.dark .mat-rules-dialog .mat-score-card strong{color:#6ee7b7} html.dark .mat-rules-dialog .mat-score-card.is-wrong,body.dark .mat-rules-dialog .mat-score-card.is-wrong{background:linear-gradient(145deg,#451b27,#38212b);border-color:#873548} html.dark .mat-rules-dialog .mat-score-card.is-wrong i,html.dark .mat-rules-dialog .mat-score-card.is-wrong strong,body.dark .mat-rules-dialog .mat-score-card.is-wrong i,body.dark .mat-rules-dialog .mat-score-card.is-wrong strong{color:#fda4af} html.dark .mat-rules-dialog .mat-score-card.is-skip,body.dark .mat-rules-dialog .mat-score-card.is-skip{background:linear-gradient(145deg,#1e293b,#273449);border-color:#475569} html.dark .mat-rules-dialog .mat-score-card.is-skip i,html.dark .mat-rules-dialog .mat-score-card.is-skip strong,body.dark .mat-rules-dialog .mat-score-card.is-skip i,body.dark .mat-rules-dialog .mat-score-card.is-skip strong{color:#cbd5e1} html.dark .mat-rules-dialog .mat-rule-highlight,body.dark .mat-rules-dialog .mat-rule-highlight{color:#fde68a!important;background:#422d12!important;border-color:#92400e!important} html.dark .mat-rules-dialog .mat-rule-highlight strong,body.dark .mat-rules-dialog .mat-rule-highlight strong{color:#fde68a} html.dark .mat-rules-dialog .mat-pb-range,body.dark .mat-rules-dialog .mat-pb-range{background:linear-gradient(145deg,#202b50,#30264b);border-color:#4f46a5} html.dark .mat-rules-dialog .mat-pb-range strong,body.dark .mat-rules-dialog .mat-pb-range strong{color:#c7d2fe!important} html.dark .mat-rules-dialog .mat-pb-range span,body.dark .mat-rules-dialog .mat-pb-range span{color:#6ee7b7!important} html.dark .mat-rules-dialog .mat-rule-note,body.dark .mat-rules-dialog .mat-rule-note{color:#bfdbfe!important;background:#172b46!important;border-color:#1d4ed8} html.dark .mat-rules-dialog .mat-rule-note i,body.dark .mat-rules-dialog .mat-rule-note i{color:#93c5fd!important}  @media(max-width:680px){.mat-rules-dialog .mat-rule-list details>div{font-size:13px;line-height:1.9}.mat-rules-dialog .mat-score-card small{color:#334155}.mat-rules-dialog .mat-pb-range{padding:10px}.mat-rules-dialog .mat-pb-range strong{font-size:12px}} /* Text-only emphasis: remove decorative fills and borders from informational details. */ .mat-rules-dialog .mat-score-card,.mat-rules-dialog .mat-score-card.is-wrong,.mat-rules-dialog .mat-score-card.is-skip,.mat-rules-dialog .mat-rule-highlight,.mat-rules-dialog .mat-pb-range,.mat-rules-dialog .mat-rule-note,.mat-rules-dialog .mat-rule-list details:nth-child(3) .mat-rule-highlight{background:transparent!important;background-image:none!important;border-color:transparent!important;box-shadow:none!important} .mat-rules-dialog .mat-score-card,.mat-rules-dialog .mat-pb-range{border:0!important} .mat-rules-dialog .mat-rule-note{border:0!important} html.dark .mat-rules-dialog .mat-score-card,body.dark .mat-rules-dialog .mat-score-card,html.dark .mat-rules-dialog .mat-score-card.is-wrong,body.dark .mat-rules-dialog .mat-score-card.is-wrong,html.dark .mat-rules-dialog .mat-score-card.is-skip,body.dark .mat-rules-dialog .mat-score-card.is-skip,html.dark .mat-rules-dialog .mat-rule-highlight,body.dark .mat-rules-dialog .mat-rule-highlight,html.dark .mat-rules-dialog .mat-pb-range,body.dark .mat-rules-dialog .mat-pb-range,html.dark .mat-rules-dialog .mat-rule-note,body.dark .mat-rules-dialog .mat-rule-note{background:transparent!important;background-image:none!important;border-color:transparent!important;box-shadow:none!important} ';
     style.textContent += '.mat-rank-track .mat-progress-star{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;width:max-content!important;min-width:58px;height:28px!important;box-sizing:border-box;padding:0 8px;border:2px solid #FFC107!important;border-radius:999px!important;background:#FFFFFF!important;color:#171717!important;font-size:12px!important;font-weight:950;line-height:1;white-space:nowrap;box-shadow:0 2px 7px rgba(15,23,42,.22),0 0 0 3px rgba(255,193,7,.12);filter:none!important;z-index:5;pointer-events:none;transition:left .35s ease,transform .35s ease,border-color .22s ease,box-shadow .22s ease}.mat-rank-track .mat-progress-star i{display:block!important;width:auto!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#D6A000!important;font-size:13px!important;line-height:1;filter:none!important}.mat-rank-track .mat-progress-star b{display:block!important;margin:0!important;padding:0!important;color:#171717!important;font-size:12px!important;font-weight:950!important;line-height:1;font-variant-numeric:tabular-nums}.mat-rank-track.is-safe .mat-progress-star{border-color:#16A36A!important;box-shadow:0 2px 7px rgba(15,23,42,.20),0 0 0 3px rgba(16,163,106,.14),0 0 10px rgba(16,185,129,.18)}.mat-rank-track.is-promotion .mat-progress-star{border-color:#A855F7!important;box-shadow:0 2px 7px rgba(15,23,42,.20),0 0 0 3px rgba(168,85,247,.15),0 0 11px rgba(168,85,247,.22)}html.dark .mat-rank-track .mat-progress-star,body.dark .mat-rank-track .mat-progress-star{background:#202020!important;color:#FFFFFF!important;border-color:#FFD700!important;box-shadow:0 2px 8px rgba(0,0,0,.48),0 0 0 3px rgba(255,215,0,.13)}html.dark .mat-rank-track .mat-progress-star b,body.dark .mat-rank-track .mat-progress-star b{color:#FFFFFF!important}html.dark .mat-rank-track .mat-progress-star i,body.dark .mat-rank-track .mat-progress-star i{color:#FFD700!important}html.dark .mat-rank-track.is-safe .mat-progress-star,body.dark .mat-rank-track.is-safe .mat-progress-star{border-color:#34D399!important;box-shadow:0 2px 8px rgba(0,0,0,.48),0 0 0 3px rgba(52,211,153,.16)}html.dark .mat-rank-track.is-promotion .mat-progress-star,body.dark .mat-rank-track.is-promotion .mat-progress-star{border-color:#C084FC!important;box-shadow:0 2px 8px rgba(0,0,0,.48),0 0 0 3px rgba(192,132,252,.16)}@media(max-width:650px){.mat-rank-track .mat-progress-star{min-width:54px;height:27px!important;padding:0 7px;font-size:11px!important}.mat-rank-track .mat-progress-star b{font-size:11px!important}}';
     style.textContent += '.mat-rank-tier{position:relative}.mat-rank-tier.is-completed{opacity:1}.mat-rank-tier.is-completed .vault-rank-trophy-svg{filter:drop-shadow(0 0 7px var(--trophy-glow)) drop-shadow(0 3px 3px rgba(16,185,129,.22))}.mat-rank-tier.is-upcoming .vault-rank-trophy-svg{filter:drop-shadow(0 0 5px var(--trophy-glow)) drop-shadow(0 2px 2px #0002);opacity:.82}.mat-rank-tier.is-current .vault-rank-trophy-svg{filter:drop-shadow(0 0 9px var(--trophy-glow)) drop-shadow(0 4px 4px rgba(250,204,21,.2))}.mat-rank-tier.is-completed:after{content:"✓";position:absolute;top:1px;right:4px;display:grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#059669;color:#fff;font-size:10px;font-weight:950;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.2)}.mat-rank-milestone-track{display:flex!important;align-items:stretch;gap:3px;overflow:visible!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}.mat-rank-milestone-track .mat-rank-step{position:relative;display:block;flex-basis:0;height:12px;min-width:2px;overflow:hidden;border-radius:999px;background:rgba(148,163,184,.28);box-shadow:inset 0 1px 2px rgba(15,23,42,.12)}.mat-rank-milestone-track .mat-rank-step>span{display:block;height:100%;max-width:100%;border-radius:inherit;background:linear-gradient(90deg,#10b981,#34d399);transition:width .3s ease}.mat-rank-milestone-track .mat-rank-step.is-in-progress>span,.mat-rank-milestone-track .mat-rank-step.is-current>span{background:linear-gradient(90deg,#f59e0b,#facc15)}.mat-rank-milestone-track .mat-rank-step.is-upcoming>span{width:0!important}';
+    style.textContent += '.mat-rank-rp{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;color:#b7791f!important;font-weight:950;white-space:nowrap}.mat-rank-rp>i{color:#f5c542;font-size:12px;filter:none!important}.mat-progress-star,.mat-rank-track.is-safe .mat-progress-star,.mat-rank-zones.is-promotion .mat-progress-star{filter:none!important}.mat-rank-tier .vault-rank-trophy-svg,.mat-rank-tier.is-completed .vault-rank-trophy-svg,.mat-rank-tier.is-upcoming .vault-rank-trophy-svg,.mat-rank-tier.is-current .vault-rank-trophy-svg,.mat-student-vault-trophy svg,.leader-rank-trophy-svg{filter:none!important}.mat-rank-zone-legend,.mat-rank-zone-legend *{text-shadow:none!important}.mat-rank-zones .mat-safe-zone-marker,.mat-rank-zones .mat-promotion-zone-marker{box-shadow:none!important}.mat-rank-zones .mat-safe-zone-marker:before,.mat-rank-zones .mat-promotion-zone-marker:before{box-shadow:none!important}#leaderboard-body tr.promotion-zone-divider>td,#leaderboard-body tr.safe-zone-divider>td{padding:10px 12px!important;border-top:1px solid currentColor!important;border-bottom:1px solid currentColor!important;background:transparent!important;letter-spacing:0!important;font-weight:850!important}#leaderboard-body tr.promotion-zone-divider>td{color:#8b5cf6!important}#leaderboard-body tr.safe-zone-divider>td{color:#059669!important}.leader-zone-divider-content{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-height:24px!important;line-height:1.3!important;white-space:normal!important}.leader-zone-divider-content>i{font-size:12px!important;filter:none!important}.leader-zone-divider-content>span:not(.sr-only){font-size:10px!important;font-weight:900!important;letter-spacing:.06em!important}.leader-zone-divider-content.is-empty{flex-wrap:wrap!important;gap:4px 8px!important;min-height:40px!important}.leader-zone-divider-content.is-empty:before,.leader-zone-divider-content.is-empty:after{display:none!important}.leader-zone-divider-content.is-empty>small{flex:1 1 100%!important;width:100%!important;text-align:center!important;font-size:10px!important;font-weight:650!important;line-height:1.4!important;letter-spacing:0!important;color:var(--muted,#64748b)!important}';
     document.head.appendChild(style);
   }
   function ensureTopControls() {
@@ -939,8 +940,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) + ' → ' +
       escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
       earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
-      escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp">' +
-      lifetimeRP.toLocaleString() + ' RP</span></div>' + track +
+      escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
+      lifetimeRP.toLocaleString() + ' RP</span></span></div>' + track +
       '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
       '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
       '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) +
@@ -1013,7 +1014,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return !!(info && info.atMax) || String(row && row.rank || '').trim().toLowerCase() === 'immortal';
   }
   function weeklyPointsForRow(row) {
-    return Math.max(0, Number(row && row.weeklyRankPoints) || Number(row && row.boardPoints) || 0);
+    if (!row) return 0;
+    var explicitWeekly = row.weeklyRankPoints != null ? row.weeklyRankPoints : row.weeklyRP;
+    return Math.max(0, Number(explicitWeekly != null ? explicitWeekly : row.boardPoints) || 0);
   }
   function isInWeeklyPromotionZone(row) {
     if (isMaxRankRow(row)) return false;
@@ -1089,6 +1092,33 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (podium) podium.innerHTML = '';
     body.innerHTML = '';
     if (mePanel) { mePanel.innerHTML = ''; mePanel.classList.add('hidden'); }
+    var safeDividerInserted = false;
+    var promotionDividerInserted = false;
+    function appendWeeklyZoneDivider(kind) {
+      if (selectedPeriod !== 'weekly') return;
+      var isPromotion = kind === 'promotion';
+      var emptyMessage = '';
+      if (isPromotion && promotionRows.length === 0) {
+        var selectedRankInfo = window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.getRankInfoForName === 'function'
+          ? window.MedAchievementVaultTrophies.getRankInfoForName(selectedRank) : null;
+        emptyMessage = selectedRankInfo && selectedRankInfo.atMax
+          ? 'এই সর্বোচ্চ rank-এ আর promotion নেই।'
+          : 'এই rank-এ এখনো কোনো student Promotion Zone-এ পৌঁছাতে পারেনি।';
+      } else if (!isPromotion && safeRows.length === 0) {
+        emptyMessage = riskRows.length
+          ? 'Promotion Zone-এর নিচে Safe Zone-এ কোনো student নেই।'
+          : (promotionRows.length ? 'সব student Safe Zone বা তার উপরে আছে।' : 'এই rank-এ এখনো কোনো student Safe Zone-এ পৌঁছাতে পারেনি।');
+      }
+      var tr = document.createElement('tr');
+      tr.className = isPromotion ? 'promotion-zone-divider' : 'safe-zone-divider';
+      var label = isPromotion ? 'PROMOTION ZONE BOUNDARY' : 'SAFE ZONE BOUNDARY';
+      var icon = isPromotion ? 'fa-trophy' : 'fa-shield-halved';
+      tr.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content' + (emptyMessage ? ' is-empty' : '') + '"><i class="fa-solid ' + icon + '" aria-hidden="true"></i><span>' + label + '</span>' +
+        (emptyMessage ? '<small>' + emptyMessage + '</small>' : '') + '</div></td>';
+      body.appendChild(tr);
+      if (isPromotion) promotionDividerInserted = true;
+      else safeDividerInserted = true;
+    }
     if (displayRows.length) {
       if (podium) {
         podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
@@ -1098,23 +1128,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             '<small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
-      var safeDividerInserted = false;
-      var promotionDividerInserted = false;
       displayRows.forEach(function (row, index) {
-        if (selectedPeriod === 'weekly' && !promotionDividerInserted && index === promotionRows.length && (safeRows.length || riskRows.length)) {
-          var promotionDivider = document.createElement('tr');
-          promotionDivider.className = 'promotion-zone-divider';
-          promotionDivider.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content"><i class="fa-solid fa-trophy"></i><span>PROMOTION ZONE BOUNDARY</span><span class="sr-only">Students above this line have reached the weekly promotion threshold.</span></div></td>';
-          body.appendChild(promotionDivider);
-          promotionDividerInserted = true;
-        }
-        if (selectedPeriod === 'weekly' && !safeDividerInserted && index === promotionRows.length + safeRows.length && riskRows.length) {
-          var divider = document.createElement('tr');
-          divider.className = 'safe-zone-divider';
-          divider.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content"><i class="fa-solid fa-shield-halved"></i><span>SAFE ZONE BOUNDARY</span><span class="sr-only">Students below this line have not reached the required weekly RP threshold.</span></div></td>';
-          body.appendChild(divider);
-          safeDividerInserted = true;
-        }
+        if (selectedPeriod === 'weekly' && !promotionDividerInserted && index === promotionRows.length) appendWeeklyZoneDivider('promotion');
+        if (selectedPeriod === 'weekly' && !safeDividerInserted && index === promotionRows.length + safeRows.length) appendWeeklyZoneDivider('safe');
         // Keep the top three in the regular leaderboard list as well as the podium.
         var tr = document.createElement('tr');
         tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + (selectedPeriod === 'weekly' && !isInWeeklySafeZone(row) ? ' is-below-safe-zone' : '');
@@ -1141,24 +1157,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + safeStatus + '</div></div></td>';
         body.appendChild(tr);
       });
-      if (selectedPeriod === 'weekly' && !safeDividerInserted && (safeRows.length || promotionRows.length) && !riskRows.length) {
-        var finalDivider = document.createElement('tr');
-        finalDivider.className = 'safe-zone-divider';
-        finalDivider.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content"><i class="fa-solid fa-shield-halved"></i><span>SAFE ZONE BOUNDARY</span><span class="sr-only">All listed students are above this line.</span></div></td>';
-        body.appendChild(finalDivider);
-      }
+      if (selectedPeriod === 'weekly' && !promotionDividerInserted) appendWeeklyZoneDivider('promotion');
+      if (selectedPeriod === 'weekly' && !safeDividerInserted) appendWeeklyZoneDivider('safe');
       if (mePanel && me && displayRows.some(function (row) { return row.isMine || String(row.userId) === String(me.userId); })) {
         var ownIndex = displayRows.findIndex(function (row) { return row.isMine || String(row.userId) === String(me.userId); });
         mePanel.classList.remove('hidden');
         mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(selectedRank) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
       }
-    } else {
+    } else if (selectedPeriod !== 'weekly') {
       var emptyText = selectedPeriod === 'friends'
         ? 'আপনার Friends leaderboard এখন খালি। অন্য student-এর profile খুলে Friend Request পাঠান।'
-        : selectedPeriod === 'weekly'
-          ? 'Weekly leaderboard লোড হচ্ছে। এই সপ্তাহের RP sync হলে ranking এখানে দেখাবে।'
-          : 'এই leaderboard-এ এখনো দেখানোর মতো student নেই।';
+        : 'এই leaderboard-এ এখনো দেখানোর মতো student নেই।';
       body.innerHTML = '<tr><td colspan="2" class="py-10 text-center text-sm text-gray-500">' + emptyText + '</td></tr>';
+    } else {
+      appendWeeklyZoneDivider('promotion');
+      appendWeeklyZoneDivider('safe');
     }
     renderRankRail(all);
     updateTopControls(me);
