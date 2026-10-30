@@ -814,6 +814,7 @@
     write('student-profile-xp', fmt(row.xp) + ' XP');
     write('student-profile-total-rp', fmt(row.totalRP) + ' RP');
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
+    write('student-profile-highest-weekly-rp', fmt(Math.max(Number(row.highestWeeklyRP) || 0, Number(row.weeklyRankPoints) || 0)) + ' RP');
     write('student-profile-level', 'Lv. ' + Math.max(1, Number(row.level) || 1));
     renderAccountLevelProgress(row);
     write('student-profile-exams', Number.isFinite(Number(row.quizzes)) && Number(row.quizzes) > 0 ? fmt(row.quizzes) : '—');
