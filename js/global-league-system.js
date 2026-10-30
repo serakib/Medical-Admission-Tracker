@@ -306,6 +306,9 @@
     profile.pbExpiryValue = Math.max(1, Number(user.pbExpiryValue) || 2);
     profile.pbExpiryUnit = ['hour','day','month','year'].indexOf(String(user.pbExpiryUnit || 'hour')) >= 0 ? String(user.pbExpiryUnit || 'hour') : 'hour';
     profile.includePendingFriends = user.includePendingFriends === true;
+    profile.guestDeletionPending = user.guestDeletionPending === true;
+    profile.guestDeletionRequestedAt = String(user.guestDeletionRequestedAt || '');
+    profile.guestDeletionScheduledAt = String(user.guestDeletionScheduledAt || '');
     if (user.rankProgress && typeof user.rankProgress === 'object') profile.rankProgress = Object.assign({}, user.rankProgress);
     app.profile = profile;
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
@@ -437,6 +440,22 @@
     var response = await request(Object.assign({ action: 'progress' }, creds));
     if (response.user) applyProfile(response.user);
     return response;
+  }
+  async function requestGuestDeletion() {
+    await syncIdentity();
+    if (app.authUser) throw new Error('This option is only for Guest accounts.');
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'requestGuestDeletion' }, creds));
+    if (response.user) applyProfile(response.user);
+    return { pending: response.pending === true, scheduledAt: response.scheduledAt || (response.user && response.user.guestDeletionScheduledAt) || '' };
+  }
+  async function cancelGuestDeletion() {
+    await syncIdentity();
+    if (app.authUser) throw new Error('This option is only for Guest accounts.');
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'cancelGuestDeletion' }, creds));
+    if (response.user) applyProfile(response.user);
+    return { pending: false, user: response.user || app.profile };
   }
   async function getAccountSettings() {
     await syncIdentity();
@@ -2425,6 +2444,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     getProgress: getServerProgress,
     convertPB: convertPB,
     getAccountSettings: getAccountSettings,
+    requestGuestDeletion: requestGuestDeletion,
+    cancelGuestDeletion: cancelGuestDeletion,
     saveAccountSettings: saveAccountSettings,
     syncIdentity: syncIdentity,
     registerUser: registerUser,
