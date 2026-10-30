@@ -1223,7 +1223,7 @@ function matGetRankProgress_(rank, currentRP) {
     tierCapRP: matRankTierCap_(index),
     currentRankMilestoneRP: currentMilestoneRP,
     previousMilestoneRP: previousMilestoneRP,
-    previousSubrankName: index === 0 ? '' : (index % 5 === 0 ? MAT_RANKS[index - 1] : MAT_RANKS[index]),
+    previousSubrankName: index === 0 ? '' : (index >= MAT_RANKS.length - 1 || index % 5 === 0 ? MAT_RANKS[index - 1] : MAT_RANKS[index]),
     previousSubrankCompleted: index > 0,
     nextRankName: isFinalRank ? '' : MAT_RANKS[nextIndex],
     milestoneCapRP: milestoneCapRP,
