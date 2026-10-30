@@ -1,10 +1,14 @@
 /* Medical Admission Tracker — Firebase + dedicated Google Sheets API adapter.
  * Medical profiles, exam rewards, ranks and leaderboard use this site's own backend.
  */
-(function () {
+(function waitForMedicalApp() {
   'use strict';
   var app = window.app;
-  if (!app || app.__medicalSheetsAdapter) return;
+  if (!app) {
+    window.addEventListener('medical-app-ready', waitForMedicalApp, { once: true });
+    return;
+  }
+  if (app.__medicalSheetsAdapter) return;
   app.__medicalSheetsAdapter = true;
 
   var DEFAULT_STUDENT_AVATAR = 'https://i.pravatar.cc/120?img=1';
