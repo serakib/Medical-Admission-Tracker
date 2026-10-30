@@ -2549,7 +2549,7 @@ window.handleAccountDeletion = function() {
     const pointsToConvert = Math.floor(Number(amount));
     if (!Number.isFinite(pointsToConvert) || pointsToConvert <= 0) return { ok: false, message: 'Enter a whole PB amount greater than zero.' };
     const progress = getConvertibleProgress();
-    if (pointsToConvert > pendingPBTotal(progress)) return { ok: false, message: 'You do not have enough pending PB. PB older than 2 hours has already become RP.' };
+    if (pointsToConvert > pendingPBTotal(progress)) return { ok: false, message: 'You do not have enough pending PB. Expiry follows your Account Settings; expired PB is converted to RP automatically.' };
     if (!consumePendingPB(progress, pointsToConvert)) return { ok: false, message: 'Unable to use the selected pending PB.' };
     progress.xp += pointsToConvert * 2;
     progress.performanceBonus = progress.xp;
