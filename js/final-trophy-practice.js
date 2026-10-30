@@ -93,17 +93,14 @@
     const profile=document.getElementById('view-profile');
     if(!profile)return;
     const points=lifetimePoints();
-    const rankProgress=app.profile && app.profile.rankProgress && typeof app.profile.rankProgress==='object'?app.profile.rankProgress:{};
     let current=rankFromPoints(points);
     const apiRankIndex=rankIndexForName(app.profile && app.profile.rank);
     if(apiRankIndex>=0){
       current={
         index:apiRankIndex,
         rank:trophyRanks[apiRankIndex],
-        left:Math.max(0,Number(rankProgress.currentRP!=null?rankProgress.currentRP:app.profile.rankPoints)||0),
-        required:Math.max(0,Number(rankProgress.milestoneCapRP)||0),
-        trophyRP:Math.max(0,Number(rankProgress.trophyRP)||0),
-        nextName:String(rankProgress.nextRankName||'')
+        left:Math.max(0,Number(app.profile.rankPoints)||0),
+        required:apiRankIndex>=trophyRanks.length-1?0:requiredRP(apiRankIndex)
       };
     }
     const rank=current.rank;
@@ -114,9 +111,9 @@
       const anchor=profile.querySelector('#profile-rank-card')||profile.querySelector('.profile-hero');
       if(anchor)anchor.insertAdjacentElement('afterend',card);else profile.prepend(card);
     }
-    const nextRankText=current.index>=trophyRanks.length-1?'Maximum trophy rank reached':current.left.toLocaleString()+' / '+current.required.toLocaleString()+' Tier RP toward '+(current.nextName||trophyRanks[current.index+1][0])+' · Trophy +'+current.trophyRP.toLocaleString()+' RP';
-    const trophyProgress=current.index>=trophyRanks.length-1?100:Math.min(100,current.left/Math.max(1,current.required)*100);
-    card.innerHTML='<div class="live-trophy-medal-wrap"><div class="live-trophy-rp-caption">Lifetime RP: '+Math.floor(points).toLocaleString()+'</div><div class="premium-trophy-medal" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(current.index,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' RP</text></svg></div></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">TIER MILESTONE</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime RP · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
+    const nextRankText=current.index>=trophyRanks.length-1?'Maximum trophy rank reached':current.left.toLocaleString()+' / '+current.required.toLocaleString()+' RP toward next rank';
+    const trophyProgress=current.index>=trophyRanks.length-1?100:Math.min(100,current.left/current.required*100);
+    card.innerHTML='<div class="live-trophy-medal-wrap"><div class="live-trophy-rp-caption">RP: '+Math.floor(points).toLocaleString()+'</div><div class="premium-trophy-medal" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(current.index,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' RP</text></svg></div></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime RP · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
     card.onclick=function(){openExamTrophyHub('random');};
   }
   const originalShowProfile = app.showProfile?.bind(app);
@@ -248,8 +245,6 @@
   function renderCollection() {
     const points=lifetimePoints();
     const current=rankFromPoints(points);
-    const apiRankIndex=rankIndexForName(app.profile && app.profile.rank);
-    const currentRankIndex=apiRankIndex>=0?apiRankIndex:current.index;
     const overlay=document.getElementById('exam-trophy-hub-modal');
     if(!overlay)return;
     let host=overlay.querySelector('#exam-trophy-collection');
@@ -261,19 +256,21 @@
     }
     let cards='';
     trophyRanks.forEach(function(rank,i){
-      const tierStart=Math.floor(i/5)*5;
-      let milestoneCap=0;
-      for(let j=tierStart;j<i;j++)milestoneCap+=requiredRP(j);
-      const trophyDelta=i===tierStart?0:requiredRP(i-1);
-      const earned=currentRankIndex>=i;
+      let target=0;
+      for(let j=0;j<i;j++)target+=requiredRP(j);
+      const earned=points>=target;
+      // Every card shows the cumulative lifetime RP threshold to unlock that rank.
+      // The per-rank upgrade cost is used internally by rankFromPoints(), not as the displayed threshold.
+      const required=target;
       const c=rank[1],d=rank[2],s=rank[3];
       const emblem=buildTrophyEmblem(i,c,d,s);
       const stage=i%5+1;
       const tier=Math.floor(i/5);
 
-      cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="exam-trophy-rp-caption">MILESTONE: '+milestoneCap.toLocaleString()+' RP</div><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+d+'">'+milestoneCap.toLocaleString()+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED · TROPHY +'+trophyDelta.toLocaleString()+' RP':'NEEDS '+milestoneCap.toLocaleString()+' TIER RP · TROPHY +'+trophyDelta.toLocaleString()+' RP')+'</small></article>';
+      cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="exam-trophy-rp-caption">RP: '+required.toLocaleString()+'</div><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+d+'">'+required.toLocaleString()+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'REQUIRES '+required.toLocaleString()+' RP')+'</small></article>';
     });
-    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Milestone RP is cumulative within each Tier. Previous sub-ranks stay completed; RP resets when the next Tier begins.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
+    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Earned trophies are highlighted; locked trophies show the total lifetime RP needed to unlock them.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
+    // Make all ranks visually distinguishable, even within the same colour tier.
     host.querySelectorAll('.exam-trophy-item').forEach(function(card,index){
       const stage=index%3;
       card.style.borderRadius=stage===0?'18px 18px 12px 12px':stage===1?'10px 18px 10px 18px':'22px 8px 22px 8px';
