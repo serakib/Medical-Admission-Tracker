@@ -268,6 +268,7 @@
     profile.pendingPB = profile.pb;
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
+    profile.highestWeeklyRP = Math.max(0, Number(user.highestWeeklyRP) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
     // Preserve queued local activity until the server acknowledges it; otherwise use
     // the server's latest current streak instead of reviving a stale pre-gap value.
@@ -336,6 +337,7 @@
     setText('profile-name', profile.name);
     setText('account-profile-name', profile.name);
     setText('profile-email', app.authUser ? (profile.email || 'Signed in') : 'Guest mode · আপনার profile server-এ সংরক্ষিত');
+    setText('profile-highest-weekly-rp', profile.highestWeeklyRP.toLocaleString());
     setText('account-profile-email', app.authUser ? (profile.email || 'Registered account') : 'Guest account · Device session');
     setText('account-profile-status', app.authUser ? 'Registered account' : 'Guest account');
     var form = document.getElementById('medical-profile-form');
