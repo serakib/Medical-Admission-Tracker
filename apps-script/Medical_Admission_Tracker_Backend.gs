@@ -1213,7 +1213,7 @@ function matGetRankProgress_(rank, currentRP) {
   const milestoneCapRP = isFinalRank
     ? currentMilestoneRP
     : (isTierTransition ? matRankTierCap_(index) : matRankMilestoneCap_(nextIndex));
-  const previousMilestoneRP = index === 0 ? 0 : matRankMilestoneCap_(index - 1);
+  const previousMilestoneRP = index === 0 ? 0 : (index % 5 === 0 ? matRankTierCap_(index - 1) : matRankMilestoneCap_(index - 1));
   const trophyDeltaRP = Math.max(0, currentMilestoneRP - previousMilestoneRP);
   return {
     currentRP: rp,
@@ -1223,7 +1223,7 @@ function matGetRankProgress_(rank, currentRP) {
     tierCapRP: matRankTierCap_(index),
     currentRankMilestoneRP: currentMilestoneRP,
     previousMilestoneRP: previousMilestoneRP,
-    previousSubrankName: index === 0 ? '' : MAT_RANKS[index],
+    previousSubrankName: index === 0 ? '' : (index % 5 === 0 ? MAT_RANKS[index - 1] : MAT_RANKS[index]),
     previousSubrankCompleted: index > 0,
     nextRankName: isFinalRank ? '' : MAT_RANKS[nextIndex],
     milestoneCapRP: milestoneCapRP,
