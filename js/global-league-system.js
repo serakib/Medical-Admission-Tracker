@@ -875,11 +875,18 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (selectedRankIndex < 0) selectedRankIndex = currentRankIndex;
 
     var isFinalTrophy = selectedRankIndex >= RANKS.length - 1;
+    var isWeeklyLeaderboard = selectedPeriod === 'weekly';
     var isCurrent = selectedRankIndex === currentRankIndex;
-    var isCompleted = selectedRankIndex < currentRankIndex ||
-      (selectedRankIndex === RANKS.length - 1 && isCurrent);
     var requiredRP = rankPromotionCostForIndex(selectedRankIndex);
-    var earnedRP = isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0);
+    var weeklyEarnedRP = weeklyPointsForRow(me);
+    // Weekly progress must never read lifetime rankProgress.currentRP.
+    var isCompleted = isWeeklyLeaderboard
+      ? (requiredRP > 0 && weeklyEarnedRP >= requiredRP)
+      : (selectedRankIndex < currentRankIndex ||
+        (selectedRankIndex === RANKS.length - 1 && isCurrent));
+    var earnedRP = isWeeklyLeaderboard
+      ? Math.min(requiredRP, weeklyEarnedRP)
+      : (isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0));
     earnedRP = Math.max(0, Math.min(requiredRP, earnedRP));
 
     var safeThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
@@ -893,6 +900,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var safe = isCompleted || (safeThreshold > 0 && earnedRP >= safeThreshold);
     var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
     var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : lifetimeRP;
+    var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : 'Lifetime RP';
     var selectedNextRank = isFinalTrophy ? '' : RANKS[selectedRankIndex + 1];
 
     // A future trophy has no personal RP progress yet. It becomes active only
@@ -901,8 +910,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var previousRequiredRank = RANKS[selectedRankIndex - 1] || me.rank;
       area.innerHTML =
         '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) +
-        ' · Locked</strong><small>Current rank: ' + escapeHtml(me.rank) + ' · Lifetime RP: ' +
-        lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp">LOCKED</span></div>' +
+        ' · Locked</strong><small>Current rank: ' + escapeHtml(me.rank) + ' · ' + progressDisplayLabel + ': ' +
+        progressDisplayRP.toLocaleString() + '</small></span><span class="mat-rank-rp">LOCKED</span></div>' +
         '<div class="mat-safe-zone-caption at-risk"><i class="fa-solid fa-lock"></i><span><strong>First unlock the previous sub-rank</strong>' +
         '<small>' + escapeHtml(previousRequiredRank) + ' unlock না হওয়া পর্যন্ত ' +
         escapeHtml(RANKS[selectedRankIndex]) + '-এর progress শুরু হবে না।</small></span></div>';
@@ -946,7 +955,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
       earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
       escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
-      lifetimeRP.toLocaleString() + ' RP</span></span></div>' + track +
+      progressDisplayRP.toLocaleString() + ' ' + progressDisplayLabel + '</span></span></div>' + track +
       '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
       '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
       '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) +
