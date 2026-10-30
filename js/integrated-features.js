@@ -242,10 +242,9 @@
     };
     expiryEnabled.onchange = syncExpiryControls;
     syncExpiryControls();
-    if (panel.dataset.settingsBound === '1') return;
-    panel.dataset.settingsBound = '1';
     const league = window.MedGlobalLeague;
-    if (league && typeof league.getAccountSettings === 'function') {
+    if (panel.dataset.settingsLoaded !== '1' && league && typeof league.getAccountSettings === 'function') {
+      panel.dataset.settingsLoaded = '1';
       league.getAccountSettings().then(settings => {
         acceptedOnly.checked = !settings.includePendingFriends;
         expiryEnabled.checked = settings.pbExpiryEnabled !== false;
@@ -253,10 +252,15 @@
         expiryUnit.value = settings.pbExpiryUnit || 'hour';
         syncExpiryControls();
         status.textContent = 'আপনার saved settings load হয়েছে।';
-      }).catch(error => { status.textContent = error?.message || 'Settings load হয়নি।'; });
-    } else {
+      }).catch(error => {
+        panel.dataset.settingsLoaded = '0';
+        status.textContent = error?.message || 'Settings load হয়নি।';
+      });
+    } else if (!league) {
       status.textContent = 'Account API প্রস্তুত হলে settings load হবে।';
     }
+    if (panel.dataset.settingsBound === '1') return;
+    panel.dataset.settingsBound = '1';
     save.onclick = async () => {
       const value = Math.max(1, Math.min(999, Math.floor(Number(expiryValue.value) || 2)));
       expiryValue.value = String(value);
