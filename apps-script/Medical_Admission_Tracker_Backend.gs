@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.7';
+const MAT_API_VERSION = '2026.10.30.8';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -480,11 +480,14 @@ function matCreateGuest_(p) {
   const providedToken = String(p.guestToken || '').trim();
   if (providedToken) {
     const existing = matFindGuestByToken_(providedToken);
-    if (existing) {
-      matUpdateLastSeen_(existing);
-      const latest = matFindStudentById_(existing.UserID) || existing;
-      return { success: true, user: matPublicProfile_(latest, true), guestToken: providedToken, existing: true, deletionPending: !!latest.GuestDeletionScheduledAt };
+    if (!existing) {
+      // A stale token must never silently create a replacement Guest session.
+      // This prevents an expired/deleted Guest from being auto-replaced on reload.
+      throw new Error('This Guest session is no longer available. A new Guest account will not be created automatically.');
     }
+    matUpdateLastSeen_(existing);
+    const latest = matFindStudentById_(existing.UserID) || existing;
+    return { success: true, user: matPublicProfile_(latest, true), guestToken: providedToken, existing: true, deletionPending: !!latest.GuestDeletionScheduledAt };
   }
 
   const lock = LockService.getScriptLock();
