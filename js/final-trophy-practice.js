@@ -9,6 +9,17 @@
   const style = document.createElement('style');
   style.id = 'final-trophy-practice-styles';
   style.textContent = `
+    .vault-capsule{position:relative;width:min(340px,100%);height:68px;margin:18px auto 22px;background:var(--capsule-bg,#e0e0e0);border:2px solid var(--capsule-border,#ccc);border-radius:50px;box-sizing:border-box;cursor:pointer;box-shadow:inset 0 2px 5px rgba(0,0,0,.05);transition:background-color .4s;isolation:isolate}
+    .vault-capsule .slider{position:absolute;top:4px;left:4px;width:100px;height:56px;background:var(--slider-bg,#fff);border-radius:30px;display:flex;justify-content:center;align-items:center;gap:6px;z-index:2;box-shadow:0 3px 8px var(--slider-shadow,rgba(0,0,0,.15));transition:transform .4s cubic-bezier(.4,0,.2,1),background-color .3s}
+    .vault-capsule .star-icon{width:18px;height:18px;fill:#FFD700;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));flex:0 0 18px}
+    .vault-capsule .rp-value{font-size:14px;font-weight:900;color:var(--slider-text,#333);white-space:nowrap;max-width:68px;overflow:hidden;text-overflow:ellipsis}
+    .vault-capsule .text-content{position:absolute;top:50%;transform:translateY(-50%);right:20px;font-size:14px;font-weight:800;color:var(--text-color,var(--text,#333));z-index:1;pointer-events:none;white-space:nowrap;transition:all .4s ease}
+    .vault-capsule.alltime-active .slider{transform:translateX(min(232px,calc(100vw - 132px)))}
+    .vault-capsule.alltime-active .text-content{right:auto;left:18px}
+    .dark .vault-capsule,body.dark-mode .vault-capsule{--capsule-bg:#2a2a2a;--capsule-border:#444;--slider-bg:#1e1e1e;--slider-text:#f4f4f9;--slider-shadow:rgba(0,0,0,.5);--text-color:#f4f4f9}
+    .vault-capsule:not(.alltime-active){--capsule-bg:#e0e0e0;--capsule-border:#ccc;--slider-bg:#fff;--slider-text:#333;--slider-shadow:rgba(0,0,0,.15);--text-color:#333}
+    .dark .vault-capsule:not(.alltime-active),body.dark-mode .vault-capsule:not(.alltime-active){--capsule-bg:#2a2a2a;--capsule-border:#444;--slider-bg:#1e1e1e;--slider-text:#f4f4f9;--slider-shadow:rgba(0,0,0,.5);--text-color:#f4f4f9}
+    @media(max-width:380px){.vault-capsule{width:100%}.vault-capsule.alltime-active .slider{transform:translateX(calc(100% - 108px))}}
     #view-exam-intro.final-instructions-modal {
       position: fixed !important; inset: 0 !important; z-index: 12000 !important;
       display: grid !important; place-items: center; overflow-y: auto;
@@ -282,40 +293,67 @@
     const heading=overlay.querySelector('#exam-trophy-hub-title');
     if(heading)heading.focus();
   }
+  function weeklyPoints() {
+    const profile = app.profile || {};
+    const direct = [profile.weeklyRP, profile.weeklyRankPoints, profile.currentWeeklyRP, profile.weeklyPoints];
+    for (const value of direct) {
+      if (value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value))) return Math.max(0, Number(value));
+    }
+    const rows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
+    const currentId = String(app.authUser?.uid || profile.uid || profile.userId || '');
+    const mine = Array.isArray(rows) ? rows.find(row => currentId && String(row.uid || row.userId || row.playerId || '') === currentId) : null;
+    const rowValue = mine && (mine.weeklyRankPoints ?? mine.weeklyRP ?? mine.weeklyPoints);
+    return rowValue !== null && rowValue !== undefined && Number.isFinite(Number(rowValue)) ? Math.max(0, Number(rowValue)) : 0;
+  }
+  let activeVaultType = 'alltime';
   function renderCollection() {
-    const points=lifetimePoints();
-    const profileRankIndex=rankIndexForName(app.profile?.rank);
-    const currentRankIndex=profileRankIndex>=0?profileRankIndex:rankFromPoints(points).index;
-    const currentRank=trophyRanks[currentRankIndex][0];
-    const overlay=document.getElementById('exam-trophy-hub-modal');
-    if(!overlay)return;
-    let host=overlay.querySelector('#exam-trophy-collection');
-    if(!host){
-      host=document.createElement('section');
-      host.id='exam-trophy-collection';
-      host.className='exam-trophy-collection';
+    const allTime = activeVaultType === 'alltime';
+    const points = allTime ? lifetimePoints() : weeklyPoints();
+    const current = rankFromPoints(points);
+    const currentRankIndex = current.index;
+    const currentRank = trophyRanks[currentRankIndex][0];
+    const overlay = document.getElementById('exam-trophy-hub-modal');
+    if (!overlay) return;
+    let host = overlay.querySelector('#exam-trophy-collection');
+    if (!host) {
+      host = document.createElement('section');
+      host.id = 'exam-trophy-collection';
+      host.className = 'exam-trophy-collection';
       overlay.querySelector(':scope > div').appendChild(host);
     }
-    let cards='';
-    trophyRanks.forEach(function(rank,i){
-      let target=0;
-      for(let j=0;j<i;j++)target+=requiredRP(j);
-      const earned=i<=currentRankIndex;
-      const required=target;
-      const c=rank[1],d=rank[2],s=rank[3];
-      const emblem=buildTrophyEmblem(i,c,d,s);
-      const stage=i%5+1;
-      const tier=Math.floor(i/5);
-
-      cards+='<article class="exam-trophy-item rank-stage-'+stage+' rank-tier-'+tier+' '+(earned?'earned':'locked')+'"><div class="exam-trophy-rp-caption">RP: '+required.toLocaleString()+'</div><div class="premium-trophy-medal '+(earned?'is-earned':'is-locked')+'" style="--trophy-main:'+c+';--trophy-dark:'+d+';--trophy-shine:'+s+'"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+c+'" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/>'+emblem+'<path d="M28 83h44l7 15H21Z" fill="'+c+'" stroke="'+s+'" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+d+'">'+required.toLocaleString()+' RP</text></svg></div><strong>'+rank[0]+'</strong><small>'+(earned?'UNLOCKED':'REQUIRES '+required.toLocaleString()+' RP')+'</small></article>';
+    let cards = '';
+    trophyRanks.forEach(function(rank, i) {
+      let target = 0;
+      for (let j = 0; j < i; j++) target += requiredRP(j);
+      const earned = i <= currentRankIndex;
+      const c = rank[1], d = rank[2], s = rank[3];
+      const emblem = buildTrophyEmblem(i, c, d, s);
+      const stage = i % 5 + 1;
+      const tier = Math.floor(i / 5);
+      cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '"><div class="exam-trophy-rp-caption">RP: ' + target.toLocaleString() + '</div><div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + s + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + target.toLocaleString() + ' RP</text></svg></div><strong>' + rank[0] + '</strong><small>' + (earned ? 'UNLOCKED' : 'REQUIRES ' + target.toLocaleString() + ' RP') + '</small></article>';
     });
-    host.innerHTML='<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">All Trophy Ranks</h3><p>Current rank: '+currentRank+'. Earlier rank milestones stay completed; the next Tier starts its RP at zero.</p></div><b>'+Math.floor(points).toLocaleString()+' Lifetime RP</b></div><div class="exam-trophy-grid">'+cards+'</div>';
-    host.querySelectorAll('.exam-trophy-item').forEach(function(card,index){
-      const stage=index%3;
-      card.style.borderRadius=stage===0?'18px 18px 12px 12px':stage===1?'10px 18px 10px 18px':'22px 8px 22px 8px';
-      card.style.borderStyle=stage===0?'solid':stage===1?'double':'dashed';
+    const weekly = weeklyPoints();
+    const alltime = lifetimePoints();
+    const knobValue = Math.floor(points).toLocaleString();
+    host.innerHTML = '<div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">' + (allTime ? 'All-Time Achievement Vault' : 'Weekly Achievement Vault') + '</h3><p>' + (allTime ? 'Lifetime RP milestones remain completed permanently.' : 'This vault follows your current week RP and resets with the weekly cycle.') + ' Current rank: ' + currentRank + '.</p></div><b>' + Math.floor(points).toLocaleString() + (allTime ? ' Lifetime RP' : ' Weekly RP') + '</b></div><div class="vault-capsule ' + (allTime ? 'alltime-active' : '') + '" id="achievement-vault-switch" role="switch" aria-checked="' + allTime + '" tabindex="0" aria-label="Switch between Weekly and All-Time Achievement Vault"><span class="text-content">' + (allTime ? 'Weekly Vault' : 'Alltime Vault') + '</span><div class="slider"><svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg><span class="rp-value">' + knobValue + '</span></div></div><div class="exam-trophy-grid">' + cards + '</div>';
+    host.querySelectorAll('.exam-trophy-item').forEach(function(card, index) {
+      const stage = index % 3;
+      card.style.borderRadius = stage === 0 ? '18px 18px 12px 12px' : stage === 1 ? '10px 18px 10px 18px' : '22px 8px 22px 8px';
+      card.style.borderStyle = stage === 0 ? 'solid' : stage === 1 ? 'double' : 'dashed';
     });
+    const switcher = host.querySelector('#achievement-vault-switch');
+    if (switcher) {
+      const toggle = function() {
+        activeVaultType = activeVaultType === 'alltime' ? 'weekly' : 'alltime';
+        renderCollection();
+      };
+      switcher.addEventListener('click', toggle);
+      switcher.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle(); }
+      });
+    }
   }
+
   const previousShowView=app.showView.bind(app);
   app.showView=function(viewName) {
     const result=previousShowView.apply(this,arguments);
