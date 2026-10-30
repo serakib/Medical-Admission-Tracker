@@ -214,17 +214,18 @@
       isMax
     };
   }
-  function rankFromPoints(points) {
+  function rankFromPoints(points, requirementMultiplier) {
     const value = Math.max(0, Number(points) || 0);
+    const multiplier = Math.max(1, Number(requirementMultiplier) || 1);
     let index = 0, accumulated = 0;
     while (index < trophyRanks.length - 1) {
-      const required = requiredRP(index);
+      const required = requiredRP(index) * multiplier;
       if (value < accumulated + required) break;
       accumulated += required;
       index++;
     }
     const atMax = index === trophyRanks.length - 1;
-    const required = atMax ? 0 : requiredRP(index);
+    const required = atMax ? 0 : requiredRP(index) * multiplier;
     const left = atMax ? 0 : Math.max(0, value - accumulated);
     return { index, left, rank: trophyRanks[index], required, progress: atMax ? 100 : Math.min(100, left / required * 100) };
   }
@@ -308,7 +309,9 @@
   function renderCollection() {
     const allTime = activeVaultType === 'alltime';
     const points = allTime ? lifetimePoints() : weeklyPoints();
-    const current = rankFromPoints(points);
+    // All-Time achievement milestones use x5 requirements. Weekly remains on its original RP curve.
+    const requirementMultiplier = allTime ? 5 : 1;
+    const current = rankFromPoints(points, requirementMultiplier);
     const currentRankIndex = current.index;
     const currentRank = trophyRanks[currentRankIndex][0];
     const overlay = document.getElementById('exam-trophy-hub-modal');
@@ -323,13 +326,20 @@
     let cards = '';
     trophyRanks.forEach(function(rank, i) {
       let target = 0;
-      for (let j = 0; j < i; j++) target += requiredRP(j);
-      const earned = i <= currentRankIndex;
+      for (let j = 0; j < i; j++) target += requiredRP(j) * requirementMultiplier;
+      const completed = i < currentRankIndex;
+      const isCurrent = i === currentRankIndex;
+      const locked = i > currentRankIndex;
+      const engravedRP = completed ? target : (isCurrent ? Math.floor(points) : null);
+      const earned = !locked;
       const c = rank[1], d = rank[2], s = rank[3];
       const emblem = buildTrophyEmblem(i, c, d, s);
       const stage = i % 5 + 1;
       const tier = Math.floor(i / 5);
-      cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '"><div class="exam-trophy-rp-caption">RP: ' + target.toLocaleString() + '</div><div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + s + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + target.toLocaleString() + ' RP</text></svg></div><strong>' + rank[0] + '</strong><small>' + (earned ? 'UNLOCKED' : 'REQUIRES ' + target.toLocaleString() + ' RP') + '</small></article>';
+      const engraving = engravedRP === null ? '' : '<div class="exam-trophy-rp-caption">RP: ' + engravedRP.toLocaleString() + '</div>';
+      const engravedSvg = engravedRP === null ? '' : '<text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + engravedRP.toLocaleString() + ' RP</text>';
+      const status = completed ? 'UNLOCKED' : (isCurrent ? 'CURRENT' : 'REQUIRES ' + target.toLocaleString() + ' RP');
+      cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '">' + engraving + '<div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + s + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + engravedSvg + '</svg></div><strong>' + rank[0] + '</strong><small>' + status + '</small></article>';
     });
     const weekly = weeklyPoints();
     const alltime = lifetimePoints();
