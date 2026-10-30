@@ -195,6 +195,24 @@
     list.unshift({ email, name: name || email, lastUsed: Date.now() });
     localStorage.setItem(ACCOUNT_KEY, JSON.stringify(list.slice(0, 5)));
   }
+  function ensureAccountPreferenceLoadingStyle() {
+    if (document.getElementById('account-preferences-loading-style')) return;
+    const style = document.createElement('style');
+    style.id = 'account-preferences-loading-style';
+    style.textContent = `
+      @keyframes accountPreferenceDotPulse {
+        0%, 60%, 100% { opacity: .25; transform: translateY(0); }
+        30% { opacity: 1; transform: translateY(-3px); }
+      }
+      .account-preferences-dots { display:inline-flex; align-items:center; gap:3px; margin-left:4px; vertical-align:middle; }
+      .account-preferences-dots span { width:4px; height:4px; border-radius:50%; background:currentColor; animation:accountPreferenceDotPulse 1.15s infinite ease-in-out; }
+      .account-preferences-dots span:nth-child(2) { animation-delay:.16s; }
+      .account-preferences-dots span:nth-child(3) { animation-delay:.32s; }
+      @media (prefers-reduced-motion: reduce) { .account-preferences-dots span { animation:none; opacity:1; } }
+    `;
+    document.head.appendChild(style);
+  }
+
   function renderAccountPreferences(view) {
     if (!view) return;
     let panel = document.getElementById('enhanced-account-preferences');
@@ -236,6 +254,18 @@
     const expiryUnit = panel.querySelector('#account-pb-expiry-unit');
     const status = panel.querySelector('#account-preferences-status');
     const save = panel.querySelector('#account-preferences-save');
+    ensureAccountPreferenceLoadingStyle();
+    const setStatus = (message, loading) => {
+      status.textContent = message;
+      if (loading) {
+        const dots = document.createElement('span');
+        dots.className = 'account-preferences-dots';
+        dots.setAttribute('aria-hidden', 'true');
+        for (let i = 0; i < 3; i++) dots.appendChild(document.createElement('span'));
+        status.appendChild(dots);
+        status.setAttribute('aria-live', 'polite');
+      }
+    };
     const syncExpiryControls = () => {
       expiryOptions.style.opacity = expiryEnabled.checked ? '1' : '.45';
       expiryValue.disabled = expiryUnit.disabled = !expiryEnabled.checked;
@@ -255,22 +285,22 @@
         expiryUnit.value = settings.pbExpiryUnit || 'hour';
         [acceptedOnly, expiryEnabled, expiryValue, expiryUnit, save].forEach(el => { el.disabled = false; });
         syncExpiryControls();
-        status.textContent = 'আপনার saved settings load হয়েছে।';
+        setStatus('আপনার saved settings load হয়েছে।', false);
       }).catch(error => {
         if (panel.dataset.settingsLoadId !== loadId) return;
         [acceptedOnly, expiryEnabled, expiryValue, expiryUnit, save].forEach(el => { el.disabled = false; });
         syncExpiryControls();
-        status.textContent = error?.message || 'Settings load হয়নি। আবার refresh করে চেষ্টা করুন।';
+        setStatus(error?.message || 'Settings load হয়নি। আবার refresh করে চেষ্টা করুন।', false);
       });
     } else {
       syncExpiryControls();
-      status.textContent = 'Account API প্রস্তুত হলে settings load হবে।';
+      setStatus('Account API প্রস্তুত হলে settings load হবে।', false);
     }
     save.onclick = async () => {
       const value = Math.max(1, Math.min(999, Math.floor(Number(expiryValue.value) || 2)));
       expiryValue.value = String(value);
       save.disabled = true;
-      status.textContent = 'Settings save হচ্ছে…';
+      setStatus('Saving account preferences', true);
       try {
         const api = window.MedGlobalLeague;
         if (!api || typeof api.saveAccountSettings !== 'function') throw new Error('Account settings API এখনো প্রস্তুত নয়। পেজ refresh করে চেষ্টা করুন।');
@@ -285,9 +315,9 @@
         expiryValue.value = String(saved.pbExpiryValue || value);
         expiryUnit.value = saved.pbExpiryUnit || expiryUnit.value;
         syncExpiryControls();
-        status.textContent = '✓ Preferences saved successfully.';
+        setStatus('✓ Preferences saved successfully.', false);
       } catch (error) {
-        status.textContent = error?.message || 'Settings save হয়নি।';
+        setStatus(error?.message || 'Settings save হয়নি।', false);
       } finally { save.disabled = false; }
     };
   }
