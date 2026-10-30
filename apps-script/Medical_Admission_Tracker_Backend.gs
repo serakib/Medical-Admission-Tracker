@@ -57,7 +57,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt'
+  'LastWeeklyDemotionWeek', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -154,7 +154,11 @@ function matDispatch_(action, p) {
       return matUpdateProfile_(p || {});
     case 'leaderboard':
     case 'getLeaderboard':
-      return matGetLeaderboard_(String((p && p.period) || 'all-time'), p && p.userIds);
+      return matGetLeaderboard_(String((p && p.period) || 'all-time'), p && p.userIds, p && p.includeUserIds);
+    case 'getAccountSettings':
+      return matGetAccountSettings_(p || {});
+    case 'saveAccountSettings':
+      return matSaveAccountSettings_(p || {});
     case 'searchStudents':
       return matSearchStudents_(p || {});
     case 'friendConnections':
@@ -941,7 +945,7 @@ function matParsePBEntries_(value) {
         earnedAt: Math.max(0, matFiniteNumber_(entry.earnedAt, 0)),
         convertsAt: Math.max(0, matFiniteNumber_(entry.convertsAt, 0))
       };
-    }).filter(function (entry) { return entry.amount > 0 && entry.convertsAt > 0; });
+    }).filter(function (entry) { return entry.amount > 0; });
   } catch (_) { return []; }
 }
 
@@ -952,7 +956,7 @@ function matSettlePBForStudent_(student, nowMs, sheet) {
   const remaining = [];
   let expired = 0;
   entries.forEach(function (entry) {
-    if (entry.convertsAt <= nowMs) expired += entry.amount;
+    if (entry.convertsAt > 0 && entry.convertsAt <= nowMs) expired += entry.amount;
     else remaining.push(entry);
   });
   if (!expired) return 0;
@@ -1000,6 +1004,68 @@ function matSettleExpiredPBs_() {
 }
 
 /** Convert PB using authoritative Sheets balances. 1 PB -> 2 XP or 1 PB -> 1 RP. */
+function matGetPBExpirySettings_(student) {
+  const enabledRaw = student && student.PBExpiryEnabled;
+  const enabled = enabledRaw == null || String(enabledRaw).trim() === '' ? true :
+    !(['false', '0', 'off', 'no'].indexOf(String(enabledRaw).toLowerCase()) >= 0);
+  const value = Math.max(1, Math.min(999, Math.floor(matFiniteNumber_(student && student.PBExpiryValue, 2))));
+  const unitRaw = String(student && student.PBExpiryUnit || 'hour').toLowerCase();
+  const unit = ['hour', 'day', 'month', 'year'].indexOf(unitRaw) >= 0 ? unitRaw : 'hour';
+  return { enabled: enabled, value: value, unit: unit };
+}
+function matPBExpiryDurationMs_(value, unit) {
+  const amount = Math.max(1, Math.min(999, Math.floor(Number(value) || 2)));
+  const days = unit === 'year' ? 365 : unit === 'month' ? 30 : unit === 'day' ? 1 : 1 / 24;
+  return Math.max(1, Math.round(amount * days * 24 * 60 * 60 * 1000));
+}
+function matGetAccountSettings_(p) {
+  const user = matAuthenticate_(p);
+  const student = matFindStudentById_(user.UserID);
+  if (!student) throw new Error('Student profile not found.');
+  return { success: true, settings: Object.assign(matGetPBExpirySettings_(student), {
+    includePendingFriends: String(student.FriendsIncludePending || '').toLowerCase() === 'true'
+  }) };
+}
+function matSaveAccountSettings_(p) {
+  const user = matAuthenticate_(p);
+  const enabled = p.pbExpiryEnabled !== false && String(p.pbExpiryEnabled).toLowerCase() !== 'false';
+  const value = Math.max(1, Math.min(999, Math.floor(Number(p.pbExpiryValue) || 2)));
+  const unit = String(p.pbExpiryUnit || 'hour').toLowerCase();
+  if (['hour', 'day', 'month', 'year'].indexOf(unit) < 0) throw new Error('Invalid PB expiry unit.');
+  const includePending = p.includePendingFriends === true || String(p.includePendingFriends).toLowerCase() === 'true';
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sheet = matGetStudentsSheet_();
+    let student = matFindStudentById_(user.UserID);
+    if (!student) throw new Error('Student profile not found.');
+    const nowMs = Date.now();
+    const durationMs = enabled ? matPBExpiryDurationMs_(value, unit) : 0;
+    const entries = matParsePBEntries_(student.PBEntries).map(function (entry) {
+      return { amount: entry.amount, earnedAt: entry.earnedAt, convertsAt: durationMs > 0 ? entry.earnedAt + durationMs : 0 };
+    });
+    matUpdateObjectRow_(sheet, student._rowNumber, {
+      PBExpiryEnabled: enabled ? 'TRUE' : 'FALSE',
+      PBExpiryValue: value,
+      PBExpiryUnit: unit,
+      FriendsIncludePending: includePending ? 'TRUE' : 'FALSE',
+      PBEntries: JSON.stringify(entries),
+      UpdatedAt: matNowIso_()
+    });
+    student = matFindStudentById_(user.UserID);
+    // Apply the new expiry immediately if the chosen duration is shorter than the
+    // age of existing PB; never-expire entries use convertsAt=0.
+    const expired = matSettlePBForStudent_(student, nowMs, sheet);
+    const latest = matFindStudentById_(user.UserID);
+    return { success: true, expiredPBToRP: expired, settings: {
+      pbExpiryEnabled: enabled, pbExpiryValue: value, pbExpiryUnit: unit,
+      includePendingFriends: includePending
+    }, user: matApiUser_(latest) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function matConvertPB_(p) {
   const user = matAuthenticate_(p);
   const amount = matSafeNonNegativeInt_(p.amount, 'amount');
@@ -1027,7 +1093,7 @@ function matConvertPB_(p) {
         matEnqueueTop10Changes_(oldSnapshot, updatedSnapshot, matNowIso_(), 'PB-EXPIRY-' + user.UserID + '-' + nowMs);
         matSaveTop10Snapshot_(updatedSnapshot);
       }
-      throw new Error('Not enough convertible PB. PB older than two hours automatically converts to RP.');
+      throw new Error('Not enough convertible PB. PB may have expired according to your account PB expiry setting.');
     }
 
     let remainingToUse = amount;
@@ -1207,7 +1273,11 @@ function matFinalizeProcessingExam_(attempt) {
     const lifetimeRP = Math.max(Math.max(0, matFiniteNumber_(current.RP, 0)), matFiniteNumber_(current.TotalRP, matFiniteNumber_(current.RP, 0)));
     const nowMs = Date.now();
     const pbEntries = matParsePBEntries_(current.PBEntries);
-    if (pbEarned > 0) pbEntries.push({ amount: pbEarned, earnedAt: nowMs, convertsAt: nowMs + 2 * 60 * 60 * 1000 });
+    if (pbEarned > 0) {
+      const expiry = matGetPBExpirySettings_(current);
+      const durationMs = expiry.enabled ? matPBExpiryDurationMs_(expiry.value, expiry.unit) : 0;
+      pbEntries.push({ amount: pbEarned, earnedAt: nowMs, convertsAt: durationMs > 0 ? nowMs + durationMs : 0 });
+    }
     matUpdateObjectRow_(matGetStudentsSheet_(), current._rowNumber, {
       XP: currentXP + xpEarned,
       RP: rankResult.rp,
@@ -2373,6 +2443,10 @@ function matPublicProfile_(r, includeEmail) {
     ),
     lastStreakActivityDate: String(s.LastStreakActivityDate || ''),
     streakActivityDates: matParseStreakDates_(s.StreakActivityDates, matDateKey_(matNowIso_())),
+    pbExpiryEnabled: matGetPBExpirySettings_(s).enabled,
+    pbExpiryValue: matGetPBExpirySettings_(s).value,
+    pbExpiryUnit: matGetPBExpirySettings_(s).unit,
+    includePendingFriends: String(s.FriendsIncludePending || '').toLowerCase() === 'true',
     createdAt: String(s.CreatedAt || ''),
     updatedAt: String(s.UpdatedAt || '')
   };
