@@ -1842,6 +1842,7 @@ class MedicalExamApp {
         set('profile-name',this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student');
         set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):'Guest mode • আপনার progress এই device-এ সংরক্ষিত');
         set('profile-seen-count',answered.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
+        set('profile-highest-weekly-rp',Math.max(0,Number(this.profile?.highestWeeklyRP)||0).toLocaleString());
         let accountProgress = {};
         try { accountProgress = typeof this.getAccountProgress === 'function' ? this.getAccountProgress() || {} : {}; } catch (_) {}
         // Streak is shown only in the dashboard's top-right control. Keep the
