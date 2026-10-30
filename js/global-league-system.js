@@ -941,14 +941,19 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       : 1;
     var requiredRP = baseRequiredRP * requiredRPMultiplier;
     var weeklyEarnedRP = weeklyPointsForRow(me);
-    // Weekly progress must never read lifetime rankProgress.currentRP.
+    // All-Time leaderboard progress uses lifetime RP against the x5 requirement.
+    // Weekly progress remains based only on this week's RP; Friends is unchanged.
+    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
     var isCompleted = isWeeklyLeaderboard
       ? (requiredRP > 0 && weeklyEarnedRP >= requiredRP)
       : (selectedRankIndex < currentRankIndex ||
-        (selectedRankIndex === RANKS.length - 1 && isCurrent));
+        (selectedRankIndex === RANKS.length - 1 && isCurrent) ||
+        (selectedPeriod === 'all-time' && requiredRP > 0 && lifetimeRP >= requiredRP));
     var earnedRP = isWeeklyLeaderboard
       ? Math.min(requiredRP, weeklyEarnedRP)
-      : (isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0));
+      : (selectedPeriod === 'all-time'
+        ? Math.min(requiredRP, lifetimeRP)
+        : (isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0)));
     earnedRP = Math.max(0, Math.min(requiredRP, earnedRP));
 
     var safeThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
@@ -961,7 +966,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var remainingToRank = Math.max(0, requiredRP - earnedRP);
     var safe = isCompleted || (safeThreshold > 0 && earnedRP >= safeThreshold);
     var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
-    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
     var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : lifetimeRP;
     var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : 'Lifetime RP';
     var selectedNextRank = isFinalTrophy ? '' : RANKS[selectedRankIndex + 1];
