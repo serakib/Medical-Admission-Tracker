@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.9';
+const MAT_API_VERSION = '2026.10.30.10';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -1560,6 +1560,8 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rankPoints: Number(s.RP || 0),
       rp: Number(s.RP || 0),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
+      // Display-only multiplier for All-Time leaderboard trophy requirements; rank progression rules remain unchanged.
+      leaderboardRequiredRPMultiplier: safePeriod === 'alltime' ? 5 : 1,
       levelProgress: matGetLevelProgress_(s.XP),
       totalRP: lifetimeRP,
       highestWeeklyRP: highestWeeklyRP,
