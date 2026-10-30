@@ -901,17 +901,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
     var stateTitle;
     var stateDetail;
-    var rightLabel;
     var trackState = safe ? 'is-safe' : 'is-at-risk';
     if (isCompleted) {
       stateTitle = 'Completed ✓';
       stateDetail = 'এই sub-rank unlock হয়েছে।';
-      rightLabel = 'COMPLETED';
       trackState = 'is-safe is-promotion';
     } else if (!safe) {
       stateTitle = 'Safe Zone-এর নিচে';
       stateDetail = 'Safe Zone-এ যেতে আরও ' + remainingToSafe.toLocaleString() + ' RP দরকার।';
-      rightLabel = '+' + remainingToSafe.toLocaleString() + ' RP';
     } else if (!promotion) {
       stateTitle = 'Safe Zone অর্জিত';
       stateDetail = 'Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
@@ -945,7 +942,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
       earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
       escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp">' +
-      rightLabel + '</span></div>' + track +
+      lifetimeRP.toLocaleString() + ' RP</span></div>' + track +
       '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
       '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
       '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) +
