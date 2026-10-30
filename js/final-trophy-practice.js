@@ -21,7 +21,7 @@
     .lifetime-trophy-card{display:flex;align-items:center;gap:16px;padding:18px;border-radius:18px;
       border:1px solid rgba(180,130,45,.38);background:linear-gradient(135deg,rgba(120,75,20,.12),rgba(250,204,21,.08));
       box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 12px 28px rgba(15,23,42,.08);margin:16px 0}
-    .live-trophy-medal-wrap{display:flex;flex:0 0 82px;width:82px;flex-direction:column;align-items:center;gap:2px}.live-trophy-rp-caption{font-size:10px;font-weight:950;line-height:1.2;white-space:nowrap;text-align:center;letter-spacing:.02em}.live-trophy-medal-wrap .premium-trophy-medal{flex-basis:82px}.premium-trophy-medal{display:grid;place-items:center;flex:0 0 82px;width:82px;height:92px;filter:drop-shadow(0 7px 5px #0003);position:relative}
+    .live-trophy-medal-wrap{display:flex;flex:0 0 82px;width:82px;flex-direction:column;align-items:center;gap:2px}.live-trophy-rp-caption{font-size:10px;font-weight:950;line-height:1.2;white-space:nowrap;text-align:center;letter-spacing:.02em}.live-trophy-medal-wrap .premium-trophy-medal{flex-basis:82px}.premium-trophy-medal{display:grid;place-items:center;flex:0 0 82px;width:82px;height:92px;filter:drop-shadow(0 0 7px var(--trophy-main)) drop-shadow(0 7px 5px #0003);position:relative}
     .premium-trophy-medal:after{content:'';position:absolute;inset:5px 8px 10px;border:1px solid var(--trophy-shine);border-radius:45% 45% 12% 12%;opacity:.45;pointer-events:none}
     .premium-trophy-medal svg{width:100%;height:100%;overflow:visible}
 
@@ -33,7 +33,7 @@
     .exam-trophy-collection{margin:18px 0;padding:16px;border:1px solid rgba(148,163,184,.3);border-radius:18px;background:rgba(148,163,184,.06)}
     .exam-trophy-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.exam-trophy-heading span{font-size:9px;letter-spacing:1.8px;font-weight:900;opacity:.65}.exam-trophy-heading h3{font-size:20px;font-weight:950;margin:3px 0}.exam-trophy-heading p{font-size:12px;opacity:.7}.exam-trophy-heading>b{white-space:nowrap;font-size:12px}
     .exam-trophy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}.exam-trophy-rp-caption{font-size:10px;font-weight:900;letter-spacing:.045em;opacity:.8;margin:0 0 3px;text-align:center}
-    .exam-trophy-item{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 6px;border-radius:13px;background:rgba(148,163,184,.09);border:1px solid rgba(148,163,184,.2)}.exam-trophy-item .premium-trophy-medal{width:66px;height:72px;flex-basis:72px}.exam-trophy-item strong{font-size:11px;margin-top:5px}.exam-trophy-item small{font-size:9px;font-weight:900;opacity:.7;margin-top:3px}.is-locked{filter:grayscale(1);opacity:.45}.leader-latest-trophy{display:flex;align-items:center;justify-content:flex-end;gap:6px}.leader-trophy-dot{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#fff;font-size:14px;border:2px solid #fff8;box-shadow:0 3px 8px #0003}.leader-latest-trophy small{font-size:10px;white-space:nowrap}
+    .exam-trophy-item{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 6px;border-radius:13px;background:rgba(148,163,184,.09);border:1px solid rgba(148,163,184,.2)}.exam-trophy-item .premium-trophy-medal{width:66px;height:72px;flex-basis:72px}.exam-trophy-item strong{font-size:11px;margin-top:5px}.exam-trophy-item small{font-size:9px;font-weight:900;opacity:.7;margin-top:3px}.is-locked{filter:drop-shadow(0 0 6px var(--trophy-main)) drop-shadow(0 4px 4px #0002);opacity:.72}.leader-latest-trophy{display:flex;align-items:center;justify-content:flex-end;gap:6px}.leader-trophy-dot{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#fff;font-size:14px;border:2px solid #fff8;box-shadow:0 3px 8px #0003}.leader-latest-trophy small{font-size:10px;white-space:nowrap}
     @media(max-width:600px){.exam-trophy-hub-modal>div{padding:12px!important}.exam-trophy-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.exam-trophy-heading{align-items:flex-start;flex-direction:column}}
 
     .trophy-eyebrow{font-size:9px;letter-spacing:1.8px;font-weight:900;opacity:.65;margin-bottom:4px}
@@ -355,7 +355,7 @@
   function trophySvgForIndex(index, className) {
     const safeIndex = Math.max(0, Math.min(trophyRanks.length - 1, Number(index) || 0));
     const [name, main, dark, shine] = trophyRanks[safeIndex];
-    return '<svg class="' + String(className || 'vault-rank-trophy-svg') + '" viewBox="0 0 100 112" role="img" aria-label="' + name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + ' trophy">' +
+    return '<svg class="' + String(className || 'vault-rank-trophy-svg') + '" viewBox="0 0 100 112" style="--trophy-glow:' + main + '" role="img" aria-label="' + name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + ' trophy">' +
       '<path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + main + '" stroke-width="9"/>' +
       '<path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + main + '" stroke="' + shine + '" stroke-width="2"/>' +
       buildTrophyEmblem(safeIndex, main, dark, shine) +
