@@ -961,6 +961,7 @@ class MedicalExamApp {
     applyTheme(animateIcon = false) {
         const isDark = this.currentTheme === 'dark';
         document.documentElement.classList.toggle('dark', isDark);
+        document.documentElement.dataset.theme = this.currentTheme;
 
         // Make the selected theme unmistakable: sun for light, moon for dark.
         const themeButtons = document.querySelectorAll('button[onclick*="toggleTheme"]');
