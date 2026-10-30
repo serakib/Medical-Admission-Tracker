@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.8';
+const MAT_API_VERSION = '2026.10.30.9';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -50,6 +50,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-rank-review-demotion-safe-zone-promotion-zone',
   'weekly-rp-starting-balance-after-reset',
   'highest-weekly-rp-profile-stat',
+  'live-highest-weekly-rp-sync',
   'immediate-promotion-no-extra-rp-bonus',
   'single-step-rank-promotion',
   'bronze-v-weekly-rp-zero'
