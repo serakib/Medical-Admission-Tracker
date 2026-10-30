@@ -1097,10 +1097,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     function appendWeeklyZoneDivider(kind) {
       if (selectedPeriod !== 'weekly') return;
       var isPromotion = kind === 'promotion';
+      var selectedRankInfo = window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.getRankInfoForName === 'function'
+        ? window.MedAchievementVaultTrophies.getRankInfoForName(selectedRank) : null;
+      var boundaryRP = isPromotion ? promotionZoneThresholdFor({ rank: selectedRank }) : safeZoneThresholdFor({ rank: selectedRank });
       var emptyMessage = '';
       if (isPromotion && promotionRows.length === 0) {
-        var selectedRankInfo = window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.getRankInfoForName === 'function'
-          ? window.MedAchievementVaultTrophies.getRankInfoForName(selectedRank) : null;
         emptyMessage = selectedRankInfo && selectedRankInfo.atMax
           ? 'এই সর্বোচ্চ rank-এ আর promotion নেই।'
           : 'এই rank-এ এখনো কোনো student Promotion Zone-এ পৌঁছাতে পারেনি।';
@@ -1111,7 +1112,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       }
       var tr = document.createElement('tr');
       tr.className = isPromotion ? 'promotion-zone-divider' : 'safe-zone-divider';
-      var label = isPromotion ? 'PROMOTION ZONE BOUNDARY' : 'SAFE ZONE BOUNDARY';
+      var label = (isPromotion ? 'PROMOTION ZONE BOUNDARY' : 'SAFE ZONE BOUNDARY') + (boundaryRP > 0 ? ' · ≥ ' + boundaryRP.toLocaleString() + ' RP' : '');
       var icon = isPromotion ? 'fa-trophy' : 'fa-shield-halved';
       tr.innerHTML = '<td colspan="2"><div class="leader-zone-divider-content' + (emptyMessage ? ' is-empty' : '') + '"><i class="fa-solid ' + icon + '" aria-hidden="true"></i><span>' + label + '</span>' +
         (emptyMessage ? '<small>' + emptyMessage + '</small>' : '') + '</div></td>';
