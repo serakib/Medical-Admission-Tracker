@@ -1561,7 +1561,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rp: Number(s.RP || 0),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       // Display-only multiplier for All-Time leaderboard trophy requirements; rank progression rules remain unchanged.
-      leaderboardRequiredRPMultiplier: safePeriod === 'alltime' ? 5 : 1,
+      leaderboardRequiredRPMultiplier: safePeriod === 'all-time' ? 5 : 1,
       levelProgress: matGetLevelProgress_(s.XP),
       totalRP: lifetimeRP,
       highestWeeklyRP: highestWeeklyRP,
