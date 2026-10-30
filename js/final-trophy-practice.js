@@ -432,5 +432,12 @@
     setTimeout(function(){paintLeaderboardTrophies(merged);},0);
     setTimeout(renderTrophy,0);
   });
+  // The Medical Sheets profile adapter dispatches the authoritative sync event on window.
+  // Listen there too so the Profile Latest Achievement rank and progress repaint immediately.
+  window.addEventListener('student-progress-updated',function(event){
+    if(event && event.detail && event.detail.source === 'medical-sheets-api') {
+      setTimeout(renderTrophy,0);
+    }
+  });
 
 })();
