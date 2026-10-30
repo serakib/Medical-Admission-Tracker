@@ -361,6 +361,26 @@ main{min-width:0;box-sizing:border-box;padding-top:76px!important}
 .account-action-card p{margin:5px 0 0;color:var(--muted);font-size:.82rem;line-height:1.65}
 .account-action-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:14px;background:color-mix(in srgb,var(--brand) 12%,var(--surface));color:var(--brand);font-size:1.05rem}
 @media(max-width:767px){.sidebar-collapse-toggle{display:none}main{padding-top:70px!important}}
+/* Sidebar theme: clean white in light mode, existing dark palette in dark mode. */
+html:not(.dark) .app-sidebar,body:not(.dark) .app-sidebar{background:rgba(255,255,255,.98);color:#1e293b;border-right-color:#e2e8f0;box-shadow:12px 0 38px rgba(15,23,42,.08)}
+html:not(.dark) .sidebar-head,body:not(.dark) .sidebar-head{border-bottom-color:#e2e8f0}
+html:not(.dark) .sidebar-brand strong,body:not(.dark) .sidebar-brand strong{color:#0f172a}
+html:not(.dark) .sidebar-brand small,body:not(.dark) .sidebar-brand small{color:#64748b}
+html:not(.dark) .sidebar-collapse-toggle,body:not(.dark) .sidebar-collapse-toggle{background:#f8fafc;border-color:#e2e8f0;color:#475569}
+html:not(.dark) .sidebar-collapse-toggle:hover,body:not(.dark) .sidebar-collapse-toggle:hover{background:#ecfdf5;color:#047857}
+html:not(.dark) .sidebar-nav button,html:not(.dark) .sidebar-action,body:not(.dark) .sidebar-nav button,body:not(.dark) .sidebar-action{color:#475569}
+html:not(.dark) .sidebar-nav button i,html:not(.dark) .sidebar-action i,body:not(.dark) .sidebar-nav button i,body:not(.dark) .sidebar-action i{color:#059669}
+html:not(.dark) .sidebar-nav button:hover,html:not(.dark) .sidebar-action:hover,body:not(.dark) .sidebar-nav button:hover,body:not(.dark) .sidebar-action:hover{color:#0f172a;background:#f1f5f9;border-color:#e2e8f0}
+html:not(.dark) .sidebar-nav button.active,html:not(.dark) .sidebar-action.active,body:not(.dark) .sidebar-nav button.active,body:not(.dark) .sidebar-action.active{color:#065f46;background:linear-gradient(135deg,#ecfdf5,#eff6ff);border-color:#a7f3d0;box-shadow:inset 3px 0 0 #10b981}
+html:not(.dark) .sidebar-nav button.active i,html:not(.dark) .sidebar-action.active i,body:not(.dark) .sidebar-nav button.active i,body:not(.dark) .sidebar-action.active i{color:#047857}
+html:not(.dark) .sidebar-bottom,body:not(.dark) .sidebar-bottom{border-top-color:#e2e8f0}
+html:not(.dark) .sidebar-user-name,body:not(.dark) .sidebar-user-name{color:#111827}
+html:not(.dark) .sidebar-user-batch,body:not(.dark) .sidebar-user-batch{color:#64748b}
+html:not(.dark) .sidebar-user-avatar,body:not(.dark) .sidebar-user-avatar{color:#047857;background:#ecfdf5;border-color:#a7f3d0}
+html:not(.dark) .sidebar-user-dot,body:not(.dark) .sidebar-user-dot{border-color:#fff}
+html:not(.dark) .sidebar-toggle,body:not(.dark) .sidebar-toggle{background:rgba(255,255,255,.96);border-color:#cbd5e1;color:#334155;box-shadow:0 8px 24px rgba(15,23,42,.14)}
+html:not(.dark) .sidebar-overlay.overlay-visible,body:not(.dark) .sidebar-overlay.overlay-visible{background:rgba(15,23,42,.32)}
+@media(max-width:767px){html:not(.dark) .app-sidebar.sidebar-open,body:not(.dark) .app-sidebar.sidebar-open{box-shadow:12px 0 38px rgba(15,23,42,.16)}}
 @media(prefers-reduced-motion:reduce){.app-sidebar,.sidebar-nav button,.sidebar-action,.sidebar-collapse-toggle{transition:none}.ai-float-btn{animation:none!important}}
 </style>
 
