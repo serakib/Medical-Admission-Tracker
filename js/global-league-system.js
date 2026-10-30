@@ -297,6 +297,7 @@
       if (user.streak != null && Number.isFinite(Number(user.streak))) profile.streak = Math.max(0, Number(user.streak) || 0);
     }
     profile.rank = RANKS.indexOf(user.rank) >= 0 ? user.rank : RANKS[0];
+    if (user.rankProgress && typeof user.rankProgress === 'object') profile.rankProgress = Object.assign({}, user.rankProgress);
     app.profile = profile;
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
     try { localStorage.setItem(storageKey, JSON.stringify(profile)); } catch (_) {}
@@ -636,6 +637,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     style.textContent += '#leaderboard-list{width:100%!important;background:#111827!important;border-radius:12px!important;overflow:hidden!important}#leaderboard-list .overflow-x-auto{max-height:560px!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;scrollbar-width:none!important;-ms-overflow-style:none!important}#leaderboard-list .overflow-x-auto::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}#leaderboard-list table{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important}#leaderboard-list thead{display:none!important}#leaderboard-body tr.leader-row{height:auto!important;border:0!important;transition:background-color .16s ease!important}#leaderboard-body tr.leader-row>td.leader-row-cell{width:100%!important;padding:16px 24px!important;border:0!important;background:transparent!important;vertical-align:middle!important;line-height:normal!important}#leaderboard-body tr.leader-row:hover{background:rgba(148,163,184,.10)!important;border-radius:8px!important}#leaderboard-body .leader-row-layout{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;width:100%!important;min-width:0!important;box-sizing:border-box!important}#leaderboard-body .leader-person{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:16px!important;flex:1 1 auto!important;min-width:0!important;max-width:100%!important;white-space:normal!important;overflow:visible!important;text-align:left!important}#leaderboard-body .leader-avatar{display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;min-width:48px!important;flex:0 0 48px!important;border-radius:50%!important;overflow:hidden!important;background:#2A2A40!important}#leaderboard-body .leader-avatar img,#leaderboard-body .leader-avatar svg{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;border-radius:50%!important}#leaderboard-body .leader-name-wrap{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:3px!important;min-width:0!important;overflow-wrap:anywhere!important}#leaderboard-body .leader-person b{display:block!important;color:#fff!important;font-size:16px!important;font-weight:600!important;line-height:1.3!important;white-space:normal!important;overflow-wrap:anywhere!important;text-align:left!important}#leaderboard-body .leader-person em{font-size:10px!important;line-height:1.2!important}#leaderboard-body .leader-rank-stack{display:flex!important;flex:0 0 auto!important;flex-direction:column!important;align-items:flex-end!important;justify-content:center!important;gap:2px!important;min-width:64px!important;max-width:42%!important;text-align:right!important;line-height:1!important}#leaderboard-body .leader-rank-number{display:block!important;margin:0!important;color:#fff!important;font-size:22px!important;font-weight:800!important;line-height:1.1!important;white-space:nowrap!important}#leaderboard-body .leader-points-label{display:block!important;margin:0!important;color:#9CA3AF!important;font-size:14px!important;font-weight:400!important;line-height:1.2!important;white-space:nowrap!important}#leaderboard-body .leader-safe-status,#leaderboard-body .leader-risk-status{display:block!important;margin-top:5px!important;font-size:10px!important;line-height:1.2!important;white-space:normal!important;text-align:right!important}#leaderboard-body tr.promotion-zone-divider>td{padding:12px 8px!important;border-top:2px solid #a855f7!important;border-bottom:2px solid #a855f7!important;border-left:0!important;border-right:0!important;text-align:center!important;background:linear-gradient(90deg,rgba(139,92,246,.07),rgba(217,70,239,.08))!important;color:#a855f7!important;font-weight:950!important;letter-spacing:.12em!important}#leaderboard-body tr.safe-zone-divider>td{padding:12px 8px!important;border-top:2px solid #10b981!important;border-bottom:2px solid #10b981!important;border-left:0!important;border-right:0!important;text-align:center!important;background:rgba(16,185,129,.05)!important;color:#059669!important;font-weight:950!important;letter-spacing:.12em!important}#leaderboard-body .leader-zone-divider-content{justify-content:center!important;gap:10px!important}#leaderboard-body .leader-zone-divider-content:before,#leaderboard-body .leader-zone-divider-content:after{flex:0 0 24px!important;width:24px!important;min-width:24px!important;max-width:24px!important;height:1px!important;opacity:.85!important}#leaderboard-body tr.promotion-zone-divider .leader-zone-divider-content:before,#leaderboard-body tr.promotion-zone-divider .leader-zone-divider-content:after{background:#c084fc!important}#leaderboard-body tr.safe-zone-divider .leader-zone-divider-content:before,#leaderboard-body tr.safe-zone-divider .leader-zone-divider-content:after{background:#10b981!important}@media(max-width:520px){#leaderboard-body tr.leader-row>td.leader-row-cell{padding:14px 12px!important}#leaderboard-body .leader-row-layout{gap:10px!important}#leaderboard-body .leader-person{gap:12px!important}#leaderboard-body .leader-avatar{width:42px!important;height:42px!important;min-width:42px!important;flex-basis:42px!important}#leaderboard-body .leader-person b{font-size:14px!important}#leaderboard-body .leader-rank-stack{min-width:58px!important}#leaderboard-body .leader-rank-number{font-size:18px!important}#leaderboard-body .leader-points-label{font-size:12px!important}}html:not(.dark) #leaderboard-list{background:#fff!important;border:1px solid #E5E7EB!important;border-radius:12px!important;box-shadow:0 1px 3px rgba(15,23,42,.05)!important}html:not(.dark) #leaderboard-body tr.leader-row>td.leader-row-cell{background:#fff!important;border:0!important}html:not(.dark) #leaderboard-body tr.leader-row:hover{background:#F9FAFB!important}html:not(.dark) #leaderboard-body .leader-avatar{background:#E0F2FE!important}html:not(.dark) #leaderboard-body .leader-person b{color:#1F2937!important}html:not(.dark) #leaderboard-body .leader-rank-number{color:#111827!important}html:not(.dark) #leaderboard-body .leader-points-label{color:#6B7280!important}html:not(.dark) #leaderboard-body .leader-safe-status{color:#059669!important}html:not(.dark) #leaderboard-body .leader-risk-status{color:#dc2626!important}';
     style.textContent += '.mat-rules-dialog{width:min(100%,780px);max-height:min(84vh,860px);padding:clamp(18px,3vw,30px);border-radius:26px}.mat-rules-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding-right:44px}.mat-rules-heading h2{font-size:clamp(21px,2.4vw,28px);line-height:1.25;margin-bottom:8px}.mat-rules-window-actions{flex:0 0 auto}.mat-window-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid rgba(16,185,129,.28);border-radius:12px;background:rgba(16,185,129,.09);color:#059669;font-size:12px;font-weight:850;cursor:pointer}.mat-window-toggle:hover{background:rgba(16,185,129,.16)}.mat-rules-dialog.is-fullscreen{position:fixed;inset:10px;width:auto;max-width:none;max-height:none;height:auto;border-radius:20px;padding:clamp(16px,2.5vw,32px)}.mat-rules-dialog.is-fullscreen .mat-rule-list{grid-template-columns:minmax(0,1fr);align-items:stretch}.mat-rules-dialog.is-fullscreen .mat-rules-heading{position:sticky;top:-1px;z-index:2;background:inherit;padding:0 48px 12px 0}.mat-rules-dialog.is-fullscreen .mat-rule-list details>div{font-size:13px}.mat-rules-dialog .mat-rules-kicker{letter-spacing:.02em;font-size:11px}.mat-rules-dialog .mat-rule-list summary{padding:14px}.mat-rules-dialog .mat-rule-list summary strong{font-size:14px}.mat-rules-dialog .mat-rule-list details>div{font-size:13px;line-height:1.85}.mat-rules-dialog .mat-rules-foot{padding:12px 14px;border:1px solid rgba(16,185,129,.18);border-radius:13px;background:rgba(16,185,129,.06)}@media(max-width:680px){.mat-rules-heading{display:block;padding-right:42px}.mat-rules-window-actions{margin-top:10px}.mat-rules-dialog.is-fullscreen{inset:5px;border-radius:15px;padding:15px 12px}.mat-rules-dialog.is-fullscreen .mat-rule-list{grid-template-columns:minmax(0,1fr)}.mat-rules-dialog .mat-rule-list summary{gap:8px;padding:11px}.mat-rules-dialog .mat-rule-icon{flex-basis:32px;width:32px;height:32px}.mat-rules-dialog .mat-rule-list details>div{padding:0 12px 13px 51px;font-size:12px}}  /* Accessible, color-coded rule details: make key values and cautions easy to scan. */ .mat-rules-dialog .mat-rule-list details>div{color:var(--text,#334155)} .mat-rules-dialog .mat-rule-list details>div p{color:var(--text,#334155)} .mat-rules-dialog .mat-rule-list details>div p strong{color:#075985} .mat-rules-dialog .mat-score-card{background:linear-gradient(145deg,#ecfdf5,#f0fdfa);border-color:#a7f3d0} .mat-rules-dialog .mat-score-card i,.mat-rules-dialog .mat-score-card strong{color:#047857} .mat-rules-dialog .mat-score-card.is-wrong{background:linear-gradient(145deg,#fff1f2,#fff7ed);border-color:#fecaca} .mat-rules-dialog .mat-score-card.is-wrong i,.mat-rules-dialog .mat-score-card.is-wrong strong{color:#b91c1c} .mat-rules-dialog .mat-score-card.is-skip{background:linear-gradient(145deg,#f1f5f9,#f8fafc);border-color:#cbd5e1} .mat-rules-dialog .mat-score-card.is-skip i,.mat-rules-dialog .mat-score-card.is-skip strong{color:#475569} .mat-rules-dialog .mat-rule-highlight{color:#854d0e!important;background:#fffbeb!important;border-color:#fcd34d!important} .mat-rules-dialog .mat-rule-highlight strong{color:#92400e} .mat-rules-dialog .mat-pb-range{background:linear-gradient(145deg,#eff6ff,#f5f3ff);border-color:#c7d2fe} .mat-rules-dialog .mat-pb-range strong{color:#3730a3!important} .mat-rules-dialog .mat-pb-range span{color:#047857!important} .mat-rules-dialog .mat-rule-note{color:#075985!important;background:#eff6ff!important;border:1px solid #bfdbfe} .mat-rules-dialog .mat-rule-note i{color:#2563eb!important} .mat-rules-dialog .mat-rule-list details:nth-child(3) .mat-rule-highlight{color:#9f1239!important;background:#fff1f2!important;border-color:#fda4af!important} .mat-rules-dialog .mat-rule-list details:nth-child(3) .mat-rule-highlight strong{color:#9f1239} html.dark .mat-rules-dialog .mat-rule-list details>div,body.dark .mat-rules-dialog .mat-rule-list details>div, html.dark .mat-rules-dialog .mat-rule-list details>div p,body.dark .mat-rules-dialog .mat-rule-list details>div p{color:#e2e8f0} html.dark .mat-rules-dialog .mat-score-card,body.dark .mat-rules-dialog .mat-score-card{background:linear-gradient(145deg,#12372f,#102a36);border-color:#246653} html.dark .mat-rules-dialog .mat-score-card i,html.dark .mat-rules-dialog .mat-score-card strong,body.dark .mat-rules-dialog .mat-score-card i,body.dark .mat-rules-dialog .mat-score-card strong{color:#6ee7b7} html.dark .mat-rules-dialog .mat-score-card.is-wrong,body.dark .mat-rules-dialog .mat-score-card.is-wrong{background:linear-gradient(145deg,#451b27,#38212b);border-color:#873548} html.dark .mat-rules-dialog .mat-score-card.is-wrong i,html.dark .mat-rules-dialog .mat-score-card.is-wrong strong,body.dark .mat-rules-dialog .mat-score-card.is-wrong i,body.dark .mat-rules-dialog .mat-score-card.is-wrong strong{color:#fda4af} html.dark .mat-rules-dialog .mat-score-card.is-skip,body.dark .mat-rules-dialog .mat-score-card.is-skip{background:linear-gradient(145deg,#1e293b,#273449);border-color:#475569} html.dark .mat-rules-dialog .mat-score-card.is-skip i,html.dark .mat-rules-dialog .mat-score-card.is-skip strong,body.dark .mat-rules-dialog .mat-score-card.is-skip i,body.dark .mat-rules-dialog .mat-score-card.is-skip strong{color:#cbd5e1} html.dark .mat-rules-dialog .mat-rule-highlight,body.dark .mat-rules-dialog .mat-rule-highlight{color:#fde68a!important;background:#422d12!important;border-color:#92400e!important} html.dark .mat-rules-dialog .mat-rule-highlight strong,body.dark .mat-rules-dialog .mat-rule-highlight strong{color:#fde68a} html.dark .mat-rules-dialog .mat-pb-range,body.dark .mat-rules-dialog .mat-pb-range{background:linear-gradient(145deg,#202b50,#30264b);border-color:#4f46a5} html.dark .mat-rules-dialog .mat-pb-range strong,body.dark .mat-rules-dialog .mat-pb-range strong{color:#c7d2fe!important} html.dark .mat-rules-dialog .mat-pb-range span,body.dark .mat-rules-dialog .mat-pb-range span{color:#6ee7b7!important} html.dark .mat-rules-dialog .mat-rule-note,body.dark .mat-rules-dialog .mat-rule-note{color:#bfdbfe!important;background:#172b46!important;border-color:#1d4ed8} html.dark .mat-rules-dialog .mat-rule-note i,body.dark .mat-rules-dialog .mat-rule-note i{color:#93c5fd!important}  @media(max-width:680px){.mat-rules-dialog .mat-rule-list details>div{font-size:13px;line-height:1.9}.mat-rules-dialog .mat-score-card small{color:#334155}.mat-rules-dialog .mat-pb-range{padding:10px}.mat-rules-dialog .mat-pb-range strong{font-size:12px}} /* Text-only emphasis: remove decorative fills and borders from informational details. */ .mat-rules-dialog .mat-score-card,.mat-rules-dialog .mat-score-card.is-wrong,.mat-rules-dialog .mat-score-card.is-skip,.mat-rules-dialog .mat-rule-highlight,.mat-rules-dialog .mat-pb-range,.mat-rules-dialog .mat-rule-note,.mat-rules-dialog .mat-rule-list details:nth-child(3) .mat-rule-highlight{background:transparent!important;background-image:none!important;border-color:transparent!important;box-shadow:none!important} .mat-rules-dialog .mat-score-card,.mat-rules-dialog .mat-pb-range{border:0!important} .mat-rules-dialog .mat-rule-note{border:0!important} html.dark .mat-rules-dialog .mat-score-card,body.dark .mat-rules-dialog .mat-score-card,html.dark .mat-rules-dialog .mat-score-card.is-wrong,body.dark .mat-rules-dialog .mat-score-card.is-wrong,html.dark .mat-rules-dialog .mat-score-card.is-skip,body.dark .mat-rules-dialog .mat-score-card.is-skip,html.dark .mat-rules-dialog .mat-rule-highlight,body.dark .mat-rules-dialog .mat-rule-highlight,html.dark .mat-rules-dialog .mat-pb-range,body.dark .mat-rules-dialog .mat-pb-range,html.dark .mat-rules-dialog .mat-rule-note,body.dark .mat-rules-dialog .mat-rule-note{background:transparent!important;background-image:none!important;border-color:transparent!important;box-shadow:none!important} ';
     style.textContent += '.mat-rank-track .mat-progress-star{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;width:max-content!important;min-width:58px;height:28px!important;box-sizing:border-box;padding:0 8px;border:2px solid #FFC107!important;border-radius:999px!important;background:#FFFFFF!important;color:#171717!important;font-size:12px!important;font-weight:950;line-height:1;white-space:nowrap;box-shadow:0 2px 7px rgba(15,23,42,.22),0 0 0 3px rgba(255,193,7,.12);filter:none!important;z-index:5;pointer-events:none;transition:left .35s ease,transform .35s ease,border-color .22s ease,box-shadow .22s ease}.mat-rank-track .mat-progress-star i{display:block!important;width:auto!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#D6A000!important;font-size:13px!important;line-height:1;filter:none!important}.mat-rank-track .mat-progress-star b{display:block!important;margin:0!important;padding:0!important;color:#171717!important;font-size:12px!important;font-weight:950!important;line-height:1;font-variant-numeric:tabular-nums}.mat-rank-track.is-safe .mat-progress-star{border-color:#16A36A!important;box-shadow:0 2px 7px rgba(15,23,42,.20),0 0 0 3px rgba(16,163,106,.14),0 0 10px rgba(16,185,129,.18)}.mat-rank-track.is-promotion .mat-progress-star{border-color:#A855F7!important;box-shadow:0 2px 7px rgba(15,23,42,.20),0 0 0 3px rgba(168,85,247,.15),0 0 11px rgba(168,85,247,.22)}html.dark .mat-rank-track .mat-progress-star,body.dark .mat-rank-track .mat-progress-star{background:#202020!important;color:#FFFFFF!important;border-color:#FFD700!important;box-shadow:0 2px 8px rgba(0,0,0,.48),0 0 0 3px rgba(255,215,0,.13)}html.dark .mat-rank-track .mat-progress-star b,body.dark .mat-rank-track .mat-progress-star b{color:#FFFFFF!important}html.dark .mat-rank-track .mat-progress-star i,body.dark .mat-rank-track .mat-progress-star i{color:#FFD700!important}html.dark .mat-rank-track.is-safe .mat-progress-star,body.dark .mat-rank-track.is-safe .mat-progress-star{border-color:#34D399!important;box-shadow:0 2px 8px rgba(0,0,0,.48),0 0 0 3px rgba(52,211,153,.16)}html.dark .mat-rank-track.is-promotion .mat-progress-star,body.dark .mat-rank-track.is-promotion .mat-progress-star{border-color:#C084FC!important;box-shadow:0 2px 8px rgba(0,0,0,.48),0 0 0 3px rgba(192,132,252,.16)}@media(max-width:650px){.mat-rank-track .mat-progress-star{min-width:54px;height:27px!important;padding:0 7px;font-size:11px!important}.mat-rank-track .mat-progress-star b{font-size:11px!important}}';
+    style.textContent += '.mat-rank-tier{position:relative}.mat-rank-tier.is-completed{opacity:1}.mat-rank-tier.is-completed .vault-rank-trophy-svg{filter:drop-shadow(0 3px 3px rgba(16,185,129,.25))}.mat-rank-tier.is-upcoming .vault-rank-trophy-svg{filter:grayscale(.82);opacity:.42}.mat-rank-tier.is-current .vault-rank-trophy-svg{filter:drop-shadow(0 4px 4px rgba(250,204,21,.28))}.mat-rank-tier.is-completed:after{content:"✓";position:absolute;top:1px;right:4px;display:grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#059669;color:#fff;font-size:10px;font-weight:950;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.2)}.mat-rank-milestone-track{display:flex!important;align-items:stretch;gap:3px;overflow:visible!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}.mat-rank-milestone-track .mat-rank-step{position:relative;display:block;flex-basis:0;height:12px;min-width:2px;overflow:hidden;border-radius:999px;background:rgba(148,163,184,.28);box-shadow:inset 0 1px 2px rgba(15,23,42,.12)}.mat-rank-milestone-track .mat-rank-step>span{display:block;height:100%;max-width:100%;border-radius:inherit;background:linear-gradient(90deg,#10b981,#34d399);transition:width .3s ease}.mat-rank-milestone-track .mat-rank-step.is-in-progress>span,.mat-rank-milestone-track .mat-rank-step.is-current>span{background:linear-gradient(90deg,#f59e0b,#facc15)}.mat-rank-milestone-track .mat-rank-step.is-upcoming>span{width:0!important}';
     document.head.appendChild(style);
   }
   function ensureTopControls() {
@@ -730,28 +732,100 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     rail.style.paddingRight = sideSpace + 'px';
     if (resetScroll) rail.scrollLeft = 0;
   }
+  function rankPromotionCostForIndex(index) {
+    if (index < 0 || index >= RANKS.length - 1) return 0;
+    var cost = 500;
+    for (var step = 1; step <= index; step++) cost = Math.max(5, Math.round((500 + cost * 0.2) / 5) * 5);
+    return cost;
+  }
+  function getTierRankProgressView(me) {
+    var rankIndex = RANKS.indexOf(String(me && me.rank || ''));
+    if (rankIndex < 0) rankIndex = 0;
+    var tierStartIndex = Math.floor(rankIndex / 5) * 5;
+    var tierEndIndex = Math.min(tierStartIndex + 4, RANKS.length - 1);
+    var source = me && me.rankProgress && typeof me.rankProgress === 'object' ? me.rankProgress : {};
+    function numeric(value, fallback) {
+      if (value === null || value === undefined || value === '') return fallback;
+      var number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+    var currentRP = Math.max(0, numeric(source.currentRP, numeric(me && me.rankPoints, 0)));
+    var currentRankMilestoneRP = Math.max(0, numeric(source.currentRankMilestoneRP, 0));
+    if (source.currentRankMilestoneRP === null || source.currentRankMilestoneRP === undefined || source.currentRankMilestoneRP === '') {
+      for (var prior = tierStartIndex; prior < rankIndex; prior++) currentRankMilestoneRP += rankPromotionCostForIndex(prior);
+    }
+    var isMax = rankIndex >= RANKS.length - 1;
+    var milestoneCapRP = Math.max(currentRankMilestoneRP, numeric(
+      source.milestoneCapRP,
+      isMax ? currentRankMilestoneRP : currentRankMilestoneRP + rankPromotionCostForIndex(rankIndex)
+    ));
+    var tierCapRP = Math.max(0, numeric(source.tierCapRP, NaN));
+    if (!Number.isFinite(tierCapRP) || tierCapRP <= 0) {
+      tierCapRP = 0;
+      for (var stepIndex = tierStartIndex; stepIndex < tierEndIndex; stepIndex++) tierCapRP += rankPromotionCostForIndex(stepIndex);
+      if (tierEndIndex < RANKS.length - 1) tierCapRP += rankPromotionCostForIndex(tierEndIndex);
+    }
+    var subrankRequiredRP = isMax ? 0 : Math.max(0, milestoneCapRP - currentRankMilestoneRP);
+    var subrankEarnedRP = isMax ? 0 : Math.max(0, Math.min(subrankRequiredRP, currentRP - currentRankMilestoneRP));
+    var tierProgressPercent = isMax ? 100 : (tierCapRP > 0 ? Math.max(0, Math.min(100, currentRP / tierCapRP * 100)) : 0);
+    var nextIndex = isMax ? -1 : rankIndex + 1;
+    var isTierTransition = source.isTierTransition != null
+      ? !!source.isTierTransition
+      : (!isMax && Math.floor(nextIndex / 5) !== Math.floor(rankIndex / 5));
+    return {
+      rankIndex: rankIndex,
+      tierStartIndex: tierStartIndex,
+      tierEndIndex: tierEndIndex,
+      tierName: String(source.tierName || RANKS[tierStartIndex].split(' ')[0]),
+      currentRP: currentRP,
+      totalRP: Math.max(0, Number(me && me.totalRP) || 0),
+      currentRankMilestoneRP: currentRankMilestoneRP,
+      milestoneCapRP: milestoneCapRP,
+      tierCapRP: tierCapRP,
+      subrankEarnedRP: subrankEarnedRP,
+      subrankRequiredRP: subrankRequiredRP,
+      tierProgressPercent: tierProgressPercent,
+      nextRankName: String(source.nextRankName || (nextIndex >= 0 ? RANKS[nextIndex] : '')),
+      isTierTransition: isTierTransition,
+      isMax: isMax
+    };
+  }
   function renderRankRail(rows) {
     var rail = document.getElementById('med-rank-rail');
     if (!rail) return;
     bindRankRailSwipe(rail);
     var me = getMyRankEntry(rows || []);
+    if (!me) {
+      var profile = currentProfile || app.profile || null;
+      if (profile && profile.rank) {
+        me = {
+          rank: profile.rank,
+          rankPoints: profile.rankPoints,
+          totalRP: profile.totalRP,
+          rankProgress: profile.rankProgress
+        };
+      }
+    }
+    var currentRankIndex = me ? RANKS.indexOf(me.rank) : -1;
     var vault = window.MedAchievementVaultTrophies;
     var vaultRanks = vault && typeof vault.getRanks === 'function'
       ? vault.getRanks()
       : RANKS.map(function (name, index) { return { name: name, index: index }; });
-    if (me && (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; }))) selectedRank = me.rank;
+    if (me && currentRankIndex >= 0 && (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; }))) selectedRank = me.rank;
     if (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; })) selectedRank = (me && me.rank) || RANKS[0];
     rail.innerHTML = vaultRanks.map(function (item) {
       var rank = item.name;
       var active = rank === selectedRank;
+      var completed = currentRankIndex >= 0 && item.index < currentRankIndex;
+      var current = currentRankIndex >= 0 && item.index === currentRankIndex;
+      var statusClass = completed ? ' is-completed' : (current ? ' is-current' : (currentRankIndex >= 0 ? ' is-upcoming' : ''));
+      var statusText = completed ? 'Completed' : (current ? 'Current rank' : 'Locked');
       var svg = vault && typeof vault.trophySvgForIndex === 'function'
         ? vault.trophySvgForIndex(item.index, 'vault-rank-trophy-svg')
         : '<span class="vault-trophy-pending" aria-hidden="true"></span>';
-      return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + '" data-med-rank="' + escapeHtml(rank) + '" aria-label="' + escapeHtml(rank) + ' trophy">' +
+      return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + statusClass + '" data-med-rank="' + escapeHtml(rank) + '" aria-label="' + escapeHtml(rank) + ' trophy · ' + statusText + '" title="' + escapeHtml(rank + ' · ' + statusText) + '">' +
         svg + '<span>' + escapeHtml(rank) + '</span></button>';
     }).join('');
-    // Center the first trophy in the full-width rail. Symmetric side space
-    // leaves room to scroll so the first trophy can move off to the left.
     var initialPosition = rail.dataset.initialRankPositioned !== 'true';
     centerFirstTrophy(rail, initialPosition);
     if (initialPosition) rail.dataset.initialRankPositioned = 'true';
@@ -761,49 +835,68 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var area = document.getElementById('med-rank-progress');
     if (!area) return;
     if (!me) {
+      var profile = currentProfile || app.profile || null;
+      if (profile && profile.rank) {
+        me = {
+          rank: profile.rank,
+          rankPoints: profile.rankPoints,
+          totalRP: profile.totalRP,
+          rankProgress: profile.rankProgress
+        };
+      }
+    }
+    if (!me) {
       area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>নিজের নাম, কলেজ ও ব্যাচ পূরণ করে Save করলে Leaderboard ও trophy progress ব্যবহার করতে পারবেন।</span></div>';
       return;
     }
-    var vault = window.MedAchievementVaultTrophies;
-    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(me.rank) : null;
-    var rankIndex = RANKS.indexOf(me.rank);
-    if (rankIndex < 0) rankIndex = 0;
-    function promotionCost(index) {
-      if (index < 0 || index >= RANKS.length - 1) return 0;
-      var cost = 500;
-      for (var step = 1; step <= index; step++) cost = Math.max(5, Math.round((500 + cost * 0.2) / 5) * 5);
-      return cost;
+    var progress = getTierRankProgressView(me);
+    var stepsMarkup = '';
+    var stepStartRP = 0;
+    var stepCount = 0;
+    for (var stepIndex = progress.tierStartIndex; stepIndex <= progress.tierEndIndex && stepIndex < RANKS.length - 1; stepIndex++) {
+      var stepCost = rankPromotionCostForIndex(stepIndex);
+      if (stepCost <= 0) continue;
+      var stepEarned = stepIndex < progress.rankIndex
+        ? stepCost
+        : (stepIndex === progress.rankIndex ? Math.max(0, Math.min(stepCost, progress.currentRP - stepStartRP)) : 0);
+      var stepPercent = Math.max(0, Math.min(100, stepEarned / stepCost * 100));
+      var stepState = stepIndex < progress.rankIndex ? 'is-completed' : (stepIndex === progress.rankIndex ? (stepPercent > 0 ? 'is-in-progress' : 'is-current') : 'is-upcoming');
+      var fromRank = RANKS[stepIndex];
+      var toRank = RANKS[stepIndex + 1];
+      stepsMarkup += '<div class="mat-rank-step ' + stepState + '" style="flex:' + stepCost + ' 1 0%" title="' +
+        escapeHtml(fromRank + ' → ' + toRank + ': ' + stepEarned.toLocaleString() + ' / ' + stepCost.toLocaleString() + ' RP') +
+        '"><span style="width:' + stepPercent + '%"></span></div>';
+      stepStartRP += stepCost;
+      stepCount += 1;
     }
-    var rankCost = promotionCost(rankIndex);
-    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
-    var internalProgress = me.rankProgress && typeof me.rankProgress === 'object' ? me.rankProgress : {};
-    var internalRP = Math.max(0, Number(me.rankPoints) || 0);
-    var safeThreshold = Math.max(0, Number(internalProgress.safeZoneRP) || Number(info && info.safeZoneRP) || Math.ceil(rankCost * 0.30));
-    var promotionThreshold = Math.max(0, Number(internalProgress.promotionZoneRP) || Math.ceil(rankCost * 0.70));
-    var requiredRP = Math.max(0, Number(internalProgress.promotionRequiredRP) || rankCost);
-    var safe = safeThreshold > 0 && internalRP >= safeThreshold;
-    var promotion = promotionThreshold > 0 && internalRP >= promotionThreshold;
-    var atMax = !!(info && info.atMax) || rankIndex >= RANKS.length - 1;
-    if (atMax || requiredRP <= 0) {
-      area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank || 'Immortal I') + ' · সর্বোচ্চ Trophy</strong><small>Weekly RP: ' + internalRP.toLocaleString() + ' · Lifetime RP: ' + lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + internalRP.toLocaleString() + ' Weekly RP</span></div><div class="mat-safe-zone-caption ' + (safe ? '' : 'at-risk') + '"><i class="fa-solid ' + (safe ? 'fa-shield-check' : 'fa-triangle-exclamation') + '"></i><span><strong>' + (safe ? 'Safe Zone · rank protected' : 'Safe Zone-এর নিচে · weekly demotion হতে পারে') + '</strong><small>Safe Zone boundary: ' + safeThreshold.toLocaleString() + ' Weekly RP. সর্বোচ্চ rank হওয়ায় Promotion Zone নেই; Safe Zone ও weekly demotion নিয়ম প্রযোজ্য।</small></span></div>';
-      return;
-    }
-    var pct = Math.max(0, Math.min(100, internalRP / Math.max(1, requiredRP) * 100));
-    var safePct = Math.max(0, Math.min(100, safeThreshold / Math.max(1, requiredRP) * 100));
-    var promotionPct = Math.max(safePct, Math.min(100, promotionThreshold / Math.max(1, requiredRP) * 100));
-    var promotionRemaining = Math.max(0, promotionThreshold - internalRP);
-    var zoneTitle = promotion ? 'Promotion Zone অর্জিত' : (safe ? 'Safe Zone পার করেছেন · rank upgrade-এর পথে' : 'Safe Zone-এর নিচে · weekly review প্রযোজ্য');
-    var zoneDetail = promotion ? 'Weekly review-তে Promotion Zone অনুযায়ী rank upgrade হবে এবং নতুন rank-এর Safe Zone starting RP reward যোগ হবে; 100% RP হলে immediate promotion হবে, কোনো extra RP bonus ছাড়া।' : (safe ? 'Promotion Zone-এ যেতে আরও ' + promotionRemaining.toLocaleString() + ' Weekly RP প্রয়োজন।' : 'Safe Zone boundary: ' + safeThreshold.toLocaleString() + ' · Promotion Zone boundary: ' + promotionThreshold.toLocaleString() + ' Weekly RP');
-    var fillGradient = promotion ? 'linear-gradient(90deg,#10b981,#14b8a6,#a78bfa,#f0abfc)' : (safe ? 'linear-gradient(90deg,#059669,#34d399)' : 'linear-gradient(90deg,#f59e0b,#fb923c)');
-    area.innerHTML = '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(info && info.nextName || RANKS[rankIndex + 1] || 'পরবর্তী Trophy') + '</strong><small>Weekly RP: ' + internalRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' · Lifetime RP: ' + lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' + internalRP.toLocaleString() + ' RP</span></div>' +
-      '<div class="mat-rank-track mat-rank-zones ' + (safe ? 'is-safe' : 'is-at-risk') + (promotion ? ' is-promotion' : '') + '" role="progressbar" aria-label="Weekly RP rank progression" aria-valuemin="0" aria-valuemax="' + requiredRP + '" aria-valuenow="' + Math.min(internalRP, requiredRP) + '">' +
-      '<span class="mat-rank-fill" style="width:' + pct + '%;background:' + fillGradient + '"></span>' +
-      '<span class="mat-safe-zone-marker" style="left:' + safePct + '%" role="img" aria-label="Safe Zone boundary at ' + safeThreshold + ' Weekly RP"></span>' +
-      '<span class="mat-promotion-zone-marker" style="left:' + promotionPct + '%" role="img" aria-label="Promotion Zone boundary at ' + promotionThreshold + ' Weekly RP"></span>' +
-      '<span class="mat-progress-star" style="left:' + pct + '%;transform:translate(-' + pct + '%, -50%)" role="img" aria-label="Current RP ' + internalRP.toLocaleString() + ' of ' + requiredRP.toLocaleString() + '"><i class="fa-solid fa-star" aria-hidden="true"></i><b>' + internalRP.toLocaleString() + '</b></span></div>' +
-      '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe Zone · ' + safeThreshold.toLocaleString() + ' Weekly RP</span><span class="mat-zone-legend-promotion"><i></i> Promotion Zone · ' + promotionThreshold.toLocaleString() + ' Weekly RP</span></div>' +
-      '<div class="mat-rank-foot"><span>Safe boundary: ' + safeThreshold.toLocaleString() + ' RP</span><span>Promotion boundary: ' + promotionThreshold.toLocaleString() + ' RP</span></div>' +
-      '<div class="mat-safe-zone-caption ' + (promotion ? 'is-promotion' : (safe ? '' : 'at-risk')) + '"><i class="fa-solid ' + (promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) + '"></i><span><strong>' + zoneTitle + '</strong><small>' + zoneDetail + '</small></span></div>';
+    var completedSteps = Math.min(stepCount, Math.max(0, progress.rankIndex - progress.tierStartIndex));
+    var remainingRP = Math.max(0, progress.subrankRequiredRP - progress.subrankEarnedRP);
+    var nextLabel = progress.isMax ? 'সর্বোচ্চ Trophy সম্পন্ন' : (progress.rankIndex === progress.tierEndIndex ? 'পরবর্তী Tier: ' + progress.nextRankName : 'পরবর্তী Sub-rank: ' + progress.nextRankName);
+    var detail = progress.isMax
+      ? 'Immortal I সর্বোচ্চ rank। এই Tier-এর সব milestone সম্পন্ন হয়েছে।'
+      : (progress.isTierTransition
+        ? 'এই Tier-এর শেষ milestone। ' + progress.nextRankName + '-এ উঠলে RP 0 থেকে নতুন Tier শুরু হবে।'
+        : 'এই Tier-এর আগের sub-rank milestone পূর্ণ অবস্থায় থাকবে; পরবর্তী sub-rank-এ যেতে RP জমতে থাকবে।');
+    var track = '<div class="mat-rank-track mat-rank-milestone-track" role="progressbar" aria-label="' +
+      escapeHtml(progress.tierName + ' Tier RP progression') + '" aria-valuemin="0" aria-valuemax="' + progress.tierCapRP +
+      '" aria-valuenow="' + Math.min(progress.currentRP, progress.tierCapRP) + '">' +
+      stepsMarkup +
+      '<span class="mat-progress-star" style="left:' + progress.tierProgressPercent + '%;transform:translate(-' + progress.tierProgressPercent + '%, -50%)" role="img" aria-label="Tier RP ' +
+      progress.currentRP.toLocaleString() + ' of ' + progress.tierCapRP.toLocaleString() + '"><i class="fa-solid fa-star" aria-hidden="true"></i><b>' +
+      progress.currentRP.toLocaleString() + '</b></span></div>';
+    var subrankText = progress.isMax
+      ? 'সর্বোচ্চ Sub-rank · ' + progress.currentRP.toLocaleString() + ' Tier RP'
+      : progress.subrankEarnedRP.toLocaleString() + ' / ' + progress.subrankRequiredRP.toLocaleString() + ' RP in ' + escapeHtml(me.rank);
+    area.innerHTML =
+      '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(progress.nextRankName || 'Maximum Trophy') +
+      '</strong><small>' + escapeHtml(progress.tierName) + ' Tier RP: ' + progress.currentRP.toLocaleString() + ' / ' + progress.tierCapRP.toLocaleString() +
+      ' · ' + subrankText + ' · Lifetime RP: ' + progress.totalRP.toLocaleString() + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' +
+      (progress.isMax ? 'MAX' : '+' + remainingRP.toLocaleString() + ' RP') + '</span></div>' + track +
+      '<div class="mat-rank-foot"><span>' + completedSteps.toLocaleString() + ' / ' + stepCount.toLocaleString() + ' previous milestones completed</span><span>' +
+      progress.tierProgressPercent.toFixed(1) + '% · ' + escapeHtml(nextLabel) + '</span></div>' +
+      '<div class="mat-safe-zone-caption"><i class="fa-solid fa-trophy"></i><span><strong>' +
+      (progress.isMax ? 'All trophy milestones completed' : 'Tier cumulative RP progression') +
+      '</strong><small>' + escapeHtml(detail) + '</small></span></div>';
   }
   function updateTopControls(me) {
     var rp = document.getElementById('med-top-rp');
@@ -995,7 +1088,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
       avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP,
-      level: me.level, rank: me.rank, accountType: me.accountType, streak: me.streak
+      level: me.level, rank: me.rank, rankProgress: me.rankProgress, accountType: me.accountType, streak: me.streak
     }));
   }
   function avatarMarkup(row) {
