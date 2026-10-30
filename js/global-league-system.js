@@ -302,6 +302,10 @@
       if (user.streak != null && Number.isFinite(Number(user.streak))) profile.streak = Math.max(0, Number(user.streak) || 0);
     }
     profile.rank = RANKS.indexOf(user.rank) >= 0 ? user.rank : RANKS[0];
+    profile.pbExpiryEnabled = user.pbExpiryEnabled !== false;
+    profile.pbExpiryValue = Math.max(1, Number(user.pbExpiryValue) || 2);
+    profile.pbExpiryUnit = ['hour','day','month','year'].indexOf(String(user.pbExpiryUnit || 'hour')) >= 0 ? String(user.pbExpiryUnit || 'hour') : 'hour';
+    profile.includePendingFriends = user.includePendingFriends === true;
     if (user.rankProgress && typeof user.rankProgress === 'object') profile.rankProgress = Object.assign({}, user.rankProgress);
     app.profile = profile;
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
@@ -433,6 +437,39 @@
     var response = await request(Object.assign({ action: 'progress' }, creds));
     if (response.user) applyProfile(response.user);
     return response;
+  }
+  async function getAccountSettings() {
+    await syncIdentity();
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'getAccountSettings' }, creds));
+    var settings = response.settings || {};
+    if (app.profile) {
+      app.profile.pbExpiryEnabled = settings.enabled !== false;
+      app.profile.pbExpiryValue = Math.max(1, Number(settings.value) || 2);
+      app.profile.pbExpiryUnit = String(settings.unit || 'hour');
+      app.profile.includePendingFriends = settings.includePendingFriends === true;
+    }
+    return {
+      pbExpiryEnabled: settings.enabled !== false,
+      pbExpiryValue: Math.max(1, Number(settings.value) || 2),
+      pbExpiryUnit: String(settings.unit || 'hour'),
+      includePendingFriends: settings.includePendingFriends === true
+    };
+  }
+  async function saveAccountSettings(settings) {
+    await syncIdentity();
+    var creds = await credentialsForCurrentUser();
+    var value = settings || {};
+    var response = await request(Object.assign({
+      action: 'saveAccountSettings',
+      pbExpiryEnabled: value.pbExpiryEnabled !== false,
+      pbExpiryValue: Math.max(1, Math.min(999, Math.floor(Number(value.pbExpiryValue) || 2))),
+      pbExpiryUnit: String(value.pbExpiryUnit || 'hour'),
+      includePendingFriends: value.includePendingFriends === true
+    }, creds));
+    if (response.user) applyProfile(response.user);
+    try { await loadLeaderboard(true); } catch (_) {}
+    return response.settings || {};
   }
   async function convertPB(amount, kind) {
     var points = Number(amount);
@@ -1599,8 +1636,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         leaderboardPayload.includeUserIds = Array.from(new Set([currentUserId()].concat(activityFriendIds.map(String).filter(Boolean)))).slice(0, 500);
       }
       if (periodForRequest === 'friends') {
-        var friendIds = window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function'
-          ? window.MedStudentFriends.getFriendIds().map(String) : [];
+        var friendIds = window.MedStudentFriends && typeof window.MedStudentFriends.getLeaderboardFriendIds === 'function'
+          ? window.MedStudentFriends.getLeaderboardFriendIds().map(String)
+          : (window.MedStudentFriends && typeof window.MedStudentFriends.getFriendIds === 'function' ? window.MedStudentFriends.getFriendIds().map(String) : []);
         var myId = currentUserId();
         if (myId) friendIds.push(String(myId));
         leaderboardPayload.userIds = Array.from(new Set(friendIds)).slice(0, 500);
@@ -2383,6 +2421,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     recordLeaderboardResult: recordLeaderboardResult,
     getProgress: getServerProgress,
     convertPB: convertPB,
+    getAccountSettings: getAccountSettings,
+    saveAccountSettings: saveAccountSettings,
     syncIdentity: syncIdentity,
     registerUser: registerUser,
     updateProfile: updateProfile,
