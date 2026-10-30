@@ -1520,11 +1520,24 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   const includeIdSet = new Set(includeIds);
   const allStudents = matReadObjects_(matGetStudentsSheet_()).map(matReconcileStoredRankProgress_);
   const students = requestedIdSet.size ? allStudents.filter(function (s) { return requestedIdSet.has(s.UserID); }) : allStudents;
-  // Include current-week RP in every profile payload, even on All Time/Friends tabs.
+  // Highest Weekly RP is a live record: include the current unfinished week-to-date,
+  // plus all historical weeks and the stored lifetime record. Persist increases so the
+  // Students sheet remains in sync before the week closes.
   const weeklyByUser = matGetWeeklyRPByUser_();
+  const historicalHighestByUser = matGetHighestWeeklyRPByUser_();
   const examStatsByUser = matGetExamStatsByUser_();
   const rows = students.map(function (s) {
     const weeklyRP = Math.max(0, Number(weeklyByUser[s.UserID] || 0));
+    const highestWeeklyRP = Math.max(
+      0,
+      matFiniteNumber_(s.HighestWeeklyRP, 0),
+      matFiniteNumber_(historicalHighestByUser[s.UserID], 0),
+      weeklyRP
+    );
+    if (highestWeeklyRP > matFiniteNumber_(s.HighestWeeklyRP, 0) && s._rowNumber) {
+      matUpdateObjectRow_(matGetStudentsSheet_(), s._rowNumber, { HighestWeeklyRP: highestWeeklyRP });
+      s.HighestWeeklyRP = highestWeeklyRP;
+    }
     // A week's earned RP is a subset of lifetime earned RP. Preserve this invariant
     // in API output even for legacy rows whose stored TotalRP is undercounted.
     const lifetimeRP = Math.max(0, Number(s.TotalRP || 0), weeklyRP);
@@ -1548,7 +1561,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       levelProgress: matGetLevelProgress_(s.XP),
       totalRP: lifetimeRP,
-      highestWeeklyRP: Math.max(0, matFiniteNumber_(s.HighestWeeklyRP, 0)),
+      highestWeeklyRP: highestWeeklyRP,
       weeklyRP: weeklyRP,
       weeklyRankPoints: weeklyRP,
       rankScore: safePeriod === 'weekly' ? weeklyRP : lifetimeRP,
