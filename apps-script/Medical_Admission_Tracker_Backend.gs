@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.6';
+const MAT_API_VERSION = '2026.10.30.7';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -34,7 +34,8 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'final-score-5-rp-8-xp-all-modes-including-practice',
   'weighted-pb-for-30-plus-question-exams',
   'pb-only-above-40-percent-no-extra-multiplier',
-  'pb-wallet-conversion-and-two-hour-expiry',
+  'account-configurable-pb-expiry',
+  'account-configurable-pending-friends-leaderboard',
   'all-time-weekly-and-friends-leaderboards',
   'student-search-and-friend-requests',
   'daily-streak-sync',
@@ -1013,10 +1014,14 @@ function matGetPBExpirySettings_(student) {
   const unit = ['hour', 'day', 'month', 'year'].indexOf(unitRaw) >= 0 ? unitRaw : 'hour';
   return { enabled: enabled, value: value, unit: unit };
 }
-function matPBExpiryDurationMs_(value, unit) {
+function matPBExpiryAt_(earnedAt, value, unit) {
+  const date = new Date(Math.max(0, Number(earnedAt) || Date.now()));
   const amount = Math.max(1, Math.min(999, Math.floor(Number(value) || 2)));
-  const days = unit === 'year' ? 365 : unit === 'month' ? 30 : unit === 'day' ? 1 : 1 / 24;
-  return Math.max(1, Math.round(amount * days * 24 * 60 * 60 * 1000));
+  if (unit === 'year') date.setFullYear(date.getFullYear() + amount);
+  else if (unit === 'month') date.setMonth(date.getMonth() + amount);
+  else if (unit === 'day') date.setDate(date.getDate() + amount);
+  else date.setHours(date.getHours() + amount);
+  return date.getTime();
 }
 function matGetAccountSettings_(p) {
   const user = matAuthenticate_(p);
@@ -1040,9 +1045,9 @@ function matSaveAccountSettings_(p) {
     let student = matFindStudentById_(user.UserID);
     if (!student) throw new Error('Student profile not found.');
     const nowMs = Date.now();
-    const durationMs = enabled ? matPBExpiryDurationMs_(value, unit) : 0;
+    const oldSnapshot = matGetTop10Snapshot_();
     const entries = matParsePBEntries_(student.PBEntries).map(function (entry) {
-      return { amount: entry.amount, earnedAt: entry.earnedAt, convertsAt: durationMs > 0 ? entry.earnedAt + durationMs : 0 };
+      return { amount: entry.amount, earnedAt: entry.earnedAt, convertsAt: enabled ? matPBExpiryAt_(entry.earnedAt, value, unit) : 0 };
     });
     matUpdateObjectRow_(sheet, student._rowNumber, {
       PBExpiryEnabled: enabled ? 'TRUE' : 'FALSE',
@@ -1056,6 +1061,11 @@ function matSaveAccountSettings_(p) {
     // Apply the new expiry immediately if the chosen duration is shorter than the
     // age of existing PB; never-expire entries use convertsAt=0.
     const expired = matSettlePBForStudent_(student, nowMs, sheet);
+    if (expired > 0) {
+      const snapshot = matBuildTop10_();
+      matEnqueueTop10Changes_(oldSnapshot, snapshot, matNowIso_(), 'PB-EXPIRY-SETTINGS-' + user.UserID + '-' + nowMs);
+      matSaveTop10Snapshot_(snapshot);
+    }
     const latest = matFindStudentById_(user.UserID);
     return { success: true, expiredPBToRP: expired, settings: {
       pbExpiryEnabled: enabled, pbExpiryValue: value, pbExpiryUnit: unit,
@@ -1275,8 +1285,8 @@ function matFinalizeProcessingExam_(attempt) {
     const pbEntries = matParsePBEntries_(current.PBEntries);
     if (pbEarned > 0) {
       const expiry = matGetPBExpirySettings_(current);
-      const durationMs = expiry.enabled ? matPBExpiryDurationMs_(expiry.value, expiry.unit) : 0;
-      pbEntries.push({ amount: pbEarned, earnedAt: nowMs, convertsAt: durationMs > 0 ? nowMs + durationMs : 0 });
+      const convertsAt = expiry.enabled ? matPBExpiryAt_(nowMs, expiry.value, expiry.unit) : 0;
+      pbEntries.push({ amount: pbEarned, earnedAt: nowMs, convertsAt: convertsAt });
     }
     matUpdateObjectRow_(matGetStudentsSheet_(), current._rowNumber, {
       XP: currentXP + xpEarned,
