@@ -377,6 +377,15 @@
   }
 
   function getFriendIds() { return Array.from(acceptedFriendIds); }
+  function getLeaderboardFriendIds() {
+    const ids = new Set(acceptedFriendIds);
+    const includePending = app.profile?.includePendingFriends === true;
+    if (includePending) {
+      incomingRequests.forEach(request => { if (request.fromUid) ids.add(String(request.fromUid)); });
+      outgoingRequests.forEach(request => { if (request.toUid) ids.add(String(request.toUid)); });
+    }
+    return Array.from(ids);
+  }
   function getConnectionData() {
     return {
       friendIds: Array.from(acceptedFriendIds),
@@ -1085,6 +1094,7 @@
     loadConnections,
     getLastConnectionError: () => lastFriendError,
     getFriendIds,
+    getLeaderboardFriendIds,
     getConnectionData,
     getRelationship,
     renderRequestPanel,
