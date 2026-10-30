@@ -24,7 +24,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.5';
+const MAT_API_VERSION = '2026.10.30.6';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -48,7 +48,9 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-rank-review-demotion-safe-zone-promotion-zone',
   'weekly-rp-starting-balance-after-reset',
   'highest-weekly-rp-profile-stat',
-  'immediate-promotion-no-extra-rp-bonus'
+  'immediate-promotion-no-extra-rp-bonus',
+  'single-step-rank-promotion',
+  'bronze-v-weekly-rp-zero'
 ]);
 
 const MAT_STUDENT_HEADERS = [
@@ -314,7 +316,8 @@ function processWeeklyRankDemotions() {
         outcome = 'demoted';
       }
 
-      const startingRP = matRankSafeZoneReward_(nextRankIndex);
+      // Bronze V is the minimum rank: never demote below it and always start it at 0 RP.
+      const startingRP = nextRankIndex === 0 ? 0 : matRankSafeZoneReward_(nextRankIndex);
       const newRankRP = matRankMilestoneCap_(nextRankIndex) + startingRP;
       const previousWeekRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
       const highestWeeklyRP = Math.max(
@@ -1356,19 +1359,21 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
   let bonusRP = 0;
   let tierReset = false;
 
-  // RP remains cumulative through sub-ranks in the current Tier.
-  // Completing a Tier advances to the next Tier and hard-resets RP to zero.
-  while (index < MAT_RANKS.length - 1) {
+  // A single reward/reconciliation pass advances at most one sub-rank.
+  // Reaching 100% of the next milestone promotes immediately; no Safe Zone
+  // starting-RP bonus is granted for this immediate promotion.
+  if (index < MAT_RANKS.length - 1) {
     const nextIndex = index + 1;
     const sameTier = matRankTierStartIndex_(nextIndex) === matRankTierStartIndex_(index);
     const requiredRP = sameTier ? matRankMilestoneCap_(nextIndex) : matRankTierCap_(index);
-    if (requiredRP <= 0 || rp < requiredRP) break;
-    index = nextIndex;
-    promoted += 1;
-    if (!sameTier) {
-      rp = 0;
-      tierReset = true;
-      break;
+    if (requiredRP > 0 && rp >= requiredRP) {
+      index = nextIndex;
+      promoted = 1;
+      // Completing a Tier advances to its next Tier and hard-resets RP to zero.
+      if (!sameTier) {
+        rp = 0;
+        tierReset = true;
+      }
     }
   }
   return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP, tierReset: tierReset };
