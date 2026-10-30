@@ -675,16 +675,6 @@ function toggleAppSidebarCollapse(){
                     <button class="ghost-btn" type="button" onclick="window.app.openAccountAuth('account')">Manage</button>
                 </article>
             </div>
-            <article id="account-logout-card" class="account-action-card hidden border border-red-200 dark:border-red-900/70">
-                <span class="account-action-icon text-red-600 dark:text-red-300"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></span>
-                <div class="flex-1 min-w-0"><h3 class="text-red-700 dark:text-red-300">Log out</h3><p>এই account থেকে নিরাপদে sign out করুন। আপনার account বা saved data delete হবে না।</p></div>
-                <button id="account-logout-button" class="ghost-btn border border-red-500/50 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950/20 dark:text-red-300 dark:hover:bg-red-950/40" type="button" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>
-            </article>
-            <article id="account-delete-card" class="account-action-card hidden border border-red-200 dark:border-red-900/70">
-                <span class="account-action-icon text-red-600 dark:text-red-300"><i class="fa-solid fa-user-xmark"></i></span>
-                <div class="flex-1 min-w-0"><h3 class="text-red-700 dark:text-red-300">Delete Account</h3><p>Login account, Medical profile, exam records ও Friends data স্থায়ীভাবে মুছে যাবে। Password verification এবং দুইবার confirmation লাগবে।</p></div>
-                <button id="account-delete-start" class="ghost-btn border border-red-500/50 text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30" type="button" onclick="window.handleAccountDeletion()"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete account</button>
-            </article>
             <article class="account-action-card">
                 <span class="account-action-icon"><i class="fa-solid fa-gear"></i></span>
                 <div class="flex-1 min-w-0"><h3>App Settings</h3><p>অ্যাপের সব preference ও support link এখান থেকে পরিচালনা করুন।</p></div>
@@ -712,6 +702,23 @@ function toggleAppSidebarCollapse(){
                     <a class="ghost-btn" href="https://t.me/rakibhasandc27" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-telegram"></i> Help &amp; Support</a>
                     <a class="ghost-btn" href="https://rakibhasandc27.blogspot.com/" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-blog"></i> Student Blog</a>
                 </div>
+            </section>
+            <section class="profile-panel space-y-4 border border-red-200 dark:border-red-900/70" aria-labelledby="account-danger-zone-title">
+                <div class="profile-panel-head">
+                    <div><span class="eyebrow text-red-600 dark:text-red-300">Account actions</span><h3 id="account-danger-zone-title" class="text-red-700 dark:text-red-300">Danger Zone</h3></div>
+                    <i class="fa-solid fa-triangle-exclamation text-red-600 dark:text-red-300" aria-hidden="true"></i>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300">এখানে account-এর গুরুত্বপূর্ণ action রাখা হয়েছে। Log out করলে শুধু sign out হবে—কোনো account বা saved data delete হবে না। Delete Account আলাদা, স্থায়ী action; এটি শুধু আপনি নিজে স্পষ্টভাবে confirm করলেই শুরু হবে।</p>
+            <article id="account-logout-card" class="account-action-card hidden border border-red-200 dark:border-red-900/70">
+                <span class="account-action-icon text-red-600 dark:text-red-300"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></span>
+                <div class="flex-1 min-w-0"><h3 class="text-red-700 dark:text-red-300">Log out</h3><p>এই account থেকে নিরাপদে sign out করুন। আপনার account বা saved data delete হবে না।</p></div>
+                <button id="account-logout-button" class="ghost-btn border border-red-500/50 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950/20 dark:text-red-300 dark:hover:bg-red-950/40" type="button" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>
+            </article>
+            <article id="account-delete-card" class="account-action-card hidden border border-red-200 dark:border-red-900/70">
+                <span class="account-action-icon text-red-600 dark:text-red-300"><i class="fa-solid fa-user-xmark"></i></span>
+                <div class="flex-1 min-w-0"><h3 class="text-red-700 dark:text-red-300">Delete Account</h3><p>Login account, Medical profile, exam records ও Friends data স্থায়ীভাবে মুছে যাবে। Password verification এবং দুইবার confirmation লাগবে।</p></div>
+                <button id="account-delete-start" class="ghost-btn border border-red-500/50 text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30" type="button" onclick="window.handleAccountDeletion()"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete account</button>
+            </article>
             </section>
         </section>
 
