@@ -638,6 +638,7 @@
       xp: xp,
       level: boardLevel,
       rank: rank, rankPoints: currentRP, totalRP: totalRP,
+      highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
       rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
       weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
