@@ -849,54 +849,107 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>নিজের নাম, কলেজ ও ব্যাচ পূরণ করে Save করলে Leaderboard ও trophy progress ব্যবহার করতে পারবেন।</span></div>';
       return;
     }
-    var progress = getTierRankProgressView(me);
-    var stepsMarkup = '';
-    var stepStartRP = 0;
-    var stepCount = 0;
-    for (var stepIndex = progress.tierStartIndex; stepIndex <= progress.tierEndIndex && stepIndex < RANKS.length - 1; stepIndex++) {
-      var stepCost = rankPromotionCostForIndex(stepIndex);
-      if (stepCost <= 0) continue;
-      var stepEarned = stepIndex < progress.rankIndex
-        ? stepCost
-        : (stepIndex === progress.rankIndex ? Math.max(0, Math.min(stepCost, progress.currentRP - stepStartRP)) : 0);
-      var stepPercent = Math.max(0, Math.min(100, stepEarned / stepCost * 100));
-      var stepState = stepIndex < progress.rankIndex ? 'is-completed' : (stepIndex === progress.rankIndex ? (stepPercent > 0 ? 'is-in-progress' : 'is-current') : 'is-upcoming');
-      var fromRank = RANKS[stepIndex];
-      var toRank = RANKS[stepIndex + 1];
-      stepsMarkup += '<div class="mat-rank-step ' + stepState + '" style="flex:' + stepCost + ' 1 0%" title="' +
-        escapeHtml(fromRank + ' → ' + toRank + ': ' + stepEarned.toLocaleString() + ' / ' + stepCost.toLocaleString() + ' RP') +
-        '"><span style="width:' + stepPercent + '%"></span></div>';
-      stepStartRP += stepCost;
-      stepCount += 1;
+
+    var current = getTierRankProgressView(me);
+    var currentRankIndex = current.rankIndex;
+    var selectedRankName = RANKS.indexOf(selectedRank) >= 0 ? selectedRank : me.rank;
+    var selectedRankIndex = RANKS.indexOf(selectedRankName);
+    if (selectedRankIndex < 0) selectedRankIndex = currentRankIndex;
+
+    var isFinalTrophy = selectedRankIndex >= RANKS.length - 1;
+    var isCompleted = selectedRankIndex < currentRankIndex;
+    var isCurrent = selectedRankIndex === currentRankIndex;
+    var requiredRP = rankPromotionCostForIndex(selectedRankIndex);
+    var earnedRP = isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0);
+    earnedRP = Math.max(0, Math.min(requiredRP, earnedRP));
+
+    var safeThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
+    var promotionThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.70) : 0;
+    var progressPercent = requiredRP > 0 ? Math.max(0, Math.min(100, earnedRP / requiredRP * 100)) : (isCompleted ? 100 : 0);
+    var safePercent = requiredRP > 0 ? Math.max(0, Math.min(100, safeThreshold / requiredRP * 100)) : 0;
+    var promotionPercent = requiredRP > 0 ? Math.max(safePercent, Math.min(100, promotionThreshold / requiredRP * 100)) : 0;
+    var remainingToSafe = Math.max(0, safeThreshold - earnedRP);
+    var remainingToPromotion = Math.max(0, promotionThreshold - earnedRP);
+    var remainingToRank = Math.max(0, requiredRP - earnedRP);
+    var safe = isCompleted || (safeThreshold > 0 && earnedRP >= safeThreshold);
+    var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
+    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var selectedTier = RANKS[selectedRankIndex].split(' ')[0];
+    var selectedNextRank = isFinalTrophy ? '' : RANKS[selectedRankIndex + 1];
+
+    if (isFinalTrophy && !isCompleted && !isCurrent) {
+      area.innerHTML =
+        '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) +
+        ' · Final Trophy</strong><small>Current rank: ' + escapeHtml(me.rank) + ' · Lifetime RP: ' +
+        lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp">LOCKED</span></div>' +
+        '<div class="mat-safe-zone-caption at-risk"><i class="fa-solid fa-lock"></i><span><strong>শেষ Trophy এখনো unlock হয়নি</strong>' +
+        '<small>Immortal II সম্পন্ন করে Immortal I-তে পৌঁছালে এই Trophy unlock হবে।</small></span></div>';
+      return;
     }
-    var completedSteps = Math.min(stepCount, Math.max(0, progress.rankIndex - progress.tierStartIndex));
-    var remainingRP = Math.max(0, progress.subrankRequiredRP - progress.subrankEarnedRP);
-    var nextLabel = progress.isMax ? 'সর্বোচ্চ Trophy সম্পন্ন' : (progress.rankIndex === progress.tierEndIndex ? 'পরবর্তী Tier: ' + progress.nextRankName : 'পরবর্তী Sub-rank: ' + progress.nextRankName);
-    var detail = progress.isMax
-      ? 'Immortal I সর্বোচ্চ rank। এই Tier-এর সব milestone সম্পন্ন হয়েছে।'
-      : (progress.isTierTransition
-        ? 'এই Tier-এর শেষ milestone। ' + progress.nextRankName + '-এ উঠলে RP 0 থেকে নতুন Tier শুরু হবে।'
-        : 'এই Tier-এর আগের sub-rank milestone পূর্ণ অবস্থায় থাকবে; পরবর্তী sub-rank-এ যেতে RP জমতে থাকবে।');
-    var track = '<div class="mat-rank-track mat-rank-milestone-track" role="progressbar" aria-label="' +
-      escapeHtml(progress.tierName + ' Tier RP progression') + '" aria-valuemin="0" aria-valuemax="' + progress.tierCapRP +
-      '" aria-valuenow="' + Math.min(progress.currentRP, progress.tierCapRP) + '">' +
-      stepsMarkup +
-      '<span class="mat-progress-star" style="left:' + progress.tierProgressPercent + '%;transform:translate(-' + progress.tierProgressPercent + '%, -50%)" role="img" aria-label="Tier RP ' +
-      progress.currentRP.toLocaleString() + ' of ' + progress.tierCapRP.toLocaleString() + '"><i class="fa-solid fa-star" aria-hidden="true"></i><b>' +
-      progress.currentRP.toLocaleString() + '</b></span></div>';
-    var subrankText = progress.isMax
-      ? 'সর্বোচ্চ Sub-rank · ' + progress.currentRP.toLocaleString() + ' Tier RP'
-      : progress.subrankEarnedRP.toLocaleString() + ' / ' + progress.subrankRequiredRP.toLocaleString() + ' RP in ' + escapeHtml(me.rank);
+
+    var stateTitle;
+    var stateDetail;
+    var rightLabel;
+    var trackState = safe ? 'is-safe' : 'is-at-risk';
+    if (isCompleted) {
+      stateTitle = 'Sub-rank completed · ✓';
+      stateDetail = RANKS[selectedRankIndex] + ' আগেই সম্পন্ন হয়েছে। এই sub-rank-এর milestone পুরোপুরি পূর্ণ।';
+      rightLabel = 'COMPLETED';
+      trackState = 'is-safe is-promotion';
+    } else if (!safe) {
+      stateTitle = 'Safe Zone-এর নিচে';
+      stateDetail = 'Safe Zone-এ যেতে আরও ' + remainingToSafe.toLocaleString() + ' RP প্রয়োজন। Safe boundary ' +
+        safeThreshold.toLocaleString() + ' RP; Promotion boundary ' + promotionThreshold.toLocaleString() + ' RP।';
+      rightLabel = '+' + remainingToSafe.toLocaleString() + ' RP to Safe';
+    } else if (!promotion) {
+      stateTitle = 'Safe Zone অর্জিত · Promotion Zone বাকি';
+      stateDetail = 'Safe Zone পার হয়েছে। Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() +
+        ' RP প্রয়োজন। Promotion boundary ' + promotionThreshold.toLocaleString() + ' RP।';
+      rightLabel = '+' + remainingToPromotion.toLocaleString() + ' RP to Promotion';
+    } else {
+      stateTitle = 'Promotion Zone অর্জিত';
+      stateDetail = 'Promotion Zone পার হয়েছে। পরের sub-rank-এ উঠতে আরও ' + remainingToRank.toLocaleString() +
+        ' RP প্রয়োজন; ' + requiredRP.toLocaleString() + ' RP হলে milestone সম্পূর্ণ হবে।';
+      rightLabel = '+' + remainingToRank.toLocaleString() + ' RP to Rank';
+      trackState = 'is-safe is-promotion';
+    }
+
+    var track = requiredRP > 0
+      ? '<div class="mat-rank-track mat-rank-zones ' + trackState + '" role="progressbar" aria-label="' +
+        escapeHtml(RANKS[selectedRankIndex] + ' individual sub-rank RP progression') + '" aria-valuemin="0" aria-valuemax="' +
+        requiredRP + '" aria-valuenow="' + earnedRP + '">' +
+        '<span class="mat-rank-fill" style="width:' + progressPercent + '%"></span>' +
+        '<span class="mat-safe-zone-marker" style="left:' + safePercent + '%" role="img" aria-label="Safe Zone at ' +
+        safeThreshold + ' RP"></span>' +
+        '<span class="mat-promotion-zone-marker" style="left:' + promotionPercent + '%" role="img" aria-label="Promotion Zone at ' +
+        promotionThreshold + ' RP"></span>' +
+        '<span class="mat-progress-star" style="left:' + progressPercent + '%;transform:translate(-' + progressPercent +
+        '%, -50%)" role="img" aria-label="' + earnedRP.toLocaleString() + ' of ' + requiredRP.toLocaleString() +
+        ' RP"><i class="fa-solid fa-star" aria-hidden="true"></i><b>' + earnedRP.toLocaleString() + '</b></span></div>' +
+        '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe · ' +
+        safeThreshold.toLocaleString() + ' RP</span><span class="mat-zone-legend-promotion"><i></i> Promotion · ' +
+        promotionThreshold.toLocaleString() + ' RP</span></div>'
+      : '<div class="mat-rank-locked"><i class="fa-solid fa-trophy"></i><span>এই সর্বোচ্চ sub-rank-এর পরে আর কোনো promotion milestone নেই।</span></div>';
+
+    var relationshipText = isCompleted
+      ? 'এই Trophy current rank-এর আগের completed milestone।'
+      : (isCurrent
+        ? 'এটি তোমার current sub-rank; RP এই rank-এর milestone থেকেই গণনা হচ্ছে।'
+        : 'এটি পরবর্তী sub-rank; আগের milestone সম্পূর্ণ হলে এখানে RP জমা শুরু হবে।');
+
     area.innerHTML =
-      '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(me.rank) + ' → ' + escapeHtml(progress.nextRankName || 'Maximum Trophy') +
-      '</strong><small>' + escapeHtml(progress.tierName) + ' Tier RP: ' + progress.currentRP.toLocaleString() + ' / ' + progress.tierCapRP.toLocaleString() +
-      ' · ' + subrankText + ' · Lifetime RP: ' + progress.totalRP.toLocaleString() + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star"></i> ' +
-      (progress.isMax ? 'MAX' : '+' + remainingRP.toLocaleString() + ' RP') + '</span></div>' + track +
-      '<div class="mat-rank-foot"><span>' + completedSteps.toLocaleString() + ' / ' + stepCount.toLocaleString() + ' previous milestones completed</span><span>' +
-      progress.tierProgressPercent.toFixed(1) + '% · ' + escapeHtml(nextLabel) + '</span></div>' +
-      '<div class="mat-safe-zone-caption"><i class="fa-solid fa-trophy"></i><span><strong>' +
-      (progress.isMax ? 'All trophy milestones completed' : 'Tier cumulative RP progression') +
-      '</strong><small>' + escapeHtml(detail) + '</small></span></div>';
+      '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) + ' → ' +
+      escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>Individual Sub-rank RP: ' +
+      earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' · Current rank: ' +
+      escapeHtml(me.rank) + ' · Lifetime RP: ' + lifetimeRP.toLocaleString() + '</small></span><span class="mat-rank-rp">' +
+      rightLabel + '</span></div>' + track +
+      '<div class="mat-rank-foot"><span>' + escapeHtml(selectedTier) + ' Tier · ' +
+      (isCompleted ? 'Previous milestone completed' : (isCurrent ? 'Current milestone' : 'Upcoming milestone')) +
+      '</span><span>' + progressPercent.toFixed(1) + '% complete</span></div>' +
+      '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
+      '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
+      '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) + ' ' +
+      escapeHtml(relationshipText) + '</small></span></div>';
   }
   function updateTopControls(me) {
     var rp = document.getElementById('med-top-rp');
