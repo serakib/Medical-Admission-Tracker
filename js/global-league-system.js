@@ -857,8 +857,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (selectedRankIndex < 0) selectedRankIndex = currentRankIndex;
 
     var isFinalTrophy = selectedRankIndex >= RANKS.length - 1;
-    var isCompleted = selectedRankIndex < currentRankIndex;
     var isCurrent = selectedRankIndex === currentRankIndex;
+    var isCompleted = selectedRankIndex < currentRankIndex ||
+      (selectedRankIndex === RANKS.length - 1 && isCurrent);
     var requiredRP = rankPromotionCostForIndex(selectedRankIndex);
     var earnedRP = isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0);
     earnedRP = Math.max(0, Math.min(requiredRP, earnedRP));
