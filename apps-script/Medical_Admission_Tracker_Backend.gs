@@ -50,7 +50,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
 
 const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
-  'XP', 'RP', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
+  'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
   'LastWeeklyDemotionWeek', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt'
 ];
@@ -88,6 +88,7 @@ const MAT_RANKS = Object.freeze([
 
 const MAT_TOP10_PROPERTY = 'MAT_TOP10_ALLTIME_SNAPSHOT_V1';
 const MAT_WEEKLY_DEMOTION_PROPERTY = 'MAT_WEEKLY_DEMOTION_PROCESSED_WEEK_V1';
+const MAT_RANK_PROGRESS_VERSION = 2;
 const MAT_LOCK_WAIT_MS = 20000;
 
 /* ------------------------------ Web entry points ------------------------------ */
@@ -256,99 +257,15 @@ function processPendingActivityNotifications() {
  * lifetime TotalRP. Per-user markers make interrupted runs safely repeatable.
  */
 function processWeeklyRankDemotions() {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(MAT_LOCK_WAIT_MS);
-  try {
-    const currentWeekStart = matWeekStartKey_();
-    const props = PropertiesService.getScriptProperties();
-    if (props.getProperty(MAT_WEEKLY_DEMOTION_PROPERTY) === currentWeekStart) {
-      return { success: true, skipped: true, weekStart: currentWeekStart, message: 'Weekly rank review already completed.' };
-    }
-
-    const previousWeekStart = matOffsetDateKey_(currentWeekStart, -7);
-    const sheet = matGetStudentsSheet_();
-    const students = matReadObjects_(sheet);
-    const now = matNowIso_();
-    let processed = 0;
-    let promoted = 0;
-    let demoted = 0;
-    let safe = 0;
-    let lowestRank = 0;
-    let maximumRank = 0;
-    let alreadyProcessed = 0;
-
-    students.forEach(function (student) {
-      const uid = String(student.UserID || '');
-      if (!uid || !student._rowNumber) return;
-      if (String(student.LastWeeklyDemotionWeek || '') === currentWeekStart) {
-        alreadyProcessed += 1;
-        return;
-      }
-
-      const normalized = matNormaliseStudent_(student);
-      const rankIndex = MAT_RANKS.indexOf(String(normalized.Rank || MAT_RANKS[0]));
-      const currentRP = Math.max(0, matFiniteNumber_(normalized.RP, 0));
-      const update = { LastWeeklyDemotionWeek: currentWeekStart, UpdatedAt: now };
-      let transitionRewardRP = 0;
-      processed += 1;
-
-      const isMaxRank = rankIndex >= MAT_RANKS.length - 1;
-      const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
-      const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
-
-      if (!isMaxRank && currentRP >= promotionZoneThreshold) {
-        // Promotion Zone (70% to below 100%) promotes at weekly review.
-        // At 100%, matApplyRankProgress_ promotes immediately when RP is earned.
-        update.Rank = MAT_RANKS[rankIndex + 1];
-        update.RP = matRankSafeZoneReward_(rankIndex + 1);
-        transitionRewardRP = update.RP;
-        promoted += 1;
-      } else if (currentRP >= safeZoneThreshold) {
-        // Safe Zone protects every rank, including Immortal I. Reset RP to
-        // the weekly starting reward while preserving the current rank.
-        update.RP = matRankSafeZoneReward_(rankIndex);
-        safe += 1;
-        if (isMaxRank) maximumRank += 1;
-      } else if (rankIndex <= 0) {
-        // Bronze V is the floor; it cannot demote.
-        update.RP = matRankSafeZoneReward_(0);
-        lowestRank += 1;
-      } else {
-        // Immortal I can demote to Immortal II when it misses the Safe Zone,
-        // but it has no Promotion Zone because no higher rank exists.
-        const demotedRankIndex = rankIndex - 1;
-        update.Rank = MAT_RANKS[demotedRankIndex];
-        update.RP = matRankSafeZoneReward_(demotedRankIndex);
-        transitionRewardRP = update.RP;
-        if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
-          update.GuestZeroRPAt = now;
-        }
-        update.LastError = '';
-        demoted += 1;
-      }
-      if (transitionRewardRP > 0) update.TotalRP = Math.max(0, matFiniteNumber_(normalized.TotalRP, 0)) + transitionRewardRP;
-      matUpdateObjectRow_(sheet, student._rowNumber, update);
-      if (transitionRewardRP > 0) matAppendRPEvent_(uid, transitionRewardRP, 'RANK-REVIEW-BONUS-' + uid + '-' + currentWeekStart, now);
-    });
-
-    props.setProperty(MAT_WEEKLY_DEMOTION_PROPERTY, currentWeekStart);
-    return {
-      success: true,
-      weekReviewed: previousWeekStart,
-      weekStart: currentWeekStart,
-      processed: processed,
-      promoted: promoted,
-      demoted: demoted,
-      safe: safe,
-      lowestRankProtected: lowestRank,
-      immortalProtected: maximumRank,
-      alreadyProcessed: alreadyProcessed,
-      message: 'Weekly rank review completed. Users in the 70%-to-under-100% Promotion Zone are promoted here; users reaching 100% are promoted immediately. Safe Zone protection and demotion remain unchanged. Lifetime TotalRP is unchanged.'
-    };
-  } finally {
-    lock.releaseLock();
-  }
+  // Compatibility target for previously installed Apps Script triggers.
+  // Tier-cumulative RP must not be reset or demoted during weekly review.
+  return {
+    success: true,
+    skipped: true,
+    message: 'Weekly RP reset and demotion are disabled. RP accumulates within a Tier and resets only when entering the next Tier.'
+  };
 }
+
 /* ------------------------------- Guest accounts ------------------------------- */
 
 /**
@@ -922,6 +839,7 @@ function matSettlePBForStudent_(student, nowMs, sheet) {
     else remaining.push(entry);
   });
   if (!expired) return 0;
+  student = matPrepareRankProgress_(student, sheet || matGetStudentsSheet_());
   const currentRP = Math.max(0, matFiniteNumber_(student.RP, 0));
   const lifetimeRP = Math.max(currentRP, matFiniteNumber_(student.TotalRP, currentRP));
   const rankResult = matApplyRankProgress_(String(student.Rank || MAT_RANKS[0]), currentRP, expired);
@@ -978,6 +896,7 @@ function matConvertPB_(p) {
     const sheet = matGetStudentsSheet_();
     let current = matFindStudentById_(user.UserID);
     if (!current) throw new Error('Student profile not found.');
+    current = matPrepareRankProgress_(current, sheet);
     const oldSnapshot = matGetTop10Snapshot_();
     const nowMs = Date.now();
     const expired = matSettlePBForStudent_(current, nowMs, sheet);
@@ -1103,8 +1022,9 @@ function matSubmitExam_(p) {
       // Each final-score point grants 5 RP and 8 XP; weighted performance bonus stays PB.
       const xpEarned = calculatedXpEarned;
       const rpEarned = baseRpEarned;
-      const freshUser = matFindStudentById_(authenticatedUser.UserID);
+      let freshUser = matFindStudentById_(authenticatedUser.UserID);
       if (!freshUser) throw new Error('Student profile not found.');
+      freshUser = matPrepareRankProgress_(freshUser, matGetStudentsSheet_());
       const rankBefore = String(freshUser.Rank || MAT_RANKS[0]);
       const rankPreview = matApplyRankProgress_(rankBefore, Math.max(0, matFiniteNumber_(freshUser.RP, 0)), rpEarned);
       const now = matNowIso_();
@@ -1150,8 +1070,9 @@ function matFinalizeProcessingExam_(attempt) {
   const userId = String(attempt.UserID || '');
   if (!attemptId || !userId) throw new Error('Pending exam record is incomplete.');
 
-  const current = matFindStudentById_(userId);
+  let current = matFindStudentById_(userId);
   if (!current) throw new Error('Student profile not found while recovering exam.');
+  current = matPrepareRankProgress_(current, matGetStudentsSheet_());
   const alreadyApplied = String(current.LastRewardAttemptID || '') === attemptId;
   const oldSnapshot = matGetTop10Snapshot_();
   let rankBefore = String(attempt.RankBefore || current.Rank || MAT_RANKS[0]);
@@ -1217,33 +1138,65 @@ function matFinalizeProcessingExam_(attempt) {
 
 function matRankPromotionCost_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Friendly RP curve: each promotion costs 500 + 20% of the previous promotion cost.
+  // Preserve the existing promotion-cost curve; each cost is a Tier milestone delta.
   let requirement = 500;
-  for (let step = 1; step <= rankIndex; step++) {
-    requirement = Math.max(5, Math.round((500 + requirement * 0.2) / 5) * 5);
-  }
+  for (let step = 1; step <= rankIndex; step++) requirement = Math.max(5, Math.round((500 + requirement * 0.2) / 5) * 5);
   return requirement;
+}
+
+function matRankTierStartIndex_(rankIndex) {
+  const safeIndex = Math.max(0, Math.min(MAT_RANKS.length - 1, Math.floor(Number(rankIndex) || 0)));
+  return Math.floor(safeIndex / 5) * 5;
+}
+
+function matRankMilestoneCap_(targetRankIndex) {
+  const index = Math.max(0, Math.min(MAT_RANKS.length - 1, Math.floor(Number(targetRankIndex) || 0)));
+  const tierStart = matRankTierStartIndex_(index);
+  let cap = 0;
+  for (let i = tierStart; i < index; i++) cap += matRankPromotionCost_(i);
+  return cap;
+}
+
+function matRankTierCap_(rankIndex) {
+  const tierStart = matRankTierStartIndex_(rankIndex);
+  const tierEnd = Math.min(tierStart + 4, MAT_RANKS.length - 1);
+  let cap = 0;
+  for (let i = tierStart; i < tierEnd; i++) cap += matRankPromotionCost_(i);
+  if (tierEnd < MAT_RANKS.length - 1) cap += matRankPromotionCost_(tierEnd);
+  return cap;
+}
+
+// One-time migration from old sub-rank-local RP to Tier-cumulative RP.
+// TotalRP remains the lifetime leaderboard score and is deliberately unchanged.
+function matPrepareRankProgress_(source, sheet) {
+  const student = Object.assign({}, source || {});
+  if (Number(student.RankProgressVersion) >= MAT_RANK_PROGRESS_VERSION) return student;
+  let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
+  if (rankIndex < 0) rankIndex = 0;
+  const migratedRP = matRankMilestoneCap_(rankIndex) + Math.max(0, matFiniteNumber_(student.RP, 0));
+  student.RP = migratedRP;
+  student.RankProgressVersion = MAT_RANK_PROGRESS_VERSION;
+  if (student._rowNumber) {
+    matUpdateObjectRow_(sheet || matGetStudentsSheet_(), student._rowNumber, {
+      RP: migratedRP,
+      RankProgressVersion: MAT_RANK_PROGRESS_VERSION
+    });
+  }
+  return student;
 }
 
 function matRankSafeZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length) return 0;
-  // Safe Zone is retained at Immortal I too, using the cost of reaching it
-  // (the previous subrank's promotion cost) because there is no next rank.
-  const cost = rankIndex >= MAT_RANKS.length - 1
-    ? matRankPromotionCost_(rankIndex - 1)
-    : matRankPromotionCost_(rankIndex);
+  const cost = rankIndex >= MAT_RANKS.length - 1 ? matRankPromotionCost_(rankIndex - 1) : matRankPromotionCost_(rankIndex);
   return Math.ceil(cost * 0.30);
 }
 
 function matRankPromotionZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Promotion Zone starts at 70%: these users promote at weekly review.
-  // Reaching 100% is handled immediately by matApplyRankProgress_.
   return Math.ceil(matRankPromotionCost_(rankIndex) * 0.70);
 }
 
 function matRankSafeZoneReward_(rankIndex) {
-  // Weekly starting RP is 30% of the Safe Zone threshold for the resulting rank.
   return Math.ceil(matRankSafeZoneThreshold_(rankIndex) * 0.30);
 }
 
@@ -1252,22 +1205,32 @@ function matGetRankProgress_(rank, currentRP) {
   if (index < 0) index = 0;
   const rp = Math.max(0, matFiniteNumber_(currentRP, 0));
   const isFinalRank = index >= MAT_RANKS.length - 1;
-  const safeZoneRP = matRankSafeZoneThreshold_(index);
-  const promotionRequiredRP = isFinalRank ? 0 : matRankPromotionCost_(index);
-  // Keep the 70% Promotion Zone threshold for weekly review; full cost triggers
-  // immediate promotion in matApplyRankProgress_ before the weekly review. 
-  const promotionZoneRP = isFinalRank ? 0 : matRankPromotionZoneThreshold_(index);
+  const tierStart = matRankTierStartIndex_(index);
+  const tierEnd = Math.min(tierStart + 4, MAT_RANKS.length - 1);
+  const currentMilestoneRP = matRankMilestoneCap_(index);
+  const nextIndex = isFinalRank ? -1 : index + 1;
+  const isTierTransition = !isFinalRank && matRankTierStartIndex_(nextIndex) !== tierStart;
+  const milestoneCapRP = isFinalRank
+    ? currentMilestoneRP
+    : (isTierTransition ? matRankTierCap_(index) : matRankMilestoneCap_(nextIndex));
+  const previousMilestoneRP = index === 0 ? 0 : matRankMilestoneCap_(index - 1);
+  const trophyDeltaRP = Math.max(0, currentMilestoneRP - previousMilestoneRP);
   return {
     currentRP: rp,
-    safeZoneRP: safeZoneRP,
-    promotionZoneRP: promotionZoneRP,
-    promotionRequiredRP: promotionRequiredRP,
-    rpToSafeZone: Math.max(0, safeZoneRP - rp),
-    rpToPromotionZone: isFinalRank ? 0 : Math.max(0, promotionZoneRP - rp),
-    safeZoneReached: rp >= safeZoneRP,
-    promotionZoneReached: !isFinalRank && rp >= promotionZoneRP,
-    zone: isFinalRank ? 'max-rank' : (rp >= promotionZoneRP ? 'promotion' : (rp >= safeZoneRP ? 'safe' : 'below-safe')),
-    progressPercent: promotionRequiredRP > 0 ? Math.min(100, Math.round((rp / promotionRequiredRP) * 1000) / 10) : 100,
+    tierName: MAT_RANKS[tierStart].split(' ')[0],
+    tierStartRank: MAT_RANKS[tierStart],
+    tierEndRank: MAT_RANKS[tierEnd],
+    tierCapRP: matRankTierCap_(index),
+    currentRankMilestoneRP: currentMilestoneRP,
+    previousMilestoneRP: previousMilestoneRP,
+    previousSubrankName: index === 0 ? '' : MAT_RANKS[index],
+    previousSubrankCompleted: index > 0,
+    nextRankName: isFinalRank ? '' : MAT_RANKS[nextIndex],
+    milestoneCapRP: milestoneCapRP,
+    promotionRequiredRP: milestoneCapRP,
+    trophyRP: isFinalRank ? trophyDeltaRP : Math.max(0, milestoneCapRP - currentMilestoneRP),
+    progressPercent: isFinalRank || milestoneCapRP <= 0 ? 100 : Math.min(100, Math.round((rp / milestoneCapRP) * 1000) / 10),
+    isTierTransition: isTierTransition,
     isFinalRank: isFinalRank
   };
 }
@@ -1279,21 +1242,24 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
   const before = MAT_RANKS[index];
   let promoted = 0;
   let bonusRP = 0;
+  let tierReset = false;
 
-  // Carry surplus earned RP forward on an immediate (100%) promotion.
-  // Manual/immediate promotion itself never grants bonus RP; the separate
-  // weekly Promotion Zone review may grant the new rank's Safe Zone reward.
+  // RP remains cumulative through sub-ranks in the current Tier.
+  // Completing a Tier advances to the next Tier and hard-resets RP to zero.
   while (index < MAT_RANKS.length - 1) {
-    const requiredRP = matRankPromotionCost_(index);
+    const nextIndex = index + 1;
+    const sameTier = matRankTierStartIndex_(nextIndex) === matRankTierStartIndex_(index);
+    const requiredRP = sameTier ? matRankMilestoneCap_(nextIndex) : matRankTierCap_(index);
     if (requiredRP <= 0 || rp < requiredRP) break;
-    rp -= requiredRP;
-    index += 1;
+    index = nextIndex;
     promoted += 1;
-    // Intentionally no promotion bonus here. Only the weekly Promotion Zone
-    // transition grants the resulting rank's Safe Zone starting reward.
+    if (!sameTier) {
+      rp = 0;
+      tierReset = true;
+      break;
+    }
   }
-
-  return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP };
+  return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP, tierReset: tierReset };
 }
 
 function matLevelRequiredXP_(level) {
@@ -2189,7 +2155,8 @@ function matNormaliseStudent_(r) {
 }
 
 function matReconcileStoredRankProgress_(source) {
-  const student = matNormaliseStudent_(source);
+  let student = matNormaliseStudent_(source);
+  student = matPrepareRankProgress_(student, matGetStudentsSheet_());
   const rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return student;
 
@@ -2207,6 +2174,7 @@ function matReconcileStoredRankProgress_(source) {
       Rank: student.Rank,
       RP: student.RP,
       TotalRP: student.TotalRP,
+      RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
       UpdatedAt: student.UpdatedAt
     });
     if (rankResult.bonusRP > 0) {
