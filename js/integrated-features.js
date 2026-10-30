@@ -195,6 +195,89 @@
     list.unshift({ email, name: name || email, lastUsed: Date.now() });
     localStorage.setItem(ACCOUNT_KEY, JSON.stringify(list.slice(0, 5)));
   }
+  function renderAccountPreferences(view) {
+    if (!view) return;
+    let panel = document.getElementById('enhanced-account-preferences');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'enhanced-account-preferences';
+      panel.className = 'enhanced-panel';
+      panel.style.cssText = 'margin:0 0 18px;padding:18px;border:1px solid var(--line,#cbd5e1);border-radius:18px;background:var(--surface,#fff);color:var(--text,#1e293b)';
+      const remembered = document.getElementById('enhanced-account-switcher');
+      if (remembered?.parentNode) remembered.parentNode.insertBefore(panel, remembered);
+      else view.appendChild(panel);
+    }
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span style="display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(16,185,129,.12);color:#059669"><i class="fa-solid fa-sliders"></i></span><div><h3 style="margin:0;font-size:1.05rem;font-weight:900">Personal Preferences</h3><p style="margin:2px 0 0;font-size:12px;color:var(--muted,#64748b)">আপনার account-এর জন্য সংরক্ষিত হবে</p></div></div>
+      <div style="padding:14px;border:1px solid var(--line,#cbd5e1);border-radius:14px;margin-bottom:12px">
+        <div style="font-weight:850;margin-bottom:5px"><i class="fa-solid fa-user-group" style="color:#0d9488;margin-right:6px"></i>Friends leaderboard</div>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;line-height:1.55"><input id="account-friends-accepted-only" type="checkbox" checked style="width:18px;height:18px;margin-top:2px;accent-color:#059669"><span><strong>Accepted friends only</strong><small style="display:block;color:var(--muted,#64748b)">চালু থাকলে শুধু accepted friends দেখাবে। বন্ধ করলে incoming ও outgoing pending request-ও দেখাবে।</small></span></label>
+      </div>
+      <div style="padding:14px;border:1px solid var(--line,#cbd5e1);border-radius:14px;margin-bottom:12px">
+        <div style="font-weight:850;margin-bottom:5px"><i class="fa-solid fa-hourglass-half" style="color:#0d9488;margin-right:6px"></i>PB expiry</div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;margin-bottom:10px"><input id="account-pb-expiry-enabled" type="checkbox" checked style="width:18px;height:18px;accent-color:#059669"><strong>Automatically convert expired PB to RP</strong></label>
+        <div id="account-pb-expiry-options" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <label for="account-pb-expiry-value" style="font-size:12px;font-weight:750">Expire after</label>
+          <input id="account-pb-expiry-value" type="number" min="1" max="999" value="2" inputmode="numeric" style="width:82px;min-height:40px;padding:8px 10px;border:1px solid var(--line,#cbd5e1);border-radius:10px;background:var(--surface,#fff);color:var(--text,#1e293b)">
+          <select id="account-pb-expiry-unit" style="min-height:40px;padding:8px 30px 8px 10px;border:1px solid var(--line,#cbd5e1);border-radius:10px;background:var(--surface,#fff);color:var(--text,#1e293b)">
+            <option value="hour">Hour(s)</option><option value="day">Day(s)</option><option value="month">Month(s)</option><option value="year">Year(s)</option>
+          </select>
+        </div>
+        <small style="display:block;margin-top:8px;color:var(--muted,#64748b);font-size:11px;line-height:1.5">PB expiry Off করলে PB স্বয়ংক্রিয়ভাবে RP হবে না; আপনি নিজে XP বা RP-তে convert করতে পারবেন।</small>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <small id="account-preferences-status" style="color:var(--muted,#64748b);font-size:12px">Settings load হচ্ছে…</small>
+        <button id="account-preferences-save" type="button" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:10px 16px;border:0;border-radius:11px;background:linear-gradient(135deg,#059669,#0284c7);color:white;font-weight:850;cursor:pointer"><i class="fa-solid fa-floppy-disk"></i> Save preferences</button>
+      </div>`;
+    const acceptedOnly = panel.querySelector('#account-friends-accepted-only');
+    const expiryEnabled = panel.querySelector('#account-pb-expiry-enabled');
+    const expiryOptions = panel.querySelector('#account-pb-expiry-options');
+    const expiryValue = panel.querySelector('#account-pb-expiry-value');
+    const expiryUnit = panel.querySelector('#account-pb-expiry-unit');
+    const status = panel.querySelector('#account-preferences-status');
+    const save = panel.querySelector('#account-preferences-save');
+    const syncExpiryControls = () => {
+      expiryOptions.style.opacity = expiryEnabled.checked ? '1' : '.45';
+      expiryValue.disabled = expiryUnit.disabled = !expiryEnabled.checked;
+    };
+    expiryEnabled.onchange = syncExpiryControls;
+    syncExpiryControls();
+    if (panel.dataset.settingsBound === '1') return;
+    panel.dataset.settingsBound = '1';
+    const league = window.MedGlobalLeague;
+    if (league && typeof league.getAccountSettings === 'function') {
+      league.getAccountSettings().then(settings => {
+        acceptedOnly.checked = !settings.includePendingFriends;
+        expiryEnabled.checked = settings.pbExpiryEnabled !== false;
+        expiryValue.value = String(settings.pbExpiryValue || 2);
+        expiryUnit.value = settings.pbExpiryUnit || 'hour';
+        syncExpiryControls();
+        status.textContent = 'আপনার saved settings load হয়েছে।';
+      }).catch(error => { status.textContent = error?.message || 'Settings load হয়নি।'; });
+    } else {
+      status.textContent = 'Account API প্রস্তুত হলে settings load হবে।';
+    }
+    save.onclick = async () => {
+      const value = Math.max(1, Math.min(999, Math.floor(Number(expiryValue.value) || 2)));
+      expiryValue.value = String(value);
+      save.disabled = true;
+      status.textContent = 'Settings save হচ্ছে…';
+      try {
+        const api = window.MedGlobalLeague;
+        if (!api || typeof api.saveAccountSettings !== 'function') throw new Error('Account settings API এখনো প্রস্তুত নয়। পেজ refresh করে চেষ্টা করুন।');
+        await api.saveAccountSettings({
+          includePendingFriends: !acceptedOnly.checked,
+          pbExpiryEnabled: expiryEnabled.checked,
+          pbExpiryValue: value,
+          pbExpiryUnit: expiryUnit.value
+        });
+        status.textContent = '✓ Preferences saved successfully.';
+      } catch (error) {
+        status.textContent = error?.message || 'Settings save হয়নি।';
+      } finally { save.disabled = false; }
+    };
+  }
+
   function renderAccountList() {
     const view = document.getElementById('view-account');
     if (!view) return;
@@ -202,6 +285,7 @@
     if (!panel) { panel = document.createElement('section'); panel.id='enhanced-account-switcher'; panel.className='enhanced-panel'; view.appendChild(panel); }
     const dangerZone = view.querySelector('#account-danger-zone-title')?.closest('section');
     if (dangerZone && panel.nextElementSibling !== dangerZone) view.insertBefore(panel, dangerZone);
+    renderAccountPreferences(view);
     const list = getRememberedAccounts();
     panel.innerHTML = `<h3>Remembered accounts on this device</h3><p class="enhanced-empty">শুধু ইমেইল মনে রাখা হয়—password বা login token এখানে সংরক্ষণ করা হয় না। Account বদলাতে Firebase-এর স্বাভাবিক sign-in প্রয়োজন।</p>${list.map((x,i)=>`<div class="enhanced-account-row"><div><strong>${escape(x.name || x.email)}</strong><small>${escape(x.email)}</small></div><div class="enhanced-actions"><button type="button" data-switch-account="${i}">Switch / Sign in</button><button type="button" data-remove-account="${i}">Remove from list</button></div></div>`).join('') || '<p class="enhanced-empty">এখনো কোনো sign-in email মনে রাখা হয়নি।</p>'}`;
     panel.querySelectorAll('[data-switch-account]').forEach(btn => btn.onclick = () => {
