@@ -200,6 +200,8 @@
     if (!view) return;
     let panel = document.getElementById('enhanced-account-switcher');
     if (!panel) { panel = document.createElement('section'); panel.id='enhanced-account-switcher'; panel.className='enhanced-panel'; view.appendChild(panel); }
+    const dangerZone = view.querySelector('#account-danger-zone-title')?.closest('section');
+    if (dangerZone && panel.nextElementSibling !== dangerZone) view.insertBefore(panel, dangerZone);
     const list = getRememberedAccounts();
     panel.innerHTML = `<h3>Remembered accounts on this device</h3><p class="enhanced-empty">শুধু ইমেইল মনে রাখা হয়—password বা login token এখানে সংরক্ষণ করা হয় না। Account বদলাতে Firebase-এর স্বাভাবিক sign-in প্রয়োজন।</p>${list.map((x,i)=>`<div class="enhanced-account-row"><div><strong>${escape(x.name || x.email)}</strong><small>${escape(x.email)}</small></div><div class="enhanced-actions"><button type="button" data-switch-account="${i}">Switch / Sign in</button><button type="button" data-remove-account="${i}">Remove from list</button></div></div>`).join('') || '<p class="enhanced-empty">এখনো কোনো sign-in email মনে রাখা হয়নি।</p>'}`;
     panel.querySelectorAll('[data-switch-account]').forEach(btn => btn.onclick = () => {
