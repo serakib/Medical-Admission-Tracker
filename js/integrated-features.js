@@ -211,11 +211,11 @@
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span style="display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(16,185,129,.12);color:#059669"><i class="fa-solid fa-sliders"></i></span><div><h3 style="margin:0;font-size:1.05rem;font-weight:900">Personal Preferences</h3><p style="margin:2px 0 0;font-size:12px;color:var(--muted,#64748b)">আপনার account-এর জন্য সংরক্ষিত হবে</p></div></div>
       <div style="padding:14px;border:1px solid var(--line,#cbd5e1);border-radius:14px;margin-bottom:12px">
         <div style="font-weight:850;margin-bottom:5px"><i class="fa-solid fa-user-group" style="color:#0d9488;margin-right:6px"></i>Friends leaderboard</div>
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;line-height:1.55"><input id="account-friends-accepted-only" type="checkbox" checked style="width:18px;height:18px;margin-top:2px;accent-color:#059669"><span><strong>Accepted friends only</strong><small style="display:block;color:var(--muted,#64748b)">চালু থাকলে শুধু accepted friends দেখাবে। বন্ধ করলে incoming ও outgoing pending request-ও দেখাবে।</small></span></label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;line-height:1.55"><input id="account-friends-accepted-only" type="checkbox" style="width:18px;height:18px;margin-top:2px;accent-color:#059669"><span><strong>Accepted friends only</strong><small style="display:block;color:var(--muted,#64748b)">চালু থাকলে শুধু accepted friends দেখাবে। বন্ধ করলে incoming ও outgoing pending request-ও দেখাবে।</small></span></label>
       </div>
       <div style="padding:14px;border:1px solid var(--line,#cbd5e1);border-radius:14px;margin-bottom:12px">
         <div style="font-weight:850;margin-bottom:5px"><i class="fa-solid fa-hourglass-half" style="color:#0d9488;margin-right:6px"></i>PB expiry</div>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;margin-bottom:10px"><input id="account-pb-expiry-enabled" type="checkbox" checked style="width:18px;height:18px;accent-color:#059669"><strong>Automatically convert expired PB to RP</strong></label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;margin-bottom:10px"><input id="account-pb-expiry-enabled" type="checkbox" style="width:18px;height:18px;accent-color:#059669"><strong>Automatically convert expired PB to RP</strong></label>
         <div id="account-pb-expiry-options" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
           <label for="account-pb-expiry-value" style="font-size:12px;font-weight:750">Expire after</label>
           <input id="account-pb-expiry-value" type="number" min="1" max="999" value="2" inputmode="numeric" style="width:82px;min-height:40px;padding:8px 10px;border:1px solid var(--line,#cbd5e1);border-radius:10px;background:var(--surface,#fff);color:var(--text,#1e293b)">
@@ -226,7 +226,7 @@
         <small style="display:block;margin-top:8px;color:var(--muted,#64748b);font-size:11px;line-height:1.5">PB expiry Off করলে PB স্বয়ংক্রিয়ভাবে RP হবে না; আপনি নিজে XP বা RP-তে convert করতে পারবেন।</small>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <small id="account-preferences-status" style="color:var(--muted,#64748b);font-size:12px">Settings load হচ্ছে…</small>
+        <small id="account-preferences-status" style="color:var(--muted,#64748b);font-size:12px">Server থেকে saved settings load হচ্ছে…</small>
         <button id="account-preferences-save" type="button" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:10px 16px;border:0;border-radius:11px;background:linear-gradient(135deg,#059669,#0284c7);color:white;font-weight:850;cursor:pointer"><i class="fa-solid fa-floppy-disk"></i> Save preferences</button>
       </div>`;
     const acceptedOnly = panel.querySelector('#account-friends-accepted-only');
@@ -241,26 +241,31 @@
       expiryValue.disabled = expiryUnit.disabled = !expiryEnabled.checked;
     };
     expiryEnabled.onchange = syncExpiryControls;
-    syncExpiryControls();
     const league = window.MedGlobalLeague;
-    if (panel.dataset.settingsLoaded !== '1' && league && typeof league.getAccountSettings === 'function') {
-      panel.dataset.settingsLoaded = '1';
+    const loadId = String(Number(panel.dataset.settingsLoadId || 0) + 1);
+    panel.dataset.settingsLoadId = loadId;
+    if (league && typeof league.getAccountSettings === 'function') {
+      [acceptedOnly, expiryEnabled, expiryValue, expiryUnit, save].forEach(el => { el.disabled = true; });
+      syncExpiryControls();
       league.getAccountSettings().then(settings => {
+        if (panel.dataset.settingsLoadId !== loadId || !panel.isConnected) return;
         acceptedOnly.checked = !settings.includePendingFriends;
-        expiryEnabled.checked = settings.pbExpiryEnabled !== false;
+        expiryEnabled.checked = settings.pbExpiryEnabled === true;
         expiryValue.value = String(settings.pbExpiryValue || 2);
         expiryUnit.value = settings.pbExpiryUnit || 'hour';
+        [acceptedOnly, expiryEnabled, expiryValue, expiryUnit, save].forEach(el => { el.disabled = false; });
         syncExpiryControls();
         status.textContent = 'আপনার saved settings load হয়েছে।';
       }).catch(error => {
-        panel.dataset.settingsLoaded = '0';
-        status.textContent = error?.message || 'Settings load হয়নি।';
+        if (panel.dataset.settingsLoadId !== loadId) return;
+        [acceptedOnly, expiryEnabled, expiryValue, expiryUnit, save].forEach(el => { el.disabled = false; });
+        syncExpiryControls();
+        status.textContent = error?.message || 'Settings load হয়নি। আবার refresh করে চেষ্টা করুন।';
       });
-    } else if (!league) {
+    } else {
+      syncExpiryControls();
       status.textContent = 'Account API প্রস্তুত হলে settings load হবে।';
     }
-    if (panel.dataset.settingsBound === '1') return;
-    panel.dataset.settingsBound = '1';
     save.onclick = async () => {
       const value = Math.max(1, Math.min(999, Math.floor(Number(expiryValue.value) || 2)));
       expiryValue.value = String(value);
@@ -269,12 +274,17 @@
       try {
         const api = window.MedGlobalLeague;
         if (!api || typeof api.saveAccountSettings !== 'function') throw new Error('Account settings API এখনো প্রস্তুত নয়। পেজ refresh করে চেষ্টা করুন।');
-        await api.saveAccountSettings({
+        const saved = await api.saveAccountSettings({
           includePendingFriends: !acceptedOnly.checked,
           pbExpiryEnabled: expiryEnabled.checked,
           pbExpiryValue: value,
           pbExpiryUnit: expiryUnit.value
         });
+        acceptedOnly.checked = saved.includePendingFriends !== true;
+        expiryEnabled.checked = saved.pbExpiryEnabled === true;
+        expiryValue.value = String(saved.pbExpiryValue || value);
+        expiryUnit.value = saved.pbExpiryUnit || expiryUnit.value;
+        syncExpiryControls();
         status.textContent = '✓ Preferences saved successfully.';
       } catch (error) {
         status.textContent = error?.message || 'Settings save হয়নি।';
