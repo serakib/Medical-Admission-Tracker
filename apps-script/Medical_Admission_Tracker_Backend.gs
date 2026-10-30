@@ -316,8 +316,10 @@ function processWeeklyRankDemotions() {
         outcome = 'demoted';
       }
 
-      // Bronze V is the minimum rank: never demote below it and always start it at 0 RP.
-      const startingRP = nextRankIndex === 0 ? 0 : matRankSafeZoneReward_(nextRankIndex);
+      // Bronze V cannot demote. Only users below its Safe Zone restart at 0 RP;
+      // users who reached the Safe Zone still receive the normal 30% starting RP.
+      const minimumRankBelowSafeZone = nextRankIndex === 0 && subRankEarnedRP < safeZoneThreshold;
+      const startingRP = minimumRankBelowSafeZone ? 0 : matRankSafeZoneReward_(nextRankIndex);
       const newRankRP = matRankMilestoneCap_(nextRankIndex) + startingRP;
       const previousWeekRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
       const highestWeeklyRP = Math.max(
