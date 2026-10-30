@@ -270,6 +270,10 @@ function processWeeklyRankDemotions() {
     const previousWeekStart = matOffsetDateKey_(weekStart, -7);
     const previousWeekRPByUser = matGetWeeklyRPByUser_(previousWeekStart, weekStart);
     const historicalHighestWeeklyRPByUser = matGetHighestWeeklyRPByUser_(weekStart);
+    const examSheet = matGetExamSheet_();
+    const existingWeeklyStartEvents = new Set(matReadObjects_(examSheet)
+      .filter(function (row) { return String(row.RecordType || '').toUpperCase() === 'RP_EVENT'; })
+      .map(function (row) { return String(row.AttemptID || ''); }));
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
     let processed = 0;
@@ -324,8 +328,16 @@ function processWeeklyRankDemotions() {
       // Write the idempotent weekly event first. If a run is interrupted before
       // the profile row is updated, a retry finds this same event and won't add
       // the starting RP twice.
-      if (startingRP > 0) {
-        matAppendRPEvent_(userId, startingRP, eventId, now);
+      if (startingRP > 0 && !existingWeeklyStartEvents.has(eventId)) {
+        matAppendObject_(examSheet, {
+          RecordType: 'RP_EVENT',
+          AttemptID: eventId,
+          UserID: userId,
+          RPEarned: startingRP,
+          SubmittedAt: now,
+          RewardStatus: 'COMMITTED'
+        });
+        existingWeeklyStartEvents.add(eventId);
       }
 
       const totalRP = Math.max(
