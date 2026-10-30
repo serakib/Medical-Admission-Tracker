@@ -640,6 +640,7 @@
       rank: rank, rankPoints: currentRP, totalRP: totalRP,
       highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
       rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
+      leaderboardRequiredRPMultiplier: Math.max(1, Number(raw.leaderboardRequiredRPMultiplier) || 1),
       weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
       accuracy: Math.max(0, Number(raw.accuracy) || 0),
@@ -934,7 +935,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isFinalTrophy = selectedRankIndex >= RANKS.length - 1;
     var isWeeklyLeaderboard = selectedPeriod === 'weekly';
     var isCurrent = selectedRankIndex === currentRankIndex;
-    var requiredRP = rankPromotionCostForIndex(selectedRankIndex);
+    var baseRequiredRP = rankPromotionCostForIndex(selectedRankIndex);
+    var requiredRPMultiplier = selectedPeriod === 'alltime'
+      ? Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5)
+      : 1;
+    var requiredRP = baseRequiredRP * requiredRPMultiplier;
     var weeklyEarnedRP = weeklyPointsForRow(me);
     // Weekly progress must never read lifetime rankProgress.currentRP.
     var isCompleted = isWeeklyLeaderboard
