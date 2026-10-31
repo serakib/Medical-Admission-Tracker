@@ -613,10 +613,6 @@
       if (selected) return safeText(selected, 20000);
     } catch (_) {}
     return '';
-    for (var i = 0; i < candidates.length; i++) {
-      if (candidates[i]) return safeText(candidates[i], 20000);
-    }
-    return '';
   }
 
   function normalizeEntry(raw) {
