@@ -783,15 +783,12 @@
     const id = avatarAccountId();
     let manual = false;
     try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
+    // The confirmed shared profile wins everywhere; browser-only avatar copies
+    // are migration/offline fallbacks, never competing sources of truth.
+    const sharedRaw = String(app.profile?.avatar || '').trim();
+    if (isRenderableAvatarSource(sharedRaw)) return stripAvatarDefaultMarker(sharedRaw);
     const googleAvatar = readGoogleAvatar();
     if (googleAvatar && !manual) return googleAvatar;
-    const sharedRaw = String(app.profile?.avatar || '').trim();
-    if (isRenderableAvatarSource(sharedRaw)) {
-      const shared = stripAvatarDefaultMarker(sharedRaw);
-      if (isStoredDefaultAvatar(sharedRaw) || isStoredCustomAvatar(sharedRaw)) return shared;
-      if (shared === avatarChoices[0] && !manual) return defaultAvatarForUser(id);
-      return shared;
-    }
     try {
       const value = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || '';
       if (isAvatarSource(value)) {
