@@ -641,11 +641,15 @@ class MedicalExamApp {
         ['name', 'college', 'batch', 'class', 'mobile', 'bloodGroup', 'avatar'].forEach(key => {
             if (Object.prototype.hasOwnProperty.call(fields, key)) safeFields[key] = fields[key];
         });
+        let firebaseProfileSyncSucceeded = true;
         if (safeFields.name && String(this.authUser.displayName || '') !== String(safeFields.name)) {
             try { await updateProfile(this.authUser, { displayName: String(safeFields.name).slice(0, 80) }); }
-            catch (error) { console.warn('Firebase display name sync failed:', error); }
+            catch (error) {
+                firebaseProfileSyncSucceeded = false;
+                console.warn('Firebase display name sync failed:', error);
+            }
         }
-        const firebaseProfileChanged = Object.keys(safeFields).some(key =>
+        const firebaseProfileChanged = !!this.__profileMirrorPending || Object.keys(safeFields).some(key =>
             String((this.profile || {})[key] ?? '') !== String(safeFields[key] ?? '')
         );
         if (this.firestore && firebaseProfileChanged) {
@@ -657,15 +661,17 @@ class MedicalExamApp {
                     updatedAt: serverTimestamp()
                 }, { merge: true });
             } catch (error) {
+                firebaseProfileSyncSucceeded = false;
                 console.warn('Firebase student profile sync failed:', error);
             }
         }
+        this.__profileMirrorPending = !firebaseProfileSyncSucceeded;
         this.profile = Object.assign({}, this.profile || {}, safeFields, {
             uid: this.authUser.uid,
             email: this.authUser.email || (this.profile && this.profile.email) || ''
         });
         this.renderAccountProfile();
-        return true;
+        return firebaseProfileSyncSucceeded;
     }
 
     getDemoLeaderboardRows(){ return []; }
