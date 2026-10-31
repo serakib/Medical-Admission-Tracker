@@ -51,7 +51,6 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-rp-ledger-includes-pb-and-promotion-rewards',
   'weekly-promotion-starting-reward-thirty-percent',
   'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
-  'weekly-rp-starting-balance-after-reset',
   'highest-weekly-rp-profile-stat',
   'monthly-rp-profile-stat',
   'highest-monthly-rp-profile-stat',
@@ -265,7 +264,7 @@ function setupBackend() {
     friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
-    weeklyRankReview: 'Checks the current Saturday-Friday Weekly RP Promotion Zone daily at about 01:00 Asia/Dhaka; promotes at most one subrank per daily check; the check itself never resets or reduces RP; no Safe Zone or demotion applies',
+    weeklyRankReview: 'Checks the completed Saturday-Friday week on Saturday and the current week Sunday-Friday, daily at about 01:00 Asia/Dhaka; promotes at most one subrank per daily check; the check itself never resets or reduces RP; no Safe Zone or demotion applies',
     monthlyRankReview: 'Runs on the first day of each month at about 01:00 Asia/Dhaka; checks the previous month Safe Zone for the whole Main Rank and demotes at most one Main Rank; no Promotion Zone'
   };
   Logger.log(JSON.stringify(result, null, 2));
@@ -295,7 +294,12 @@ function processDailyWeeklyPromotionReview() {
     const studentsSheet = matGetStudentsSheet_();
     const today = matDateKey_(matNowIso_());
     const weekStart = matWeekStartKey_();
-    const weeklyRPByUser = matGetWeeklyRPByUser_(weekStart);
+    // Saturday's daily check closes the just-finished Saturday-Friday week;
+    // Sunday-Friday checks the week currently in progress.
+    const isSaturday = Utilities.formatDate(new Date(), MAT_CONFIG.TIME_ZONE, 'u') === '6';
+    const reviewWeekStart = isSaturday ? matOffsetDateKey_(weekStart, -7) : weekStart;
+    const reviewWeekEnd = isSaturday ? weekStart : '';
+    const weeklyRPByUser = matGetWeeklyRPByUser_(reviewWeekStart, reviewWeekEnd);
     const examSheet = matGetExamSheet_();
     const existingWeeklyStartEvents = new Set(matReadObjects_(examSheet)
       .filter(function (row) { return String(row.RecordType || '').toUpperCase() === 'RP_EVENT'; })
@@ -358,7 +362,8 @@ function processDailyWeeklyPromotionReview() {
     return {
       success: true,
       reviewDate: today,
-      weekStart: weekStart,
+      weekStart: reviewWeekStart,
+      currentWeekStart: weekStart,
       processed: processed,
       promoted: promoted,
       unchanged: unchanged,
