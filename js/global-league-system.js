@@ -1017,7 +1017,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       ? weeklyEarnedRP < mainTierStartRP
       : isMonthlyLeaderboard ? selectedRankIndex > currentRankIndex : selectedRankIndex > currentRankIndex;
     var earnedRP = isMainRankLeaderboard
-      ? Math.max(0, Math.min(requiredRP, progressPoints - mainTierStartRP))
+      ? (isCompleted ? requiredRP : Math.max(0, Math.min(requiredRP, progressPoints - mainTierStartRP)))
       : (isCompleted ? requiredRP : (selectedRankIndex === currentRankIndex ? current.subrankEarnedRP : 0));
     earnedRP = Math.max(0, Math.min(requiredRP, earnedRP));
     var safeThreshold = isMonthlyLeaderboard && requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
