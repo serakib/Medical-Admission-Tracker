@@ -296,7 +296,7 @@
     if (!league || typeof league.loadLeaderboard !== 'function') return;
     const before = readStorage(PERIOD_KEY);
     const isWeekly = period === 'weekly';
-    const variableName = isWeekly ? '__medActivityFriendIdsForWeeklyRefresh' : '__medActivityFriendIdsForAllTimeRefresh';
+    const variableName = isWeekly ? '__medActivityFriendIdsForWeeklyRefresh' : '__medActivityFriendIdsForMonthlyRefresh';
     const previousFriendIds = window[variableName];
     try {
       window[variableName] = Array.from(new Set((friendIds || []).map(String).filter(Boolean))).slice(0, 499);
@@ -378,8 +378,8 @@
     const monthlyOwnRow = monthlyById.get(ownId) || null;
     const ownWeekly = snapshotRow(weeklyOwnRow || profile, 'weekly', weeklyOwnRow ? weeklyOwnRow.position : 0);
     ownWeekly.id = ownId;
-    const ownAllTime = snapshotRow(monthlyOwnRow || profile, 'monthly', monthlyOwnRow ? monthlyOwnRow.position : 0);
-    ownAllTime.id = ownId;
+    const ownMonthly = snapshotRow(monthlyOwnRow || profile, 'monthly', monthlyOwnRow ? monthlyOwnRow.position : 0);
+    ownMonthly.id = ownId;
     const weeklyPlayers = mapPlayers(Array.from(weeklyById.values()), 'weekly', friendIds, ownId);
     const monthlyPlayers = mapPlayers(Array.from(monthlyById.values()), 'monthly', friendIds, ownId);
     const nonFriendIds = new Set([ownId].concat(Array.from(friendIds)));
@@ -389,7 +389,7 @@
     const monthlyTop10 = topMap(monthlyPlayers, 10, nonFriendIds);
 
     const sameRankRows = Object.keys(monthlyTop100).map(id => monthlyTop100[id])
-      .filter(row => ownAllTime.rank && row.rank === ownAllTime.rank)
+      .filter(row => ownMonthly.rank && row.rank === ownMonthly.rank)
       .sort((a, b) => numeric(a.position) - numeric(b.position) || numeric(b.monthlyRP) - numeric(a.monthlyRP));
     const sameRankTop10 = {};
     sameRankRows.slice(0, 10).forEach(function (row, index) {
@@ -421,7 +421,7 @@
       date: dayKey(),
       weekKey: periodWeek,
       own: ownWeekly,
-      monthlyOwn: ownAllTime,
+      monthlyOwn: ownMonthly,
       friends: friends,
       weeklyPlayers: weeklyPlayers,
       monthlyPlayers: monthlyPlayers,
