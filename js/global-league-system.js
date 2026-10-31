@@ -599,15 +599,20 @@
   function profileAvatarForUser(id) {
     if (!id || String(id) !== String(currentUserId())) return '';
     var uid = (app.authUser && app.authUser.uid) || String(id);
-    try {
-      var selected = localStorage.getItem('med_profile_avatar_v1_' + uid);
-      if (selected) return safeText(selected, 20000);
-    } catch (_) {}
+    // The current confirmed profile wins over older device-only avatar copies.
+    var candidates = [(app.profile && app.profile.avatar), (currentProfile && currentProfile.avatar)];
+    for (var i = 0; i < candidates.length; i++) {
+      if (candidates[i]) return safeText(candidates[i], 20000);
+    }
     try {
       var storedProfile = parseJson(localStorage.getItem('med_sheet_profile_v1_' + accountKey()), {});
       if (storedProfile && storedProfile.avatar) return safeText(storedProfile.avatar, 20000);
     } catch (_) {}
-    var candidates = [(app.profile && app.profile.avatar), (currentProfile && currentProfile.avatar)];
+    try {
+      var selected = localStorage.getItem('med_profile_avatar_v1_' + uid);
+      if (selected) return safeText(selected, 20000);
+    } catch (_) {}
+    return '';
     for (var i = 0; i < candidates.length; i++) {
       if (candidates[i]) return safeText(candidates[i], 20000);
     }
