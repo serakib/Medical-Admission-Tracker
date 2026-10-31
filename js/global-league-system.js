@@ -1365,7 +1365,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
-      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP, monthlyRP: me.monthlyRP, highestMonthlyRP: me.highestMonthlyRP,
+      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, monthlyRP: me.monthlyRP, highestMonthlyRP: me.highestMonthlyRP,
       level: me.level, rank: me.rank, rankProgress: me.rankProgress, accountType: me.accountType, streak: me.streak
     }));
   }
@@ -1783,7 +1783,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         // including those outside the public Top-100 list. Normal navigation stays unchanged.
         var activityFriendIds = periodForRequest === 'weekly'
           ? (Array.isArray(window.__medActivityFriendIdsForWeeklyRefresh) ? window.__medActivityFriendIdsForWeeklyRefresh : [])
-          : (Array.isArray(window.__medActivityFriendIdsForAllTimeRefresh) ? window.__medActivityFriendIdsForAllTimeRefresh : []);
+          : (Array.isArray(window.__medActivityFriendIdsForMonthlyRefresh) ? window.__medActivityFriendIdsForMonthlyRefresh : []);
         leaderboardPayload.includeUserIds = Array.from(new Set([currentUserId()].concat(activityFriendIds.map(String).filter(Boolean)))).slice(0, 500);
       }
       if (periodForRequest === 'friends') {
