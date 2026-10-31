@@ -887,19 +887,46 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var vaultRanks = vault && typeof vault.getRanks === 'function'
       ? vault.getRanks()
       : RANKS.map(function (name, index) { return { name: name, index: index }; });
+    var isWeeklyRail = selectedPeriod === 'weekly';
+    function mainRankName(index) {
+      return RANKS[Math.max(0, Math.min(RANKS.length - 1, Math.floor(index / 5) * 5))].split(' ')[0];
+    }
+    var weeklyRP = weeklyPointsForRow(me);
+    var weeklyRankIndex = 0, weeklyAccumulatedRP = 0;
+    while (weeklyRankIndex < RANKS.length - 1) {
+      var weeklyCost = rankPromotionCostForIndex(weeklyRankIndex);
+      if (weeklyRP < weeklyAccumulatedRP + weeklyCost) break;
+      weeklyAccumulatedRP += weeklyCost;
+      weeklyRankIndex++;
+    }
+    var railRanks = isWeeklyRail
+      ? vaultRanks.filter(function (item) { return item.index % 5 === 0; }).map(function (item) {
+          return { name: mainRankName(item.index), index: item.index, rankValue: RANKS[item.index] };
+        })
+      : vaultRanks;
     if (me && currentRankIndex >= 0 && (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; }))) selectedRank = me.rank;
     if (!selectedRank || !vaultRanks.some(function (item) { return item.name === selectedRank; })) selectedRank = (me && me.rank) || RANKS[0];
-    rail.innerHTML = vaultRanks.map(function (item) {
+    if (isWeeklyRail) {
+      var selectedIndexForTier = RANKS.indexOf(selectedRank);
+      if (selectedIndexForTier < 0) selectedIndexForTier = currentRankIndex >= 0 ? currentRankIndex : 0;
+      selectedRank = RANKS[Math.floor(selectedIndexForTier / 5) * 5];
+    }
+    rail.innerHTML = railRanks.map(function (item) {
       var rank = item.name;
-      var active = rank === selectedRank;
-      var completed = currentRankIndex >= 0 && item.index < currentRankIndex;
-      var current = currentRankIndex >= 0 && item.index === currentRankIndex;
-      var statusClass = completed ? ' is-completed' : (current ? ' is-current' : (currentRankIndex >= 0 ? ' is-upcoming' : ''));
+      var active = isWeeklyRail ? mainRankName(RANKS.indexOf(selectedRank)) === rank : rank === selectedRank;
+      var completed = isWeeklyRail
+        ? item.index < Math.floor(weeklyRankIndex / 5) * 5
+        : currentRankIndex >= 0 && item.index < currentRankIndex;
+      var current = isWeeklyRail
+        ? Math.floor(weeklyRankIndex / 5) * 5 === item.index
+        : currentRankIndex >= 0 && item.index === currentRankIndex;
+      var statusClass = completed ? ' is-completed' : (current ? ' is-current' : ((isWeeklyRail || currentRankIndex >= 0) ? ' is-upcoming' : ''));
       var statusText = completed ? 'Completed' : (current ? 'Current rank' : 'Locked');
       var svg = vault && typeof vault.trophySvgForIndex === 'function'
         ? vault.trophySvgForIndex(item.index, 'vault-rank-trophy-svg')
         : '<span class="vault-trophy-pending" aria-hidden="true"></span>';
-      return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(rank) + (active ? ' is-active' : '') + statusClass + '" data-med-rank="' + escapeHtml(rank) + '" aria-label="' + escapeHtml(rank) + ' trophy · ' + statusText + '" title="' + escapeHtml(rank + ' · ' + statusText) + '">' +
+      var dataRank = isWeeklyRail ? item.rankValue : rank;
+      return '<button type="button" role="tab" aria-selected="' + (active ? 'true' : 'false') + '" class="mat-rank-tier ' + rankClass(dataRank) + (active ? ' is-active' : '') + statusClass + '" data-med-rank="' + escapeHtml(dataRank) + '" aria-label="' + escapeHtml(rank) + ' trophy · ' + statusText + '" title="' + escapeHtml(rank + ' · ' + statusText) + '">' +
         svg + '<span>' + escapeHtml(rank) + '</span></button>';
     }).join('');
     var initialPosition = rail.dataset.initialRankPositioned !== 'true';
@@ -913,12 +940,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (!me) {
       var profile = currentProfile || app.profile || null;
       if (profile && profile.rank) {
-        me = {
-          rank: profile.rank,
-          rankPoints: profile.rankPoints,
-          totalRP: profile.totalRP,
-          rankProgress: profile.rankProgress
-        };
+        me = { rank: profile.rank, rankPoints: profile.rankPoints, totalRP: profile.totalRP, rankProgress: profile.rankProgress };
       }
     }
     if (!me) {
@@ -931,26 +953,32 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var selectedRankName = RANKS.indexOf(selectedRank) >= 0 ? selectedRank : me.rank;
     var selectedRankIndex = RANKS.indexOf(selectedRankName);
     if (selectedRankIndex < 0) selectedRankIndex = currentRankIndex;
-
-    var isFinalTrophy = selectedRankIndex >= RANKS.length - 1;
     var isWeeklyLeaderboard = selectedPeriod === 'weekly';
     var isCurrent = selectedRankIndex === currentRankIndex;
-    var baseRequiredRP = rankPromotionCostForIndex(selectedRankIndex);
+    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var weeklyEarnedRP = weeklyPointsForRow(me);
+    var weeklyTierIndex = Math.floor(selectedRankIndex / 5);
+    var weeklyTierStartIndex = weeklyTierIndex * 5;
+    var weeklyTierEndIndex = Math.min(weeklyTierStartIndex + 5, RANKS.length);
+    var weeklyTierStartRP = 0;
+    var weeklyTierRequiredRP = 0;
+    if (isWeeklyLeaderboard) {
+      for (var priorTierIndex = 0; priorTierIndex < weeklyTierStartIndex; priorTierIndex++) weeklyTierStartRP += rankPromotionCostForIndex(priorTierIndex);
+      for (var tierRankIndex = weeklyTierStartIndex; tierRankIndex < weeklyTierEndIndex; tierRankIndex++) weeklyTierRequiredRP += rankPromotionCostForIndex(tierRankIndex);
+    }
+    var isFinalTrophy = isWeeklyLeaderboard ? weeklyTierIndex >= 10 : selectedRankIndex >= RANKS.length - 1;
     var requiredRPMultiplier = selectedPeriod === 'all-time'
       ? Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5)
       : 1;
-    var requiredRP = baseRequiredRP * requiredRPMultiplier;
-    var weeklyEarnedRP = weeklyPointsForRow(me);
-    // All-Time leaderboard progress uses lifetime RP against the x5 requirement.
-    // Weekly progress remains based only on this week's RP; Friends is unchanged.
-    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var requiredRP = isWeeklyLeaderboard ? weeklyTierRequiredRP : rankPromotionCostForIndex(selectedRankIndex) * requiredRPMultiplier;
     var isCompleted = isWeeklyLeaderboard
-      ? (requiredRP > 0 && weeklyEarnedRP >= requiredRP)
+      ? (requiredRP > 0 && weeklyEarnedRP >= weeklyTierStartRP + requiredRP)
       : (selectedRankIndex < currentRankIndex ||
         (selectedRankIndex === RANKS.length - 1 && isCurrent) ||
         (selectedPeriod === 'all-time' && requiredRP > 0 && lifetimeRP >= requiredRP));
+    var isWeeklyLocked = isWeeklyLeaderboard && weeklyEarnedRP < weeklyTierStartRP;
     var earnedRP = isWeeklyLeaderboard
-      ? Math.min(requiredRP, weeklyEarnedRP)
+      ? Math.max(0, Math.min(requiredRP, weeklyEarnedRP - weeklyTierStartRP))
       : (selectedPeriod === 'all-time'
         ? Math.min(requiredRP, lifetimeRP)
         : (isCompleted ? requiredRP : (isCurrent ? current.subrankEarnedRP : 0)));
@@ -959,8 +987,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var safeThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
     var promotionThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.70) : 0;
     var progressPercent = requiredRP > 0 ? Math.max(0, Math.min(100, earnedRP / requiredRP * 100)) : (isCompleted ? 100 : 0);
-    var safePercent = requiredRP > 0 ? Math.max(0, Math.min(100, safeThreshold / requiredRP * 100)) : 0;
-    var promotionPercent = requiredRP > 0 ? Math.max(safePercent, Math.min(100, promotionThreshold / requiredRP * 100)) : 0;
     var remainingToSafe = Math.max(0, safeThreshold - earnedRP);
     var remainingToPromotion = Math.max(0, promotionThreshold - earnedRP);
     var remainingToRank = Math.max(0, requiredRP - earnedRP);
@@ -968,28 +994,28 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
     var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : lifetimeRP;
     var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : 'Lifetime RP';
-    var selectedNextRank = isFinalTrophy ? '' : RANKS[selectedRankIndex + 1];
+    var selectedRankDisplayName = isWeeklyLeaderboard ? RANKS[weeklyTierStartIndex].split(' ')[0] : RANKS[selectedRankIndex];
+    var selectedNextRank = isWeeklyLeaderboard
+      ? (weeklyTierIndex >= 10 ? '' : RANKS[(weeklyTierIndex + 1) * 5].split(' ')[0])
+      : (isFinalTrophy ? '' : RANKS[selectedRankIndex + 1]);
 
-    // A future trophy has no personal RP progress yet. It becomes active only
-    // after its immediately preceding sub-rank is unlocked by the server.
-    if (selectedRankIndex > currentRankIndex) {
-      var previousRequiredRank = RANKS[selectedRankIndex - 1] || me.rank;
+    if ((isWeeklyLeaderboard && isWeeklyLocked) || (!isWeeklyLeaderboard && selectedRankIndex > currentRankIndex)) {
+      var previousRequiredRank = isWeeklyLeaderboard ? (RANKS[weeklyTierStartIndex - 1] || RANKS[0]) : (RANKS[selectedRankIndex - 1] || me.rank);
+      var lockedTitle = isWeeklyLeaderboard ? selectedRankDisplayName : RANKS[selectedRankIndex];
       area.innerHTML =
-        '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) +
+        '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(lockedTitle) +
         ' · Locked</strong><small>Current rank: ' + escapeHtml(me.rank) + ' · ' + progressDisplayLabel + ': ' +
         progressDisplayRP.toLocaleString() + '</small></span><span class="mat-rank-rp">LOCKED</span></div>' +
-        '<div class="mat-safe-zone-caption at-risk"><i class="fa-solid fa-lock"></i><span><strong>First unlock the previous sub-rank</strong>' +
+        '<div class="mat-safe-zone-caption at-risk"><i class="fa-solid fa-lock"></i><span><strong>First unlock the previous trophy</strong>' +
         '<small>' + escapeHtml(previousRequiredRank) + ' unlock না হওয়া পর্যন্ত ' +
-        escapeHtml(RANKS[selectedRankIndex]) + '-এর progress শুরু হবে না।</small></span></div>';
+        escapeHtml(lockedTitle) + ' Trophy-এর progress শুরু হবে না।</small></span></div>';
       return;
     }
 
-    var stateTitle;
-    var stateDetail;
-    var trackState = safe ? 'is-safe' : 'is-at-risk';
+    var stateTitle, stateDetail, trackState = safe ? 'is-safe' : 'is-at-risk';
     if (isCompleted) {
       stateTitle = 'Completed ✓';
-      stateDetail = 'এই sub-rank unlock হয়েছে।';
+      stateDetail = isWeeklyLeaderboard ? 'এই Main Rank Trophy-এর সব RP milestone সম্পন্ন হয়েছে।' : 'এই sub-rank unlock হয়েছে।';
       trackState = 'is-safe is-promotion';
     } else if (!safe) {
       stateTitle = 'Safe Zone-এর নিচে';
@@ -999,13 +1025,15 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       stateDetail = 'Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
     } else {
       stateTitle = 'Promotion Zone অর্জিত';
-      stateDetail = 'পরের sub-rank-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
+      stateDetail = isWeeklyLeaderboard
+        ? 'পরের Main Rank Trophy সম্পন্ন করতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।'
+        : 'পরের sub-rank-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
       trackState = 'is-safe is-promotion';
     }
 
     var track = requiredRP > 0
       ? '<div class="mat-rank-track mat-rank-zones ' + trackState + '" role="progressbar" aria-label="' +
-        escapeHtml(RANKS[selectedRankIndex] + ' individual sub-rank RP progression') + '" aria-valuemin="0" aria-valuemax="' +
+        escapeHtml(selectedRankDisplayName + (isWeeklyLeaderboard ? ' Main Rank RP progression' : ' individual sub-rank RP progression')) + '" aria-valuemin="0" aria-valuemax="' +
         requiredRP + '" aria-valuenow="' + earnedRP + '">' +
         '<span class="mat-rank-fill" style="width:' + progressPercent + '%"></span>' +
         '<span class="mat-progress-star" style="left:' + progressPercent + '%;transform:translate(-' + progressPercent +
@@ -1014,10 +1042,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe · ' +
         safeThreshold.toLocaleString() + ' RP</span><span class="mat-zone-legend-promotion"><i></i> Promotion · ' +
         promotionThreshold.toLocaleString() + ' RP</span></div>'
-      : '<div class="mat-rank-locked"><i class="fa-solid fa-trophy"></i><span>এই সর্বোচ্চ sub-rank-এর পরে আর কোনো promotion milestone নেই।</span></div>';
+      : '<div class="mat-rank-locked"><i class="fa-solid fa-trophy"></i><span>এই সর্বোচ্চ Main Rank-এর পরে আর কোনো trophy milestone নেই।</span></div>';
 
     area.innerHTML =
-      '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(RANKS[selectedRankIndex]) + ' → ' +
+      '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(selectedRankDisplayName) + ' → ' +
       escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
       earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
       escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
@@ -1128,9 +1156,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var me = getMe(all);
     if (me && !rankSelectionTouched) selectedRank = me.rank;
     else if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
-    // The selected trophy is a real rank filter. Without this, the same student
-    // appeared in every selected subrank even though their authoritative rank was unchanged.
-    var displayRows = selectedPeriod === 'friends' ? all.slice() : all.filter(function (row) { return String(row.rank || '') === String(selectedRank || ''); });
+    if (selectedPeriod === 'weekly' && RANKS.indexOf(selectedRank) >= 0) selectedRank = RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5];
+    // All-Time keeps exact sub-rank filtering; Weekly groups all five sub-ranks
+    // under the matching Main Rank trophy.
+    var displayRows = selectedPeriod === 'friends' ? all.slice() : all.filter(function (row) {
+      if (selectedPeriod !== 'weekly') return String(row.rank || '') === String(selectedRank || '');
+      var rowIndex = RANKS.indexOf(String(row.rank || ''));
+      return rowIndex >= 0 && Math.floor(rowIndex / 5) === Math.floor(RANKS.indexOf(selectedRank) / 5);
+    });
     var promotionRows = [], safeRows = [], riskRows = [];
     if (selectedPeriod === 'weekly') {
       promotionRows = displayRows.filter(isInWeeklyPromotionZone).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
@@ -2184,6 +2217,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         renderRows(rawRows);
         var rail = document.getElementById('med-rank-rail');
         var active = rail && rail.querySelector('[data-med-rank="' + selectedRank + '"]');
+        if (!active && selectedPeriod === 'weekly' && rail) {
+          var selectedMainRank = RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5].split(' ')[0];
+          active = Array.from(rail.querySelectorAll('[data-med-rank]')).find(function (button) { return button.textContent.trim() === selectedMainRank; });
+        }
         if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         return;
       }
