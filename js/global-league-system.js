@@ -1229,13 +1229,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var ownRankName = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
       var ownRankIndex = RANKS.indexOf(ownRankName);
       var ownTierStart = ownRankIndex >= 0 ? Math.floor(ownRankIndex / 5) * 5 : 0;
-      // A student may browse their current or lower main-rank boards, never a locked higher rank.
-      if (selectedTierStart > ownTierStart) {
-        selectedRank = RANKS[ownTierStart];
-        try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
-      } else {
-        selectedRank = RANKS[selectedTierStart];
-      }
+      // Allow browsing locked higher Main Rank trophies. The progress panel
+      // shows their locked state; the leaderboard itself naturally has no rows
+      // until students reach that rank.
+      selectedRank = RANKS[selectedTierStart];
     }
     // Both public leaderboards group all five sub-ranks under one Main Rank.
     // Individual sub-ranks remain exclusive to Achievement Vault.
