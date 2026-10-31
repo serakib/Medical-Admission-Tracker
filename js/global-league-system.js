@@ -1121,7 +1121,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var controls = document.getElementById('med-rank-controls');
     if (controls) controls.style.display = dashboard && !dashboard.classList.contains('hidden') ? 'flex' : 'none';
     var infoRp = document.getElementById('med-top-rp');
-    if (infoRp) infoRp.textContent = String(Math.max(0, Number(me && me.totalRP) || Number(currentProfile && currentProfile.totalRP) || Number(me && me.rankPoints) || 0)) + ' RP';
+    var visibleRP = selectedPeriod === 'weekly'
+      ? weeklyPointsForRow(me)
+      : selectedPeriod === 'monthly'
+        ? Math.max(0, Number(me && me.monthlyRP) || Number(currentProfile && currentProfile.monthlyRP) || 0)
+        : Math.max(0, Number(me && me.totalRP) || Number(currentProfile && currentProfile.totalRP) || Number(me && me.rankPoints) || 0);
+    if (infoRp) infoRp.textContent = String(visibleRP) + ' RP';
   }
   function showOverlay(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
   function closeOverlay(el) { if (el) el.classList.add('hidden'); }
@@ -1224,9 +1229,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var promotionRows = [], safeRows = [], riskRows = [];
     if (selectedPeriod === 'weekly') {
       promotionRows = displayRows.filter(isInWeeklyPromotionZone).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
-      safeRows = displayRows.filter(function (row) { return !isInWeeklyPromotionZone(row) && isInWeeklySafeZone(row); }).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
-      riskRows = displayRows.filter(function (row) { return !isInWeeklySafeZone(row); }).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
-      displayRows = promotionRows.concat(safeRows, riskRows);
+      riskRows = displayRows.filter(function (row) { return !isInWeeklyPromotionZone(row); }).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
+      displayRows = promotionRows.concat(riskRows);
+    } else if (selectedPeriod === 'monthly') {
+      safeRows = displayRows.filter(isInMonthlySafeZone).sort(function (a, b) { return monthlyPointsForRow(b) - monthlyPointsForRow(a); });
+      riskRows = displayRows.filter(function (row) { return !isInMonthlySafeZone(row); }).sort(function (a, b) { return monthlyPointsForRow(b) - monthlyPointsForRow(a); });
+      displayRows = safeRows.concat(riskRows);
     }
 
     var body = document.getElementById('leaderboard-body');
@@ -1238,9 +1246,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (mePanel) { mePanel.innerHTML = ''; mePanel.classList.add('hidden'); }
     var safeDividerInserted = false;
     var promotionDividerInserted = false;
-    function appendWeeklyZoneDivider(kind) {
-      if (selectedPeriod !== 'weekly') return;
-      var isPromotion = kind === 'promotion';
+    function appendLeaderboardZoneDivider(kind) {
+      if (selectedPeriod !== 'weekly' && selectedPeriod !== 'monthly') return;
+      var isPromotion = selectedPeriod === 'weekly';
       var tr = document.createElement('tr');
       tr.className = isPromotion ? 'promotion-zone-divider' : 'safe-zone-divider';
       var icon = isPromotion ? 'fa-trophy' : 'fa-shield-halved';
@@ -1266,47 +1274,52 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         }).join('');
       }
       if (selectedPeriod === 'weekly' && promotionRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
+      if (selectedPeriod === 'monthly' && safeRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
       displayRows.forEach(function (row, index) {
         if (selectedPeriod === 'weekly' && !promotionDividerInserted && index === promotionRows.length) {
-          appendWeeklyZoneDivider('promotion');
-          if (safeRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
+          appendLeaderboardZoneDivider('promotion');
+          if (riskRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
         }
-        if (selectedPeriod === 'weekly' && !safeDividerInserted && index === promotionRows.length + safeRows.length) {
-          appendWeeklyZoneDivider('safe');
+        if (selectedPeriod === 'monthly' && !safeDividerInserted && index === safeRows.length) {
+          appendLeaderboardZoneDivider('safe');
           if (riskRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
         }
         // Keep the top three in the regular leaderboard list as well as the podium.
         var tr = document.createElement('tr');
-        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + (selectedPeriod === 'weekly' && !isInWeeklySafeZone(row) ? ' is-below-safe-zone' : '');
+        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + ((selectedPeriod === 'monthly' && !isInMonthlySafeZone(row)) ? ' is-below-safe-zone' : '');
         tr.dataset.medPlayer = String(row.userId || '');
         tr.dataset.totalRp = String(Number(row.totalRP || row.rankPoints || 0));
         tr.dataset.rankPoints = String(Number(row.rankPoints || 0));
         tr.dataset.weeklyRp = String(Number(row.weeklyRankPoints || 0));
+        tr.dataset.monthlyRp = String(Number(row.monthlyRP || row.monthlyRankPoints || 0));
         tr.dataset.rank = String(row.rank || '');
         tr.dataset.uid = String(row.userId || '');
         tr.tabIndex = 0;
         tr.setAttribute('role', 'button');
         tr.setAttribute('aria-label', 'Open ' + row.name + ' student profile');
-        var safeThreshold = safeZoneThresholdFor(row);
+        var safeThreshold = monthlySafeZoneThresholdFor(row);
         var promotionThreshold = promotionZoneThresholdFor(row);
         var weeklyRP = subRankPointsForRow(row);
+        var monthlyRP = monthlyPointsForRow(row);
         var isMaxRank = isMaxRankRow(row);
-        var safeStatus = selectedPeriod !== 'weekly' ? '' : isMaxRank
-          ? '<small class="leader-safe-status" title="আপনি সর্বোচ্চ rank-এ আছেন"><i class="fa-solid fa-arrow-trend-up"></i> Max Rank</small>'
-          : isInWeeklyPromotionZone(row)
-            ? '<small class="leader-safe-status" title="Promotion Zone অর্জিত"><i class="fa-solid fa-arrow-trend-up"></i> Promotion Zone Reached</small>'
-            : isInWeeklySafeZone(row)
-              ? '<small class="leader-safe-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> +' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to promote</small>'
-              : '<small class="leader-risk-status" title="Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-down"></i> +' + Math.max(0, safeThreshold - weeklyRP).toLocaleString() + ' RP to safe</small>';
+        var safeStatus = selectedPeriod === 'monthly'
+          ? (isInMonthlySafeZone(row)
+            ? '<small class="leader-safe-status" title="Monthly Safe Zone অর্জিত"><i class="fa-solid fa-shield-halved"></i> Safe Zone Reached</small>'
+            : '<small class="leader-risk-status" title="Monthly Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - monthlyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-triangle-exclamation"></i> +' + Math.max(0, safeThreshold - monthlyRP).toLocaleString() + ' RP to safe</small>')
+          : selectedPeriod !== 'weekly' ? '' : isMaxRank
+            ? '<small class="leader-safe-status" title="আপনি সর্বোচ্চ rank-এ আছেন"><i class="fa-solid fa-arrow-trend-up"></i> Max Rank</small>'
+            : isInWeeklyPromotionZone(row)
+              ? '<small class="leader-safe-status" title="Promotion Zone অর্জিত"><i class="fa-solid fa-arrow-trend-up"></i> Promotion Zone Reached</small>'
+              : '<small class="leader-risk-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> +' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to promote</small>';
         tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + (selectedPeriod === 'friends' ? '<small class="leader-friend-subrank" style="display:block;color:#a5b4fc;font-size:11px;font-weight:700;line-height:1.2">' + escapeHtml(row.rank || 'Bronze V') + '</small>' : '') + safeStatus + '</div></div></td>';
         body.appendChild(tr);
       });
       if (selectedPeriod === 'weekly' && !promotionDividerInserted) {
-        appendWeeklyZoneDivider('promotion');
-        if (safeRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
+        appendLeaderboardZoneDivider('promotion');
+        if (riskRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
       }
-      if (selectedPeriod === 'weekly' && !safeDividerInserted) {
-        appendWeeklyZoneDivider('safe');
+      if (selectedPeriod === 'monthly' && !safeDividerInserted) {
+        appendLeaderboardZoneDivider('safe');
         if (riskRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
       }
       if (mePanel && me && displayRows.some(function (row) { return row.isMine || String(row.userId) === String(me.userId); })) {
@@ -1327,9 +1340,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       body.innerHTML = '<tr><td colspan="2" class="py-10 text-center text-sm text-gray-500">' + emptyText + '</td></tr>';
     } else {
       appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
-      appendWeeklyZoneDivider('promotion');
-      appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
-      appendWeeklyZoneDivider('safe');
+      appendLeaderboardZoneDivider('promotion');
       appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
     }
     renderRankRail(all);
@@ -1342,7 +1353,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
-      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP,
+      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP, monthlyRP: me.monthlyRP,
       level: me.level, rank: me.rank, rankProgress: me.rankProgress, accountType: me.accountType, streak: me.streak
     }));
   }
@@ -1382,9 +1393,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       else view.appendChild(tabs);
     }
     // Rebuild the period controls once per script version to remove stale/duplicate markup.
-    if (tabs.dataset.medicalTabBuildVersion !== '32') {
+    if (tabs.dataset.medicalTabBuildVersion !== '33') {
       tabs.replaceChildren();
-      tabs.dataset.medicalTabBuildVersion = '32';
+      tabs.dataset.medicalTabBuildVersion = '33';
     }
     var definitions = [
       { key: 'monthly', label: '🏆 Monthly' },
@@ -1788,6 +1799,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (periodForRequest === 'weekly' && response && explicitWrongPeriod) {
         throw new Error('Weekly tab-এ API থেকে Monthly data এসেছে। Apps Script deployment-এর period handling যাচাই করুন।');
       }
+      if (periodForRequest === 'monthly' && response && responsePeriod && responsePeriod !== 'monthly') {
+        throw new Error('Monthly tab-এ API থেকে ভুল period-এর data এসেছে। Apps Script deployment-এর period handling যাচাই করুন।');
+      }
       // An empty weekly board is a valid result. Legacy deployments may omit period
       // metadata, so only reject populated rows that contain no weekly/period score.
       if (periodForRequest === 'weekly' && entries.length > 0 &&
@@ -1804,7 +1818,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         if (directoryQuery.length < 2) renderFriendDirectory(directoryQuery);
       }
       renderRows(rows);
-      var weekLabel = response && response.weekStart ? ' · week of ' + response.weekStart : '';
+      var weekLabel = periodForRequest === 'weekly' && response && response.weekStart ? ' · week of ' + response.weekStart :
+        periodForRequest === 'monthly' && response && response.monthStart ? ' · month of ' + response.monthStart : '';
       setStatus('Medical leaderboard synced' + weekLabel + '.', false);
       refreshSucceeded = true;
     } catch (error) {
