@@ -800,13 +800,13 @@
     const profile = app.profile || {};
     const progress = profileProgress();
     if (key === 'rules') {
-      modal('Leaderboard & Progress Rules', '<ul><li><strong>XP/RP:</strong> XP tracks learning; RP controls rank progress.</li><li><strong>Immediate Promotion:</strong> Next milestone-এর ১০০% পূরণ হলেই এক ধাপ Promotion।</li><li><strong>Weekly:</strong> শনিবার–শুক্রবারে Weekly RP promotion cost-এর ৭০% হলে daily review-তে Promotion; Safe Zone বা Demotion নেই।</li><li><strong>Monthly:</strong> আগের বাংলাদেশি মাসের Monthly RP Safe Zone-এর ৩০%-এর নিচে হলে এক Main Rank Demotion; Promotion নেই।</li><li><strong>Rank Change:</strong> নতুন Rank-এর Basic RP সেট হবে; কোনো bonus নয়, Lifetime RP অপরিবর্তিত।</li><li><strong>Trophies:</strong> Star আপনার rank progress দেখায়।</li></ul>');
+      modal('Leaderboard & Progress Rules', '<ul><li>XP আপনার শেখার অগ্রগতি দেখায়; RP আপনার Rank নির্ধারণ করে।</li><li>পরের Rank-এর প্রয়োজনীয় অগ্রগতি পূরণ হলে সঙ্গে সঙ্গে Promotion হবে।</li><li>শনিবার–শুক্রবারের Weekly review-তে Promotion হতে পারে; Demotion হয় না।</li><li>Monthly review-তে আগের বাংলাদেশি মাসের অগ্রগতি দেখে প্রয়োজন হলে এক Main Rank Demotion হতে পারে।</li><li>Weekly review প্রতিদিন এবং Monthly review মাসের ১ তারিখে হয়—বাংলাদেশ সময়।</li></ul>');
       return;
     }
     if (key === 'rp') {
       const monthly = Number(profile.monthlyRP ?? profile.monthlyRankPoints ?? 0);
       const weekly = Number(profile.weeklyRankPoints ?? profile.weeklyRP ?? 0);
-      modal('Your RP Details', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Monthly RP</small><h2 style="margin:5px 0 0">' + number(monthly) + '</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Weekly RP</small><h2 style="margin:5px 0 0">' + number(weekly) + '</h2></div></div><p>Monthly RP = this Bangladesh calendar month’s earned RP; Weekly RP = this Saturday–Friday week’s earned RP. Rank changes set current RP to the new Rank’s Basic RP—no bonus; Lifetime RP stays unchanged.</p>');
+      modal('Your RP Details', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Monthly RP</small><h2 style="margin:5px 0 0">' + number(monthly) + '</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Weekly RP</small><h2 style="margin:5px 0 0">' + number(weekly) + '</h2></div></div><p>Monthly RP shows your progress for this Bangladesh calendar month. Weekly RP shows your progress for the current Saturday–Friday week.</p>');
       return;
     }
     if (key === 'streak') {
