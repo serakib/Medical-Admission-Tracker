@@ -791,7 +791,7 @@
     wrap.className = 'mat-dash-shortcuts';
     wrap.innerHTML = [
       ['streak','fa-fire-flame-curved','Streak','View current & highest streak'],
-      ['rp','fa-ranking-star','RP Details','Lifetime and weekly rank points'],
+      ['rp','fa-ranking-star','RP Details','Monthly and weekly RP details'],
       ['rules','fa-circle-info','Ranking Rules','XP, RP, trophies & Safe Zone']
     ].map(([key, icon, title, subtitle]) => '<button type="button" class="mat-dash-shortcut" data-shortcut="' + key + '"><span class="mat-dash-shortcut-icon"><i class="fa-solid ' + icon + '" aria-hidden="true"></i></span><span class="mat-dash-shortcut-copy"><strong>' + title + '</strong><small>' + subtitle + '</small></span></button>').join('');
     stats.insertAdjacentElement('afterend', wrap);
@@ -800,13 +800,13 @@
     const profile = app.profile || {};
     const progress = profileProgress();
     if (key === 'rules') {
-      modal('Leaderboard & Progress Rules', '<ul><li>XP records learning activity and progress; RP determines ranking.</li><li>Lifetime RP is used for All-Time ranking; current-week RP is used for Weekly ranking.</li><li>Trophies represent rank/subrank progress. The progress star advances as progress increases.</li><li>The Weekly leaderboard Safe Zone divider separates students meeting the next-subrank safety threshold from those below it.</li><li>The Safe Zone percentage is an internal calculation and is not displayed as a percentage to students.</li></ul>');
+      modal('Leaderboard & Progress Rules', '<ul><li>XP records learning activity and progress; RP determines ranking.</li><li>Monthly RP determines the Monthly leaderboard and Monthly Safe Zone; Weekly RP determines the Weekly leaderboard and its Promotion Zone.</li><li>Trophies represent rank/subrank progress. The progress star advances as progress increases.</li><li>The Monthly Safe Zone applies to the whole Main Rank. Weekly has a Promotion Zone only—no Safe Zone or demotion.</li><li>The Safe Zone percentage is an internal calculation and is not displayed as a percentage to students.</li></ul>');
       return;
     }
     if (key === 'rp') {
-      const lifetime = Number(profile.totalRP ?? profile.rankPoints ?? 0);
+      const monthly = Number(profile.monthlyRP ?? profile.monthlyRankPoints ?? 0);
       const weekly = Number(profile.weeklyRankPoints ?? profile.weeklyRP ?? 0);
-      modal('Your RP Details', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Lifetime RP</small><h2 style="margin:5px 0 0">' + number(lifetime) + '</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Weekly RP</small><h2 style="margin:5px 0 0">' + number(weekly) + '</h2></div></div><p>Lifetime RP controls All-Time rank. Weekly RP is calculated from activity in the current week.</p>');
+      modal('Your RP Details', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Monthly RP</small><h2 style="margin:5px 0 0">' + number(monthly) + '</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Weekly RP</small><h2 style="margin:5px 0 0">' + number(weekly) + '</h2></div></div><p>Monthly RP is calculated from the Bangladesh calendar month. Weekly RP is calculated from the current week.</p>');
       return;
     }
     if (key === 'streak') {
@@ -815,17 +815,13 @@
       modal('Your Study Streak', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Current streak</small><h2 style="margin:5px 0 0">' + number(current) + ' days</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Highest streak</small><h2 style="margin:5px 0 0">' + number(highest) + ' days</h2></div></div><p>Your streak statistics are based on the progress data currently available to this account.</p><button id="mat-open-profile-from-streak" class="mat-dash-modal-close" type="button">Open profile</button>');
       document.getElementById('mat-open-profile-from-streak')?.addEventListener('click', () => {
         document.getElementById('mat-dash-modal-backdrop')?.remove();
-        const rows = window.MedGlobalLeague && typeof window.MedGlobalLeague.getCachedRows === 'function' ? window.MedGlobalLeague.getCachedRows('all-time') : [];
-        const ownId = String((app.profile && (app.profile.userId || app.profile.uid)) || (app.authUser && app.authUser.uid) || '');
-        const ownRow = rows.find(row => row && (row.isMine || (ownId && String(row.userId || row.uid || '') === ownId)));
-        if (ownRow && window.MedStudentProfile && typeof window.MedStudentProfile.open === 'function') {
-          Promise.resolve(window.MedStudentProfile.open(ownRow)).then(() => setTimeout(() => {
-            const target = document.getElementById('student-profile-streak');
-            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 120));
-        } else if (typeof app.openProfile === 'function') app.openProfile();
+        if (typeof app.openProfile === 'function') app.openProfile();
         else if (typeof app.showView === 'function') app.showView('account');
         else { const nav = document.querySelector('[data-nav-view="account"]'); if (nav) nav.click(); }
+        setTimeout(() => {
+          const target = document.getElementById('student-profile-streak');
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
       });
     }
   }
