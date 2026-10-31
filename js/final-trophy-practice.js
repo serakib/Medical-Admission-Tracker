@@ -317,7 +317,7 @@
       const tier = Math.floor(i / 5);
       const engraving = engravedRP === null ? '' : '<div class="exam-trophy-rp-caption">RP: ' + engravedRP.toLocaleString() + '</div>';
       const engravedSvg = engravedRP === null ? '' : '<text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + engravedRP.toLocaleString() + ' RP</text>';
-      const status = completed ? 'UNLOCKED' : (isCurrent ? 'CURRENT' : 'REQUIRES ' + target.toLocaleString() + ' RP');
+      const status = completed ? '' : (isCurrent ? 'CURRENT' : 'REQUIRES ' + target.toLocaleString() + ' RP');
       cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '">' + engraving + '<div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + s + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + engravedSvg + '</svg></div><strong>' + rank[0] + '</strong><small>' + status + '</small></article>';
     });
     const weekly = weeklyPoints();
