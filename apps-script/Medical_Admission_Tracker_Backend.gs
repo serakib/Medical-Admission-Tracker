@@ -1637,6 +1637,8 @@ function matGetHighestWeeklyRPByUser_(endExclusive) {
   matReadObjects_(matGetExamSheet_()).forEach(function (row) {
     const recordType = String(row.RecordType || '').toUpperCase();
     if (!matIsExamRecord_(row) && recordType !== 'RP_EVENT') return;
+    const rewardStatus = String(row.RewardStatus || '').toUpperCase();
+    if (rewardStatus && rewardStatus !== 'COMMITTED') return;
     const dateKey = matDateKey_(row.SubmittedAt);
     if (!dateKey || (weekEnd && dateKey >= weekEnd)) return;
     const userId = String(row.UserID || '');
@@ -1666,6 +1668,8 @@ function matGetWeeklyRPByUser_(startInclusive, endExclusive) {
   exams.forEach(function (r) {
     const recordType = String(r.RecordType || '').toUpperCase();
     if (!matIsExamRecord_(r) && recordType !== 'RP_EVENT') return;
+    const rewardStatus = String(r.RewardStatus || '').toUpperCase();
+    if (rewardStatus && rewardStatus !== 'COMMITTED') return;
     const dateKey = matDateKey_(r.SubmittedAt);
     if (!dateKey || dateKey < weekStart || (weekEnd && dateKey >= weekEnd)) return;
     const uid = String(r.UserID || '');
@@ -1684,6 +1688,8 @@ function matGetMonthlyRPByUser_(startInclusive, endExclusive) {
   matReadObjects_(matGetExamSheet_()).forEach(function (row) {
     const recordType = String(row.RecordType || '').toUpperCase();
     if (!matIsExamRecord_(row) && recordType !== 'RP_EVENT' && recordType !== 'MONTHLY_START') return;
+    const rewardStatus = String(row.RewardStatus || '').toUpperCase();
+    if (rewardStatus && rewardStatus !== 'COMMITTED') return;
     const dateKey = matDateKey_(row.SubmittedAt);
     if (!dateKey || dateKey < monthStart || (monthEnd && dateKey >= monthEnd)) return;
     const userId = String(row.UserID || '');
@@ -1700,6 +1706,8 @@ function matGetHighestMonthlyRPByUser_(endExclusive) {
   matReadObjects_(matGetExamSheet_()).forEach(function (row) {
     const recordType = String(row.RecordType || '').toUpperCase();
     if (!matIsExamRecord_(row) && recordType !== 'RP_EVENT' && recordType !== 'MONTHLY_START') return;
+    const rewardStatus = String(row.RewardStatus || '').toUpperCase();
+    if (rewardStatus && rewardStatus !== 'COMMITTED') return;
     const dateKey = matDateKey_(row.SubmittedAt);
     if (!dateKey || (monthEnd && dateKey >= monthEnd)) return;
     const userId = String(row.UserID || '');
