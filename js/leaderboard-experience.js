@@ -18,6 +18,7 @@
   const REQUEST_ID_SYNC_DELAY_MS = 2500;
   const REQUEST_ID_SYNC_MAX_ATTEMPTS = 4;
   let activePublicProfile = null;
+  let guestAutoDeletionCountdownTimer = null;
   let lastFriendError = '';
 
   const safeText = (value, max = 180) => String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
@@ -781,6 +782,24 @@
     if (bar) bar.setAttribute('aria-valuenow', String(percent));
   }
 
+  function renderGuestAutoDeletionCountdown(row) {
+    const el = document.getElementById('student-profile-guest-deletion-countdown');
+    if (guestAutoDeletionCountdownTimer) clearInterval(guestAutoDeletionCountdownTimer);
+    guestAutoDeletionCountdownTimer = null;
+    if (!el) return;
+    const deadline = Date.parse(String(row && row.guestAutoDeletionAt || ''));
+    if (String(row && row.accountType || '').toUpperCase() !== 'GUEST' || !Number.isFinite(deadline) || deadline <= 0) {
+      el.classList.add('hidden'); el.textContent = ''; return;
+    }
+    el.classList.remove('hidden');
+    const tick = function () {
+      const sec = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+      if (!sec) { el.textContent = 'Guest account auto-deletion is due.'; clearInterval(guestAutoDeletionCountdownTimer); guestAutoDeletionCountdownTimer = null; return; }
+      el.textContent = 'Guest account auto-delete in: ' + Math.floor(sec / 86400) + 'd ' + Math.floor(sec % 86400 / 3600) + 'h ' + Math.floor(sec % 3600 / 60) + 'm ' + sec % 60 + 's';
+    };
+    tick(); guestAutoDeletionCountdownTimer = setInterval(tick, 1000);
+  }
+
   async function openStudentProfile(row) {
     if (!row) return;
     activePublicProfile = row;
@@ -811,6 +830,7 @@
       batch ? 'Class/Batch: ' + batch : ''
     ].filter(Boolean).join('\n') || 'College ও Class/Batch এখনো যোগ করা হয়নি');
     write('student-profile-rank-level', 'Rank: ' + currentRankTier + ' · Level ' + Math.max(1, Number(row.level) || 1));
+    renderGuestAutoDeletionCountdown(row);
     write('student-profile-xp', fmt(row.xp) + ' XP');
     write('student-profile-total-rp', fmt(row.totalRP) + ' RP');
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
