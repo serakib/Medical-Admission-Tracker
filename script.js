@@ -641,11 +641,14 @@ class MedicalExamApp {
         ['name', 'college', 'batch', 'class', 'mobile', 'bloodGroup', 'avatar'].forEach(key => {
             if (Object.prototype.hasOwnProperty.call(fields, key)) safeFields[key] = fields[key];
         });
-        if (safeFields.name) {
+        if (safeFields.name && String(this.authUser.displayName || '') !== String(safeFields.name)) {
             try { await updateProfile(this.authUser, { displayName: String(safeFields.name).slice(0, 80) }); }
             catch (error) { console.warn('Firebase display name sync failed:', error); }
         }
-        if (this.firestore) {
+        const firebaseProfileChanged = Object.keys(safeFields).some(key =>
+            String((this.profile || {})[key] ?? '') !== String(safeFields[key] ?? '')
+        );
+        if (this.firestore && firebaseProfileChanged) {
             try {
                 await setDoc(doc(this.firestore, 'students', this.authUser.uid), {
                     uid: this.authUser.uid,
