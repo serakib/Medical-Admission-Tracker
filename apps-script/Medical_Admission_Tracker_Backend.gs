@@ -1477,8 +1477,8 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
   let tierReset = false;
 
   // A single reward/reconciliation pass advances at most one sub-rank.
-  // Reaching 100% of the next milestone promotes immediately; no Safe Zone
-  // starting-RP bonus is granted for this immediate promotion.
+  // Reaching 100% of the next milestone promotes immediately. Every rank
+  // change sets RP to the target rank's Basic RP, without any extra bonus.
   if (index < MAT_RANKS.length - 1) {
     const nextIndex = index + 1;
     const sameTier = matRankTierStartIndex_(nextIndex) === matRankTierStartIndex_(index);
@@ -1486,11 +1486,9 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
     if (requiredRP > 0 && rp >= requiredRP) {
       index = nextIndex;
       promoted = 1;
-      // Completing a Tier advances to its next Tier and hard-resets RP to zero.
-      if (!sameTier) {
-        rp = 0;
-        tierReset = true;
-      }
+      // Basic RP is the target rank's milestone baseline (zero at a new Tier).
+      rp = matRankMilestoneCap_(index);
+      if (!sameTier) tierReset = true;
     }
   }
   return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP, tierReset: tierReset };
