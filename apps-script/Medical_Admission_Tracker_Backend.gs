@@ -453,10 +453,10 @@ function cleanupExpiredGuestAccounts() {
   try {
     const nowMs = Date.now();
     const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
-    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    const twentyOneDaysMs = 21 * 24 * 60 * 60 * 1000;
     const studentsSheet = matGetStudentsSheet_();
     const students = matReadObjects_(studentsSheet);
-    // Guest deletion's seven-day rule must use this week's earned RP, not
+    // Guest deletion's 21-day rule must use this week's earned RP, not
     // the stored rank-progression RP or lifetime RP.
     const weeklyRPByUser = matGetWeeklyRPByUser_();
     const expired = students.filter(function (student) {
@@ -473,7 +473,7 @@ function cleanupExpiredGuestAccounts() {
       const zeroRpMs = Date.parse(String(student.GuestZeroRPAt || ''));
       if (!Number.isFinite(zeroRpMs)) return false;
       const inactivityAnchor = Math.max(zeroRpMs, Number.isFinite(lastSeenMs) ? lastSeenMs : zeroRpMs);
-      return nowMs - inactivityAnchor >= sevenDaysMs;
+      return nowMs - inactivityAnchor >= twentyOneDaysMs;
     });
 
     if (!expired.length) {
@@ -1594,6 +1594,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
       username: s.Name || 'Medical Student', name: s.Name || 'Medical Student',
       accountType: s.AccountType || 'GUEST', college: s.College || '', batch: s.Batch || '',
+      guestAutoDeletionAt: matGuestAutoDeletionAt_(s, weeklyRP),
       avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
       rank: s.Rank || MAT_RANKS[0],
@@ -2603,10 +2604,30 @@ function matReconcileStoredRankProgress_(source) {
   return student;
 }
 
+function matGuestAutoDeletionAt_(student, weeklyRP) {
+  const s = student || {};
+  if (String(s.AccountType || '').toUpperCase() !== 'GUEST') return '';
+  const deadlines = [];
+  const scheduled = Date.parse(String(s.GuestDeletionScheduledAt || ''));
+  if (Number.isFinite(scheduled) && scheduled > 0) deadlines.push(scheduled);
+  const lastSeen = Date.parse(String(s.LastSeenAt || s.CreatedAt || ''));
+  if (Number.isFinite(lastSeen) && lastSeen > 0) deadlines.push(lastSeen + 90 * 86400000);
+  if (Math.max(0, matFiniteNumber_(weeklyRP, 0)) === 0) {
+    const zeroRP = Date.parse(String(s.GuestZeroRPAt || ''));
+    if (Number.isFinite(zeroRP) && zeroRP > 0) {
+      deadlines.push(Math.max(zeroRP, Number.isFinite(lastSeen) ? lastSeen : zeroRP) + 21 * 86400000);
+    }
+  }
+  return deadlines.length ? new Date(Math.min.apply(null, deadlines)).toISOString() : '';
+}
+
 function matPublicProfile_(r, includeEmail) {
   const s = matReconcileStoredRankProgress_(r);
   const monthlyRPByUser = matGetMonthlyRPByUser_();
   const highestMonthlyRPByUser = matGetHighestMonthlyRPByUser_();
+  const weeklyRPByUser = matGetWeeklyRPByUser_();
+  const weeklyRP = Math.max(0, Number(weeklyRPByUser[String(s.UserID || '')] || 0));
+  const guestAutoDeletionAt = matGuestAutoDeletionAt_(s, weeklyRP);
   const monthlyRP = Math.max(0, Number(monthlyRPByUser[String(s.UserID || '')] || 0));
   const highestMonthlyRP = Math.max(0, matFiniteNumber_(s.HighestMonthlyRP, 0), Number(highestMonthlyRPByUser[String(s.UserID || '')] || 0), monthlyRP);
   const result = {
@@ -2619,6 +2640,7 @@ function matPublicProfile_(r, includeEmail) {
     guestDeletionPending: String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt,
     guestDeletionRequestedAt: String(s.GuestDeletionRequestedAt || ''),
     guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
+    guestAutoDeletionAt: guestAutoDeletionAt,
     college: String(s.College || ''),
     batch: String(s.Batch || ''),
     avatar: String(s.Avatar || ''),
