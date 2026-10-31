@@ -1054,7 +1054,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (isCompleted) {
       stateTitle = 'Completed ✓';
       stateDetail = isMonthlyLeaderboard ? 'এই Monthly Main Rank Trophy-এর RP milestone সম্পন্ন হয়েছে।' : isWeeklyLeaderboard ? 'এই Weekly Main Rank milestone সম্পন্ন হয়েছে।' : 'এই trophy milestone সম্পন্ন হয়েছে।';
-      trackState = 'is-safe';
+      trackState = isWeeklyLeaderboard ? 'is-promotion' : 'is-safe';
     } else if (isMonthlyLeaderboard && !safe) {
       stateTitle = 'Safe Zone-এর নিচে';
       stateDetail = 'Monthly Safe Zone-এ থাকতে আরও ' + remainingToSafe.toLocaleString() + ' RP দরকার।';
