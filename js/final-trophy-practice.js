@@ -71,41 +71,20 @@
     }
   };
 
-  function lifetimePoints() {
-    // Prefer the Medical Sheets API's lifetime total over browser-only legacy rank points.
-    const profileTotal = Number(app.profile?.totalRP);
-    if (Number.isFinite(profileTotal) && profileTotal >= 0) return profileTotal;
+  function monthlyPoints() {
+    const profileMonthly = Number(app.profile?.monthlyRP);
+    if (Number.isFinite(profileMonthly) && profileMonthly >= 0) return profileMonthly;
     const cachedRows = typeof app.getLocalLeaderboardRows === 'function' ? app.getLocalLeaderboardRows() : [];
     const currentId = String(app.authUser?.uid || app.profile?.uid || app.profile?.userId || '');
     const cachedMe = Array.isArray(cachedRows) ? cachedRows.find(row => currentId && String(row.uid || row.userId || '') === currentId) : null;
-    const cachedTotal = Number(cachedMe?.totalRP);
-    if (Number.isFinite(cachedTotal) && cachedTotal >= 0) return cachedTotal;
-    if (typeof app.getAccountProgress === 'function') {
-      const state = app.getAccountProgress();
-      if (Number.isFinite(Number(state.rankPoints))) return Math.max(0, Number(state.rankPoints));
-    }
-    const rankCard = document.getElementById('profile-rank-card');
-    const rankText = rankCard?.textContent || '';
-    const rankMatch = rankText.match(/([\d,]+)\s*(?:RP(?: \(Rank Points\))?|lifetime Rank Points)/i);
-    if (rankMatch) return Math.max(0, Number(rankMatch[1].replace(/,/g, '')) || 0);
-    try { const progress = JSON.parse(localStorage.getItem('med_account_progress_v1_' + (app.authUser?.uid || 'guest')) || '{}'); if (Number.isFinite(Number(progress.rankPoints))) return Math.max(0, Number(progress.rankPoints)); } catch (_) {}
-    const keys = [
-      'med_lifetime_rank_points_' + (app.authUser?.uid || 'guest'),
-      'med_rank_points_lifetime_' + (app.authUser?.uid || 'guest'),
-      'med_lifetime_rank_points',
-      'med_rank_points_lifetime'
-    ];
-    for (const key of keys) {
-      const raw = localStorage.getItem(key);
-      if (raw !== null && Number.isFinite(Number(raw))) return Math.max(0, Number(raw));
-    }
-    return 0;
+    const cachedMonthly = Number(cachedMe?.monthlyRP ?? cachedMe?.monthlyRankPoints);
+    return Number.isFinite(cachedMonthly) && cachedMonthly >= 0 ? cachedMonthly : 0;
   }
   function renderTrophy() {
     const profile=document.getElementById('view-profile');
     if(!profile)return;
     const profileData=app.profile||{};
-    const points=lifetimePoints();
+    const points=monthlyPoints();
     const fallbackCurrent=rankFromPoints(points);
     const apiRankIndex=rankIndexForName(profileData.rank);
     const rankIndex=apiRankIndex>=0?apiRankIndex:fallbackCurrent.index;
@@ -125,7 +104,7 @@
       ? 'Maximum trophy rank reached'
       : progress.subrankEarnedRP.toLocaleString()+' / '+progress.subrankRequiredRP.toLocaleString()+' RP in current sub-rank';
     const trophyProgress=progress.subrankProgress;
-    card.innerHTML='<div class="live-trophy-medal-wrap"><div class="live-trophy-rp-caption">LIFETIME RP: '+Math.floor(points).toLocaleString()+'</div><div class="premium-trophy-medal is-earned" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(rankIndex,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' RP</text></svg></div></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Lifetime RP · Tier RP '+Math.floor(progress.currentRP).toLocaleString()+' / '+Math.floor(progress.tierCapRP).toLocaleString()+' · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
+    card.innerHTML='<div class="live-trophy-medal-wrap"><div class="live-trophy-rp-caption">MONTHLY RP: '+Math.floor(points).toLocaleString()+'</div><div class="premium-trophy-medal is-earned" style="--trophy-main:'+rank[1]+';--trophy-dark:'+rank[2]+';--trophy-shine:'+rank[3]+'" role="img" aria-label="'+rank[0]+' trophy"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="'+rank[1]+'" stroke-width="9"/>'+buildTrophyEmblem(rankIndex,rank[1],rank[2],rank[3])+'<path d="M28 83h44l7 15H21Z" fill="'+rank[1]+'" stroke="'+rank[3]+'" stroke-width="1.5"/><text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="'+rank[2]+'">'+Math.floor(points).toLocaleString()+' RP</text></svg></div></div><div class="lifetime-trophy-copy"><div class="trophy-eyebrow">LATEST ACHIEVEMENT</div><strong>'+rank[0]+'</strong><small>'+Math.floor(points).toLocaleString()+' Monthly RP · Tier RP '+Math.floor(progress.currentRP).toLocaleString()+' / '+Math.floor(progress.tierCapRP).toLocaleString()+' · '+nextRankText+'</small><div class="lifetime-trophy-track"><span style="width:'+trophyProgress+'%;background:linear-gradient(90deg,'+rank[2]+','+rank[1]+','+rank[3]+')"></span></div><div class="trophy-progress-label"><span>Open Exam & Trophy Hub</span><span>View all ↗</span></div></div>';
     card.onclick=function(){openExamTrophyHub('random');};
   }
   const originalShowProfile = app.showProfile?.bind(app);
@@ -305,12 +284,12 @@
     const rowValue = mine && (mine.weeklyRankPoints ?? mine.weeklyRP ?? mine.weeklyPoints);
     return rowValue !== null && rowValue !== undefined && Number.isFinite(Number(rowValue)) ? Math.max(0, Number(rowValue)) : 0;
   }
-  let activeVaultType = 'alltime';
+  let activeVaultType = 'monthly';
   function renderCollection() {
-    const allTime = activeVaultType === 'alltime';
-    const points = allTime ? lifetimePoints() : weeklyPoints();
-    // All-Time achievement milestones use x5 requirements. Weekly remains on its original RP curve.
-    const requirementMultiplier = allTime ? 5 : 1;
+    const monthly = activeVaultType === 'monthly';
+    const points = monthly ? monthlyPoints() : weeklyPoints();
+    // Monthly achievement milestones use x5 requirements. Weekly remains on its original RP curve.
+    const requirementMultiplier = monthly ? 5 : 1;
     const current = rankFromPoints(points, requirementMultiplier);
     const currentRankIndex = current.index;
     const currentRank = trophyRanks[currentRankIndex][0];
@@ -342,9 +321,9 @@
       cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '">' + engraving + '<div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + s + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + engravedSvg + '</svg></div><strong>' + rank[0] + '</strong><small>' + status + '</small></article>';
     });
     const weekly = weeklyPoints();
-    const alltime = lifetimePoints();
+    
     const knobValue = Math.floor(points).toLocaleString();
-    host.innerHTML = '<div class="vault-capsule ' + (allTime ? 'alltime-active' : '') + '" id="achievement-vault-switch" role="switch" aria-checked="' + allTime + '" tabindex="0" aria-label="Switch between Weekly and All-Time Achievement Vault"><span class="text-content">' + (allTime ? 'Weekly Vault' : 'Alltime Vault') + '</span><div class="slider"><svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg><span class="rp-value">' + knobValue + '</span></div></div><div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">' + (allTime ? 'All-Time Achievement Vault' : 'Weekly Achievement Vault') + '</h3><p>' + (allTime ? 'Lifetime RP milestones remain completed permanently.' : 'This vault follows your current week RP and resets with the weekly cycle.') + ' Current rank: ' + currentRank + '.</p></div><b>' + Math.floor(points).toLocaleString() + (allTime ? ' Lifetime RP' : ' Weekly RP') + '</b></div><div class="exam-trophy-grid">' + cards + '</div>';
+    host.innerHTML = '<div class="vault-capsule ' + (monthly ? 'alltime-active' : '') + '" id="achievement-vault-switch" role="switch" aria-checked="' + monthly + '" tabindex="0" aria-label="Switch between Weekly and Monthly Achievement Vault"><span class="text-content">' + (monthly ? 'Weekly Vault' : 'Monthly Vault') + '</span><div class="slider"><svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg><span class="rp-value">' + knobValue + '</span></div></div><div class="exam-trophy-heading"><div><span>ACHIEVEMENT VAULT</span><h3 id="exam-trophy-hub-title" tabindex="-1">' + (monthly ? 'Monthly Achievement Vault' : 'Weekly Achievement Vault') + '</h3><p>' + (monthly ? 'This vault follows your current month RP and resets with the monthly cycle.' : 'This vault follows your current week RP and resets with the weekly cycle.') + ' Current rank: ' + currentRank + '.</p></div><b>' + Math.floor(points).toLocaleString() + (monthly ? ' Monthly RP' : ' Weekly RP') + '</b></div><div class="exam-trophy-grid">' + cards + '</div>';
     host.querySelectorAll('.exam-trophy-item').forEach(function(card, index) {
       const stage = index % 3;
       card.style.borderRadius = stage === 0 ? '18px 18px 12px 12px' : stage === 1 ? '10px 18px 10px 18px' : '22px 8px 22px 8px';
@@ -354,7 +333,7 @@
     if (switcher) {
       const toggle = function() {
         if (switcher.dataset.transitioning === 'true') return;
-        const nextType = activeVaultType === 'alltime' ? 'weekly' : 'alltime';
+        const nextType = activeVaultType === 'monthly' ? 'weekly' : 'monthly';
         const slider = switcher.querySelector('.slider');
         const label = switcher.querySelector('.text-content');
         if (!slider || !label) {
@@ -364,10 +343,10 @@
         }
         switcher.dataset.transitioning = 'true';
         activeVaultType = nextType;
-        const nextIsAllTime = nextType === 'alltime';
-        switcher.classList.toggle('alltime-active', nextIsAllTime);
-        switcher.setAttribute('aria-checked', String(nextIsAllTime));
-        label.textContent = nextIsAllTime ? 'Weekly Vault' : 'Alltime Vault';
+        const nextIsMonthly = nextType === 'monthly';
+        switcher.classList.toggle('alltime-active', nextIsMonthly);
+        switcher.setAttribute('aria-checked', String(nextIsMonthly));
+        label.textContent = nextIsMonthly ? 'Weekly Vault' : 'Monthly Vault';
         const finishTransition = function(event) {
           if (event && (event.target !== slider || event.propertyName !== 'transform')) return;
           slider.removeEventListener('transitionend', finishTransition);
@@ -401,8 +380,8 @@
     },0);
   });
   function rankPointsForLeaderboardRow(row) {
-    // Achievement Vault trophy progression is based on lifetime RP, never weekly RP.
-    return Math.max(0, Number(row?.totalRP ?? row?.lifetimeRankPoints ?? row?.rankPoints ?? row?.points ?? 0) || 0);
+    // Trophy rank display follows Monthly RP; Lifetime RP is profile-only.
+    return Math.max(0, Number(row?.monthlyRP ?? row?.monthlyRankPoints ?? row?.boardPoints ?? 0) || 0);
   }
   function rankIndexForName(name) {
     const wanted = String(name || '').trim().toLowerCase();
@@ -432,7 +411,7 @@
   }
   function trophySvgForRankName(name, className) {
     const index = rankIndexForName(name);
-    return trophySvgForIndex(index >= 0 ? index : rankFromPoints(lifetimePoints()).index, className);
+    return trophySvgForIndex(index >= 0 ? index : rankFromPoints(monthlyPoints()).index, className);
   }
   function leaderboardTrophyMarkup(row) {
     const points = rankPointsForLeaderboardRow(row);
@@ -467,7 +446,7 @@
     const podium = document.getElementById('leaderboard-podium');
     if (podium) podium.querySelectorAll('.podium-card').forEach((card,index)=>{
       card.querySelectorAll('.leader-rank-trophy').forEach(el=>el.remove());
-      const row = byUid.get(String(card.dataset.uid || card.dataset.medPlayer || '')) || (card.dataset.totalRp ? { totalRP:Number(card.dataset.totalRp), rankPoints:Number(card.dataset.totalRp), rank:card.dataset.rank || '' } : null) || ordered[index];
+      const row = byUid.get(String(card.dataset.uid || card.dataset.medPlayer || '')) || (card.dataset.monthlyRp ? { monthlyRP:Number(card.dataset.monthlyRp), rank:card.dataset.rank || '' } : null) || ordered[index];
       if (row) card.insertAdjacentHTML('beforeend', leaderboardTrophyMarkup(row));
     });
     const me = document.getElementById('leaderboard-me');
