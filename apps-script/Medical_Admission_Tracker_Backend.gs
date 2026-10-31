@@ -2564,6 +2564,8 @@ function matReconcileStoredRankProgress_(source) {
 
 function matPublicProfile_(r, includeEmail) {
   const s = matReconcileStoredRankProgress_(r);
+  const monthlyRPByUser = matGetMonthlyRPByUser_();
+  const monthlyRP = Math.max(0, Number(monthlyRPByUser[String(s.UserID || '')] || 0));
   const result = {
     userId: s.UserID,
     uid: s.UserID,
@@ -2583,8 +2585,8 @@ function matPublicProfile_(r, includeEmail) {
     pb: s.PB,
     pendingPB: s.PB,
     totalRP: s.TotalRP,
-    monthlyRP: Math.max(0, Number(matGetMonthlyRPByUser_()[String(s.UserID || '')] || 0)),
-    monthlyRankPoints: Math.max(0, Number(matGetMonthlyRPByUser_()[String(s.UserID || '')] || 0)),
+    monthlyRP: monthlyRP,
+    monthlyRankPoints: monthlyRP,
     highestWeeklyRP: s.HighestWeeklyRP,
     level: s.Level,
     levelProgress: matGetLevelProgress_(s.XP),
