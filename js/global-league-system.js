@@ -192,7 +192,7 @@
   function cacheKeyForPeriod(period) {
     if (period === 'weekly') return CACHE_KEY + '_weekly';
     if (period === 'friends') return CACHE_KEY + '_friends';
-    return CACHE_KEY + '_all-time';
+    return CACHE_KEY + '_monthly';
   }
   function getCache(period) {
     var key = cacheKeyForPeriod(period || 'monthly');
@@ -1050,7 +1050,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         escapeHtml(selectedRankDisplayName) + ' Trophy-এর progress শুরু হবে না।</small></span></div>';
       return;
     }
-    var stateTitle, stateDetail, trackState = safe ? 'is-safe' : 'is-at-risk';
+    var stateTitle, stateDetail, trackState = isWeeklyLeaderboard ? '' : (safe ? 'is-safe' : 'is-at-risk');
     if (isCompleted) {
       stateTitle = 'Completed ✓';
       stateDetail = isMonthlyLeaderboard ? 'এই Monthly Main Rank Trophy-এর RP milestone সম্পন্ন হয়েছে।' : isWeeklyLeaderboard ? 'এই Weekly Main Rank milestone সম্পন্ন হয়েছে।' : 'এই trophy milestone সম্পন্ন হয়েছে।';
@@ -1067,7 +1067,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     } else if (isWeeklyLeaderboard) {
       stateTitle = 'Promotion Zone অর্জিত';
       stateDetail = 'শনিবারের Weekly review-এ Promotion বিবেচিত হবে। Weekly Safe Zone নেই।';
-      trackState = 'is-safe is-promotion';
+      trackState = isWeeklyLeaderboard ? 'is-promotion' : 'is-safe';
     } else {
       stateTitle = 'Progress';
       stateDetail = 'পরবর্তী milestone-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
