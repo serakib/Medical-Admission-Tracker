@@ -1225,7 +1225,19 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var me = getMe(all);
     if (me && !rankSelectionTouched) selectedRank = me.rank;
     else if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
-    if ((selectedPeriod === 'weekly' || selectedPeriod === 'monthly') && RANKS.indexOf(selectedRank) >= 0) selectedRank = RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5];
+    if ((selectedPeriod === 'weekly' || selectedPeriod === 'monthly') && RANKS.indexOf(selectedRank) >= 0) {
+      var selectedTierStart = Math.floor(RANKS.indexOf(selectedRank) / 5) * 5;
+      var ownRankName = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
+      var ownRankIndex = RANKS.indexOf(ownRankName);
+      var ownTierStart = ownRankIndex >= 0 ? Math.floor(ownRankIndex / 5) * 5 : 0;
+      // A student may browse their current or lower main-rank boards, never a locked higher rank.
+      if (selectedTierStart > ownTierStart) {
+        selectedRank = RANKS[ownTierStart];
+        try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
+      } else {
+        selectedRank = RANKS[selectedTierStart];
+      }
+    }
     // Both public leaderboards group all five sub-ranks under one Main Rank.
     // Individual sub-ranks remain exclusive to Achievement Vault.
     var displayRows = selectedPeriod === 'friends' ? all.slice() : all.filter(function (row) {
@@ -2319,11 +2331,22 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       }
       var rankButton = event.target.closest && event.target.closest('[data-med-rank]');
       if (rankButton) {
-        selectedRank = rankButton.dataset.medRank;
-        rankSelectionTouched = true;
+        var requestedRank = rankButton.dataset.medRank;
         var vaultRanks = window.MedAchievementVaultTrophies && typeof window.MedAchievementVaultTrophies.getRanks === 'function'
           ? window.MedAchievementVaultTrophies.getRanks().map(function (item) { return item.name; }) : RANKS;
-        if (vaultRanks.indexOf(selectedRank) < 0) return;
+        if (vaultRanks.indexOf(requestedRank) < 0) return;
+        if (selectedPeriod === 'weekly' || selectedPeriod === 'monthly') {
+          var identityRowsForRank = rawRows.length ? normalizeRows(rawRows) : getCache(selectedPeriod);
+          var identityRowForRank = getMe(identityRowsForRank);
+          var ownRankForSelection = (identityRowForRank && identityRowForRank.rank) ||
+            (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
+          var ownRankIndexForSelection = RANKS.indexOf(ownRankForSelection);
+          var requestedRankIndex = RANKS.indexOf(requestedRank);
+          if (ownRankIndexForSelection >= 0 && requestedRankIndex >= 0 &&
+              Math.floor(requestedRankIndex / 5) > Math.floor(ownRankIndexForSelection / 5)) return;
+        }
+        selectedRank = requestedRank;
+        rankSelectionTouched = true;
         try { localStorage.setItem(SELECTED_RANK_KEY + accountKey(), selectedRank); } catch (_) {}
         renderRows(rawRows);
         var rail = document.getElementById('med-rank-rail');
