@@ -1009,8 +1009,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var requiredRPMultiplier = Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5);
     var requiredRP = isMainRankLeaderboard ? mainTierRequiredRP : rankPromotionCostForIndex(selectedRankIndex) * requiredRPMultiplier;
     var progressPoints = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : lifetimeRP;
+    var currentMainRankStartIndex = Math.floor(currentRankIndex / 5) * 5;
     var isCompleted = isMainRankLeaderboard
-      ? (requiredRP > 0 && progressPoints >= mainTierStartRP + requiredRP)
+      ? (isMonthlyLeaderboard && selectedRankIndex < currentMainRankStartIndex) || (requiredRP > 0 && progressPoints >= mainTierStartRP + requiredRP)
       : (selectedRankIndex < currentRankIndex || (selectedRankIndex === RANKS.length - 1 && currentRankIndex === selectedRankIndex));
     var isLocked = isWeeklyLeaderboard
       ? weeklyEarnedRP < mainTierStartRP
