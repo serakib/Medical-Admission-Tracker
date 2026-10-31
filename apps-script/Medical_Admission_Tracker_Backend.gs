@@ -1820,9 +1820,13 @@ function matGetExamStatsByUser_() {
 }
 
 function matBuildTop10_() {
-  const rows = matReadObjects_(matGetStudentsSheet_()).map(matNormaliseStudent_);
+  const monthlyRPByUser = matGetMonthlyRPByUser_();
+  const rows = matReadObjects_(matGetStudentsSheet_()).map(matNormaliseStudent_).map(function (student) {
+    student.MonthlyRP = Math.max(0, Number(monthlyRPByUser[String(student.UserID || '')] || 0));
+    return student;
+  });
   rows.sort(function (a, b) {
-    return Number(b.TotalRP || 0) - Number(a.TotalRP || 0) ||
+    return Number(b.MonthlyRP || 0) - Number(a.MonthlyRP || 0) ||
       Number(b.XP || 0) - Number(a.XP || 0) ||
       String(a.Name || '').localeCompare(String(b.Name || ''));
   });
@@ -1830,7 +1834,7 @@ function matBuildTop10_() {
     return {
       userId: String(r.UserID),
       name: String(r.Name || 'Medical Student'),
-      totalRP: Number(r.TotalRP || 0),
+      monthlyRP: Number(r.MonthlyRP || 0),
       rank: String(r.Rank || MAT_RANKS[0]),
       position: i + 1
     };
@@ -1847,7 +1851,7 @@ function matGetTop10Snapshot_() {
   if (raw) {
     try {
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr)) return arr;
+      if (Array.isArray(arr) && arr.every(function (row) { return row && Object.prototype.hasOwnProperty.call(row, 'monthlyRP'); })) return arr;
     } catch (_) {}
   }
   const baseline = matBuildTop10_();
@@ -1875,7 +1879,7 @@ function matEnqueueTop10Changes_(oldRows, newRows, eventTime, sourceAttemptId) {
       events.push({
         userId: id,
         message: '🏆 Medical Top 10: ' + current.name + ' entered at #' + current.position +
-          ' with ' + current.totalRP + ' lifetime RP. Event time: ' + matFormatTime_(eventTime) + '.'
+          ' with ' + current.monthlyRP + ' Monthly RP. Event time: ' + matFormatTime_(eventTime) + '.'
       });
       return;
     }
@@ -1887,7 +1891,7 @@ function matEnqueueTop10Changes_(oldRows, newRows, eventTime, sourceAttemptId) {
       return !theirNew || Number(theirNew.position) > Number(current.position);
     }).map(function (other) {
       const theirNew = newMap[String(other.userId)];
-      const gap = Number(current.totalRP || 0) - Number(other.totalRP || 0);
+      const gap = Number(current.monthlyRP || 0) - Number(other.monthlyRP || 0);
       return other.name + ' (now ' + (theirNew ? '#' + theirNew.position : 'outside Top 10') +
         ', gap ' + gap + ' RP)';
     });
@@ -1897,7 +1901,7 @@ function matEnqueueTop10Changes_(oldRows, newRows, eventTime, sourceAttemptId) {
         ' → #' + current.position + ' and passed ' + crossed.join('; ') +
         '. Event time: ' + matFormatTime_(eventTime) + '.'
       : '📈 Medical leaderboard activity: ' + current.name + ' climbed #' + previous.position +
-        ' → #' + current.position + ' (' + current.totalRP + ' lifetime RP). Event time: ' + matFormatTime_(eventTime) + '.';
+        ' → #' + current.position + ' (' + current.monthlyRP + ' Monthly RP). Event time: ' + matFormatTime_(eventTime) + '.';
     events.push({ userId: id, message: message });
   });
 
