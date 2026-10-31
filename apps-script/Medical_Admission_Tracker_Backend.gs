@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.01.1';
+const MAT_API_VERSION = '2026.11.01.2';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -49,7 +49,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'guest-account-24-hour-pending-deletion-and-cancellation',
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-pb-and-promotion-rewards',
-  'weekly-promotion-starting-reward-thirty-percent',
+  'rank-change-sets-target-rank-basic-rp-no-bonus',
   'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
   'highest-weekly-rp-profile-stat',
   'monthly-rp-profile-stat',
@@ -284,8 +284,8 @@ function processPendingActivityNotifications() {
 /**
  * Daily check of the current Saturday-Friday Weekly RP Promotion Zone.
  * This check only decides whether to promote one subrank. It never resets or
- * reduces Weekly RP, current RP, or Lifetime RP. A successful promotion keeps
- * the existing 30% Safe Zone starting reward through an idempotent RP_EVENT.
+ * reduces Weekly RP or Lifetime RP. A successful promotion sets current RP
+ * to the promoted rank's Basic RP; no extra Safe Zone reward is added.
  */
 function processDailyWeeklyPromotionReview() {
   const lock = LockService.getScriptLock();
@@ -300,13 +300,9 @@ function processDailyWeeklyPromotionReview() {
     const reviewWeekStart = isSaturday ? matOffsetDateKey_(weekStart, -7) : weekStart;
     const reviewWeekEnd = isSaturday ? weekStart : '';
     const weeklyRPByUser = matGetWeeklyRPByUser_(reviewWeekStart, reviewWeekEnd);
-    const examSheet = matGetExamSheet_();
-    const existingWeeklyStartEvents = new Set(matReadObjects_(examSheet)
-      .filter(function (row) { return String(row.RecordType || '').toUpperCase() === 'RP_EVENT'; })
-      .map(function (row) { return String(row.AttemptID || ''); }));
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
-    let processed = 0, promoted = 0, unchanged = 0, alreadyChecked = 0, startingRPAdded = 0;
+    let processed = 0, promoted = 0, unchanged = 0, alreadyChecked = 0;
 
     students.forEach(function (source) {
       const userId = String(source.UserID || '').trim();
@@ -327,27 +323,15 @@ function processDailyWeeklyPromotionReview() {
           promotionZoneThreshold > 0 &&
           weeklyEarnedRP >= promotionZoneThreshold) {
         const nextRankIndex = rankIndex + 1;
-        const startingRP = matRankSafeZoneReward_(nextRankIndex);
-        const eventId = 'WEEKLY-START-' + today + '-' + userId;
-        if (startingRP > 0 && !existingWeeklyStartEvents.has(eventId)) {
-          matAppendObject_(examSheet, {
-            RecordType: 'RP_EVENT', AttemptID: eventId, UserID: userId,
-            RPEarned: startingRP, SubmittedAt: now, RewardStatus: 'COMMITTED'
-          });
-          existingWeeklyStartEvents.add(eventId);
-        }
-        const totalRP = Math.max(matFiniteNumber_(student.TotalRP, 0), matFiniteNumber_(student.RP, 0)) + startingRP;
         matUpdateObjectRow_(studentsSheet, student._rowNumber, {
           Rank: MAT_RANKS[nextRankIndex],
-          RP: matRankMilestoneCap_(nextRankIndex) + startingRP,
-          TotalRP: totalRP,
+          RP: matRankMilestoneCap_(nextRankIndex),
           HighestWeeklyRP: highestWeeklyRP,
           LastWeeklyPromotionReviewDate: today,
           RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
           UpdatedAt: now
         });
         promoted += 1;
-        startingRPAdded += startingRP;
       } else {
         // A non-promotion check must not alter either current RP or Weekly RP.
         matUpdateObjectRow_(studentsSheet, student._rowNumber, {
@@ -368,8 +352,7 @@ function processDailyWeeklyPromotionReview() {
       promoted: promoted,
       unchanged: unchanged,
       alreadyChecked: alreadyChecked,
-      startingRPAdded: startingRPAdded,
-      message: 'Daily Weekly Promotion Zone check completed. No RP reset or reduction; no Safe Zone or demotion applies.'
+      message: 'Daily Weekly Promotion Zone check completed. Promotion sets the new rank Basic RP; no bonus, RP reset, or demotion applies.'
     };
   } finally {
     lock.releaseLock();
@@ -385,12 +368,8 @@ function processMonthlyRankReview() {
     const previousMonthStart = matOffsetMonthStartKey_(monthStart, -1);
     const monthlyRPByUser = matGetMonthlyRPByUser_(previousMonthStart, monthStart);
     const students = matReadObjects_(studentsSheet);
-    const examSheet = matGetExamSheet_();
     const now = matNowIso_();
-    const existingStartEvents = new Set(matReadObjects_(examSheet)
-      .filter(function (row) { return String(row.RecordType || '').toUpperCase() === 'MONTHLY_START'; })
-      .map(function (row) { return String(row.AttemptID || ''); }));
-    let processed = 0, demoted = 0, unchanged = 0, alreadyProcessed = 0, startingRPAdded = 0;
+    let processed = 0, demoted = 0, unchanged = 0, alreadyProcessed = 0;
 
     students.forEach(function (source) {
       const userId = String(source.UserID || '').trim();
@@ -406,28 +385,16 @@ function processMonthlyRankReview() {
       const previousMonthRP = Math.max(0, matFiniteNumber_(monthlyRPByUser[userId], 0));
       const safeZoneThreshold = matMainRankSafeZoneThreshold_(mainRankStartIndex);
       let nextRankIndex = mainRankStartIndex;
-      let startingRP = 0;
       let outcome = 'unchanged';
 
       // Monthly Safe Zone covers the entire Main Rank. There is no Monthly Promotion Zone.
       if (mainRankStartIndex > 0 && previousMonthRP < safeZoneThreshold) {
         nextRankIndex = mainRankStartIndex - 5;
-        startingRP = matMainRankSafeZoneReward_(nextRankIndex);
         outcome = 'demoted';
-      }
-      if (outcome === 'demoted') {
-        const eventId = 'MONTHLY-START-' + monthStart + '-' + userId;
-        if (startingRP > 0 && !existingStartEvents.has(eventId)) {
-          matAppendObject_(examSheet, {
-            RecordType: 'MONTHLY_START', AttemptID: eventId, UserID: userId,
-            RPEarned: startingRP, SubmittedAt: now, RewardStatus: 'COMMITTED'
-          });
-          existingStartEvents.add(eventId);
-        }
       }
       const finalRankIndex = outcome === 'demoted' ? nextRankIndex : rankIndex;
       const finalRP = outcome === 'demoted'
-        ? matRankMilestoneCap_(finalRankIndex) + startingRP
+        ? matRankMilestoneCap_(finalRankIndex)
         : Math.max(0, matFiniteNumber_(student.RP, 0));
       matUpdateObjectRow_(studentsSheet, student._rowNumber, {
         Rank: MAT_RANKS[finalRankIndex],
@@ -437,15 +404,14 @@ function processMonthlyRankReview() {
         UpdatedAt: now
       });
       processed += 1;
-      startingRPAdded += startingRP;
       if (outcome === 'demoted') demoted += 1;
       else unchanged += 1;
     });
     return {
       success: true, monthReviewed: previousMonthStart, newMonthStart: monthStart,
       processed: processed, demoted: demoted, unchanged: unchanged,
-      alreadyProcessed: alreadyProcessed, startingRPAdded: startingRPAdded,
-      message: 'Monthly Safe Zone review completed. At most one Main Rank demotion is applied; no Promotion Zone exists.'
+      alreadyProcessed: alreadyProcessed,
+      message: 'Monthly Safe Zone review completed. Demotion sets the demoted Main Rank Basic RP; no bonus is added.'
     };
   } finally {
     lock.releaseLock();
@@ -1466,10 +1432,6 @@ function matRankPromotionZoneThreshold_(rankIndex) {
   return Math.ceil(matRankPromotionCost_(rankIndex) * 0.70);
 }
 
-function matRankSafeZoneReward_(rankIndex) {
-  return Math.ceil(matRankSafeZoneThreshold_(rankIndex) * 0.30);
-}
-
 function matGetRankProgress_(rank, currentRP) {
   let index = MAT_RANKS.indexOf(String(rank || ''));
   if (index < 0) index = 0;
@@ -1769,11 +1731,6 @@ function matMainRankRequiredRP_(rankIndex) {
 function matMainRankSafeZoneThreshold_(rankIndex) {
   return Math.ceil(matMainRankRequiredRP_(rankIndex) * 0.30);
 }
-
-function matMainRankSafeZoneReward_(rankIndex) {
-  return Math.ceil(matMainRankSafeZoneThreshold_(rankIndex) * 0.30);
-}
-
 
 function matAppendRPEvent_(userId, amount, eventId, timestamp) {
   const uid = String(userId || '').trim();
