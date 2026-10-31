@@ -666,6 +666,7 @@
       // Server-owned profile avatar is authoritative for every viewer; local storage is fallback only.
       avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
+      guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
       xp: xp,
       level: boardLevel,
       rank: rank, rankPoints: currentRP, monthlyRP: monthlyRP,
@@ -1559,6 +1560,26 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var note = document.getElementById('leaderboard-period-note');
     if (!note) return;
     note.classList.toggle('hidden', selectedPeriod !== 'weekly');
+    var monthlyNote = document.getElementById('leaderboard-month-countdown');
+    if (!monthlyNote) {
+      monthlyNote = document.createElement('div');
+      monthlyNote.id = 'leaderboard-month-countdown';
+      monthlyNote.className = 'leaderboard-week-countdown';
+      note.parentNode.insertBefore(monthlyNote, note.nextSibling);
+    }
+    monthlyNote.classList.toggle('hidden', selectedPeriod !== 'monthly');
+    if (selectedPeriod === 'monthly') {
+      var dhakaNow = dhakaDateParts(new Date());
+      var nextMonthUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -6, 0, 0);
+      var monthMs = Math.max(0, nextMonthUtc - Date.now());
+      var monthSeconds = Math.floor(monthMs / 1000);
+      var monthDays = Math.floor(monthSeconds / 86400);
+      var monthHours = Math.floor(monthSeconds % 86400 / 3600);
+      var monthMinutes = Math.floor(monthSeconds % 3600 / 60);
+      var monthRemainingSeconds = monthSeconds % 60;
+      monthlyNote.innerHTML = '<span>⏳ মাস শেষ হতে বাকি: <strong>' + monthDays + ' দিন ' + monthHours + ' ঘণ্টা ' + monthMinutes + ' মিনিট ' + monthRemainingSeconds + ' সেকেন্ড</strong></span>';
+      monthlyNote.setAttribute('role', 'status');
+    }
     var toolbarActions = document.querySelector('#view-leaderboard .leaderboard-toolbar-actions');
     var refreshButton = document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
     if (selectedPeriod !== 'weekly') {
@@ -1625,7 +1646,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (leaderboardNoteClockStarted) return;
     leaderboardNoteClockStarted = true;
     window.setInterval(function () {
-      if (selectedPeriod === 'weekly') renderLeaderboardPeriodNote();
+      if (selectedPeriod === 'weekly' || selectedPeriod === 'monthly') renderLeaderboardPeriodNote();
     }, 30000);
   }
   function cachedRowsForDisplay() {
