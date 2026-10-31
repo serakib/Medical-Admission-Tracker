@@ -202,8 +202,8 @@ function matDispatch_(action, p) {
 /**
  * Run this function ONCE manually from Apps Script.
  * It checks the two provided spreadsheets, adds missing headers without clearing
- * existing cells, seeds the Top-10 baseline, and installs the notification and
- * weekly rank-demotion triggers. It never clears existing rows.
+ * existing cells, seeds the Top-10 baseline, and installs notification, daily
+ * Weekly Promotion Zone check, and monthly rank-review triggers. It never clears existing rows.
  */
 function setupBackend() {
   const studentsSheet = matGetStudentsSheet_();
@@ -230,8 +230,8 @@ function setupBackend() {
       .everyHours(1)
       .create();
   }
-  // Reconcile the weekly trigger on every setup run so older Monday-based
-  // deployments are migrated to the Saturday-start/Saturday-review schedule.
+  // Reconcile the daily Weekly Promotion Zone trigger on every setup run,
+  // removing any previous Saturday-only weekly review trigger.
   triggers.forEach(function (t) {
     if (t.getHandlerFunction() === 'processWeeklyRankDemotions' ||
         t.getHandlerFunction() === 'processDailyWeeklyPromotionReview') {
