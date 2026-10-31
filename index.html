@@ -443,11 +443,15 @@ function syncSidebarUserProfile(){
   var app=window.app||{};
   var user=app.authUser||null;
   syncSidebarAuthButton(user);
-  var name=(user&&(user.displayName||user.name))||(document.getElementById('profile-name')&&document.getElementById('profile-name').textContent.trim())||'Guest Student';
+  var profile=app.profile||{};
+  var name=profile.name||(user&&(user.displayName||user.name))||(document.getElementById('profile-name')&&document.getElementById('profile-name').textContent.trim())||'Guest Student';
   if(nameEl)nameEl.textContent=name;
-  var batch='HSC 27';
-  var batchSource=document.getElementById('student-profile-college-batch');
-  if(batchSource&&/HSC\s*\d{2}/i.test(batchSource.textContent))batch=batchSource.textContent.match(/HSC\s*\d{2}/i)[0].toUpperCase().replace(/\s+/g,' ');
+  var batch=profile.batch||profile.class||'';
+  if(!batch){
+    batch='HSC 27';
+    var batchSource=document.getElementById('student-profile-college-batch');
+    if(batchSource&&/HSC\s*\d{2}/i.test(batchSource.textContent))batch=batchSource.textContent.match(/HSC\s*\d{2}/i)[0].toUpperCase().replace(/\s+/g,' ');
+  }
   if(batchEl)batchEl.textContent=batch;
   if(avatarEl){
     var accountId=(user&&user.uid)||((function(){try{return localStorage.getItem('med_sheet_guest_id_v1')||'guest';}catch(_){return 'guest';}})());
@@ -459,9 +463,9 @@ function syncSidebarUserProfile(){
     var cleanSaved=savedAvatar.replace(/#mat-(?:default|custom)-avatar$/i,'');
     var savedIsDefault=/#mat-default-avatar$/i.test(savedAvatar);
     var sharedAvatar=app.profile&&app.profile.avatar?String(app.profile.avatar):'';
-    var sharedIsDefault=/#mat-default-avatar$/i.test(sharedAvatar);
+    var cleanShared=sharedAvatar.replace(/#mat-(?:default|custom)-avatar$/i,'');
     var photo=user&&(user.photoURL||user.photoUrl||user.avatarUrl);
-    var selectedAvatar=(manualAvatar&&cleanSaved)?cleanSaved:((sharedAvatar&&!sharedIsDefault&&!/#mat-custom-avatar$/i.test(sharedAvatar))?sharedAvatar:(!user&&cleanSaved?cleanSaved:''));
+    var selectedAvatar=cleanShared||((manualAvatar&&cleanSaved)?cleanSaved:'');
     var avatarSource=selectedAvatar||photo||(!user&&cleanSaved)||'';
     if(!avatarSource&&!user){
       var hash=2166136261,key=String(accountId);
@@ -498,6 +502,8 @@ window.addEventListener('student-auth-state-resolved',function(event){
   syncSidebarAuthButton(event.detail&&event.detail.user||null);
   syncSidebarUserProfile();
 });
+window.addEventListener('student-progress-updated',syncSidebarUserProfile);
+window.addEventListener('student-profile-loaded',syncSidebarUserProfile);
 document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#sidebar-user-trigger'))syncSidebarUserProfile();});
 function toggleAccountSettings(){
   var content=document.getElementById('account-settings-content'),button=document.getElementById('account-settings-toggle');
@@ -2014,11 +2020,11 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=guest-delete-live-countdown-20261030-1"></script>
-<script type="module" src="./js/integrated-features.js?v=account-preferences-animated-dots-20261030-1"></script>
+<script type="module" src="script.js?v=canonical-profile-sync-20261031-1"></script>
+<script type="module" src="./js/integrated-features.js?v=canonical-profile-sync-20261031-1"></script>
 <script src="./js/final-trophy-practice.js?v=weekly-vault-restored-55-ranks-20261031-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=weekly-leaderboard-11-main-rank-trophies-20261031-1"></script>
+<script type="module" src="./js/global-league-system.js?v=canonical-profile-sync-20261031-1"></script>
 <script type="module" src="./js/leaderboard-experience.js?v=public-profile-highest-weekly-rp-20261030-1"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=daily-attempt-records-2" defer></script>
