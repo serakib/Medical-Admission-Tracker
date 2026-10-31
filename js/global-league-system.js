@@ -1301,11 +1301,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         ? 'আপনার Friends leaderboard এখন খালি। অন্য student-এর profile খুলে Friend Request পাঠান।'
         : 'এই leaderboard-এ এখনো দেখানোর মতো student নেই।';
       body.innerHTML = '<tr><td colspan="2" class="py-10 text-center text-sm text-gray-500">' + emptyText + '</td></tr>';
+    } else if (selectedPeriod === 'weekly') {
+      appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
+      appendZoneDivider('promotion');
+    } else if (selectedPeriod === 'all-time') {
+      appendWeeklyZoneEmpty('এই Main Rank-এ এখনো কোনো student নেই।');
+      appendZoneDivider('safe');
     } else {
-      appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
-      appendWeeklyZoneDivider('promotion');
-      appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
-      appendWeeklyZoneDivider('safe');
       appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
     }
     renderRankRail(all);
