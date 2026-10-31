@@ -112,7 +112,7 @@
           const profile = app.profile || {};
           const leaderboardStatusBefore = {
             rank: profile.rank ?? profile.currentRank ?? null,
-            rp: profile.totalRP ?? profile.rankPoints ?? profile.currentRP ?? null,
+            rp: profile.rankPoints ?? profile.currentRP ?? null,
             status: profile.leaderboardStatus ?? null
           };
           attemptRecords.push({
