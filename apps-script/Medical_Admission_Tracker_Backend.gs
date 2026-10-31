@@ -20,11 +20,12 @@ const MAT_CONFIG = Object.freeze({
   LEADERBOARD_SIZE: 100,
   TOP_ACTIVITY_SIZE: 10,
   TRIGGER_MINUTES: 5,
-  WEEKLY_DEMOTION_HOUR: 1
+  WEEKLY_DEMOTION_HOUR: 1,
+  MONTHLY_REVIEW_HOUR: 1
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.10';
+const MAT_API_VERSION = '2026.10.31.1';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -36,7 +37,9 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'pb-only-above-40-percent-no-extra-multiplier',
   'account-configurable-pb-expiry',
   'account-configurable-pending-friends-leaderboard',
-  'all-time-weekly-and-friends-leaderboards',
+  'monthly-weekly-and-friends-leaderboards',
+  'monthly-rp-ledger-and-monthly-leaderboard',
+  'monthly-rank-review-main-rank-safe-zone-demotion-no-promotion-zone',
   'student-search-and-friend-requests',
   'daily-streak-sync',
   'top-ten-activity-telegram-queue',
@@ -47,7 +50,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-pb-and-promotion-rewards',
   'weekly-promotion-reward-safe-zone-thirty-percent',
-  'weekly-rank-review-demotion-safe-zone-promotion-zone',
+  'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
   'weekly-rp-starting-balance-after-reset',
   'highest-weekly-rp-profile-stat',
   'live-highest-weekly-rp-sync',
@@ -60,7 +63,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt'
+  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -106,7 +109,7 @@ function doGet(e) {
     const action = String((e && e.parameter && e.parameter.action) || 'health');
     if (action === 'health' || action === 'capabilities') return matJson_(matApiHealth_());
     if (action === 'leaderboard' || action === 'getLeaderboard') {
-      return matJson_(matGetLeaderboard_(String((e.parameter && e.parameter.period) || 'all-time'), String((e.parameter && e.parameter.ids) || ''), String((e.parameter && e.parameter.includeIds) || '')));
+      return matJson_(matGetLeaderboard_(String((e.parameter && e.parameter.period) || 'monthly'), String((e.parameter && e.parameter.ids) || ''), String((e.parameter && e.parameter.includeIds) || '')));
     }
     return matJson_({ success: false, error: 'Use POST for this action.' });
   } catch (err) {
@@ -157,7 +160,7 @@ function matDispatch_(action, p) {
       return matUpdateProfile_(p || {});
     case 'leaderboard':
     case 'getLeaderboard':
-      return matGetLeaderboard_(String((p && p.period) || 'all-time'), p && p.userIds, p && p.includeUserIds);
+      return matGetLeaderboard_(String((p && p.period) || 'monthly'), p && p.userIds, p && p.includeUserIds);
     case 'getAccountSettings':
       return matGetAccountSettings_(p || {});
     case 'saveAccountSettings':
@@ -239,6 +242,15 @@ function setupBackend() {
     .atHour(MAT_CONFIG.WEEKLY_DEMOTION_HOUR)
     .inTimezone(MAT_CONFIG.TIME_ZONE)
     .create();
+  triggers.forEach(function (t) {
+    if (t.getHandlerFunction() === 'processMonthlyRankReview') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('processMonthlyRankReview')
+    .timeBased()
+    .onMonthDay(1)
+    .atHour(MAT_CONFIG.MONTHLY_REVIEW_HOUR)
+    .inTimezone(MAT_CONFIG.TIME_ZONE)
+    .create();
 
   const result = {
     success: true,
@@ -250,7 +262,8 @@ function setupBackend() {
     friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
-    weeklyRankReview: 'Runs every Saturday at about 01:00 Asia/Dhaka; reviews the previous Saturday-Friday week, applies one rank-zone outcome, resets weekly RP, and grants the new rank Safe Zone starting RP'
+    weeklyRankReview: 'Runs every Saturday at about 01:00 Asia/Dhaka; Promotion Zone only, no Safe Zone or demotion; weekly RP resets and promotion reward is retained',
+    monthlyRankReview: 'Runs on the first day of each month at about 01:00 Asia/Dhaka; checks the previous month Safe Zone for the whole Main Rank and demotes at most one Main Rank; no Promotion Zone'
   };
   Logger.log(JSON.stringify(result, null, 2));
   return result;
@@ -289,12 +302,7 @@ function processWeeklyRankDemotions() {
       .map(function (row) { return String(row.AttemptID || ''); }));
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
-    let processed = 0;
-    let demoted = 0;
-    let promoted = 0;
-    let unchanged = 0;
-    let alreadyProcessed = 0;
-    let startingRPAdded = 0;
+    let processed = 0, promoted = 0, unchanged = 0, alreadyProcessed = 0, startingRPAdded = 0;
 
     students.forEach(function (source) {
       const userId = String(source.UserID || '').trim();
@@ -303,99 +311,132 @@ function processWeeklyRankDemotions() {
         alreadyProcessed += 1;
         return;
       }
-
       const student = matReconcileStoredRankProgress_(source);
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
-
-      // Weekly Zone decisions must use the same completed-week RP shown by the
-      // Weekly leaderboard, not lifetime/current-rank cumulative RP.
-      const previousWeekRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
-      const weeklyEarnedRP = previousWeekRP;
-      const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
+      const weeklyEarnedRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
       let nextRankIndex = rankIndex;
-      let outcome = 'safe';
+      let outcome = 'unchanged';
 
-      // Promotion Zone takes priority over Safe Zone. Immediate 100% promotions
-      // are still handled by matApplyRankProgress_ when exam rewards are saved.
+      // Weekly has a Promotion Zone only. It never has a Safe Zone or demotion.
       if (rankIndex < MAT_RANKS.length - 1 &&
           promotionZoneThreshold > 0 &&
           weeklyEarnedRP >= promotionZoneThreshold) {
         nextRankIndex = rankIndex + 1;
         outcome = 'promoted';
-      } else if (rankIndex > 0 && weeklyEarnedRP < safeZoneThreshold) {
-        nextRankIndex = rankIndex - 1;
-        outcome = 'demoted';
       }
 
-      // Bronze V cannot demote. Only users below its Safe Zone restart at 0 RP;
-      // users who reached the Safe Zone still receive the normal 30% starting RP.
-      const minimumRankBelowSafeZone = nextRankIndex === 0 && weeklyEarnedRP < safeZoneThreshold;
-      const startingRP = minimumRankBelowSafeZone ? 0 : matRankSafeZoneReward_(nextRankIndex);
+      // Preserve the existing 30% starting reward when a Weekly promotion occurs.
+      const startingRP = outcome === 'promoted' ? matRankSafeZoneReward_(nextRankIndex) : 0;
       const newRankRP = matRankMilestoneCap_(nextRankIndex) + startingRP;
       const highestWeeklyRP = Math.max(
         0,
         matFiniteNumber_(student.HighestWeeklyRP, 0),
         matFiniteNumber_(historicalHighestWeeklyRPByUser[userId], 0),
-        previousWeekRP
+        weeklyEarnedRP
       );
       const eventId = 'WEEKLY-START-' + weekStart + '-' + userId;
-
-      // Write the idempotent weekly event first. If a run is interrupted before
-      // the profile row is updated, a retry finds this same event and won't add
-      // the starting RP twice.
       if (startingRP > 0 && !existingWeeklyStartEvents.has(eventId)) {
         matAppendObject_(examSheet, {
-          RecordType: 'RP_EVENT',
-          AttemptID: eventId,
-          UserID: userId,
-          RPEarned: startingRP,
-          SubmittedAt: now,
-          RewardStatus: 'COMMITTED'
+          RecordType: 'RP_EVENT', AttemptID: eventId, UserID: userId,
+          RPEarned: startingRP, SubmittedAt: now, RewardStatus: 'COMMITTED'
         });
         existingWeeklyStartEvents.add(eventId);
       }
-
-      const totalRP = Math.max(
-        matFiniteNumber_(student.TotalRP, 0),
-        matFiniteNumber_(student.RP, 0)
-      ) + startingRP;
+      const totalRP = Math.max(matFiniteNumber_(student.TotalRP, 0), matFiniteNumber_(student.RP, 0)) + startingRP;
       matUpdateObjectRow_(studentsSheet, student._rowNumber, {
-        Rank: MAT_RANKS[nextRankIndex],
-        RP: newRankRP,
-        TotalRP: totalRP,
-        HighestWeeklyRP: highestWeeklyRP,
-        LastWeeklyDemotionWeek: weekStart,
-        RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
-        UpdatedAt: now
+        Rank: MAT_RANKS[nextRankIndex], RP: newRankRP, TotalRP: totalRP,
+        HighestWeeklyRP: highestWeeklyRP, LastWeeklyDemotionWeek: weekStart,
+        RankProgressVersion: MAT_RANK_PROGRESS_VERSION, UpdatedAt: now
       });
-
       processed += 1;
       startingRPAdded += startingRP;
-      if (outcome === 'demoted') demoted += 1;
-      else if (outcome === 'promoted') promoted += 1;
+      if (outcome === 'promoted') promoted += 1;
       else unchanged += 1;
     });
-
     return {
-      success: true,
-      weekReviewed: previousWeekStart,
-      newWeekStart: weekStart,
-      processed: processed,
-      demoted: demoted,
-      promoted: promoted,
-      unchanged: unchanged,
-      alreadyProcessed: alreadyProcessed,
-      startingRPAdded: startingRPAdded,
-      message: 'Weekly rank review completed. Weekly RP has reset and the new rank Safe Zone starting RP has been added.'
+      success: true, weekReviewed: previousWeekStart, newWeekStart: weekStart,
+      processed: processed, promoted: promoted, unchanged: unchanged,
+      alreadyProcessed: alreadyProcessed, startingRPAdded: startingRPAdded,
+      message: 'Weekly Promotion Zone review completed. Weekly RP reset; no Safe Zone or demotion applies.'
     };
   } finally {
     lock.releaseLock();
   }
 }
 
-/* ------------------------------- Guest accounts ------------------------------- */
+function processMonthlyRankReview() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const studentsSheet = matGetStudentsSheet_();
+    const monthStart = matMonthStartKey_();
+    const previousMonthStart = matOffsetMonthStartKey_(monthStart, -1);
+    const monthlyRPByUser = matGetMonthlyRPByUser_(previousMonthStart, monthStart);
+    const students = matReadObjects_(studentsSheet);
+    const examSheet = matGetExamSheet_();
+    const now = matNowIso_();
+    const existingStartEvents = new Set(matReadObjects_(examSheet)
+      .filter(function (row) { return String(row.RecordType || '').toUpperCase() === 'MONTHLY_START'; })
+      .map(function (row) { return String(row.AttemptID || ''); }));
+    let processed = 0, demoted = 0, unchanged = 0, alreadyProcessed = 0, startingRPAdded = 0;
+
+    students.forEach(function (source) {
+      const userId = String(source.UserID || '').trim();
+      if (!userId || !source._rowNumber) return;
+      if (String(source.LastMonthlyRankReviewMonth || '') === monthStart) {
+        alreadyProcessed += 1;
+        return;
+      }
+      const student = matReconcileStoredRankProgress_(source);
+      let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
+      if (rankIndex < 0) rankIndex = 0;
+      const mainRankStartIndex = Math.floor(rankIndex / 5) * 5;
+      const previousMonthRP = Math.max(0, matFiniteNumber_(monthlyRPByUser[userId], 0));
+      const safeZoneThreshold = matMainRankSafeZoneThreshold_(mainRankStartIndex);
+      let nextRankIndex = mainRankStartIndex;
+      let startingRP = 0;
+      let outcome = 'unchanged';
+
+      // Monthly Safe Zone covers the entire Main Rank. There is no Monthly Promotion Zone.
+      if (mainRankStartIndex > 0 && previousMonthRP < safeZoneThreshold) {
+        nextRankIndex = mainRankStartIndex - 5;
+        startingRP = matMainRankSafeZoneReward_(nextRankIndex);
+        outcome = 'demoted';
+      }
+      if (outcome === 'demoted') {
+        const eventId = 'MONTHLY-START-' + monthStart + '-' + userId;
+        if (startingRP > 0 && !existingStartEvents.has(eventId)) {
+          matAppendObject_(examSheet, {
+            RecordType: 'MONTHLY_START', AttemptID: eventId, UserID: userId,
+            RPEarned: startingRP, SubmittedAt: now, RewardStatus: 'COMMITTED'
+          });
+          existingStartEvents.add(eventId);
+        }
+      }
+      matUpdateObjectRow_(studentsSheet, student._rowNumber, {
+        Rank: MAT_RANKS[nextRankIndex],
+        RP: matRankMilestoneCap_(nextRankIndex) + startingRP,
+        LastMonthlyRankReviewMonth: monthStart,
+        RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
+        UpdatedAt: now
+      });
+      processed += 1;
+      startingRPAdded += startingRP;
+      if (outcome === 'demoted') demoted += 1;
+      else unchanged += 1;
+    });
+    return {
+      success: true, monthReviewed: previousMonthStart, newMonthStart: monthStart,
+      processed: processed, demoted: demoted, unchanged: unchanged,
+      alreadyProcessed: alreadyProcessed, startingRPAdded: startingRPAdded,
+      message: 'Monthly Safe Zone review completed. At most one Main Rank demotion is applied; no Promotion Zone exists.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
 
 /**
  * Scheduled server-side cleanup. Guest records are removed after 90 days without
@@ -1511,7 +1552,8 @@ function matGetLevel_(xp) {
 /* -------------------------- Leaderboard and Top 10 ---------------------------- */
 
 function matGetLeaderboard_(period, userIds, includeUserIds) {
-  const safePeriod = String(period || 'all-time').toLowerCase() === 'weekly' ? 'weekly' : 'all-time';
+  const requestedPeriod = String(period || 'monthly').toLowerCase();
+  const safePeriod = requestedPeriod === 'weekly' ? 'weekly' : 'monthly';
   const requestedIds = Array.isArray(userIds)
     ? userIds.map(function (id) { return String(id || '').trim(); }).filter(Boolean)
     : String(userIds || '').split(',').map(function (id) { return String(id || '').trim(); }).filter(Boolean);
@@ -1522,66 +1564,49 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   const includeIdSet = new Set(includeIds);
   const allStudents = matReadObjects_(matGetStudentsSheet_()).map(matReconcileStoredRankProgress_);
   const students = requestedIdSet.size ? allStudents.filter(function (s) { return requestedIdSet.has(s.UserID); }) : allStudents;
-  // Highest Weekly RP is a live record: include the current unfinished week-to-date,
-  // plus all historical weeks and the stored lifetime record. Persist increases so the
-  // Students sheet remains in sync before the week closes.
   const weeklyByUser = matGetWeeklyRPByUser_();
+  const monthlyByUser = matGetMonthlyRPByUser_();
   const historicalHighestByUser = matGetHighestWeeklyRPByUser_();
   const examStatsByUser = matGetExamStatsByUser_();
   const rows = students.map(function (s) {
     const weeklyRP = Math.max(0, Number(weeklyByUser[s.UserID] || 0));
+    const monthlyRP = Math.max(0, Number(monthlyByUser[s.UserID] || 0));
     const highestWeeklyRP = Math.max(
-      0,
-      matFiniteNumber_(s.HighestWeeklyRP, 0),
-      matFiniteNumber_(historicalHighestByUser[s.UserID], 0),
-      weeklyRP
+      0, matFiniteNumber_(s.HighestWeeklyRP, 0),
+      matFiniteNumber_(historicalHighestByUser[s.UserID], 0), weeklyRP
     );
     if (highestWeeklyRP > matFiniteNumber_(s.HighestWeeklyRP, 0) && s._rowNumber) {
       matUpdateObjectRow_(matGetStudentsSheet_(), s._rowNumber, { HighestWeeklyRP: highestWeeklyRP });
       s.HighestWeeklyRP = highestWeeklyRP;
     }
-    // A week's earned RP is a subset of lifetime earned RP. Preserve this invariant
-    // in API output even for legacy rows whose stored TotalRP is undercounted.
     const lifetimeRP = Math.max(0, Number(s.TotalRP || 0), weeklyRP);
     const examStats = examStatsByUser[s.UserID] || { matches: 0, correct: 0, wrong: 0, accuracy: 0 };
     return {
-      userId: s.UserID,
-      playerId: s.UserID,
-      uid: s.UserID,
-      username: s.Name || 'Medical Student',
-      name: s.Name || 'Medical Student',
-      accountType: s.AccountType || 'GUEST',
-      college: s.College || '',
-      batch: s.Batch || '',
-      avatar: String(s.Avatar || ''),
-      Avatar: String(s.Avatar || ''),
-      xp: Number(s.XP || 0),
-      level: Number(s.Level || 1),
+      userId: s.UserID, playerId: s.UserID, uid: s.UserID,
+      username: s.Name || 'Medical Student', name: s.Name || 'Medical Student',
+      accountType: s.AccountType || 'GUEST', college: s.College || '', batch: s.Batch || '',
+      avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
+      xp: Number(s.XP || 0), level: Number(s.Level || 1),
       rank: s.Rank || MAT_RANKS[0],
-      rankPoints: Number(s.RP || 0),
-      rp: Number(s.RP || 0),
+      rankPoints: Number(s.RP || 0), rp: Number(s.RP || 0),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
-      // Display-only multiplier for All-Time leaderboard trophy requirements; rank progression rules remain unchanged.
-      leaderboardRequiredRPMultiplier: safePeriod === 'all-time' ? 5 : 1,
+      leaderboardRequiredRPMultiplier: safePeriod === 'monthly' ? 5 : 1,
       levelProgress: matGetLevelProgress_(s.XP),
       totalRP: lifetimeRP,
+      monthlyRP: monthlyRP,
+      monthlyRankPoints: monthlyRP,
       highestWeeklyRP: highestWeeklyRP,
-      weeklyRP: weeklyRP,
-      weeklyRankPoints: weeklyRP,
-      rankScore: safePeriod === 'weekly' ? weeklyRP : lifetimeRP,
-      score: safePeriod === 'weekly' ? weeklyRP : lifetimeRP,
-      matches: Number(examStats.matches || 0),
-      completedExams: Number(examStats.matches || 0),
-      correctCount: Number(examStats.correct || 0),
-      wrongCount: Number(examStats.wrong || 0),
+      weeklyRP: weeklyRP, weeklyRankPoints: weeklyRP,
+      rankScore: safePeriod === 'weekly' ? weeklyRP : monthlyRP,
+      score: safePeriod === 'weekly' ? weeklyRP : monthlyRP,
+      matches: Number(examStats.matches || 0), completedExams: Number(examStats.matches || 0),
+      correctCount: Number(examStats.correct || 0), wrongCount: Number(examStats.wrong || 0),
       accuracy: Number(examStats.accuracy || 0),
       streak: (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak)))
-        ? Math.max(0, Math.floor(Number(s.Streak)))
-        : Number(examStats.streak || 0),
+        ? Math.max(0, Math.floor(Number(s.Streak))) : Number(examStats.streak || 0),
       highestStreak: Math.max(
         (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak)))
-          ? Math.max(0, Math.floor(Number(s.Streak)))
-          : Number(examStats.streak || 0),
+          ? Math.max(0, Math.floor(Number(s.Streak))) : Number(examStats.streak || 0),
         Math.max(0, Math.floor(matFiniteNumber_(s.HighestStreak, 0)))
       ),
       lastStreakActivityDate: String(s.LastStreakActivityDate || ''),
@@ -1589,38 +1614,29 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
     };
   });
   rows.sort(function (a, b) {
-    const primaryA = safePeriod === 'weekly' ? a.weeklyRP : a.totalRP;
-    const primaryB = safePeriod === 'weekly' ? b.weeklyRP : b.totalRP;
+    const primaryA = safePeriod === 'weekly' ? a.weeklyRP : a.monthlyRP;
+    const primaryB = safePeriod === 'weekly' ? b.weeklyRP : b.monthlyRP;
     return primaryB - primaryA || b.xp - a.xp || String(a.name).localeCompare(String(b.name));
   });
-  // Preserve true global position before adding an out-of-top-100 current user.
-  rows.forEach(function (r, i) { r.position = i + 1; });
-  // A Friends request supplies exact account IDs; return all requested friends,
-  // even if they are outside the global top-100 leaderboard window.
+  rows.forEach(function (row, index) { row.position = index + 1; });
   let visibleRows;
   if (requestedIdSet.size) {
-    // The Friends endpoint intentionally returns only its requested IDs.
     visibleRows = rows.slice(0, requestedIdSet.size);
   } else if (includeIdSet.size) {
-    // For All Time and Weekly, keep the global top list and always include the
-    // requesting student's own row, even if they are outside the global top 100.
-    const visibleIds = new Set(rows.slice(0, MAT_CONFIG.LEADERBOARD_SIZE).map(function (r) { return String(r.userId); }));
+    const visibleIds = new Set(rows.slice(0, MAT_CONFIG.LEADERBOARD_SIZE).map(function (row) { return String(row.userId); }));
     includeIdSet.forEach(function (id) { visibleIds.add(id); });
-    visibleRows = rows.filter(function (r) { return visibleIds.has(String(r.userId)); });
+    visibleRows = rows.filter(function (row) { return visibleIds.has(String(row.userId)); });
   } else {
     visibleRows = rows.slice(0, MAT_CONFIG.LEADERBOARD_SIZE);
   }
-  const limited = visibleRows;
   const response = {
-    success: true,
-    period: safePeriod,
-    scope: safePeriod,
-    weekly: safePeriod === 'weekly',
-    weekStart: matWeekStartKey_(),
-    entries: limited,
-    users: limited
+    success: true, period: safePeriod, scope: safePeriod,
+    weekly: safePeriod === 'weekly', monthly: safePeriod === 'monthly',
+    weekStart: matWeekStartKey_(), monthStart: matMonthStartKey_(),
+    entries: visibleRows, users: visibleRows
   };
-  if (safePeriod === 'weekly') response.weeklyEntries = limited;
+  if (safePeriod === 'weekly') response.weeklyEntries = visibleRows;
+  else response.monthlyEntries = visibleRows;
   return response;
 }
 
@@ -1678,6 +1694,39 @@ function matGetWeeklyRPByUser_(startInclusive, endExclusive) {
   });
   return totals;
 }
+
+function matGetMonthlyRPByUser_(startInclusive, endExclusive) {
+  const monthStart = String(startInclusive || matMonthStartKey_());
+  const monthEnd = String(endExclusive || '');
+  const totals = {};
+  matReadObjects_(matGetExamSheet_()).forEach(function (row) {
+    const recordType = String(row.RecordType || '').toUpperCase();
+    if (!matIsExamRecord_(row) && recordType !== 'RP_EVENT' && recordType !== 'MONTHLY_START') return;
+    const dateKey = matDateKey_(row.SubmittedAt);
+    if (!dateKey || dateKey < monthStart || (monthEnd && dateKey >= monthEnd)) return;
+    const userId = String(row.UserID || '');
+    if (!userId) return;
+    totals[userId] = (totals[userId] || 0) + Math.max(0, matFiniteNumber_(row.RPEarned, 0));
+  });
+  return totals;
+}
+
+function matMainRankRequiredRP_(rankIndex) {
+  const start = Math.floor(Math.max(0, Number(rankIndex) || 0) / 5) * 5;
+  const end = Math.min(start + 5, MAT_RANKS.length);
+  let required = 0;
+  for (let index = start; index < end; index++) required += matRankPromotionCost_(index);
+  return required;
+}
+
+function matMainRankSafeZoneThreshold_(rankIndex) {
+  return Math.ceil(matMainRankRequiredRP_(rankIndex) * 0.30);
+}
+
+function matMainRankSafeZoneReward_(rankIndex) {
+  return Math.ceil(matMainRankSafeZoneThreshold_(rankIndex) * 0.30);
+}
+
 
 function matAppendRPEvent_(userId, amount, eventId, timestamp) {
   const uid = String(userId || '').trim();
@@ -2532,6 +2581,8 @@ function matPublicProfile_(r, includeEmail) {
     pb: s.PB,
     pendingPB: s.PB,
     totalRP: s.TotalRP,
+    monthlyRP: Math.max(0, Number(matGetMonthlyRPByUser_()[String(s.UserID || '')] || 0)),
+    monthlyRankPoints: Math.max(0, Number(matGetMonthlyRPByUser_()[String(s.UserID || '')] || 0)),
     highestWeeklyRP: s.HighestWeeklyRP,
     level: s.Level,
     levelProgress: matGetLevelProgress_(s.XP),
@@ -2651,6 +2702,19 @@ function matWeekStartKey_() {
   const weekday = utc.getUTCDay(); // Sunday=0
   const daysSinceSaturday = (weekday + 1) % 7;
   utc.setUTCDate(utc.getUTCDate() - daysSinceSaturday);
+  return Utilities.formatDate(utc, 'UTC', 'yyyy-MM-dd');
+}
+
+
+function matMonthStartKey_() {
+  const today = matDateKey_(matNowIso_());
+  return today.slice(0, 7) + '-01';
+}
+
+function matOffsetMonthStartKey_(monthStart, offsetMonths) {
+  const parts = String(monthStart || '').split('-').map(Number);
+  if (parts.length !== 3 || !parts.every(Number.isFinite)) throw new Error('Invalid month key for monthly review.');
+  const utc = new Date(Date.UTC(parts[0], parts[1] - 1 + Number(offsetMonths || 0), 1));
   return Utilities.formatDate(utc, 'UTC', 'yyyy-MM-dd');
 }
 
