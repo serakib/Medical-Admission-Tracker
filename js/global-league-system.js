@@ -311,6 +311,18 @@
     profile.guestDeletionScheduledAt = String(user.guestDeletionScheduledAt || '');
     if (user.rankProgress && typeof user.rankProgress === 'object') profile.rankProgress = Object.assign({}, user.rankProgress);
     app.profile = profile;
+    // Medical Sheets is the canonical shared profile for name, college, batch and avatar.
+    // Keep Firebase Auth/Firestore as a synchronized mirror for every app surface.
+    if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
+      app.syncFirebaseStudentProfile({
+        name: profile.name,
+        college: profile.college,
+        batch: profile.batch,
+        avatar: profile.avatar || ''
+      }).catch(function (error) {
+        console.warn('[Profile sync] Firebase mirror could not be updated:', error);
+      });
+    }
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
     try { localStorage.setItem(storageKey, JSON.stringify(profile)); } catch (_) {}
     // Keep local profile widgets aligned with the server-authoritative Medical XP/RP.
