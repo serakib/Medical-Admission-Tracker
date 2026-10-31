@@ -1138,12 +1138,14 @@
         rank: profile.rank || 'Bronze'
       };
     } else {
+      // Never show a cached leaderboard copy over the signed-in user's canonical profile.
       row = Object.assign({}, row, {
         userId: ownId,
         uid: ownId,
-        name: row.name || profile.name || app.authUser?.displayName || 'Student',
-        college: row.college || profile.college || '',
-        batch: row.batch || profile.batch || profile.class || ''
+        name: profile.name || row.name || app.authUser?.displayName || 'Student',
+        college: profile.college || row.college || '',
+        batch: profile.batch || profile.class || row.batch || '',
+        avatar: profile.avatar || row.avatar || ''
       });
     }
     return openStudentProfile(row);
