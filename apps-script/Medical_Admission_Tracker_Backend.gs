@@ -281,11 +281,9 @@ function processPendingActivityNotifications() {
 
 /**
  * Weekly rank review, scheduled for Saturday around 01:00 Asia/Dhaka.
- * Reviews the completed Saturday-Friday week. The current sub-rank's RP
- * determines the zone: below Safe Zone demotes one sub-rank, Safe Zone keeps
- * the rank, and Promotion Zone promotes one sub-rank. Every result starts the
- * new week at 30% of that rank's Safe Zone RP, added to both rank progress and
- * the new weekly leaderboard through an idempotent RP_EVENT.
+ * Reviews the completed Saturday-Friday week. Weekly has a Promotion Zone
+ * only; it never applies a Safe Zone or demotion. Promotion keeps the existing
+ * 30% starting reward through an idempotent RP_EVENT.
  */
 function processWeeklyRankDemotions() {
   const lock = LockService.getScriptLock();
@@ -415,9 +413,13 @@ function processMonthlyRankReview() {
           existingStartEvents.add(eventId);
         }
       }
+      const finalRankIndex = outcome === 'demoted' ? nextRankIndex : rankIndex;
+      const finalRP = outcome === 'demoted'
+        ? matRankMilestoneCap_(finalRankIndex) + startingRP
+        : Math.max(0, matFiniteNumber_(student.RP, 0));
       matUpdateObjectRow_(studentsSheet, student._rowNumber, {
-        Rank: MAT_RANKS[nextRankIndex],
-        RP: matRankMilestoneCap_(nextRankIndex) + startingRP,
+        Rank: MAT_RANKS[finalRankIndex],
+        RP: finalRP,
         LastMonthlyRankReviewMonth: monthStart,
         RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
         UpdatedAt: now
