@@ -1546,13 +1546,13 @@ function toggleAppSidebarCollapse(){
             <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
                 <div class="leaderboard-toolbar">
                   <div id="leaderboard-period-tabs" class="flex gap-2" role="tablist" aria-label="Leaderboard period">
-                    <button type="button" data-leaderboard-period="all-time" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">🏆 All Time</button>
+                    <button type="button" data-leaderboard-period="monthly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Monthly</button>
                     <button type="button" data-leaderboard-period="weekly" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border">📅 Weekly</button>
                     <button type="button" data-leaderboard-period="friends" role="tab" aria-selected="false" class="leaderboard-period-tab px-4 py-2 rounded-xl text-sm font-bold border"><i class="fa-solid fa-user-group ml-1" aria-hidden="true"></i> Friends</button>
                   </div>
                   <div id="leaderboard-period-note" class="hidden" role="status"></div>
                   <div class="leaderboard-toolbar-actions">
-                    <span class="mat-top-rp" title="Medical lifetime Rank Points"><i class="fa-solid fa-star" aria-hidden="true"></i><span id="med-top-rp">0 RP</span></span>
+                    <span class="mat-top-rp" title="Medical Monthly Rank Points"><i class="fa-solid fa-star" aria-hidden="true"></i><span id="med-top-rp">0 RP</span></span>
                     <button type="button" class="mat-top-icon mat-info-control" data-med-action="rules" title="Exam, Rewards & Rank Rules" aria-label="Open Exam, Rewards and Rank Rules"><span class="mat-info-glyph" aria-hidden="true">i</span></button>
                     <button id="leaderboard-manage-friends" type="button" class="mat-manage-friends-button" data-med-action="manage-friends"><i class="fa-solid fa-user-group" aria-hidden="true"></i> Friends &amp; Requests</button>
                     <button onclick="window.app.loadLeaderboard()" class="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button>
@@ -2024,7 +2024,7 @@ main > .view-section.hidden { display: none !important; }
 <script type="module" src="./js/integrated-features.js?v=canonical-profile-sync-20261031-2"></script>
 <script src="./js/final-trophy-practice.js?v=weekly-vault-restored-55-ranks-20261031-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=canonical-profile-sync-20261031-3"></script>
+<script type="module" src="./js/global-league-system.js?v=monthly-ranking-zones-20261031-1"></script>
 <script type="module" src="./js/leaderboard-experience.js?v=canonical-profile-sync-20261031-2"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=daily-attempt-records-2" defer></script>
