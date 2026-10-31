@@ -320,6 +320,9 @@
           college: profile.college,
           batch: profile.batch,
           avatar: profile.avatar || ''
+        }).then(function (synced) {
+          if (!synced) console.warn('[Profile sync] Firebase mirror is pending and will retry on the next profile sync.');
+          return synced;
         }).catch(function (error) {
           console.warn('[Profile sync] Firebase mirror could not be updated:', error);
           return false;
