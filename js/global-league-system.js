@@ -1187,14 +1187,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return Math.max(0, Number(info && info.safeZoneRP) || 0);
   }
   function isInAllTimeSafeZone(row) {
-    var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
-    if (rankIndex < 0) rankIndex = 0;
-    var mainRankStart = Math.floor(rankIndex / 5) * 5;
-    var mainRankVName = RANKS[mainRankStart];
-    var vault = window.MedAchievementVaultTrophies;
-    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(mainRankVName) : null;
-    var threshold = Math.max(0, Number(info && info.safeZoneRP) || 0);
-    return Math.max(0, Number(row && row.rankPoints) || 0) >= threshold;
+    return Math.max(0, Number(row && row.rankPoints) || 0) >= allTimeSafeZoneThresholdFor(row);
   }
   function renderRows(rows) {
     var all = normalizeRows(rows || []);
