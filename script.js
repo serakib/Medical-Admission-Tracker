@@ -2521,7 +2521,7 @@ window.handleAccountDeletion = function() {
                 localStorage.setItem('med_sheet_exam_pending_v1', JSON.stringify(queue.filter(item => String(item && item.userId || '') !== uid)));
               }
             } catch (_) {}
-            ['med_sheet_leaderboard_cache_v1_all-time','med_sheet_leaderboard_cache_v1_weekly','med_sheet_leaderboard_cache_v1_friends']
+            ['med_sheet_leaderboard_cache_v1_monthly','med_sheet_leaderboard_cache_v1_all-time','med_sheet_leaderboard_cache_v1_weekly','med_sheet_leaderboard_cache_v1_friends']
               .forEach(key => { try { localStorage.removeItem(key); } catch (_) {} });
             try {
               const remembered = JSON.parse(localStorage.getItem('med_recent_accounts_v1') || '[]');
