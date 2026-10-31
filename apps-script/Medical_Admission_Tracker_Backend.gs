@@ -1589,7 +1589,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       matUpdateObjectRow_(matGetStudentsSheet_(), s._rowNumber, { HighestMonthlyRP: highestMonthlyRP });
       s.HighestMonthlyRP = highestMonthlyRP;
     }
-    const lifetimeRP = Math.max(0, Number(s.TotalRP || 0), weeklyRP);
+    const lifetimeRP = Math.max(0, Number(s.TotalRP || 0));
     const examStats = examStatsByUser[s.UserID] || { matches: 0, correct: 0, wrong: 0, accuracy: 0 };
     return {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
