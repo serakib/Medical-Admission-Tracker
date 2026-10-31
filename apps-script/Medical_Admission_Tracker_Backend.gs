@@ -53,6 +53,8 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
   'weekly-rp-starting-balance-after-reset',
   'highest-weekly-rp-profile-stat',
+  'monthly-rp-profile-stat',
+  'highest-monthly-rp-profile-stat',
   'live-highest-weekly-rp-sync',
   'immediate-promotion-no-extra-rp-bonus',
   'single-step-rank-promotion',
@@ -63,7 +65,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt'
+  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -1569,6 +1571,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   const weeklyByUser = matGetWeeklyRPByUser_();
   const monthlyByUser = matGetMonthlyRPByUser_();
   const historicalHighestByUser = matGetHighestWeeklyRPByUser_();
+  const historicalHighestMonthlyByUser = matGetHighestMonthlyRPByUser_();
   const examStatsByUser = matGetExamStatsByUser_();
   const rows = students.map(function (s) {
     const weeklyRP = Math.max(0, Number(weeklyByUser[s.UserID] || 0));
@@ -1580,6 +1583,11 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
     if (highestWeeklyRP > matFiniteNumber_(s.HighestWeeklyRP, 0) && s._rowNumber) {
       matUpdateObjectRow_(matGetStudentsSheet_(), s._rowNumber, { HighestWeeklyRP: highestWeeklyRP });
       s.HighestWeeklyRP = highestWeeklyRP;
+    }
+    const highestMonthlyRP = Math.max(0, matFiniteNumber_(s.HighestMonthlyRP, 0), matFiniteNumber_(historicalHighestMonthlyByUser[s.UserID], 0), monthlyRP);
+    if (highestMonthlyRP > matFiniteNumber_(s.HighestMonthlyRP, 0) && s._rowNumber) {
+      matUpdateObjectRow_(matGetStudentsSheet_(), s._rowNumber, { HighestMonthlyRP: highestMonthlyRP });
+      s.HighestMonthlyRP = highestMonthlyRP;
     }
     const lifetimeRP = Math.max(0, Number(s.TotalRP || 0), weeklyRP);
     const examStats = examStatsByUser[s.UserID] || { matches: 0, correct: 0, wrong: 0, accuracy: 0 };
@@ -1598,6 +1606,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       monthlyRP: monthlyRP,
       monthlyRankPoints: monthlyRP,
       highestWeeklyRP: highestWeeklyRP,
+      highestMonthlyRP: highestMonthlyRP,
       weeklyRP: weeklyRP, weeklyRankPoints: weeklyRP,
       rankScore: safePeriod === 'weekly' ? weeklyRP : monthlyRP,
       score: safePeriod === 'weekly' ? weeklyRP : monthlyRP,
@@ -1711,6 +1720,31 @@ function matGetMonthlyRPByUser_(startInclusive, endExclusive) {
     totals[userId] = (totals[userId] || 0) + Math.max(0, matFiniteNumber_(row.RPEarned, 0));
   });
   return totals;
+}
+
+// Backfill the all-time highest monthly RP from committed exam and RP-event history.
+function matGetHighestMonthlyRPByUser_(endExclusive) {
+  const monthEnd = String(endExclusive || '');
+  const totalsByMonth = {};
+  matReadObjects_(matGetExamSheet_()).forEach(function (row) {
+    const recordType = String(row.RecordType || '').toUpperCase();
+    if (!matIsExamRecord_(row) && recordType !== 'RP_EVENT' && recordType !== 'MONTHLY_START') return;
+    const dateKey = matDateKey_(row.SubmittedAt);
+    if (!dateKey || (monthEnd && dateKey >= monthEnd)) return;
+    const userId = String(row.UserID || '');
+    const monthKey = dateKey.slice(0, 7);
+    if (!userId || !monthKey) return;
+    if (!totalsByMonth[monthKey]) totalsByMonth[monthKey] = {};
+    totalsByMonth[monthKey][userId] = (totalsByMonth[monthKey][userId] || 0) +
+      Math.max(0, matFiniteNumber_(row.RPEarned, 0));
+  });
+  const highestByUser = {};
+  Object.keys(totalsByMonth).forEach(function (monthKey) {
+    Object.keys(totalsByMonth[monthKey]).forEach(function (userId) {
+      highestByUser[userId] = Math.max(highestByUser[userId] || 0, totalsByMonth[monthKey][userId]);
+    });
+  });
+  return highestByUser;
 }
 
 function matMainRankRequiredRP_(rankIndex) {
@@ -2526,6 +2560,7 @@ function matNormaliseStudent_(r) {
   row.PBEntries = JSON.stringify(matParsePBEntries_(row.PBEntries));
   row.TotalRP = Math.max(row.RP, matFiniteNumber_(row.TotalRP, row.RP));
   row.HighestWeeklyRP = Math.max(0, matFiniteNumber_(row.HighestWeeklyRP, 0));
+  row.HighestMonthlyRP = Math.max(0, matFiniteNumber_(row.HighestMonthlyRP, 0));
   // Recalculate level from authoritative cumulative XP using the current progression curve.
   row.Level = matGetLevel_(row.XP);
   if (MAT_RANKS.indexOf(String(row.Rank || '')) === -1) row.Rank = MAT_RANKS[0];
@@ -2565,7 +2600,9 @@ function matReconcileStoredRankProgress_(source) {
 function matPublicProfile_(r, includeEmail) {
   const s = matReconcileStoredRankProgress_(r);
   const monthlyRPByUser = matGetMonthlyRPByUser_();
+  const highestMonthlyRPByUser = matGetHighestMonthlyRPByUser_();
   const monthlyRP = Math.max(0, Number(monthlyRPByUser[String(s.UserID || '')] || 0));
+  const highestMonthlyRP = Math.max(0, matFiniteNumber_(s.HighestMonthlyRP, 0), Number(highestMonthlyRPByUser[String(s.UserID || '')] || 0), monthlyRP);
   const result = {
     userId: s.UserID,
     uid: s.UserID,
@@ -2588,6 +2625,7 @@ function matPublicProfile_(r, includeEmail) {
     monthlyRP: monthlyRP,
     monthlyRankPoints: monthlyRP,
     highestWeeklyRP: s.HighestWeeklyRP,
+    highestMonthlyRP: highestMonthlyRP,
     level: s.Level,
     levelProgress: matGetLevelProgress_(s.XP),
     rank: s.Rank,
