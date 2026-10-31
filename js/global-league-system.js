@@ -983,7 +983,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isWeeklyLeaderboard = selectedPeriod === 'weekly';
     var isCurrent = isWeeklyLeaderboard
       ? selectedRankIndex === currentRankIndex
-      : Math.floor(selectedRankIndex / 5) === Math.floor(currentRankIndex / 5);
+      : selectedPeriod === 'all-time'
+        ? Math.floor(selectedRankIndex / 5) === Math.floor(currentRankIndex / 5)
+        : selectedRankIndex === currentRankIndex;
     var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
     var weeklyEarnedRP = weeklyPointsForRow(me);
     var weeklyTierIndex = Math.floor(selectedRankIndex / 5);
@@ -995,16 +997,23 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       for (var priorTierIndex = 0; priorTierIndex < weeklyTierStartIndex; priorTierIndex++) weeklyTierStartRP += rankPromotionCostForIndex(priorTierIndex);
       for (var tierRankIndex = weeklyTierStartIndex; tierRankIndex < weeklyTierEndIndex; tierRankIndex++) weeklyTierRequiredRP += rankPromotionCostForIndex(tierRankIndex);
     }
-    var isFinalTrophy = isWeeklyLeaderboard ? weeklyTierIndex >= 10 : selectedRankIndex >= RANKS.length - 1;
+    var isFinalTrophy = isWeeklyLeaderboard
+      ? weeklyTierIndex >= 10
+      : selectedPeriod === 'all-time'
+        ? weeklyTierIndex >= 10
+        : selectedRankIndex >= RANKS.length - 1;
     var requiredRPMultiplier = selectedPeriod === 'all-time'
       ? Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5)
       : 1;
     var requiredRP = isWeeklyLeaderboard ? weeklyTierRequiredRP : rankPromotionCostForIndex(selectedRankIndex) * requiredRPMultiplier;
     var isCompleted = isWeeklyLeaderboard
       ? (requiredRP > 0 && weeklyEarnedRP >= weeklyTierStartRP + requiredRP)
-      : (Math.floor(selectedRankIndex / 5) < Math.floor(currentRankIndex / 5) ||
-        (selectedRankIndex >= RANKS.length - 5 && isCurrent) ||
-        (selectedPeriod === 'all-time' && requiredRP > 0 && lifetimeRP >= requiredRP));
+      : (selectedPeriod === 'all-time'
+        ? (Math.floor(selectedRankIndex / 5) < Math.floor(currentRankIndex / 5) ||
+          (weeklyTierIndex >= 10 && isCurrent) ||
+          (requiredRP > 0 && lifetimeRP >= requiredRP))
+        : (selectedRankIndex < currentRankIndex ||
+          (selectedRankIndex === RANKS.length - 1 && isCurrent)));
     var isWeeklyLocked = isWeeklyLeaderboard && weeklyEarnedRP < weeklyTierStartRP;
     var earnedRP = isWeeklyLeaderboard
       ? Math.max(0, Math.min(requiredRP, weeklyEarnedRP - weeklyTierStartRP))
@@ -1023,14 +1032,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
     var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : lifetimeRP;
     var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : 'Lifetime RP';
-    var selectedRankDisplayName = isWeeklyLeaderboard ? RANKS[weeklyTierStartIndex].split(' ')[0] : RANKS[selectedRankIndex];
-    var selectedNextRank = isWeeklyLeaderboard
+    var selectedRankDisplayName = (isWeeklyLeaderboard || selectedPeriod === 'all-time')
+      ? RANKS[weeklyTierStartIndex].split(' ')[0]
+      : RANKS[selectedRankIndex];
+    var selectedNextRank = (isWeeklyLeaderboard || selectedPeriod === 'all-time')
       ? (weeklyTierIndex >= 10 ? '' : RANKS[(weeklyTierIndex + 1) * 5].split(' ')[0])
       : (isFinalTrophy ? '' : RANKS[selectedRankIndex + 1]);
 
     if ((isWeeklyLeaderboard && isWeeklyLocked) || (!isWeeklyLeaderboard && selectedRankIndex > currentRankIndex)) {
       var previousRequiredRank = isWeeklyLeaderboard ? (RANKS[weeklyTierStartIndex - 1] || RANKS[0]) : (RANKS[selectedRankIndex - 1] || me.rank);
-      var lockedTitle = isWeeklyLeaderboard ? selectedRankDisplayName : RANKS[selectedRankIndex];
+      var lockedTitle = (isWeeklyLeaderboard || selectedPeriod === 'all-time') ? selectedRankDisplayName : RANKS[selectedRankIndex];
       area.innerHTML =
         '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(lockedTitle) +
         ' · Locked</strong><small>Current rank: ' + escapeHtml(me.rank) + ' · ' + progressDisplayLabel + ': ' +
@@ -1044,7 +1055,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var stateTitle, stateDetail, trackState = safe ? 'is-safe' : 'is-at-risk';
     if (isCompleted) {
       stateTitle = 'Completed ✓';
-      stateDetail = isWeeklyLeaderboard ? 'এই Main Rank Trophy-এর সব RP milestone সম্পন্ন হয়েছে।' : 'এই sub-rank unlock হয়েছে।';
+      stateDetail = (isWeeklyLeaderboard || selectedPeriod === 'all-time')
+        ? 'এই Main Rank Trophy-এর RP milestone সম্পন্ন হয়েছে।'
+        : 'এই sub-rank unlock হয়েছে।';
       trackState = 'is-safe is-promotion';
     } else if (!safe) {
       stateTitle = 'Safe Zone-এর নিচে';
@@ -1054,7 +1067,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       stateDetail = 'Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
     } else {
       stateTitle = 'Promotion Zone অর্জিত';
-      stateDetail = isWeeklyLeaderboard
+      stateDetail = (isWeeklyLeaderboard || selectedPeriod === 'all-time')
         ? 'পরের Main Rank Trophy সম্পন্ন করতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।'
         : 'পরের sub-rank-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
       trackState = 'is-safe is-promotion';
@@ -1062,7 +1075,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
     var track = requiredRP > 0
       ? '<div class="mat-rank-track mat-rank-zones ' + trackState + '" role="progressbar" aria-label="' +
-        escapeHtml(selectedRankDisplayName + (isWeeklyLeaderboard ? ' Main Rank RP progression' : ' individual sub-rank RP progression')) + '" aria-valuemin="0" aria-valuemax="' +
+        escapeHtml(selectedRankDisplayName + ((isWeeklyLeaderboard || selectedPeriod === 'all-time') ? ' Main Rank RP progression' : ' individual sub-rank RP progression')) + '" aria-valuemin="0" aria-valuemax="' +
         requiredRP + '" aria-valuenow="' + earnedRP + '">' +
         '<span class="mat-rank-fill" style="width:' + progressPercent + '%"></span>' +
         '<span class="mat-progress-star" style="left:' + progressPercent + '%;transform:translate(-' + progressPercent +
@@ -1165,13 +1178,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (isMaxRankRow(row)) return false;
     return subRankPointsForRow(row) >= promotionZoneThresholdFor(row);
   }
+  function allTimeSafeZoneThresholdFor(row) {
+    var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
+    if (rankIndex < 0) rankIndex = 0;
+    var mainRankStart = Math.floor(rankIndex / 5) * 5;
+    var vault = window.MedAchievementVaultTrophies;
+    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(RANKS[mainRankStart]) : null;
+    return Math.max(0, Number(info && info.safeZoneRP) || 0);
+  }
   function isInAllTimeSafeZone(row) {
     var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
     if (rankIndex < 0) rankIndex = 0;
     var mainRankStart = Math.floor(rankIndex / 5) * 5;
-    var mainRankName = RANKS[mainRankStart];
+    var mainRankVName = RANKS[mainRankStart];
     var vault = window.MedAchievementVaultTrophies;
-    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(mainRankName) : null;
+    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(mainRankVName) : null;
     var threshold = Math.max(0, Number(info && info.safeZoneRP) || 0);
     return Math.max(0, Number(row && row.rankPoints) || 0) >= threshold;
   }
@@ -1207,8 +1228,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       riskRows = displayRows.filter(function (row) { return !isInWeeklyPromotionZone(row); }).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
       displayRows = promotionRows.concat(riskRows);
     } else if (selectedPeriod === 'all-time') {
-      safeRows = displayRows.filter(isInAllTimeSafeZone).sort(function (a, b) { return Number(b.rankPoints || 0) - Number(a.rankPoints || 0); });
-      riskRows = displayRows.filter(function (row) { return !isInAllTimeSafeZone(row); }).sort(function (a, b) { return Number(b.rankPoints || 0) - Number(a.rankPoints || 0); });
+      safeRows = displayRows.filter(isInAllTimeSafeZone).sort(function (a, b) { return Number(b.boardPoints || b.totalRP || 0) - Number(a.boardPoints || a.totalRP || 0); });
+      riskRows = displayRows.filter(function (row) { return !isInAllTimeSafeZone(row); }).sort(function (a, b) { return Number(b.boardPoints || b.totalRP || 0) - Number(a.boardPoints || a.totalRP || 0); });
       displayRows = safeRows.concat(riskRows);
     }
 
@@ -1281,7 +1302,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           : selectedPeriod === 'all-time'
             ? (isInAllTimeSafeZone(row)
               ? '<small class="leader-safe-status"><i class="fa-solid fa-shield-halved"></i> Main Rank Safe Zone</small>'
-              : '<small class="leader-risk-status"><i class="fa-solid fa-arrow-trend-down"></i> Main Rank Safe Zone-এর জন্য আরও RP প্রয়োজন</small>')
+              : '<small class="leader-risk-status"><i class="fa-solid fa-arrow-trend-down"></i> Main Rank Safe Zone-এর জন্য আরও ' + Math.max(0, allTimeSafeZoneThresholdFor(row) - Number(row.rankPoints || 0)).toLocaleString() + ' RP প্রয়োজন</small>')
             : '';
         tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label">' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + (selectedPeriod === 'friends' ? '<small class="leader-friend-subrank" style="display:block;color:#a5b4fc;font-size:11px;font-weight:700;line-height:1.2">' + escapeHtml(row.rank || 'Bronze V') + '</small>' : '') + safeStatus + '</div></div></td>';
         body.appendChild(tr);
