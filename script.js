@@ -110,29 +110,41 @@ class MedicalExamApp {
 
         this.initAuth();
 
+        // Start the initial data refresh immediately and keep it independent from navigation.
+        // The same in-flight question request is reused if the user opens Q.Bank meanwhile.
         let loadError = null;
-        try {
-            await this.loadQuestionBank();
-        } catch (error) {
+        this.__initialQuestionBankPromise = this.loadQuestionBank();
+        this.__initialQuestionBankPromise = this.__initialQuestionBankPromise.catch(error => {
             loadError = error;
             console.error('Question bank loading failed:', error);
-        }
+            throw error;
+        });
 
         // A secondary UI/rendering error must never prevent the loading status from
-        // being replaced with a ready/error message.
+        // being replaced with a ready/error message. Non-critical data refreshes run
+        // in the background and never hold up the initial question-bank request.
         let uiError = null;
         const safeRun = (label, callback) => {
             try {
-                callback();
+                const result = callback();
+                if (result && typeof result.catch === 'function') {
+                    result.catch(error => console.error(`Background ${label} refresh failed:`, error));
+                }
             } catch (error) {
-                console.error(`Question bank initialization: ${label} failed:`, error);
+                console.error(`Background initialization: ${label} failed:`, error);
                 if (!uiError) uiError = error;
             }
         };
 
+        safeRun('progress stats', () => this.loadProgressStats());
+        safeRun('leaderboard', () => this.loadLeaderboard(true));
+
+        try {
+            await this.__initialQuestionBankPromise;
+        } catch (_) {}
+
         safeRun('subject counts', () => this.updateSubjectCountsUI());
         safeRun('exam setup', () => this.updateSetupUI());
-        safeRun('progress stats', () => this.loadProgressStats());
         safeRun('practice browser', () => this.renderPracticeBrowser());
 
         if (loadError) {
@@ -142,9 +154,6 @@ class MedicalExamApp {
         } else {
             this.setDataStatus('ready');
         }
-
-        // Leaderboard syncing is non-critical and must not block the question-bank status.
-        safeRun('leaderboard', () => this.loadLeaderboard(true));
     }
 
     setDataStatus(state, message = '') {
@@ -753,7 +762,24 @@ class MedicalExamApp {
         showLeaderboardStatus(msg,error){const el=document.getElementById('leaderboard-status');if(!el)return;el.textContent=msg;el.className=`mb-4 rounded-xl p-3 text-sm ${error?'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300':'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300'}`;}
 
     // Question Bank + Practice
-    openQuestionBank(mode='view'){ this.bankMode=mode; this.bankSearch=''; this.bankSubject='all'; this.bankYear='all'; this.showView(mode==='practice'?'practice':'question-bank'); if(mode==='practice') this.startPractice(); else this.refreshQuestionBank(); }
+    openQuestionBank(mode='view'){
+        this.bankMode=mode; this.bankSearch=''; this.bankSubject='all'; this.bankYear='all';
+        this.showView(mode==='practice'?'practice':'question-bank');
+        if(mode==='practice'){ this.startPractice(); return; }
+        // Startup already refreshes the bank globally. Reuse that result instead of
+        // showing a second loading cycle every time the user visits Q.Bank.
+        if(this.questionsLoaded){ this.renderQuestionBank(); return; }
+        if(this.__initialQuestionBankPromise){
+            this.__initialQuestionBankPromise.then(()=>{
+                if(this.questionsLoaded){
+                    this.updateSubjectCountsUI(); this.updateSetupUI();
+                    this.renderPracticeBrowser(); this.renderQuestionBank();
+                }
+            }).catch(error=>this.setDataStatus('error',error.message||'প্রশ্ন ব্যাংক লোড করা যায়নি।'));
+            return;
+        }
+        this.refreshQuestionBank();
+    }
     getFilteredBank(){
         let qs=[...this.questionBank];
         if(this.bankSubject!=='all')qs=qs.filter(q=>q.subject===this.bankSubject);
