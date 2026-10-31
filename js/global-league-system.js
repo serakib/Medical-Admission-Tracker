@@ -1309,10 +1309,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var weeklyRP = subRankPointsForRow(row);
         var monthlyRP = monthlyPointsForRow(row);
         var isMaxRank = isMaxRankRow(row);
+        var rowRankIndex = RANKS.indexOf(String(row.rank || ''));
+        var isMinimumMainRank = rowRankIndex >= 0 && Math.floor(rowRankIndex / 5) === 0;
         var safeStatus = selectedPeriod === 'monthly'
-          ? (isInMonthlySafeZone(row)
-            ? '<small class="leader-safe-status" title="Monthly Safe Zone অর্জিত"><i class="fa-solid fa-shield-halved"></i> Safe Zone Reached</small>'
-            : '<small class="leader-risk-status" title="Monthly Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - monthlyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-triangle-exclamation"></i> +' + Math.max(0, safeThreshold - monthlyRP).toLocaleString() + ' RP to safe</small>')
+          ? (isMinimumMainRank
+            ? '<small class="leader-safe-status" title="Minimum Main Rank; demotion is not applicable"><i class="fa-solid fa-shield-halved"></i> Minimum Main Rank</small>'
+            : isInMonthlySafeZone(row)
+              ? '<small class="leader-safe-status" title="Monthly Safe Zone অর্জিত"><i class="fa-solid fa-shield-halved"></i> Safe Zone Reached</small>'
+              : '<small class="leader-risk-status" title="Monthly Safe Zone-এ যেতে আরও ' + Math.max(0, safeThreshold - monthlyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-triangle-exclamation"></i> +' + Math.max(0, safeThreshold - monthlyRP).toLocaleString() + ' RP to safe</small>')
           : selectedPeriod !== 'weekly' ? '' : isMaxRank
             ? '<small class="leader-safe-status" title="আপনি সর্বোচ্চ rank-এ আছেন"><i class="fa-solid fa-arrow-trend-up"></i> Max Rank</small>'
             : isInWeeklyPromotionZone(row)
