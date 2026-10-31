@@ -58,7 +58,8 @@
   var rankSelectionTouched = false;
 
   function normalizePeriod(value) {
-    return value === 'all-time' || value === 'weekly' || value === 'friends' ? value : '';
+    if (value === 'all-time') return 'monthly';
+    return value === 'monthly' || value === 'weekly' || value === 'friends' ? value : '';
   }
   function readPeriod() {
     // Keep this browser tab's selected period across a full page refresh.
@@ -73,10 +74,10 @@
         return saved;
       }
     } catch (_) {}
-    return 'all-time';
+    return 'monthly';
   }
   function savePeriod(value) {
-    var period = normalizePeriod(value) || 'all-time';
+    var period = normalizePeriod(value) || 'monthly';
     try { sessionStorage.setItem(PERIOD_KEY, period); } catch (_) {}
     try { localStorage.setItem(PERIOD_KEY, period); } catch (_) {}
     return period;
@@ -194,13 +195,13 @@
     return CACHE_KEY + '_all-time';
   }
   function getCache(period) {
-    var key = cacheKeyForPeriod(period || 'all-time');
+    var key = cacheKeyForPeriod(period || 'monthly');
     var rows = parseJson(localStorage.getItem(key), []);
     return Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
   }
   function saveCache(rows, period) {
     var list = Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
-    try { localStorage.setItem(cacheKeyForPeriod(period || 'all-time'), JSON.stringify(list)); } catch (_) {}
+    try { localStorage.setItem(cacheKeyForPeriod(period || 'monthly'), JSON.stringify(list)); } catch (_) {}
     return list;
   }
   function getQueue() {
@@ -273,6 +274,7 @@
     profile.pendingPB = profile.pb;
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
+    profile.monthlyRP = Math.max(0, Number(user.monthlyRP != null ? user.monthlyRP : user.monthlyRankPoints) || 0);
     profile.highestWeeklyRP = Math.max(0, Number(user.highestWeeklyRP) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
     // Preserve queued local activity until the server acknowledges it; otherwise use
@@ -638,6 +640,12 @@
         ? (raw.rankScore != null ? raw.rankScore : raw.score != null ? raw.score : raw.boardPoints != null ? raw.boardPoints : 0)
         : 0);
     var weeklyRP = Math.max(0, Number(weeklySource) || 0);
+    var monthlySource = raw.monthlyRP != null ? raw.monthlyRP
+      : raw.monthlyRankPoints != null ? raw.monthlyRankPoints
+      : ((selectedPeriod === 'monthly' || selectedPeriod === 'friends')
+        ? (raw.rankScore != null ? raw.rankScore : raw.score != null ? raw.score : raw.boardPoints != null ? raw.boardPoints : 0)
+        : 0);
+    var monthlyRP = Math.max(0, Number(monthlySource) || 0);
     // Keep the lifetime >= current-week invariant even when consuming a stale/legacy API payload.
     var totalRP = Math.max(storedTotalRP, weeklyRP);
     var xp = Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0);
@@ -648,7 +656,7 @@
       : null;
     var boardLevel = Math.max(1, Number(accountLevelProgress && accountLevelProgress.level) ||
       Number(raw.level != null ? raw.level : raw.Level) || 1);
-    var boardPoints = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? weeklyRP : totalRP;
+    var boardPoints = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? weeklyRP : monthlyRP;
     return {
       uid: id, userId: id, playerId: id,
       name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
@@ -659,11 +667,11 @@
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       xp: xp,
       level: boardLevel,
-      rank: rank, rankPoints: currentRP, totalRP: totalRP,
+      rank: rank, rankPoints: currentRP, totalRP: totalRP, monthlyRP: monthlyRP,
       highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
       rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
       leaderboardRequiredRPMultiplier: Math.max(1, Number(raw.leaderboardRequiredRPMultiplier) || 1),
-      weeklyRankPoints: weeklyRP, boardPoints: boardPoints,
+      weeklyRankPoints: weeklyRP, monthlyRankPoints: monthlyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
       accuracy: Math.max(0, Number(raw.accuracy) || 0),
       streak: Math.max(0, Number(raw.streak) || 0),
@@ -678,8 +686,8 @@
   }
   function sortRows(rows) {
     return (Array.isArray(rows) ? rows : []).slice().sort(function (a, b) {
-      var pa = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? Number(a.weeklyRP != null ? a.weeklyRP : a.weeklyRankPoints || 0) : Number(a.totalRP != null ? a.totalRP : a.rankPoints || a.rp || 0);
-      var pb = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? Number(b.weeklyRP != null ? b.weeklyRP : b.weeklyRankPoints || 0) : Number(b.totalRP != null ? b.totalRP : b.rankPoints || b.rp || 0);
+      var pa = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? Number(a.weeklyRP != null ? a.weeklyRP : a.weeklyRankPoints || 0) : Number(a.monthlyRP != null ? a.monthlyRP : a.monthlyRankPoints || 0);
+      var pb = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? Number(b.weeklyRP != null ? b.weeklyRP : b.weeklyRankPoints || 0) : Number(b.monthlyRP != null ? b.monthlyRP : b.monthlyRankPoints || 0);
       return pb - pa || Number(b.xp || 0) - Number(a.xp || 0) ||
         String(a.name || a.username || '').localeCompare(String(b.name || b.username || ''));
     });
@@ -910,8 +918,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       ? vault.getRanks()
       : RANKS.map(function (name, index) { return { name: name, index: index }; });
     var isWeeklyRail = selectedPeriod === 'weekly';
-    var isAllTimeRail = selectedPeriod === 'all-time';
-    var isMainRankRail = isWeeklyRail || isAllTimeRail;
+    var isMonthlyRail = selectedPeriod === 'monthly';
+    var isMainRankRail = isWeeklyRail || isMonthlyRail;
     function mainRankStartIndex(index) {
       return Math.max(0, Math.min(RANKS.length - 1, Math.floor(index / 5) * 5));
     }
@@ -944,12 +952,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var active = isMainRankRail ? mainRankName(RANKS.indexOf(selectedRank)) === rank : rank === selectedRank;
       var completed = isWeeklyRail
         ? item.index < mainRankStartIndex(weeklyRankIndex)
-        : isAllTimeRail
+        : isMonthlyRail
           ? allTimeCurrentMainRankIndex >= 0 && item.index < allTimeCurrentMainRankIndex
           : currentRankIndex >= 0 && item.index < currentRankIndex;
       var current = isWeeklyRail
         ? mainRankStartIndex(weeklyRankIndex) === item.index
-        : isAllTimeRail
+        : isMonthlyRail
           ? allTimeCurrentMainRankIndex === item.index
           : currentRankIndex >= 0 && item.index === currentRankIndex;
       var statusClass = completed ? ' is-completed' : (current ? ' is-current' : ((isMainRankRail || currentRankIndex >= 0) ? ' is-upcoming' : ''));
@@ -971,25 +979,23 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (!area) return;
     if (!me) {
       var profile = currentProfile || app.profile || null;
-      if (profile && profile.rank) {
-        me = { rank: profile.rank, rankPoints: profile.rankPoints, totalRP: profile.totalRP, rankProgress: profile.rankProgress };
-      }
+      if (profile && profile.rank) me = { rank: profile.rank, rankPoints: profile.rankPoints, totalRP: profile.totalRP, monthlyRP: profile.monthlyRP, rankProgress: profile.rankProgress };
     }
     if (!me) {
       area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>নিজের নাম, কলেজ ও ব্যাচ পূরণ করে Save করলে Leaderboard ও trophy progress ব্যবহার করতে পারবেন।</span></div>';
       return;
     }
-
     var current = getTierRankProgressView(me);
     var currentRankIndex = current.rankIndex;
     var selectedRankName = RANKS.indexOf(selectedRank) >= 0 ? selectedRank : me.rank;
     var selectedRankIndex = RANKS.indexOf(selectedRankName);
     if (selectedRankIndex < 0) selectedRankIndex = currentRankIndex;
     var isWeeklyLeaderboard = selectedPeriod === 'weekly';
-    var isAllTimeLeaderboard = selectedPeriod === 'all-time';
-    var isMainRankLeaderboard = isWeeklyLeaderboard || isAllTimeLeaderboard;
-    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var isMonthlyLeaderboard = selectedPeriod === 'monthly';
+    var isMainRankLeaderboard = isWeeklyLeaderboard || isMonthlyLeaderboard;
+    var monthlyRP = Math.max(0, Number(me.monthlyRP) || 0);
     var weeklyEarnedRP = weeklyPointsForRow(me);
+    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
     var mainTierStartIndex = Math.floor(selectedRankIndex / 5) * 5;
     var mainTierEndIndex = Math.min(mainTierStartIndex + 5, RANKS.length);
     var mainTierStartRP = 0;
@@ -997,74 +1003,79 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (isMainRankLeaderboard) {
       for (var priorTierIndex = 0; priorTierIndex < mainTierStartIndex; priorTierIndex++) mainTierStartRP += rankPromotionCostForIndex(priorTierIndex);
       for (var tierRankIndex = mainTierStartIndex; tierRankIndex < mainTierEndIndex; tierRankIndex++) mainTierRequiredRP += rankPromotionCostForIndex(tierRankIndex);
+      if (isMonthlyLeaderboard) mainTierStartRP = 0;
     }
     var isFinalTrophy = isMainRankLeaderboard ? mainTierStartIndex >= RANKS.length - 5 : selectedRankIndex >= RANKS.length - 1;
     var requiredRPMultiplier = Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5);
     var requiredRP = isMainRankLeaderboard ? mainTierRequiredRP : rankPromotionCostForIndex(selectedRankIndex) * requiredRPMultiplier;
-    var tierPoints = isWeeklyLeaderboard ? weeklyEarnedRP : lifetimeRP;
+    var progressPoints = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : lifetimeRP;
     var isCompleted = isMainRankLeaderboard
-      ? (requiredRP > 0 && tierPoints >= mainTierStartRP + requiredRP)
+      ? (requiredRP > 0 && progressPoints >= mainTierStartRP + requiredRP)
       : (selectedRankIndex < currentRankIndex || (selectedRankIndex === RANKS.length - 1 && currentRankIndex === selectedRankIndex));
     var isLocked = isWeeklyLeaderboard
       ? weeklyEarnedRP < mainTierStartRP
-      : isAllTimeLeaderboard ? lifetimeRP < mainTierStartRP : selectedRankIndex > currentRankIndex;
+      : isMonthlyLeaderboard ? selectedRankIndex > currentRankIndex : selectedRankIndex > currentRankIndex;
     var earnedRP = isMainRankLeaderboard
-      ? Math.max(0, Math.min(requiredRP, tierPoints - mainTierStartRP))
+      ? Math.max(0, Math.min(requiredRP, progressPoints - mainTierStartRP))
       : (isCompleted ? requiredRP : (selectedRankIndex === currentRankIndex ? current.subrankEarnedRP : 0));
     earnedRP = Math.max(0, Math.min(requiredRP, earnedRP));
-
-    var safeThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
-    var promotionThreshold = requiredRP > 0 ? Math.ceil(requiredRP * 0.70) : 0;
+    var safeThreshold = isMonthlyLeaderboard && requiredRP > 0 ? Math.ceil(requiredRP * 0.30) : 0;
+    var promotionThreshold = isWeeklyLeaderboard && requiredRP > 0 ? Math.ceil(requiredRP * 0.70) : 0;
     var progressPercent = requiredRP > 0 ? Math.max(0, Math.min(100, earnedRP / requiredRP * 100)) : (isCompleted ? 100 : 0);
     var remainingToSafe = Math.max(0, safeThreshold - earnedRP);
     var remainingToPromotion = Math.max(0, promotionThreshold - earnedRP);
     var remainingToRank = Math.max(0, requiredRP - earnedRP);
-    var safe = isCompleted || (safeThreshold > 0 && earnedRP >= safeThreshold);
-    var promotion = isCompleted || (promotionThreshold > 0 && earnedRP >= promotionThreshold);
-    var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : lifetimeRP;
-    var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : 'Lifetime RP';
+    var safe = isMonthlyLeaderboard ? (isCompleted || earnedRP >= safeThreshold) : true;
+    var promotion = isWeeklyLeaderboard && (isCompleted || earnedRP >= promotionThreshold);
+    var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : lifetimeRP;
+    var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : isMonthlyLeaderboard ? 'Monthly RP' : 'Lifetime RP';
     var selectedRankDisplayName = isMainRankLeaderboard ? RANKS[mainTierStartIndex].split(' ')[0] : RANKS[selectedRankIndex];
     var selectedNextRank = isMainRankLeaderboard
       ? (mainTierStartIndex >= RANKS.length - 5 ? '' : RANKS[mainTierStartIndex + 5].split(' ')[0])
       : (isFinalTrophy ? '' : RANKS[selectedRankIndex + 1]);
-
+    var currentRankDisplayName = isMainRankLeaderboard && currentRankIndex >= 0
+      ? RANKS[Math.floor(currentRankIndex / 5) * 5].split(' ')[0]
+      : me.rank;
     if (isLocked) {
       var previousRequiredRank = isMainRankLeaderboard
         ? (mainTierStartIndex >= 5 ? RANKS[mainTierStartIndex - 5].split(' ')[0] : RANKS[0].split(' ')[0])
         : (RANKS[selectedRankIndex - 1] || me.rank);
-      var lockedTitle = selectedRankDisplayName;
-      var currentRankDisplayName = isAllTimeLeaderboard && currentRankIndex >= 0
-        ? RANKS[Math.floor(currentRankIndex / 5) * 5].split(' ')[0]
-        : me.rank;
       area.innerHTML =
-        '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(lockedTitle) +
+        '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(selectedRankDisplayName) +
         ' · Locked</strong><small>Current rank: ' + escapeHtml(currentRankDisplayName) + ' · ' + progressDisplayLabel + ': ' +
         progressDisplayRP.toLocaleString() + '</small></span><span class="mat-rank-rp">LOCKED</span></div>' +
         '<div class="mat-safe-zone-caption at-risk"><i class="fa-solid fa-lock"></i><span><strong>First unlock the previous trophy</strong>' +
         '<small>' + escapeHtml(previousRequiredRank) + ' unlock না হওয়া পর্যন্ত ' +
-        escapeHtml(lockedTitle) + ' Trophy-এর progress শুরু হবে না।</small></span></div>';
+        escapeHtml(selectedRankDisplayName) + ' Trophy-এর progress শুরু হবে না।</small></span></div>';
       return;
     }
-
     var stateTitle, stateDetail, trackState = safe ? 'is-safe' : 'is-at-risk';
     if (isCompleted) {
       stateTitle = 'Completed ✓';
-      stateDetail = isMainRankLeaderboard ? 'এই Main Rank Trophy-এর সব RP milestone সম্পন্ন হয়েছে।' : 'এই sub-rank unlock হয়েছে।';
-      trackState = 'is-safe is-promotion';
-    } else if (!safe) {
+      stateDetail = isMonthlyLeaderboard ? 'এই Monthly Main Rank Trophy-এর RP milestone সম্পন্ন হয়েছে।' : isWeeklyLeaderboard ? 'এই Weekly Main Rank milestone সম্পন্ন হয়েছে।' : 'এই trophy milestone সম্পন্ন হয়েছে।';
+      trackState = 'is-safe';
+    } else if (isMonthlyLeaderboard && !safe) {
       stateTitle = 'Safe Zone-এর নিচে';
-      stateDetail = 'Safe Zone-এ যেতে আরও ' + remainingToSafe.toLocaleString() + ' RP দরকার।';
-    } else if (!promotion) {
+      stateDetail = 'Monthly Safe Zone-এ থাকতে আরও ' + remainingToSafe.toLocaleString() + ' RP দরকার।';
+    } else if (isMonthlyLeaderboard) {
       stateTitle = 'Safe Zone অর্জিত';
-      stateDetail = 'Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
-    } else {
+      stateDetail = 'এই Main Rank-এর Monthly Safe Zone অর্জিত হয়েছে। Monthly Promotion Zone নেই।';
+    } else if (isWeeklyLeaderboard && !promotion) {
+      stateTitle = 'Promotion Zone-এর নিচে';
+      stateDetail = 'Weekly Promotion Zone-এ যেতে আরও ' + remainingToPromotion.toLocaleString() + ' RP দরকার।';
+    } else if (isWeeklyLeaderboard) {
       stateTitle = 'Promotion Zone অর্জিত';
-      stateDetail = isMainRankLeaderboard
-        ? 'পরের Main Rank Trophy সম্পন্ন করতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।'
-        : 'পরের sub-rank-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
+      stateDetail = 'শনিবারের Weekly review-এ Promotion বিবেচিত হবে। Weekly Safe Zone নেই।';
       trackState = 'is-safe is-promotion';
+    } else {
+      stateTitle = 'Progress';
+      stateDetail = 'পরবর্তী milestone-এ যেতে আরও ' + remainingToRank.toLocaleString() + ' RP দরকার।';
     }
-
+    var zoneLegend = isMonthlyLeaderboard
+      ? '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe · ' + safeThreshold.toLocaleString() + ' RP</span></div>'
+      : isWeeklyLeaderboard
+        ? '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-promotion"><i></i> Promotion · ' + promotionThreshold.toLocaleString() + ' RP</span></div>'
+        : '';
     var track = requiredRP > 0
       ? '<div class="mat-rank-track mat-rank-zones ' + trackState + '" role="progressbar" aria-label="' +
         escapeHtml(selectedRankDisplayName + (isMainRankLeaderboard ? ' Main Rank RP progression' : ' individual sub-rank RP progression')) + '" aria-valuemin="0" aria-valuemax="' +
@@ -1072,23 +1083,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         '<span class="mat-rank-fill" style="width:' + progressPercent + '%"></span>' +
         '<span class="mat-progress-star" style="left:' + progressPercent + '%;transform:translate(-' + progressPercent +
         '%, -50%)" role="img" aria-label="' + earnedRP.toLocaleString() + ' of ' + requiredRP.toLocaleString() +
-        ' RP"><i class="fa-solid fa-star" aria-hidden="true"></i><b>' + earnedRP.toLocaleString() + '</b></span></div>' +
-        '<div class="mat-rank-zone-legend"><span class="mat-zone-legend-safe"><i></i> Safe · ' +
-        safeThreshold.toLocaleString() + ' RP</span><span class="mat-zone-legend-promotion"><i></i> Promotion · ' +
-        promotionThreshold.toLocaleString() + ' RP</span></div>'
+        ' RP"><i class="fa-solid fa-star" aria-hidden="true"></i><b>' + earnedRP.toLocaleString() + '</b></span></div>' + zoneLegend
       : '<div class="mat-rank-locked"><i class="fa-solid fa-trophy"></i><span>এই সর্বোচ্চ Main Rank-এর পরে আর কোনো trophy milestone নেই।</span></div>';
-
-    var currentRankDisplayName = isAllTimeLeaderboard && currentRankIndex >= 0
-      ? RANKS[Math.floor(currentRankIndex / 5) * 5].split(' ')[0]
-      : me.rank;
     area.innerHTML =
       '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(selectedRankDisplayName) + ' → ' +
       escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
       earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
       escapeHtml(currentRankDisplayName) + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
       progressDisplayRP.toLocaleString() + ' ' + progressDisplayLabel + '</span></span></div>' + track +
-      '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
-      '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
+      '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (isMonthlyLeaderboard && !safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
+      '"><i class="fa-solid ' + (isCompleted ? 'fa-trophy' : (isMonthlyLeaderboard ? (safe ? 'fa-shield-check' : 'fa-triangle-exclamation') : (promotion ? 'fa-trophy' : 'fa-arrow-trend-up'))) +
       '"></i><span><strong>' + stateTitle + '</strong><small>' + escapeHtml(stateDetail) +
       '</small></span></div>';
   }
@@ -1145,6 +1149,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     return Math.max(0, Number(info && info.safeZoneRP) || 0);
   }
+  function monthlySafeZoneThresholdFor(row) {
+    var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
+    if (rankIndex < 0) rankIndex = 0;
+    var tierStart = Math.floor(rankIndex / 5) * 5;
+    var tierEnd = Math.min(tierStart + 5, RANKS.length);
+    var required = 0;
+    for (var i = tierStart; i < tierEnd; i++) required += rankPromotionCostForIndex(i);
+    return Math.ceil(required * 0.30);
+  }
+  function monthlyPointsForRow(row) {
+    return Math.max(0, Number(row && (row.monthlyRP != null ? row.monthlyRP : row.monthlyRankPoints != null ? row.monthlyRankPoints : row.boardPoints)) || 0);
+  }
+  function isInMonthlySafeZone(row) {
+    return monthlyPointsForRow(row) >= monthlySafeZoneThresholdFor(row);
+  }
   function promotionZoneThresholdFor(row) {
     var vault = window.MedAchievementVaultTrophies;
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
@@ -1193,13 +1212,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var me = getMe(all);
     if (me && !rankSelectionTouched) selectedRank = me.rank;
     else if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
-    if ((selectedPeriod === 'weekly' || selectedPeriod === 'all-time') && RANKS.indexOf(selectedRank) >= 0) selectedRank = RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5];
+    if ((selectedPeriod === 'weekly' || selectedPeriod === 'monthly') && RANKS.indexOf(selectedRank) >= 0) selectedRank = RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5];
     // Both public leaderboards group all five sub-ranks under one Main Rank.
     // Individual sub-ranks remain exclusive to Achievement Vault.
     var displayRows = selectedPeriod === 'friends' ? all.slice() : all.filter(function (row) {
       var rowIndex = RANKS.indexOf(String(row.rank || ''));
       if (rowIndex < 0) return false;
-      if (selectedPeriod === 'weekly' || selectedPeriod === 'all-time') return Math.floor(rowIndex / 5) === Math.floor(RANKS.indexOf(selectedRank) / 5);
+      if (selectedPeriod === 'weekly' || selectedPeriod === 'monthly') return Math.floor(rowIndex / 5) === Math.floor(RANKS.indexOf(selectedRank) / 5);
       return String(row.rank || '') === String(selectedRank || '');
     });
     var promotionRows = [], safeRows = [], riskRows = [];
@@ -1242,8 +1261,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + '</span>' +
-            '<small>' + escapeHtml(selectedPeriod === 'all-time' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
+            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + '</span>' +
+            '<small>' + escapeHtml(selectedPeriod === 'monthly' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
       if (selectedPeriod === 'weekly' && promotionRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
@@ -1293,13 +1312,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (mePanel && me && displayRows.some(function (row) { return row.isMine || String(row.userId) === String(me.userId); })) {
         var ownIndex = displayRows.findIndex(function (row) { return row.isMine || String(row.userId) === String(me.userId); });
         mePanel.classList.remove('hidden');
-        var positionRankLabel = (selectedPeriod === 'weekly' || selectedPeriod === 'all-time')
+        var positionRankLabel = (selectedPeriod === 'weekly' || selectedPeriod === 'monthly')
           ? RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5].split(' ')[0]
           : selectedRank;
-        var positionSubRankLabel = selectedPeriod === 'all-time' && RANKS.indexOf(String(me.rank || '')) >= 0
+        var positionSubRankLabel = selectedPeriod === 'monthly' && RANKS.indexOf(String(me.rank || '')) >= 0
           ? RANKS[Math.floor(RANKS.indexOf(String(me.rank)) / 5) * 5].split(' ')[0]
           : me.rank;
-        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
       }
     } else if (selectedPeriod !== 'weekly') {
       var emptyText = selectedPeriod === 'friends'
@@ -1368,7 +1387,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       tabs.dataset.medicalTabBuildVersion = '32';
     }
     var definitions = [
-      { key: 'all-time', label: '🏆 All Time' },
+      { key: 'monthly', label: '🏆 Monthly' },
       { key: 'weekly', label: '📅 Weekly' },
       { key: 'friends', label: '👥 Friends' }
     ];
@@ -1393,7 +1412,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       button.style.setProperty('font-weight', '800', 'important');
       button.style.setProperty('cursor', 'pointer', 'important');
       button.classList.add('flex-shrink-0', 'whitespace-nowrap');
-      // Always append in the canonical All Time → Weekly → Friends order.
+      // Always append in the canonical Monthly → Weekly → Friends order.
       tabs.appendChild(button);
     });
     tabs.classList.remove('hidden');
@@ -1548,7 +1567,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var hours = Math.floor((totalMinutes % 1440) / 60);
     var minutes = totalMinutes % 60;
     var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট';
-    var weekDescription = 'এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, All Time RP অপরিবর্তিত থাকবে।';
+    var weekDescription = 'এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, Monthly RP অপরিবর্তিত থাকবে।';
     note.className = 'leaderboard-week-countdown';
     note.setAttribute('role', 'status');
     note.innerHTML = '<button type="button" class="leaderboard-week-details" data-open-week-popup aria-haspopup="dialog"><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
@@ -1570,7 +1589,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (popupContent) popupContent.innerHTML =
       '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong>' + countdown + '</strong></p>' +
       '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
-      '<p>Weekly ranking প্রতি শনিবার রাত ১২টায় নতুন সময়সীমা থেকে গণনা শুরু করে। এই পরিবর্তনে All Time RP পরিবর্তিত হবে না।</p>';
+      '<p>Weekly ranking প্রতি শনিবার রাত ১২টায় নতুন সময়সীমা থেকে গণনা শুরু করে। এই পরিবর্তনে Monthly RP পরিবর্তিত হবে না।</p>';
     var openButton = note.querySelector('[data-open-week-popup]');
     if (openButton) openButton.addEventListener('click', function () {
       popup.hidden = false;
@@ -1587,7 +1606,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }, 30000);
   }
   function cachedRowsForDisplay() {
-    // All Time, Friends and Weekly each get their own cache so one tab never
+    // Monthly, Friends and Weekly each get their own cache so one tab never
     // flashes another tab's result while its own request is syncing.
     var cached = getCache(selectedPeriod);
     return cached.length ? cached : [];
@@ -1734,7 +1753,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     try {
       await syncIdentity();
       if (requestId !== loadSequence) return;
-      var apiPeriod = periodForRequest === 'weekly' ? 'weekly' : 'all-time';
+      var apiPeriod = periodForRequest === 'weekly' ? 'weekly' : 'monthly';
       var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
       if (periodForRequest !== 'friends' && currentUserId()) {
         // The notification center can request exact global positions for accepted friends,
@@ -1767,7 +1786,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       });
       var explicitWrongPeriod = !!responsePeriod && responsePeriod !== 'weekly';
       if (periodForRequest === 'weekly' && response && explicitWrongPeriod) {
-        throw new Error('Weekly tab-এ API থেকে All-time data এসেছে। Apps Script deployment-এর period handling যাচাই করুন।');
+        throw new Error('Weekly tab-এ API থেকে Monthly data এসেছে। Apps Script deployment-এর period handling যাচাই করুন।');
       }
       // An empty weekly board is a valid result. Legacy deployments may omit period
       // metadata, so only reject populated rows that contain no weekly/period score.
@@ -1778,7 +1797,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       rawRows = entries.slice();
       var rows = normalizeRows(entries);
       saveCache(rows, periodForRequest);
-      if (periodForRequest === 'all-time') {
+      if (periodForRequest === 'monthly') {
         var directoryQuery = String((document.getElementById('leaderboard-friend-search') || {}).value || '').trim();
         // Search results come from the full server-side directory; never replace
         // them with only the public Top-100 leaderboard cache.
@@ -1902,7 +1921,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var targetId = String(userId || '');
     var row = normalizeRows(rawRows).find(function (entry) { return String(entry.userId) === targetId; }) ||
       normalizeRows(friendDirectoryRows).find(function (entry) { return String(entry.userId) === targetId; }) ||
-      normalizeRows(getCache('all-time')).find(function (entry) { return String(entry.userId) === targetId; });
+      normalizeRows(getCache('monthly')).find(function (entry) { return String(entry.userId) === targetId; });
     if (!row && window.MedStudentFriends && typeof window.MedStudentFriends.getConnectionData === 'function') {
       var connectionData = window.MedStudentFriends.getConnectionData();
       var person = (connectionData.friends || []).find(function (item) { return String(item.userId || item.uid || item.playerId || '') === targetId; });
@@ -2228,7 +2247,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         event.preventDefault();
         event.stopImmediatePropagation();
         var requestedPeriod = periodButton.dataset.leaderboardPeriod;
-        var nextPeriod = requestedPeriod === 'weekly' || requestedPeriod === 'friends' ? requestedPeriod : 'all-time';
+        var nextPeriod = requestedPeriod === 'weekly' || requestedPeriod === 'friends' ? requestedPeriod : 'monthly';
         // Do not carry a stale manually selected trophy into another tab. Default to
         // the signed-in student's authoritative rank so Weekly never opens on an empty league.
         if (nextPeriod !== selectedPeriod) {
@@ -2505,7 +2524,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   async function verifyPublicAvatar(userId) {
     var targetId = String(userId || currentUserId() || '');
     if (!targetId) return null;
-    var response = await request({ action: 'leaderboard', period: 'all-time', includeUserIds: [targetId] }, { method: 'GET' });
+    var response = await request({ action: 'leaderboard', period: 'monthly', includeUserIds: [targetId] }, { method: 'GET' });
     var entries = extractEntries(response);
     return entries.find(function (entry) {
       return String(entry.userId || entry.uid || entry.playerId || entry.UserID || '') === targetId;
@@ -2513,8 +2532,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
 
   app.getDemoLeaderboardRows = function () { return []; };
-  app.getLocalLeaderboardRows = function () { return getCache('all-time'); };
-  app.setLocalLeaderboardRows = function (rows) { return saveCache(rows, 'all-time'); };
+  app.getLocalLeaderboardRows = function () { return getCache('monthly'); };
+  app.setLocalLeaderboardRows = function (rows) { return saveCache(rows, 'monthly'); };
   app.mergeLeaderboardRows = function (rows) { return normalizeRows(rows); };
   app.recordLeaderboardResult = recordLeaderboardResult;
   app.getServerProgress = getServerProgress;
