@@ -49,7 +49,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'guest-account-24-hour-pending-deletion-and-cancellation',
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-pb-and-promotion-rewards',
-  'weekly-promotion-reward-safe-zone-thirty-percent',
+  'weekly-promotion-starting-reward-thirty-percent',
   'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
   'weekly-rp-starting-balance-after-reset',
   'highest-weekly-rp-profile-stat',
