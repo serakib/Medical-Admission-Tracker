@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.31.1';
+const MAT_API_VERSION = '2026.11.01.1';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -43,7 +43,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'student-search-and-friend-requests',
   'daily-streak-sync',
   'top-ten-activity-telegram-queue',
-  'weekly-rank-review-saturday-asia-dhaka',
+  'daily-weekly-promotion-zone-check-asia-dhaka',
   'immediate-rank-promotion',
   'expired-guest-cleanup',
   'guest-account-24-hour-pending-deletion-and-cancellation',
@@ -65,7 +65,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt'
+  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'LastWeeklyPromotionReviewDate'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -234,13 +234,14 @@ function setupBackend() {
   // Reconcile the weekly trigger on every setup run so older Monday-based
   // deployments are migrated to the Saturday-start/Saturday-review schedule.
   triggers.forEach(function (t) {
-    if (t.getHandlerFunction() === 'processWeeklyRankDemotions') {
+    if (t.getHandlerFunction() === 'processWeeklyRankDemotions' ||
+        t.getHandlerFunction() === 'processDailyWeeklyPromotionReview') {
       ScriptApp.deleteTrigger(t);
     }
   });
-  ScriptApp.newTrigger('processWeeklyRankDemotions')
+  ScriptApp.newTrigger('processDailyWeeklyPromotionReview')
     .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .everyDays(1)
     .atHour(MAT_CONFIG.WEEKLY_DEMOTION_HOUR)
     .inTimezone(MAT_CONFIG.TIME_ZONE)
     .create();
@@ -264,7 +265,7 @@ function setupBackend() {
     friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
-    weeklyRankReview: 'Runs every Saturday at about 01:00 Asia/Dhaka; Promotion Zone only, no Safe Zone or demotion; weekly RP resets and promotion reward is retained',
+    weeklyRankReview: 'Checks the current Saturday-Friday Weekly RP Promotion Zone daily at about 01:00 Asia/Dhaka; promotes at most one subrank per daily check; the check itself never resets or reduces RP; no Safe Zone or demotion applies',
     monthlyRankReview: 'Runs on the first day of each month at about 01:00 Asia/Dhaka; checks the previous month Safe Zone for the whole Main Rank and demotes at most one Main Rank; no Promotion Zone'
   };
   Logger.log(JSON.stringify(result, null, 2));
@@ -282,84 +283,88 @@ function processPendingActivityNotifications() {
 }
 
 /**
- * Weekly rank review, scheduled for Saturday around 01:00 Asia/Dhaka.
- * Reviews the completed Saturday-Friday week. Weekly has a Promotion Zone
- * only; it never applies a Safe Zone or demotion. Promotion keeps the existing
- * 30% starting reward through an idempotent RP_EVENT.
+ * Daily check of the current Saturday-Friday Weekly RP Promotion Zone.
+ * This check only decides whether to promote one subrank. It never resets or
+ * reduces Weekly RP, current RP, or Lifetime RP. A successful promotion keeps
+ * the existing 30% Safe Zone starting reward through an idempotent RP_EVENT.
  */
-function processWeeklyRankDemotions() {
+function processDailyWeeklyPromotionReview() {
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
   try {
     const studentsSheet = matGetStudentsSheet_();
+    const today = matDateKey_(matNowIso_());
     const weekStart = matWeekStartKey_();
-    const previousWeekStart = matOffsetDateKey_(weekStart, -7);
-    const previousWeekRPByUser = matGetWeeklyRPByUser_(previousWeekStart, weekStart);
-    const historicalHighestWeeklyRPByUser = matGetHighestWeeklyRPByUser_(weekStart);
+    const weeklyRPByUser = matGetWeeklyRPByUser_(weekStart);
     const examSheet = matGetExamSheet_();
     const existingWeeklyStartEvents = new Set(matReadObjects_(examSheet)
       .filter(function (row) { return String(row.RecordType || '').toUpperCase() === 'RP_EVENT'; })
       .map(function (row) { return String(row.AttemptID || ''); }));
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
-    let processed = 0, promoted = 0, unchanged = 0, alreadyProcessed = 0, startingRPAdded = 0;
+    let processed = 0, promoted = 0, unchanged = 0, alreadyChecked = 0, startingRPAdded = 0;
 
     students.forEach(function (source) {
       const userId = String(source.UserID || '').trim();
       if (!userId || !source._rowNumber) return;
-      if (String(source.LastWeeklyDemotionWeek || '') === weekStart) {
-        alreadyProcessed += 1;
+      if (String(source.LastWeeklyPromotionReviewDate || '') === today) {
+        alreadyChecked += 1;
         return;
       }
+
       const student = matReconcileStoredRankProgress_(source);
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
-      const weeklyEarnedRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
+      const weeklyEarnedRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[userId], 0));
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
-      let nextRankIndex = rankIndex;
-      let outcome = 'unchanged';
+      const highestWeeklyRP = Math.max(0, matFiniteNumber_(student.HighestWeeklyRP, 0), weeklyEarnedRP);
 
-      // Weekly has a Promotion Zone only. It never has a Safe Zone or demotion.
       if (rankIndex < MAT_RANKS.length - 1 &&
           promotionZoneThreshold > 0 &&
           weeklyEarnedRP >= promotionZoneThreshold) {
-        nextRankIndex = rankIndex + 1;
-        outcome = 'promoted';
-      }
-
-      // Preserve the existing 30% starting reward when a Weekly promotion occurs.
-      const startingRP = outcome === 'promoted' ? matRankSafeZoneReward_(nextRankIndex) : 0;
-      const newRankRP = matRankMilestoneCap_(nextRankIndex) + startingRP;
-      const highestWeeklyRP = Math.max(
-        0,
-        matFiniteNumber_(student.HighestWeeklyRP, 0),
-        matFiniteNumber_(historicalHighestWeeklyRPByUser[userId], 0),
-        weeklyEarnedRP
-      );
-      const eventId = 'WEEKLY-START-' + weekStart + '-' + userId;
-      if (startingRP > 0 && !existingWeeklyStartEvents.has(eventId)) {
-        matAppendObject_(examSheet, {
-          RecordType: 'RP_EVENT', AttemptID: eventId, UserID: userId,
-          RPEarned: startingRP, SubmittedAt: now, RewardStatus: 'COMMITTED'
+        const nextRankIndex = rankIndex + 1;
+        const startingRP = matRankSafeZoneReward_(nextRankIndex);
+        const eventId = 'WEEKLY-START-' + today + '-' + userId;
+        if (startingRP > 0 && !existingWeeklyStartEvents.has(eventId)) {
+          matAppendObject_(examSheet, {
+            RecordType: 'RP_EVENT', AttemptID: eventId, UserID: userId,
+            RPEarned: startingRP, SubmittedAt: now, RewardStatus: 'COMMITTED'
+          });
+          existingWeeklyStartEvents.add(eventId);
+        }
+        const totalRP = Math.max(matFiniteNumber_(student.TotalRP, 0), matFiniteNumber_(student.RP, 0)) + startingRP;
+        matUpdateObjectRow_(studentsSheet, student._rowNumber, {
+          Rank: MAT_RANKS[nextRankIndex],
+          RP: matRankMilestoneCap_(nextRankIndex) + startingRP,
+          TotalRP: totalRP,
+          HighestWeeklyRP: highestWeeklyRP,
+          LastWeeklyPromotionReviewDate: today,
+          RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
+          UpdatedAt: now
         });
-        existingWeeklyStartEvents.add(eventId);
+        promoted += 1;
+        startingRPAdded += startingRP;
+      } else {
+        // A non-promotion check must not alter either current RP or Weekly RP.
+        matUpdateObjectRow_(studentsSheet, student._rowNumber, {
+          HighestWeeklyRP: highestWeeklyRP,
+          LastWeeklyPromotionReviewDate: today
+        });
+        unchanged += 1;
       }
-      const totalRP = Math.max(matFiniteNumber_(student.TotalRP, 0), matFiniteNumber_(student.RP, 0)) + startingRP;
-      matUpdateObjectRow_(studentsSheet, student._rowNumber, {
-        Rank: MAT_RANKS[nextRankIndex], RP: newRankRP, TotalRP: totalRP,
-        HighestWeeklyRP: highestWeeklyRP, LastWeeklyDemotionWeek: weekStart,
-        RankProgressVersion: MAT_RANK_PROGRESS_VERSION, UpdatedAt: now
-      });
       processed += 1;
-      startingRPAdded += startingRP;
-      if (outcome === 'promoted') promoted += 1;
-      else unchanged += 1;
     });
+
     return {
-      success: true, weekReviewed: previousWeekStart, newWeekStart: weekStart,
-      processed: processed, promoted: promoted, unchanged: unchanged,
-      alreadyProcessed: alreadyProcessed, startingRPAdded: startingRPAdded,
-      message: 'Weekly Promotion Zone review completed. Weekly RP reset; no Safe Zone or demotion applies.'
+      success: true,
+      reviewDate: today,
+      weekStart: weekStart,
+      processed: processed,
+      promoted: promoted,
+      unchanged: unchanged,
+      alreadyChecked: alreadyChecked,
+      startingRPAdded: startingRPAdded,
+      message: 'Daily Weekly Promotion Zone check completed. No RP reset or reduction; no Safe Zone or demotion applies.'
     };
   } finally {
     lock.releaseLock();
