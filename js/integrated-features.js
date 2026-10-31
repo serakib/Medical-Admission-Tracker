@@ -1109,7 +1109,7 @@
             // Fetch an authoritative, fresh All Time response that explicitly includes this user.
             publicRow = await window.MedGlobalLeague.verifyPublicAvatar(ownId);
           } else if (ownId && typeof window.MedGlobalLeague?.getCachedRows === 'function') {
-            ['all-time', 'weekly', 'friends'].some(period => {
+            ['monthly', 'weekly', 'friends'].some(period => {
               const rows = window.MedGlobalLeague.getCachedRows(period);
               publicRow = (Array.isArray(rows) ? rows : []).find(row =>
                 String(row?.userId || row?.uid || row?.playerId || row?.raw?.userId || '') === ownId
