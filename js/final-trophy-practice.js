@@ -313,20 +313,7 @@
     const requirementMultiplier = allTime ? 5 : 1;
     const current = rankFromPoints(points, requirementMultiplier);
     const currentRankIndex = current.index;
-    const weeklyTierRanks = Array.from({ length: 11 }, function(_, tierIndex) {
-      const representativeIndex = tierIndex * 5;
-      const representative = trophyRanks[representativeIndex];
-      return {
-        name: representative[0].slice(0, representative[0].lastIndexOf(' ')),
-        index: representativeIndex,
-        main: representative[1],
-        dark: representative[2],
-        shine: representative[3]
-      };
-    });
-    const currentRank = allTime
-      ? trophyRanks[currentRankIndex][0]
-      : weeklyTierRanks[Math.floor(currentRankIndex / 5)].name;
+    const currentRank = trophyRanks[currentRankIndex][0];
     const overlay = document.getElementById('exam-trophy-hub-modal');
     if (!overlay) return;
     let host = overlay.querySelector('#exam-trophy-collection');
@@ -337,52 +324,23 @@
       overlay.querySelector(':scope > div').appendChild(host);
     }
     let cards = '';
-    if (allTime) {
-      // All-Time Vault keeps the existing 55 individual sub-rank trophies unchanged.
-      trophyRanks.forEach(function(rank, i) {
-        let target = 0;
-        for (let j = 0; j < i; j++) target += requiredRP(j) * requirementMultiplier;
-        const completed = i < currentRankIndex;
-        const isCurrent = i === currentRankIndex;
-        const locked = i > currentRankIndex;
-        const engravedRP = completed ? target : (isCurrent ? Math.floor(points) : null);
-        const earned = !locked;
-        const c = rank[1], d = rank[2], sh = rank[3];
-        const emblem = buildTrophyEmblem(i, c, d, sh);
-        const stage = i % 5 + 1;
-        const tier = Math.floor(i / 5);
-        const engraving = engravedRP === null ? '' : '<div class="exam-trophy-rp-caption">RP: ' + engravedRP.toLocaleString() + '</div>';
-        const engravedSvg = engravedRP === null ? '' : '<text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + engravedRP.toLocaleString() + ' RP</text>';
-        const status = completed ? 'UNLOCKED' : (isCurrent ? 'CURRENT' : 'REQUIRES ' + target.toLocaleString() + ' RP');
-        cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '">' + engraving + '<div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + sh + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + sh + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + sh + '" stroke-width="2"/>' + engravedSvg + '</svg></div><strong>' + rank[0] + '</strong><small>' + status + '</small></article>';
-      });
-    } else {
-      // Weekly Vault groups all five sub-rank RP milestones into one representative Main Rank trophy.
-      const currentTierIndex = Math.floor(currentRankIndex / 5);
-      let tierStartRP = 0;
-      weeklyTierRanks.forEach(function(tier, tierIndex) {
-        let tierRequiredRP = 0;
-        for (let subrankIndex = tierIndex * 5; subrankIndex < Math.min(tierIndex * 5 + 5, trophyRanks.length); subrankIndex++) {
-          tierRequiredRP += requiredRP(subrankIndex);
-        }
-        const target = tierStartRP;
-        const targetEnd = target + tierRequiredRP;
-        const completed = tierIndex < currentTierIndex;
-        const isCurrent = tierIndex === currentTierIndex;
-        const locked = tierIndex > currentTierIndex;
-        const engravedRP = completed ? targetEnd : (isCurrent ? Math.floor(points) : null);
-        const earned = !locked;
-        const c = tier.main, d = tier.dark, sh = tier.shine;
-        // Use the exact V sub-rank emblem and palette as this Main Rank's representative design.
-        const emblem = buildTrophyEmblem(tier.index, c, d, sh);
-        const stage = tierIndex + 1;
-        const engraving = engravedRP === null ? '' : '<div class="exam-trophy-rp-caption">RP: ' + engravedRP.toLocaleString() + '</div>';
-        const engravedSvg = engravedRP === null ? '' : '<text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + engravedRP.toLocaleString() + ' RP</text>';
-        const status = completed ? 'UNLOCKED' : (isCurrent ? 'CURRENT' : 'REQUIRES ' + target.toLocaleString() + ' RP');
-        cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tierIndex + ' ' + (earned ? 'earned' : 'locked') + '">' + engraving + '<div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + sh + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + sh + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + sh + '" stroke-width="2"/>' + engravedSvg + '</svg></div><strong>' + tier.name + ' Trophy</strong><small>' + status + '</small></article>';
-        tierStartRP = targetEnd;
-      });
-    }
+    trophyRanks.forEach(function(rank, i) {
+      let target = 0;
+      for (let j = 0; j < i; j++) target += requiredRP(j) * requirementMultiplier;
+      const completed = i < currentRankIndex;
+      const isCurrent = i === currentRankIndex;
+      const locked = i > currentRankIndex;
+      const engravedRP = completed ? target : (isCurrent ? Math.floor(points) : null);
+      const earned = !locked;
+      const c = rank[1], d = rank[2], s = rank[3];
+      const emblem = buildTrophyEmblem(i, c, d, s);
+      const stage = i % 5 + 1;
+      const tier = Math.floor(i / 5);
+      const engraving = engravedRP === null ? '' : '<div class="exam-trophy-rp-caption">RP: ' + engravedRP.toLocaleString() + '</div>';
+      const engravedSvg = engravedRP === null ? '' : '<text x="50" y="94" text-anchor="middle" font-size="11" font-weight="900" textLength="58" lengthAdjust="spacingAndGlyphs" fill="' + d + '">' + engravedRP.toLocaleString() + ' RP</text>';
+      const status = completed ? 'UNLOCKED' : (isCurrent ? 'CURRENT' : 'REQUIRES ' + target.toLocaleString() + ' RP');
+      cards += '<article class="exam-trophy-item rank-stage-' + stage + ' rank-tier-' + tier + ' ' + (earned ? 'earned' : 'locked') + '">' + engraving + '<div class="premium-trophy-medal ' + (earned ? 'is-earned' : 'is-locked') + '" style="--trophy-main:' + c + ';--trophy-dark:' + d + ';--trophy-shine:' + s + '"><svg viewBox="0 0 100 112" aria-hidden="true"><path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + c + '" stroke-width="9"/><path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + emblem + '<path d="M28 83h44l7 15H21Z" fill="' + c + '" stroke="' + s + '" stroke-width="2"/>' + engravedSvg + '</svg></div><strong>' + rank[0] + '</strong><small>' + status + '</small></article>';
+    });
     const weekly = weeklyPoints();
     const alltime = lifetimePoints();
     const knobValue = Math.floor(points).toLocaleString();
