@@ -1258,7 +1258,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         }
         // Keep the top three in the regular leaderboard list as well as the podium.
         var tr = document.createElement('tr');
-        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + ((selectedPeriod === 'weekly' && !isInWeeklyPromotionZone(row)) || (selectedPeriod === 'all-time' && !isInAllTimeSafeZone(row)) ? ' is-below-safe-zone' : '');
+        tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + (selectedPeriod === 'all-time' && !isInAllTimeSafeZone(row) ? ' is-below-safe-zone' : '');
         tr.dataset.medPlayer = String(row.userId || '');
         tr.dataset.totalRp = String(Number(row.totalRP || row.rankPoints || 0));
         tr.dataset.rankPoints = String(Number(row.rankPoints || 0));
