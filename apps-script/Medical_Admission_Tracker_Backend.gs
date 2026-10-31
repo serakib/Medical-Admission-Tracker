@@ -352,7 +352,7 @@ function processDailyWeeklyPromotionReview() {
       promoted: promoted,
       unchanged: unchanged,
       alreadyChecked: alreadyChecked,
-      message: 'Daily Weekly Promotion Zone check completed. Promotion sets the new rank Basic RP; no bonus, RP reset, or demotion applies.'
+      message: 'Daily Weekly Promotion Zone check completed. Promotion sets the new rank Basic RP; no bonus is added, and Weekly RP/Lifetime RP remain unchanged.'
     };
   } finally {
     lock.releaseLock();
