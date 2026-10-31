@@ -1,5 +1,5 @@
 /* In-site activity notifications for Medical Admission Tracker.
-   Uses the live Weekly leaderboard and accepted-friend list. No OS/browser push notifications. */
+   Uses the live Monthly and Weekly leaderboards and accepted-friend list. No OS/browser push notifications. */
 (function () {
   'use strict';
   if (window.__matActivityNotificationsLoaded) return;
@@ -243,13 +243,14 @@
     )));
   }
   function rowPoints(row, period) {
-    if (period === 'all-time') {
+    if (period === 'monthly') {
       return Math.max(0, numeric(row && (
-        row.totalRP != null ? row.totalRP :
-        row.raw && row.raw.totalRP != null ? row.raw.totalRP :
-        row.raw && row.raw.TotalRP != null ? row.raw.TotalRP :
-        row.rankPoints != null ? row.rankPoints :
-        row.raw && row.raw.rankPoints != null ? row.raw.rankPoints : 0
+        row.monthlyRP != null ? row.monthlyRP :
+        row.monthlyRankPoints != null ? row.monthlyRankPoints :
+        row.raw && row.raw.monthlyRP != null ? row.raw.monthlyRP :
+        row.raw && row.raw.monthlyRankPoints != null ? row.raw.monthlyRankPoints :
+        row.boardPoints != null ? row.boardPoints :
+        row.rankScore != null ? row.rankScore : 0
       )));
     }
     return rowRP(row);
@@ -268,7 +269,7 @@
   function rankRows(period) {
     const league = window.MedGlobalLeague;
     if (!league || typeof league.getCachedRows !== 'function') return [];
-    const selected = period === 'all-time' ? 'all-time' : 'weekly';
+    const selected = period === 'monthly' ? 'monthly' : 'weekly';
     let rows = [];
     try { rows = league.getCachedRows(selected) || []; } catch (_) {}
     const byId = new Map();
@@ -299,7 +300,7 @@
     const previousFriendIds = window[variableName];
     try {
       window[variableName] = Array.from(new Set((friendIds || []).map(String).filter(Boolean))).slice(0, 499);
-      localStorage.setItem(PERIOD_KEY, isWeekly ? 'weekly' : 'all-time');
+      localStorage.setItem(PERIOD_KEY, isWeekly ? 'weekly' : 'monthly');
       await league.loadLeaderboard(true);
     } catch (error) {
       console.warn('[Activity notifications] ' + period + ' leaderboard refresh failed:', error);
@@ -333,7 +334,7 @@
       name: rowName(row),
       rp: rowPoints(row, period),
       weeklyRP: rowRP(row),
-      totalRP: rowPoints(row, 'all-time'),
+      monthlyRP: rowPoints(row, 'monthly'),
       xp: rowXP(row),
       position: Math.max(0, numeric(positionOverride != null ? positionOverride : row.position)),
       rank: rowRank(row),
@@ -359,37 +360,37 @@
     });
     return result;
   }
-  function buildSnapshot(weeklyRows, allTimeRows, friendsData, periodWeek) {
+  function buildSnapshot(weeklyRows, monthlyRows, friendsData, periodWeek) {
     const app = window.app || {};
     const ownId = accountId();
     const friendIds = new Set((friendsData.ids || []).map(String).filter(id => id && id !== ownId));
     const weeklyById = new Map((weeklyRows || []).map(row => [rowId(row), row]).filter(entry => entry[0]));
-    const allTimeById = new Map((allTimeRows || []).map(row => [rowId(row), row]).filter(entry => entry[0]));
+    const monthlyById = new Map((monthlyRows || []).map(row => [rowId(row), row]).filter(entry => entry[0]));
     (friendsData.rows || []).forEach(function (row) {
       const id = rowId(row);
       if (!id || id === ownId) return;
       friendIds.add(id);
       if (!weeklyById.has(id)) weeklyById.set(id, Object.assign({}, row, { userId: id, position: 0 }));
-      if (!allTimeById.has(id)) allTimeById.set(id, Object.assign({}, row, { userId: id, position: 0 }));
+      if (!monthlyById.has(id)) monthlyById.set(id, Object.assign({}, row, { userId: id, position: 0 }));
     });
     const profile = app.profile || {};
     const weeklyOwnRow = weeklyById.get(ownId) || null;
-    const allTimeOwnRow = allTimeById.get(ownId) || null;
+    const monthlyOwnRow = monthlyById.get(ownId) || null;
     const ownWeekly = snapshotRow(weeklyOwnRow || profile, 'weekly', weeklyOwnRow ? weeklyOwnRow.position : 0);
     ownWeekly.id = ownId;
-    const ownAllTime = snapshotRow(allTimeOwnRow || profile, 'all-time', allTimeOwnRow ? allTimeOwnRow.position : 0);
+    const ownAllTime = snapshotRow(monthlyOwnRow || profile, 'monthly', monthlyOwnRow ? monthlyOwnRow.position : 0);
     ownAllTime.id = ownId;
     const weeklyPlayers = mapPlayers(Array.from(weeklyById.values()), 'weekly', friendIds, ownId);
-    const allTimePlayers = mapPlayers(Array.from(allTimeById.values()), 'all-time', friendIds, ownId);
+    const monthlyPlayers = mapPlayers(Array.from(monthlyById.values()), 'monthly', friendIds, ownId);
     const nonFriendIds = new Set([ownId].concat(Array.from(friendIds)));
     const weeklyTop100 = topMap(weeklyPlayers, 100, nonFriendIds);
-    const allTimeTop100 = topMap(allTimePlayers, 100, nonFriendIds);
+    const monthlyTop100 = topMap(monthlyPlayers, 100, nonFriendIds);
     const weeklyTop10 = topMap(weeklyPlayers, 10, nonFriendIds);
-    const allTimeTop10 = topMap(allTimePlayers, 10, nonFriendIds);
+    const monthlyTop10 = topMap(monthlyPlayers, 10, nonFriendIds);
 
-    const sameRankRows = Object.keys(allTimeTop100).map(id => allTimeTop100[id])
+    const sameRankRows = Object.keys(monthlyTop100).map(id => monthlyTop100[id])
       .filter(row => ownAllTime.rank && row.rank === ownAllTime.rank)
-      .sort((a, b) => numeric(a.position) - numeric(b.position) || numeric(b.totalRP) - numeric(a.totalRP));
+      .sort((a, b) => numeric(a.position) - numeric(b.position) || numeric(b.monthlyRP) - numeric(a.monthlyRP));
     const sameRankTop10 = {};
     sameRankRows.slice(0, 10).forEach(function (row, index) {
       sameRankTop10[row.id] = Object.assign({}, row, { tierPosition: index + 1 });
@@ -398,21 +399,21 @@
     const friends = {};
     friendIds.forEach(function (id) {
       const weeklyRow = weeklyById.get(id) || friendsData.rows.find(row => rowId(row) === id) || null;
-      const allTimeRow = allTimeById.get(id) || weeklyRow;
-      if (!weeklyRow && !allTimeRow) return;
-      const weeklySnapshot = snapshotRow(weeklyRow || allTimeRow, 'weekly', weeklyRow ? weeklyRow.position : 0);
-      const allTimeSnapshot = snapshotRow(allTimeRow || weeklyRow, 'all-time', allTimeRow ? allTimeRow.position : 0);
+      const monthlyRow = monthlyById.get(id) || weeklyRow;
+      if (!weeklyRow && !monthlyRow) return;
+      const weeklySnapshot = snapshotRow(weeklyRow || monthlyRow, 'weekly', weeklyRow ? weeklyRow.position : 0);
+      const monthlySnapshot = snapshotRow(monthlyRow || weeklyRow, 'monthly', monthlyRow ? monthlyRow.position : 0);
       friends[id] = {
         id: id,
-        name: rowName(weeklyRow || allTimeRow),
+        name: rowName(weeklyRow || monthlyRow),
         rp: weeklySnapshot.rp,
         xp: weeklySnapshot.xp,
         position: weeklySnapshot.position,
-        rank: rowRank(allTimeRow || weeklyRow),
-        avatar: weeklySnapshot.avatar || allTimeSnapshot.avatar || '',
-        allTimeRP: allTimeSnapshot.rp,
-        allTimeXP: allTimeSnapshot.xp,
-        allTimePosition: allTimeSnapshot.position
+        rank: rowRank(monthlyRow || weeklyRow),
+        avatar: weeklySnapshot.avatar || monthlySnapshot.avatar || '',
+        monthlyRP: monthlySnapshot.rp,
+        monthlyXP: monthlySnapshot.xp,
+        monthlyPosition: monthlySnapshot.position
       };
     });
     return {
@@ -420,14 +421,14 @@
       date: dayKey(),
       weekKey: periodWeek,
       own: ownWeekly,
-      allTimeOwn: ownAllTime,
+      monthlyOwn: ownAllTime,
       friends: friends,
       weeklyPlayers: weeklyPlayers,
-      allTimePlayers: allTimePlayers,
+      monthlyPlayers: monthlyPlayers,
       weeklyTop100: weeklyTop100,
-      allTimeTop100: allTimeTop100,
+      monthlyTop100: monthlyTop100,
       weeklyTop10: weeklyTop10,
-      allTimeTop10: allTimeTop10,
+      monthlyTop10: monthlyTop10,
       sameRankTop10: sameRankTop10
     };
   }
@@ -534,15 +535,15 @@
   }
   function addOwnPositionNotifications(current, baseline, currentDay, period) {
     const weekly = period === 'weekly';
-    const oldOwn = weekly ? baseline.own : baseline.allTimeOwn;
-    const newOwn = weekly ? current.own : current.allTimeOwn;
+    const oldOwn = weekly ? baseline.own : baseline.monthlyOwn;
+    const newOwn = weekly ? current.own : current.monthlyOwn;
     if (!oldOwn || !newOwn) return;
     const oldPosition = numeric(oldOwn.position);
     const newPosition = numeric(newOwn.position);
     const oldRP = numeric(oldOwn.rp);
     const newRP = numeric(newOwn.rp);
     if (oldPosition === newPosition && oldRP === newRP) return;
-    const label = weekly ? 'Weekly' : 'All Time';
+    const label = weekly ? 'Weekly' : 'Monthly';
     upsertNotification({
       id: 'my-leaderboard-position:' + period + ':' + current.weekKey + ':' + currentDay,
       type: 'leaderboard',
@@ -583,22 +584,22 @@
   }
   function addGlobalLeaderboardNotifications(current, baseline, currentDay, period) {
     const weekly = period === 'weekly';
-    const playerKey = weekly ? 'weeklyPlayers' : 'allTimePlayers';
-    const topKey = weekly ? 'weeklyTop100' : 'allTimeTop100';
-    const top10Key = weekly ? 'weeklyTop10' : 'allTimeTop10';
+    const playerKey = weekly ? 'weeklyPlayers' : 'monthlyPlayers';
+    const topKey = weekly ? 'weeklyTop100' : 'monthlyTop100';
+    const top10Key = weekly ? 'weeklyTop10' : 'monthlyTop10';
     const oldPlayers = baseline[playerKey] || {};
     const newPlayers = current[playerKey] || {};
     const oldTop = baseline[topKey] || {};
     const newTop = current[topKey] || {};
     const oldTop10 = baseline[top10Key] || {};
     const newTop10 = current[top10Key] || {};
-    const oldOwn = baseline[weekly ? 'own' : 'allTimeOwn'] || {};
-    const newOwn = current[weekly ? 'own' : 'allTimeOwn'] || {};
+    const oldOwn = baseline[weekly ? 'own' : 'monthlyOwn'] || {};
+    const newOwn = current[weekly ? 'own' : 'monthlyOwn'] || {};
     const oldTier = baseline.sameRankTop10 || {};
     const newTier = current.sameRankTop10 || {};
     const friendIds = new Set(Object.keys(current.friends || {}).concat(Object.keys(baseline.friends || {})));
     const ids = new Set(Object.keys(oldTop).concat(Object.keys(newTop)));
-    const label = weekly ? 'Weekly' : 'All Time';
+    const label = weekly ? 'Weekly' : 'Monthly';
 
     addOwnPositionNotifications(current, baseline, currentDay, period);
     ids.forEach(function (id) {
@@ -622,10 +623,10 @@
       const changedPosition = oldPosition !== newPosition;
       const changedRP = oldRP !== newRP;
       const changedXP = oldXP !== newXP;
-      const changedTier = period === 'all-time' && oldTierPosition !== newTierPosition &&
+      const changedTier = period === 'monthly' && oldTierPosition !== newTierPosition &&
         (oldTierPosition > 0 || newTierPosition > 0);
       const inTop10 = !!(oldTop10[id] || newTop10[id]);
-      const inSameRankTop10 = period === 'all-time' && (oldTierPosition > 0 || newTierPosition > 0);
+      const inSameRankTop10 = period === 'monthly' && (oldTierPosition > 0 || newTierPosition > 0);
 
       // Do not monitor non-friends across the whole Top 100.
       // Only the Global Top 10 and the user's same-rank Top 10 are followed.
@@ -644,7 +645,7 @@
       if (!old && row) movementText = 'Entered the relevant leaderboard group at #' + newPosition.toLocaleString() + '.';
       else if (old && !row) movementText = 'Moved outside the tracked leaderboard group (was #' + oldPosition.toLocaleString() + ').';
       else movementText = 'Global position: ' + rankLine(oldPosition, newPosition) + '.';
-      const rpText = (weekly ? 'Weekly RP: ' : 'All Time RP: ') + oldRP.toLocaleString() + ' → ' +
+      const rpText = (weekly ? 'Weekly RP: ' : 'Monthly RP: ') + oldRP.toLocaleString() + ' → ' +
         newRP.toLocaleString() + ' (' + deltaText(newRP - oldRP) + ' RP).';
       const xpText = 'XP: ' + oldXP.toLocaleString() + ' → ' + newXP.toLocaleString() + '.';
       let passText = '';
@@ -711,19 +712,19 @@
         await restoreCloudState(true);
         const friendsData = await acceptedFriendData();
         // Keep global competitors separate from accepted friends while tracking each
-        // public All Time/Weekly ranking with its authoritative backend position.
-        await refreshPeriodData('all-time', friendsData.ids);
+        // public Monthly/Weekly ranking with its authoritative backend position.
+        await refreshPeriodData('monthly', friendsData.ids);
         await refreshPeriodData('weekly', friendsData.ids);
         const weeklyRows = rankRows('weekly');
-        const allTimeRows = rankRows('all-time');
-        if (!weeklyRows.length && !allTimeRows.length) {
+        const monthlyRows = rankRows('monthly');
+        if (!weeklyRows.length && !monthlyRows.length) {
           lastRefreshAt = localTimestamp();
           renderBadge();
           return;
         }
         const today = dayKey();
         const week = weekKey(today);
-        const current = buildSnapshot(weeklyRows, allTimeRows, friendsData, week);
+        const current = buildSnapshot(weeklyRows, monthlyRows, friendsData, week);
         let baseline;
         if (state.dayKey !== today) {
           baseline = state.lastSnapshot && state.lastSnapshot.weekKey === week ? state.lastSnapshot : current;
@@ -735,12 +736,12 @@
         if (baseline && baseline.capturedAt !== current.capturedAt) {
           addFriendStatusNotifications(current, baseline, today);
           addTrophyNotifications(current, baseline, today);
-          const supportsGlobalSnapshots = !!(baseline.weeklyPlayers && baseline.allTimePlayers &&
-            baseline.weeklyTop100 && baseline.allTimeTop100);
+          const supportsGlobalSnapshots = !!(baseline.weeklyPlayers && baseline.monthlyPlayers &&
+            baseline.weeklyTop100 && baseline.monthlyTop100);
           if (supportsGlobalSnapshots) {
-            // Public Top 100/Top 10 alerts use the All Time board; Weekly alerts focus
+            // Public Top 100/Top 10 alerts use the Monthly board; Weekly alerts focus
             // on the student's own position while friend-by-friend weekly RP stays separate.
-            addGlobalLeaderboardNotifications(current, baseline, today, 'all-time');
+            addGlobalLeaderboardNotifications(current, baseline, today, 'monthly');
             addOwnPositionNotifications(current, baseline, today, 'weekly');
           } else {
             // First visit after this snapshot schema upgrade: establish the new baseline
