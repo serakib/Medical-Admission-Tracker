@@ -849,8 +849,8 @@
       '<div class="mat-guest-deletion-label"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> IMPORTANT GUEST ANNOUNCEMENT · স্থায়ী ঘোষণা</div>' +
       '<h3 id="mat-guest-deletion-title">গেস্ট অ্যাকাউন্ট মুছে ফেলার নিয়ম</h3>' +
       '<p><strong>১. টানা ৩ মাস (৯০ দিন) ওয়েবসাইটে না এলে:</strong> আপনার Guest account এবং সার্ভারে সংরক্ষিত সংশ্লিষ্ট ডেটা স্থায়ীভাবে মুছে ফেলা হবে। পরে ফিরে এলে পুরোনো Guest ID আর কাজ করবে না; আপনাকে নতুন Guest account তৈরি করতে হবে এবং একটি নতুন Guest ID পাবেন।</p>' +
-      '<p><strong>২. Weekly demotion-এর পর RP শূন্য হলে:</strong> আপনার Guest account-এর RP ০ হয়ে গেলে এবং পরবর্তী ৭ দিন আপনি ওয়েবসাইটে না এলে—এই সময় RP ০ থাকলে—Guest account ও সংশ্লিষ্ট সার্ভার ডেটা স্থায়ীভাবে মুছে ফেলা হবে।</p>' +
-      '<p><strong>৩. সময় কীভাবে গণনা হবে:</strong> ওই ৭ দিনের মধ্যে ওয়েবসাইটে ফিরে এলে inactivity timer আপনার সর্বশেষ visit থেকে আবার গণনা হবে। মুছে ফেলার আগে RP আবার ০-এর বেশি হলে zero-RP নিয়মে account মুছে ফেলা হবে না। তবে ৯০ দিনের inactivity নিয়ম আলাদাভাবে প্রযোজ্য থাকবে।</p>' +
+      '<p><strong>২. Weekly demotion-এর পর RP শূন্য হলে:</strong> আপনার Guest account-এর RP ০ হয়ে গেলে এবং পরবর্তী ৩ সপ্তাহ (২১ দিন) আপনি ওয়েবসাইটে না এলে—এই পুরো সময় RP ০ থাকলে—Guest account ও সংশ্লিষ্ট সার্ভার ডেটা স্থায়ীভাবে মুছে ফেলা হবে।</p>' +
+      '<p><strong>৩. সময় কীভাবে গণনা হবে:</strong> ওই ৩ সপ্তাহের মধ্যে ওয়েবসাইটে ফিরে এলে inactivity timer আপনার সর্বশেষ visit থেকে আবার গণনা হবে। মুছে ফেলার আগে RP আবার ০-এর বেশি হলে zero-RP নিয়মে account মুছে ফেলা হবে না। তবে ৯০ দিনের inactivity নিয়ম আলাদাভাবে প্রযোজ্য থাকবে।</p>' +
       '<p><strong>৪. Registered account:</strong> এই Guest deletion policy কোনো registered account-এর জন্য প্রযোজ্য নয়।</p>' +
 
       '</article>' +
