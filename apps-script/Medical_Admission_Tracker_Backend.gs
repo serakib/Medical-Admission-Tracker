@@ -1427,7 +1427,7 @@ function matRankTierCap_(rankIndex) {
 }
 
 // One-time migration from old sub-rank-local RP to Tier-cumulative RP.
-// TotalRP remains the lifetime leaderboard score and is deliberately unchanged.
+// TotalRP is retained only as the profile's Lifetime RP display value; it is not a leaderboard score.
 function matPrepareRankProgress_(source, sheet) {
   const student = Object.assign({}, source || {});
   if (Number(student.RankProgressVersion) >= MAT_RANK_PROGRESS_VERSION) return student;
@@ -1835,6 +1835,7 @@ function matBuildTop10_() {
       userId: String(r.UserID),
       name: String(r.Name || 'Medical Student'),
       monthlyRP: Number(r.MonthlyRP || 0),
+      monthStart: matMonthStartKey_(),
       rank: String(r.Rank || MAT_RANKS[0]),
       position: i + 1
     };
@@ -1851,7 +1852,8 @@ function matGetTop10Snapshot_() {
   if (raw) {
     try {
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr) && arr.every(function (row) { return row && Object.prototype.hasOwnProperty.call(row, 'monthlyRP'); })) return arr;
+      const currentMonth = matMonthStartKey_();
+      if (Array.isArray(arr) && arr.every(function (row) { return row && Object.prototype.hasOwnProperty.call(row, 'monthlyRP') && String(row.monthStart || '') === currentMonth; })) return arr;
     } catch (_) {}
   }
   const baseline = matBuildTop10_();
