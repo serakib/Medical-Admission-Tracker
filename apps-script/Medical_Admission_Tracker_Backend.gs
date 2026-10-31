@@ -308,8 +308,10 @@ function processWeeklyRankDemotions() {
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
 
-      const currentMilestoneRP = matRankMilestoneCap_(rankIndex);
-      const subRankEarnedRP = Math.max(0, matFiniteNumber_(student.RP, 0) - currentMilestoneRP);
+      // Weekly Zone decisions must use the same completed-week RP shown by the
+      // Weekly leaderboard, not lifetime/current-rank cumulative RP.
+      const previousWeekRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
+      const weeklyEarnedRP = previousWeekRP;
       const safeZoneThreshold = matRankSafeZoneThreshold_(rankIndex);
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
       let nextRankIndex = rankIndex;
@@ -319,20 +321,19 @@ function processWeeklyRankDemotions() {
       // are still handled by matApplyRankProgress_ when exam rewards are saved.
       if (rankIndex < MAT_RANKS.length - 1 &&
           promotionZoneThreshold > 0 &&
-          subRankEarnedRP >= promotionZoneThreshold) {
+          weeklyEarnedRP >= promotionZoneThreshold) {
         nextRankIndex = rankIndex + 1;
         outcome = 'promoted';
-      } else if (rankIndex > 0 && subRankEarnedRP < safeZoneThreshold) {
+      } else if (rankIndex > 0 && weeklyEarnedRP < safeZoneThreshold) {
         nextRankIndex = rankIndex - 1;
         outcome = 'demoted';
       }
 
       // Bronze V cannot demote. Only users below its Safe Zone restart at 0 RP;
       // users who reached the Safe Zone still receive the normal 30% starting RP.
-      const minimumRankBelowSafeZone = nextRankIndex === 0 && subRankEarnedRP < safeZoneThreshold;
+      const minimumRankBelowSafeZone = nextRankIndex === 0 && weeklyEarnedRP < safeZoneThreshold;
       const startingRP = minimumRankBelowSafeZone ? 0 : matRankSafeZoneReward_(nextRankIndex);
       const newRankRP = matRankMilestoneCap_(nextRankIndex) + startingRP;
-      const previousWeekRP = Math.max(0, matFiniteNumber_(previousWeekRPByUser[userId], 0));
       const highestWeeklyRP = Math.max(
         0,
         matFiniteNumber_(student.HighestWeeklyRP, 0),
