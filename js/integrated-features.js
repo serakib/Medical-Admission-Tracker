@@ -1048,16 +1048,6 @@
         const fallbackStored = storedDefaultAvatarForUser(avatarAccountId());
         window.MedGlobalLeague.updateProfile({ avatar: fallbackStored }).then(async updated => {
           app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: fallbackStored });
-          if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
-            try {
-              await app.syncFirebaseStudentProfile({
-                name: app.profile.name, college: app.profile.college, batch: app.profile.batch,
-                avatar: stripAvatarDefaultMarker(fallbackStored)
-              });
-            } catch (error) {
-              console.warn('[Profile avatar] Default avatar restored; Firebase mirror did not update:', error);
-            }
-          }
           refreshAvatarViews();
         }).catch(error => {
           console.warn('[Profile avatar] Avatar deleted locally, but default avatar sync failed:', error);
@@ -1100,14 +1090,6 @@
           }
           app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: serverAvatar });
           try { localStorage.setItem(avatarKey(), candidate); } catch (_) {}
-          if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
-            try {
-              await app.syncFirebaseStudentProfile({ name: app.profile.name, college: app.profile.college, batch: app.profile.batch, avatar: candidate });
-            } catch (firebaseError) {
-              // Firebase mirroring is secondary: the global leaderboard already has the shared Sheets avatar.
-              console.warn('[Profile avatar] Medical Sheets avatar is synced; Firebase mirror did not update:', firebaseError);
-            }
-          }
           setAvatarStatus('Profile avatar saved. Checking the public leaderboard copy…');
           refreshAvatarViews();
           if (typeof window.MedGlobalLeague?.reload === 'function') {
