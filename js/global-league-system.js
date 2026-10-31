@@ -1718,7 +1718,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     ensureUI();
     var periodForRequest = selectedPeriod;
     // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
-    // Otherwise a slow friendConnections call leaves the old All-Time request valid long enough
+    // Otherwise a slow friendConnections call leaves the old Monthly request valid long enough
     // to repaint the table after the user has already switched to Friends.
     var requestId = ++loadSequence;
     var leaderboardView = document.getElementById('view-leaderboard');
