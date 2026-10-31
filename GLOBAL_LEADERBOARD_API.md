@@ -50,7 +50,7 @@ The two main spreadsheets and tabs are configured in the backend:
 - `ExamAttempts`: attempts, committed rewards, and the persistent FIFO leaderboard-activity notification queue.
 - `StudentFriends`: friend requests and accepted links.
 
-`setupBackend()` ensures the five-minute notification/PB-expiry trigger, hourly Guest cleanup trigger, and Saturday ~01:00 Asia/Dhaka weekly rank-review trigger exist. The weekly review checks the just-completed Saturday–Friday week, applies at most one rank change per student, and does not reduce lifetime Total RP. Activity Telegram notifications have a daily cap of 20 and unsent activity remains queued. Signup alerts are separate from that cap.
+`setupBackend()` ensures the five-minute notification/PB-expiry trigger, hourly Guest cleanup trigger, daily ~01:00 Asia/Dhaka Weekly Promotion Zone check, and monthly ~01:00 Asia/Dhaka Main Rank Safe Zone review exist. Weekly review promotes at most one subrank per daily check and has no Safe Zone or demotion. Monthly review can demote by one Main Rank. Every rank change sets current RP to the target rank's Basic RP; no extra 30% starting RP is added. Lifetime Total RP is unchanged. Activity Telegram notifications have a daily cap of 20 and unsent activity remains queued. Signup alerts are separate from that cap.
 
 ## In-site Notifications are separate from Apps Script
 
