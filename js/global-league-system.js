@@ -1026,7 +1026,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var remainingToSafe = Math.max(0, safeThreshold - earnedRP);
     var remainingToPromotion = Math.max(0, promotionThreshold - earnedRP);
     var remainingToRank = Math.max(0, requiredRP - earnedRP);
-    var safe = isMonthlyLeaderboard ? (isCompleted || earnedRP >= safeThreshold) : true;
+    var isMinimumMainRank = isMonthlyLeaderboard && mainTierStartIndex === 0;
+    var safe = isMonthlyLeaderboard ? (isMinimumMainRank || isCompleted || earnedRP >= safeThreshold) : true;
     var promotion = isWeeklyLeaderboard && (isCompleted || earnedRP >= promotionThreshold);
     var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : lifetimeRP;
     var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : isMonthlyLeaderboard ? 'Monthly RP' : 'Lifetime RP';
@@ -1055,6 +1056,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       stateTitle = 'Completed ✓';
       stateDetail = isMonthlyLeaderboard ? 'এই Monthly Main Rank Trophy-এর RP milestone সম্পন্ন হয়েছে।' : isWeeklyLeaderboard ? 'এই Weekly Main Rank milestone সম্পন্ন হয়েছে।' : 'এই trophy milestone সম্পন্ন হয়েছে।';
       trackState = isWeeklyLeaderboard ? 'is-promotion' : 'is-safe';
+    } else if (isMonthlyLeaderboard && isMinimumMainRank) {
+      stateTitle = 'Minimum Main Rank';
+      stateDetail = 'এর নিচে আর কোনো Main Rank নেই; Monthly Demotion প্রযোজ্য নয়।';
     } else if (isMonthlyLeaderboard && !safe) {
       stateTitle = 'Safe Zone-এর নিচে';
       stateDetail = 'Monthly Safe Zone-এ থাকতে আরও ' + remainingToSafe.toLocaleString() + ' RP দরকার।';
@@ -1168,6 +1172,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return Math.max(0, Number(row && (row.monthlyRP != null ? row.monthlyRP : row.monthlyRankPoints != null ? row.monthlyRankPoints : row.boardPoints)) || 0);
   }
   function isInMonthlySafeZone(row) {
+    var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
+    if (rankIndex >= 0 && Math.floor(rankIndex / 5) === 0) return true;
     return monthlyPointsForRow(row) >= monthlySafeZoneThresholdFor(row);
   }
   function promotionZoneThresholdFor(row) {
