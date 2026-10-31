@@ -791,8 +791,8 @@
     wrap.className = 'mat-dash-shortcuts';
     wrap.innerHTML = [
       ['streak','fa-fire-flame-curved','Streak','View current & highest streak'],
-      ['rp','fa-ranking-star','RP Details','Monthly and weekly RP details'],
-      ['rules','fa-circle-info','Ranking Rules','XP, RP, trophies & Safe Zone']
+      ['rp','fa-ranking-star','RP Details','Monthly, weekly & rank-change RP details'],
+      ['rules','fa-circle-info','Ranking Rules','Promotion, demotion, RP & review schedule']
     ].map(([key, icon, title, subtitle]) => '<button type="button" class="mat-dash-shortcut" data-shortcut="' + key + '"><span class="mat-dash-shortcut-icon"><i class="fa-solid ' + icon + '" aria-hidden="true"></i></span><span class="mat-dash-shortcut-copy"><strong>' + title + '</strong><small>' + subtitle + '</small></span></button>').join('');
     stats.insertAdjacentElement('afterend', wrap);
   }
@@ -800,13 +800,13 @@
     const profile = app.profile || {};
     const progress = profileProgress();
     if (key === 'rules') {
-      modal('Leaderboard & Progress Rules', '<ul><li>XP records learning activity and progress; RP determines ranking.</li><li>Monthly RP determines the Monthly leaderboard and Monthly Safe Zone; Weekly RP determines the Weekly leaderboard and its Promotion Zone.</li><li>Trophies represent rank/subrank progress. The progress star advances as progress increases.</li><li>The Monthly Safe Zone applies to the whole Main Rank. Weekly has a Promotion Zone only—no Safe Zone or demotion.</li><li>The Safe Zone percentage is an internal calculation and is not displayed as a percentage to students.</li></ul>');
+      modal('Leaderboard & Progress Rules', '<ul><li><strong>XP and RP:</strong> XP records learning activity; RP determines rank progression and leaderboard points.</li><li><strong>Immediate Promotion:</strong> Reaching 100% of the next rank milestone promotes you immediately by one subrank.</li><li><strong>Weekly Promotion Zone:</strong> Weekly RP is counted from Saturday through Friday. At 70% or more of the next subrank promotion cost, the daily review promotes you by one subrank. The review runs at about 01:00 Bangladesh time; Saturday checks the completed week, while Sunday–Friday checks the current week. Weekly has no Safe Zone and no demotion.</li><li><strong>Monthly Safe Zone:</strong> Monthly RP follows the Bangladesh calendar month. The monthly review checks the previous completed month against the Safe Zone for your whole Main Rank. It may demote you by one Main Rank; there is no Monthly Promotion Zone.</li><li><strong>RP after a rank change:</strong> Every promotion or demotion sets current RP to the target rank’s Basic RP. No extra 30% Safe Zone RP or other starting bonus is added. A rank change does not increase or reduce Lifetime RP.</li><li><strong>Trophies:</strong> Trophies show your current rank/subrank progress. The progress star advances as progress increases.</li><li>Safe Zone percentages are internal calculations; the app shows the RP boundary rather than displaying the percentage.</li></ul>');
       return;
     }
     if (key === 'rp') {
       const monthly = Number(profile.monthlyRP ?? profile.monthlyRankPoints ?? 0);
       const weekly = Number(profile.weeklyRankPoints ?? profile.weeklyRP ?? 0);
-      modal('Your RP Details', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Monthly RP</small><h2 style="margin:5px 0 0">' + number(monthly) + '</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Weekly RP</small><h2 style="margin:5px 0 0">' + number(weekly) + '</h2></div></div><p>Monthly RP is calculated from the Bangladesh calendar month. Weekly RP is calculated from the current week.</p>');
+      modal('Your RP Details', '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Monthly RP</small><h2 style="margin:5px 0 0">' + number(monthly) + '</h2></div><div style="padding:14px;border:1px solid var(--line,rgba(148,163,184,.2));border-radius:14px"><small>Weekly RP</small><h2 style="margin:5px 0 0">' + number(weekly) + '</h2></div></div><p>Monthly RP counts RP earned during the current Bangladesh calendar month and starts a new period on the 1st. Weekly RP counts RP earned in the current Saturday–Friday week and starts a new period each Saturday. These earned-RP totals are separate from current rank RP. Promotion or demotion sets current RP to the target rank’s Basic RP; it does not award a 30% bonus or add to Lifetime RP.</p>');
       return;
     }
     if (key === 'streak') {
