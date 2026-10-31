@@ -20,11 +20,11 @@ const MAT_CONFIG = Object.freeze({
   LEADERBOARD_SIZE: 100,
   TOP_ACTIVITY_SIZE: 10,
   TRIGGER_MINUTES: 5,
-  WEEKLY_DEMOTION_HOUR: 1
+  MONTHLY_REVIEW_HOUR: 1
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.10.30.10';
+const MAT_API_VERSION = '2026.10.31.01';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -236,7 +236,7 @@ function setupBackend() {
   ScriptApp.newTrigger('processAllTimeMonthlyRankReview')
     .timeBased()
     .onMonthDay(1)
-    .atHour(MAT_CONFIG.WEEKLY_DEMOTION_HOUR)
+    .atHour(MAT_CONFIG.MONTHLY_REVIEW_HOUR)
     .inTimezone(MAT_CONFIG.TIME_ZONE)
     .create();
 
