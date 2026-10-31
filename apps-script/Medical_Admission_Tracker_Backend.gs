@@ -1589,7 +1589,6 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       matUpdateObjectRow_(matGetStudentsSheet_(), s._rowNumber, { HighestMonthlyRP: highestMonthlyRP });
       s.HighestMonthlyRP = highestMonthlyRP;
     }
-    const lifetimeRP = Math.max(0, Number(s.TotalRP || 0));
     const examStats = examStatsByUser[s.UserID] || { matches: 0, correct: 0, wrong: 0, accuracy: 0 };
     return {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
@@ -1602,7 +1601,6 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       leaderboardRequiredRPMultiplier: safePeriod === 'monthly' ? 5 : 1,
       levelProgress: matGetLevelProgress_(s.XP),
-      totalRP: lifetimeRP,
       monthlyRP: monthlyRP,
       monthlyRankPoints: monthlyRP,
       highestWeeklyRP: highestWeeklyRP,
@@ -1707,8 +1705,10 @@ function matGetWeeklyRPByUser_(startInclusive, endExclusive) {
 }
 
 function matGetMonthlyRPByUser_(startInclusive, endExclusive) {
+  // Monthly RP always follows the Bangladesh calendar month (Asia/Dhaka).
+  // The end boundary is exclusive: next month's first day at 00:00 Asia/Dhaka.
   const monthStart = String(startInclusive || matMonthStartKey_());
-  const monthEnd = String(endExclusive || '');
+  const monthEnd = String(endExclusive || matOffsetMonthStartKey_(monthStart, 1));
   const totals = {};
   matReadObjects_(matGetExamSheet_()).forEach(function (row) {
     const recordType = String(row.RecordType || '').toUpperCase();
