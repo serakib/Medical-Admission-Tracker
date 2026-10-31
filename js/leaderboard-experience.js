@@ -351,7 +351,7 @@
         syncMissingRequestIds();
         saveConnectionCache();
         if (!acceptedFriends.length && acceptedFriendIds.size && window.MedGlobalLeague?.getCachedRows) {
-          const cachedProfiles = ['all-time', 'weekly', 'friends'].flatMap(period => window.MedGlobalLeague.getCachedRows(period) || []);
+          const cachedProfiles = ['monthly', 'weekly', 'friends'].flatMap(period => window.MedGlobalLeague.getCachedRows(period) || []);
           acceptedFriends = Array.from(acceptedFriendIds).map(id => cachedProfiles.find(row =>
             String(row?.userId || row?.uid || row?.playerId || row?.raw?.userId || '') === id
           )).filter(Boolean);
