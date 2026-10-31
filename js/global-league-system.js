@@ -275,6 +275,7 @@
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
     profile.monthlyRP = Math.max(0, Number(user.monthlyRP != null ? user.monthlyRP : user.monthlyRankPoints) || 0);
+    profile.highestMonthlyRP = Math.max(0, Number(user.highestMonthlyRP) || 0, profile.monthlyRP);
     profile.highestWeeklyRP = Math.max(0, Number(user.highestWeeklyRP) || 0);
     profile.level = Math.max(1, Number(user.level) || 1);
     // Preserve queued local activity until the server acknowledges it; otherwise use
@@ -368,6 +369,9 @@
     setText('account-profile-name', profile.name);
     setText('profile-email', app.authUser ? (profile.email || 'Signed in') : 'Guest mode · আপনার profile server-এ সংরক্ষিত');
     setText('profile-highest-weekly-rp', profile.highestWeeklyRP.toLocaleString());
+    setText('profile-lifetime-rp', profile.totalRP.toLocaleString());
+    setText('profile-monthly-rp', profile.monthlyRP.toLocaleString());
+    setText('profile-highest-monthly-rp', profile.highestMonthlyRP.toLocaleString());
     setText('account-profile-email', app.authUser ? (profile.email || 'Registered account') : 'Guest account · Device session');
     setText('account-profile-status', app.authUser ? 'Registered account' : 'Guest account');
     var form = document.getElementById('medical-profile-form');
@@ -669,6 +673,7 @@
       level: boardLevel,
       rank: rank, rankPoints: currentRP, totalRP: totalRP, monthlyRP: monthlyRP,
       highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
+      highestMonthlyRP: Math.max(0, Number(raw.highestMonthlyRP != null ? raw.highestMonthlyRP : raw.HighestMonthlyRP) || 0, monthlyRP),
       rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
       leaderboardRequiredRPMultiplier: Math.max(1, Number(raw.leaderboardRequiredRPMultiplier) || 1),
       weeklyRankPoints: weeklyRP, monthlyRankPoints: monthlyRP, boardPoints: boardPoints,
@@ -995,7 +1000,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isMainRankLeaderboard = isWeeklyLeaderboard || isMonthlyLeaderboard;
     var monthlyRP = Math.max(0, Number(me.monthlyRP) || 0);
     var weeklyEarnedRP = weeklyPointsForRow(me);
-    var lifetimeRP = Math.max(0, Number(me.totalRP) || 0);
+    var currentRankRP = Math.max(0, Number(me.rankPoints) || 0);
     var mainTierStartIndex = Math.floor(selectedRankIndex / 5) * 5;
     var mainTierEndIndex = Math.min(mainTierStartIndex + 5, RANKS.length);
     var mainTierStartRP = 0;
@@ -1008,7 +1013,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isFinalTrophy = isMainRankLeaderboard ? mainTierStartIndex >= RANKS.length - 5 : selectedRankIndex >= RANKS.length - 1;
     var requiredRPMultiplier = Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5);
     var requiredRP = isMainRankLeaderboard ? mainTierRequiredRP : rankPromotionCostForIndex(selectedRankIndex) * requiredRPMultiplier;
-    var progressPoints = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : lifetimeRP;
+    var progressPoints = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : currentRankRP;
     var currentMainRankStartIndex = Math.floor(currentRankIndex / 5) * 5;
     var isCompleted = isMainRankLeaderboard
       ? (isMonthlyLeaderboard && selectedRankIndex < currentMainRankStartIndex) || (requiredRP > 0 && progressPoints >= mainTierStartRP + requiredRP)
@@ -1029,8 +1034,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isMinimumMainRank = isMonthlyLeaderboard && mainTierStartIndex === 0;
     var safe = isMonthlyLeaderboard ? (isMinimumMainRank || isCompleted || earnedRP >= safeThreshold) : true;
     var promotion = isWeeklyLeaderboard && (isCompleted || earnedRP >= promotionThreshold);
-    var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : lifetimeRP;
-    var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : isMonthlyLeaderboard ? 'Monthly RP' : 'Lifetime RP';
+    var progressDisplayRP = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : currentRankRP;
+    var progressDisplayLabel = isWeeklyLeaderboard ? 'Weekly RP' : isMonthlyLeaderboard ? 'Monthly RP' : 'Current Rank RP';
     var selectedRankDisplayName = isMainRankLeaderboard ? RANKS[mainTierStartIndex].split(' ')[0] : RANKS[selectedRankIndex];
     var selectedNextRank = isMainRankLeaderboard
       ? (mainTierStartIndex >= RANKS.length - 5 ? '' : RANKS[mainTierStartIndex + 5].split(' ')[0])
@@ -1152,7 +1157,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   function safeZoneThresholdFor(row) {
     var vault = window.MedAchievementVaultTrophies;
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
-    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && (row.totalRP || row.rankPoints) || 0);
+    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && row.rankPoints || 0);
     if (info && info.atMax) {
       var previous = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName('Immortal II') : null;
       return Math.ceil(Math.max(0, Number(previous && previous.required) || 0) * 0.30);
@@ -1179,7 +1184,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   function promotionZoneThresholdFor(row) {
     var vault = window.MedAchievementVaultTrophies;
     var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
-    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && (row.totalRP || row.rankPoints) || 0);
+    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && row.rankPoints || 0);
     if (info && info.atMax) return 0;
     // 70% begins the weekly Promotion Zone; reaching 100% promotes immediately server-side.
     return Math.ceil(Math.max(0, Number(info && info.required) || 0) * 0.70);
@@ -1364,7 +1369,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
-      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP, monthlyRP: me.monthlyRP,
+      avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, totalRP: me.totalRP, monthlyRP: me.monthlyRP, highestMonthlyRP: me.highestMonthlyRP,
       level: me.level, rank: me.rank, rankProgress: me.rankProgress, accountType: me.accountType, streak: me.streak
     }));
   }
