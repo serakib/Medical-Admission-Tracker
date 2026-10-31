@@ -778,7 +778,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         '<details><summary><span class="mat-rule-icon reward"><i class="fa-solid fa-bolt"></i></span><span><strong>৩. প্র্যাকটিস মোডে RP-এর নিয়ম</strong><small>সব মোডে একই final-score RP/XP সূত্র</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>প্র্যাকটিসসহ সব exam mode-এ একই base reward সূত্র: negative marking-এর পর প্রতি ১ final score-এ +৫ RP ও +৮ XP। ভুল উত্তরে ০.২৫ নম্বর কেটে final score হিসাব হয় এবং score শূন্যের নিচে যায় না। ৩০ বা তার বেশি প্রশ্নের পরীক্ষায় weighted PB bonus আলাদা; এটি base RP/XP সূত্র বদলায় না।</div></details>' +
         '<details><summary><span class="mat-rule-icon trophy"><i class="fa-solid fa-trophy"></i></span><span><strong>৪. র‍্যাঙ্ক, RP প্রয়োজন ও ট্রফি</strong><small>র‍্যাঙ্ক উন্নতি, RP বহন এবং ট্রফির ধাপ</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>র‍্যাঙ্কের ক্রম: Bronze V → IV → III → II → I, এরপর Silver, Gold, Platinum, Emerald, Diamond, Master, Grandmaster, Legend, Mythic পেরিয়ে সর্বোচ্চ Immortal I। কোনো ধাপ বাদ যায় না। প্রথম উন্নতির জন্য ৫০০ বর্তমান RP প্রয়োজন। পরের প্রতিটি ধাপে প্রয়োজন = ৫০০ + আগের ধাপের খরচের ২০%; পরিমাণ নিকটতম ৫ RP-তে পূর্ণসংখ্যা করা হয় (যেমন ৫০০ → ৬০০ → ৬২০ → ৬২৫ RP)। প্রয়োজনীয় RP হলে র‍্যাঙ্ক বাড়ে এবং অতিরিক্ত RP পরের ধাপে যোগ হয়। Immortal V থেকে I পর্যন্ত ট্রফি/প্রতীকের আলাদা রঙ ও নকশা রয়েছে।</div></details>' +
         '<details><summary><span class="mat-rule-icon weekly"><i class="fa-solid fa-shield-halved"></i></span><span><strong>৫. সাপ্তাহিক সেফ জোন ও র‍্যাঙ্ক কমা</strong><small>সাপ্তাহিক কার্যক্রম, র‍্যাঙ্ক সুরক্ষা ও RP সমন্বয়</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div class="mat-safe-rule-content"><ul class="mat-safe-rule-bullets"><li><strong>সেফ জোন:</strong> বর্তমান র‍্যাঙ্ক ধরে রাখার ন্যূনতম RP; এটি র‍্যাঙ্ক বাড়ায় না।</li><li><strong>তাৎক্ষণিক র‍্যাঙ্ক উন্নতি:</strong> বর্তমান র‍্যাঙ্কের ১০০% প্রয়োজনীয় RP পূরণ হলেই সঙ্গে সঙ্গে এক ধাপ উন্নতি হবে; এই ক্ষেত্রে নতুন র‍্যাঙ্কের Safe Zone-এর ৩০% starting RP যোগ হবে না।</li><li><strong>সাপ্তাহিক Promotion/Demotion:</strong> সপ্তাহ শেষে Promotion Zone পূরণ থাকলে এক ধাপ Promotion, আর Safe Zone-এর নিচে থাকলে এক ধাপ Demotion হবে। Promotion/Demotion-এর পর নতুন র‍্যাঙ্কের Safe Zone-এর ৩০% starting RP যোগ হবে। Safe Zone-এর মধ্যে থাকলে র‍্যাঙ্ক অপরিবর্তিত থাকবে।</li><li><strong>Bronze V:</strong> সর্বনিম্ন র‍্যাঙ্ক; এর নিচে Demotion হবে না। সপ্তাহ শেষে Safe Zone-এর নিচে থাকলে Bronze V-তেই থাকবে এবং starting RP শূন্য হবে; Safe Zone পূরণ থাকলে স্বাভাবিক ৩০% starting RP পাবে।</li><li><strong>Immortal:</strong> সর্বোচ্চ র‍্যাঙ্ক; এর ওপরে কোনো র‍্যাঙ্ক নেই।</li><li><strong>সাপ্তাহিক চক্র:</strong> শনিবার থেকে শুক্রবার; বাংলাদেশ সময় শনিবার রাত প্রায় ১টায় পর্যালোচনা নির্ধারিত।</li><li><strong>Lifetime Total RP:</strong> কখনো কমানো হয় না।</li></ul></div></details>' +
-        '<details><summary><span class="mat-rule-icon board"><i class="fa-solid fa-ranking-star"></i></span><span><strong>৬. সর্বকাল, বন্ধু ও সাপ্তাহিক তালিকা</strong><small>তিন ধরনের আলাদা র‍্যাঙ্কিং</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>সর্বকালীন তালিকা মোট lifetime RP অনুযায়ী, বন্ধু তালিকা শুধু গ্রহণ করা বন্ধুদের মধ্যে, আর সাপ্তাহিক তালিকা চলতি সপ্তাহের RP অনুযায়ী সাজানো হয়। তিনটি তালিকা আলাদা; তবে শিক্ষার্থী প্রোফাইল ও র‍্যাঙ্কের তথ্য একই অ্যাকাউন্টের সঙ্গে সিঙ্ক হবে।</div></details>' +
+        '<details><summary><span class="mat-rule-icon board"><i class="fa-solid fa-ranking-star"></i></span><span><strong>৬. মাসিক, বন্ধু ও সাপ্তাহিক তালিকা</strong><small>তিন ধরনের আলাদা র‍্যাঙ্কিং</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>মাসিক তালিকা চলতি মাসের RP অনুযায়ী, বন্ধু তালিকা শুধু গ্রহণ করা বন্ধুদের মধ্যে এবং সাপ্তাহিক তালিকা চলতি সপ্তাহের RP অনুযায়ী সাজানো হয়। Lifetime RP শুধু Profile-এ দেখানো হয়; র‍্যাঙ্কিং বা Trophy progression-এ ব্যবহৃত হয় না।</div></details>' +
         '<details><summary><span class="mat-rule-icon account"><i class="fa-solid fa-user-check"></i></span><span><strong>৭. প্রোফাইল ও পুরস্কার সিঙ্ক</strong><small>নিজের তথ্য হালনাগাদ রাখুন</small></span><i class="fa-solid fa-chevron-down mat-rule-chevron"></i></summary><div>লিডারবোর্ড ব্যবহারের আগে নিজের নাম, কলেজ ও ব্যাচ লিখে সংরক্ষণ করুন। নেটওয়ার্ক সমস্যা হলে অবস্থা দেখে আবার সিঙ্ক করুন; নিশ্চিত না হওয়া পুরস্কারকে চূড়ান্ত ধরে নেবেন না।</div></details>' +
         '</div><p class="mat-rules-foot"><i class="fa-solid fa-circle-info"></i> পরীক্ষার পর sync হওয়া confirmed XP ও RP-ই এই version-এর final reward।</p></div>';
       document.body.appendChild(rules);
@@ -995,7 +995,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var selectedRankName = RANKS.indexOf(selectedRank) >= 0 ? selectedRank : me.rank;
     var selectedRankIndex = RANKS.indexOf(selectedRankName);
     if (selectedRankIndex < 0) selectedRankIndex = currentRankIndex;
-    var isWeeklyLeaderboard = selectedPeriod === 'weekly';
+    var isWeeklyLeaderboard = selectedPeriod === 'weekly' || selectedPeriod === 'friends';
     var isMonthlyLeaderboard = selectedPeriod === 'monthly';
     var isMainRankLeaderboard = isWeeklyLeaderboard || isMonthlyLeaderboard;
     var monthlyRP = Math.max(0, Number(me.monthlyRP) || 0);
@@ -1131,11 +1131,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var controls = document.getElementById('med-rank-controls');
     if (controls) controls.style.display = dashboard && !dashboard.classList.contains('hidden') ? 'flex' : 'none';
     var infoRp = document.getElementById('med-top-rp');
-    var visibleRP = selectedPeriod === 'weekly'
+    var visibleRP = (selectedPeriod === 'weekly' || selectedPeriod === 'friends')
       ? weeklyPointsForRow(me)
-      : selectedPeriod === 'monthly'
-        ? Math.max(0, Number(me && me.monthlyRP) || Number(currentProfile && currentProfile.monthlyRP) || 0)
-        : Math.max(0, Number(me && me.totalRP) || Number(currentProfile && currentProfile.totalRP) || Number(me && me.rankPoints) || 0);
+      : Math.max(0, Number(me && me.monthlyRP) || Number(currentProfile && currentProfile.monthlyRP) || 0);
     if (infoRp) infoRp.textContent = String(visibleRP) + ' RP';
   }
   function showOverlay(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
@@ -1201,7 +1199,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
   // Weekly leaderboard progress and zone membership must use only RP earned
   // during the current week. Lifetime rank is still used to choose the applicable
-  // rank threshold, but lifetime RP/rankProgress must never drive weekly progress.
+  // rank threshold, but Lifetime RP must never drive Weekly or Monthly progress.
   function subRankPointsForRow(row) {
     return weeklyPointsForRow(row);
   }
@@ -1279,7 +1277,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (displayRows.length) {
       if (podium) {
         podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
-          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
+          return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || 0) + '" data-monthly-rp="' + Number(row.monthlyRP || row.monthlyRankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
             '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + '</span>' +
             '<small>' + escapeHtml(selectedPeriod === 'monthly' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
@@ -1300,7 +1298,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var tr = document.createElement('tr');
         tr.className = 'leader-row' + (row.isMine ? ' is-me' : '') + ((selectedPeriod === 'monthly' && !isInMonthlySafeZone(row)) ? ' is-below-safe-zone' : '');
         tr.dataset.medPlayer = String(row.userId || '');
-        tr.dataset.totalRp = String(Number(row.totalRP || row.rankPoints || 0));
+        tr.dataset.totalRp = String(Number(row.totalRP || 0));
+        tr.dataset.monthlyRp = String(Number(row.monthlyRP || row.monthlyRankPoints || 0));
         tr.dataset.rankPoints = String(Number(row.rankPoints || 0));
         tr.dataset.weeklyRp = String(Number(row.weeklyRankPoints || 0));
         tr.dataset.monthlyRp = String(Number(row.monthlyRP || row.monthlyRankPoints || 0));
