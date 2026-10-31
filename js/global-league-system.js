@@ -51,6 +51,7 @@
   var selectedRank = '';
   var rawRows = [];
   var currentProfile = null;
+  var profileMirrorPromise = Promise.resolve();
   var identityPromise = null;
   var loadSequence = 0;
   var suppressRankClickUntil = 0;
@@ -313,16 +314,17 @@
     app.profile = profile;
     // Medical Sheets is the canonical shared profile for name, college, batch and avatar.
     // Keep Firebase Auth/Firestore as a synchronized mirror for every app surface.
-    if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
-      app.syncFirebaseStudentProfile({
-        name: profile.name,
-        college: profile.college,
-        batch: profile.batch,
-        avatar: profile.avatar || ''
-      }).catch(function (error) {
-        console.warn('[Profile sync] Firebase mirror could not be updated:', error);
-      });
-    }
+    profileMirrorPromise = app.authUser && typeof app.syncFirebaseStudentProfile === 'function'
+      ? app.syncFirebaseStudentProfile({
+          name: profile.name,
+          college: profile.college,
+          batch: profile.batch,
+          avatar: profile.avatar || ''
+        }).catch(function (error) {
+          console.warn('[Profile sync] Firebase mirror could not be updated:', error);
+          return false;
+        })
+      : Promise.resolve(true);
     var storageKey = 'med_sheet_profile_v1_' + accountKey();
     try { localStorage.setItem(storageKey, JSON.stringify(profile)); } catch (_) {}
     // Keep local profile widgets aligned with the server-authoritative Medical XP/RP.
@@ -422,7 +424,9 @@
       avatar: safeText(fields.avatar || existing.avatar || '', 20000)
     });
     if (!response.user) throw new Error('Medical API did not return the registered profile.');
-    return applyProfile(response.user);
+    var registeredProfile = applyProfile(response.user);
+    await profileMirrorPromise;
+    return registeredProfile;
   }
   async function syncIdentity() {
     if (app.__medicalRegistrationInProgress) return null;
@@ -591,7 +595,9 @@
     var creds = await credentialsForCurrentUser();
     var response = await request(Object.assign({ action: 'updateProfile' }, creds, allowed));
     if (!response.user) throw new Error('Updated profile was not returned by the API.');
-    return applyProfile(response.user);
+    var updatedProfile = applyProfile(response.user);
+    await profileMirrorPromise;
+    return updatedProfile;
   }
 
   // Reuse the exact avatar selected on Student Profile for the signed-in student.
@@ -2450,11 +2456,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             college: submittedCollege,
             batch: submittedBatch,
           });
-          if (app.authUser && typeof app.syncFirebaseStudentProfile === 'function') {
-            await app.syncFirebaseStudentProfile({
-              name: updated.name, college: updated.college, batch: updated.batch, avatar: updated.avatar
-            });
-          }
           // Remember successful personal-info completion per account, so a temporary
           // profile-loading delay after exam/session completion cannot reopen the gate.
           markLeaderboardProfileComplete({
