@@ -635,7 +635,6 @@
     var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
     var rank = RANKS.indexOf(raw.rank || raw.Rank) >= 0 ? (raw.rank || raw.Rank) : RANKS[0];
     var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
-    var storedTotalRP = Math.max(currentRP, Number(raw.totalRP != null ? raw.totalRP : raw.TotalRP != null ? raw.TotalRP : currentRP) || 0);
     // Prefer explicit week totals. Older API deployments may expose the requested
     // period score as rankScore/score/boardPoints instead of weeklyRP fields.
     var weeklySource = raw.weeklyRP != null ? raw.weeklyRP
@@ -650,8 +649,6 @@
         ? (raw.rankScore != null ? raw.rankScore : raw.score != null ? raw.score : raw.boardPoints != null ? raw.boardPoints : 0)
         : 0);
     var monthlyRP = Math.max(0, Number(monthlySource) || 0);
-    // Keep the lifetime >= current-week invariant even when consuming a stale/legacy API payload.
-    var totalRP = storedTotalRP;
     var xp = Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0);
     // Account profile's XP progression is the canonical display rule. The API's
     // stored Level may have been calculated with an older/different formula.
@@ -671,7 +668,7 @@
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       xp: xp,
       level: boardLevel,
-      rank: rank, rankPoints: currentRP, totalRP: totalRP, monthlyRP: monthlyRP,
+      rank: rank, rankPoints: currentRP, monthlyRP: monthlyRP,
       highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
       highestMonthlyRP: Math.max(0, Number(raw.highestMonthlyRP != null ? raw.highestMonthlyRP : raw.HighestMonthlyRP) || 0, monthlyRP),
       rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
