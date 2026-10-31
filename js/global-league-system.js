@@ -1033,9 +1033,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         ? (mainTierStartIndex >= 5 ? RANKS[mainTierStartIndex - 5].split(' ')[0] : RANKS[0].split(' ')[0])
         : (RANKS[selectedRankIndex - 1] || me.rank);
       var lockedTitle = selectedRankDisplayName;
+      var currentRankDisplayName = isAllTimeLeaderboard && currentRankIndex >= 0
+        ? RANKS[Math.floor(currentRankIndex / 5) * 5].split(' ')[0]
+        : me.rank;
       area.innerHTML =
         '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(lockedTitle) +
-        ' · Locked</strong><small>Current rank: ' + escapeHtml(me.rank) + ' · ' + progressDisplayLabel + ': ' +
+        ' · Locked</strong><small>Current rank: ' + escapeHtml(currentRankDisplayName) + ' · ' + progressDisplayLabel + ': ' +
         progressDisplayRP.toLocaleString() + '</small></span><span class="mat-rank-rp">LOCKED</span></div>' +
         '<div class="mat-safe-zone-caption at-risk"><i class="fa-solid fa-lock"></i><span><strong>First unlock the previous trophy</strong>' +
         '<small>' + escapeHtml(previousRequiredRank) + ' unlock না হওয়া পর্যন্ত ' +
@@ -1075,11 +1078,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         promotionThreshold.toLocaleString() + ' RP</span></div>'
       : '<div class="mat-rank-locked"><i class="fa-solid fa-trophy"></i><span>এই সর্বোচ্চ Main Rank-এর পরে আর কোনো trophy milestone নেই।</span></div>';
 
+    var currentRankDisplayName = isAllTimeLeaderboard && currentRankIndex >= 0
+      ? RANKS[Math.floor(currentRankIndex / 5) * 5].split(' ')[0]
+      : me.rank;
     area.innerHTML =
       '<div class="mat-rank-progress-line"><span><strong>' + escapeHtml(selectedRankDisplayName) + ' → ' +
       escapeHtml(selectedNextRank || 'Maximum Trophy') + '</strong><small>' +
       earnedRP.toLocaleString() + ' / ' + requiredRP.toLocaleString() + ' RP · ' +
-      escapeHtml(me.rank) + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
+      escapeHtml(currentRankDisplayName) + '</small></span><span class="mat-rank-rp"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
       progressDisplayRP.toLocaleString() + ' ' + progressDisplayLabel + '</span></span></div>' + track +
       '<div class="mat-safe-zone-caption ' + (isCompleted ? '' : (!safe ? 'at-risk' : (promotion ? 'is-promotion' : ''))) +
       '"><i class="fa-solid ' + (isCompleted || promotion ? 'fa-trophy' : (safe ? 'fa-shield-check' : 'fa-triangle-exclamation')) +
@@ -1237,7 +1243,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || row.rankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
             '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + '</span>' +
-            '<small>' + escapeHtml(row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
+            '<small>' + escapeHtml(selectedPeriod === 'all-time' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
       if (selectedPeriod === 'weekly' && promotionRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
@@ -1290,7 +1296,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var positionRankLabel = (selectedPeriod === 'weekly' || selectedPeriod === 'all-time')
           ? RANKS[Math.floor(RANKS.indexOf(selectedRank) / 5) * 5].split(' ')[0]
           : selectedRank;
-        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(me.rank) + '</small></div>';
+        var positionSubRankLabel = selectedPeriod === 'all-time' && RANKS.indexOf(String(me.rank || '')) >= 0
+          ? RANKS[Math.floor(RANKS.indexOf(String(me.rank)) / 5) * 5].split(' ')[0]
+          : me.rank;
+        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Lifetime RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
       }
     } else if (selectedPeriod !== 'weekly') {
       var emptyText = selectedPeriod === 'friends'
