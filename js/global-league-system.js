@@ -651,7 +651,7 @@
         : 0);
     var monthlyRP = Math.max(0, Number(monthlySource) || 0);
     // Keep the lifetime >= current-week invariant even when consuming a stale/legacy API payload.
-    var totalRP = Math.max(storedTotalRP, weeklyRP);
+    var totalRP = storedTotalRP;
     var xp = Math.max(0, Number(raw.xp != null ? raw.xp : raw.XP) || 0);
     // Account profile's XP progression is the canonical display rule. The API's
     // stored Level may have been calculated with an older/different formula.
@@ -1199,7 +1199,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
   // Weekly leaderboard progress and zone membership must use only RP earned
   // during the current week. Lifetime rank is still used to choose the applicable
-  // rank threshold, but Lifetime RP must never drive Weekly or Monthly progress.
+  // The stored Rank selects the applicable threshold; Lifetime RP never drives progression.
   function subRankPointsForRow(row) {
     return weeklyPointsForRow(row);
   }
