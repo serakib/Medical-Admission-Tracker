@@ -211,8 +211,8 @@ async function loadPremiumNameAccess(members){
    await api('adminSetPremiumNameAccess',{userId:userId,enabled:true});
    $('mat-admin-message').textContent='Premium Golden Name access granted.';
    await loadPremiumNameAccess(members);
-  }catch(error){$('mat-admin-message').textContent=error.message||'Access grant failed.';}
-  finally{grant.removeAttribute('aria-busy');updateGrantState();}
+  }catch(error){$('mat-admin-message').textContent=error.message||'Access grant failed.';updateGrantState();}
+  finally{grant.removeAttribute('aria-busy');}
  };
  const list=$('mat-premium-name-list');
  list.innerHTML=access.length?'<h5 class="font-bold text-xs text-amber-900 dark:text-amber-200">ACTIVE SUBSCRIBERS ('+access.length+')</h5>'+access.map(row=>'<div class="flex items-center justify-between gap-2 border-t border-amber-200 dark:border-amber-900 pt-2"><span class="min-w-0"><strong class="block truncate">'+esc(row.name||'Student')+'</strong><small class="block truncate text-gray-500">'+esc(row.email)+'</small></span><button type="button" data-revoke-premium-name="'+esc(row.userId)+'" class="shrink-0 rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-1.5 text-xs font-bold text-rose-700 dark:text-rose-300">Revoke</button></div>').join(''):'<p class="text-xs text-gray-500">No manually granted subscriber access yet.</p>';
