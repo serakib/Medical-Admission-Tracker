@@ -3342,6 +3342,11 @@ function matAdminSaveMemberPromo_(p) {
   if (!userId) throw new Error('Select a registered member.');
   const target = matFindStudentById_(userId);
   if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') throw new Error('Registered member not found.');
+  // Only Super Admin may change promo settings for another Admin account.
+  if (matPromoIsAdmin_(target)) {
+    const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+    if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can edit Admin-only Promo Code settings.');
+  }
   const code = String(p.code || '').trim().toUpperCase();
   matPromoValidateCustomCode_(code);
 
@@ -3402,7 +3407,7 @@ function matRedeemPromoCode_(p) {
       if (!verifiedAdmin) throw new Error('এই Promo Code এখন valid নয়।');
       type = 'unlimited'; code = fixed;
       cfg = matPromoEffectiveConfig_(u, type, fixed);
-      cfg.enabled = true; // Admin-only code is controlled by the dedicated Super Admin toggle.
+      if (!cfg.enabled) throw new Error('আপনার Admin-only Promo Code access বন্ধ করা হয়েছে।');
     } else {
       const memberCfg = matPromoReadConfig_().members.find(x => String(x.UserID) === String(u.UserID)) || {};
       const globalCfg = matPromoReadConfig_().global || {};
