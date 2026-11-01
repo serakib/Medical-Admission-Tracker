@@ -101,9 +101,9 @@
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[ch];
     });
   }
-  function premiumNameMarkup(name, enabled) {
+  function premiumNameMarkup(name, enabled, showPreference) {
     var value = String(name == null ? 'Medical Student' : name);
-    if (!enabled) return escapeHtml(value);
+    if (!enabled || showPreference === false) return escapeHtml(value);
     var chars = Array.from(value).map(function (char) {
       return char === ' '
         ? '<span class="gold-char gold-space" aria-hidden="true">&nbsp;</span>'
@@ -285,6 +285,7 @@
     if (user.isAdmin != null) profile.isAdmin = user.isAdmin === true;
     if (user.isGoldName != null) profile.isGoldName = user.isGoldName === true || profile.isAdmin === true;
     else if (profile.isAdmin === true) profile.isGoldName = true;
+    profile.showGoldName = user.showGoldName !== false;
     profile.xp = Math.max(0, Number(user.xp) || 0);
     profile.pb = Math.max(0, Number(user.pb != null ? user.pb : user.pendingPB) || 0);
     profile.pendingPB = profile.pb;
@@ -389,9 +390,9 @@
       localStorage.setItem(progressKey, JSON.stringify(localProgress));
     } catch (_) {}
     var ownProfileName = document.getElementById('profile-name');
-    if (ownProfileName) ownProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true);
+    if (ownProfileName) ownProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true, profile.showGoldName !== false);
     var accountProfileName = document.getElementById('account-profile-name');
-    if (accountProfileName) accountProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true);
+    if (accountProfileName) accountProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true, profile.showGoldName !== false);
     var profileAdminBadge = document.getElementById('profile-admin-badge');
     if (profileAdminBadge) profileAdminBadge.classList.toggle('hidden', profile.isAdmin !== true);
     setText('account-profile-name', profile.name);
@@ -550,6 +551,15 @@
     if (response.user) applyProfile(response.user);
     try { await loadLeaderboard(true); } catch (_) {}
     return response.settings || {};
+  }
+  async function setGoldNameVisibility(showGoldName) {
+    await syncIdentity();
+    if (!app.profile || app.profile.isGoldName !== true) throw new Error('Golden Name access required.');
+    var creds = await credentialsForCurrentUser();
+    var response = await request(Object.assign({ action: 'setGoldNameVisibility', showGoldName: showGoldName === true }, creds));
+    if (response.user) applyProfile(response.user);
+    try { await loadLeaderboard(true); } catch (_) {}
+    return response.showGoldName === true;
   }
   async function convertPB(amount, kind) {
     var points = Number(amount);
@@ -711,6 +721,7 @@
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       isAdmin: raw.isAdmin === true || raw.IsAdmin === true,
       isGoldName: raw.isGoldName === true || raw.IsGoldName === true || raw.isAdmin === true || raw.IsAdmin === true,
+      showGoldName: raw.showGoldName !== false && raw.ShowGoldName !== false,
       guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
       xp: xp,
       level: boardLevel,
@@ -1338,7 +1349,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || 0) + '" data-monthly-rp="' + Number(row.monthlyRP || row.monthlyRankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + premiumNameMarkup(row.name || 'Medical Student', row.isGoldName === true) + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + '</span>' +
+            '<strong>' + premiumNameMarkup(row.name || 'Medical Student', row.isGoldName === true, row.showGoldName !== false) + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + '</span>' +
             '<small>' + escapeHtml(selectedPeriod === 'monthly' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
@@ -1385,7 +1396,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             : isInWeeklyPromotionZone(row)
               ? '<small class="leader-safe-status" title="Promotion Zone অর্জিত"><i class="fa-solid fa-arrow-trend-up"></i> Promotion Zone Reached</small>'
               : '<small class="leader-risk-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> +' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to promote</small>';
-        tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + premiumNameMarkup(row.name || 'Medical Student', row.isGoldName === true) + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label"><i class="fa-solid fa-star leader-rp-star" aria-hidden="true"></i>' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + (selectedPeriod === 'friends' ? '<small class="leader-friend-subrank" style="display:block;color:#a5b4fc;font-size:11px;font-weight:700;line-height:1.2">' + escapeHtml(row.rank || 'Bronze V') + '</small>' : '') + safeStatus + '</div></div></td>';
+        tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + premiumNameMarkup(row.name || 'Medical Student', row.isGoldName === true, row.showGoldName !== false) + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label"><i class="fa-solid fa-star leader-rp-star" aria-hidden="true"></i>' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + (selectedPeriod === 'friends' ? '<small class="leader-friend-subrank" style="display:block;color:#a5b4fc;font-size:11px;font-weight:700;line-height:1.2">' + escapeHtml(row.rank || 'Bronze V') + '</small>' : '') + safeStatus + '</div></div></td>';
         body.appendChild(tr);
       });
       if (selectedPeriod === 'weekly' && !promotionDividerInserted) {
@@ -1405,7 +1416,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var positionSubRankLabel = selectedPeriod === 'monthly' && RANKS.indexOf(String(me.rank || '')) >= 0
           ? RANKS[Math.floor(RANKS.indexOf(String(me.rank)) / 5) * 5].split(' ')[0]
           : me.rank;
-        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + premiumNameMarkup(me.name, me.isGoldName === true) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + premiumNameMarkup(me.name, me.isGoldName === true, me.showGoldName !== false) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
       }
     } else if (selectedPeriod !== 'weekly') {
       var emptyText = selectedPeriod === 'friends'
@@ -2305,7 +2316,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       ].filter(Boolean);
       return '<article class="mat-friend-search-result" data-med-friend-open-profile="' + escapeHtml(uid) + '" role="button" tabindex="0" aria-label="Open ' + escapeHtml(row.name || 'Student') + ' profile">' +
         '<span class="mat-friend-search-avatar">' + avatarMarkup(row) + '</span>' +
-        '<div class="mat-friend-search-copy"><strong>' + premiumNameMarkup(row.name || 'Student', row.isGoldName === true) + '</strong><small>' +
+        '<div class="mat-friend-search-copy"><strong>' + premiumNameMarkup(row.name || 'Student', row.isGoldName === true, row.showGoldName !== false) + '</strong><small>' +
         escapeHtml(details.join(' | ') || 'Medical student') +
         '</small></div><div class="mat-friend-search-action">' + relationLabel + '</div></article>';
     }).join('');
@@ -2722,6 +2733,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     requestGuestDeletion: requestGuestDeletion,
     cancelGuestDeletion: cancelGuestDeletion,
     saveAccountSettings: saveAccountSettings,
+    setGoldNameVisibility: setGoldNameVisibility,
     syncIdentity: syncIdentity,
     registerUser: registerUser,
     updateProfile: updateProfile,
@@ -2764,6 +2776,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (navigator.onLine) syncDailyStreak();
   });
   bindEvents();
+  document.addEventListener('change', async function (event) {
+    var toggle = event.target && event.target.closest ? event.target.closest('#account-gold-name-visible') : null;
+    if (!toggle) return;
+    var previous = !toggle.checked;
+    toggle.disabled = true;
+    var status = document.getElementById('account-gold-name-status');
+    try {
+      await setGoldNameVisibility(toggle.checked);
+      if (status) status.textContent = toggle.checked ? 'Golden Name is visible.' : 'Golden Name is hidden.';
+    } catch (error) {
+      toggle.checked = previous;
+      if (status) status.textContent = error && error.message || 'Could not update Golden Name visibility.';
+    } finally { toggle.disabled = false; }
+  });
+
   window.addEventListener('online', function () { syncDailyStreak(); flushQueue(); loadLeaderboard(true); });
   window.addEventListener('student-auth-state-resolved', function () { syncDailyStreak(); });
   window.addEventListener('student-profile-loaded', function () { syncDailyStreak(); });
