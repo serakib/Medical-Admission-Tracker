@@ -358,6 +358,36 @@ async function loadPremiumNameAccess(members){
 async function loadAdmin(){
  const [members,promo,config,targets]=await Promise.all([api('adminListMembers'),api('adminPromoStatus'),api('adminGetPromoConfig'),api('adminListPromoTargets')]);
  $('mat-admin-panel').classList.remove('hidden');
+ // Compact jump navigation keeps long Admin panels easy to scan.
+ (function ensureAdminQuickNav(){
+  const panel=$('mat-admin-panel');
+  let nav=document.getElementById('mat-admin-quick-nav');
+  if(!nav){
+   nav=document.createElement('nav');
+   nav.id='mat-admin-quick-nav';
+   nav.setAttribute('aria-label','Admin panel quick navigation');
+   nav.className='sticky top-2 z-30 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur p-2 shadow-sm';
+   nav.innerHTML='<p class="px-1 pb-2 text-[11px] font-extrabold uppercase tracking-wide text-gray-500">Quick navigation</p><div class="flex flex-wrap gap-2">'+[
+    ['mat-premium-name-access','Golden Name'],
+    ['mat-promo-global-form','Global Promo'],
+    ['mat-member-overrides','Member Overrides'],
+    ['mat-admin-members','Admin Members'],
+    ['mat-admin-unlimited-toggle','Admin Code'],
+    ['mat-admin-add-form','Add Admin'],
+    ['mat-admin-guest-deletion','Guest Deletion']
+   ].map(item=>'<a href="#'+item[0]+'" data-admin-jump="'+item[0]+'" class="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:border-rose-400 hover:text-rose-600">'+item[1]+'</a>').join('')+'</div>';
+   const heading=panel.firstElementChild;
+   if(heading)heading.insertAdjacentElement('afterend',nav);else panel.insertBefore(nav,panel.firstChild);
+   nav.addEventListener('click',function(event){
+    const link=event.target.closest('[data-admin-jump]');
+    if(!link)return;
+    const target=document.getElementById(link.getAttribute('data-admin-jump'));
+    if(target){event.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+   });
+  }
+  const codeButton=$('mat-admin-unlimited-toggle');
+  if(codeButton&&codeButton.parentElement&&!codeButton.parentElement.id)codeButton.parentElement.id='mat-admin-unlimited-toggle';
+ })();
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
  memberTargets=targets.members||[];
