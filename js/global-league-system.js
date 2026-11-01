@@ -395,7 +395,8 @@
     if (accountProfileName) accountProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true, profile.showGoldName !== false);
     var profileAdminBadge = document.getElementById('profile-admin-badge');
     if (profileAdminBadge) profileAdminBadge.classList.toggle('hidden', profile.isAdmin !== true);
-    setText('account-profile-name', profile.name);
+    var accountNameNode = document.getElementById('account-profile-name');
+    if (accountNameNode) accountNameNode.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true || profile.isAdmin === true, profile.showGoldName !== false);
     renderGoldNameSetting(profile);
     setText('profile-email', app.authUser ? (profile.email || 'Signed in') : 'Guest mode · আপনার profile server-এ সংরক্ষিত');
     setText('profile-highest-weekly-rp', profile.highestWeeklyRP.toLocaleString());
