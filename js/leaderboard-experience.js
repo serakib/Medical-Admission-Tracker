@@ -842,7 +842,7 @@
     write('student-profile-name', name);
     const publicNameElement = document.getElementById('student-profile-name');
     if (publicNameElement && window.MedPremiumName && typeof window.MedPremiumName.html === 'function') {
-      publicNameElement.innerHTML = window.MedPremiumName.html(name, row.isGoldName === true);
+      publicNameElement.innerHTML = window.MedPremiumName.html(name, row.isGoldName === true || row.isAdmin === true, row.showGoldName !== false);
     }
     const adminBadge = document.getElementById('student-profile-admin-badge');
     if (adminBadge) adminBadge.classList.toggle('hidden', row.isAdmin !== true);
