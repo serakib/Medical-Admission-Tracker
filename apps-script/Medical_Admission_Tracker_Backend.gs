@@ -182,6 +182,7 @@ function matDispatch_(action, p) {
     case 'adminResolveGuestDeletionRequest': return matAdminResolveGuestDeletionRequest_(p || {});
     case 'adminCancelGuestDeletion': return matAdminCancelGuestDeletion_(p || {});
     case 'adminExtendGuestDeletion': return matAdminExtendGuestDeletion_(p || {});
+    case 'adminListGuestDeletionAudit': return matAdminListGuestDeletionAudit_(p || {});
     case 'adminListPremiumNameAccess': return matAdminListPremiumNameAccess_(p || {});
     case 'adminSetPremiumNameAccess': return matAdminSetPremiumNameAccess_(p || {});
     case 'adminAddMember': return matAdminAddMember_(p || {});
@@ -3157,6 +3158,12 @@ function matAdminResolveGuestDeletionRequest_(p) {
 function matGuestDeletionAudit_(userId,event,actor,previousDeadline,newDeadline,notes){
   const email=matPromoEmail_(actor),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
   matAppendObject_(matPromoSheets_().guestDeletionAudit,{EventID:Utilities.getUuid(),TargetUserID:String(userId||''),Event:String(event||''),ActorEmail:email,ActorRole:email===root?'SUPER_ADMIN':'ADMIN',EventAt:matNowIso_(),PreviousDeadline:String(previousDeadline||''),NewDeadline:String(newDeadline||''),Notes:String(notes||'')});
+}
+function matAdminListGuestDeletionAudit_(p){
+  const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+  if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can view deletion audit history.');
+  const rows=matReadObjects_(matPromoSheets_().guestDeletionAudit);
+  return {success:true,events:rows.slice(-100).reverse().map(function(row){return {userId:String(row.TargetUserID||''),event:String(row.Event||''),actor:String(row.ActorEmail||''),role:String(row.ActorRole||''),at:String(row.EventAt||''),previousDeadline:String(row.PreviousDeadline||''),newDeadline:String(row.NewDeadline||''),notes:String(row.Notes||'')};})};
 }
 function matAdminCancelGuestDeletion_(p){
   const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
