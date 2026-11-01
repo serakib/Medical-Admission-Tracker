@@ -1060,7 +1060,8 @@ class MedicalExamApp {
                 : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
         }
         const logoutCard = document.getElementById('account-logout-card');
-        if (logoutCard) logoutCard.classList.toggle('hidden', !user);
+        const isGuestSession = String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST' || localStorage.getItem('med_guest_mode') === 'true';
+        if (logoutCard) logoutCard.classList.toggle('hidden', !(user || isGuestSession));
         const deleteCard = document.getElementById('account-delete-card');
         const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
             user.providerData.some(provider => provider && provider.providerId === 'password'));
@@ -2166,7 +2167,8 @@ onAuthStateChanged(auth, (user) => {
             : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
     }
     const accountLogoutCard = document.getElementById('account-logout-card');
-    if (accountLogoutCard) accountLogoutCard.classList.toggle('hidden', !user);
+    const isGuestSession = String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST' || localStorage.getItem('med_guest_mode') === 'true';
+    if (accountLogoutCard) accountLogoutCard.classList.toggle('hidden', !(user || isGuestSession));
     const authContainers = document.querySelectorAll('.auth-btn-target');
     authContainers.forEach(container => {
         container.innerHTML = user
@@ -2219,7 +2221,9 @@ window.handleLogout = function() {
         confirmButton.disabled = true;
         confirmButton.textContent = 'লগআউট হচ্ছে...';
         try {
-            await signOut(auth);
+            if (auth.currentUser) await signOut(auth);
+            // Guest mode is a local session, not necessarily a Firebase-authenticated user.
+            localStorage.removeItem('med_guest_mode');
             window.location.reload();
         } catch (error) {
             console.error('Logout Error:', error);
