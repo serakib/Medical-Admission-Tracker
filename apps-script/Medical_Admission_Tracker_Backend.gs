@@ -2581,7 +2581,7 @@ function matNormaliseStudent_(r) {
   // Recalculate level from authoritative cumulative XP using the current progression curve.
   row.Level = matGetLevel_(row.XP);
   const storedRank = String(row.Rank || '').trim();
-  if (/^Immortal(?:\\s+[VIX]+)?$/i.test(storedRank)) row.Rank = 'Immortal';
+  if (/^Immortal(?:\s+[VIX]+)?$/i.test(storedRank)) row.Rank = 'Immortal';
   else if (MAT_RANKS.indexOf(storedRank) === -1) row.Rank = MAT_RANKS[0];
   return row;
 }
