@@ -151,6 +151,7 @@
       redirect: 'follow',
       headers: { 'Accept': 'application/json,text/plain,*/*' }
     };
+    if (options.signal) init.signal = options.signal;
     if (method === 'GET') {
       var params = new URLSearchParams();
       params.set('action', String(payload.action || 'health'));
@@ -790,7 +791,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     style.textContent += '.mat-rank-rp{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;color:#b7791f!important;font-weight:950;white-space:nowrap}.mat-rank-rp>i{color:#f5c542;font-size:19px!important;filter:drop-shadow(0 1px 3px rgba(245,197,66,.45))!important}.leader-rp-star{display:inline-block!important;margin-right:4px!important;color:#f5c542!important;font-size:16px!important;vertical-align:-1px!important;filter:drop-shadow(0 1px 2px rgba(245,197,66,.35))}.mat-progress-star,.mat-rank-track.is-safe .mat-progress-star,.mat-rank-zones.is-promotion .mat-progress-star{filter:none!important}.mat-rank-tier .vault-rank-trophy-svg,.mat-rank-tier.is-completed .vault-rank-trophy-svg,.mat-rank-tier.is-upcoming .vault-rank-trophy-svg,.mat-rank-tier.is-current .vault-rank-trophy-svg,.mat-student-vault-trophy svg,.leader-rank-trophy-svg{filter:none!important}.mat-rank-zone-legend,.mat-rank-zone-legend *{text-shadow:none!important}#leaderboard-body tr.promotion-zone-divider>td,#leaderboard-body tr.safe-zone-divider>td{padding:10px 12px!important;border-top:1px solid currentColor!important;border-bottom:1px solid currentColor!important;background:transparent!important;letter-spacing:0!important;font-weight:850!important}#leaderboard-body tr.promotion-zone-divider>td{color:#8b5cf6!important}#leaderboard-body tr.safe-zone-divider>td{color:#059669!important}.leader-zone-divider-content{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-height:24px!important;line-height:1.3!important;white-space:normal!important}.leader-zone-divider-content>i{font-size:12px!important;filter:none!important}.leader-zone-divider-content>span:not(.sr-only){font-size:10px!important;font-weight:900!important;letter-spacing:.06em!important}.leader-zone-empty-row>td{padding:8px 12px!important;text-align:center!important}.leader-zone-empty-message{padding:7px 10px;color:var(--muted,#94a3b8);font-size:11px;font-weight:650;line-height:1.45;text-align:center}';
     style.textContent += '.mat-rule-list details>div>p{margin:10px 0 0;padding:12px 14px;border:1px solid rgba(100,116,139,.18);border-left:3px solid #0d9488;border-radius:11px;background:linear-gradient(110deg,rgba(13,148,136,.09),rgba(13,148,136,.025));color:var(--text,#334155);font-size:12px;line-height:1.75}.mat-rule-list details>div>p:first-child{margin-top:0}.mat-rule-list details:nth-of-type(1)>div>p{border-left-color:#0d9488;background:linear-gradient(110deg,rgba(13,148,136,.10),rgba(13,148,136,.025))}.mat-rule-list details:nth-of-type(2)>div>p{border-left-color:#d97706;background:linear-gradient(110deg,rgba(217,119,6,.10),rgba(217,119,6,.025))}.mat-rule-list details:nth-of-type(3)>div>p{border-left-color:#8b5cf6;background:linear-gradient(110deg,rgba(139,92,246,.10),rgba(139,92,246,.025))}.mat-rule-list details:nth-of-type(5)>div>p{border-left-color:#0284c7;background:linear-gradient(110deg,rgba(2,132,199,.10),rgba(2,132,199,.025))}html.dark .mat-rule-list details>div>p,body.dark .mat-rule-list details>div>p{color:var(--text,#e2e8f0);border-color:rgba(148,163,184,.2);border-left-color:#2dd4bf}html.dark .mat-rule-list details:nth-of-type(2)>div>p,body.dark .mat-rule-list details:nth-of-type(2)>div>p{border-left-color:#fbbf24}html.dark .mat-rule-list details:nth-of-type(3)>div>p,body.dark .mat-rule-list details:nth-of-type(3)>div>p{border-left-color:#c4b5fd}html.dark .mat-rule-list details:nth-of-type(5)>div>p,body.dark .mat-rule-list details:nth-of-type(5)>div>p{border-left-color:#38bdf8}@media(max-width:560px){.mat-rule-list details>div>p{padding:10px 11px;font-size:11px}}';
     style.textContent += '.mat-rank-rail{display:flex;align-items:center;width:100%;max-width:none;box-sizing:border-box;gap:8px;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;scroll-behavior:smooth;scroll-snap-type:x mandatory;scrollbar-width:none;user-select:none;cursor:grab}';
-    style.textContent += '@keyframes matPremiumGoldShimmer{0%{background-position:-200% 0}100%{background-position:300% 0}}.premium-gold-name{display:inline-flex;align-items:baseline;flex-wrap:wrap;max-width:100%;font-family:Montserrat,system-ui,sans-serif;font-weight:900;letter-spacing:.025em;text-transform:uppercase;filter:drop-shadow(1px 1px 0 #5e3307) drop-shadow(1px 2px 2px rgba(0,0,0,.32));vertical-align:baseline}.premium-gold-name .gold-char{display:inline-block;background:linear-gradient(135deg,#FFF8D0 0%,#FFD700 20%,#FFA500 40%,#FFFFFF 50%,#FFD700 60%,#B8860B 80%,#FFF2A3 100%);background-size:250% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:matPremiumGoldShimmer 3.5s linear infinite}.premium-gold-name .gold-space{width:.32em;min-width:.32em;background:none;-webkit-text-fill-color:initial}@media(prefers-reduced-motion:reduce){.premium-gold-name .gold-char{animation:none;background-position:50% 0}}.mat-directory-skeleton{display:block;width:75%;height:12px;margin:3px 0;border-radius:999px;background:linear-gradient(90deg,rgba(148,163,184,.15),rgba(148,163,184,.36),rgba(148,163,184,.15));background-size:200% 100%;animation:matPremiumGoldShimmer 1.5s linear infinite}.mat-directory-skeleton.short{width:48%}';
+    style.textContent += '@keyframes matPremiumGoldShimmer{0%{background-position:-200% 0}100%{background-position:300% 0}}.premium-gold-name{display:inline-flex;align-items:baseline;flex-wrap:wrap;max-width:100%;font-family:Montserrat,system-ui,sans-serif;font-weight:900;letter-spacing:.025em;text-transform:uppercase;filter:drop-shadow(1px 1px 0 #5e3307) drop-shadow(1px 2px 2px rgba(0,0,0,.32));vertical-align:baseline}.premium-gold-name .gold-char{display:inline-block;background:linear-gradient(135deg,#FFF8D0 0%,#FFD700 20%,#FFA500 40%,#FFFFFF 50%,#FFD700 60%,#B8860B 80%,#FFF2A3 100%);background-size:250% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:matPremiumGoldShimmer 3.5s linear infinite}.premium-gold-name .gold-space{width:.32em;min-width:.32em;background:none;-webkit-text-fill-color:initial}@media(prefers-reduced-motion:reduce){.premium-gold-name .gold-char{animation:none;background-position:50% 0}}.mat-directory-skeleton{display:block;width:75%;height:12px;margin:3px 0;border-radius:999px;background:linear-gradient(90deg,rgba(148,163,184,.15),rgba(148,163,184,.36),rgba(148,163,184,.15));background-size:200% 100%;animation:matPremiumGoldShimmer 1.5s linear infinite}.mat-directory-skeleton.short{width:48%}@media(prefers-reduced-motion:reduce){.mat-directory-skeleton{animation:none}}';
     document.head.appendChild(style);
   }
   function ensureTopControls() {
@@ -1911,7 +1912,27 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         if (myId) friendIds.push(String(myId));
         leaderboardPayload.userIds = Array.from(new Set(friendIds)).slice(0, 500);
       }
-      var response = await request(leaderboardPayload, { method: periodForRequest === 'friends' ? 'POST' : 'GET' });
+      var requestController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var requestTimedOut = false, requestTimeoutId = 0;
+      var leaderboardRequestOptions = { method: periodForRequest === 'friends' ? 'POST' : 'GET' };
+      if (requestController) leaderboardRequestOptions.signal = requestController.signal;
+      var leaderboardRequestPromise = request(leaderboardPayload, leaderboardRequestOptions);
+      var leaderboardTimeoutPromise = new Promise(function (_, reject) {
+        requestTimeoutId = setTimeout(function () {
+          requestTimedOut = true;
+          if (requestController) requestController.abort();
+          reject(new Error('Leaderboard request timed out after 25 seconds.'));
+        }, 25000);
+      });
+      var response;
+      try {
+        response = await Promise.race([leaderboardRequestPromise, leaderboardTimeoutPromise]);
+      } catch (requestError) {
+        if (requestTimedOut) throw new Error('Leaderboard request timed out after 25 seconds. Please try again.');
+        throw requestError;
+      } finally {
+        clearTimeout(requestTimeoutId);
+      }
       if (requestId !== loadSequence) return;
       var entries = extractEntries(response);
       var responsePeriod = String(response && (response.period || response.scope) || '').toLowerCase();
