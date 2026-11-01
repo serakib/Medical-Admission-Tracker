@@ -2589,6 +2589,15 @@ function matNormaliseStudent_(r) {
 function matReconcileStoredRankProgress_(source) {
   let student = matNormaliseStudent_(source);
   student = matPrepareRankProgress_(student, matGetStudentsSheet_());
+  // Persist legacy Immortal V/IV/III/II/I records as the single canonical Immortal rank.
+  if (source && source._rowNumber && /^Immortal(?:\\s+[VIX]+)?$/i.test(String(source.Rank || '').trim()) &&
+      String(source.Rank || '').trim() !== 'Immortal') {
+    student.UpdatedAt = matNowIso_();
+    matUpdateObjectRow_(matGetStudentsSheet_(), source._rowNumber, {
+      Rank: 'Immortal',
+      UpdatedAt: student.UpdatedAt
+    });
+  }
   const rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return student;
 
