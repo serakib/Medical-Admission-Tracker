@@ -957,6 +957,7 @@
       const icon = notificationIcon(item.type);
       const typeLabel = item.type === 'trophy' ? 'TROPHY UNLOCKED' : item.type === 'friend' ? 'FRIEND ACTIVITY' : item.type === 'leaderboard' ? (item.period === 'weekly' ? 'WEEKLY LEADERBOARD' : 'GLOBAL LEADERBOARD') : 'ACTIVITY';
       const id = escapeHTML(item.id);
+      const plainLabel = escapeHTML(item.title || 'Notification');
       const label = notificationTextMarkup(item.title || 'Notification', item);
       const datetime = new Date(numeric(item.updatedAt || item.createdAt));
       const serial = activeFilter === 'trash' ? 'T' + (index + 1) : '#' + (allOrdered.findIndex(entry => String(entry.id) === String(item.id)) + 1);
@@ -967,7 +968,7 @@
       return '<article class="mat-notification-item is-collapsed ' + (item.unread ? 'is-unread' : '') + (selected.has(String(item.id)) ? ' is-selected' : '') + '" role="listitem" aria-expanded="false" data-mat-notification-row="' + id + '">' +
         '<span class="mat-notification-serial" aria-label="Notification number">' + serial + '</span>' +
         '<label class="mat-notification-select-wrap"><input type="checkbox" class="mat-notification-select" data-mat-select-item="' + id + '"' +
-        (selected.has(String(item.id)) ? ' checked' : '') + ' aria-label="Select notification: ' + label + '"></label>' +
+        (selected.has(String(item.id)) ? ' checked' : '') + ' aria-label="Select notification: ' + plainLabel + '"></label>' +
         '<div class="mat-notification-item-icon type-' + escapeHTML(item.type || 'activity') + '">' + icon + '</div>' +
         '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + label + '</strong><time datetime="' +
         escapeHTML(validDatetime) + '" data-mat-notification-time="' + numeric(item.updatedAt || item.createdAt) + '">' +
