@@ -204,8 +204,8 @@
         0%, 60%, 100% { opacity: .25; transform: translateY(0); }
         30% { opacity: 1; transform: translateY(-3px); }
       }
-      .account-preferences-dots { display:inline-flex; align-items:center; gap:3px; margin-left:4px; vertical-align:middle; }
-      .account-preferences-dots span { width:4px; height:4px; border-radius:50%; background:currentColor; animation:accountPreferenceDotPulse 1.15s infinite ease-in-out; }
+      .account-preferences-dots { display:inline-flex; align-items:center; justify-content:center; gap:4px; margin-left:6px; vertical-align:middle; min-width:22px; }
+      .account-preferences-dots span { display:block; width:5px; height:5px; border-radius:50%; background:currentColor; animation:accountPreferenceDotPulse 1.05s infinite ease-in-out; will-change:transform,opacity; }
       .account-preferences-dots span:nth-child(2) { animation-delay:.16s; }
       .account-preferences-dots span:nth-child(3) { animation-delay:.32s; }
       @media (prefers-reduced-motion: reduce) { .account-preferences-dots span { animation:none; opacity:1; } }
