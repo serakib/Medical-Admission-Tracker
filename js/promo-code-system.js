@@ -410,6 +410,28 @@ async function loadAdmin(){
      catch(error){$('mat-admin-message').textContent=error.message||'Approval update failed.';button.disabled=false;}
     });
    }catch(error){$('mat-guest-delete-requests').textContent=error.message||'Approval queue unavailable.';}
+   // Super Admin: manage already-approved deletion deadlines and inspect audit history.
+   if(members.canManage){
+    try{
+     const targets=await api('adminListGuestDeletionTargets');
+     const active=(targets.guests||[]).filter(g=>g.deletionPending&&Date.parse(g.scheduledAt)>Date.now());
+     let management=document.getElementById('mat-guest-delete-management');
+     if(!management){management=document.createElement('div');management.id='mat-guest-delete-management';management.className='border-t border-amber-200 dark:border-amber-900 pt-3 space-y-3';section.appendChild(management);}
+     management.innerHTML='<h5 class="font-bold text-sm">Approved deletion schedules · Super Admin</h5>'+(active.length?active.map(g=>'<div class="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-2"><p class="text-xs break-all font-semibold">'+esc(g.userId)+'</p><p class="text-xs text-gray-500">Deadline: '+esc(g.scheduledAt)+'</p><div class="flex flex-wrap gap-2"><button type="button" data-guest-extend="'+esc(g.userId)+'" class="rounded-lg border border-amber-400 px-3 py-1.5 text-xs font-bold">Extend deadline</button><button type="button" data-guest-cancel-admin="'+esc(g.userId)+'" class="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-bold text-rose-700">Cancel deletion</button></div></div>').join(''):'<p class="text-xs text-gray-500">No active approved Guest deletions.</p>')+'<div class="pt-2"><h5 class="font-bold text-sm">Deletion audit history</h5><div id="mat-guest-delete-audit" class="mt-2 space-y-1 text-xs text-gray-500">Loading…</div></div>';
+     management.querySelectorAll('[data-guest-extend]').forEach(button=>button.onclick=async()=>{
+      const userId=button.getAttribute('data-guest-extend'),raw=prompt('বর্তমান deadline-এর সঙ্গে কত দিন যোগ করবেন? (1–365)','7'),days=Number(raw);
+      if(raw===null)return;if(!Number.isInteger(days)||days<1||days>365){alert('১ থেকে ৩৬৫ দিনের মধ্যে দিন লিখুন।');return;}
+      button.disabled=true;try{await api('adminExtendGuestDeletion',{userId,days});await loadAdmin();}catch(error){alert(error.message||'Deadline extend করা যায়নি।');button.disabled=false;}
+     });
+     management.querySelectorAll('[data-guest-cancel-admin]').forEach(button=>button.onclick=async()=>{
+      const userId=button.getAttribute('data-guest-cancel-admin');if(!confirm('এই Guest deletion Super Admin হিসেবে cancel করবেন?'))return;
+      button.disabled=true;try{await api('adminCancelGuestDeletion',{userId});await loadAdmin();}catch(error){alert(error.message||'Deletion cancel করা যায়নি।');button.disabled=false;}
+     });
+     const audit=await api('adminListGuestDeletionAudit');
+     const auditHost=document.getElementById('mat-guest-delete-audit');
+     auditHost.innerHTML=(audit.events||[]).length?audit.events.map(e=>'<div class="border-t border-gray-100 dark:border-gray-800 py-1"><strong>'+esc(e.event)+'</strong> · '+esc(e.userId)+'<br><span>'+esc(e.role)+' '+esc(e.actor)+' · '+esc(e.at)+'</span>'+(e.newDeadline?'<br><span>Deadline: '+esc(e.newDeadline)+'</span>':'')+'</div>').join(''):'No audit events yet.';
+    }catch(error){console.warn('[Guest deletion management]',error);}
+   }
   }
  } catch(error) { console.warn('[Guest deletion approval]',error); }
 
