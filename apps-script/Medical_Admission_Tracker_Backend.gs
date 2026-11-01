@@ -186,6 +186,7 @@ function matDispatch_(action, p) {
     case 'adminSavePromoConfig': return matAdminSavePromoConfig_(p || {});
     case 'adminListPromoTargets': return matAdminListPromoTargets_(p || {});
     case 'adminSaveMemberPromo': return matAdminSaveMemberPromo_(p || {});
+    case 'adminDeleteMemberPromo': return matAdminDeleteMemberPromo_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -3187,7 +3188,7 @@ function matAdminListPromoTargets_(p) {
     return {userId:String(x.UserID),name:String(x.Name || ''),email:String(x.Email || ''),
       code:String(cfg.Code || ''),rewardPB:cfg.RewardPB == null ? '' : cfg.RewardPB,
       limitCount:cfg.LimitCount == null ? '' : cfg.LimitCount,limitPeriod:String(cfg.LimitPeriod || ''),
-      enabled:String(cfg.Enabled || 'TRUE') !== 'FALSE'};
+      enabled:String(cfg.Enabled || 'TRUE') !== 'FALSE',hasOverride:!!cfg.UserID};
   })};
 }
 function matAdminSaveMemberPromo_(p) {
@@ -3205,6 +3206,15 @@ function matAdminSaveMemberPromo_(p) {
   const sh = matPromoConfigSheets_().members, rows = matReadObjects_(sh), old = rows.find(x => String(x.UserID) === userId);
   const v = {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
   if (old) matUpdateObjectRow_(sh,old._rowNumber,v); else matAppendObject_(sh,v);
+  return {success:true};
+}
+function matAdminDeleteMemberPromo_(p) {
+  matPromoRequireAdmin_(p);
+  const userId = String(p.userId || '').trim();
+  if (!userId) throw new Error('Select a registered member.');
+  const sh = matPromoConfigSheets_().members;
+  const row = matReadObjects_(sh).find(x => String(x.UserID) === userId);
+  if (row) sh.deleteRow(row._rowNumber);
   return {success:true};
 }
 // Override the legacy endpoint so Admin-only code details are returned only to a verified Admin.
