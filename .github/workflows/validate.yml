@@ -29,3 +29,5 @@ jobs:
           done < <(find . -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
       - name: Check local assets referenced by index.html
         run: node scripts/check-integrity.mjs
+      - name: Check navigation regression
+        run: node scripts/test-navigation.mjs
