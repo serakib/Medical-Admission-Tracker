@@ -642,7 +642,7 @@
     raw = raw || {};
     var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
     var rawRank = String(raw.rank || raw.Rank || '').trim();
-    var rank = /^Immortal(?:\\s+[VIX]+)?$/i.test(rawRank) ? 'Immortal' : (RANKS.indexOf(rawRank) >= 0 ? rawRank : RANKS[0]);
+    var rank = /^Immortal(?:\s+[VIX]+)?$/i.test(rawRank) ? 'Immortal' : (RANKS.indexOf(rawRank) >= 0 ? rawRank : RANKS[0]);
     var isCurrentAccount = !!currentUserId() && id === String(currentUserId());
     // The signed-in account profile is the canonical source for its own current rank.
     // A stale leaderboard cache must not downgrade the student's displayed trophy.
