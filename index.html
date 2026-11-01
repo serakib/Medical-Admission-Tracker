@@ -2077,7 +2077,7 @@ main > .view-section.hidden { display: none !important; }
     if (target.matches('.sidebar-nav button')) return;
 
     // PB conversion and promo redeem controls manage their own loading labels.
-    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert], #mat-promo-redeem-form button')) {
+    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert], #mat-promo-redeem-form button, #view-leaderboard button[onclick*="loadLeaderboard"], #view-leaderboard [data-leaderboard-period]')) {
       markActionButton(target);
     }
     beginForAction();
