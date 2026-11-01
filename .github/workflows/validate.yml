@@ -24,9 +24,13 @@ jobs:
         run: |
           set -euo pipefail
           while IFS= read -r -d '' file; do
-            echo "Checking $file"
+            echo "Checking module $file"
             node --input-type=module --check < "$file"
-          done < <(find . -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.gs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
+          done < <(find . -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
+          while IFS= read -r -d '' file; do
+            echo "Checking Apps Script $file"
+            node --check < "$file"
+          done < <(find . -type f -name '*.gs' -not -path './.git/*' -print0)
       - name: Check local assets referenced by index.html
         run: node scripts/check-integrity.mjs
       - name: Check navigation regression
