@@ -151,7 +151,14 @@
       redirect: 'follow',
       headers: { 'Accept': 'application/json,text/plain,*/*' }
     };
+    var requestController = null;
+    var requestTimeout = null;
     if (options.signal) init.signal = options.signal;
+    else if (typeof AbortController !== 'undefined') {
+      requestController = new AbortController();
+      init.signal = requestController.signal;
+      requestTimeout = setTimeout(function () { requestController.abort(); }, 25000);
+    }
     if (method === 'GET') {
       var params = new URLSearchParams();
       params.set('action', String(payload.action || 'health'));
@@ -172,11 +179,18 @@
     try {
       response = await fetch(url, init);
     } catch (error) {
+      if (requestTimeout) clearTimeout(requestTimeout);
+      if (error && error.name === 'AbortError') throw new Error('Medical API response নিতে ২৫ সেকেন্ডের বেশি সময় লাগছে। Internet connection ও Apps Script deployment পরীক্ষা করে আবার চেষ্টা করুন।');
       throw new Error(apiErrorMessage(error));
     }
     var body = '';
     try { body = await response.text(); }
-    catch (_) { throw new Error('Medical API response body could not be read.'); }
+    catch (error) {
+      if (requestTimeout) clearTimeout(requestTimeout);
+      if (error && error.name === 'AbortError') throw new Error('Medical API response নিতে সময় শেষ হয়েছে। আবার চেষ্টা করুন।');
+      throw new Error('Medical API response body could not be read.');
+    }
+    if (requestTimeout) clearTimeout(requestTimeout);
     var data;
     try { data = JSON.parse(body); }
     catch (_) {
@@ -670,7 +684,11 @@
     var response = await request(Object.assign({ action: 'updateProfile' }, creds, allowed));
     if (!response.user) throw new Error('Updated profile was not returned by the API.');
     var updatedProfile = applyProfile(response.user);
-    await profileMirrorPromise;
+    // Medical Sheets is the authoritative profile store. Firebase Auth/Firestore
+    // mirroring runs in the background and must never hold the Save button open.
+    Promise.resolve(profileMirrorPromise).catch(function (error) {
+      console.warn('[Profile sync] Secondary Firebase mirror remains pending:', error);
+    });
     return updatedProfile;
   }
 
@@ -2685,10 +2703,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var submittedName = safeText((document.getElementById('medical-profile-name') || {}).value || '', 80);
         var submittedCollege = safeText((document.getElementById('medical-profile-college') || {}).value || '', 120);
         var submittedBatch = safeText((document.getElementById('medical-profile-batch') || {}).value || '', 40);
-        if (submittedName.length < 2 || !submittedCollege || !submittedBatch) {
-          if (status) status.textContent = 'Leaderboard খুলতে Name, College ও Batch—তিনটিই পূরণ করুন।';
-          var missingField = submittedName.length < 2 ? document.getElementById('medical-profile-name') : !submittedCollege ? document.getElementById('medical-profile-college') : document.getElementById('medical-profile-batch');
-          if (missingField) missingField.focus();
+        if (submittedName.length < 2) {
+          if (status) status.textContent = 'নাম কমপক্ষে ২ অক্ষরের হতে হবে।';
+          var nameField = document.getElementById('medical-profile-name');
+          if (nameField) nameField.focus();
           return;
         }
         if (button) button.disabled = true;
@@ -2701,15 +2719,22 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           });
           // Remember successful personal-info completion per account, so a temporary
           // profile-loading delay after exam/session completion cannot reopen the gate.
-          markLeaderboardProfileComplete({
-            name: safeText(updated.name || submittedName, 80),
-            college: safeText(updated.college || submittedCollege, 120),
-            batch: safeText(updated.batch || submittedBatch, 40)
+          var savedName = safeText(updated.name || submittedName, 80);
+          var savedCollege = safeText(updated.college != null ? updated.college : submittedCollege, 120);
+          var savedBatch = safeText(updated.batch != null ? updated.batch : submittedBatch, 40);
+          var profileIsComplete = savedName.length >= 2 && !!savedCollege && !!savedBatch;
+          if (profileIsComplete) {
+            markLeaderboardProfileComplete({ name: savedName, college: savedCollege, batch: savedBatch });
+            var gateNotice = document.getElementById('leaderboard-profile-gate-message');
+            if (gateNotice) gateNotice.hidden = true;
+          }
+          if (status) status.textContent = profileIsComplete
+            ? 'Profile update সফল হয়েছে।'
+            : 'তথ্য সংরক্ষিত হয়েছে। Leaderboard unlock করতে College ও Batch-ও পূরণ করুন।';
+          // Refreshing the leaderboard is secondary; never let it undo a confirmed save.
+          loadLeaderboard(true).catch(function (refreshError) {
+            console.warn('[Profile save] Leaderboard refresh failed after profile was saved:', refreshError);
           });
-          var gateNotice = document.getElementById('leaderboard-profile-gate-message');
-          if (gateNotice) gateNotice.hidden = true;
-          if (status) status.textContent = 'Profile update সফল হয়েছে।';
-          await loadLeaderboard(true);
         } catch (error) {
           if (status) status.textContent = apiErrorMessage(error);
           setStatus('Profile update হয়নি। ' + apiErrorMessage(error), true);
