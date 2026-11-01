@@ -1210,8 +1210,8 @@
         college: profile.college || row.college || '',
         batch: profile.batch || profile.class || row.batch || '',
         avatar: profile.avatar || row.avatar || '',
-        isAdmin: profile.isAdmin === true || row.isAdmin === true,
-        isGoldName: profile.isGoldName === true || profile.isAdmin === true || row.isGoldName === true,
+        isAdmin: profile.isAdmin != null ? profile.isAdmin === true : row.isAdmin === true,
+        isGoldName: profile.isGoldName != null ? (profile.isGoldName === true || profile.isAdmin === true) : row.isGoldName === true,
         // Do not let a cached leaderboard row replace the signed-in profile's rank/trophy.
         rank: profile.rank || row.rank || 'Bronze',
         rankPoints: profile.rankPoints != null ? Number(profile.rankPoints) : row.rankPoints,
