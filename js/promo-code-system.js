@@ -234,7 +234,15 @@ async function loadAdmin(){
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
  memberTargets=targets.members||[];
- await loadPremiumNameAccess(members);
+ try{await loadPremiumNameAccess(members);}
+ catch(error){
+  const premiumSection=$('mat-premium-name-access');
+  if(premiumSection&&members.canManage){
+   premiumSection.classList.remove('hidden');
+   $('mat-premium-name-list').textContent='Deploy the latest Apps Script backend version to manage subscriber Golden Name access.';
+  }
+  console.warn('[Premium Name] Access management API is not available yet:',error);
+ }
  const select=$('mat-member-select'),previous=select.value;select.innerHTML='<option value="">Select member</option>'+memberTargets.map(m=>'<option value="'+esc(m.userId)+'">'+esc(m.name||'Student')+' · '+esc(m.email)+'</option>').join('');if(previous&&memberTargets.some(m=>m.userId===previous))select.value=previous;
  loadSelectedMember();
  const box=$('mat-admin-members');
