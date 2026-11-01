@@ -129,6 +129,8 @@ function card(){
  refresh();
 }
 let memberTargets=[];
+let adminMemberRecords=[];
+let canManageAdminMembers=false;
 let refreshInFlight=false;
 let adminAddInFlight=false;
 function ensureAdminDashboard(){
@@ -191,7 +193,7 @@ function memberOverrideCardMarkup(member){
   '<label class="block text-xs font-semibold">Member-specific Promo Code<input data-member-field="code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Blank = inherit global/public code"></label>'+
   '<div class="grid grid-cols-2 gap-2"><label class="text-xs font-semibold">PB per redeem<input data-member-field="rewardPB" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label><label class="text-xs font-semibold">Redeem limit<input data-member-field="limitCount" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label></div>'+
   '<div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select data-member-field="limitPeriod" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="">Inherit global</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input data-member-field="enabled" type="checkbox" checked> Enabled</label></div>'+
-  '<p data-member-card-note class="text-xs text-gray-500"></p><button type="button" data-save-override class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save This Member</button></article>';
+  '<p data-member-card-note class="text-xs text-gray-500"></p><div data-admin-role-controls class="rounded-lg border border-slate-200 dark:border-slate-700 p-2 space-y-2"><p data-admin-role-status class="text-xs text-gray-500">Member select করলে Admin access status দেখা যাবে।</p><button type="button" data-admin-role-action class="hidden rounded-lg px-3 py-2 text-xs font-bold"></button></div><button type="button" data-save-override class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save This Member</button></article>';
 }
 function getMemberOverrideCards(){return Array.from(document.querySelectorAll('#mat-member-override-list [data-override-card]'));}
 function fillMemberOverrideCard(card,member){
@@ -199,6 +201,35 @@ function fillMemberOverrideCard(card,member){
  const set=(key,value)=>{const el=card.querySelector('[data-member-field="'+key+'"]');if(!el)return;if(el.type==='checkbox')el.checked=value!==false;else el.value=value==null?'':String(value);};
  set('userId',member.userId);set('code',member.code||'');set('rewardPB',member.rewardPB);set('limitCount',member.limitCount);set('limitPeriod',member.limitPeriod||'');set('enabled',member.enabled!==false);
  const note=card.querySelector('[data-member-card-note]');if(note)note.textContent=(member.name||'Student')+' · '+(member.email||'')+(member.hasOverride?' · Saved settings':' · New override');
+}
+function renderMemberAdminRoleControl(card){
+ const userId=String(card&&card.querySelector('[data-member-field="userId"]')?.value||'');
+ const target=memberTargets.find(m=>String(m.userId)===userId);
+ const area=card&&card.querySelector('[data-admin-role-controls]');
+ if(!area)return;
+ const status=area.querySelector('[data-admin-role-status]'),button=area.querySelector('[data-admin-role-action]');
+ if(!target){status.textContent='Admin access manage করতে Registered member select করুন।';button.classList.add('hidden');return;}
+ const email=String(target.email||'').trim().toLowerCase();
+ const record=adminMemberRecords.find(m=>String(m.email||'').trim().toLowerCase()===email);
+ const isRoot=!!record&&record.role==='SUPER_ADMIN';
+ const isAdmin=!!record&&record.status==='ACTIVE';
+ status.textContent=isRoot?'SUPER ADMIN · এই access revoke করা যাবে না':isAdmin?'ADMIN MEMBER · এই member-এর Admin access active':'REGULAR MEMBER · Admin access নেই';
+ button.classList.toggle('hidden',!canManageAdminMembers||isRoot);
+ button.textContent=isAdmin?'Revoke Admin Member':'Make Admin Member';
+ button.className=(canManageAdminMembers&&!isRoot?'':'hidden ')+'rounded-lg px-3 py-2 text-xs font-bold '+(isAdmin?'border border-rose-300 text-rose-700 dark:text-rose-300':'bg-rose-600 text-white');
+ button.disabled=false;
+ button.onclick=async()=>{
+  if(!canManageAdminMembers||!email||isRoot)return;
+  const action=isAdmin?'adminRemoveMember':'adminAddMember';
+  if(!confirm((isAdmin?'এই member-এর Admin access revoke':'এই member-কে Admin Member')+' করবেন?'))return;
+  button.disabled=true;button.setAttribute('aria-busy','true');
+  try{
+   await api(action,{email});
+   $('mat-admin-message').textContent=isAdmin?'Admin access revoked.':'Admin Member access granted.';
+   await loadAdmin();
+  }catch(error){$('mat-admin-message').textContent=(error&&error.message)||(isAdmin?'Admin access revoke failed.':'Admin access grant failed.');button.disabled=false;}
+  finally{button.removeAttribute('aria-busy');}
+ };
 }
 function addMemberOverrideCard(member){
  const host=$('mat-member-override-list');if(!host)return null;
@@ -211,7 +242,9 @@ function addMemberOverrideCard(member){
   if(duplicate){$('mat-admin-message').textContent='একই member-এর জন্য duplicate override করা যাবে না।';card.querySelector('[data-member-field="userId"]').value='';return;}
   const target=memberTargets.find(m=>String(m.userId)===String(id));
   if(target)fillMemberOverrideCard(card,target);
+  renderMemberAdminRoleControl(card);
  });
+ renderMemberAdminRoleControl(card);
  card.querySelector('[data-save-override]').addEventListener('click',()=>saveMemberOverrideCard(card));
  card.querySelector('[data-remove-override]').addEventListener('click',async()=>{
   const id=card.querySelector('[data-member-field="userId"]').value;
@@ -305,6 +338,8 @@ async function loadAdmin(){
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
  memberTargets=targets.members||[];
+ adminMemberRecords=members.members||[];
+ canManageAdminMembers=members.canManage===true;
  renderMemberOverrideCards();
  try{await loadPremiumNameAccess(members);}
  catch(error){
