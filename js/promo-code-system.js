@@ -448,12 +448,30 @@ async function loadAdmin(){
    box.parentNode.insertBefore(section, box.nextSibling);
   }
   const openGuestAdminProfile = function(userId, profileRows){
-   const row=(profileRows||[]).find(item=>String(item.userId||'')===String(userId||''));
-   if(!row){$('mat-guest-delete-status').textContent='এই account-এর profile data পাওয়া যায়নি।';return;}
+   const id=String(userId||'').trim();
+   const rows=Array.isArray(profileRows)?profileRows:[];
+   const row=rows.find(item=>String(item&&(
+    item.userId||item.uid||item.playerId||item.profile&&item.profile.userId
+   )||'').trim()===id);
+   if(!id){$('mat-guest-delete-status').textContent='Guest account ID পাওয়া যায়নি।';return;}
    if(!window.MedStudentProfile||typeof window.MedStudentProfile.open!=='function'){
-    $('mat-guest-delete-status').textContent='Global Profile এখনো load হয়নি। একটু পরে চেষ্টা করুন।';return;
+    $('mat-guest-delete-status').textContent='Global Profile এখনো load হয়নি। Page refresh করে আবার চেষ্টা করুন।';return;
    }
-   window.MedStudentProfile.open(Object.assign({},row,{userId:String(row.userId),accountType:'GUEST'}));
+   // The admin workspace is a full-screen overlay. Hide it before opening the
+   // shared student profile view, otherwise the profile opens underneath it.
+   const dashboard=$('mat-admin-dashboard');
+   if(dashboard)dashboard.classList.add('hidden');
+   const source=row&&row.profile&&typeof row.profile==='object'?row.profile:(row||{});
+   const profile=Object.assign({},source,{
+    userId:id,uid:id,accountType:'GUEST',
+    name:source.name||row&&row.name||'Guest Student'
+   });
+   try{
+    window.MedStudentProfile.open(profile);
+   }catch(error){
+    if(dashboard)dashboard.classList.remove('hidden');
+    $('mat-guest-delete-status').textContent='Profile খোলা যায়নি: '+(error&&error.message||'Unknown error');
+   }
   };
   section.innerHTML = '<div><h4 class="font-bold text-gray-900 dark:text-white">Guest Account Deletion</h4><p class="text-xs text-gray-500 mt-1">Admin request করতে পারবে; deletion কার্যকর হবে শুধু Super Admin approval-এর পর। User countdown-এর পাশেই আপনার দেওয়া কারণ দেখতে পাবে।</p></div><div class="flex flex-col sm:flex-row gap-2"><select id="mat-guest-delete-target" class="min-w-0 flex-1 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"><option value="">Select Guest account</option>'+guestData.guests.filter(g=>!g.deletionPending).map(g=>'<option value="'+esc(g.userId)+'">'+esc(g.name||'Guest Student')+' · '+esc(g.userId)+'</option>').join('')+'</select><button type="button" id="mat-guest-delete-view-profile" disabled class="rounded-xl border border-sky-400 px-4 py-2 text-sm font-bold text-sky-700 disabled:opacity-40">View Profile</button><button id="mat-guest-delete-request" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Request deletion</button></div><label for="mat-guest-delete-reason" class="block text-xs font-semibold">Reason shown to the user (required)</label><textarea id="mat-guest-delete-reason" maxlength="500" rows="3" required placeholder="কেন account deletion request করা হচ্ছে তা স্পষ্টভাবে লিখুন…" class="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"></textarea><p class="text-xs text-gray-500">৫–৫০০ অক্ষর। Super Admin approve করলে countdown-এর পাশেই user এটি দেখতে পাবে।</p><p id="mat-guest-delete-status" class="text-xs text-gray-500"></p>'+(members.canManage?'<div class="border-t border-amber-200 dark:border-amber-900 pt-3"><h5 class="font-bold text-sm">Pending Super Admin approvals</h5><div id="mat-guest-delete-requests" class="mt-2 space-y-2 text-sm">Loading…</div></div>':'');
   const guestTargetSelect=$('mat-guest-delete-target'),guestProfileButton=$('mat-guest-delete-view-profile');
