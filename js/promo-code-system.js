@@ -524,10 +524,19 @@ async function loadAdmin(){
    if(!userId){status.textContent='আগে Guest account select করুন।';return;}
    if(reason.length<5||reason.length>500){status.textContent='কারণ ৫–৫০০ অক্ষরের মধ্যে লিখুন।';$('mat-guest-delete-reason').focus();return;}
    if(!confirm('এই Guest account deletion-এর জন্য Super Admin approval request করবেন?'))return;
-   button.disabled=true;status.textContent='Request submitting…';
+   const previousButtonContent=button.innerHTML;
+   button.disabled=true;
+   button.innerHTML='Requesting deletion<span class="mat-request-loading-dots" aria-label="Loading"><i>.</i><i>.</i><i>.</i></span>';
+   status.textContent='Request submitting…';
+   if(!document.getElementById('mat-request-loading-dots-style')){
+    const loadingStyle=document.createElement('style');
+    loadingStyle.id='mat-request-loading-dots-style';
+    loadingStyle.textContent='@keyframes matRequestDotPulse{0%,65%,100%{opacity:.2;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}.mat-request-loading-dots{display:inline-flex;gap:1px;margin-left:2px}.mat-request-loading-dots i{font-style:normal;animation:matRequestDotPulse 1s infinite}.mat-request-loading-dots i:nth-child(2){animation-delay:.15s}.mat-request-loading-dots i:nth-child(3){animation-delay:.3s}';
+    document.head.appendChild(loadingStyle);
+   }
    try{await api('adminCreateGuestDeletionRequest',{userId,reason});status.textContent='কারণসহ request Pending Approval হিসেবে জমা হয়েছে।';$('mat-guest-delete-target').value='';$('mat-guest-delete-reason').value='';}
    catch(error){status.textContent=error.message||'Request failed.';}
-   finally{button.disabled=false;}
+   finally{button.disabled=false;button.innerHTML=previousButtonContent;}
   };
   if(members.canManage){
    try{
