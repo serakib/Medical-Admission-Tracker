@@ -2944,7 +2944,8 @@ function matAdminGetPromoConfig_(p) {
 function matAdminSavePromoConfig_(p) {
   const actor = matPromoRequireAdmin_(p), sh = matPromoConfigSheets_().global;
   const code = String(p.code || '').trim().toUpperCase();
-  if (code && (code.length < 3 || code.length > 80)) throw new Error('Promo Code must be 3–80 characters.');
+  matPromoValidateCustomCode_(code);
+
   const reward = p.rewardPB === '' || p.rewardPB == null ? '' : matSafeNonNegativeInt_(p.rewardPB, 'Reward PB');
   const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
   const period = matPromoNormalizePeriod_(p.limitPeriod);
@@ -2973,7 +2974,8 @@ function matAdminSaveMemberPromo_(p) {
   const target = matFindStudentById_(userId);
   if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') throw new Error('Registered member not found.');
   const code = String(p.code || '').trim().toUpperCase();
-  if (code && (code.length < 3 || code.length > 80)) throw new Error('Promo Code must be 3–80 characters.');
+  matPromoValidateCustomCode_(code);
+
   const reward = p.rewardPB === '' || p.rewardPB == null ? '' : matSafeNonNegativeInt_(p.rewardPB, 'Reward PB');
   const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
   const period = String(p.limitPeriod || '').trim() ? matPromoNormalizePeriod_(p.limitPeriod) : '';
@@ -3022,7 +3024,7 @@ function matRedeemPromoCode_(p) {
       if (!verifiedAdmin) throw new Error('এই Promo Code এখন valid নয়।');
       type = 'unlimited'; code = fixed;
       cfg = matPromoEffectiveConfig_(u, type, fixed);
-      if (!cfg.enabled) throw new Error('এই Promo Code বর্তমানে বন্ধ আছে।');
+      cfg.enabled = true; // Admin-only code is controlled by the dedicated Super Admin toggle.
     } else {
       const memberCfg = matPromoReadConfig_().members.find(x => String(x.UserID) === String(u.UserID)) || {};
       const globalCfg = matPromoReadConfig_().global || {};
@@ -3074,4 +3076,14 @@ function matGetPromoInfo_(p) {
    assignedCode:assigned,assignedRewardPB:effective.rewardPB,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin:admin,
    adminCode:admin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'?fixedCode:'',
    adminCodeEnabled:admin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};
+}
+
+function matPromoValidateCustomCode_(code) {
+  if (!code) return;
+  if (code.length < 3 || code.length > 80) throw new Error('Promo Code must be 3–80 characters.');
+  if (code === String(matPromoFixedCode_() || '').trim().toUpperCase() ||
+      /^DAILY \d{2}-\d{2}-\d{4}$/.test(code) ||
+      /^WEEK \d{2} [A-Z]{3} - \d{2} [A-Z]{3}$/.test(code)) {
+    throw new Error('এই code-টি reserved. অন্য Promo Code ব্যবহার করুন।');
+  }
 }
