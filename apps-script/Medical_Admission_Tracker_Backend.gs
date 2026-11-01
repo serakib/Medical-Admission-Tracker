@@ -2417,6 +2417,7 @@ function matRequestGuestDeletion_(p) {
       UpdatedAt: requestedAt
     });
     const updated = matFindStudentById_(user.UserID);
+    matGuestDeletionAudit_(user.UserID,'SELF_DELETION_REQUESTED',user,'',scheduledAt,'Guest initiated deletion');
     return { success: true, pending: true, requestedAt: requestedAt, scheduledAt: scheduledAt, user: matPublicProfile_(updated, true) };
   } finally {
     lock.releaseLock();
@@ -2442,6 +2443,7 @@ function matCancelGuestDeletion_(p) {
       UpdatedAt: matNowIso_()
     });
     const updated = matFindStudentById_(user.UserID);
+    matGuestDeletionAudit_(user.UserID,'SELF_DELETION_CANCELLED',user,String(latest.GuestDeletionScheduledAt||''),'','Guest cancelled own deletion');
     return { success: true, pending: false, user: matPublicProfile_(updated, true) };
   } finally {
     lock.releaseLock();
@@ -3117,6 +3119,7 @@ function matAdminCreateGuestDeletionRequest_(p) {
     if (duplicate) return {success:true,requestId:String(duplicate.RequestID),status:'PENDING',existing:true};
     const id = Utilities.getUuid(), now = matNowIso_();
     matAppendObject_(sh,{RequestID:id,TargetUserID:userId,Status:'PENDING',RequestedBy:matPromoEmail_(actor),RequestedAt:now,ReviewedBy:'',ReviewedAt:'',Decision:''});
+    matGuestDeletionAudit_(userId,'ADMIN_DELETION_REQUESTED',actor,'','','Request '+id);
     return {success:true,requestId:id,status:'PENDING'};
   } finally { lock.releaseLock(); }
 }
