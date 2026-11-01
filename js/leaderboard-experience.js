@@ -802,15 +802,21 @@
     if (guestAutoDeletionCountdownTimer) clearInterval(guestAutoDeletionCountdownTimer);
     guestAutoDeletionCountdownTimer = null;
     if (!el) return;
-    const deadline = Date.parse(String(row && row.guestAutoDeletionAt || ''));
-    if (String(row && row.accountType || '').toUpperCase() !== 'GUEST' || !Number.isFinite(deadline) || deadline <= 0) {
+    const isGuest = String(row && row.accountType || '').toUpperCase() === 'GUEST';
+    const adminApproved = isGuest && row.guestDeletionPending === true && !!row.guestDeletionScheduledAt;
+    const deadline = Date.parse(String(adminApproved ? row.guestDeletionScheduledAt : (row && row.guestAutoDeletionAt || '')));
+    if (!isGuest || !Number.isFinite(deadline) || deadline <= 0) {
       el.classList.add('hidden'); el.textContent = ''; return;
     }
+    const reason = adminApproved ? String(row.guestDeletionReason || '').trim() : '';
     el.classList.remove('hidden');
     const tick = function () {
       const sec = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
-      if (!sec) { el.textContent = 'Guest account auto-deletion is due.'; clearInterval(guestAutoDeletionCountdownTimer); guestAutoDeletionCountdownTimer = null; return; }
-      el.textContent = 'Guest account auto-delete in: ' + Math.floor(sec / 86400) + 'd ' + Math.floor(sec % 86400 / 3600) + 'h ' + Math.floor(sec % 3600 / 60) + 'm ' + sec % 60 + 's';
+      const countdown = sec
+        ? Math.floor(sec / 86400) + 'd ' + Math.floor(sec % 86400 / 3600) + 'h ' + Math.floor(sec % 3600 / 60) + 'm ' + sec % 60 + 's'
+        : 'Deletion deadline reached.';
+      el.textContent = (adminApproved ? 'Admin-approved account deletion countdown: ' : 'Guest account auto-delete in: ') + countdown + (reason ? ' · Admin message: ' + reason : '');
+      if (!sec && guestAutoDeletionCountdownTimer) { clearInterval(guestAutoDeletionCountdownTimer); guestAutoDeletionCountdownTimer = null; }
     };
     tick(); guestAutoDeletionCountdownTimer = setInterval(tick, 1000);
   }
