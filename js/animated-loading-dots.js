@@ -16,7 +16,7 @@
   ].join('\n');
   (document.head || document.documentElement).appendChild(style);
 
-  var loadingCue = /(loading|লোড\s*হচ্ছে|load\s*হচ্ছে|saving|save\s*হচ্ছে|সেভ\s*হচ্ছে|যাচাই\s*হচ্ছে|তৈরি\s*হচ্ছে|আনা\s*হচ্ছে|নিশ্চিত\s*করা\s*হচ্ছে|হিসাব\s*করে\s*আনা\s*হচ্ছে|converting|please\s*wait|প্রস্তুত\s*হচ্ছে)/i;
+  var loadingCue = /(loading|granting|revoking|adding|removing|approving|rejecting|extending|cancelling|deleting|updating|disabling|enabling|লোড\s*হচ্ছে|load\s*হচ্ছে|saving|save\s*হচ্ছে|সেভ\s*হচ্ছে|যাচাই\s*হচ্ছে|তৈরি\s*হচ্ছে|আনা\s*হচ্ছে|নিশ্চিত\s*করা\s*হচ্ছে|হিসাব\s*করে\s*আনা\s*হচ্ছে|converting|please\s*wait|প্রস্তুত\s*হচ্ছে)/i;
 
   function enhanceTextNode(node) {
     if (!node || node.nodeType !== 3 || !node.nodeValue || !/[.…]{1,3}\s*$/.test(node.nodeValue)) return;
