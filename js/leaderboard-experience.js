@@ -845,7 +845,7 @@
     write('student-profile-rank-level', 'Rank: ' + currentRankTier + ' · Level ' + Math.max(1, Number(row.level) || 1));
     renderGuestAutoDeletionCountdown(row);
     write('student-profile-xp', fmt(row.xp) + ' XP');
-    write('student-profile-total-rp', fmt(row.totalRP) + ' RP');
+    write('student-profile-total-rp', fmt(row.totalRP ?? row.TotalRP ?? row.lifetimeRP ?? row.LifetimeRP ?? 0) + ' RP');
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
     write('student-profile-monthly-rp', fmt(row.monthlyRP) + ' RP');
     write('student-profile-highest-monthly-rp', fmt(Math.max(Number(row.highestMonthlyRP) || 0, Number(row.monthlyRP) || 0)) + ' RP');
@@ -1061,10 +1061,10 @@
     try { localProgress = typeof app.getAccountProgress === 'function' ? app.getAccountProgress() : {}; } catch (_) {}
     const eventProfile = event?.detail?.source === 'medical-sheets-api' ? event.detail : null;
     const serverProfile = eventProfile || app.profile || {};
-    const hasServerBalance = serverProfile.xp != null || serverProfile.rankPoints != null || serverProfile.totalRP != null;
+    const hasServerBalance = serverProfile.xp != null || serverProfile.rankPoints != null || serverProfile.totalRP != null || serverProfile.TotalRP != null;
     const xp = Math.max(0, Number(hasServerBalance ? serverProfile.xp : (localProgress.xp ?? localProgress.totalXP)) || 0);
     const lifetimeRP = Math.max(0, Number(hasServerBalance
-      ? (serverProfile.totalRP ?? serverProfile.TotalRP ?? 0)
+      ? (serverProfile.totalRP ?? serverProfile.TotalRP ?? serverProfile.lifetimeRP ?? serverProfile.LifetimeRP ?? 0)
       : (localProgress.totalRP ?? localProgress.lifetimeRP ?? 0)) || 0);
     const levelProgress = typeof app.getPerformanceLevelProgress === 'function'
       ? app.getPerformanceLevelProgress(xp)
@@ -1106,7 +1106,18 @@
         if (status) status.textContent = 'Server-side PB conversion service unavailable. Refresh and try again.';
         return;
       }
-      button.disabled = true;
+      const panel = document.getElementById('sidebar-student-profile-extras');
+      if (!panel || panel.dataset.converting === '1') return;
+      const xpButton = panel.querySelector('[data-sidebar-pb-convert="xp"]');
+      const rpButton = panel.querySelector('[data-sidebar-pb-convert="rp"]');
+      const originalLabel = button.innerHTML;
+      panel.dataset.converting = '1';
+      [xpButton, rpButton].filter(Boolean).forEach(item => { item.disabled = true; item.setAttribute('aria-disabled', 'true'); });
+      if (input) input.disabled = true;
+      button.innerHTML = 'Converting to ' + (kind === 'xp' ? 'XP' : 'RP') + '<span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
+      button.setAttribute('aria-busy', 'true');
+      button.classList.add('opacity-80', 'cursor-wait');
+      if (status) status.innerHTML = '<span>Converting to ' + (kind === 'xp' ? 'XP' : 'RP') + '</span><span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
       try {
         const result = await converter(amount, kind);
         if (!result?.ok) throw new Error(result?.message || 'PB conversion failed.');
@@ -1117,7 +1128,15 @@
       } catch (error) {
         if (status) status.textContent = error?.message || 'PB conversion failed.';
         renderSidebarStudentProfileExtras();
-      } finally { button.disabled = false; }
+      } finally {
+        delete panel.dataset.converting;
+        if (input) input.disabled = false;
+        button.innerHTML = originalLabel;
+        button.removeAttribute('aria-busy');
+        button.classList.remove('opacity-80', 'cursor-wait');
+        const available = Math.max(0, Number(input?.max) || 0);
+        [xpButton, rpButton].filter(Boolean).forEach(item => { item.disabled = available < 1; item.removeAttribute('aria-disabled'); });
+      }
     });
     // Local PB actions dispatch on document; the Medical Sheets API profile
     // dispatches on window. Listen to both so this progression matches the leaderboard.
@@ -1186,7 +1205,7 @@
         rankPoints: profile.rankPoints != null ? Number(profile.rankPoints) : row.rankPoints,
         rankProgress: profile.rankProgress || row.rankProgress || null,
         xp: profile.xp != null ? Number(profile.xp) : row.xp,
-        totalRP: profile.totalRP != null ? Number(profile.totalRP) : row.totalRP,
+        totalRP: profile.totalRP != null ? Number(profile.totalRP) : profile.TotalRP != null ? Number(profile.TotalRP) : profile.lifetimeRP != null ? Number(profile.lifetimeRP) : (row.totalRP ?? row.TotalRP ?? row.lifetimeRP ?? row.LifetimeRP),
         level: profile.level != null ? Number(profile.level) : row.level
       });
     }
