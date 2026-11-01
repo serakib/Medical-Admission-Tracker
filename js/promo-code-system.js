@@ -144,7 +144,7 @@ function ensureAdminDashboard(){
   dashboard.setAttribute('aria-label','Admin Management Dashboard');
   dashboard.innerHTML=`
    <div class="min-h-full">
-    <header class="sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur">
+    <header class="relative border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0"><div class="h-11 w-11 shrink-0 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xl"></i></div><div class="min-w-0"><p class="text-[11px] uppercase tracking-[.18em] font-extrabold text-rose-600">Control Center</p><h1 class="text-xl sm:text-2xl font-black truncate">Admin Management</h1></div></div>
       <button id="mat-admin-dashboard-close" type="button" class="shrink-0 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-800"><i class="fa-solid fa-xmark mr-1"></i> Close</button>
