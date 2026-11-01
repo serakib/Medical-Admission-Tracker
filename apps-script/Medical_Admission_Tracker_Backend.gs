@@ -2927,8 +2927,8 @@ function matPromoEffectiveConfig_(user, kind, publicCode) {
   return { code:code, enabled:enabled, rewardPB:reward == null ? null : reward, limitCount:limitCount, limitPeriod:limitPeriod, hasMemberOverride:!!Object.keys(own).length, member:own, global:global };
 }
 function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
+  // A configured member/global limit applies across all Promo Code types for that member.
   return rows.filter(r => String(r.UserID) === String(userId) &&
-    String(r.Code || '').toUpperCase() === String(code || '').toUpperCase() &&
     String(r.LimitPeriod || 'UNLIMITED').toUpperCase() === period &&
     String(r.LimitWindow || 'ALL') === windowKey).length;
 }
@@ -3044,8 +3044,6 @@ function matRedeemPromoCode_(p) {
     const limit = Math.max(0,Number(cfg.limitCount || 0));
     if (limit > 0 && matPromoCountForLimit_(rows,u.UserID,code,cfg.limitPeriod,windowKey) >= limit)
       throw new Error('আপনার এই Promo Code-এর নির্ধারিত redemption limit শেষ হয়েছে।');
-    if ((type === 'daily' || type === 'weekly') && rows.some(r => String(r.UserID) === String(u.UserID) && String(r.Type) === type && String(r.PeriodKey) === String(c.period)))
-      throw new Error('এই period-এর code আপনি ইতিমধ্যে redeem করেছেন।');
     const ss = matGetStudentsSheet_(), current = matFindStudentById_(u.UserID);
     if (!current) throw new Error('Student profile not found.');
     const reward = Math.max(0,matSafeNonNegativeInt_(cfg.rewardPB,'Reward PB'));
