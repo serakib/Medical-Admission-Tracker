@@ -2198,14 +2198,18 @@ function matFriendRows_() {
 }
 
 function matFriendPublicRequest_(row, incoming) {
+  const fromStudent = matFindStudentById_(String(row.FromUserID || ''));
+  const toStudent = matFindStudentById_(String(row.ToUserID || ''));
   return {
     id: String(row.RecordID || ''),
     fromUid: String(row.FromUserID || ''),
     toUid: String(row.ToUserID || ''),
     fromName: String(row.FromName || 'Student'),
+    fromIsGoldName: fromStudent ? matPromoHasGoldName_(fromStudent) : false,
     fromCollege: String(row.FromCollege || ''),
     fromBatch: String(row.FromBatch || ''),
     toName: String(row.ToName || 'Student'),
+    toIsGoldName: toStudent ? matPromoHasGoldName_(toStudent) : false,
     status: String(row.Status || 'pending'),
     direction: incoming ? 'incoming' : 'outgoing',
     createdAt: String(row.CreatedAt || '')
