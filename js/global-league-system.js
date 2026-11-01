@@ -642,7 +642,13 @@
     raw = raw || {};
     var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
     var rank = RANKS.indexOf(raw.rank || raw.Rank) >= 0 ? (raw.rank || raw.Rank) : RANKS[0];
-    var currentRP = Math.max(0, Number(raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP)) || 0);
+    var isCurrentAccount = !!currentUserId() && id === String(currentUserId());
+    // The signed-in account profile is the canonical source for its own current rank.
+    // A stale leaderboard cache must not downgrade the student's displayed trophy.
+    var ownProfile = app.profile || currentProfile || {};
+    var ownRank = String(ownProfile.rank || (currentProfile && currentProfile.rank) || '');
+    if (isCurrentAccount && RANKS.indexOf(ownRank) >= 0) rank = ownRank;
+    var currentRP = Math.max(0, Number(isCurrentAccount && ownProfile.rankPoints != null ? ownProfile.rankPoints : (raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP))) || 0);
     // Prefer explicit week totals. Older API deployments may expose the requested
     // period score as rankScore/score/boardPoints instead of weeklyRP fields.
     var weeklySource = raw.weeklyRP != null ? raw.weeklyRP
@@ -680,7 +686,9 @@
       rank: rank, rankPoints: currentRP, monthlyRP: monthlyRP,
       highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
       highestMonthlyRP: Math.max(0, Number(raw.highestMonthlyRP != null ? raw.highestMonthlyRP : raw.HighestMonthlyRP) || 0, monthlyRP),
-      rankProgress: raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null,
+      rankProgress: isCurrentAccount && ownProfile.rankProgress && typeof ownProfile.rankProgress === 'object'
+        ? ownProfile.rankProgress
+        : (raw.rankProgress && typeof raw.rankProgress === 'object' ? raw.rankProgress : null),
       leaderboardRequiredRPMultiplier: Math.max(1, Number(raw.leaderboardRequiredRPMultiplier) || 1),
       weeklyRankPoints: weeklyRP, monthlyRankPoints: monthlyRP, boardPoints: boardPoints,
       quizzes: Math.max(0, Number(raw.matches != null ? raw.matches : raw.quizzes || 0)),
