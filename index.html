@@ -1888,17 +1888,11 @@ main > .view-section.hidden { display: none !important; }
     button.setAttribute('aria-busy', 'true');
     button.classList.add('mat-action-is-busy');
     var status = kind === 'saving' ? 'Saving' : 'Loading';
-    button.innerHTML = '<span class="mat-action-loading-label">' + status + ' <span class="mat-animated-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span></span>';
+    // Keep the original control label; the thin global progress bar already communicates background work.
     actionRequestCount = 0;
     finishActionButtonSoon(700);
   }
 
-  if (!document.getElementById('mat-action-button-feedback-style')) {
-    var actionStyle = document.createElement('style');
-    actionStyle.id = 'mat-action-button-feedback-style';
-    actionStyle.textContent = '@keyframes matActionDotPulse{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}.mat-action-is-busy{cursor:wait!important;opacity:.82}.mat-action-loading-label{display:inline-flex;align-items:center;justify-content:center;gap:3px}.mat-action-loading-label .mat-animated-loading-dots{display:inline-flex;align-items:center;gap:3px;margin-left:2px}.mat-action-loading-label .mat-animated-loading-dots>span{width:4px;height:4px;border-radius:50%;background:currentColor;animation:matActionDotPulse 1s infinite ease-in-out}.mat-action-loading-label .mat-animated-loading-dots>span:nth-child(2){animation-delay:.16s}.mat-action-loading-label .mat-animated-loading-dots>span:nth-child(3){animation-delay:.32s}@media(prefers-reduced-motion:reduce){.mat-action-loading-label .mat-animated-loading-dots>span{animation:none;opacity:1}}';
-    (document.head || document.documentElement).appendChild(actionStyle);
-  }
   var HIDE_DELAY_MS = 220;
   var MAX_ACTIVE_MS = 15000;
 
