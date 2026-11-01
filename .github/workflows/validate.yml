@@ -19,14 +19,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check syntax of every JavaScript file
+      - name: Check syntax of every JavaScript and Apps Script file
         shell: bash
         run: |
           set -euo pipefail
           while IFS= read -r -d '' file; do
             echo "Checking $file"
             node --input-type=module --check < "$file"
-          done < <(find . -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
+          done < <(find . -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.gs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
       - name: Check local assets referenced by index.html
         run: node scripts/check-integrity.mjs
       - name: Check navigation regression
