@@ -332,6 +332,8 @@
     return {
       id: rowId(row),
       name: rowName(row),
+      isGoldName: !!(row && (row.isGoldName === true || row.isAdmin === true)),
+      showGoldName: !row || row.showGoldName !== false,
       rp: rowPoints(row, period),
       weeklyRP: rowRP(row),
       monthlyRP: rowPoints(row, 'monthly'),
@@ -406,6 +408,8 @@
       friends[id] = {
         id: id,
         name: rowName(weeklyRow || monthlyRow),
+        isGoldName: !!((weeklyRow || monthlyRow).isGoldName === true || (weeklyRow || monthlyRow).isAdmin === true),
+        showGoldName: (weeklyRow || monthlyRow).showGoldName !== false,
         rp: weeklySnapshot.rp,
         xp: weeklySnapshot.xp,
         position: weeklySnapshot.position,
@@ -519,6 +523,8 @@
         message: message,
         friendId: friendId,
         friendName: friend.name,
+        friendIsGoldName: friend.isGoldName === true,
+        friendShowGoldName: friend.showGoldName !== false,
         avatar: friend.avatar || '',
         weekKey: current.weekKey,
         unread: true
@@ -663,6 +669,8 @@
         message: [movementText, rpText, xpText, passText].filter(Boolean).join(' '),
         competitorId: id,
         competitorName: rowName(row || old),
+        competitorIsGoldName: !!((row || old).isGoldName === true || (row || old).isAdmin === true),
+        competitorShowGoldName: (row || old).showGoldName !== false,
         period: period,
         unread: true
       });
@@ -690,6 +698,8 @@
             numeric(friend.rp).toLocaleString() + '.',
           friendId: friendId,
           friendName: friend.name,
+          friendIsGoldName: friend.isGoldName === true,
+          friendShowGoldName: friend.showGoldName !== false,
           avatar: friend.avatar || '',
           rank: rankName,
           weekKey: current.weekKey,
@@ -908,6 +918,15 @@
     if (deleteSelected) deleteSelected.textContent = (activeFilter === 'trash' ? 'Delete permanently' : 'Move to Trash') + (selected.length ? ' (' + selected.length + ')' : '');
     if (archiveSelected) archiveSelected.textContent = activeFilter === 'archived' ? 'Unarchive selected' : 'Archive selected';
   }
+  function notificationTextMarkup(value, item) {
+    const raw = String(value == null ? '' : value);
+    const name = String(item && (item.friendName || item.competitorName) || '');
+    const enabled = item && (item.friendIsGoldName === true || item.competitorIsGoldName === true);
+    const visible = item && (item.friendShowGoldName !== false && item.competitorShowGoldName !== false);
+    if (!name || !enabled || !visible || !window.MedPremiumName || typeof window.MedPremiumName.html !== 'function') return escapeHTML(raw);
+    const safeName = escapeHTML(name);
+    return escapeHTML(raw).split(safeName).join(window.MedPremiumName.html(name, true, true));
+  }
   function renderFeed() {
     ensureAccountState();
     const list = document.getElementById('mat-notification-list');
@@ -938,7 +957,7 @@
       const icon = notificationIcon(item.type);
       const typeLabel = item.type === 'trophy' ? 'TROPHY UNLOCKED' : item.type === 'friend' ? 'FRIEND ACTIVITY' : item.type === 'leaderboard' ? (item.period === 'weekly' ? 'WEEKLY LEADERBOARD' : 'GLOBAL LEADERBOARD') : 'ACTIVITY';
       const id = escapeHTML(item.id);
-      const label = escapeHTML(item.title || 'Notification');
+      const label = notificationTextMarkup(item.title || 'Notification', item);
       const datetime = new Date(numeric(item.updatedAt || item.createdAt));
       const serial = activeFilter === 'trash' ? 'T' + (index + 1) : '#' + (allOrdered.findIndex(entry => String(entry.id) === String(item.id)) + 1);
       const isTrash = activeFilter === 'trash';
@@ -953,7 +972,7 @@
         '<div class="mat-notification-item-copy"><div class="mat-notification-item-head"><strong>' + label + '</strong><time datetime="' +
         escapeHTML(validDatetime) + '" data-mat-notification-time="' + numeric(item.updatedAt || item.createdAt) + '">' +
         escapeHTML(relativeTime(item.updatedAt || item.createdAt)) + '</time></div>' +
-        '<p>' + escapeHTML(item.message) + '</p><div class="mat-notification-item-meta"><span>' + (isTrash ? 'RECENTLY DELETED' : isArchived ? 'ARCHIVED' : typeLabel) + '</span>' +
+        '<p>' + notificationTextMarkup(item.message, item) + '</p><div class="mat-notification-item-meta"><span>' + (isTrash ? 'RECENTLY DELETED' : isArchived ? 'ARCHIVED' : typeLabel) + '</span>' +
         (item.unread ? '<b>NEW</b>' : '<span>Read</span>') + (isTrash ? '<span class="mat-notification-expiry">Recover within 10 days</span>' : isArchived ? '<span class="mat-notification-expiry">Auto-delete in 10 days</span>' : '') + (isStarred ? '<span>STARRED</span>' : '') + '</div></div>' +
         '<div class="mat-notification-item-actions">' +
         (isTrash ? '<button class="mat-notification-action" type="button" data-mat-restore-one="' + id + '" aria-label="Restore notification" title="Restore notification"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>' +
