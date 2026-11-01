@@ -852,12 +852,12 @@
     ].filter(Boolean).join('\n') || 'College ও Class/Batch এখনো যোগ করা হয়নি');
     write('student-profile-rank-level', 'Rank: ' + currentRankTier + ' · Level ' + Math.max(1, Number(row.level) || 1));
     renderGuestAutoDeletionCountdown(row);
-    write('student-profile-xp', fmt(row.xp) + ' XP');
-    write('student-profile-total-rp', fmt(row.totalRP ?? row.TotalRP ?? row.lifetimeRP ?? row.LifetimeRP ?? 0) + ' RP');
+    write('student-profile-xp', fmt(row.xp));
+    write('student-profile-total-rp', fmt(row.totalRP ?? row.TotalRP ?? row.lifetimeRP ?? row.LifetimeRP ?? 0));
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints != null ? row.weeklyRankPoints : row.weeklyRP));
-    write('student-profile-monthly-rp', fmt(row.monthlyRP) + ' RP');
-    write('student-profile-highest-monthly-rp', fmt(Math.max(Number(row.highestMonthlyRP) || 0, Number(row.monthlyRP) || 0)) + ' RP');
-    write('student-profile-highest-weekly-rp', fmt(Math.max(Number(row.highestWeeklyRP) || 0, Number(row.weeklyRankPoints) || 0)) + ' RP');
+    write('student-profile-monthly-rp', fmt(row.monthlyRP));
+    write('student-profile-highest-monthly-rp', fmt(Math.max(Number(row.highestMonthlyRP) || 0, Number(row.monthlyRP) || 0)));
+    write('student-profile-highest-weekly-rp', fmt(Math.max(Number(row.highestWeeklyRP) || 0, Number(row.weeklyRankPoints) || 0)));
     write('student-profile-level', 'Lv. ' + Math.max(1, Number(row.level) || 1));
     renderAccountLevelProgress(row);
     write('student-profile-exams', Number.isFinite(Number(row.quizzes)) && Number(row.quizzes) > 0 ? fmt(row.quizzes) : '—');
@@ -1088,6 +1088,8 @@
     write('sidebar-profile-level-percent', percent + '%');
     write('sidebar-profile-total-xp', fmt(xp));
     write('sidebar-profile-total-rp', fmt(lifetimeRP));
+    const weeklyRP = Math.max(0, Number(serverProfile.weeklyRP ?? serverProfile.weeklyRankPoints ?? localProgress.weeklyRP ?? 0) || 0);
+    write('sidebar-profile-weekly-rp', fmt(weeklyRP));
     const fill = document.getElementById('sidebar-profile-level-fill');
     if (fill) fill.style.width = percent + '%';
     fill?.parentElement?.setAttribute('aria-valuenow', String(percent));
