@@ -64,7 +64,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'LastWeeklyPromotionReviewDate'
+  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'LastWeeklyPromotionReviewDate', 'PromoPB'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -156,6 +156,13 @@ function matDispatch_(action, p) {
       return matSyncStreak_(p || {});
     case 'convertPB':
       return matConvertPB_(p || {});
+    case 'getPromoInfo': return matGetPromoInfo_(p || {});
+    case 'redeemPromoCode': return matRedeemPromoCode_(p || {});
+    case 'adminBootstrapStatus': return matAdminBootstrapStatus_(p || {});
+    case 'adminListMembers': return matAdminListMembers_(p || {});
+    case 'adminAddMember': return matAdminAddMember_(p || {});
+    case 'adminRemoveMember': return matAdminRemoveMember_(p || {});
+    case 'adminPromoStatus': return matAdminPromoStatus_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -1138,7 +1145,8 @@ function matConvertPB_(p) {
     const expired = matSettlePBForStudent_(current, nowMs, sheet);
     current = matFindStudentById_(user.UserID);
     const entries = matParsePBEntries_(current.PBEntries);
-    const available = entries.reduce(function (sum, entry) { return sum + entry.amount; }, 0);
+    const promoAvailable = Math.max(0, matFiniteNumber_(current.PromoPB, 0));
+    const available = promoAvailable + entries.reduce(function (sum, entry) { return sum + entry.amount; }, 0);
 
     if (amount > available) {
       if (expired > 0) {
@@ -1149,7 +1157,8 @@ function matConvertPB_(p) {
       throw new Error('Not enough convertible PB. PB may have expired according to your account PB expiry setting.');
     }
 
-    let remainingToUse = amount;
+    let remainingToUse = Math.max(0, amount - promoAvailable);
+    const nextPromoPB = Math.max(0, promoAvailable - amount);
     const nextEntries = entries.slice().sort(function (a, b) { return a.earnedAt - b.earnedAt; }).map(function (entry) {
       const used = Math.min(entry.amount, remainingToUse);
       remainingToUse -= used;
@@ -1169,6 +1178,7 @@ function matConvertPB_(p) {
       Rank: rankResult.rank,
       Level: matGetLevel_(currentXP + earnedXP),
       PB: nextEntries.reduce(function (sum, entry) { return sum + entry.amount; }, 0),
+      PromoPB: nextPromoPB,
       PBEntries: JSON.stringify(nextEntries),
       UpdatedAt: matNowIso_()
     });
@@ -2630,8 +2640,9 @@ function matPublicProfile_(r, includeEmail) {
     xp: s.XP,
     rankPoints: s.RP,
     rp: s.RP,
-    pb: s.PB,
-    pendingPB: s.PB,
+    pb: Math.max(0, matFiniteNumber_(s.PB, 0)) + Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
+    pendingPB: Math.max(0, matFiniteNumber_(s.PB, 0)) + Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
+    promoPB: Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
     totalRP: s.TotalRP,
     monthlyRP: monthlyRP,
     monthlyRankPoints: monthlyRP,
@@ -2810,3 +2821,45 @@ function matIsExamRecord_(r) {
 function matErrorText_(err) {
   return String(err && err.message ? err.message : err || 'Unknown error').slice(0, 700);
 }
+
+
+/* MAT_PROMO_SYSTEM_V1 — promo PB is held separately from expiring PB. */
+const MAT_PROMO_FIXED_CODE_='DC-27 ROLL-776';
+const MAT_PROMO_TZ_='Asia/Dhaka';
+function matPromoDate_(){return Utilities.formatDate(new Date(),MAT_PROMO_TZ_,'yyyy-MM-dd');}
+function matPromoOffset_(key,n){const a=key.split('-').map(Number),d=new Date(Date.UTC(a[0],a[1]-1,a[2]));d.setUTCDate(d.getUTCDate()+n);return Utilities.formatDate(d,'UTC','yyyy-MM-dd');}
+function matPromoPublic_(){
+ const key=matPromoDate_(),a=key.split('-').map(Number),d=new Date(Date.UTC(a[0],a[1]-1,a[2])),w=d.getUTCDay();
+ if(w===6){const e=matPromoOffset_(key,6).split('-').map(Number),m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];return {code:'WEEK '+String(a[2]).padStart(2,'0')+' '+m[a[1]-1]+' - '+String(e[2]).padStart(2,'0')+' '+m[e[1]-1],type:'weekly',period:key,reward:800};}
+ return {code:'DAILY '+String(a[2]).padStart(2,'0')+'-'+String(a[1]).padStart(2,'0')+'-'+a[0],type:'daily',period:key,reward:200};
+}
+function matPromoSheets_(){
+ const ss=SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
+ function get(n,h){let sh=ss.getSheetByName(n);if(!sh)sh=ss.insertSheet(n);if(!sh.getLastRow()){sh.getRange(1,1,1,h.length).setValues([h]);sh.setFrozenRows(1);}else{const old=matHeaders_(sh),miss=h.filter(x=>!old.includes(x));if(miss.length)sh.getRange(1,old.length+1,1,miss.length).setValues([miss]);}return sh;}
+ return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt'])};
+}
+function matPromoEmail_(u){return String(u&&u.Email||'').trim().toLowerCase();}
+function matPromoIsAdmin_(u){const e=matPromoEmail_(u),root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();if(root&&e===root)return true;return matReadObjects_(matPromoSheets_().admins).some(r=>String(r.Email||'').toLowerCase()===e&&String(r.Status).toUpperCase()==='ACTIVE');}
+function matPromoRequireAdmin_(p){const u=matAuthenticate_(p);if(String(u.AccountType).toUpperCase()!=='REGISTERED'||!matPromoIsAdmin_(u))throw new Error('Admin access required.');return u;}
+function matAdminBootstrapStatus_(p){const u=matAuthenticate_(p);return {success:true,configured:!!matScriptProperty_('MAT_SUPER_ADMIN_EMAIL'),isAdmin:matPromoIsAdmin_(u)};}
+function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid email required.');const p=PropertiesService.getScriptProperties();if(p.getProperty('MAT_SUPER_ADMIN_EMAIL'))throw new Error('Super Admin already configured.');p.setProperty('MAT_SUPER_ADMIN_EMAIL',e);return 'Super Admin configured.';}
+function matAdminListMembers_(p){matPromoRequireAdmin_(p);const root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();return {success:true,members:[{email:root,role:'SUPER_ADMIN',status:'ACTIVE'}].concat(matReadObjects_(matPromoSheets_().admins).map(r=>({email:String(r.Email||''),role:'ADMIN',status:String(r.Status||'')})))};}
+function matAdminAddMember_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid registered email required.');if(e===matPromoEmail_(actor))throw new Error('Already Super Admin.');const sh=matPromoSheets_().admins,rows=matReadObjects_(sh),r=rows.find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'ACTIVE'});else matAppendObject_(sh,{Email:e,Role:'ADMIN',Status:'ACTIVE',AddedAt:matNowIso_(),AddedBy:matPromoEmail_(actor)});return matAdminListMembers_(p);}
+function matAdminRemoveMember_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase(),sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'REMOVED'});return matAdminListMembers_(p);}
+function matGetPromoInfo_(p){const u=matAuthenticate_(p),c=matPromoPublic_();return {success:true,publicCode:c.code,publicType:c.type,rewardPB:c.reward,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0))};}
+function matRedeemPromoCode_(p){
+ const u=matAuthenticate_(p),input=String(p.code||'').trim().toUpperCase();if(!input)throw new Error('Promo Code লিখুন।');
+ const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
+ try{const sh=matPromoSheets_().redemptions,c=matPromoPublic_(),now=matNowIso_();let type,period,reward;
+ if(input===MAT_PROMO_FIXED_CODE_){type='unlimited';period='';reward=100000;}
+ else if(input===c.code.toUpperCase()){type=c.type;period=c.period;reward=c.reward;}
+ else throw new Error('এই Promo Code এখন valid নয়।');
+ const rows=matReadObjects_(sh);if(type!=='unlimited'&&rows.some(r=>String(r.UserID)===String(u.UserID)&&String(r.Type)===type&&String(r.PeriodKey)===period))throw new Error('এই period-এর code আপনি ইতিমধ্যে redeem করেছেন।');
+ const ss=matGetStudentsSheet_(),current=matFindStudentById_(u.UserID);if(!current)throw new Error('Student profile not found.');
+ const balance=Math.max(0,matFiniteNumber_(current.PromoPB,0))+reward;
+ matUpdateObjectRow_(ss,current._rowNumber,{PromoPB:balance,UpdatedAt:now});
+ matAppendObject_(sh,{RedemptionID:Utilities.getUuid(),UserID:u.UserID,Code:input,Type:type,PeriodKey:period,RewardPB:reward,RedeemedAt:now});
+ return {success:true,rewardPB:reward,promoPB:balance,user:matApiUser_(matFindStudentById_(u.UserID))};
+ }finally{lock.releaseLock();}
+}
+function matAdminPromoStatus_(p){matPromoRequireAdmin_(p);const c=matPromoPublic_(),r=matReadObjects_(matPromoSheets_().redemptions);return {success:true,publicCode:c.code,publicType:c.type,publicRewardPB:c.reward,redemptions:r.length};}
