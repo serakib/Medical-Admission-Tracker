@@ -82,7 +82,7 @@ function card(){
    <button class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Global Settings</button>
   </form>
   <section id="mat-member-overrides" class="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-3">
-   <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="font-bold text-sm">Individual Member Override</h4><p class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি member-এর settings আলাদা করে manage করুন।</p></div><button type="button" id="mat-member-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
+   <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="font-bold text-sm">Admin-only Promo Code & Individual Overrides</h4><p class="text-xs text-gray-500 dark:text-gray-400">Admin select করলে Super Admin তার Admin-only code access, PB reward এবং redemption limit আলাদাভাবে সেট করতে পারবেন। Regular member-এর override-ও এখান থেকে manage হবে।</p></div><button type="button" id="mat-member-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
    <div id="mat-member-override-list" class="space-y-3"></div>
    <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-member-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি section আলাদাভাবে Save করতে পারবেন, অথবা Save All ব্যবহার করতে পারবেন।</span></div>
   </section>
@@ -215,7 +215,7 @@ function renderMemberAdminRoleControl(card){
  const record=adminMemberRecords.find(m=>String(m.email||'').trim().toLowerCase()===email);
  const isRoot=!!record&&record.role==='SUPER_ADMIN';
  const isAdmin=!!record&&record.status==='ACTIVE';
- status.textContent=isRoot?'SUPER ADMIN · এই access revoke করা যাবে না':isAdmin?'ADMIN MEMBER · এই member-এর Admin access active':'REGULAR MEMBER · Admin access নেই';
+ status.textContent=isRoot?'SUPER ADMIN · Admin-only code access ও settings manage করা যাবে; role revoke করা যাবে না':isAdmin?'ADMIN MEMBER · Super Admin এখান থেকে Admin-only code access, PB ও limit সেট করতে পারবেন':'REGULAR MEMBER · এখানে regular promo override সেট হবে; Admin-only code ব্যবহার করতে পারবে না';
  button.classList.toggle('hidden',!canManageAdminMembers||isRoot);
  button.textContent=isAdmin?'Revoke Admin Member':'Make Admin Member';
  button.className=(canManageAdminMembers&&!isRoot?'':'hidden ')+'rounded-lg px-3 py-2 text-xs font-bold '+(isAdmin?'border border-rose-300 text-rose-700 dark:text-rose-300':'bg-rose-600 text-white');
