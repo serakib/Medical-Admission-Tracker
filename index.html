@@ -1569,7 +1569,7 @@ function toggleAppSidebarCollapse(){
                     <span class="mat-top-rp" title="Medical Rank Points"><i class="fa-solid fa-star" aria-hidden="true"></i><span id="med-top-rp">0 RP</span></span>
                     <button type="button" class="mat-top-icon mat-info-control" data-med-action="rules" title="Exam, Rewards & Rank Rules" aria-label="Open Exam, Rewards and Rank Rules"><span class="mat-info-glyph" aria-hidden="true">i</span></button>
                     <button id="leaderboard-manage-friends" type="button" class="mat-manage-friends-button" data-med-action="manage-friends"><i class="fa-solid fa-user-group" aria-hidden="true"></i> Friends &amp; Requests</button>
-                    <button onclick="window.app.loadLeaderboard()" class="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold"><i class="fa-solid fa-rotate ml-1"></i> Refresh</button>
+                    <button id="leaderboard-refresh-button" type="button" onclick="window.app.loadLeaderboard()" class="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-bold" aria-label="Refresh leaderboard"><i class="fa-solid fa-rotate ml-1" aria-hidden="true"></i> Refresh</button>
                   </div>
                 </div>
                 <div id="leaderboard-status" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
@@ -2116,7 +2116,7 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=profile-rp-cleanup-weekly-sidebar-20261101-1"></script>
+<script type="module" src="script.js?v=multi-member-promo-refresh-20261101-1"></script>
 <script type="module" src="./js/integrated-features.js?v=account-preferences-dots-20261101-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
@@ -2127,6 +2127,6 @@ main > .view-section.hidden { display: none !important; }
     <script src="./js/account-slideshow.js?v=popup-fullscreen-20261101-1" defer></script>
     <script src="./js/activity-notifications.js?v=single-immortal-rank-20261101-1" defer></script>
 
-<script src="./js/promo-code-system.js?v=premium-gold-name-access-management-20261101-3" defer></script>
+<script src="./js/promo-code-system.js?v=multi-member-overrides-20261101-1?v=premium-gold-name-access-management-20261101-3" defer></script>
 </body>
 </html>
