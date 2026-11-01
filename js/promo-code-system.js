@@ -225,13 +225,22 @@ function renderMemberAdminRoleControl(card){
   const action=isAdmin?'adminRemoveMember':'adminAddMember';
   if(!confirm((isAdmin?'এই member-এর Admin access revoke':'এই member-কে Admin Member')+' করবেন?'))return;
   button.disabled=true;button.setAttribute('aria-busy','true');
+  button.textContent=isAdmin?'Revoking...':'Adding...';
+  status.textContent=isAdmin?'ADMIN ACCESS REVOKING...':'ADMIN ACCESS ADDING...';
   try{
    await api(action,{email});
+   button.textContent=isAdmin?'Revoked':'Added';
+   status.textContent=isAdmin?'ADMIN ACCESS REVOKED':'ADMIN MEMBER ACCESS GRANTED';
    $('mat-admin-message').textContent=isAdmin?'Admin access revoked.':'Admin Member access granted.';
+   await new Promise(resolve=>setTimeout(resolve,900));
    await loadAdmin();
-  }catch(error){$('mat-admin-message').textContent=(error&&error.message)||(isAdmin?'Admin access revoke failed.':'Admin access grant failed.');button.disabled=false;}
-  finally{button.removeAttribute('aria-busy');}
- };
+  }catch(error){
+   $('mat-admin-message').textContent=(error&&error.message)||(isAdmin?'Admin access revoke failed.':'Admin access grant failed.');
+   status.textContent=isAdmin?'ADMIN ACCESS REVOKE FAILED':'ADMIN MEMBER ACCESS GRANT FAILED';
+   button.textContent=isAdmin?'Revoke Admin Member':'Make Admin Member';
+   button.disabled=false;
+  }finally{button.removeAttribute('aria-busy');}
+ }
 }
 function addMemberOverrideCard(member){
  const host=$('mat-member-override-list');if(!host)return null;
