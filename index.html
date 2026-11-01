@@ -1398,7 +1398,8 @@ function toggleAppSidebarCollapse(){
 
                 <div class="profile-stat-card"><span>Total Attempts</span><strong id="profile-attempt-count">0</strong><small>exam history</small></div>
                 <div class="profile-stat-card"><span>Lifetime RP</span><strong id="profile-lifetime-rp">0</strong><small>display only</small></div>
-                <div class="profile-stat-card"><span>Monthly RP</span><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500 text-2xl drop-shadow" aria-hidden="true"></i><span id="profile-monthly-rp">0</span></strong><small>current month RP</small></div>
+                <div class="profile-stat-card"><span>Weekly RP</span><strong id="profile-weekly-rp">0</strong><small>current week RP</small></div>
+                <div class="profile-stat-card"><span>Monthly RP</span><strong id="profile-monthly-rp">0</strong><small>current month RP</small></div>
                 <div class="profile-stat-card"><span>Highest Monthly RP</span><strong id="profile-highest-monthly-rp">0</strong><small>best monthly RP record</small></div>
                 <div class="profile-stat-card"><span>Highest Weekly RP</span><strong id="profile-highest-weekly-rp">0</strong><small>best weekly RP record</small></div>
                 <div class="profile-stat-card"><span>Best Score</span><strong id="profile-best-score">0.00</strong><small>highest result</small></div>
@@ -1423,7 +1424,11 @@ function toggleAppSidebarCollapse(){
                   
                 </div>
                 <div class="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400"><span id="sidebar-profile-xp-progress">0 / 500 XP</span><strong id="sidebar-profile-level-percent">0%</strong></div>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Total Medical XP: <strong id="sidebar-profile-total-xp">0</strong> · RP: <strong id="sidebar-profile-total-rp">0</strong></p>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Total Medical XP: <strong id="sidebar-profile-total-xp">0</strong> · Lifetime RP: <strong id="sidebar-profile-total-rp">0</strong></p>
+              </div>
+              <div class="flex items-center justify-between rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 px-3 py-2.5">
+                <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Weekly RP</span>
+                <strong id="sidebar-profile-weekly-rp" class="text-base font-black text-amber-600 dark:text-amber-300">0</strong>
               </div>
               <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <h3 class="font-extrabold text-base">PB Conversion</h3>
@@ -1531,8 +1536,8 @@ function toggleAppSidebarCollapse(){
               <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div class="mat-student-profile-stat"><small>Medical XP</small><strong id="student-profile-xp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Lifetime RP</small><strong id="student-profile-total-rp">—</strong></div>
-                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500 text-2xl drop-shadow" aria-hidden="true"></i><span id="student-profile-weekly-rp">—</span><span>RP</span></strong></div>
-                <div class="mat-student-profile-stat"><small>Monthly RP</small><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500 text-2xl drop-shadow" aria-hidden="true"></i><span id="student-profile-monthly-rp">—</span><span>RP</span></strong></div>
+                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong id="student-profile-weekly-rp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Monthly RP</small><strong id="student-profile-monthly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Highest Monthly RP</small><strong id="student-profile-highest-monthly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Highest Weekly RP</small><strong id="student-profile-highest-weekly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Account Level</small><strong id="student-profile-level">—</strong></div>
