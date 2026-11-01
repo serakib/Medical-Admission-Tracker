@@ -2344,6 +2344,18 @@ function refreshGuestDeletionCard() {
         } else {
           pending.textContent = '৭২ ঘণ্টার সময়সীমা শেষ হয়েছে। Server cleanup শিগগিরই deletion সম্পন্ন করবে; এই পর্যায়ে cancellation আর সম্ভব নয়।';
         }
+        const adminReason = String(profile.guestDeletionReason || '').trim();
+        if (adminReason) {
+          const reasonBox = document.createElement('div');
+          reasonBox.className = 'mt-3 rounded-lg border border-amber-300/80 bg-white/70 p-3 text-sm leading-6 dark:border-amber-700 dark:bg-slate-900/50';
+          const reasonTitle = document.createElement('strong');
+          reasonTitle.textContent = 'Admin-এর দেওয়া কারণ';
+          const reasonText = document.createElement('p');
+          reasonText.className = 'mt-1 whitespace-pre-wrap break-words';
+          reasonText.textContent = adminReason;
+          reasonBox.append(reasonTitle, reasonText);
+          pending.appendChild(reasonBox);
+        }
       }
     }
     if (cancel) cancel.classList.toggle('hidden', !countdownActive);
