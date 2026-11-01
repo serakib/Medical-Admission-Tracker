@@ -1064,7 +1064,7 @@ class MedicalExamApp {
         const deleteCard = document.getElementById('account-delete-card');
         const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
             user.providerData.some(provider => provider && provider.providerId === 'password'));
-        const isGuestProfile = !user && String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+        const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
         if (deleteCard) deleteCard.classList.toggle('hidden', !hasEmailPassword);
         const guestDeleteCard = document.getElementById('account-guest-delete-card');
         if (guestDeleteCard) guestDeleteCard.classList.toggle('hidden', !isGuestProfile);
@@ -2239,7 +2239,7 @@ function refreshGuestDeletionCard() {
     const card = document.getElementById('account-guest-delete-card');
     if (!card) return;
     const profile = window.app?.profile || {};
-    const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' && !auth.currentUser;
+    const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' && (!auth.currentUser || auth.currentUser.isAnonymous);
     if (isGuest) card.classList.remove('hidden');
     const title = card.querySelector('h3');
     const description = card.querySelector('p');
@@ -2320,7 +2320,7 @@ window.handleAccountDeletion = function() {
     if (document.getElementById('account-delete-confirmation-modal')) return;
     const user = auth.currentUser || window.app?.authUser;
     const guestProfile = window.app?.profile || {};
-    if (!user && String(guestProfile.accountType || '').toUpperCase() === 'GUEST') {
+    if ((user?.isAnonymous || !user) && String(guestProfile.accountType || '').toUpperCase() === 'GUEST') {
       const overlay = document.createElement('div');
       overlay.id = 'account-delete-confirmation-modal';
       overlay.className = 'fixed inset-0 z-[10001] flex items-center justify-center bg-slate-950/70 p-4';
