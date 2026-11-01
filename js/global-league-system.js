@@ -269,6 +269,7 @@
     // Do not erase this account's already-confirmed avatar when such a row is applied.
     profile.avatar = incomingAvatar || previousAvatar;
     profile.accountType = user.accountType || (app.authUser ? 'REGISTERED' : 'GUEST');
+    if (user.isAdmin != null) profile.isAdmin = user.isAdmin === true;
     profile.xp = Math.max(0, Number(user.xp) || 0);
     profile.pb = Math.max(0, Number(user.pb != null ? user.pb : user.pendingPB) || 0);
     profile.pendingPB = profile.pb;
