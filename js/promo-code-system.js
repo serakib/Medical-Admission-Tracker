@@ -17,10 +17,41 @@ async function credentials(){
  if(token)return {guestToken:token};
  throw new Error('Firebase session পাওয়া যায়নি। Sign in সম্পন্ন হলে আবার চেষ্টা করুন।');
 }
+const REQUEST_TIMEOUT_MS=30000;
 async function api(action,fields){
  const endpoint=String(window.MED_LEADERBOARD_API_URL||'').trim();if(!endpoint)throw new Error('Backend URL পাওয়া যায়নি।');
- const creds=await credentials(),res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action},creds,fields||{}))});
- const data=await res.json();if(!data.success)throw new Error(data.error||'Request failed.');return data;
+ const controller=typeof AbortController!=='undefined'?new AbortController():null;
+ let timedOut=false,timeoutId=0;
+ const timeoutPromise=new Promise((_,reject)=>{
+  timeoutId=setTimeout(()=>{
+   timedOut=true;
+   if(controller)controller.abort();
+   const error=new Error('Request timed out after 30 seconds.');
+   error.code='MAT_REQUEST_TIMEOUT';
+   reject(error);
+  },REQUEST_TIMEOUT_MS);
+ });
+ try{
+  const request=(async()=>{
+   const creds=await credentials();
+   if(timedOut){const error=new Error('Request timed out after 30 seconds.');error.code='MAT_REQUEST_TIMEOUT';throw error;}
+   const options={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action},creds,fields||{}))};
+   if(controller)options.signal=controller.signal;
+   const res=await fetch(endpoint,options);
+   if(!res.ok)throw new Error('Backend request failed (HTTP '+res.status+').');
+   const data=await res.json();
+   if(!data.success)throw new Error(data.error||'Request failed.');
+   return data;
+  })();
+  return await Promise.race([request,timeoutPromise]);
+ }catch(error){
+  if(timedOut||(error&&error.name==='AbortError')){
+   const timeoutError=new Error('Request timed out after 30 seconds. Server response পাওয়া যায়নি; আবার চেষ্টা করার আগে PB balance check করুন।');
+   timeoutError.code='MAT_REQUEST_TIMEOUT';
+   throw timeoutError;
+  }
+  throw error;
+ }finally{clearTimeout(timeoutId);}
 }
 function card(){
  if(!$('mat-loading-dots-style'))document.head.insertAdjacentHTML('beforeend',"\n<style id=\"mat-loading-dots-style\">\n.mat-loading-dots{display:inline-flex;align-items:center;gap:2px;margin-left:2px;vertical-align:baseline}\n.mat-loading-dots i{font-style:normal;opacity:.25;animation:mat-loading-dot 1s infinite ease-in-out}\n.mat-loading-dots i:nth-child(2){animation-delay:.16s}\n.mat-loading-dots i:nth-child(3){animation-delay:.32s}\n@keyframes mat-loading-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}\n@media(prefers-reduced-motion:reduce){.mat-loading-dots i{animation:none;opacity:1}}\n</style>");
@@ -59,22 +90,35 @@ function card(){
   <p id="mat-admin-message" class="text-sm" aria-live="polite"></p>
  </div>`;
  host.insertBefore(section,host.firstElementChild);
+ let redeemInFlight=false;
  $('mat-promo-redeem-form').addEventListener('submit',async e=>{
   e.preventDefault();
+  if(redeemInFlight)return;
   const form=e.currentTarget,input=$('mat-promo-input'),msg=$('mat-promo-message');
+  const code=String(input.value||'').trim();
+  if(!code){msg.textContent='Promo Code লিখুন।';input.focus();return;}
   const button=form.querySelector('button[type="submit"],button:not([type])');
   const originalButtonHTML=button?button.innerHTML:'';
+  const originalButtonDisabled=button?button.disabled:false,originalInputDisabled=input.disabled;
+  redeemInFlight=true;
+  input.disabled=true;
   if(button){button.disabled=true;button.setAttribute('aria-busy','true');button.innerHTML='Redeeming <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';}
   msg.innerHTML='Redeeming <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
   try{
-    const r=await api('redeemPromoCode',{code:input.value});
+    const r=await api('redeemPromoCode',{code});
     msg.textContent='Promo code successfully redeemed! +'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';
     input.value='';
     if(r.user&&window.MedGlobalLeague&&typeof window.MedGlobalLeague.applyAccountSnapshot==='function'){window.MedGlobalLeague.applyAccountSnapshot(r.user);}
     else if(r.user&&window.app){window.app.profile=Object.assign(window.app.profile||{},r.user);window.app.profile.pb=Number(r.user.pb||r.user.pendingPB||0);window.app.profile.availablePB=window.app.profile.pb;window.app.profile.promoPB=Number(r.user.promoPB||0);window.dispatchEvent(new CustomEvent('student-progress-updated',{detail:Object.assign({},window.app.profile,{source:'promo-redemption'})}));}
     $('mat-promo-balance').textContent=Number(r.promoPB).toLocaleString()+' PB';
-  }catch(err){msg.textContent='Promo code redemption failed: '+(err&&err.message?err.message:'Please try again.');}
-  finally{if(button){button.innerHTML=originalButtonHTML;button.disabled=false;button.removeAttribute('aria-busy');}}
+  }catch(err){
+    if(err&&err.code==='MAT_REQUEST_TIMEOUT')msg.textContent='Redeem request timeout. PB balance check করে তারপর retry করুন—server request process করে থাকতে পারে।';
+    else msg.textContent='Promo code redemption failed: '+(err&&err.message?err.message:'Please try again.');
+  }finally{
+    redeemInFlight=false;
+    input.disabled=originalInputDisabled;
+    if(button){button.innerHTML=originalButtonHTML;button.disabled=originalButtonDisabled;button.removeAttribute('aria-busy');}
+  }
  });
  $('mat-promo-global-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving global settings…';try{await api('adminSavePromoConfig',{code:$('mat-global-code').value,rewardPB:$('mat-global-reward').value,limitCount:$('mat-global-limit').value,limitPeriod:$('mat-global-period').value,enabled:$('mat-global-enabled').checked});msg.textContent='Global Promo Settings saved.';await refresh();}catch(err){msg.textContent=err.message;}});
  $('mat-promo-member-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving member settings…';try{await api('adminSaveMemberPromo',{userId:$('mat-member-select').value,code:$('mat-member-code').value,rewardPB:$('mat-member-reward').value,limitCount:$('mat-member-limit').value,limitPeriod:$('mat-member-period').value,enabled:$('mat-member-enabled').checked});msg.textContent='Individual Promo Settings saved.';await loadAdmin();}catch(err){msg.textContent=err.message;}});
