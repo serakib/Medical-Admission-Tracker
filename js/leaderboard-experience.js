@@ -838,6 +838,8 @@
     }
     const write = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
     write('student-profile-name', name);
+    const adminBadge = document.getElementById('student-profile-admin-badge');
+    if (adminBadge) adminBadge.classList.toggle('hidden', row.isAdmin !== true);
     write('student-profile-college-batch', [
       college ? 'College: ' + college : '',
       batch ? 'Class/Batch: ' + batch : ''
@@ -846,7 +848,7 @@
     renderGuestAutoDeletionCountdown(row);
     write('student-profile-xp', fmt(row.xp) + ' XP');
     write('student-profile-total-rp', fmt(row.totalRP ?? row.TotalRP ?? row.lifetimeRP ?? row.LifetimeRP ?? 0) + ' RP');
-    write('student-profile-weekly-rp', fmt(row.weeklyRankPoints) + ' RP');
+    write('student-profile-weekly-rp', fmt(row.weeklyRankPoints != null ? row.weeklyRankPoints : row.weeklyRP));
     write('student-profile-monthly-rp', fmt(row.monthlyRP) + ' RP');
     write('student-profile-highest-monthly-rp', fmt(Math.max(Number(row.highestMonthlyRP) || 0, Number(row.monthlyRP) || 0)) + ' RP');
     write('student-profile-highest-weekly-rp', fmt(Math.max(Number(row.highestWeeklyRP) || 0, Number(row.weeklyRankPoints) || 0)) + ' RP');
