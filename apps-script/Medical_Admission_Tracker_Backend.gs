@@ -81,7 +81,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'LastWeeklyPromotionReviewDate', 'PromoPB', 'ShowGoldName'
+  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'GuestDeletionReason', 'LastWeeklyPromotionReviewDate', 'PromoPB', 'ShowGoldName'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -2414,6 +2414,7 @@ function matRequestGuestDeletion_(p) {
     matUpdateObjectRow_(matGetStudentsSheet_(), latest._rowNumber, {
       GuestDeletionRequestedAt: requestedAt,
       GuestDeletionScheduledAt: scheduledAt,
+      GuestDeletionReason: '',
       LastSeenAt: requestedAt,
       UpdatedAt: requestedAt
     });
@@ -2440,6 +2441,7 @@ function matCancelGuestDeletion_(p) {
     matUpdateObjectRow_(matGetStudentsSheet_(), latest._rowNumber, {
       GuestDeletionRequestedAt: '',
       GuestDeletionScheduledAt: '',
+      GuestDeletionReason: '',
       LastSeenAt: matNowIso_(),
       UpdatedAt: matNowIso_()
     });
@@ -2794,6 +2796,7 @@ function matPublicProfile_(r, includeEmail) {
     isGoldName: matPromoHasGoldName_(s),
     showGoldName: String(s.ShowGoldName == null || s.ShowGoldName === '' ? 'TRUE' : s.ShowGoldName).toUpperCase() !== 'FALSE',
     guestDeletionPending: String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt,
+    guestDeletionReason: String(s.GuestDeletionReason || ''),
     guestDeletionRequestedAt: String(s.GuestDeletionRequestedAt || ''),
     guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
     guestAutoDeletionAt: guestAutoDeletionAt,
@@ -2999,7 +3002,7 @@ function matPromoPublic_(){
 function matPromoSheets_(){
  const ss=SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
  function get(n,h){let sh=ss.getSheetByName(n);if(!sh)sh=ss.insertSheet(n);if(!sh.getLastRow()){sh.getRange(1,1,1,h.length).setValues([h]);sh.setFrozenRows(1);}else{const old=matHeaders_(sh),miss=h.filter(x=>!old.includes(x));if(miss.length)sh.getRange(1,old.length+1,1,miss.length).setValues([miss]);}return sh;}
- return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt']),guestDeletionRequests:get('AdminGuestDeletionRequests',['RequestID','TargetUserID','Status','RequestedBy','RequestedAt','ReviewedBy','ReviewedAt','Decision']),guestDeletionAudit:get('GuestDeletionAudit',['EventID','TargetUserID','Event','ActorEmail','ActorRole','EventAt','PreviousDeadline','NewDeadline','Notes'])};
+ return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt']),guestDeletionRequests:get('AdminGuestDeletionRequests',['RequestID','TargetUserID','Status','RequestedBy','RequestedAt','Reason','ReviewedBy','ReviewedAt','Decision']),guestDeletionAudit:get('GuestDeletionAudit',['EventID','TargetUserID','Event','ActorEmail','ActorRole','EventAt','PreviousDeadline','NewDeadline','Notes'])};
 }
 function matPromoEmail_(u){return String(u&&u.Email||'').trim().toLowerCase();}
 var MAT_PROMO_ADMIN_EMAIL_LOOKUP_ = null;
@@ -3106,8 +3109,9 @@ function matAdminListGuestDeletionTargets_(p) {
   })};
 }
 function matAdminCreateGuestDeletionRequest_(p) {
-  const actor = matPromoRequireAdmin_(p), userId = String(p.userId || '').trim();
+  const actor = matPromoRequireAdmin_(p), userId = String(p.userId || '').trim(), reason=String(p.reason||'').trim();
   if (!userId) throw new Error('Select a Guest account.');
+  if(reason.length<5||reason.length>500)throw new Error('কারণ ৫ থেকে ৫০০ অক্ষরের মধ্যে লিখুন।');
   const lock = LockService.getScriptLock(); lock.waitLock(MAT_LOCK_WAIT_MS);
   try {
     const target = matFindStudentById_(userId);
@@ -3119,7 +3123,7 @@ function matAdminCreateGuestDeletionRequest_(p) {
     });
     if (duplicate) return {success:true,requestId:String(duplicate.RequestID),status:'PENDING',existing:true};
     const id = Utilities.getUuid(), now = matNowIso_();
-    matAppendObject_(sh,{RequestID:id,TargetUserID:userId,Status:'PENDING',RequestedBy:matPromoEmail_(actor),RequestedAt:now,ReviewedBy:'',ReviewedAt:'',Decision:''});
+    matAppendObject_(sh,{RequestID:id,TargetUserID:userId,Status:'PENDING',RequestedBy:matPromoEmail_(actor),RequestedAt:now,Reason:reason,ReviewedBy:'',ReviewedAt:'',Decision:''});
     matGuestDeletionAudit_(userId,'ADMIN_DELETION_REQUESTED',actor,'','','Request '+id);
     return {success:true,requestId:id,status:'PENDING'};
   } finally { lock.releaseLock(); }
@@ -3130,7 +3134,7 @@ function matAdminListGuestDeletionRequests_(p) {
   if (matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can view Guest deletion requests.');
   const rows = matReadObjects_(matPromoSheets_().guestDeletionRequests);
   return {success:true,requests:rows.filter(function(row){return String(row.Status||'').toUpperCase()==='PENDING';}).map(function(row){
-    return {requestId:String(row.RequestID||''),userId:String(row.TargetUserID||''),requestedAt:String(row.RequestedAt||''),requestedBy:String(row.RequestedBy||'')};
+    return {requestId:String(row.RequestID||''),userId:String(row.TargetUserID||''),requestedAt:String(row.RequestedAt||''),requestedBy:String(row.RequestedBy||''),reason:String(row.Reason||'')};
   })};
 }
 function matAdminResolveGuestDeletionRequest_(p) {
@@ -3149,7 +3153,7 @@ function matAdminResolveGuestDeletionRequest_(p) {
       if (!target || String(target.AccountType||'').toUpperCase()!=='GUEST') throw new Error('Guest account no longer exists.');
       // The existing scheduled Guest cleanup trigger performs the full Sheets cleanup.
       const scheduledAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
-      matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:now,GuestDeletionScheduledAt:scheduledAt,UpdatedAt:now});
+      matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:now,GuestDeletionScheduledAt:scheduledAt,GuestDeletionReason:String(row.Reason||''),UpdatedAt:now});
     }
     matUpdateObjectRow_(sh,row._rowNumber,{Status:decision==='APPROVE'?'APPROVED':'REJECTED',ReviewedBy:matPromoEmail_(actor),ReviewedAt:now,Decision:decision});
     const latestTarget=matFindStudentById_(userId);
@@ -3178,7 +3182,7 @@ function matAdminCancelGuestDeletion_(p){
     const target=matFindStudentById_(userId);
     if(!target||String(target.AccountType||'').toUpperCase()!=='GUEST')throw new Error('Guest account not found.');
     const old=String(target.GuestDeletionScheduledAt||'');if(!old||Date.parse(old)<=Date.now())throw new Error('No cancellable deletion is pending.');
-    matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:'',GuestDeletionScheduledAt:'',UpdatedAt:matNowIso_()});
+    matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:'',GuestDeletionScheduledAt:'',GuestDeletionReason:'',UpdatedAt:matNowIso_()});
     matGuestDeletionAudit_(userId,'ADMIN_DELETION_CANCELLED',actor,old,'','Cancelled by Super Admin');
     return {success:true,cancelled:true,userId:userId};
   }finally{lock.releaseLock();}
