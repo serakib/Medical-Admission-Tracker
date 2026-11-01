@@ -2181,7 +2181,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       region.innerHTML = '<label for="leaderboard-friend-search">Find students to add</label>' +
         '<input id="leaderboard-friend-search" type="search" autocomplete="off" maxlength="80" placeholder="Search by name, college or batch…" aria-describedby="leaderboard-friend-search-help">' +
         '<p id="leaderboard-friend-search-help">Search the global student list, not just the currently selected rank.</p>' +
-        '<div id="leaderboard-friend-search-results" role="list" aria-live="polite"><p>Student list load হলে নাম দিয়ে খুঁজতে পারবেন।</p></div>';
+        '<div id="leaderboard-friend-search-results" role="list" aria-live="polite"><p>Student directory থেকে নাম, কলেজ বা batch দিয়ে খুঁজুন।</p></div>';
       if (list && list.parentNode === panel) panel.insertBefore(region, list);
       else panel.appendChild(region);
       var input = region.querySelector('#leaderboard-friend-search');
