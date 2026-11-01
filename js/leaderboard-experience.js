@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  if (!document.getElementById('mat-loading-dots-style')) document.head.insertAdjacentHTML('beforeend', "\n<style id=\"mat-loading-dots-style\">\n.mat-loading-dots{display:inline-flex;align-items:center;gap:2px;margin-left:2px;vertical-align:baseline}\n.mat-loading-dots i{font-style:normal;opacity:.25;animation:mat-loading-dot 1s infinite ease-in-out}\n.mat-loading-dots i:nth-child(2){animation-delay:.16s}\n.mat-loading-dots i:nth-child(3){animation-delay:.32s}\n@keyframes mat-loading-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}\n@media(prefers-reduced-motion:reduce){.mat-loading-dots i{animation:none;opacity:1}}\n</style>");
   const app = window.app;
   if (!app || app.__leaderboardExperienceInstalled) return;
   app.__leaderboardExperienceInstalled = true;
@@ -689,7 +690,7 @@
         item.setAttribute('aria-disabled', 'true');
       });
       if (input) input.disabled = true;
-      button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1" aria-hidden="true"></i> Converting…';
+      button.innerHTML = 'Converting to ' + (kind === 'xp' ? 'XP' : 'RP') + "<span class=\"mat-loading-dots\" role=\"img\" aria-label=\"loading\"><i>.</i><i>.</i><i>.</i></span>";
       button.setAttribute('aria-busy', 'true');
       button.classList.add('opacity-80', 'cursor-wait');
       if (status) {
@@ -697,7 +698,7 @@
         if (status._pbHideTimeout) clearTimeout(status._pbHideTimeout);
         status.classList.remove('hidden', 'opacity-0');
         status.classList.add('flex', 'transition-opacity', 'duration-500', 'opacity-100');
-        status.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i><span>Converting PB to ' + (kind === 'xp' ? 'XP' : 'RP') + '… Please wait.</span>';
+        status.innerHTML = '<span>Converting to ' + (kind === 'xp' ? 'XP' : 'RP') + '</span>'+ "<span class=\"mat-loading-dots\" role=\"img\" aria-label=\"loading\"><i>.</i><i>.</i><i>.</i></span>";
       }
       try {
         const result = await converter(amount, kind);
