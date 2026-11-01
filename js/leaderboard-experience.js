@@ -247,7 +247,9 @@
     name: app.profile?.name || app.authUser?.displayName || '',
     college: app.profile?.college || '',
     batch: app.profile?.batch || app.profile?.class || '',
-    avatar: app.profile?.avatar || ''
+    avatar: app.profile?.avatar || '',
+    isAdmin: app.profile?.isAdmin === true,
+    isGoldName: app.profile?.isGoldName === true || app.profile?.isAdmin === true
   });
   const setStatus = (message, isError = false) => {
     const el = document.getElementById('student-profile-status');
@@ -529,20 +531,20 @@
     const incomingMarkup = incomingRequests.map(request =>
       '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' +
       avatarMarkup({ userId: request.fromUid, name: request.fromName }) +
-      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.fromUid) + '">' + escapeHTML(request.fromName || 'Student') + '</button><small>' +
+      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.fromUid) + '">' + (window.MedPremiumName && typeof window.MedPremiumName.html === 'function' ? window.MedPremiumName.html(request.fromName || 'Student', request.fromIsGoldName === true) : escapeHTML(request.fromName || 'Student')) + '</button><small>' +
       escapeHTML([request.fromCollege, request.fromBatch].filter(Boolean).join(' · ') || 'Incoming friend request') +
       '</small></div><div class="mat-profile-actions"><button type="button" class="primary" data-friend-action="accept" data-request-id="' + escapeHTML(request.id) + '">Accept</button><button type="button" data-friend-action="reject" data-request-id="' + escapeHTML(request.id) + '">Reject</button></div></div>'
     ).join('');
     const outgoingMarkup = outgoingRequests.map(request =>
       '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' +
       avatarMarkup({ userId: request.toUid, name: request.toName }) +
-      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + escapeHTML(request.toName || 'Student') + '</button><small>' + (request.id ? 'Request sent · pending' : request.idSyncFailed ? 'Request sent · ID unavailable' : 'Request sent · syncing request ID') + '</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id || '') + '"' + (!request.id ? ' disabled title="' + (request.idSyncFailed ? 'Backend request ID পাওয়া যায়নি; API deployment পরীক্ষা করুন' : 'Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন') + '"' : '') + '>Cancel</button></div></div>'
+      '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(request.toUid) + '">' + (window.MedPremiumName && typeof window.MedPremiumName.html === 'function' ? window.MedPremiumName.html(request.toName || 'Student', request.toIsGoldName === true) : escapeHTML(request.toName || 'Student')) + '</button><small>' + (request.id ? 'Request sent · pending' : request.idSyncFailed ? 'Request sent · ID unavailable' : 'Request sent · syncing request ID') + '</small></div><div class="mat-profile-actions"><button type="button" data-friend-action="cancel" data-request-id="' + escapeHTML(request.id || '') + '"' + (!request.id ? ' disabled title="' + (request.idSyncFailed ? 'Backend request ID পাওয়া যায়নি; API deployment পরীক্ষা করুন' : 'Request ID sync হচ্ছে; একটু পরে আবার চেষ্টা করুন') + '"' : '') + '>Cancel</button></div></div>'
     ).join('');
     const friendsMarkup = acceptedFriends.map(friend => {
       const id = String(friend.userId || friend.uid || friend.playerId || '');
       return '<div class="mat-friends-request"><span class="mat-friend-search-avatar">' + avatarMarkup(friend) +
         '</span><div class="mat-friend-request-copy"><button type="button" class="mat-friend-profile-link" data-med-friend-open-profile="' + escapeHTML(id) + '">' +
-        escapeHTML(friend.name || friend.username || 'Student') + '</button><small>' +
+        (window.MedPremiumName && typeof window.MedPremiumName.html === 'function' ? window.MedPremiumName.html(friend.name || friend.username || 'Student', friend.isGoldName === true) : escapeHTML(friend.name || friend.username || 'Student')) + '</button><small>' +
         escapeHTML([friend.college || friend.College, friend.batch || friend.Batch].filter(Boolean).join(' · ') || 'Accepted friend') +
         '</small></div><div class="mat-profile-actions"><button type="button" class="danger" data-friend-action="remove" data-target-id="' + escapeHTML(id) + '">Remove Friend</button></div></div>';
     }).join('');
@@ -838,6 +840,10 @@
     }
     const write = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
     write('student-profile-name', name);
+    const publicNameElement = document.getElementById('student-profile-name');
+    if (publicNameElement && window.MedPremiumName && typeof window.MedPremiumName.html === 'function') {
+      publicNameElement.innerHTML = window.MedPremiumName.html(name, row.isGoldName === true);
+    }
     const adminBadge = document.getElementById('student-profile-admin-badge');
     if (adminBadge) adminBadge.classList.toggle('hidden', row.isAdmin !== true);
     write('student-profile-college-batch', [
@@ -1183,6 +1189,8 @@
         college: profile.college || '',
         batch: profile.batch || profile.class || '',
         avatar: profile.avatar || '',
+        isAdmin: profile.isAdmin === true,
+        isGoldName: profile.isGoldName === true || profile.isAdmin === true,
         xp: Number(progress.xp ?? progress.totalXP ?? 0) || 0,
         totalRP: Number(progress.totalRP ?? progress.lifetimeRP ?? 0) || 0,
         weeklyRankPoints: Number(progress.weeklyRankPoints ?? progress.weeklyRP ?? 0) || 0,
@@ -1202,6 +1210,8 @@
         college: profile.college || row.college || '',
         batch: profile.batch || profile.class || row.batch || '',
         avatar: profile.avatar || row.avatar || '',
+        isAdmin: profile.isAdmin === true || row.isAdmin === true,
+        isGoldName: profile.isGoldName === true || profile.isAdmin === true || row.isGoldName === true,
         // Do not let a cached leaderboard row replace the signed-in profile's rank/trophy.
         rank: profile.rank || row.rank || 'Bronze',
         rankPoints: profile.rankPoints != null ? Number(profile.rankPoints) : row.rankPoints,
