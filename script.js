@@ -1877,7 +1877,13 @@ class MedicalExamApp {
         const avgScore=attempts?(history.reduce((a,h)=>a+(parseFloat(h.score)||0),0)/attempts):0;
         const set=(id,val)=>{const el=document.getElementById(id);if(el)el.innerText=val;};
         set('dash-total-exams',attempts); set('prog-total-attempts',attempts); set('dash-best-score',best.toFixed(2)); set('prog-best-score',best.toFixed(2)); set('dash-avg-accuracy',`${avgAcc.toFixed(1)}%`); set('prog-avg-accuracy',`${avgAcc.toFixed(1)}%`); set('prog-avg-score',avgScore.toFixed(2));
-        set('profile-name',this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student');
+        const profileName=this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student';
+        const profileNameElement=document.getElementById('profile-name');
+        if(profileNameElement){
+            profileNameElement.innerHTML=this.authUser&&this.profile?.isGoldName===true&&window.MedPremiumName&&typeof window.MedPremiumName.html==='function'
+                ? window.MedPremiumName.html(profileName,true)
+                : String(profileName).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
         const adminBadge=document.getElementById('profile-admin-badge');
         if(adminBadge) adminBadge.classList.toggle('hidden',!(this.authUser&&this.profile?.isAdmin===true));
         set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):'Guest mode • আপনার progress এই device-এ সংরক্ষিত');
