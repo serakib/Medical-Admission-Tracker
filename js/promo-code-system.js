@@ -8,7 +8,7 @@ async function credentials(){
  // Reuse the app's existing Firebase v11 modular auth session.
  // Do not call firebase.auth(): the site does not initialize the compat default app.
  const app=window.app;
- const user=(app&&(app.authUser||(app.auth&&app.auth.currentUser)))||null;
+ const user=(app&&(app.authUser||(app.auth&&app.auth.currentUser)))||window.__matFirebaseAuthUser||null;
  if(user&&typeof user.getIdToken==='function'){
   const idToken=await user.getIdToken();
   return {idToken};
@@ -148,5 +148,6 @@ async function refresh(){
 }
 function mount(){card();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+window.addEventListener('mat:firebase-auth-ready',()=>{if($('mat-promo-card'))refresh();});
 new MutationObserver(()=>{if(document.body&&$('sidebar-student-profile-extras'))mount();}).observe(document.documentElement,{childList:true,subtree:true});
 })();
