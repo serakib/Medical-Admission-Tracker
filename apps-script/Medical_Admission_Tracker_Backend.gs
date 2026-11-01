@@ -3099,13 +3099,32 @@ function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().to
 
 /* --------------------- Guest account deletion approval --------------------- */
 // Request rows deliberately contain no Guest name, token, email, or profile data.
+function matAdminGuestProfileData_(row) {
+  row = row || {};
+  return {
+    userId: String(row.UserID || ''),
+    name: String(row.Name || row.DisplayName || 'Guest Student'),
+    college: String(row.College || row.CollegeName || ''),
+    batch: String(row.Batch || row.Class || row.HSCBatch || ''),
+    rank: String(row.Rank || row.CurrentRank || 'Bronze'),
+    level: Number(row.Level || 1),
+    xp: Number(row.XP || row.TotalXP || 0),
+    totalRP: Number(row.TotalRP || row.LifetimeRP || 0),
+    weeklyRP: Number(row.WeeklyRP || row.WeeklyRankPoints || 0),
+    monthlyRP: Number(row.MonthlyRP || 0),
+    quizzes: Number(row.Quizzes || row.TotalQuizzes || 0),
+    accuracy: Number(row.Accuracy || 0),
+    accountType: String(row.AccountType || 'GUEST')
+  };
+}
 function matAdminListGuestDeletionTargets_(p) {
   matPromoRequireAdmin_(p);
   const students = matReadObjects_(matGetStudentsSheet_()).filter(function (row) {
     return String(row.AccountType || '').toUpperCase() === 'GUEST';
   });
   return {success:true,guests:students.map(function (row) {
-    return {userId:String(row.UserID || ''),deletionPending:!!row.GuestDeletionScheduledAt,requestedAt:String(row.GuestDeletionRequestedAt||''),scheduledAt:String(row.GuestDeletionScheduledAt||'')};
+    const profile = matAdminGuestProfileData_(row);
+    return Object.assign(profile, {deletionPending:!!row.GuestDeletionScheduledAt,requestedAt:String(row.GuestDeletionRequestedAt||''),scheduledAt:String(row.GuestDeletionScheduledAt||'')});
   })};
 }
 function matAdminCreateGuestDeletionRequest_(p) {
@@ -3131,10 +3150,12 @@ function matAdminCreateGuestDeletionRequest_(p) {
 function matAdminListGuestDeletionRequests_(p) {
   const actor = matPromoRequireAdmin_(p);
   const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
-  if (matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can view Guest deletion requests.');
+  if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can view Guest deletion requests.');
   const rows = matReadObjects_(matPromoSheets_().guestDeletionRequests);
   return {success:true,requests:rows.filter(function(row){return String(row.Status||'').toUpperCase()==='PENDING';}).map(function(row){
-    return {requestId:String(row.RequestID||''),userId:String(row.TargetUserID||''),requestedAt:String(row.RequestedAt||''),requestedBy:String(row.RequestedBy||''),reason:String(row.Reason||'')};
+    const userId = String(row.TargetUserID || '');
+    const target = matFindStudentById_(userId);
+    return {requestId:String(row.RequestID||''),userId:userId,name:target?String(target.Name||target.DisplayName||'Guest Student'):'Account unavailable',profile:target?matAdminGuestProfileData_(target):null,requestedAt:String(row.RequestedAt||''),requestedBy:String(row.RequestedBy||''),reason:String(row.Reason||'')};
   })};
 }
 function matAdminResolveGuestDeletionRequest_(p) {
