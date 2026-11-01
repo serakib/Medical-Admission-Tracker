@@ -176,6 +176,10 @@ function matDispatch_(action, p) {
     case 'redeemPromoCode': return matRedeemPromoCode_(p || {});
     case 'adminBootstrapStatus': return matAdminBootstrapStatus_(p || {});
     case 'adminListMembers': return matAdminListMembers_(p || {});
+    case 'adminListGuestDeletionTargets': return matAdminListGuestDeletionTargets_(p || {});
+    case 'adminCreateGuestDeletionRequest': return matAdminCreateGuestDeletionRequest_(p || {});
+    case 'adminListGuestDeletionRequests': return matAdminListGuestDeletionRequests_(p || {});
+    case 'adminResolveGuestDeletionRequest': return matAdminResolveGuestDeletionRequest_(p || {});
     case 'adminListPremiumNameAccess': return matAdminListPremiumNameAccess_(p || {});
     case 'adminSetPremiumNameAccess': return matAdminSetPremiumNameAccess_(p || {});
     case 'adminAddMember': return matAdminAddMember_(p || {});
@@ -2989,7 +2993,7 @@ function matPromoPublic_(){
 function matPromoSheets_(){
  const ss=SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
  function get(n,h){let sh=ss.getSheetByName(n);if(!sh)sh=ss.insertSheet(n);if(!sh.getLastRow()){sh.getRange(1,1,1,h.length).setValues([h]);sh.setFrozenRows(1);}else{const old=matHeaders_(sh),miss=h.filter(x=>!old.includes(x));if(miss.length)sh.getRange(1,old.length+1,1,miss.length).setValues([miss]);}return sh;}
- return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt'])};
+ return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt']),guestDeletionRequests:get('AdminGuestDeletionRequests',['RequestID','TargetUserID','Status','RequestedBy','RequestedAt','ReviewedBy','ReviewedAt','Decision'])};
 }
 function matPromoEmail_(u){return String(u&&u.Email||'').trim().toLowerCase();}
 var MAT_PROMO_ADMIN_EMAIL_LOOKUP_ = null;
@@ -3083,6 +3087,67 @@ function matSetGoldNameVisibility_(p) {
 function matPromoRequireAdmin_(p){const token=String(p&& (p.idToken||p.firebaseIdToken)||'').trim();if(!token)throw new Error('Registered Admin sign-in required.');const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified!==true)throw new Error('Admin account email must be verified in Firebase.');const u=matAuthenticate_(p);u.Email=String(identity.email||'').trim().toLowerCase();if(String(u.AccountType).toUpperCase()!=='REGISTERED'||!matPromoIsAdmin_(u))throw new Error('Admin access required.');return u;}
 function matAdminBootstrapStatus_(p){const u=matAuthenticate_(p);let verifiedEmail='';const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();if(token){const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified===true)verifiedEmail=String(identity.email||'').trim().toLowerCase();}u.Email=verifiedEmail;return {success:true,configured:!!matScriptProperty_('MAT_SUPER_ADMIN_EMAIL'),isAdmin:!!verifiedEmail&&String(u.AccountType).toUpperCase()==='REGISTERED'&&matPromoIsAdmin_(u)};}
 function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid email required.');const p=PropertiesService.getScriptProperties();if(p.getProperty('MAT_SUPER_ADMIN_EMAIL'))throw new Error('Super Admin already configured.');p.setProperty('MAT_SUPER_ADMIN_EMAIL',e);return 'Super Admin configured.';}
+
+/* --------------------- Guest account deletion approval --------------------- */
+// Request rows deliberately contain no Guest name, token, email, or profile data.
+function matAdminListGuestDeletionTargets_(p) {
+  matPromoRequireAdmin_(p);
+  const students = matReadObjects_(matGetStudentsSheet_()).filter(function (row) {
+    return String(row.AccountType || '').toUpperCase() === 'GUEST';
+  });
+  return {success:true,guests:students.map(function (row) {
+    return {userId:String(row.UserID || ''),deletionPending:!!row.GuestDeletionScheduledAt};
+  })};
+}
+function matAdminCreateGuestDeletionRequest_(p) {
+  const actor = matPromoRequireAdmin_(p), userId = String(p.userId || '').trim();
+  if (!userId) throw new Error('Select a Guest account.');
+  const lock = LockService.getScriptLock(); lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const target = matFindStudentById_(userId);
+    if (!target || String(target.AccountType || '').toUpperCase() !== 'GUEST') throw new Error('Guest account not found.');
+    if (target.GuestDeletionScheduledAt) throw new Error('This Guest already has a deletion scheduled.');
+    const sh = matPromoSheets_().guestDeletionRequests, rows = matReadObjects_(sh);
+    const duplicate = rows.find(function (row) {
+      return String(row.TargetUserID || '') === userId && String(row.Status || '').toUpperCase() === 'PENDING';
+    });
+    if (duplicate) return {success:true,requestId:String(duplicate.RequestID),status:'PENDING',existing:true};
+    const id = Utilities.getUuid(), now = matNowIso_();
+    matAppendObject_(sh,{RequestID:id,TargetUserID:userId,Status:'PENDING',RequestedBy:matPromoEmail_(actor),RequestedAt:now,ReviewedBy:'',ReviewedAt:'',Decision:''});
+    return {success:true,requestId:id,status:'PENDING'};
+  } finally { lock.releaseLock(); }
+}
+function matAdminListGuestDeletionRequests_(p) {
+  const actor = matPromoRequireAdmin_(p);
+  const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+  if (matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can view Guest deletion requests.');
+  const rows = matReadObjects_(matPromoSheets_().guestDeletionRequests);
+  return {success:true,requests:rows.filter(function(row){return String(row.Status||'').toUpperCase()==='PENDING';}).map(function(row){
+    return {requestId:String(row.RequestID||''),userId:String(row.TargetUserID||''),requestedAt:String(row.RequestedAt||''),requestedBy:String(row.RequestedBy||'')};
+  })};
+}
+function matAdminResolveGuestDeletionRequest_(p) {
+  const actor = matPromoRequireAdmin_(p);
+  const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+  if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can approve or reject Guest deletion.');
+  const requestId = String(p.requestId || '').trim(), decision = String(p.decision || '').trim().toUpperCase();
+  if (!requestId || ['APPROVE','REJECT'].indexOf(decision) < 0) throw new Error('Invalid approval decision.');
+  const lock = LockService.getScriptLock(); lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sh = matPromoSheets_().guestDeletionRequests, row = matReadObjects_(sh).find(function(item){return String(item.RequestID||'')===requestId;});
+    if (!row || String(row.Status||'').toUpperCase()!=='PENDING') throw new Error('Request is no longer pending.');
+    const now = matNowIso_(), userId = String(row.TargetUserID||'');
+    if (decision === 'APPROVE') {
+      const target = matFindStudentById_(userId);
+      if (!target || String(target.AccountType||'').toUpperCase()!=='GUEST') throw new Error('Guest account no longer exists.');
+      // The existing scheduled Guest cleanup trigger performs the full Sheets cleanup.
+      matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:now,GuestDeletionScheduledAt:now,UpdatedAt:now});
+    }
+    matUpdateObjectRow_(sh,row._rowNumber,{Status:decision==='APPROVE'?'APPROVED':'REJECTED',ReviewedBy:matPromoEmail_(actor),ReviewedAt:now,Decision:decision});
+    return {success:true,status:decision==='APPROVE'?'APPROVED':'REJECTED'};
+  } finally { lock.releaseLock(); }
+}
+
 function matAdminListMembers_(p){const actor=matPromoRequireAdmin_(p),root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();return {success:true,canManage:matPromoEmail_(actor)===root,members:[{email:root,role:'SUPER_ADMIN',status:'ACTIVE'}].concat(matReadObjects_(matPromoSheets_().admins).map(r=>({email:String(r.Email||''),role:'ADMIN',status:String(r.Status||'')})))};}
 function matAdminAddMember_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid registered email required.');const registered=matReadObjects_(matGetStudentsSheet_()).some(x=>String(x.AccountType||'').toUpperCase()==='REGISTERED'&&String(x.Email||'').trim().toLowerCase()===e);if(!registered)throw new Error('এই email দিয়ে আগে website-এ একবার sign in করতে হবে।');if(e===matPromoEmail_(actor))throw new Error('Already Super Admin.');const sh=matPromoSheets_().admins,rows=matReadObjects_(sh),r=rows.find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'ACTIVE'});else matAppendObject_(sh,{Email:e,Role:'ADMIN',Status:'ACTIVE',AddedAt:matNowIso_(),AddedBy:matPromoEmail_(actor)});return matAdminListMembers_(p);}
 function matAdminRemoveMember_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase(),sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'REMOVED'});return matAdminListMembers_(p);}
