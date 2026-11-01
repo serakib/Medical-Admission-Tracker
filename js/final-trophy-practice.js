@@ -139,14 +139,8 @@
     { name:'Mythic', main:'#e879f9', dark:'#701a75', shine:'#fae8ff' }
   ];
   const trophyRanks = trophyTiers.flatMap(tier => subRanks.map(sub => [tier.name+' '+sub, tier.main, tier.dark, tier.shine, tier.name.toLowerCase(), sub]));
-  // Immortal is the prestige tier: each sub-rank gets its own palette and visual identity.
-  [
-    ['V','#fb7185','#4c0519','#ffe4e6','immortal','V'],       // Crimson ember
-    ['IV','#a78bfa','#2e1065','#ede9fe','immortal','IV'],    // Void amethyst
-    ['III','#38bdf8','#082f49','#e0f2fe','immortal','III'],  // Astral blue
-    ['II','#fbbf24','#713f12','#fef3c7','immortal','II'],    // Solar gold
-    ['I','#f8fafc','#312e81','#ffffff','immortal','I']       // Celestial platinum
-  ].forEach(rank => trophyRanks.push(['Immortal '+rank[0],rank[1],rank[2],rank[3],rank[4],rank[5]]));
+  // Immortal is one final prestige rank, with no sub-ranks or further promotion.
+  trophyRanks.push(['Immortal','#f8fafc','#312e81','#ffffff','immortal','']);
   function roundRankCost(value) { return Math.max(5, Math.round(Number(value || 0) / 5) * 5); }
   // Friendly curve: first promotion costs 500 RP; each next promotion costs 500 + 20% of the previous promotion cost.
   function requiredRP(index) {
