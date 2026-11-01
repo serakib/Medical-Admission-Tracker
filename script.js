@@ -1885,7 +1885,9 @@ class MedicalExamApp {
         const profileName=this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student';
         const profileNameElement=document.getElementById('profile-name');
         if(profileNameElement){
-            profileNameElement.innerHTML=this.authUser&&this.profile?.isGoldName===true&&window.MedPremiumName&&typeof window.MedPremiumName.html==='function'
+            const hasGoldName=this.authUser&&(this.profile?.isGoldName===true||this.profile?.isAdmin===true);
+            const showGoldName=this.profile?.showGoldName!==false;
+            profileNameElement.innerHTML=hasGoldName&&showGoldName&&window.MedPremiumName&&typeof window.MedPremiumName.html==='function'
                 ? window.MedPremiumName.html(profileName,true)
                 : String(profileName).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
