@@ -1584,6 +1584,22 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     popup._closeLeaderboardWeekPopup = closePopup;
     return popup;
   }
+  function renderMonthlyCountdown() {
+    if (selectedPeriod !== 'monthly') return;
+    var monthlyNote = document.getElementById('leaderboard-month-countdown');
+    if (!monthlyNote) return;
+    var dhakaNow = dhakaDateParts(new Date());
+    // Dhaka is UTC+6; UTC midnight on the first of next month is 18:00 UTC
+    // on the previous date.
+    var nextMonthUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -6, 0, 0);
+    var monthSeconds = Math.max(0, Math.floor((nextMonthUtc - Date.now()) / 1000));
+    var monthDays = Math.floor(monthSeconds / 86400);
+    var monthHours = Math.floor(monthSeconds % 86400 / 3600);
+    var monthMinutes = Math.floor(monthSeconds % 3600 / 60);
+    var monthRemainingSeconds = monthSeconds % 60;
+    monthlyNote.innerHTML = '<span>⏳ মাস শেষ হতে বাকি: <strong>' + monthDays + ' দিন ' + monthHours + ' ঘণ্টা ' + monthMinutes + ' মিনিট ' + monthRemainingSeconds + ' সেকেন্ড</strong></span>';
+    monthlyNote.setAttribute('role', 'status');
+  }
   function renderLeaderboardPeriodNote() {
     startLeaderboardNoteClock();
     var note = document.getElementById('leaderboard-period-note');
@@ -1597,18 +1613,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       note.parentNode.insertBefore(monthlyNote, note.nextSibling);
     }
     monthlyNote.classList.toggle('hidden', selectedPeriod !== 'monthly');
-    if (selectedPeriod === 'monthly') {
-      var dhakaNow = dhakaDateParts(new Date());
-      var nextMonthUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -6, 0, 0);
-      var monthMs = Math.max(0, nextMonthUtc - Date.now());
-      var monthSeconds = Math.floor(monthMs / 1000);
-      var monthDays = Math.floor(monthSeconds / 86400);
-      var monthHours = Math.floor(monthSeconds % 86400 / 3600);
-      var monthMinutes = Math.floor(monthSeconds % 3600 / 60);
-      var monthRemainingSeconds = monthSeconds % 60;
-      monthlyNote.innerHTML = '<span>⏳ মাস শেষ হতে বাকি: <strong>' + monthDays + ' দিন ' + monthHours + ' ঘণ্টা ' + monthMinutes + ' মিনিট ' + monthRemainingSeconds + ' সেকেন্ড</strong></span>';
-      monthlyNote.setAttribute('role', 'status');
-    }
+    if (selectedPeriod === 'monthly') renderMonthlyCountdown();
     var toolbarActions = document.querySelector('#view-leaderboard .leaderboard-toolbar-actions');
     var refreshButton = document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
     if (selectedPeriod !== 'weekly') {
@@ -1675,7 +1680,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (leaderboardNoteClockStarted) return;
     leaderboardNoteClockStarted = true;
     window.setInterval(function () {
-      if (selectedPeriod === 'weekly' || selectedPeriod === 'monthly') renderLeaderboardPeriodNote();
+      if (selectedPeriod === 'monthly') renderMonthlyCountdown();
+    }, 1000);
+    window.setInterval(function () {
+      if (selectedPeriod === 'weekly') renderLeaderboardPeriodNote();
     }, 30000);
   }
   function cachedRowsForDisplay() {
