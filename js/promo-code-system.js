@@ -81,14 +81,11 @@ function card(){
    <div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select id="mat-global-period" class="ml-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input id="mat-global-enabled" type="checkbox" checked> Enabled</label></div>
    <button class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Global Settings</button>
   </form>
-  <form id="mat-promo-member-form" class="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-2">
-   <h4 class="font-bold text-sm">Individual Member Override</h4>
-   <label class="block text-xs font-semibold">Registered member<select id="mat-member-select" required class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><option value="">Select member</option></select></label>
-   <label class="block text-xs font-semibold">Member-specific Promo Code<input id="mat-member-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Blank = inherit global/public code"></label>
-   <div class="grid grid-cols-2 gap-2"><label class="text-xs font-semibold">PB per redeem<input id="mat-member-reward" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label><label class="text-xs font-semibold">Redeem limit<input id="mat-member-limit" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label></div>
-   <div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select id="mat-member-period" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="">Inherit global</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input id="mat-member-enabled" type="checkbox" checked> Enabled</label></div>
-   <button class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Member Settings</button><p id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">Select a member to load their current overrides.</p>
-  </form>
+  <section id="mat-member-overrides" class="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-3">
+   <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="font-bold text-sm">Individual Member Override</h4><p class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি member-এর settings আলাদা করে manage করুন।</p></div><button type="button" id="mat-member-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
+   <div id="mat-member-override-list" class="space-y-3"></div>
+   <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-member-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি section আলাদাভাবে Save করতে পারবেন, অথবা Save All ব্যবহার করতে পারবেন।</span></div>
+  </section>
   <div id="mat-admin-members" class="space-y-2 text-sm"></div>
   <div class="flex flex-col sm:flex-row gap-2"><button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button></div>
   <form id="mat-admin-add-form" class="hidden flex flex-col sm:flex-row gap-2"><input id="mat-admin-email" type="email" required placeholder="Registered member Gmail" class="flex-1 min-w-0 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><button class="rounded-lg px-3 py-2 bg-rose-600 text-white text-sm font-bold">Add Admin</button></form>
@@ -126,8 +123,8 @@ function card(){
   }
  });
  $('mat-promo-global-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving global settings…';try{await api('adminSavePromoConfig',{code:$('mat-global-code').value,rewardPB:$('mat-global-reward').value,limitCount:$('mat-global-limit').value,limitPeriod:$('mat-global-period').value,enabled:$('mat-global-enabled').checked});msg.textContent='Global Promo Settings saved.';await refresh();}catch(err){msg.textContent=err.message;}});
- $('mat-promo-member-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving member settings…';try{await api('adminSaveMemberPromo',{userId:$('mat-member-select').value,code:$('mat-member-code').value,rewardPB:$('mat-member-reward').value,limitCount:$('mat-member-limit').value,limitPeriod:$('mat-member-period').value,enabled:$('mat-member-enabled').checked});msg.textContent='Individual Promo Settings saved.';await loadAdmin();}catch(err){msg.textContent=err.message;}});
- $('mat-member-select').addEventListener('change',()=>loadSelectedMember());
+ $('mat-member-add-more').addEventListener('click',()=>addMemberOverrideCard());
+ $('mat-member-save-all').addEventListener('click',()=>saveAllMemberOverrides());
  $('mat-admin-add-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving…';try{await api('adminAddMember',{email:$('mat-admin-email').value});$('mat-admin-email').value='';msg.textContent='Admin member added.';await loadAdmin();}catch(err){msg.textContent=err.message;}});
  refresh();
 }
@@ -181,11 +178,83 @@ function ensureAdminDashboard(){
  }
  button.classList.remove('hidden');
 }
-function loadSelectedMember(){
- const id=$('mat-member-select').value,m=memberTargets.find(x=>x.userId===id);if(!m)return;
- $('mat-member-code').value=m.code||'';$('mat-member-reward').value=m.rewardPB==null?'':m.rewardPB;
- $('mat-member-limit').value=m.limitCount==null?'':m.limitCount;$('mat-member-period').value=m.limitPeriod||'';
- $('mat-member-enabled').checked=m.enabled!==false;$('mat-member-note').textContent=m.name+' · '+m.email;
+let memberOverrideCardSequence=0;
+function memberOverrideCardMarkup(member){
+ const id='mat-member-override-'+(++memberOverrideCardSequence);
+ const selected=member?String(member.userId):'';
+ const opts='<option value="">Select member</option>'+memberTargets.map(m=>'<option value="'+esc(m.userId)+'">'+esc(m.name||'Student')+' · '+esc(m.email)+'</option>').join('');
+ return '<article class="mat-member-override-card rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-3 space-y-2" data-override-card="'+id+'">'+
+  '<div class="flex items-center justify-between gap-2"><strong class="text-xs uppercase tracking-wide text-slate-500">Member Override</strong><button type="button" data-remove-override class="text-xs font-bold text-rose-600">Remove</button></div>'+
+  '<label class="block text-xs font-semibold">Registered member<select data-member-field="userId" required class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm">'+opts+'</select></label>'+
+  '<label class="block text-xs font-semibold">Member-specific Promo Code<input data-member-field="code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Blank = inherit global/public code"></label>'+
+  '<div class="grid grid-cols-2 gap-2"><label class="text-xs font-semibold">PB per redeem<input data-member-field="rewardPB" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label><label class="text-xs font-semibold">Redeem limit<input data-member-field="limitCount" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label></div>'+
+  '<div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select data-member-field="limitPeriod" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="">Inherit global</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input data-member-field="enabled" type="checkbox" checked> Enabled</label></div>'+
+  '<p data-member-card-note class="text-xs text-gray-500"></p><button type="button" data-save-override class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save This Member</button></article>';
+}
+function getMemberOverrideCards(){return Array.from(document.querySelectorAll('#mat-member-override-list [data-override-card]'));}
+function fillMemberOverrideCard(card,member){
+ if(!card||!member)return;
+ const set=(key,value)=>{const el=card.querySelector('[data-member-field="'+key+'"]');if(!el)return;if(el.type==='checkbox')el.checked=value!==false;else el.value=value==null?'':String(value);};
+ set('userId',member.userId);set('code',member.code||'');set('rewardPB',member.rewardPB);set('limitCount',member.limitCount);set('limitPeriod',member.limitPeriod||'');set('enabled',member.enabled!==false);
+ const note=card.querySelector('[data-member-card-note]');if(note)note.textContent=(member.name||'Student')+' · '+(member.email||'')+(member.hasOverride?' · Saved settings':' · New override');
+}
+function addMemberOverrideCard(member){
+ const host=$('mat-member-override-list');if(!host)return null;
+ host.insertAdjacentHTML('beforeend',memberOverrideCardMarkup(member||null));
+ const card=host.lastElementChild;
+ if(member)fillMemberOverrideCard(card,member);
+ card.querySelector('[data-member-field="userId"]').addEventListener('change',()=>{
+  const id=card.querySelector('[data-member-field="userId"]').value;
+  const duplicate=getMemberOverrideCards().some(other=>other!==card&&other.querySelector('[data-member-field="userId"]').value===id&&id);
+  if(duplicate){$('mat-admin-message').textContent='একই member-এর জন্য duplicate override করা যাবে না।';card.querySelector('[data-member-field="userId"]').value='';return;}
+  const target=memberTargets.find(m=>String(m.userId)===String(id));
+  if(target)fillMemberOverrideCard(card,target);
+ });
+ card.querySelector('[data-save-override]').addEventListener('click',()=>saveMemberOverrideCard(card));
+ card.querySelector('[data-remove-override]').addEventListener('click',async()=>{
+  const id=card.querySelector('[data-member-field="userId"]').value;
+  const target=memberTargets.find(m=>String(m.userId)===String(id));
+  if(target&&target.hasOverride){
+   if(!confirm('এই member-এর saved Promo Override মুছে ফেলবেন?'))return;
+   try{await api('adminDeleteMemberPromo',{userId:id});$('mat-admin-message').textContent='Member override removed.';await loadAdmin();}
+   catch(error){$('mat-admin-message').textContent=error.message||'Override remove failed.';}
+  }else{card.remove();if(!getMemberOverrideCards().length)addMemberOverrideCard();}
+ });
+ return card;
+}
+function readMemberOverrideCard(card){
+ const get=key=>card.querySelector('[data-member-field="'+key+'"]');
+ return {userId:get('userId').value,code:get('code').value,rewardPB:get('rewardPB').value,limitCount:get('limitCount').value,limitPeriod:get('limitPeriod').value,enabled:get('enabled').checked};
+}
+async function saveMemberOverrideCard(card){
+ const data=readMemberOverrideCard(card),msg=$('mat-admin-message');
+ if(!data.userId){msg.textContent='প্রথমে Registered member select করুন।';return false;}
+ const duplicate=getMemberOverrideCards().some(other=>other!==card&&readMemberOverrideCard(other).userId===data.userId);
+ if(duplicate){msg.textContent='একই member-এর জন্য একাধিক override রাখা যাবে না।';return false;}
+ const button=card.querySelector('[data-save-override]');button.disabled=true;button.textContent='Saving…';
+ try{await api('adminSaveMemberPromo',data);msg.textContent='Individual Promo Settings saved.';return true;}
+ catch(error){msg.textContent=error.message||'Member settings save failed.';return false;}
+ finally{button.disabled=false;button.textContent='Save This Member';}
+}
+async function saveAllMemberOverrides(){
+ const cards=getMemberOverrideCards(),msg=$('mat-admin-message'),seen=new Set(),selected=[];
+ for(const card of cards){const data=readMemberOverrideCard(card);if(!data.userId)continue;if(seen.has(data.userId)){msg.textContent='একই member একাধিক section-এ select করা হয়েছে। Duplicate ঠিক করুন।';return;}seen.add(data.userId);selected.push({card,data});}
+ if(!selected.length){msg.textContent='Save করার জন্য অন্তত একজন member select করুন।';return;}
+ const button=$('mat-member-save-all');button.disabled=true;button.textContent='Saving…';
+ let saved=0;
+ try{
+  for(const item of selected){await api('adminSaveMemberPromo',item.data);saved++;}
+  msg.textContent='সব selected member settings save হয়েছে ('+saved+').';
+  await loadAdmin();
+ }catch(error){msg.textContent=saved+'টি save হয়েছে; পরেরটি save হয়নি: '+(error.message||'Unknown error')+'. Save All আবার চালালে বাকি settings save হবে।';}
+ finally{button.disabled=false;button.textContent='Save All';}
+}
+function renderMemberOverrideCards(){
+ const host=$('mat-member-override-list');if(!host)return;
+ host.innerHTML='';
+ const saved=memberTargets.filter(m=>m.hasOverride);
+ saved.forEach(member=>addMemberOverrideCard(member));
+ addMemberOverrideCard();
 }
 async function loadPremiumNameAccess(members){
  const section=$('mat-premium-name-access');
@@ -234,6 +303,7 @@ async function loadAdmin(){
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
  memberTargets=targets.members||[];
+ renderMemberOverrideCards();
  try{await loadPremiumNameAccess(members);}
  catch(error){
   const premiumSection=$('mat-premium-name-access');
