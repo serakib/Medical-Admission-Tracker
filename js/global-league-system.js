@@ -681,6 +681,7 @@
       // Server-owned profile avatar is authoritative for every viewer; local storage is fallback only.
       avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
+      isAdmin: raw.isAdmin === true || raw.IsAdmin === true,
       guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
       xp: xp,
       level: boardLevel,
