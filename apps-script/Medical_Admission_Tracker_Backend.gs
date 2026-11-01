@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.01.3';
+const MAT_API_VERSION = '2026.11.01.4';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -58,7 +58,19 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'live-highest-weekly-rp-sync',
   'immediate-promotion-no-extra-rp-bonus',
   'single-step-rank-promotion',
-  'bronze-v-weekly-rp-zero'
+  'bronze-v-weekly-rp-zero',
+  'admin-bootstrap-status',
+  'verified-firebase-admin-authorization',
+  'super-admin-script-property-configuration',
+  'admin-member-management',
+  'super-admin-only-admin-management',
+  'admin-promo-redemption-status',
+  'super-admin-admin-only-promo-toggle',
+  'global-promo-code-configuration',
+  'member-specific-promo-code-configuration',
+  'admin-promo-target-management',
+  'admin-only-fixed-promo-code',
+  'server-side-promo-redemption-limits-and-ledger'
 ]);
 
 const MAT_STUDENT_HEADERS = [
