@@ -262,8 +262,8 @@ function addMemberOverrideCard(member){
   const target=memberTargets.find(m=>String(m.userId)===String(id));
   if(target&&target.hasOverride){
    if(!confirm('এই member-এর saved Promo Override মুছে ফেলবেন?'))return;
-   try{await api('adminDeleteMemberPromo',{userId:id});$('mat-admin-message').textContent='Member override removed.';await loadAdmin();}
-   catch(error){$('mat-admin-message').textContent=error.message||'Override remove failed.';}
+   const button=card.querySelector('[data-remove-override]');button.disabled=true;button.textContent='Removing...';try{await api('adminDeleteMemberPromo',{userId:id});$('mat-admin-message').textContent='Member override removed.';await loadAdmin();}
+   catch(error){$('mat-admin-message').textContent=error.message||'Override remove failed.';button.disabled=false;button.textContent='Remove';}
   }else{card.remove();if(!getMemberOverrideCards().length)addMemberOverrideCard();}
  });
  return card;
@@ -347,12 +347,12 @@ async function loadPremiumNameAccess(members){
   const userId=button.getAttribute('data-revoke-premium-name');
   const target=access.find(row=>String(row.userId)===String(userId));
   if(!target||!confirm('Revoke Golden Name access for '+(target.name||target.email)+'?'))return;
-  button.disabled=true;
+  button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='Revoking...';
   try{
    await api('adminSetPremiumNameAccess',{userId:userId,enabled:false});
    $('mat-admin-message').textContent='Premium Golden Name access revoked.';
    await loadPremiumNameAccess(members);
-  }catch(error){$('mat-admin-message').textContent=error.message||'Access revoke failed.';button.disabled=false;}
+  }catch(error){$('mat-admin-message').textContent=error.message||'Access revoke failed.';button.disabled=false;button.textContent='Revoke';}finally{button.removeAttribute('aria-busy');}
  }));
 }
 async function loadAdmin(){
@@ -435,7 +435,7 @@ async function loadAdmin(){
  const box=$('mat-admin-members');
  box.innerHTML='<h4 class="font-bold text-gray-800 dark:text-white">Admin Members</h4>'+members.members.map(m=>'<div class="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 py-2"><span class="min-w-0 break-all">'+esc(m.email)+' <small class="text-gray-500">('+esc(m.role)+')</small></span>'+(m.role==='SUPER_ADMIN'||!members.canManage?'':'<button data-remove="'+esc(m.email)+'" class="text-xs font-bold text-rose-600">Remove</button>')+'</div>').join('');
  $('mat-admin-add-form').classList.toggle('hidden',!members.canManage);
- box.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('এই Admin Member-কে remove করবেন?'))return;try{await api('adminRemoveMember',{email:b.dataset.remove});await loadAdmin();}catch(e){$('mat-admin-message').textContent=e.message;}}));
+ box.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('এই Admin Member-কে remove করবেন?'))return;b.disabled=true;b.textContent='Removing...';try{await api('adminRemoveMember',{email:b.dataset.remove});await loadAdmin();}catch(e){$('mat-admin-message').textContent=e.message;b.disabled=false;b.textContent='Remove';}}));
 
  // Guest deletion is a two-person control: any Admin may request; only Super Admin may decide.
  try {
@@ -546,7 +546,7 @@ async function loadAdmin(){
     host.querySelectorAll('[data-guest-approve],[data-guest-reject]').forEach(button=>button.onclick=async()=>{
      const approve=button.hasAttribute('data-guest-approve'),requestId=button.getAttribute(approve?'data-guest-approve':'data-guest-reject');
      if(!confirm(approve?'Guest account deletion approve করবেন?':'এই deletion request reject করবেন?'))return;
-     button.disabled=true;
+     button.disabled=true;button.textContent=approve?'Approving...':'Rejecting...';
      try{await api('adminResolveGuestDeletionRequest',{requestId,decision:approve?'APPROVE':'REJECT'});await loadAdmin();}
      catch(error){$('mat-admin-message').textContent=error.message||'Approval update failed.';button.disabled=false;}
     });
@@ -563,11 +563,11 @@ async function loadAdmin(){
      management.querySelectorAll('[data-guest-extend]').forEach(button=>button.onclick=async()=>{
       const userId=button.getAttribute('data-guest-extend'),raw=prompt('বর্তমান deadline-এর সঙ্গে কত দিন যোগ করবেন? (1–365)','7'),days=Number(raw);
       if(raw===null)return;if(!Number.isInteger(days)||days<1||days>365){alert('১ থেকে ৩৬৫ দিনের মধ্যে দিন লিখুন।');return;}
-      button.disabled=true;try{await api('adminExtendGuestDeletion',{userId,days});await loadAdmin();}catch(error){alert(error.message||'Deadline extend করা যায়নি।');button.disabled=false;}
+      button.disabled=true;button.textContent='Extending...';try{await api('adminExtendGuestDeletion',{userId,days});await loadAdmin();}catch(error){alert(error.message||'Deadline extend করা যায়নি।');button.disabled=false;}
      });
      management.querySelectorAll('[data-guest-cancel-admin]').forEach(button=>button.onclick=async()=>{
       const userId=button.getAttribute('data-guest-cancel-admin');if(!confirm('এই Guest deletion Super Admin হিসেবে cancel করবেন?'))return;
-      button.disabled=true;try{await api('adminCancelGuestDeletion',{userId});await loadAdmin();}catch(error){alert(error.message||'Deletion cancel করা যায়নি।');button.disabled=false;}
+      button.disabled=true;button.textContent='Cancelling...';try{await api('adminCancelGuestDeletion',{userId});await loadAdmin();}catch(error){alert(error.message||'Deletion cancel করা যায়নি।');button.disabled=false;}
      });
      const audit=await api('adminListGuestDeletionAudit');
      const auditHost=document.getElementById('mat-guest-delete-audit');
@@ -577,7 +577,7 @@ async function loadAdmin(){
   }
  } catch(error) { console.warn('[Guest deletion approval]',error); }
 
- const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;}};
+ const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{const label=toggle.textContent;toggle.disabled=true;toggle.textContent=(promo.unlimitedEnabled?'Disabling':'Enabling')+'...';try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;toggle.disabled=false;toggle.textContent=label;}};
 }
 async function refresh(){
  if(refreshInFlight){refreshPending=true;return;}
