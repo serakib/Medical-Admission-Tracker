@@ -355,7 +355,7 @@ body.exam-active{padding-left:0!important;overflow-x:hidden}
 body.exam-active main{padding:12px!important;margin:0!important;width:100%!important;max-width:none!important}
 body.exam-active main>.view-section:not(#view-exam){display:none!important}
 body.exam-active #view-exam{display:block!important;width:100%;max-width:1100px;margin:0 auto}
-body.exam-active #view-exam .exam-header{position:sticky;top:0;z-index:100;background:inherit}
+body.exam-active #view-exam .exam-header{position:static;z-index:auto;background:inherit}
 body.exam-active .sidebar-open{transform:translateX(-105%)!important}
 main{min-width:0;box-sizing:border-box;padding-top:76px!important}
 #view-home>.medical-home-footer{width:100%!important;max-width:100%!important;margin-left:0!important}
@@ -1060,7 +1060,7 @@ function toggleAppSidebarCollapse(){
             </div>
             <div id="previous-year-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
             <div id="previous-browser" class="hidden space-y-4">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-3 sm:items-center justify-between sticky top-2 z-20">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
                     <div><h3 id="previous-selected-year" class="font-extrabold text-gray-900 dark:text-white"></h3><p id="previous-count" class="text-xs text-gray-500"></p></div>
                     <div class="flex flex-wrap gap-2"><button onclick="window.app.togglePreviousAnswers()" id="previous-answer-toggle" class="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-bold">Show Answers</button><button onclick="window.app.startPreviousYearQuiz()" class="px-3 py-2 rounded-xl bg-medical-600 text-white text-xs font-bold"><i class="fa-solid fa-play ml-1"></i> Quiz This Year</button></div>
                 </div>
@@ -1164,7 +1164,7 @@ function toggleAppSidebarCollapse(){
         <!-- VIEW 3: LIVE EXAM VIEW -->
         <section id="view-exam" class="view-section hidden space-y-4">
             <!-- Top Exam Bar: Timer & Progress -->
-            <div class="sticky top-16 z-30 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md p-4 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
+            <div class="relative z-10 bg-white/95 dark:bg-gray-800/95 p-4 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center space-x-3 space-x-reverse">
                     <span id="exam-mode-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-medical-100 dark:bg-medical-900/50 text-medical-700 dark:text-medical-300">
                         মডেল টেস্ট
@@ -1998,7 +1998,20 @@ main > .view-section.hidden { display: none !important; }
     }, 650);
   }
 
+  function isExamActive() {
+    return !!(document.body && document.body.classList.contains('exam-active'));
+  }
+
   function requestStart() {
+    if (isExamActive()) {
+      // Never show the global network indicator while a timed exam is running.
+      pending = 0;
+      clearTimeout(trickleTimer); clearTimeout(hideTimer); clearTimeout(watchdogTimer); clearTimeout(idleTimer);
+      active = false; progress = 0;
+      if (bar) { bar.classList.remove('is-visible', 'is-finishing'); bar.setAttribute('aria-valuenow', '0'); }
+      if (fill) fill.style.width = '0%';
+      return;
+    }
     if (!active) return; // Never auto-start on initial page load or tab return.
     pending += 1;
     clearTimeout(idleTimer);
@@ -2014,7 +2027,7 @@ main > .view-section.hidden { display: none !important; }
   }
 
   function requestEnd() {
-    if (!active) return;
+    if (isExamActive() || !active) return;
     pending = Math.max(0, pending - 1);
     if (pending === 0) finish();
   }
