@@ -1991,6 +1991,7 @@ main > .view-section.hidden { display: none !important; }
   }
 
   function beginForAction() {
+    if (isExamActive()) { hideGlobalBarForExam(); return; }
     start();
     // No-network actions (for example local dashboard tab buttons) still finish cleanly.
     idleTimer = setTimeout(function () {
@@ -2002,14 +2003,17 @@ main > .view-section.hidden { display: none !important; }
     return !!(document.body && document.body.classList.contains('exam-active'));
   }
 
+  function hideGlobalBarForExam() {
+    pending = 0;
+    clearTimeout(trickleTimer); clearTimeout(hideTimer); clearTimeout(watchdogTimer); clearTimeout(idleTimer);
+    active = false; progress = 0;
+    if (bar) { bar.classList.remove('is-visible', 'is-finishing'); bar.setAttribute('aria-valuenow', '0'); }
+    if (fill) fill.style.width = '0%';
+  }
+
   function requestStart() {
     if (isExamActive()) {
-      // Never show the global network indicator while a timed exam is running.
-      pending = 0;
-      clearTimeout(trickleTimer); clearTimeout(hideTimer); clearTimeout(watchdogTimer); clearTimeout(idleTimer);
-      active = false; progress = 0;
-      if (bar) { bar.classList.remove('is-visible', 'is-finishing'); bar.setAttribute('aria-valuenow', '0'); }
-      if (fill) fill.style.width = '0%';
+      hideGlobalBarForExam();
       return;
     }
     if (!active) return; // Never auto-start on initial page load or tab return.
@@ -2081,6 +2085,7 @@ main > .view-section.hidden { display: none !important; }
       ? event.target.closest('a[href], button, [role="button"], input[type="submit"]')
       : null;
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+    if (isExamActive()) { hideGlobalBarForExam(); return; }
     if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
     if (target.matches('a[href]')) {
       var href = target.getAttribute('href') || '';
@@ -2117,6 +2122,7 @@ main > .view-section.hidden { display: none !important; }
   document.addEventListener('submit', function (event) {
     var form = event.target;
     if (!form || form.matches('[target="_blank"]')) return;
+    if (isExamActive()) { hideGlobalBarForExam(); return; }
     var submitter = event.submitter || form.querySelector('button[type="submit"],input[type="submit"]');
     // Promo Code Redeem owns its Redeeming... label and result message.
     // Do not let the generic submit feedback overwrite it with Saving...
