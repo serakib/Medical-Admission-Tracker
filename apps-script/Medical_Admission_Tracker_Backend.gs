@@ -3055,3 +3055,25 @@ function matRedeemPromoCode_(p) {
     return {success:true,rewardPB:reward,promoPB:balance,user:matApiUser_(matFindStudentById_(u.UserID))};
   } finally { lock.releaseLock(); }
 }
+
+
+/* Extend the redemption ledger with explicit limit-window fields without clearing existing rows. */
+function matPromoSheets_(){
+ const ss=SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
+ function get(n,h){let sh=ss.getSheetByName(n);if(!sh)sh=ss.insertSheet(n);if(!sh.getLastRow()){sh.getRange(1,1,1,h.length).setValues([h]);sh.setFrozenRows(1);}else{const old=matHeaders_(sh),miss=h.filter(x=>!old.includes(x));if(miss.length)sh.getRange(1,old.length+1,1,miss.length).setValues([miss]);}return sh;}
+ return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt','LimitPeriod','LimitWindow'])};
+}
+function matGetPromoInfo_(p) {
+ const u=matAuthenticate_(p), c=matPromoPublic_(), all=matPromoReadConfig_();
+ const member=all.members.find(x=>String(x.UserID)===String(u.UserID))||{};
+ const global=all.global||{};
+ const assigned=String(member.Code||'').trim() || String(global.Code||'').trim();
+ const effective=matPromoEffectiveConfig_(u,c.type,c.code);
+ let admin=false,fixedCode='';
+ const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();
+ if(token){const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified===true){u.Email=String(identity.email||'').trim().toLowerCase();admin=String(u.AccountType||'').toUpperCase()==='REGISTERED'&&matPromoIsAdmin_(u);if(admin)fixedCode=matPromoFixedCode_();}}
+ return {success:true,publicCode:c.code,publicType:c.type,rewardPB:effective.rewardPB==null?c.reward:effective.rewardPB,
+   assignedCode:assigned,assignedRewardPB:effective.rewardPB,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin:admin,
+   adminCode:admin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'?fixedCode:'',
+   adminCodeEnabled:admin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};
+}
