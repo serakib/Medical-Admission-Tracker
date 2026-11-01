@@ -1180,7 +1180,14 @@
         name: profile.name || row.name || app.authUser?.displayName || 'Student',
         college: profile.college || row.college || '',
         batch: profile.batch || profile.class || row.batch || '',
-        avatar: profile.avatar || row.avatar || ''
+        avatar: profile.avatar || row.avatar || '',
+        // Do not let a cached leaderboard row replace the signed-in profile's rank/trophy.
+        rank: profile.rank || row.rank || 'Bronze',
+        rankPoints: profile.rankPoints != null ? Number(profile.rankPoints) : row.rankPoints,
+        rankProgress: profile.rankProgress || row.rankProgress || null,
+        xp: profile.xp != null ? Number(profile.xp) : row.xp,
+        totalRP: profile.totalRP != null ? Number(profile.totalRP) : row.totalRP,
+        level: profile.level != null ? Number(profile.level) : row.level
       });
     }
     return openStudentProfile(row);
