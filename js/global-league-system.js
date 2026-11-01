@@ -648,7 +648,7 @@
     // A stale leaderboard cache must not downgrade the student's displayed trophy.
     var ownProfile = app.profile || currentProfile || {};
     var ownRank = String(ownProfile.rank || (currentProfile && currentProfile.rank) || '');
-    if (isCurrentAccount && RANKS.indexOf(ownRank) >= 0) rank = ownRank;
+    if (isCurrentAccount && !rawRank && RANKS.indexOf(ownRank) >= 0) rank = ownRank;
     var currentRP = Math.max(0, Number(isCurrentAccount && ownProfile.rankPoints != null ? ownProfile.rankPoints : (raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP))) || 0);
     // Prefer explicit week totals. Older API deployments may expose the requested
     // period score as rankScore/score/boardPoints instead of weeklyRP fields.
@@ -936,22 +936,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var vaultRanks = vault && typeof vault.getRanks === 'function'
       ? vault.getRanks()
       : RANKS.map(function (name, index) { return { name: name, index: index }; });
-    var isWeeklyRail = selectedPeriod === 'weekly';
-    var isMonthlyRail = selectedPeriod === 'monthly';
-    var isMainRankRail = isWeeklyRail || isMonthlyRail;
+    var isMainRankRail = selectedPeriod === 'weekly' || selectedPeriod === 'monthly';
     function mainRankStartIndex(index) {
       return Math.max(0, Math.min(RANKS.length - 1, Math.floor(index / 5) * 5));
     }
     function mainRankName(index) {
       return RANKS[mainRankStartIndex(index)].split(' ')[0];
-    }
-    var weeklyRP = weeklyPointsForRow(me);
-    var weeklyRankIndex = 0, weeklyAccumulatedRP = 0;
-    while (weeklyRankIndex < RANKS.length - 1) {
-      var weeklyCost = rankPromotionCostForIndex(weeklyRankIndex);
-      if (weeklyRP < weeklyAccumulatedRP + weeklyCost) break;
-      weeklyAccumulatedRP += weeklyCost;
-      weeklyRankIndex++;
     }
     var allTimeCurrentMainRankIndex = currentRankIndex >= 0 ? mainRankStartIndex(currentRankIndex) : -1;
     var railRanks = isMainRankRail
@@ -969,16 +959,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     rail.innerHTML = railRanks.map(function (item) {
       var rank = item.name;
       var active = isMainRankRail ? mainRankName(RANKS.indexOf(selectedRank)) === rank : rank === selectedRank;
-      var completed = isWeeklyRail
-        ? item.index < mainRankStartIndex(weeklyRankIndex)
-        : isMonthlyRail
-          ? allTimeCurrentMainRankIndex >= 0 && item.index < allTimeCurrentMainRankIndex
-          : currentRankIndex >= 0 && item.index < currentRankIndex;
-      var current = isWeeklyRail
-        ? mainRankStartIndex(weeklyRankIndex) === item.index
-        : isMonthlyRail
-          ? allTimeCurrentMainRankIndex === item.index
-          : currentRankIndex >= 0 && item.index === currentRankIndex;
+      var completed = isMainRankRail
+        ? allTimeCurrentMainRankIndex >= 0 && item.index < allTimeCurrentMainRankIndex
+        : currentRankIndex >= 0 && item.index < currentRankIndex;
+      var current = isMainRankRail
+        ? allTimeCurrentMainRankIndex === item.index
+        : currentRankIndex >= 0 && item.index === currentRankIndex;
       var statusClass = completed ? ' is-completed' : (current ? ' is-current' : ((isMainRankRail || currentRankIndex >= 0) ? ' is-upcoming' : ''));
       var statusText = completed ? 'Completed' : (current ? 'Current rank' : 'Locked');
       var svg = vault && typeof vault.trophySvgForIndex === 'function'
@@ -1015,6 +1001,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var monthlyRP = Math.max(0, Number(me.monthlyRP) || 0);
     var weeklyEarnedRP = weeklyPointsForRow(me);
     var currentRankRP = Math.max(0, Number(me.rankPoints) || 0);
+    if (current.isMax) {
+      var immortalPeriodRP = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : currentRankRP;
+      var immortalPeriodLabel = isWeeklyLeaderboard ? 'Weekly RP' : isMonthlyLeaderboard ? 'Monthly RP' : 'Current RP';
+      area.innerHTML =
+        '<div class="mat-rank-progress-line"><span><strong>Immortal</strong><small>Leaderboard position is based on earned RP.</small></span>' +
+        '<span class="mat-rank-rp">' + immortalPeriodRP.toLocaleString() + ' ' + immortalPeriodLabel + '</span></div>';
+      return;
+    }
     var mainTierStartIndex = Math.floor(selectedRankIndex / 5) * 5;
     var mainTierEndIndex = Math.min(mainTierStartIndex + 5, RANKS.length);
     var mainTierStartRP = 0;
@@ -1022,7 +1016,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (isMainRankLeaderboard) {
       for (var priorTierIndex = 0; priorTierIndex < mainTierStartIndex; priorTierIndex++) mainTierStartRP += rankPromotionCostForIndex(priorTierIndex);
       for (var tierRankIndex = mainTierStartIndex; tierRankIndex < mainTierEndIndex; tierRankIndex++) mainTierRequiredRP += rankPromotionCostForIndex(tierRankIndex);
-      if (isMonthlyLeaderboard) mainTierStartRP = 0;
     }
     var isFinalTrophy = isMainRankLeaderboard ? mainTierStartIndex >= RANKS.length - 5 : selectedRankIndex >= RANKS.length - 1;
     var requiredRPMultiplier = Math.max(1, Number(me.leaderboardRequiredRPMultiplier) || 5);
@@ -1032,9 +1025,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var isCompleted = isMainRankLeaderboard
       ? (isMonthlyLeaderboard && selectedRankIndex < currentMainRankStartIndex) || (requiredRP > 0 && progressPoints >= mainTierStartRP + requiredRP)
       : (selectedRankIndex < currentRankIndex || (selectedRankIndex === RANKS.length - 1 && currentRankIndex === selectedRankIndex));
-    var isLocked = isWeeklyLeaderboard
-      ? weeklyEarnedRP < mainTierStartRP
-      : isMonthlyLeaderboard ? selectedRankIndex > currentRankIndex : selectedRankIndex > currentRankIndex;
+    var isLocked = selectedRankIndex > currentRankIndex;
     var earnedRP = isMainRankLeaderboard
       ? (isCompleted ? requiredRP : Math.max(0, Math.min(requiredRP, progressPoints - mainTierStartRP)))
       : (isCompleted ? requiredRP : (selectedRankIndex === currentRankIndex ? current.subrankEarnedRP : 0));
@@ -1179,18 +1170,20 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   function monthlySafeZoneThresholdFor(row) {
     var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
     if (rankIndex < 0) rankIndex = 0;
+    if (rankIndex >= RANKS.length - 1) return 0;
     var tierStart = Math.floor(rankIndex / 5) * 5;
     var tierEnd = Math.min(tierStart + 5, RANKS.length);
-    var required = 0;
-    for (var i = tierStart; i < tierEnd; i++) required += rankPromotionCostForIndex(i);
-    return Math.ceil(required * 0.30);
+    var priorRequired = 0, required = 0;
+    for (var i = 0; i < tierStart; i++) priorRequired += rankPromotionCostForIndex(i);
+    for (var j = tierStart; j < tierEnd; j++) required += rankPromotionCostForIndex(j);
+    return priorRequired + Math.ceil(required * 0.30);
   }
   function monthlyPointsForRow(row) {
     return Math.max(0, Number(row && (row.monthlyRP != null ? row.monthlyRP : row.monthlyRankPoints != null ? row.monthlyRankPoints : row.boardPoints)) || 0);
   }
   function isInMonthlySafeZone(row) {
     var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
-    if (rankIndex >= 0 && Math.floor(rankIndex / 5) === 0) return true;
+    if (rankIndex >= 0 && (rankIndex >= RANKS.length - 1 || Math.floor(rankIndex / 5) === 0)) return true;
     return monthlyPointsForRow(row) >= monthlySafeZoneThresholdFor(row);
   }
   function promotionZoneThresholdFor(row) {
@@ -1202,9 +1195,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     // Fallback mirrors the backend: 70% of the full five-subrank Main Rank tier.
     var tierStart = Math.floor(rankIndex / 5) * 5;
     var tierEnd = Math.min(tierStart + 4, RANKS.length - 1);
-    var tierCost = 0;
+    var priorRequired = 0, tierCost = 0;
+    for (var priorIndex = 0; priorIndex < tierStart; priorIndex++) priorRequired += rankPromotionCostForIndex(priorIndex);
     for (var i = tierStart; i <= tierEnd; i++) tierCost += rankPromotionCostForIndex(i);
-    return Math.ceil(tierCost * 0.70);
+    return priorRequired + Math.ceil(tierCost * 0.70);
   }
   function isMaxRankRow(row) {
     var vault = window.MedAchievementVaultTrophies;
