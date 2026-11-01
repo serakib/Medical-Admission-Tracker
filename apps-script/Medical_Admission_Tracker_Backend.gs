@@ -1686,7 +1686,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
     return {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
       username: s.Name || 'Medical Student', name: s.Name || 'Medical Student',
-      accountType: s.AccountType || 'GUEST', college: s.College || '', batch: s.Batch || '',
+      accountType: s.AccountType || 'GUEST', isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s), college: s.College || '', batch: s.Batch || '',
       guestAutoDeletionAt: matGuestAutoDeletionAt_(s, weeklyRP),
       avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
@@ -2763,6 +2763,7 @@ function matPublicProfile_(r, includeEmail) {
     name: s.Name,
     username: s.Name,
     accountType: String(s.AccountType || 'GUEST'),
+    isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s),
     guestDeletionPending: String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt,
     guestDeletionRequestedAt: String(s.GuestDeletionRequestedAt || ''),
     guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
@@ -2972,7 +2973,24 @@ function matPromoSheets_(){
  return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt'])};
 }
 function matPromoEmail_(u){return String(u&&u.Email||'').trim().toLowerCase();}
-function matPromoIsAdmin_(u){const e=matPromoEmail_(u),root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();if(root&&e===root)return true;return matReadObjects_(matPromoSheets_().admins).some(r=>String(r.Email||'').toLowerCase()===e&&String(r.Status).toUpperCase()==='ACTIVE');}
+var MAT_PROMO_ADMIN_EMAIL_LOOKUP_ = null;
+function matPromoAdminEmailLookup_(){
+ if(MAT_PROMO_ADMIN_EMAIL_LOOKUP_)return MAT_PROMO_ADMIN_EMAIL_LOOKUP_;
+ const lookup=Object.create(null),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+ if(root)lookup[root]=true;
+ try{
+  matReadObjects_(matPromoSheets_().admins).forEach(function(row){
+   const email=String(row.Email||'').trim().toLowerCase();
+   if(email&&String(row.Status||'').trim().toUpperCase()==='ACTIVE')lookup[email]=true;
+  });
+ }catch(error){Logger.log('Promo admin badge lookup unavailable: '+error);}
+ MAT_PROMO_ADMIN_EMAIL_LOOKUP_=lookup;
+ return lookup;
+}
+function matPromoIsAdmin_(u){
+ const email=matPromoEmail_(u);
+ return !!(email&&matPromoAdminEmailLookup_()[email]);
+}
 function matPromoRequireAdmin_(p){const token=String(p&& (p.idToken||p.firebaseIdToken)||'').trim();if(!token)throw new Error('Registered Admin sign-in required.');const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified!==true)throw new Error('Admin account email must be verified in Firebase.');const u=matAuthenticate_(p);u.Email=String(identity.email||'').trim().toLowerCase();if(String(u.AccountType).toUpperCase()!=='REGISTERED'||!matPromoIsAdmin_(u))throw new Error('Admin access required.');return u;}
 function matAdminBootstrapStatus_(p){const u=matAuthenticate_(p);let verifiedEmail='';const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();if(token){const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified===true)verifiedEmail=String(identity.email||'').trim().toLowerCase();}u.Email=verifiedEmail;return {success:true,configured:!!matScriptProperty_('MAT_SUPER_ADMIN_EMAIL'),isAdmin:!!verifiedEmail&&String(u.AccountType).toUpperCase()==='REGISTERED'&&matPromoIsAdmin_(u)};}
 function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid email required.');const p=PropertiesService.getScriptProperties();if(p.getProperty('MAT_SUPER_ADMIN_EMAIL'))throw new Error('Super Admin already configured.');p.setProperty('MAT_SUPER_ADMIN_EMAIL',e);return 'Super Admin configured.';}
