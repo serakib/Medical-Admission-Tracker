@@ -101,6 +101,18 @@
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[ch];
     });
   }
+  function premiumNameMarkup(name, enabled) {
+    var value = String(name == null ? 'Medical Student' : name);
+    if (!enabled) return escapeHtml(value);
+    var chars = Array.from(value).map(function (char) {
+      return char === ' '
+        ? '<span class="gold-char gold-space" aria-hidden="true">&nbsp;</span>'
+        : '<span class="gold-char" aria-hidden="true">' + escapeHtml(char) + '</span>';
+    }).join('');
+    return '<span class="premium-gold-name" aria-label="' + escapeHtml(value) + '">' + chars + '</span>';
+  }
+  window.MedPremiumName = window.MedPremiumName || {};
+  window.MedPremiumName.html = premiumNameMarkup;
   function parseJson(value, fallback) {
     try { var parsed = JSON.parse(value); return parsed == null ? fallback : parsed; }
     catch (_) { return fallback; }
@@ -270,6 +282,8 @@
     profile.avatar = incomingAvatar || previousAvatar;
     profile.accountType = user.accountType || (app.authUser ? 'REGISTERED' : 'GUEST');
     if (user.isAdmin != null) profile.isAdmin = user.isAdmin === true;
+    if (user.isGoldName != null) profile.isGoldName = user.isGoldName === true || profile.isAdmin === true;
+    else if (profile.isAdmin === true) profile.isGoldName = true;
     profile.xp = Math.max(0, Number(user.xp) || 0);
     profile.pb = Math.max(0, Number(user.pb != null ? user.pb : user.pendingPB) || 0);
     profile.pendingPB = profile.pb;
@@ -372,7 +386,10 @@
       localProgress.rewarded = Array.isArray(localProgress.rewarded) ? localProgress.rewarded : [];
       localStorage.setItem(progressKey, JSON.stringify(localProgress));
     } catch (_) {}
-    setText('profile-name', profile.name);
+    var ownProfileName = document.getElementById('profile-name');
+    if (ownProfileName) ownProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true);
+    var accountProfileName = document.getElementById('account-profile-name');
+    if (accountProfileName) accountProfileName.innerHTML = premiumNameMarkup(profile.name, profile.isGoldName === true);
     var profileAdminBadge = document.getElementById('profile-admin-badge');
     if (profileAdminBadge) profileAdminBadge.classList.toggle('hidden', profile.isAdmin !== true);
     setText('account-profile-name', profile.name);
@@ -413,6 +430,11 @@
   function setStatus(message, isError) {
     var el = document.getElementById('leaderboard-status');
     if (!el) return;
+    if (!isError && /যাচাই হচ্ছে|তৈরি হচ্ছে|লোড হচ্ছে|খোঁজা হচ্ছে|loading|searching/i.test(String(message || ''))) {
+      el.textContent = '';
+      el.classList.add('hidden');
+      return;
+    }
     el.textContent = message || '';
     el.className = 'mb-4 rounded-xl p-3 text-sm ' + (isError
       ? 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300'
@@ -685,6 +707,7 @@
       avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       isAdmin: raw.isAdmin === true || raw.IsAdmin === true,
+      isGoldName: raw.isGoldName === true || raw.IsGoldName === true || raw.isAdmin === true || raw.IsAdmin === true,
       guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
       xp: xp,
       level: boardLevel,
@@ -767,6 +790,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     style.textContent += '.mat-rank-rp{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;color:#b7791f!important;font-weight:950;white-space:nowrap}.mat-rank-rp>i{color:#f5c542;font-size:19px!important;filter:drop-shadow(0 1px 3px rgba(245,197,66,.45))!important}.leader-rp-star{display:inline-block!important;margin-right:4px!important;color:#f5c542!important;font-size:16px!important;vertical-align:-1px!important;filter:drop-shadow(0 1px 2px rgba(245,197,66,.35))}.mat-progress-star,.mat-rank-track.is-safe .mat-progress-star,.mat-rank-zones.is-promotion .mat-progress-star{filter:none!important}.mat-rank-tier .vault-rank-trophy-svg,.mat-rank-tier.is-completed .vault-rank-trophy-svg,.mat-rank-tier.is-upcoming .vault-rank-trophy-svg,.mat-rank-tier.is-current .vault-rank-trophy-svg,.mat-student-vault-trophy svg,.leader-rank-trophy-svg{filter:none!important}.mat-rank-zone-legend,.mat-rank-zone-legend *{text-shadow:none!important}#leaderboard-body tr.promotion-zone-divider>td,#leaderboard-body tr.safe-zone-divider>td{padding:10px 12px!important;border-top:1px solid currentColor!important;border-bottom:1px solid currentColor!important;background:transparent!important;letter-spacing:0!important;font-weight:850!important}#leaderboard-body tr.promotion-zone-divider>td{color:#8b5cf6!important}#leaderboard-body tr.safe-zone-divider>td{color:#059669!important}.leader-zone-divider-content{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-height:24px!important;line-height:1.3!important;white-space:normal!important}.leader-zone-divider-content>i{font-size:12px!important;filter:none!important}.leader-zone-divider-content>span:not(.sr-only){font-size:10px!important;font-weight:900!important;letter-spacing:.06em!important}.leader-zone-empty-row>td{padding:8px 12px!important;text-align:center!important}.leader-zone-empty-message{padding:7px 10px;color:var(--muted,#94a3b8);font-size:11px;font-weight:650;line-height:1.45;text-align:center}';
     style.textContent += '.mat-rule-list details>div>p{margin:10px 0 0;padding:12px 14px;border:1px solid rgba(100,116,139,.18);border-left:3px solid #0d9488;border-radius:11px;background:linear-gradient(110deg,rgba(13,148,136,.09),rgba(13,148,136,.025));color:var(--text,#334155);font-size:12px;line-height:1.75}.mat-rule-list details>div>p:first-child{margin-top:0}.mat-rule-list details:nth-of-type(1)>div>p{border-left-color:#0d9488;background:linear-gradient(110deg,rgba(13,148,136,.10),rgba(13,148,136,.025))}.mat-rule-list details:nth-of-type(2)>div>p{border-left-color:#d97706;background:linear-gradient(110deg,rgba(217,119,6,.10),rgba(217,119,6,.025))}.mat-rule-list details:nth-of-type(3)>div>p{border-left-color:#8b5cf6;background:linear-gradient(110deg,rgba(139,92,246,.10),rgba(139,92,246,.025))}.mat-rule-list details:nth-of-type(5)>div>p{border-left-color:#0284c7;background:linear-gradient(110deg,rgba(2,132,199,.10),rgba(2,132,199,.025))}html.dark .mat-rule-list details>div>p,body.dark .mat-rule-list details>div>p{color:var(--text,#e2e8f0);border-color:rgba(148,163,184,.2);border-left-color:#2dd4bf}html.dark .mat-rule-list details:nth-of-type(2)>div>p,body.dark .mat-rule-list details:nth-of-type(2)>div>p{border-left-color:#fbbf24}html.dark .mat-rule-list details:nth-of-type(3)>div>p,body.dark .mat-rule-list details:nth-of-type(3)>div>p{border-left-color:#c4b5fd}html.dark .mat-rule-list details:nth-of-type(5)>div>p,body.dark .mat-rule-list details:nth-of-type(5)>div>p{border-left-color:#38bdf8}@media(max-width:560px){.mat-rule-list details>div>p{padding:10px 11px;font-size:11px}}';
     style.textContent += '.mat-rank-rail{display:flex;align-items:center;width:100%;max-width:none;box-sizing:border-box;gap:8px;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;scroll-behavior:smooth;scroll-snap-type:x mandatory;scrollbar-width:none;user-select:none;cursor:grab}';
+    style.textContent += '@keyframes matPremiumGoldShimmer{0%{background-position:-200% 0}100%{background-position:300% 0}}.premium-gold-name{display:inline-flex;align-items:baseline;flex-wrap:wrap;max-width:100%;font-family:Montserrat,system-ui,sans-serif;font-weight:900;letter-spacing:.025em;text-transform:uppercase;filter:drop-shadow(1px 1px 0 #5e3307) drop-shadow(1px 2px 2px rgba(0,0,0,.32));vertical-align:baseline}.premium-gold-name .gold-char{display:inline-block;background:linear-gradient(135deg,#FFF8D0 0%,#FFD700 20%,#FFA500 40%,#FFFFFF 50%,#FFD700 60%,#B8860B 80%,#FFF2A3 100%);background-size:250% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:matPremiumGoldShimmer 3.5s linear infinite}.premium-gold-name .gold-space{width:.32em;min-width:.32em;background:none;-webkit-text-fill-color:initial}@media(prefers-reduced-motion:reduce){.premium-gold-name .gold-char{animation:none;background-position:50% 0}}.mat-directory-skeleton{display:block;width:75%;height:12px;margin:3px 0;border-radius:999px;background:linear-gradient(90deg,rgba(148,163,184,.15),rgba(148,163,184,.36),rgba(148,163,184,.15));background-size:200% 100%;animation:matPremiumGoldShimmer 1.5s linear infinite}.mat-directory-skeleton.short{width:48%}';
     document.head.appendChild(style);
   }
   function ensureTopControls() {
@@ -1311,7 +1335,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         podium.innerHTML = displayRows.slice(0, 3).map(function (row, index) {
           return '<article class="podium-card podium-' + (index + 1) + '" data-med-player="' + escapeHtml(row.userId) + '" data-total-rp="' + Number(row.totalRP || 0) + '" data-monthly-rp="' + Number(row.monthlyRP || row.monthlyRankPoints || 0) + '" data-rank="' + escapeHtml(row.rank) + '" tabindex="0" role="button" aria-label="Open ' + escapeHtml(row.name) + ' student profile">' +
             '<div class="podium-place-label">#' + (index + 1) + '</div><div class="podium-avatar">' + avatarMarkup(row) + '</div>' +
-            '<strong>' + escapeHtml(row.name || 'Medical Student') + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + '</span>' +
+            '<strong>' + premiumNameMarkup(row.name || 'Medical Student', row.isGoldName === true) + '</strong><span>' + Number(row.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + '</span>' +
             '<small>' + escapeHtml(selectedPeriod === 'monthly' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
@@ -1358,7 +1382,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             : isInWeeklyPromotionZone(row)
               ? '<small class="leader-safe-status" title="Promotion Zone অর্জিত"><i class="fa-solid fa-arrow-trend-up"></i> Promotion Zone Reached</small>'
               : '<small class="leader-risk-status" title="Promotion Zone-এ যেতে আরও ' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP প্রয়োজন"><i class="fa-solid fa-arrow-trend-up"></i> +' + Math.max(0, promotionThreshold - weeklyRP).toLocaleString() + ' RP to promote</small>';
-        tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + escapeHtml(row.name || 'Medical Student') + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label"><i class="fa-solid fa-star leader-rp-star" aria-hidden="true"></i>' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + (selectedPeriod === 'friends' ? '<small class="leader-friend-subrank" style="display:block;color:#a5b4fc;font-size:11px;font-weight:700;line-height:1.2">' + escapeHtml(row.rank || 'Bronze V') + '</small>' : '') + safeStatus + '</div></div></td>';
+        tr.innerHTML = '<td class="leader-row-cell" colspan="2"><div class="leader-row-layout"><div class="leader-person"><span class="leader-avatar">' + avatarMarkup(row) + '</span><span class="leader-name-wrap"><b>' + premiumNameMarkup(row.name || 'Medical Student', row.isGoldName === true) + '</b>' + (row.isMine ? '<em>YOU</em>' : '') + '</span></div><div class="leader-rank-stack"><strong class="leader-rank-number">' + (index + 1) + '</strong><small class="leader-points-label"><i class="fa-solid fa-star leader-rp-star" aria-hidden="true"></i>' + Number(row.boardPoints || 0).toLocaleString() + ' RP</small>' + (selectedPeriod === 'friends' ? '<small class="leader-friend-subrank" style="display:block;color:#a5b4fc;font-size:11px;font-weight:700;line-height:1.2">' + escapeHtml(row.rank || 'Bronze V') + '</small>' : '') + safeStatus + '</div></div></td>';
         body.appendChild(tr);
       });
       if (selectedPeriod === 'weekly' && !promotionDividerInserted) {
@@ -1378,7 +1402,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var positionSubRankLabel = selectedPeriod === 'monthly' && RANKS.indexOf(String(me.rank || '')) >= 0
           ? RANKS[Math.floor(RANKS.indexOf(String(me.rank)) / 5) * 5].split(' ')[0]
           : me.rank;
-        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + escapeHtml(me.name) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
+        mePanel.innerHTML = '<div><span>Your Position · ' + escapeHtml(positionRankLabel) + '</span><strong>#' + (ownIndex + 1) + '</strong></div><div><b>' + premiumNameMarkup(me.name, me.isGoldName === true) + '</b><small>' + Number(me.boardPoints || 0).toLocaleString() + ' ' + ((selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? 'Weekly RP' : 'Monthly RP') + ' · ' + escapeHtml(positionSubRankLabel) + '</small></div>';
       }
     } else if (selectedPeriod !== 'weekly') {
       var emptyText = selectedPeriod === 'friends'
@@ -1401,6 +1425,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (me) applyProfile(Object.assign({}, currentProfile || {}, {
       userId: me.userId, name: me.name, college: me.college, batch: me.batch,
       avatar: me.avatar, xp: me.xp, rankPoints: me.rankPoints, monthlyRP: me.monthlyRP, highestMonthlyRP: me.highestMonthlyRP,
+      isAdmin: me.isAdmin, isGoldName: me.isGoldName,
       level: me.level, rank: me.rank, rankProgress: me.rankProgress, accountType: me.accountType, streak: me.streak
     }));
   }
@@ -1734,7 +1759,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       button.disabled = true;
       button.classList.add('is-refreshing');
       button.setAttribute('aria-busy', 'true');
-      button.innerHTML = '<i class="fa-solid fa-rotate mat-refresh-spin" aria-hidden="true"></i> Refreshing…';
+      button.innerHTML = '<i class="fa-solid fa-rotate mat-refresh-spin" aria-hidden="true"></i>';
       return;
     }
     if (!leaderboardManualRefreshActive) {
@@ -1821,8 +1846,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       renderRows(cache);
     } else {
       rawRows = [];
-      renderRows([]);
-      if (periodForRequest === 'friends') renderLeaderboardLoadingSkeleton();
+      renderLeaderboardLoadingSkeleton();
     }
 
     if (periodForRequest === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
@@ -2192,7 +2216,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       return;
     }
     if (!friendDirectoryRows.length) {
-      results.innerHTML = '<p class="mat-profile-empty">Student directory-তে খোঁজা হচ্ছে…</p>';
+      results.innerHTML = '<div class="mat-profile-empty" aria-hidden="true"><span class="mat-directory-skeleton"></span><span class="mat-directory-skeleton short"></span></div>';
       return;
     }
     var matches = friendDirectoryRows.filter(function (row) {
@@ -2250,7 +2274,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       ].filter(Boolean);
       return '<article class="mat-friend-search-result" data-med-friend-open-profile="' + escapeHtml(uid) + '" role="button" tabindex="0" aria-label="Open ' + escapeHtml(row.name || 'Student') + ' profile">' +
         '<span class="mat-friend-search-avatar">' + avatarMarkup(row) + '</span>' +
-        '<div class="mat-friend-search-copy"><strong>' + escapeHtml(row.name || 'Student') + '</strong><small>' +
+        '<div class="mat-friend-search-copy"><strong>' + premiumNameMarkup(row.name || 'Student', row.isGoldName === true) + '</strong><small>' +
         escapeHtml(details.join(' | ') || 'Medical student') +
         '</small></div><div class="mat-friend-search-action">' + relationLabel + '</div></article>';
     }).join('');
