@@ -3477,10 +3477,12 @@ function matGetPromoInfo_(p) {
  let admin=false,fixedCode='';
  const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();
  if(token){const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified===true){u.Email=String(identity.email||'').trim().toLowerCase();admin=String(u.AccountType||'').toUpperCase()==='REGISTERED'&&matPromoIsAdmin_(u);if(admin)fixedCode=matPromoFixedCode_();}}
+ const adminPromo=admin?matPromoEffectiveConfig_(u,'unlimited',fixedCode):null;
+ const adminCodeEnabled=!!(admin&&fixedCode&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'&&adminPromo&&adminPromo.enabled);
  return {success:true,publicCode:c.code,publicType:c.type,rewardPB:effective.rewardPB==null?c.reward:effective.rewardPB,
    assignedCode:assigned,assignedRewardPB:effective.rewardPB,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin:admin,
-   adminCode:admin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'?fixedCode:'',
-   adminCodeEnabled:admin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};
+   adminCode:adminCodeEnabled?fixedCode:'',
+   adminCodeEnabled:adminCodeEnabled};
 }
 
 function matPromoValidateCustomCode_(code) {
