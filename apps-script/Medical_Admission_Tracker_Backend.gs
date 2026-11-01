@@ -1671,7 +1671,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   const rows = students.map(function (s) {
     const weeklyRP = Math.max(0, Number(weeklyByUser[s.UserID] || 0));
     const monthlyRP = Math.max(0, Number(monthlyByUser[s.UserID] || 0));
-    matApplyPeriodRankPromotion_(s, weeklyRP, monthlyRP);
+    // Leaderboard reads must never promote the canonical Main Rank; only committed reward/review flows may do that.
     const highestWeeklyRP = Math.max(
       0, matFiniteNumber_(s.HighestWeeklyRP, 0),
       matFiniteNumber_(historicalHighestByUser[s.UserID], 0), weeklyRP
@@ -1696,8 +1696,8 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rank: s.Rank || MAT_RANKS[0],
       rankPoints: Number(s.RP || 0), rp: Number(s.RP || 0),
       // Lifetime RP is cumulative across all time; never substitute weekly/monthly RP.
-      totalRP: Math.max(Number(s.RP || 0), matFiniteNumber_(s.TotalRP, Number(s.RP || 0))),
-      TotalRP: Math.max(Number(s.RP || 0), matFiniteNumber_(s.TotalRP, Number(s.RP || 0))),
+      totalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
+      TotalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       leaderboardRequiredRPMultiplier: safePeriod === 'monthly' ? 5 : 1,
       levelProgress: matGetLevelProgress_(s.XP),
@@ -2760,7 +2760,7 @@ function matPublicProfile_(r, includeEmail) {
   const weeklyRPByUser = matGetWeeklyRPByUser_();
   const weeklyRP = Math.max(0, Number(weeklyRPByUser[String(s.UserID || '')] || 0));
   const monthlyRP = Math.max(0, Number(monthlyRPByUser[String(s.UserID || '')] || 0));
-  matApplyPeriodRankPromotion_(s, weeklyRP, monthlyRP);
+  // Profile reads are observational; keep the stored Main Rank unchanged.
   const guestAutoDeletionAt = matGuestAutoDeletionAt_(s, weeklyRP);
   const highestMonthlyRP = Math.max(0, matFiniteNumber_(s.HighestMonthlyRP, 0), Number(highestMonthlyRPByUser[String(s.UserID || '')] || 0), monthlyRP);
   const result = {
@@ -2785,7 +2785,7 @@ function matPublicProfile_(r, includeEmail) {
     pb: Math.max(0, matFiniteNumber_(s.PB, 0)) + Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
     pendingPB: Math.max(0, matFiniteNumber_(s.PB, 0)) + Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
     promoPB: Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
-    totalRP: s.TotalRP,
+    totalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
     monthlyRP: monthlyRP,
     monthlyRankPoints: monthlyRP,
     highestWeeklyRP: s.HighestWeeklyRP,
