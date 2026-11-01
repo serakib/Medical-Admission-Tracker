@@ -132,6 +132,7 @@ let memberTargets=[];
 let adminMemberRecords=[];
 let canManageAdminMembers=false;
 let refreshInFlight=false;
+let refreshPending=false;
 let adminAddInFlight=false;
 function ensureAdminDashboard(){
  const panel=$('mat-admin-panel'),nav=$('mat-notifications-nav');
@@ -358,7 +359,7 @@ async function loadAdmin(){
  const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;}};
 }
 async function refresh(){
- if(refreshInFlight)return;
+ if(refreshInFlight){refreshPending=true;return;}
  refreshInFlight=true;
  try{
   const d=await api('getPromoInfo');
@@ -371,7 +372,7 @@ async function refresh(){
   else $('mat-promo-admin-code-wrap').classList.add('hidden');
   if(d.isAdmin){adminAccessConfirmed=true;ensureAdminDashboard();await loadAdmin();}else{adminAccessConfirmed=false;const b=$('mat-admin-management-nav'),dash=$('mat-admin-dashboard');if(b)b.classList.add('hidden');if(dash)dash.classList.add('hidden');}
  }catch(e){$('mat-promo-public-code').textContent='Sign in করে Promo Code ব্যবহার করুন';$('mat-promo-message').textContent=e.message;}
- finally{refreshInFlight=false;}
+ finally{refreshInFlight=false;if(refreshPending){refreshPending=false;Promise.resolve().then(refresh);}}
 }
 window.addEventListener('student-progress-updated',event=>{const p=event.detail||{};const appProfile=window.app&&window.app.profile||{};const currentId=String(appProfile.userId||appProfile.uid||'');const eventId=String(p.userId||p.uid||p.playerId||'');if(currentId&&eventId===currentId&&p.promoPB!=null&&$('mat-promo-balance'))$('mat-promo-balance').textContent=Number(p.promoPB||0).toLocaleString()+' PB';});
 function mount(){card();if(adminAccessConfirmed)ensureAdminDashboard();}
