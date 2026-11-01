@@ -375,8 +375,8 @@ async function loadAdmin(){
    nav=document.createElement('nav');
    nav.id='mat-admin-quick-nav';
    nav.setAttribute('aria-label','Admin panel navigation');
-   nav.className='sticky top-2 z-40 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3 shadow-lg space-y-3';
-   nav.innerHTML='<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"><div><p class="text-sm font-extrabold text-slate-900 dark:text-white">Admin Workspace</p><p class="text-[11px] text-slate-500">Jump to a tool · active section is highlighted</p></div><label class="relative block sm:w-64"><span class="sr-only">Search admin sections</span><input id="mat-admin-nav-search" type="search" autocomplete="off" placeholder="Search admin tools…" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 pl-9 text-xs outline-none focus:border-rose-400"><span class="pointer-events-none absolute left-3 top-2 text-slate-400">⌕</span></label></div><div id="mat-admin-nav-groups" class="space-y-2">'+['Access & Rewards','Admin Team','Account Safety'].map(group=>'<div data-admin-nav-group="'+group+'" class="space-y-1"><p class="px-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">'+group+'</p><div class="flex gap-2 overflow-x-auto pb-1">'+items.filter(item=>item.group===group).map(item=>'<a href="#'+item.id+'" data-admin-jump="'+item.id+'" data-label="'+item.label.toLowerCase()+'" data-keywords="'+item.keywords+'" class="shrink-0 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:border-rose-400 hover:text-rose-600" aria-current="false">'+item.label+'</a>').join('')+'</div></div>').join('')+'</div><div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2"><p id="mat-admin-nav-current" class="text-[11px] text-slate-500">Choose a section to get started</p><button type="button" id="mat-admin-nav-top" class="rounded-lg px-2 py-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30">↑ Back to top</button></div>';
+   nav.className='rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 space-y-2';
+   nav.innerHTML='<label class="relative block"><span class="sr-only">Search admin tools</span><span class="pointer-events-none absolute left-3 top-2 text-slate-400">⌕</span><input id="mat-admin-nav-search" type="search" autocomplete="off" placeholder="Search admin tools…" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 pl-9 text-xs outline-none focus:border-rose-400"></label><div class="flex flex-wrap gap-1.5">'+items.map(item=>'<a href="#'+item.id+'" data-admin-jump="'+item.id+'" data-label="'+item.label.toLowerCase()+'" data-keywords="'+item.keywords+'" class="shrink-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-200 transition hover:border-rose-400 hover:text-rose-600" aria-current="false">'+item.label+'</a>').join('')+'</div>';
    const heading=panel.firstElementChild;
    if(heading)heading.insertAdjacentElement('afterend',nav);else panel.insertBefore(nav,panel.firstChild);
    nav.addEventListener('click',function(event){
@@ -385,11 +385,9 @@ async function loadAdmin(){
     const target=document.getElementById(link.getAttribute('data-admin-jump'));
     if(target){event.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
    });
-   nav.querySelector('#mat-admin-nav-top').addEventListener('click',()=>panel.scrollIntoView({behavior:'smooth',block:'start'}));
    nav.querySelector('#mat-admin-nav-search').addEventListener('input',function(){
     const query=this.value.trim().toLowerCase();
     nav.querySelectorAll('[data-admin-jump]').forEach(link=>link.classList.toggle('hidden',!!query&&!(link.dataset.label+' '+link.dataset.keywords).includes(query)));
-    nav.querySelectorAll('[data-admin-nav-group]').forEach(group=>group.classList.toggle('hidden',!group.querySelector('[data-admin-jump]:not(.hidden)')));
    });
   }
   items.forEach(item=>{
@@ -397,7 +395,6 @@ async function loadAdmin(){
    const target=document.getElementById(item.id);
    if(link)link.classList.toggle('hidden',!target||target.classList.contains('hidden'));
   });
-  nav.querySelectorAll('[data-admin-nav-group]').forEach(group=>group.classList.toggle('hidden',!group.querySelector('[data-admin-jump]:not(.hidden)')));
   const activate=function(id){
    const link=nav.querySelector('[data-admin-jump="'+id+'"]');
    if(!link)return;
@@ -409,8 +406,6 @@ async function loadAdmin(){
     item.classList.toggle('dark:bg-rose-950/30',active);
     item.setAttribute('aria-current',active?'location':'false');
    });
-   const current=nav.querySelector('#mat-admin-nav-current');
-   if(current)current.textContent='Current section: '+link.textContent.trim();
   };
   nav.querySelectorAll('[data-admin-jump]').forEach(link=>link.addEventListener('click',()=>activate(link.dataset.adminJump)));
   if(!nav.dataset.observerReady&&'IntersectionObserver'in window){
@@ -418,7 +413,7 @@ async function loadAdmin(){
     const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
     if(visible)activate(visible.target.id);
    },{rootMargin:'-18% 0px -68% 0px',threshold:[0,0.15,0.4]});
-   items.forEach(item=>{const target=document.getElementById(item.id);if(target){target.style.scrollMarginTop='150px';observer.observe(target);}});
+   items.forEach(item=>{const target=document.getElementById(item.id);if(target){target.style.scrollMarginTop='16px';observer.observe(target);}});
    nav.dataset.observerReady='true';
   }
  })();
