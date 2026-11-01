@@ -457,6 +457,15 @@ async function loadAdmin(){
    if(!window.MedStudentProfile||typeof window.MedStudentProfile.open!=='function'){
     $('mat-guest-delete-status').textContent='Global Profile এখনো load হয়নি। Page refresh করে আবার চেষ্টা করুন।';return;
    }
+   // Preserve the current Admin Workspace selection and viewport before
+   // temporarily switching to the shared student profile view.
+   const adminNav=document.getElementById('mat-admin-quick-nav');
+   const activeAdminLink=adminNav&&adminNav.querySelector('[data-admin-jump][aria-current="location"]');
+   window.__matAdminReturnState={
+    scrollY:window.scrollY||window.pageYOffset||0,
+    activeSectionId:activeAdminLink?activeAdminLink.getAttribute('data-admin-jump'):'',
+    navSearch:adminNav&&adminNav.querySelector('#mat-admin-nav-search')?adminNav.querySelector('#mat-admin-nav-search').value:''
+   };
    // The admin workspace is a full-screen overlay. Hide it before opening the
    // shared student profile view, otherwise the profile opens underneath it.
    const dashboard=$('mat-admin-dashboard');
@@ -478,8 +487,24 @@ async function loadAdmin(){
     back.addEventListener('click',function(){
      const admin=$('mat-admin-dashboard');
      if(admin)admin.classList.remove('hidden');
-     const guestSection=$('mat-admin-guest-deletion');
-     if(guestSection)guestSection.scrollIntoView({behavior:'smooth',block:'start'});
+     const state=window.__matAdminReturnState||{};
+     const nav=document.getElementById('mat-admin-quick-nav');
+     const search=nav&&nav.querySelector('#mat-admin-nav-search');
+     if(search&&typeof state.navSearch==='string'){
+      search.value=state.navSearch;
+      search.dispatchEvent(new Event('input',{bubbles:true}));
+     }
+     if(nav){
+      nav.querySelectorAll('[data-admin-jump]').forEach(link=>{
+       const active=!!state.activeSectionId&&link.getAttribute('data-admin-jump')===state.activeSectionId;
+       link.classList.toggle('border-rose-500',active);
+       link.classList.toggle('bg-rose-50',active);
+       link.classList.toggle('text-rose-700',active);
+       link.classList.toggle('dark:bg-rose-950/30',active);
+       link.setAttribute('aria-current',active?'location':'false');
+      });
+     }
+     requestAnimationFrame(()=>window.scrollTo({top:Number.isFinite(Number(state.scrollY))?Number(state.scrollY):0,behavior:'auto'}));
     });
     profileView.insertBefore(back,profileView.firstChild);
    }
