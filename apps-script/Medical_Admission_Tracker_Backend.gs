@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.01.2';
+const MAT_API_VERSION = '2026.11.01.3';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -51,6 +51,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-rp-ledger-includes-committed-exams-and-rp-events',
   'rank-change-sets-target-rank-basic-rp-no-bonus',
   'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
+  'canonical-main-rank-weekly-promotion-threshold',
   'highest-weekly-rp-profile-stat',
   'monthly-rp-profile-stat',
   'highest-monthly-rp-profile-stat',
@@ -1448,7 +1449,9 @@ function matRankSafeZoneThreshold_(rankIndex) {
 
 function matRankPromotionZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  return Math.ceil(matRankPromotionCost_(rankIndex) * 0.70);
+  // Weekly Promotion Zone is 70% of the complete current Main Rank tier,
+  // matching the 5-subrank progress bar shown by every frontend surface.
+  return Math.ceil(matRankTierCap_(rankIndex) * 0.70);
 }
 
 function matGetRankProgress_(rank, currentRP) {
@@ -1472,6 +1475,7 @@ function matGetRankProgress_(rank, currentRP) {
     tierStartRank: MAT_RANKS[tierStart],
     tierEndRank: MAT_RANKS[tierEnd],
     tierCapRP: matRankTierCap_(index),
+    weeklyPromotionZoneThreshold: isFinalRank ? 0 : matRankPromotionZoneThreshold_(index),
     currentRankMilestoneRP: currentMilestoneRP,
     previousMilestoneRP: previousMilestoneRP,
     previousSubrankName: index === 0 ? '' : (index >= MAT_RANKS.length - 1 || index % 5 === 0 ? MAT_RANKS[index - 1] : MAT_RANKS[index]),
