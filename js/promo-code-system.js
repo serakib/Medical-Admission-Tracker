@@ -24,7 +24,9 @@ async function api(action,fields){
 }
 function card(){
  if(!$('mat-loading-dots-style'))document.head.insertAdjacentHTML('beforeend',"\n<style id=\"mat-loading-dots-style\">\n.mat-loading-dots{display:inline-flex;align-items:center;gap:2px;margin-left:2px;vertical-align:baseline}\n.mat-loading-dots i{font-style:normal;opacity:.25;animation:mat-loading-dot 1s infinite ease-in-out}\n.mat-loading-dots i:nth-child(2){animation-delay:.16s}\n.mat-loading-dots i:nth-child(3){animation-delay:.32s}\n@keyframes mat-loading-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}\n@media(prefers-reduced-motion:reduce){.mat-loading-dots i{animation:none;opacity:1}}\n</style>");
- const host=$('sidebar-student-profile-extras');if(!host||$('mat-promo-card'))return;
+ const host=$('sidebar-student-profile-extras');if(!host)return;
+ const existing=$('mat-promo-card');
+ if(existing){if(existing.parentElement!==host)host.insertBefore(existing,host.firstElementChild);return;}
  const section=document.createElement('section');section.id='mat-promo-card';section.className='rounded-2xl border border-amber-200 dark:border-amber-900 bg-white dark:bg-gray-800 p-4 sm:p-5 shadow-sm space-y-4';
  section.innerHTML=`
  <div class="flex items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-wider text-amber-600">Rewards</p><h3 class="text-base font-extrabold text-gray-900 dark:text-white">Promo Code</h3></div><span class="rounded-full px-3 py-1 text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Permanent PB</span></div>
