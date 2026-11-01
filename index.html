@@ -2070,7 +2070,7 @@ main > .view-section.hidden { display: none !important; }
     }
     // PB conversion controls manage their own "Converting to XP/RP" labels.
     // Do not overwrite their original labels with the generic Loading/Saving state.
-    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert]')) {
+    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert], #mat-promo-redeem-form button')) {
       markActionButton(target);
     }
     beginForAction();
