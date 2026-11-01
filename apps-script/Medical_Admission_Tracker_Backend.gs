@@ -1692,6 +1692,9 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
       rank: s.Rank || MAT_RANKS[0],
       rankPoints: Number(s.RP || 0), rp: Number(s.RP || 0),
+      // Lifetime RP is cumulative across all time; never substitute weekly/monthly RP.
+      totalRP: Math.max(Number(s.RP || 0), matFiniteNumber_(s.TotalRP, Number(s.RP || 0))),
+      TotalRP: Math.max(Number(s.RP || 0), matFiniteNumber_(s.TotalRP, Number(s.RP || 0))),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       leaderboardRequiredRPMultiplier: safePeriod === 'monthly' ? 5 : 1,
       levelProgress: matGetLevelProgress_(s.XP),
