@@ -320,14 +320,26 @@ async function loadPremiumNameAccess(members){
  select.onchange=updateGrantState;
  grant.onclick=async()=>{
   const userId=select.value;
-  if(!userId||activeIds.has(userId))return;
+  if(!userId||activeIds.has(userId)||grant.getAttribute('aria-busy')==='true')return;
+  const defaultLabel='Grant Golden Name';
   grant.disabled=true;grant.setAttribute('aria-busy','true');
+  grant.textContent='Granting Golden Name Access...';
   try{
    await api('adminSetPremiumNameAccess',{userId:userId,enabled:true});
-   $('mat-admin-message').textContent='Premium Golden Name access granted.';
+   $('mat-admin-message').textContent='Granted Access successfully.';
    await loadPremiumNameAccess(members);
-  }catch(error){$('mat-admin-message').textContent=error.message||'Access grant failed.';updateGrantState();}
-  finally{grant.removeAttribute('aria-busy');}
+   grant.textContent='Granted Access Successfully';
+   await new Promise(resolve=>setTimeout(resolve,1200));
+   grant.textContent=defaultLabel;
+  }catch(error){
+   $('mat-admin-message').textContent=error.message||'Access grant failed.';
+   grant.textContent=defaultLabel;
+   updateGrantState();
+  }finally{
+   grant.removeAttribute('aria-busy');
+   if(activeIds.has(userId))grant.disabled=true;
+   else updateGrantState();
+  }
  };
  const list=$('mat-premium-name-list');
  list.innerHTML=access.length?'<h5 class="font-bold text-xs text-amber-900 dark:text-amber-200">ACTIVE SUBSCRIBERS ('+access.length+')</h5>'+access.map(row=>'<div class="flex items-center justify-between gap-2 border-t border-amber-200 dark:border-amber-900 pt-2"><span class="min-w-0"><strong class="block truncate">'+(window.MedPremiumName&&typeof window.MedPremiumName.html==='function'?window.MedPremiumName.html(row.name||'Student',true):esc(row.name||'Student'))+'</strong><small class="block truncate text-gray-500">'+esc(row.email)+'</small></span><button type="button" data-revoke-premium-name="'+esc(row.userId)+'" class="shrink-0 rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-1.5 text-xs font-bold text-rose-700 dark:text-rose-300">Revoke</button></div>').join(''):'<p class="text-xs text-gray-500">No manually granted subscriber access yet.</p>';
