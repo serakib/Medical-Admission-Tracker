@@ -3497,7 +3497,12 @@ function matRedeemPromoCode_(p) {
 function matPromoSheets_(){
  const ss=SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
  function get(n,h){let sh=ss.getSheetByName(n);if(!sh)sh=ss.insertSheet(n);if(!sh.getLastRow()){sh.getRange(1,1,1,h.length).setValues([h]);sh.setFrozenRows(1);}else{const old=matHeaders_(sh),miss=h.filter(x=>!old.includes(x));if(miss.length)sh.getRange(1,old.length+1,1,miss.length).setValues([miss]);}return sh;}
- return {admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt','LimitPeriod','LimitWindow'])};
+ return {
+  admins:get('PromoAdmins',['Email','Role','Status','AddedAt','AddedBy']),
+  redemptions:get('PromoRedemptions',['RedemptionID','UserID','Code','Type','PeriodKey','RewardPB','RedeemedAt','LimitPeriod','LimitWindow']),
+  guestDeletionRequests:get('AdminGuestDeletionRequests',['RequestID','TargetUserID','Status','RequestedBy','RequestedAt','Reason','ReviewedBy','ReviewedAt','Decision']),
+  guestDeletionAudit:get('GuestDeletionAudit',['EventID','TargetUserID','Event','ActorEmail','ActorRole','EventAt','PreviousDeadline','NewDeadline','Notes'])
+ };
 }
 function matGetPromoInfo_(p) {
  const u=matAuthenticate_(p), c=matPromoPublic_(), all=matPromoReadConfig_();
