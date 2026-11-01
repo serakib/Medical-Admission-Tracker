@@ -2137,6 +2137,10 @@ window.handleSubmit = async function() {
 
 // ফায়ারবেস অথেন্টিকেশন লিসেনার ও ডাইনামিক বাটন আপডেট
 onAuthStateChanged(auth, (user) => {
+    // Expose the current modular Firebase user for feature modules that need ID tokens.
+    window.__matFirebaseAuthUser = user || null;
+    if (window.app) window.app.authUser = user || null;
+    window.dispatchEvent(new CustomEvent('mat:firebase-auth-ready', { detail: { signedIn: !!user } }));
     const sidebarSettingsButton = document.getElementById('sidebar-account-settings-button');
     if (sidebarSettingsButton) {
         sidebarSettingsButton.setAttribute('aria-label', 'Account settings');
