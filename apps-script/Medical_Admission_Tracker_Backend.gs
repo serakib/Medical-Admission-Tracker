@@ -2208,10 +2208,12 @@ function matFriendPublicRequest_(row, incoming) {
     toUid: String(row.ToUserID || ''),
     fromName: String(row.FromName || 'Student'),
     fromIsGoldName: fromStudent ? matPromoHasGoldName_(fromStudent) : false,
+    fromShowGoldName: !fromStudent || String(fromStudent.ShowGoldName == null || fromStudent.ShowGoldName === '' ? 'TRUE' : fromStudent.ShowGoldName).toUpperCase() !== 'FALSE',
     fromCollege: String(row.FromCollege || ''),
     fromBatch: String(row.FromBatch || ''),
     toName: String(row.ToName || 'Student'),
     toIsGoldName: toStudent ? matPromoHasGoldName_(toStudent) : false,
+    toShowGoldName: !toStudent || String(toStudent.ShowGoldName == null || toStudent.ShowGoldName === '' ? 'TRUE' : toStudent.ShowGoldName).toUpperCase() !== 'FALSE',
     status: String(row.Status || 'pending'),
     direction: incoming ? 'incoming' : 'outgoing',
     createdAt: String(row.CreatedAt || '')
