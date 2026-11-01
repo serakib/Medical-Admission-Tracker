@@ -58,9 +58,10 @@
     var app = window.app;
     if (!app || typeof app.showView !== 'function' || patchedApp === app) return;
 
-    // Current script.js overrides the class method with an incomplete view map.
-    // This single post-load wrapper resolves views by their actual HTML section IDs,
-    // so question-bank/practice/exam-intro/previous/setup continue working too.
+    // Preserve the app's existing showView implementation and any feature wrappers
+    // already installed by the leaderboard module. Replacing it outright drops their
+    // side effects (notably the leaderboard data load) even though the section becomes visible.
+    var originalShowView = app.showView.bind(app);
     app.showView = function (viewName, force) {
       var targetId = getViewId(viewName);
       var target = document.getElementById(targetId);
@@ -74,15 +75,18 @@
         return false;
       }
 
+      // Run the original controller first. It owns timers, view transitions, and
+      // leaderboard refresh hooks; the compatibility pass below only ensures every
+      // real HTML view section is hidden/shown consistently.
+      var result = originalShowView(viewName, force);
+      if (result === false) return false;
+
       document.querySelectorAll('main .view-section').forEach(function (section) {
         var active = section === target;
         section.classList.toggle('hidden', !active);
         section.setAttribute('aria-hidden', String(!active));
       });
       document.body.classList.toggle('exam-active', viewName === 'exam');
-      if (viewName === 'exam') {
-        try { window.history.pushState({ exam: true }, '', '#exam'); } catch (_error) { /* no-op */ }
-      }
       markActive(viewName);
       closeMobileMenu();
       window.scrollTo({ top: 0, behavior: 'smooth' });
