@@ -1949,6 +1949,8 @@ main > .view-section.hidden { display: none !important; }
     trickleTimer = setInterval(trickle, 160);
     watchdogTimer = setTimeout(function () {
       pending = 0;
+      // Safety fallback: never leave a control stuck in its loading state.
+      restoreActionButton();
       finish();
     }, MAX_ACTIVE_MS);
   }
@@ -1996,6 +1998,8 @@ main > .view-section.hidden { display: none !important; }
     bar.classList.remove('is-finishing');
     watchdogTimer = setTimeout(function () {
       pending = 0;
+      // A stalled request must not leave the button showing Loading/Saving forever.
+      restoreActionButton();
       finish();
     }, MAX_ACTIVE_MS);
   }
@@ -2064,7 +2068,11 @@ main > .view-section.hidden { display: none !important; }
         if (destination.origin !== window.location.origin) return;
       } catch (_) { return; }
     }
-    markActionButton(target);
+    // PB conversion controls manage their own "Converting to XP/RP" labels.
+    // Do not overwrite their original labels with the generic Loading/Saving state.
+    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert]')) {
+      markActionButton(target);
+    }
     beginForAction();
     // Notification center is an in-page view. Do not let background Firebase
     // sync/polling keep its navigation progress bar visible indefinitely.
