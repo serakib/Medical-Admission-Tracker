@@ -1065,7 +1065,9 @@ class MedicalExamApp {
         const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
             user.providerData.some(provider => provider && provider.providerId === 'password'));
         const isGuestProfile = !user && String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
-        if (deleteCard) deleteCard.classList.toggle('hidden', !(hasEmailPassword || isGuestProfile));
+        if (deleteCard) deleteCard.classList.toggle('hidden', !hasEmailPassword);
+        const guestDeleteCard = document.getElementById('account-guest-delete-card');
+        if (guestDeleteCard) guestDeleteCard.classList.toggle('hidden', !isGuestProfile);
         refreshGuestDeletionCard();
     }
 
@@ -2234,14 +2236,14 @@ window.handleLogout = function() {
  * Medical-Admission-Tracker-login website's Forgot Password flow.
  */
 function refreshGuestDeletionCard() {
-    const card = document.getElementById('account-delete-card');
+    const card = document.getElementById('account-guest-delete-card');
     if (!card) return;
     const profile = window.app?.profile || {};
     const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' && !auth.currentUser;
     if (isGuest) card.classList.remove('hidden');
     const title = card.querySelector('h3');
     const description = card.querySelector('p');
-    const start = card.querySelector('#account-delete-start');
+    const start = card.querySelector('#account-guest-delete-start');
     let pending = card.querySelector('#guest-deletion-pending');
     let cancel = card.querySelector('#guest-deletion-cancel');
     if (!pending) {
