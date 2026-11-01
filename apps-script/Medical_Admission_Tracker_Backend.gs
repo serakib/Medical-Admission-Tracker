@@ -97,7 +97,7 @@ const MAT_EXAM_HEADERS = [
 ];
 
 // Keep server rank progression aligned with the existing Achievement Vault trophy order.
-// Every named tier has V, IV, III, II, I sub-ranks; Immortal is the final tier.
+// Named tiers through Mythic have five sub-ranks; Immortal is one terminal rank.
 const MAT_RANKS = Object.freeze([
   'Bronze V', 'Bronze IV', 'Bronze III', 'Bronze II', 'Bronze I',
   'Silver V', 'Silver IV', 'Silver III', 'Silver II', 'Silver I',
@@ -109,7 +109,7 @@ const MAT_RANKS = Object.freeze([
   'Grandmaster V', 'Grandmaster IV', 'Grandmaster III', 'Grandmaster II', 'Grandmaster I',
   'Legend V', 'Legend IV', 'Legend III', 'Legend II', 'Legend I',
   'Mythic V', 'Mythic IV', 'Mythic III', 'Mythic II', 'Mythic I',
-  'Immortal V', 'Immortal IV', 'Immortal III', 'Immortal II', 'Immortal I'
+  'Immortal'
 ]);
 
 const MAT_TOP10_PROPERTY = 'MAT_TOP10_ALLTIME_SNAPSHOT_V1';
@@ -2579,7 +2579,9 @@ function matNormaliseStudent_(r) {
   row.HighestMonthlyRP = Math.max(0, matFiniteNumber_(row.HighestMonthlyRP, 0));
   // Recalculate level from authoritative cumulative XP using the current progression curve.
   row.Level = matGetLevel_(row.XP);
-  if (MAT_RANKS.indexOf(String(row.Rank || '')) === -1) row.Rank = MAT_RANKS[0];
+  const storedRank = String(row.Rank || '').trim();
+  if (/^Immortal(?:\\s+[VIX]+)?$/i.test(storedRank)) row.Rank = 'Immortal';
+  else if (MAT_RANKS.indexOf(storedRank) === -1) row.Rank = MAT_RANKS[0];
   return row;
 }
 
