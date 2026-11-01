@@ -12,7 +12,9 @@ import {
     onAuthStateChanged, 
     updateProfile,
     EmailAuthProvider,
+    GoogleAuthProvider,
     reauthenticateWithCredential,
+    reauthenticateWithPopup,
     sendPasswordResetEmail,
     deleteUser,
     setPersistence,
@@ -1064,9 +1066,9 @@ class MedicalExamApp {
         const logoutCard = document.getElementById('account-logout-card');
         if (logoutCard) logoutCard.classList.toggle('hidden', !isRegisteredUser);
         const deleteCard = document.getElementById('account-delete-card');
-        const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
-            user.providerData.some(provider => provider && provider.providerId === 'password'));
-        if (deleteCard) deleteCard.classList.toggle('hidden', !hasEmailPassword);
+        // Delete Account is available to every signed-in registered account.
+        // Verification is performed with the account's linked Firebase provider.
+        if (deleteCard) deleteCard.classList.toggle('hidden', !isRegisteredUser);
         const guestDeleteCard = document.getElementById('account-guest-delete-card');
         if (guestDeleteCard) guestDeleteCard.classList.toggle('hidden', !isGuestProfile);
         refreshGuestDeletionCard();
@@ -2375,10 +2377,11 @@ window.handleAccountDeletion = function() {
       };
       return;
     }
-    const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
-        user.providerData.some(provider => provider && provider.providerId === 'password'));
-    if (!hasEmailPassword) {
-        alert('Account delete করতে registered email/password account-এ sign in করুন।');
+    const linkedProviders = Array.isArray(user?.providerData) ? user.providerData.map(provider => provider?.providerId).filter(Boolean) : [];
+    const hasEmailPassword = Boolean(user?.email && linkedProviders.includes('password'));
+    const hasGoogleProvider = linkedProviders.includes('google.com');
+    if (!user || user.isAnonymous || String(guestProfile.accountType || '').toUpperCase() === 'GUEST' || (!hasEmailPassword && !hasGoogleProvider)) {
+        alert('এই account-এর supported sign-in provider দিয়ে sign in করে আবার চেষ্টা করুন।');
         return;
     }
 
@@ -2423,17 +2426,17 @@ window.handleAccountDeletion = function() {
             </span>
             <h2 id="account-delete-title" class="text-lg font-bold text-slate-900 dark:text-white">Are you sure to delete this account?</h2>
           </div>
-          <p class="mb-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Final confirmation for <strong data-account-delete-email></strong>. This permanently deletes your account and connected Medical data. Enter your current password to confirm.</p>
+          <p class="mb-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Final confirmation for <strong data-account-delete-email></strong>. This permanently deletes your account and connected Medical data. Verify your identity to continue.</p>
           <form id="account-delete-form" class="space-y-3">
-            <label for="account-delete-password" class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Verify current password</label>
+            ${hasEmailPassword ? `<label for="account-delete-password" class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Verify current password</label>
             <input id="account-delete-password" name="password" type="password" required autocomplete="current-password"
               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
               placeholder="Account password">
-            <button type="button" data-account-delete-reset class="text-sm font-semibold text-sky-700 underline hover:text-sky-900 dark:text-sky-300">Forgot password? Send reset link</button>
+            <button type="button" data-account-delete-reset class="text-sm font-semibold text-sky-700 underline hover:text-sky-900 dark:text-sky-300">Forgot password? Send reset link</button>` : `<p class="rounded-xl bg-sky-50 p-3 text-sm text-sky-800 dark:bg-sky-950/30 dark:text-sky-200">Google account দিয়ে identity verification হবে।</p>`}
             <p id="account-delete-status" class="hidden rounded-xl p-3 text-sm leading-5" role="status" aria-live="polite"></p>
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" data-account-delete-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button>
-              <button type="submit" data-account-delete-final class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Verify password &amp; delete account</button>
+              <button type="submit" data-account-delete-final class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">${hasEmailPassword ? 'Verify password &amp; delete account' : 'Verify with Google &amp; delete account'}</button>
             </div>
           </form>
         `;
@@ -2448,7 +2451,8 @@ window.handleAccountDeletion = function() {
           status.classList.add(isError ? 'bg-red-50' : 'bg-emerald-50', isError ? 'text-red-700' : 'text-emerald-700', isError ? 'dark:bg-red-950/30' : 'dark:bg-emerald-950/30', isError ? 'dark:text-red-300' : 'dark:text-emerald-300');
         };
 
-        dialog.querySelector('[data-account-delete-reset]').addEventListener('click', async event => {
+        const resetButton = dialog.querySelector('[data-account-delete-reset]');
+        if (resetButton) resetButton.addEventListener('click', async event => {
           const button = event.currentTarget;
           button.disabled = true;
           setDeleteStatus('Medical login website-এর reset-link flow ব্যবহার করে email request পাঠানো হচ্ছে…');
@@ -2467,21 +2471,27 @@ window.handleAccountDeletion = function() {
           event.preventDefault();
           const confirmButton = dialog.querySelector('[data-account-delete-final]');
           const resetButton = dialog.querySelector('[data-account-delete-reset]');
-          const password = String(passwordInput.value || '');
-          if (!password) { setDeleteStatus('Account password দিন।', true); passwordInput.focus(); return; }
+          const password = String(passwordInput?.value || '');
+          if (hasEmailPassword && !password) { setDeleteStatus('Account password দিন।', true); passwordInput?.focus(); return; }
           confirmButton.disabled = true;
-          passwordInput.disabled = true;
-          resetButton.disabled = true;
-          confirmButton.textContent = 'Verifying password…';
-          setDeleteStatus('Password যাচাই হচ্ছে। তারপর account data delete হবে…');
+          if (passwordInput) passwordInput.disabled = true;
+          if (resetButton) resetButton.disabled = true;
+          confirmButton.textContent = 'Verifying identity…';
+          setDeleteStatus('Identity যাচাই হচ্ছে। তারপর account data delete হবে…');
 
           try {
             const liveUser = auth.currentUser;
             if (!liveUser || liveUser.uid !== user.uid) throw new Error('Active login account বদলে গেছে। আবার নিজের account-এ sign in করুন।');
 
-            // 1. Verify the current account password before any deletion starts.
-            const credential = EmailAuthProvider.credential(liveUser.email, password);
-            await reauthenticateWithCredential(liveUser, credential);
+            // 1. Reauthenticate with a provider already linked to this account.
+            if (hasEmailPassword) {
+              const credential = EmailAuthProvider.credential(liveUser.email, password);
+              await reauthenticateWithCredential(liveUser, credential);
+            } else if (hasGoogleProvider) {
+              await reauthenticateWithPopup(liveUser, new GoogleAuthProvider());
+            } else {
+              throw new Error('এই account-এর জন্য supported re-authentication provider পাওয়া যায়নি।');
+            }
 
             // 2. Delete server-side Medical profile, exam history, and friend links.
             const endpoint = String(window.MED_LEADERBOARD_API_URL || '').trim();
@@ -2573,12 +2583,12 @@ window.handleAccountDeletion = function() {
             setDeleteStatus(message, true);
             confirmButton.disabled = false;
             passwordInput.disabled = false;
-            resetButton.disabled = false;
-            confirmButton.textContent = 'Verify password & delete account';
-            passwordInput.focus();
+            if (resetButton) resetButton.disabled = false;
+            confirmButton.textContent = hasEmailPassword ? 'Verify password & delete account' : 'Verify with Google & delete account';
+            passwordInput?.focus();
           }
         });
-        passwordInput.focus();
+        passwordInput?.focus();
     });
     overlay.querySelector('[data-account-delete-cancel]').focus();
 };
