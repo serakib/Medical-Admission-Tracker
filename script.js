@@ -1053,18 +1053,19 @@ class MedicalExamApp {
                 : 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100';
         }
         if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
+        const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+        const isRegisteredUser = Boolean(user && !isGuestProfile);
         const accountAuthTarget = document.getElementById('account-profile-auth-target');
         if (accountAuthTarget) {
-            accountAuthTarget.innerHTML = user
+            accountAuthTarget.innerHTML = isRegisteredUser
                 ? '<button type="button" class="account-auth-button account-auth-logout" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>'
                 : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
         }
         const logoutCard = document.getElementById('account-logout-card');
-        if (logoutCard) logoutCard.classList.toggle('hidden', !user);
+        if (logoutCard) logoutCard.classList.toggle('hidden', !isRegisteredUser);
         const deleteCard = document.getElementById('account-delete-card');
         const hasEmailPassword = Boolean(user && user.email && Array.isArray(user.providerData) &&
             user.providerData.some(provider => provider && provider.providerId === 'password'));
-        const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
         if (deleteCard) deleteCard.classList.toggle('hidden', !hasEmailPassword);
         const guestDeleteCard = document.getElementById('account-guest-delete-card');
         if (guestDeleteCard) guestDeleteCard.classList.toggle('hidden', !isGuestProfile);
@@ -2159,17 +2160,19 @@ onAuthStateChanged(auth, (user) => {
         const icon = sidebarSettingsButton.querySelector('i');
         if (icon) icon.className = 'fa-solid fa-gear';
     }
+    const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+    const isRegisteredUser = Boolean(user && !isGuestProfile);
     const accountAuthTarget = document.getElementById('account-profile-auth-target');
     if (accountAuthTarget) {
-        accountAuthTarget.innerHTML = user
+        accountAuthTarget.innerHTML = isRegisteredUser
             ? '<button type="button" class="account-auth-button account-auth-logout" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>'
             : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
     }
     const accountLogoutCard = document.getElementById('account-logout-card');
-    if (accountLogoutCard) accountLogoutCard.classList.toggle('hidden', !user);
+    if (accountLogoutCard) accountLogoutCard.classList.toggle('hidden', !isRegisteredUser);
     const authContainers = document.querySelectorAll('.auth-btn-target');
     authContainers.forEach(container => {
-        container.innerHTML = user
+        container.innerHTML = isRegisteredUser
             ? `<button type="button" aria-label="Logout" title="Logout" onclick="window.handleLogout()" class="inline-flex items-center justify-center w-9 h-9 p-0 text-sm font-semibold text-red-400 bg-red-500/10 border border-red-500/40 rounded-lg hover:bg-red-500/20 transition-all outline-none cursor-pointer"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></button>`
             : `<button type="button" aria-label="Login" title="Login" onclick="window.redirectToLogin()" class="inline-flex items-center justify-center w-9 h-9 p-0 text-sm font-semibold text-emerald-400 bg-transparent border border-emerald-500/40 rounded-lg hover:bg-emerald-500/10 transition-all outline-none cursor-pointer"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i></button>`;
     });
@@ -2182,6 +2185,10 @@ window.redirectToLogin = function() {
 };
 
 window.handleLogout = function() {
+    // Logout is exclusively for registered, non-anonymous accounts.
+    const currentUser = auth.currentUser;
+    const currentProfileType = String(window.app?.profile?.accountType || '').toUpperCase();
+    if (!currentUser || currentUser.isAnonymous || currentProfileType === 'GUEST') return;
     // Require an explicit confirmation before signing out.
     if (document.getElementById('logout-confirmation-modal')) return;
 
