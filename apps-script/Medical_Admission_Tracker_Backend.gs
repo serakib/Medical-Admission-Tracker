@@ -3056,6 +3056,16 @@ function matRedeemPromoCode_(p) {
     if (cfg.rewardPB == null) cfg.rewardPB = type === 'weekly' ? c.reward : type === 'daily' ? c.reward : 100000;
     const windowKey = matPromoWindowKey_(cfg.limitPeriod,new Date());
     const rows = matReadObjects_(matPromoSheets_().redemptions);
+    // Public Daily/Weekly codes are strictly one redemption per user and
+    // Bangladesh calendar period. Admin-configured limits must never loosen this.
+    if ((type === 'daily' || type === 'weekly') &&
+        rows.some(r => String(r.UserID) === String(u.UserID) &&
+          String(r.Type).toLowerCase() === type &&
+          String(r.PeriodKey) === String(c.period))) {
+      throw new Error(type === 'daily'
+        ? 'আজকের Daily Promo Code আপনি ইতিমধ্যে redeem করেছেন।'
+        : 'এই Weekly Promo Code আপনি ইতিমধ্যে redeem করেছেন।');
+    }
     const limit = Math.max(0,Number(cfg.limitCount || 0));
     if (limit > 0 && matPromoCountForLimit_(rows,u.UserID,code,cfg.limitPeriod,windowKey) >= limit)
       throw new Error('আপনার এই Promo Code-এর নির্ধারিত redemption limit শেষ হয়েছে।');
