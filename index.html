@@ -448,7 +448,13 @@ function syncSidebarUserProfile(){
   syncSidebarAuthButton(user);
   var profile=app.profile||{};
   var name=profile.name||(user&&(user.displayName||user.name))||(document.getElementById('profile-name')&&document.getElementById('profile-name').textContent.trim())||'Guest Student';
-  if(nameEl)nameEl.textContent=name;
+  if(nameEl){
+    var hasGoldName=profile.isGoldName===true||profile.isAdmin===true;
+    var showGoldName=profile.showGoldName!==false;
+    nameEl.innerHTML=window.MedPremiumName&&typeof window.MedPremiumName.html==='function'
+      ? window.MedPremiumName.html(name,hasGoldName,showGoldName)
+      : String(name).replace(/[&<>"']/g,function(ch){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]);});
+  }
   var batch=profile.batch||profile.class||'';
   if(!batch){
     batch='HSC 27';
