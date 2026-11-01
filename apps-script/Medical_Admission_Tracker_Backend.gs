@@ -48,6 +48,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-and-monthly-full-tier-immediate-promotion',
   'expired-guest-cleanup',
   'guest-account-72-hour-pending-deletion-and-cancellation',
+  'guest-deletion-audit-and-super-admin-deadline-management',
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-committed-exams-and-rp-events',
   'rank-change-sets-target-rank-basic-rp-no-bonus',
