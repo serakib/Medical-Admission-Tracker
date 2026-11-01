@@ -125,10 +125,12 @@ function card(){
  $('mat-promo-global-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving global settings…';try{await api('adminSavePromoConfig',{code:$('mat-global-code').value,rewardPB:$('mat-global-reward').value,limitCount:$('mat-global-limit').value,limitPeriod:$('mat-global-period').value,enabled:$('mat-global-enabled').checked});msg.textContent='Global Promo Settings saved.';await refresh();}catch(err){msg.textContent=err.message;}});
  $('mat-member-add-more').addEventListener('click',()=>addMemberOverrideCard());
  $('mat-member-save-all').addEventListener('click',()=>saveAllMemberOverrides());
- $('mat-admin-add-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving…';try{await api('adminAddMember',{email:$('mat-admin-email').value});$('mat-admin-email').value='';msg.textContent='Admin member added.';await loadAdmin();}catch(err){msg.textContent=err.message;}});
+ $('mat-admin-add-form').addEventListener('submit',async e=>{e.preventDefault();if(adminAddInFlight)return;const form=e.currentTarget,email=$('mat-admin-email'),button=form.querySelector('button[type=submit],button:not([type])'),msg=$('mat-admin-message'),value=String(email.value||'').trim();if(!value){msg.textContent='Registered member Gmail লিখুন।';email.focus();return;}adminAddInFlight=true;if(button){button.disabled=true;button.textContent='Adding…';button.setAttribute('aria-busy','true');}msg.textContent='Admin member যোগ করা হচ্ছে…';try{await api('adminAddMember',{email:value});email.value='';msg.textContent='Admin member added successfully.';await loadAdmin();}catch(err){msg.textContent=(err&&err.message)||'Admin member যোগ করা যায়নি।';}finally{adminAddInFlight=false;if(button){button.disabled=false;button.textContent='Add Admin';button.removeAttribute('aria-busy');}}});
  refresh();
 }
 let memberTargets=[];
+let refreshInFlight=false;
+let adminAddInFlight=false;
 function ensureAdminDashboard(){
  const panel=$('mat-admin-panel'),nav=$('mat-notifications-nav');
  if(!panel||!nav)return;
@@ -313,8 +315,6 @@ async function loadAdmin(){
   }
   console.warn('[Premium Name] Access management API is not available yet:',error);
  }
- const select=$('mat-member-select'),previous=select.value;select.innerHTML='<option value="">Select member</option>'+memberTargets.map(m=>'<option value="'+esc(m.userId)+'">'+esc(m.name||'Student')+' · '+esc(m.email)+'</option>').join('');if(previous&&memberTargets.some(m=>m.userId===previous))select.value=previous;
- loadSelectedMember();
  const box=$('mat-admin-members');
  box.innerHTML='<h4 class="font-bold text-gray-800 dark:text-white">Admin Members</h4>'+members.members.map(m=>'<div class="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 py-2"><span class="min-w-0 break-all">'+esc(m.email)+' <small class="text-gray-500">('+esc(m.role)+')</small></span>'+(m.role==='SUPER_ADMIN'||!members.canManage?'':'<button data-remove="'+esc(m.email)+'" class="text-xs font-bold text-rose-600">Remove</button>')+'</div>').join('');
  $('mat-admin-add-form').classList.toggle('hidden',!members.canManage);
@@ -322,6 +322,8 @@ async function loadAdmin(){
  const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;}};
 }
 async function refresh(){
+ if(refreshInFlight)return;
+ refreshInFlight=true;
  try{
   const d=await api('getPromoInfo');
   $('mat-promo-public-code').textContent=d.publicCode;
@@ -333,6 +335,7 @@ async function refresh(){
   else $('mat-promo-admin-code-wrap').classList.add('hidden');
   if(d.isAdmin){ensureAdminDashboard();await loadAdmin();}else{const b=$('mat-admin-management-nav'),dash=$('mat-admin-dashboard');if(b)b.classList.add('hidden');if(dash)dash.classList.add('hidden');}
  }catch(e){$('mat-promo-public-code').textContent='Sign in করে Promo Code ব্যবহার করুন';$('mat-promo-message').textContent=e.message;}
+ finally{refreshInFlight=false;}
 }
 window.addEventListener('student-progress-updated',event=>{const p=event.detail||{};const appProfile=window.app&&window.app.profile||{};const currentId=String(appProfile.userId||appProfile.uid||'');const eventId=String(p.userId||p.uid||p.playerId||'');if(currentId&&eventId===currentId&&p.promoPB!=null&&$('mat-promo-balance'))$('mat-promo-balance').textContent=Number(p.promoPB||0).toLocaleString()+' PB';});
 function mount(){card();}
