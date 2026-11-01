@@ -1648,7 +1648,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     monthlyNote.classList.toggle('hidden', selectedPeriod !== 'monthly');
     if (selectedPeriod === 'monthly') renderMonthlyCountdown();
     var toolbarActions = document.querySelector('#view-leaderboard .leaderboard-toolbar-actions');
-    var refreshButton = document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
+    var refreshButton = document.querySelector('#view-leaderboard #leaderboard-refresh-button') || document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
     if (selectedPeriod !== 'weekly') {
       var rpBadgeOutsideWeekly = document.querySelector('#view-leaderboard .mat-top-rp');
       var friendsButtonOutsideWeekly = document.getElementById('leaderboard-manage-friends');
@@ -1753,7 +1753,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   var leaderboardManualRefreshActive = false;
   function setLeaderboardRefreshBusy(busy, success) {
     var view = document.getElementById('view-leaderboard');
-    var button = view && view.querySelector('button[onclick*="loadLeaderboard"]');
+    var button = view && (view.querySelector('#leaderboard-refresh-button') || view.querySelector('button[onclick*="loadLeaderboard"]'));
     if (!button) return;
     if (busy) {
       if (leaderboardRefreshTimer) { clearTimeout(leaderboardRefreshTimer); leaderboardRefreshTimer = null; }
