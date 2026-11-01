@@ -1066,9 +1066,34 @@ class MedicalExamApp {
         const logoutCard = document.getElementById('account-logout-card');
         if (logoutCard) logoutCard.classList.toggle('hidden', !isRegisteredUser);
         const deleteCard = document.getElementById('account-delete-card');
-        // Delete Account is available to every signed-in registered account.
-        // Verification is performed with the account's linked Firebase provider.
-        if (deleteCard) deleteCard.classList.toggle('hidden', !isRegisteredUser);
+        // Keep the destructive action hidden until the server confirms this is not
+        // the protected Super Admin identity. The backend independently blocks deletion.
+        if (deleteCard) {
+            deleteCard.classList.add('hidden');
+            if (isRegisteredUser) {
+                (async () => {
+                    try {
+                        const endpoint = String(window.MED_LEADERBOARD_API_URL || '').trim();
+                        const liveUser = auth.currentUser;
+                        if (!endpoint || !liveUser) throw new Error('Account role could not be verified.');
+                        const idToken = await liveUser.getIdToken();
+                        const response = await fetch(endpoint, {
+                            method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store',
+                            headers: { 'Accept': 'application/json,text/plain,*/*', 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'getAccountSettings', idToken })
+                        });
+                        const result = await response.json();
+                        if (!response.ok || result.success === false) throw new Error(result.error || 'Account role could not be verified.');
+                        deleteCard.classList.toggle('hidden', result.isSuperAdmin === true);
+                    } catch (error) {
+                        // Fail open for ordinary account usability; server-side deletion
+                        // protection remains authoritative for the Super Admin.
+                        deleteCard.classList.remove('hidden');
+                        console.warn('[Account deletion] Could not pre-check Super Admin status:', error);
+                    }
+                })();
+            }
+        }
         const guestDeleteCard = document.getElementById('account-guest-delete-card');
         if (guestDeleteCard) guestDeleteCard.classList.toggle('hidden', !isGuestProfile);
         refreshGuestDeletionCard();
