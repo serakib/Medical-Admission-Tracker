@@ -2096,7 +2096,9 @@ main > .view-section.hidden { display: none !important; }
     var form = event.target;
     if (!form || form.matches('[target="_blank"]')) return;
     var submitter = event.submitter || form.querySelector('button[type="submit"],input[type="submit"]');
-    if (submitter) markActionButton(submitter);
+    // Promo Code Redeem owns its Redeeming... label and result message.
+    // Do not let the generic submit feedback overwrite it with Saving...
+    if (submitter && !form.matches('#mat-promo-redeem-form')) markActionButton(submitter);
     beginForAction();
   }, true);
 })();
