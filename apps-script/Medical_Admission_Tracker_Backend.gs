@@ -164,6 +164,10 @@ function matDispatch_(action, p) {
     case 'adminRemoveMember': return matAdminRemoveMember_(p || {});
     case 'adminPromoStatus': return matAdminPromoStatus_(p || {});
     case 'adminSetUnlimitedEnabled': return matAdminSetUnlimitedEnabled_(p || {});
+    case 'adminGetPromoConfig': return matAdminGetPromoConfig_(p || {});
+    case 'adminSavePromoConfig': return matAdminSavePromoConfig_(p || {});
+    case 'adminListPromoTargets': return matAdminListPromoTargets_(p || {});
+    case 'adminSaveMemberPromo': return matAdminSaveMemberPromo_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -2865,3 +2869,189 @@ function matRedeemPromoCode_(p){
 }
 function matAdminPromoStatus_(p){matPromoRequireAdmin_(p);const c=matPromoPublic_(),r=matReadObjects_(matPromoSheets_().redemptions);return {success:true,publicCode:c.code,publicType:c.type,publicRewardPB:c.reward,redemptions:r.length,unlimitedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};}
 function matAdminSetUnlimitedEnabled_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can change this setting.');PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',p.enabled===true||String(p.enabled).toLowerCase()==='true'?'TRUE':'FALSE');return {success:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};}
+
+
+/* --------------------- Configurable global/member promo codes --------------------- */
+// Global values are defaults. A member row overrides only the fields it explicitly sets.
+function matPromoConfigSheets_() {
+  const ss = SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
+  function ensure(name, headers) {
+    let sh = ss.getSheetByName(name);
+    if (!sh) sh = ss.insertSheet(name);
+    if (!sh.getLastRow()) { sh.getRange(1,1,1,headers.length).setValues([headers]); sh.setFrozenRows(1); }
+    else {
+      const old = matHeaders_(sh), missing = headers.filter(h => old.indexOf(h) < 0);
+      if (missing.length) sh.getRange(1, old.length + 1, 1, missing.length).setValues([missing]);
+    }
+    return sh;
+  }
+  return {
+    global: ensure('PromoGlobalSettings', ['Key','Code','RewardPB','LimitCount','LimitPeriod','Enabled','UpdatedAt','UpdatedBy']),
+    members: ensure('PromoMemberSettings', ['UserID','Name','Email','Code','RewardPB','LimitCount','LimitPeriod','Enabled','UpdatedAt','UpdatedBy'])
+  };
+}
+function matPromoNormalizePeriod_(value) {
+  const p = String(value || '').trim().toUpperCase();
+  return ['DAILY','WEEKLY','MONTHLY','UNLIMITED'].indexOf(p) >= 0 ? p : 'DAILY';
+}
+function matPromoWindowKey_(period, now) {
+  const date = Utilities.formatDate(now || new Date(), MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd');
+  if (period === 'UNLIMITED') return 'ALL';
+  if (period === 'MONTHLY') return date.slice(0,7);
+  if (period === 'WEEKLY') {
+    const d = new Date(date + 'T12:00:00+06:00');
+    const day = Number(Utilities.formatDate(d, MAT_CONFIG.TIME_ZONE, 'u'));
+    d.setDate(d.getDate() - ((day + 1) % 7)); // Saturday is the week start.
+    return Utilities.formatDate(d, MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd');
+  }
+  return date;
+}
+function matPromoReadConfig_() {
+  const sh = matPromoConfigSheets_(), gs = matReadObjects_(sh.global), ms = matReadObjects_(sh.members);
+  const g = gs.find(x => String(x.Key || '') === 'GLOBAL') || {};
+  return { global:g, members:ms };
+}
+function matPromoEffectiveConfig_(user, kind, publicCode) {
+  const all = matPromoReadConfig_(), own = all.members.find(x => String(x.UserID) === String(user.UserID)) || {};
+  const global = all.global;
+  const code = String(own.Code || '').trim() || String(global.Code || '').trim() || publicCode;
+  const ownEnabled = String(own.Enabled || '').toUpperCase();
+  const globalEnabled = String(global.Enabled || '').toUpperCase();
+  const enabled = ownEnabled ? ownEnabled !== 'FALSE' : (globalEnabled ? globalEnabled !== 'FALSE' : true);
+  const rewardRaw = own.RewardPB !== '' && own.RewardPB != null ? own.RewardPB : (global.RewardPB !== '' && global.RewardPB != null ? global.RewardPB : null);
+  const reward = rewardRaw == null ? null : matSafeNonNegativeInt_(rewardRaw, 'Reward PB');
+  const limitRaw = own.LimitCount !== '' && own.LimitCount != null ? own.LimitCount : (global.LimitCount !== '' && global.LimitCount != null ? global.LimitCount : null);
+  const limitCount = limitRaw == null ? (kind === 'unlimited' ? 0 : 1) : matSafeNonNegativeInt_(limitRaw, 'Redemption limit');
+  const periodRaw = String(own.LimitPeriod || '').trim() || String(global.LimitPeriod || '').trim();
+  const limitPeriod = periodRaw ? matPromoNormalizePeriod_(periodRaw) : (kind === 'weekly' ? 'WEEKLY' : kind === 'daily' ? 'DAILY' : 'UNLIMITED');
+  return { code:code, enabled:enabled, rewardPB:reward == null ? null : reward, limitCount:limitCount, limitPeriod:limitPeriod, hasMemberOverride:!!Object.keys(own).length, member:own, global:global };
+}
+function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
+  return rows.filter(r => String(r.UserID) === String(userId) &&
+    String(r.Code || '').toUpperCase() === String(code || '').toUpperCase() &&
+    String(r.LimitPeriod || 'UNLIMITED').toUpperCase() === period &&
+    String(r.LimitWindow || 'ALL') === windowKey).length;
+}
+function matAdminGetPromoConfig_(p) {
+  const actor = matPromoRequireAdmin_(p), all = matPromoReadConfig_();
+  const g = all.global;
+  return {success:true, canManage:true, global:{
+    code:String(g.Code || ''), rewardPB:g.RewardPB === '' || g.RewardPB == null ? '' : Number(g.RewardPB),
+    limitCount:g.LimitCount === '' || g.LimitCount == null ? '' : Number(g.LimitCount),
+    limitPeriod:String(g.LimitPeriod || 'DAILY'), enabled:String(g.Enabled || 'TRUE') !== 'FALSE'
+  }, fixedCode:matPromoFixedCode_(), fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
+}
+function matAdminSavePromoConfig_(p) {
+  const actor = matPromoRequireAdmin_(p), sh = matPromoConfigSheets_().global;
+  const code = String(p.code || '').trim().toUpperCase();
+  if (code && (code.length < 3 || code.length > 80)) throw new Error('Promo Code must be 3–80 characters.');
+  const reward = p.rewardPB === '' || p.rewardPB == null ? '' : matSafeNonNegativeInt_(p.rewardPB, 'Reward PB');
+  const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
+  const period = matPromoNormalizePeriod_(p.limitPeriod);
+  const enabled = p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE';
+  const row = matReadObjects_(sh).find(x => String(x.Key) === 'GLOBAL');
+  const values = {Key:'GLOBAL',Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:enabled,UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
+  if (row) matUpdateObjectRow_(sh,row._rowNumber,values); else matAppendObject_(sh,values);
+  return {success:true};
+}
+function matAdminListPromoTargets_(p) {
+  matPromoRequireAdmin_(p);
+  const students = matReadObjects_(matGetStudentsSheet_()).filter(x => String(x.AccountType || '').toUpperCase() === 'REGISTERED');
+  const settings = matPromoReadConfig_().members;
+  return {success:true,members:students.map(x => {
+    const cfg = settings.find(y => String(y.UserID) === String(x.UserID)) || {};
+    return {userId:String(x.UserID),name:String(x.Name || ''),email:String(x.Email || ''),
+      code:String(cfg.Code || ''),rewardPB:cfg.RewardPB == null ? '' : cfg.RewardPB,
+      limitCount:cfg.LimitCount == null ? '' : cfg.LimitCount,limitPeriod:String(cfg.LimitPeriod || ''),
+      enabled:String(cfg.Enabled || 'TRUE') !== 'FALSE'};
+  })};
+}
+function matAdminSaveMemberPromo_(p) {
+  const actor = matPromoRequireAdmin_(p);
+  const userId = String(p.userId || '').trim();
+  if (!userId) throw new Error('Select a registered member.');
+  const target = matFindStudentById_(userId);
+  if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') throw new Error('Registered member not found.');
+  const code = String(p.code || '').trim().toUpperCase();
+  if (code && (code.length < 3 || code.length > 80)) throw new Error('Promo Code must be 3–80 characters.');
+  const reward = p.rewardPB === '' || p.rewardPB == null ? '' : matSafeNonNegativeInt_(p.rewardPB, 'Reward PB');
+  const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
+  const period = String(p.limitPeriod || '').trim() ? matPromoNormalizePeriod_(p.limitPeriod) : '';
+  const sh = matPromoConfigSheets_().members, rows = matReadObjects_(sh), old = rows.find(x => String(x.UserID) === userId);
+  const v = {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
+  if (old) matUpdateObjectRow_(sh,old._rowNumber,v); else matAppendObject_(sh,v);
+  return {success:true};
+}
+// Override the legacy endpoint so Admin-only code details are returned only to a verified Admin.
+function matGetPromoInfo_(p) {
+  const u = matAuthenticate_(p), c = matPromoPublic_();
+  let admin = false, fixedCode = '';
+  const token = String(p && (p.idToken || p.firebaseIdToken) || '').trim();
+  if (token) {
+    const identity = matVerifyFirebaseIdToken_(token);
+    if (identity.emailVerified === true) {
+      u.Email = String(identity.email || '').trim().toLowerCase();
+      admin = String(u.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(u);
+      if (admin) fixedCode = matPromoFixedCode_();
+    }
+  }
+  const effective = matPromoEffectiveConfig_(u, c.type, c.code);
+  return {success:true,publicCode:c.code,publicType:c.type,rewardPB:effective.rewardPB == null ? c.reward : effective.rewardPB,
+    promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin:admin,
+    adminCode:admin && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE' ? fixedCode : '',
+    adminCodeEnabled:admin && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
+}
+// Override redemption to enforce verified Admin eligibility and server-side per-code limits.
+function matRedeemPromoCode_(p) {
+  const input = String(p && p.code || '').trim().toUpperCase();
+  if (!input) throw new Error('Promo Code লিখুন।');
+  const lock = LockService.getScriptLock(); lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    let u = matAuthenticate_(p), c = matPromoPublic_(), type = '', periodKey = '', cfg = null, code = '';
+    const fixed = matPromoFixedCode_();
+    const token = String(p && (p.idToken || p.firebaseIdToken) || '').trim();
+    let verifiedAdmin = false;
+    if (token) {
+      const identity = matVerifyFirebaseIdToken_(token);
+      if (identity.emailVerified === true) {
+        u.Email = String(identity.email || '').trim().toLowerCase();
+        verifiedAdmin = String(u.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(u);
+      }
+    }
+    if (input === String(fixed || '').toUpperCase() && fixed && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE') {
+      if (!verifiedAdmin) throw new Error('এই Promo Code এখন valid নয়।');
+      type = 'unlimited'; code = fixed;
+      cfg = matPromoEffectiveConfig_(u, type, fixed);
+      if (!cfg.enabled) throw new Error('এই Promo Code বর্তমানে বন্ধ আছে।');
+    } else {
+      const memberCfg = matPromoReadConfig_().members.find(x => String(x.UserID) === String(u.UserID)) || {};
+      const globalCfg = matPromoReadConfig_().global || {};
+      const memberCode = String(memberCfg.Code || '').trim().toUpperCase();
+      const globalCode = String(globalCfg.Code || '').trim().toUpperCase();
+      if (memberCode && input === memberCode && String(memberCfg.Enabled || 'TRUE') !== 'FALSE') {
+        type = 'member-custom'; code = memberCode; cfg = matPromoEffectiveConfig_(u,type,memberCode);
+      } else if (globalCode && input === globalCode && String(globalCfg.Enabled || 'TRUE') !== 'FALSE') {
+        type = 'global-custom'; code = globalCode; cfg = matPromoEffectiveConfig_(u,type,globalCode);
+      } else if (input === String(c.code).toUpperCase()) {
+        type = c.type; code = c.code; cfg = matPromoEffectiveConfig_(u,type,c.code);
+      } else throw new Error('এই Promo Code এখন valid নয়।');
+      if (!cfg.enabled) throw new Error('এই Promo Code বর্তমানে বন্ধ আছে।');
+      periodKey = c.period || matPromoWindowKey_(cfg.limitPeriod,new Date());
+    }
+    if (cfg.rewardPB == null) cfg.rewardPB = type === 'weekly' ? c.reward : type === 'daily' ? c.reward : 100000;
+    const windowKey = matPromoWindowKey_(cfg.limitPeriod,new Date());
+    const rows = matReadObjects_(matPromoSheets_().redemptions);
+    const limit = Math.max(0,Number(cfg.limitCount || 0));
+    if (limit > 0 && matPromoCountForLimit_(rows,u.UserID,code,cfg.limitPeriod,windowKey) >= limit)
+      throw new Error('আপনার এই Promo Code-এর নির্ধারিত redemption limit শেষ হয়েছে।');
+    if ((type === 'daily' || type === 'weekly') && rows.some(r => String(r.UserID) === String(u.UserID) && String(r.Type) === type && String(r.PeriodKey) === String(c.period)))
+      throw new Error('এই period-এর code আপনি ইতিমধ্যে redeem করেছেন।');
+    const ss = matGetStudentsSheet_(), current = matFindStudentById_(u.UserID);
+    if (!current) throw new Error('Student profile not found.');
+    const reward = Math.max(0,matSafeNonNegativeInt_(cfg.rewardPB,'Reward PB'));
+    const balance = Math.max(0,matFiniteNumber_(current.PromoPB,0)) + reward;
+    matUpdateObjectRow_(ss,current._rowNumber,{PromoPB:balance,UpdatedAt:matNowIso_()});
+    matAppendObject_(matPromoSheets_().redemptions,{RedemptionID:Utilities.getUuid(),UserID:u.UserID,Code:code,Type:type,PeriodKey:periodKey,RewardPB:reward,RedeemedAt:matNowIso_(),LimitPeriod:cfg.limitPeriod,LimitWindow:windowKey});
+    return {success:true,rewardPB:reward,promoPB:balance,user:matApiUser_(matFindStudentById_(u.UserID))};
+  } finally { lock.releaseLock(); }
+}
