@@ -232,7 +232,7 @@ async function saveMemberOverrideCard(card){
  const duplicate=getMemberOverrideCards().some(other=>other!==card&&readMemberOverrideCard(other).userId===data.userId);
  if(duplicate){msg.textContent='একই member-এর জন্য একাধিক override রাখা যাবে না।';return false;}
  const button=card.querySelector('[data-save-override]');button.disabled=true;button.textContent='Saving…';
- try{await api('adminSaveMemberPromo',data);msg.textContent='Individual Promo Settings saved.';return true;}
+ try{await api('adminSaveMemberPromo',data);const target=memberTargets.find(m=>String(m.userId)===String(data.userId));if(target){Object.assign(target,data,{hasOverride:true});}const note=card.querySelector('[data-member-card-note]');if(note)note.textContent=(target&&target.name||'Member')+' · '+(target&&target.email||'')+' · Saved settings';msg.textContent='Individual Promo Settings saved.';return true;}
  catch(error){msg.textContent=error.message||'Member settings save failed.';return false;}
  finally{button.disabled=false;button.textContent='Save This Member';}
 }
