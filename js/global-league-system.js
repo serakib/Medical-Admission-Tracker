@@ -373,6 +373,8 @@
       localStorage.setItem(progressKey, JSON.stringify(localProgress));
     } catch (_) {}
     setText('profile-name', profile.name);
+    var profileAdminBadge = document.getElementById('profile-admin-badge');
+    if (profileAdminBadge) profileAdminBadge.classList.toggle('hidden', profile.isAdmin !== true);
     setText('account-profile-name', profile.name);
     setText('profile-email', app.authUser ? (profile.email || 'Signed in') : 'Guest mode · আপনার profile server-এ সংরক্ষিত');
     setText('profile-highest-weekly-rp', profile.highestWeeklyRP.toLocaleString());
