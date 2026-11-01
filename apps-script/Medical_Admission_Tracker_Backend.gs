@@ -2851,7 +2851,20 @@ function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().to
 function matAdminListMembers_(p){const actor=matPromoRequireAdmin_(p),root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();return {success:true,canManage:matPromoEmail_(actor)===root,members:[{email:root,role:'SUPER_ADMIN',status:'ACTIVE'}].concat(matReadObjects_(matPromoSheets_().admins).map(r=>({email:String(r.Email||''),role:'ADMIN',status:String(r.Status||'')})))};}
 function matAdminAddMember_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid registered email required.');const registered=matReadObjects_(matGetStudentsSheet_()).some(x=>String(x.AccountType||'').toUpperCase()==='REGISTERED'&&String(x.Email||'').trim().toLowerCase()===e);if(!registered)throw new Error('এই email দিয়ে আগে website-এ একবার sign in করতে হবে।');if(e===matPromoEmail_(actor))throw new Error('Already Super Admin.');const sh=matPromoSheets_().admins,rows=matReadObjects_(sh),r=rows.find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'ACTIVE'});else matAppendObject_(sh,{Email:e,Role:'ADMIN',Status:'ACTIVE',AddedAt:matNowIso_(),AddedBy:matPromoEmail_(actor)});return matAdminListMembers_(p);}
 function matAdminRemoveMember_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase(),sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'REMOVED'});return matAdminListMembers_(p);}
-function matGetPromoInfo_(p){const u=matAuthenticate_(p),c=matPromoPublic_();return {success:true,publicCode:c.code,publicType:c.type,rewardPB:c.reward,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0))};}
+function matGetPromoInfo_(p){
+ const u=matAuthenticate_(p),c=matPromoPublic_();
+ let verifiedEmail='',isAdmin=false;
+ const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();
+ if(token){
+  const identity=matVerifyFirebaseIdToken_(token);
+  if(identity.emailVerified===true)verifiedEmail=String(identity.email||'').trim().toLowerCase();
+ }
+ if(verifiedEmail&&String(u.AccountType).toUpperCase()==='REGISTERED'){
+  u.Email=verifiedEmail;
+  isAdmin=matPromoIsAdmin_(u);
+ }
+ return {success:true,publicCode:c.code,publicType:c.type,rewardPB:c.reward,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin,adminCode:isAdmin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'?matPromoFixedCode_():''};
+}
 function matRedeemPromoCode_(p){
  const u=matAuthenticate_(p),input=String(p.code||'').trim().toUpperCase();if(!input)throw new Error('Promo Code লিখুন।');
  const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
