@@ -64,6 +64,55 @@ function card(){
  refresh();
 }
 let memberTargets=[];
+function ensureAdminDashboard(){
+ const panel=$('mat-admin-panel'),nav=$('mat-notifications-nav');
+ if(!panel||!nav)return;
+ let dashboard=$('mat-admin-dashboard');
+ if(!dashboard){
+  dashboard=document.createElement('section');
+  dashboard.id='mat-admin-dashboard';
+  dashboard.className='hidden fixed inset-0 z-[10050] overflow-y-auto bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100';
+  dashboard.setAttribute('aria-label','Admin Management Dashboard');
+  dashboard.innerHTML=`
+   <div class="min-h-full">
+    <header class="sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur">
+     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0"><div class="h-11 w-11 shrink-0 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xl"></i></div><div class="min-w-0"><p class="text-[11px] uppercase tracking-[.18em] font-extrabold text-rose-600">Control Center</p><h1 class="text-xl sm:text-2xl font-black truncate">Admin Management</h1></div></div>
+      <button id="mat-admin-dashboard-close" type="button" class="shrink-0 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-bold hover:bg-slate-100 dark:hover:bg-slate-800"><i class="fa-solid fa-xmark mr-1"></i> Close</button>
+     </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+     <div class="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-rose-950 text-white p-5 sm:p-7 shadow-lg">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><p class="text-sm text-rose-200 font-bold">Restricted administrator area</p><h2 class="text-2xl sm:text-3xl font-black mt-1">Welcome to Admin Control Center</h2><p class="text-sm text-slate-300 mt-2 max-w-2xl">Manage administrator access, promo rewards and member-specific settings from one place.</p></div><span class="inline-flex items-center gap-2 self-start rounded-full bg-white/10 border border-white/15 px-3 py-2 text-xs font-bold"><i class="fa-solid fa-lock"></i> Verified Admin</span></div>
+     </div>
+     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4"><p class="text-xs font-bold text-slate-500">ACCESS</p><p class="mt-1 text-lg font-black">Admin Members</p><p class="text-xs text-slate-500 mt-1">Manage trusted admin accounts</p></div>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4"><p class="text-xs font-bold text-slate-500">REWARDS</p><p class="mt-1 text-lg font-black">Promo Settings</p><p class="text-xs text-slate-500 mt-1">Global and individual reward rules</p></div>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4"><p class="text-xs font-bold text-slate-500">SECURITY</p><p class="mt-1 text-lg font-black">Role Protected</p><p class="text-xs text-slate-500 mt-1">Actions are verified by backend</p></div>
+     </div>
+     <div id="mat-admin-dashboard-content" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm"></div>
+    </main>
+   </div>`;
+  document.body.appendChild(dashboard);
+  $('mat-admin-dashboard-close').addEventListener('click',()=>dashboard.classList.add('hidden'));
+  dashboard.addEventListener('click',e=>{if(e.target===dashboard)dashboard.classList.add('hidden');});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dashboard.classList.contains('hidden'))dashboard.classList.add('hidden');});
+  $('mat-admin-dashboard-content').appendChild(panel);
+  panel.classList.remove('border-t','border-rose-200','dark:border-rose-900','pt-4');
+  panel.classList.add('block','space-y-5');
+ }
+ let button=$('mat-admin-management-nav');
+ if(!button){
+  button=document.createElement('button');
+  button.id='mat-admin-management-nav';
+  button.type='button';
+  button.className='w-full flex items-center gap-3 text-left';
+  button.innerHTML='<i class="fa-solid fa-shield-halved"></i><span>Admin Management</span>';
+  button.addEventListener('click',()=>{const d=$('mat-admin-dashboard');if(d)d.classList.remove('hidden');if(window.closeAppSidebar)window.closeAppSidebar();});
+  nav.parentNode.insertBefore(button,nav.nextSibling);
+ }
+ button.classList.remove('hidden');
+}
 function loadSelectedMember(){
  const id=$('mat-member-select').value,m=memberTargets.find(x=>x.userId===id);if(!m)return;
  $('mat-member-code').value=m.code||'';$('mat-member-reward').value=m.rewardPB==null?'':m.rewardPB;
@@ -94,7 +143,7 @@ async function refresh(){
   else $('mat-promo-assigned-wrap').classList.add('hidden');
   if(d.isAdmin&&d.adminCode){$('mat-promo-admin-code-wrap').classList.remove('hidden');$('mat-promo-admin-code').textContent=d.adminCode;}
   else $('mat-promo-admin-code-wrap').classList.add('hidden');
-  if(d.isAdmin)await loadAdmin();
+  if(d.isAdmin){ensureAdminDashboard();await loadAdmin();}else{const b=$('mat-admin-management-nav'),dash=$('mat-admin-dashboard');if(b)b.classList.add('hidden');if(dash)dash.classList.add('hidden');}
  }catch(e){$('mat-promo-public-code').textContent='Sign in করে Promo Code ব্যবহার করুন';$('mat-promo-message').textContent=e.message;}
 }
 function mount(){card();}
