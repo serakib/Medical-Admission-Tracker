@@ -2068,14 +2068,13 @@ main > .view-section.hidden { display: none !important; }
         if (destination.origin !== window.location.origin) return;
       } catch (_) { return; }
     }
-    // PB conversion controls manage their own "Converting to XP/RP" labels.
-    // Do not overwrite their original labels with the generic Loading/Saving state.
-    // Sidebar navigation buttons must keep their original DOM until the
-    // delegated navigation handler runs. Replacing innerHTML during capture
-    // can detach the clicked child and prevent the view from opening.
-    if (!target.matches(
-      '[data-pb-convert], [data-sidebar-pb-convert], #mat-promo-redeem-form button, .sidebar-nav button'
-    )) {
+    // Sidebar navigation is synchronous UI routing, not a save/load action.
+    // Bypass the generic loader completely so it cannot interfere with the
+    // inline app navigation handler or its clicked DOM target.
+    if (target.matches('.sidebar-nav button')) return;
+
+    // PB conversion and promo redeem controls manage their own loading labels.
+    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert], #mat-promo-redeem-form button')) {
       markActionButton(target);
     }
     beginForAction();
