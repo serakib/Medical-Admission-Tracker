@@ -4,12 +4,18 @@
 if(window.__matPromoUIInstalled)return;window.__matPromoUIInstalled=true;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function credentials(){
- const user=window.firebase&&firebase.auth&&firebase.auth().currentUser;
- if(user&&typeof user.getIdToken==='function')return user.getIdToken().then(idToken=>({idToken}));
+async function credentials(){
+ // Reuse the app's existing Firebase v11 modular auth session.
+ // Do not call firebase.auth(): the site does not initialize the compat default app.
+ const app=window.app;
+ const user=(app&&(app.authUser||(app.auth&&app.auth.currentUser)))||null;
+ if(user&&typeof user.getIdToken==='function'){
+  const idToken=await user.getIdToken();
+  return {idToken};
+ }
  const token=localStorage.getItem('med_sheet_guest_token_v1')||'';
- if(token)return Promise.resolve({guestToken:token});
- throw new Error('প্রথমে account-এ sign in করুন।');
+ if(token)return {guestToken:token};
+ throw new Error('Firebase session পাওয়া যায়নি। Sign in সম্পন্ন হলে আবার চেষ্টা করুন।');
 }
 async function api(action,fields){
  const endpoint=String(window.MED_LEADERBOARD_API_URL||'').trim();if(!endpoint)throw new Error('Backend URL পাওয়া যায়নি।');
