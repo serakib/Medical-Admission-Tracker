@@ -419,9 +419,9 @@ function processMonthlyRankReview() {
 }
 
 /**
- * Scheduled server-side cleanup. Guest records are removed after 90 days without
- * a visit, or seven days without a visit after weekly RP is 0 and the existing
- * zero-RP timestamp window has elapsed. Registered accounts are never eligible.
+ * Scheduled server-side cleanup. Inactive Guests with zero Weekly RP are
+ * removed after 21 days; Guests with non-zero Weekly RP are removed after
+ * 90 days. Registered accounts are never eligible.
  */
 function cleanupExpiredGuestAccounts() {
   const lock = LockService.getScriptLock();
@@ -432,24 +432,28 @@ function cleanupExpiredGuestAccounts() {
     const twentyOneDaysMs = 21 * 24 * 60 * 60 * 1000;
     const studentsSheet = matGetStudentsSheet_();
     const students = matReadObjects_(studentsSheet);
-    // Guest deletion's 21-day rule must use this week's earned RP, not
-    // the stored rank-progression RP or lifetime RP.
+    // The deletion branch is based on this week's earned RP, never lifetime RP
+    // or the stored rank-progression RP.
     const weeklyRPByUser = matGetWeeklyRPByUser_();
     const expired = students.filter(function (student) {
       if (String(student.AccountType || '').toUpperCase() !== 'GUEST' || !student._rowNumber) return false;
 
       const scheduledDeletionMs = Date.parse(String(student.GuestDeletionScheduledAt || ''));
       if (Number.isFinite(scheduledDeletionMs) && scheduledDeletionMs > 0 && scheduledDeletionMs <= nowMs) return true;
-      const lastSeenMs = Date.parse(String(student.LastSeenAt || student.CreatedAt || ''));
-      const inactive90Days = Number.isFinite(lastSeenMs) && nowMs - lastSeenMs >= ninetyDaysMs;
-      if (inactive90Days) return true;
 
+      const lastSeenMs = Date.parse(String(student.LastSeenAt || student.CreatedAt || ''));
+      if (!Number.isFinite(lastSeenMs) || lastSeenMs <= 0) return false;
       const weeklyRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[String(student.UserID || '')], 0));
-      if (weeklyRP !== 0) return false;
-      const zeroRpMs = Date.parse(String(student.GuestZeroRPAt || ''));
-      if (!Number.isFinite(zeroRpMs)) return false;
-      const inactivityAnchor = Math.max(zeroRpMs, Number.isFinite(lastSeenMs) ? lastSeenMs : zeroRpMs);
-      return nowMs - inactivityAnchor >= twentyOneDaysMs;
+
+      if (weeklyRP === 0) {
+        const zeroRpMs = Date.parse(String(student.GuestZeroRPAt || ''));
+        const inactivityAnchor = Number.isFinite(zeroRpMs) && zeroRpMs > 0
+          ? Math.max(zeroRpMs, lastSeenMs)
+          : lastSeenMs;
+        return nowMs - inactivityAnchor >= twentyOneDaysMs;
+      }
+
+      return nowMs - lastSeenMs >= ninetyDaysMs;
     });
 
     if (!expired.length) {
@@ -2583,12 +2587,18 @@ function matGuestAutoDeletionAt_(student, weeklyRP) {
   const deadlines = [];
   const scheduled = Date.parse(String(s.GuestDeletionScheduledAt || ''));
   if (Number.isFinite(scheduled) && scheduled > 0) deadlines.push(scheduled);
+
   const lastSeen = Date.parse(String(s.LastSeenAt || s.CreatedAt || ''));
-  if (Number.isFinite(lastSeen) && lastSeen > 0) deadlines.push(lastSeen + 90 * 86400000);
-  if (Math.max(0, matFiniteNumber_(weeklyRP, 0)) === 0) {
-    const zeroRP = Date.parse(String(s.GuestZeroRPAt || ''));
-    if (Number.isFinite(zeroRP) && zeroRP > 0) {
-      deadlines.push(Math.max(zeroRP, Number.isFinite(lastSeen) ? lastSeen : zeroRP) + 21 * 86400000);
+  const currentWeeklyRP = Math.max(0, matFiniteNumber_(weeklyRP, 0));
+  if (Number.isFinite(lastSeen) && lastSeen > 0) {
+    if (currentWeeklyRP === 0) {
+      const zeroRP = Date.parse(String(s.GuestZeroRPAt || ''));
+      const inactivityAnchor = Number.isFinite(zeroRP) && zeroRP > 0
+        ? Math.max(zeroRP, lastSeen)
+        : lastSeen;
+      deadlines.push(inactivityAnchor + 21 * 86400000);
+    } else {
+      deadlines.push(lastSeen + 90 * 86400000);
     }
   }
   return deadlines.length ? new Date(Math.min.apply(null, deadlines)).toISOString() : '';
