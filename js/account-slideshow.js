@@ -132,7 +132,12 @@
       .mws-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 20px;border-bottom:1px solid #e2e8f0;background:linear-gradient(120deg,rgba(16,185,129,.09),rgba(14,165,233,.09))}
       html.dark .mws-topbar,body.dark .mws-topbar{border-color:#334155;background:linear-gradient(120deg,rgba(16,185,129,.12),rgba(14,165,233,.12))}
       .mws-brand{display:flex;align-items:center;gap:11px;min-width:0}.mws-brand-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:14px;background:#059669;color:white;font-size:18px}.mws-brand-copy{min-width:0}.mws-brand-copy strong{display:block;font-size:14px;font-weight:900}.mws-brand-copy small{display:block;margin-top:3px;color:#64748b;font-size:11px}
-      .mws-close{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid #dbe3eb;border-radius:13px;background:transparent;color:inherit;font-size:17px;cursor:pointer}
+      .mws-header-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+      .mws-fullscreen,.mws-close{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid #dbe3eb;border-radius:13px;background:transparent;color:inherit;font-size:16px;cursor:pointer}
+      .mws-fullscreen[aria-pressed="true"]{border-color:#0284c7;background:#eff6ff;color:#0369a1}
+      #mws-overlay.is-fullscreen{padding:0}
+      .mws-dialog.is-fullscreen{width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:0}
+      .mws-dialog.is-fullscreen .mws-content{flex:1;min-height:0}
       .mws-content{overflow:auto;overscroll-behavior:contain;padding:clamp(18px,4vw,34px);min-height:270px}
       .mws-slide-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px}.mws-slide-icon{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:16px;background:#ecfdf5;color:#059669;font-size:19px}.mws-slide-heading h2{margin:0;font-size:clamp(22px,3vw,30px);font-weight:900;letter-spacing:-.03em;line-height:1.2}.mws-slide-heading p{margin:7px 0 0;color:#64748b;font-size:13px;line-height:1.6}
       html.dark .mws-slide-heading p,body.dark .mws-slide-heading p,html.dark .mws-brand-copy small,body.dark .mws-brand-copy small{color:#94a3b8}
@@ -148,7 +153,7 @@
       html.dark .mws-stat-label,body.dark .mws-stat-label,html.dark .mws-account-item span,body.dark .mws-account-item span,html.dark .mws-action-copy small,body.dark .mws-action-copy small{color:#94a3b8}html.dark .mws-steps p,body.dark .mws-steps p{color:#cbd5e1}
       html.dark .mws-callout,body.dark .mws-callout,html.dark .mws-footer,body.dark .mws-footer{background:#111c2e;color:#cbd5e1;border-color:#334155}
       html.dark .mws-welcome,body.dark .mws-welcome{background:linear-gradient(135deg,#102b28,#172b40);border-color:#24534a}html.dark .mws-welcome h3,body.dark .mws-welcome h3{color:#f8fafc}html.dark .mws-welcome p,body.dark .mws-welcome p{color:#cbd5e1}
-      html.dark .mws-progress-track,body.dark .mws-progress-track{background:#334155}html.dark .mws-close,body.dark .mws-close{border-color:#334155}
+      html.dark .mws-progress-track,body.dark .mws-progress-track{background:#334155}html.dark .mws-close,body.dark .mws-close,html.dark .mws-fullscreen,body.dark .mws-fullscreen{border-color:#334155}
       @media(max-width:600px){.mws-dialog{max-height:96dvh;border-radius:20px}.mws-topbar{padding:12px 14px}.mws-content{padding:17px 13px;min-height:220px}.mws-welcome{padding:15px;gap:12px}.mws-welcome-mark{flex-basis:43px;width:43px;height:43px;font-size:19px}.mws-grid,.mws-account-grid,.mws-action-list{grid-template-columns:1fr}.mws-stat{padding:12px}.mws-footer{padding:12px 13px}.mws-controls{align-items:stretch;flex-direction:column}.mws-control-group{justify-content:space-between}.mws-btn{flex:1;min-width:0;padding:9px 7px}.mws-progress-row{font-size:10px}.mws-slide-heading{gap:10px;margin-bottom:18px}.mws-slide-icon{flex-basis:42px;width:42px;height:42px}.mws-action{padding:12px}}
       @media(prefers-reduced-motion:reduce){.mws-action,.mws-progress-fill{transition:none!important}}
     `;
@@ -164,7 +169,7 @@
     overlay = document.createElement('div');
     overlay.id = 'mws-overlay';
     overlay.hidden = true;
-    overlay.innerHTML = '<section class="mws-dialog" role="dialog" aria-modal="true" aria-labelledby="mws-slide-title"><header class="mws-topbar"><div class="mws-brand"><span class="mws-brand-icon"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span><span class="mws-brand-copy"><strong>Medical Admission Tracker</strong><small>Website guide · personalised for you</small></span></div><button type="button" class="mws-close" data-mws-close aria-label="Back to Account Settings"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></header><main class="mws-content" id="mws-slide-content" tabindex="-1"></main><footer class="mws-footer"><div class="mws-progress-row"><span id="mws-slide-count">Slide 1 of ' + slides.length + '</span><span id="mws-autoplay-status">Manual mode</span></div><div class="mws-progress-track" aria-hidden="true"><div class="mws-progress-fill" id="mws-progress-fill"></div></div><div class="mws-time-row"><span>Slide timer</span><span id="mws-time-remaining">00:12</span></div><div class="mws-time-track" aria-hidden="true"><div class="mws-time-fill" id="mws-time-fill"></div></div><div class="mws-controls"><div class="mws-control-group"><button class="mws-btn" type="button" data-mws-prev><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Previous</span></button><button class="mws-btn" type="button" data-mws-next><span>Next</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div><div class="mws-control-group"><button class="mws-btn" type="button" data-mws-restart title="Restart autoplay from the current slide"><i class="fa-solid fa-rotate" aria-hidden="true"></i><span>Restart</span></button><button class="mws-btn" type="button" data-mws-first title="Return to the first slide"><i class="fa-solid fa-backward-step" aria-hidden="true"></i><span>First</span></button><button class="mws-btn mws-btn-primary" type="button" data-mws-play aria-pressed="false"><i class="fa-solid fa-play" aria-hidden="true"></i><span>Start</span></button></div></div></footer></section>';
+    overlay.innerHTML = '<section class="mws-dialog" role="dialog" aria-modal="true" aria-labelledby="mws-slide-title"><header class="mws-topbar"><div class="mws-brand"><span class="mws-brand-icon"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span><span class="mws-brand-copy"><strong>Medical Admission Tracker</strong><small>Website guide · personalised for you</small></span></div><div class="mws-header-actions"><button type="button" class="mws-fullscreen" data-mws-fullscreen aria-pressed="false" aria-label="Open guide in fullscreen" title="Fullscreen"><i class="fa-solid fa-expand" aria-hidden="true"></i></button><button type="button" class="mws-close" data-mws-close aria-label="Back to Account Settings"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button></div></header><main class="mws-content" id="mws-slide-content" tabindex="-1"></main><footer class="mws-footer"><div class="mws-progress-row"><span id="mws-slide-count">Slide 1 of ' + slides.length + '</span><span id="mws-autoplay-status">Manual mode</span></div><div class="mws-progress-track" aria-hidden="true"><div class="mws-progress-fill" id="mws-progress-fill"></div></div><div class="mws-time-row"><span>Slide timer</span><span id="mws-time-remaining">00:12</span></div><div class="mws-time-track" aria-hidden="true"><div class="mws-time-fill" id="mws-time-fill"></div></div><div class="mws-controls"><div class="mws-control-group"><button class="mws-btn" type="button" data-mws-prev><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Previous</span></button><button class="mws-btn" type="button" data-mws-next><span>Next</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div><div class="mws-control-group"><button class="mws-btn" type="button" data-mws-restart title="Restart autoplay from the current slide"><i class="fa-solid fa-rotate" aria-hidden="true"></i><span>Restart</span></button><button class="mws-btn" type="button" data-mws-first title="Return to the first slide"><i class="fa-solid fa-backward-step" aria-hidden="true"></i><span>First</span></button><button class="mws-btn mws-btn-primary" type="button" data-mws-play aria-pressed="false"><i class="fa-solid fa-play" aria-hidden="true"></i><span>Start</span></button></div></div></footer></section>';
     overlay.addEventListener('click', onOverlayClick);
     overlay.addEventListener('touchstart', function (event) {
       if (!overlay.hidden && event.changedTouches && event.changedTouches.length) touchStartX = event.changedTouches[0].clientX;
@@ -232,9 +237,23 @@
   function close() {
     if (!overlay || overlay.hidden) return;
     stopTimer();
+    setFullscreen(false);
     overlay.hidden = true;
     document.body.style.overflow = '';
     if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+  }
+  function setFullscreen(enabled) {
+    if (!overlay) return;
+    var dialog = overlay.querySelector('.mws-dialog');
+    var button = overlay.querySelector('[data-mws-fullscreen]');
+    if (!dialog || !button) return;
+    var active = !!enabled;
+    dialog.classList.toggle('is-fullscreen', active);
+    overlay.classList.toggle('is-fullscreen', active);
+    button.setAttribute('aria-pressed', String(active));
+    button.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Open guide in fullscreen');
+    button.title = active ? 'Exit fullscreen' : 'Fullscreen';
+    button.innerHTML = active ? '<i class="fa-solid fa-compress" aria-hidden="true"></i>' : '<i class="fa-solid fa-expand" aria-hidden="true"></i>';
   }
   function open() {
     build();
@@ -242,6 +261,7 @@
     previousFocus = document.activeElement;
     activeIndex = 0;
     stopTimer();
+    setFullscreen(false);
     overlay.hidden = false;
     document.body.style.overflow = 'hidden';
     render();
@@ -275,6 +295,11 @@
     var target = event.target.closest('button');
     if (!target) return;
     if (target.hasAttribute('data-mws-close')) { close(); return; }
+    if (target.hasAttribute('data-mws-fullscreen')) {
+      var dialog = overlay.querySelector('.mws-dialog');
+      setFullscreen(!(dialog && dialog.classList.contains('is-fullscreen')));
+      return;
+    }
     if (target.hasAttribute('data-mws-prev')) { go(activeIndex - 1); return; }
     if (target.hasAttribute('data-mws-next')) { go(activeIndex + 1); return; }
     if (target.hasAttribute('data-mws-play')) { if (autoplay) { stopTimer(); render(); } else startTimer(); return; }
@@ -285,7 +310,12 @@
   }
   function onKeydown(event) {
     if (!overlay || overlay.hidden) return;
-    if (event.key === 'Escape') { event.preventDefault(); close(); }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      var dialog = overlay.querySelector('.mws-dialog');
+      if (dialog && dialog.classList.contains('is-fullscreen')) setFullscreen(false);
+      else close();
+    }
     else if (event.key === 'ArrowRight') { event.preventDefault(); go(activeIndex + 1); }
     else if (event.key === 'ArrowLeft') { event.preventDefault(); go(activeIndex - 1); }
   }
