@@ -182,6 +182,7 @@ function ensureAdminDashboard(){
  }
  button.classList.remove('hidden');
 }
+let adminAccessConfirmed=false;
 let memberOverrideCardSequence=0;
 function memberOverrideCardMarkup(member){
  const id='mat-member-override-'+(++memberOverrideCardSequence);
@@ -368,12 +369,12 @@ async function refresh(){
   else $('mat-promo-assigned-wrap').classList.add('hidden');
   if(d.isAdmin&&d.adminCode){$('mat-promo-admin-code-wrap').classList.remove('hidden');$('mat-promo-admin-code').textContent=d.adminCode;}
   else $('mat-promo-admin-code-wrap').classList.add('hidden');
-  if(d.isAdmin){ensureAdminDashboard();await loadAdmin();}else{const b=$('mat-admin-management-nav'),dash=$('mat-admin-dashboard');if(b)b.classList.add('hidden');if(dash)dash.classList.add('hidden');}
+  if(d.isAdmin){adminAccessConfirmed=true;ensureAdminDashboard();await loadAdmin();}else{adminAccessConfirmed=false;const b=$('mat-admin-management-nav'),dash=$('mat-admin-dashboard');if(b)b.classList.add('hidden');if(dash)dash.classList.add('hidden');}
  }catch(e){$('mat-promo-public-code').textContent='Sign in করে Promo Code ব্যবহার করুন';$('mat-promo-message').textContent=e.message;}
  finally{refreshInFlight=false;}
 }
 window.addEventListener('student-progress-updated',event=>{const p=event.detail||{};const appProfile=window.app&&window.app.profile||{};const currentId=String(appProfile.userId||appProfile.uid||'');const eventId=String(p.userId||p.uid||p.playerId||'');if(currentId&&eventId===currentId&&p.promoPB!=null&&$('mat-promo-balance'))$('mat-promo-balance').textContent=Number(p.promoPB||0).toLocaleString()+' PB';});
-function mount(){card();}
+function mount(){card();if(adminAccessConfirmed)ensureAdminDashboard();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 window.addEventListener('mat:firebase-auth-ready',()=>{if($('mat-promo-card'))refresh();});
 new MutationObserver(()=>{if(document.body&&$('sidebar-student-profile-extras'))mount();}).observe(document.documentElement,{childList:true,subtree:true});
