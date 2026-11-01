@@ -37,7 +37,7 @@
     'Grandmaster V','Grandmaster IV','Grandmaster III','Grandmaster II','Grandmaster I',
     'Legend V','Legend IV','Legend III','Legend II','Legend I',
     'Mythic V','Mythic IV','Mythic III','Mythic II','Mythic I',
-    'Immortal V','Immortal IV','Immortal III','Immortal II','Immortal I'
+    'Immortal'
   ];
   var PERIOD_KEY = 'med_sheet_leaderboard_period_v1';
   var GUEST_TOKEN_KEY = 'med_sheet_guest_token_v1';
@@ -641,7 +641,8 @@
   function normalizeEntry(raw) {
     raw = raw || {};
     var id = safeText(raw.userId || raw.uid || raw.playerId || raw.UserID || raw.id || raw.name || 'unknown-user', 140);
-    var rank = RANKS.indexOf(raw.rank || raw.Rank) >= 0 ? (raw.rank || raw.Rank) : RANKS[0];
+    var rawRank = String(raw.rank || raw.Rank || '').trim();
+    var rank = /^Immortal(?:\\s+[VIX]+)?$/i.test(rawRank) ? 'Immortal' : (RANKS.indexOf(rawRank) >= 0 ? rawRank : RANKS[0]);
     var isCurrentAccount = !!currentUserId() && id === String(currentUserId());
     // The signed-in account profile is the canonical source for its own current rank.
     // A stale leaderboard cache must not downgrade the student's displayed trophy.
@@ -1265,9 +1266,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     });
     var promotionRows = [], safeRows = [], riskRows = [];
     if (selectedPeriod === 'weekly') {
-      promotionRows = displayRows.filter(isInWeeklyPromotionZone).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
-      riskRows = displayRows.filter(function (row) { return !isInWeeklyPromotionZone(row); }).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
-      displayRows = promotionRows.concat(riskRows);
+      if (String(selectedRank || '').trim().toLowerCase() === 'immortal') {
+        // Immortal is a single terminal rank: rank the entire group only by current Weekly RP.
+        displayRows = displayRows.slice().sort(function (a, b) { return weeklyPointsForRow(b) - weeklyPointsForRow(a); });
+      } else {
+        promotionRows = displayRows.filter(isInWeeklyPromotionZone).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
+        riskRows = displayRows.filter(function (row) { return !isInWeeklyPromotionZone(row); }).sort(function (a, b) { return subRankPointsForRow(b) - subRankPointsForRow(a); });
+        displayRows = promotionRows.concat(riskRows);
+      }
     } else if (selectedPeriod === 'monthly') {
       safeRows = displayRows.filter(isInMonthlySafeZone).sort(function (a, b) { return monthlyPointsForRow(b) - monthlyPointsForRow(a); });
       riskRows = displayRows.filter(function (row) { return !isInMonthlySafeZone(row); }).sort(function (a, b) { return monthlyPointsForRow(b) - monthlyPointsForRow(a); });
@@ -1310,10 +1316,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             '<small>' + escapeHtml(selectedPeriod === 'monthly' && RANKS.indexOf(String(row.rank || '')) >= 0 ? RANKS[Math.floor(RANKS.indexOf(String(row.rank)) / 5) * 5].split(' ')[0] : row.rank) + ' · Lv.' + Number(row.level || 1) + '</small></article>';
         }).join('');
       }
-      if (selectedPeriod === 'weekly' && promotionRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
+      if (selectedPeriod === 'weekly' && String(selectedRank || '').trim().toLowerCase() !== 'immortal' && promotionRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
       if (selectedPeriod === 'monthly' && safeRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
       displayRows.forEach(function (row, index) {
-        if (selectedPeriod === 'weekly' && !promotionDividerInserted && index === promotionRows.length) {
+        if (selectedPeriod === 'weekly' && String(selectedRank || '').trim().toLowerCase() !== 'immortal' && !promotionDividerInserted && index === promotionRows.length) {
           appendLeaderboardZoneDivider('promotion');
           if (riskRows.length === 0) appendWeeklyZoneEmpty('এখানে দেখানোর মতো কোনো student নেই।');
         }
