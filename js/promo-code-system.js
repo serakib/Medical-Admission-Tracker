@@ -57,7 +57,23 @@ function card(){
   <p id="mat-admin-message" class="text-sm" aria-live="polite"></p>
  </div>`;
  host.insertBefore(section,host.firstElementChild);
- $('mat-promo-redeem-form').addEventListener('submit',async e=>{e.preventDefault();const input=$('mat-promo-input'),msg=$('mat-promo-message');msg.innerHTML='Redeeming'+ "<span class=\"mat-loading-dots\" role=\"img\" aria-label=\"loading\"><i>.</i><i>.</i><i>.</i></span>";try{const r=await api('redeemPromoCode',{code:input.value});msg.textContent='+'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';input.value='';if(r.user&&window.MedGlobalLeague&&typeof window.MedGlobalLeague.applyAccountSnapshot==='function'){window.MedGlobalLeague.applyAccountSnapshot(r.user);}else if(r.user&&window.app){window.app.profile=Object.assign(window.app.profile||{},r.user);window.app.profile.pb=Number(r.user.pb||r.user.pendingPB||0);window.app.profile.availablePB=window.app.profile.pb;window.app.profile.promoPB=Number(r.user.promoPB||0);window.dispatchEvent(new CustomEvent('student-progress-updated',{detail:Object.assign({},window.app.profile,{source:'promo-redemption'})}));}$('mat-promo-balance').textContent=Number(r.promoPB).toLocaleString()+' PB';}catch(err){msg.textContent=err.message;}});
+ $('mat-promo-redeem-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const form=e.currentTarget,input=$('mat-promo-input'),msg=$('mat-promo-message');
+  const button=form.querySelector('button[type="submit"],button:not([type])');
+  const originalButtonHTML=button?button.innerHTML:'';
+  if(button){button.disabled=true;button.setAttribute('aria-busy','true');button.innerHTML='Redeeming <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';}
+  msg.innerHTML='Redeeming'+ " <span class=\\"mat-loading-dots\\" role=\\"img\\" aria-label=\\"loading\\"><i>.</i><i>.</i><i>.</i></span>";
+  try{
+    const r=await api('redeemPromoCode',{code:input.value});
+    msg.textContent='+'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';
+    input.value='';
+    if(r.user&&window.MedGlobalLeague&&typeof window.MedGlobalLeague.applyAccountSnapshot==='function'){window.MedGlobalLeague.applyAccountSnapshot(r.user);}
+    else if(r.user&&window.app){window.app.profile=Object.assign(window.app.profile||{},r.user);window.app.profile.pb=Number(r.user.pb||r.user.pendingPB||0);window.app.profile.availablePB=window.app.profile.pb;window.app.profile.promoPB=Number(r.user.promoPB||0);window.dispatchEvent(new CustomEvent('student-progress-updated',{detail:Object.assign({},window.app.profile,{source:'promo-redemption'})}));}
+    $('mat-promo-balance').textContent=Number(r.promoPB).toLocaleString()+' PB';
+  }catch(err){msg.textContent=err.message;}
+  finally{if(button){button.innerHTML=originalButtonHTML;button.disabled=false;button.removeAttribute('aria-busy');}}
+ });
  $('mat-promo-global-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving global settings…';try{await api('adminSavePromoConfig',{code:$('mat-global-code').value,rewardPB:$('mat-global-reward').value,limitCount:$('mat-global-limit').value,limitPeriod:$('mat-global-period').value,enabled:$('mat-global-enabled').checked});msg.textContent='Global Promo Settings saved.';await refresh();}catch(err){msg.textContent=err.message;}});
  $('mat-promo-member-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving member settings…';try{await api('adminSaveMemberPromo',{userId:$('mat-member-select').value,code:$('mat-member-code').value,rewardPB:$('mat-member-reward').value,limitCount:$('mat-member-limit').value,limitPeriod:$('mat-member-period').value,enabled:$('mat-member-enabled').checked});msg.textContent='Individual Promo Settings saved.';await loadAdmin();}catch(err){msg.textContent=err.message;}});
  $('mat-member-select').addEventListener('change',()=>loadSelectedMember());
