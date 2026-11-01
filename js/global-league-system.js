@@ -1001,7 +1001,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var monthlyRP = Math.max(0, Number(me.monthlyRP) || 0);
     var weeklyEarnedRP = weeklyPointsForRow(me);
     var currentRankRP = Math.max(0, Number(me.rankPoints) || 0);
-    if (current.isMax) {
+    if (current.isMax && selectedRankIndex === RANKS.length - 1) {
       var immortalPeriodRP = isWeeklyLeaderboard ? weeklyEarnedRP : isMonthlyLeaderboard ? monthlyRP : currentRankRP;
       var immortalPeriodLabel = isWeeklyLeaderboard ? 'Weekly RP' : isMonthlyLeaderboard ? 'Monthly RP' : 'Current RP';
       area.innerHTML =
