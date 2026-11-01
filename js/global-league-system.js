@@ -1639,12 +1639,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (daysUntilSaturday === 0) daysUntilSaturday = 7;
     // Bangladesh is UTC+6; next Saturday at 00:00 Dhaka is Friday 18:00 UTC.
     var nextSaturdayUtc = Date.UTC(today.year, today.month - 1, today.day + daysUntilSaturday, -6, 0, 0);
-    var remainingMs = Math.max(0, nextSaturdayUtc - now.getTime());
-    var totalMinutes = Math.floor(remainingMs / 60000);
-    var days = Math.floor(totalMinutes / 1440);
-    var hours = Math.floor((totalMinutes % 1440) / 60);
-    var minutes = totalMinutes % 60;
-    var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট';
+    var remainingSeconds = Math.max(0, Math.floor((nextSaturdayUtc - now.getTime()) / 1000));
+    var days = Math.floor(remainingSeconds / 86400);
+    var hours = Math.floor(remainingSeconds % 86400 / 3600);
+    var minutes = Math.floor(remainingSeconds % 3600 / 60);
+    var seconds = remainingSeconds % 60;
+    var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট ' + seconds + ' সেকেন্ড';
     var weekDescription = 'এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, Monthly RP অপরিবর্তিত থাকবে।';
     note.className = 'leaderboard-week-countdown';
     note.setAttribute('role', 'status');
@@ -1665,7 +1665,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (refreshButton && refreshButton.parentNode !== note) note.appendChild(refreshButton);
     var popupContent = popup.querySelector('[data-week-popup-content]');
     if (popupContent) popupContent.innerHTML =
-      '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong>' + countdown + '</strong></p>' +
+      '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown-popup>' + countdown + '</strong></p>' +
       '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
       '<p>Weekly ranking প্রতি শনিবার রাত ১২টায় নতুন সময়সীমা থেকে গণনা শুরু করে। এই পরিবর্তনে Monthly RP পরিবর্তিত হবে না।</p>';
     var openButton = note.querySelector('[data-open-week-popup]');
@@ -1676,6 +1676,29 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (closeButton) closeButton.focus();
     });
   }
+  function renderWeeklyCountdown() {
+    if (selectedPeriod !== 'weekly') return;
+    var mainCountdown = document.querySelector('[data-weekly-countdown]');
+    var popupCountdown = document.querySelector('[data-weekly-countdown-popup]');
+    if (!mainCountdown && !popupCountdown) return;
+
+    var now = new Date();
+    var today = dhakaDateParts(now);
+    var todayUtc = new Date(Date.UTC(today.year, today.month - 1, today.day));
+    var weekday = todayUtc.getUTCDay(); // Sunday=0
+    var daysUntilSaturday = (6 - weekday + 7) % 7;
+    if (daysUntilSaturday === 0) daysUntilSaturday = 7;
+    // Bangladesh is UTC+6; next Saturday at 00:00 Dhaka is Friday 18:00 UTC.
+    var nextSaturdayUtc = Date.UTC(today.year, today.month - 1, today.day + daysUntilSaturday, -6, 0, 0);
+    var remainingSeconds = Math.max(0, Math.floor((nextSaturdayUtc - now.getTime()) / 1000));
+    var days = Math.floor(remainingSeconds / 86400);
+    var hours = Math.floor(remainingSeconds % 86400 / 3600);
+    var minutes = Math.floor(remainingSeconds % 3600 / 60);
+    var seconds = remainingSeconds % 60;
+    var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট ' + seconds + ' সেকেন্ড';
+    if (mainCountdown) mainCountdown.textContent = countdown;
+    if (popupCountdown) popupCountdown.textContent = countdown;
+  }
   function startLeaderboardNoteClock() {
     if (leaderboardNoteClockStarted) return;
     leaderboardNoteClockStarted = true;
@@ -1683,8 +1706,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (selectedPeriod === 'monthly') renderMonthlyCountdown();
     }, 1000);
     window.setInterval(function () {
-      if (selectedPeriod === 'weekly') renderLeaderboardPeriodNote();
-    }, 30000);
+      if (selectedPeriod === 'weekly') renderWeeklyCountdown();
+    }, 1000);
   }
   function cachedRowsForDisplay() {
     // Monthly, Friends and Weekly each get their own cache so one tab never
