@@ -69,6 +69,11 @@ function card(){
  <div class="flex items-center justify-between gap-2 border-t border-gray-100 dark:border-gray-700 pt-3"><span class="text-xs text-gray-500 dark:text-gray-400">Permanent Promo PB Balance</span><strong id="mat-promo-balance" class="text-base text-amber-600">— PB</strong></div>
  <div id="mat-admin-panel" class="hidden border-t border-rose-200 dark:border-rose-900 pt-4 space-y-4">
   <div><p class="text-xs font-bold uppercase tracking-wider text-rose-600">Restricted access</p><h3 class="text-base font-extrabold text-gray-900 dark:text-white">Promo Code Admin</h3><p class="text-xs text-gray-500 dark:text-gray-400">Global defaults and individual member overrides. Individual values override global values.</p></div>
+  <section id="mat-premium-name-access" class="hidden rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-950/20 p-3 space-y-3">
+   <div><h4 class="font-extrabold text-sm text-amber-800 dark:text-amber-300"><i class="fa-solid fa-crown mr-1" aria-hidden="true"></i> Premium Golden Name Access</h4><p class="text-xs text-gray-600 dark:text-gray-300 mt-1">Admin members get this automatically. Super Admin can manually grant or revoke it for subscribers after subscription payment is confirmed.</p></div>
+   <div class="flex flex-col sm:flex-row gap-2"><select id="mat-premium-name-member" class="min-w-0 flex-1 rounded-lg border border-amber-300 dark:border-amber-800 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><option value="">Choose a registered member</option></select><button id="mat-premium-name-grant" type="button" class="rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-2 text-sm font-extrabold text-white">Grant Golden Name</button></div>
+   <div id="mat-premium-name-list" class="space-y-2 text-sm"></div>
+  </section>
   <form id="mat-promo-global-form" class="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-2">
    <h4 class="font-bold text-sm">Global Promo Settings</h4>
    <label class="block text-xs font-semibold">Global Promo Code<input id="mat-global-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Leave blank to keep Daily/Weekly code"></label>
@@ -182,12 +187,54 @@ function loadSelectedMember(){
  $('mat-member-limit').value=m.limitCount==null?'':m.limitCount;$('mat-member-period').value=m.limitPeriod||'';
  $('mat-member-enabled').checked=m.enabled!==false;$('mat-member-note').textContent=m.name+' · '+m.email;
 }
+async function loadPremiumNameAccess(members){
+ const section=$('mat-premium-name-access');
+ if(!section)return;
+ section.classList.toggle('hidden',!members.canManage);
+ if(!members.canManage)return;
+ const adminEmails=new Set((members.members||[]).map(m=>String(m.email||'').trim().toLowerCase()));
+ const candidates=memberTargets.filter(m=>m&&m.userId&&m.email&&!adminEmails.has(String(m.email).trim().toLowerCase()));
+ const select=$('mat-premium-name-member'),previous=select.value;
+ select.innerHTML='<option value="">Choose a registered member</option>'+candidates.map(m=>'<option value="'+esc(m.userId)+'">'+esc(m.name||'Student')+' · '+esc(m.email)+'</option>').join('');
+ if(previous&&candidates.some(m=>String(m.userId)===previous))select.value=previous;
+ const result=await api('adminListPremiumNameAccess'),access=Array.isArray(result.access)?result.access:[];
+ const activeIds=new Set(access.map(row=>String(row.userId||'')));
+ const grant=$('mat-premium-name-grant');
+ const updateGrantState=()=>{grant.disabled=!select.value||activeIds.has(select.value);};
+ updateGrantState();
+ select.onchange=updateGrantState;
+ grant.onclick=async()=>{
+  const userId=select.value;
+  if(!userId||activeIds.has(userId))return;
+  grant.disabled=true;grant.setAttribute('aria-busy','true');
+  try{
+   await api('adminSetPremiumNameAccess',{userId:userId,enabled:true});
+   $('mat-admin-message').textContent='Premium Golden Name access granted.';
+   await loadPremiumNameAccess(members);
+  }catch(error){$('mat-admin-message').textContent=error.message||'Access grant failed.';}
+  finally{grant.removeAttribute('aria-busy');updateGrantState();}
+ };
+ const list=$('mat-premium-name-list');
+ list.innerHTML=access.length?'<h5 class="font-bold text-xs text-amber-900 dark:text-amber-200">ACTIVE SUBSCRIBERS ('+access.length+')</h5>'+access.map(row=>'<div class="flex items-center justify-between gap-2 border-t border-amber-200 dark:border-amber-900 pt-2"><span class="min-w-0"><strong class="block truncate">'+esc(row.name||'Student')+'</strong><small class="block truncate text-gray-500">'+esc(row.email)+'</small></span><button type="button" data-revoke-premium-name="'+esc(row.userId)+'" class="shrink-0 rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-1.5 text-xs font-bold text-rose-700 dark:text-rose-300">Revoke</button></div>').join(''):'<p class="text-xs text-gray-500">No manually granted subscriber access yet.</p>';
+ list.querySelectorAll('[data-revoke-premium-name]').forEach(button=>button.addEventListener('click',async()=>{
+  const userId=button.getAttribute('data-revoke-premium-name');
+  const target=access.find(row=>String(row.userId)===String(userId));
+  if(!target||!confirm('Revoke Golden Name access for '+(target.name||target.email)+'?'))return;
+  button.disabled=true;
+  try{
+   await api('adminSetPremiumNameAccess',{userId:userId,enabled:false});
+   $('mat-admin-message').textContent='Premium Golden Name access revoked.';
+   await loadPremiumNameAccess(members);
+  }catch(error){$('mat-admin-message').textContent=error.message||'Access revoke failed.';button.disabled=false;}
+ }));
+}
 async function loadAdmin(){
  const [members,promo,config,targets]=await Promise.all([api('adminListMembers'),api('adminPromoStatus'),api('adminGetPromoConfig'),api('adminListPromoTargets')]);
  $('mat-admin-panel').classList.remove('hidden');
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
  memberTargets=targets.members||[];
+ await loadPremiumNameAccess(members);
  const select=$('mat-member-select'),previous=select.value;select.innerHTML='<option value="">Select member</option>'+memberTargets.map(m=>'<option value="'+esc(m.userId)+'">'+esc(m.name||'Student')+' · '+esc(m.email)+'</option>').join('');if(previous&&memberTargets.some(m=>m.userId===previous))select.value=previous;
  loadSelectedMember();
  const box=$('mat-admin-members');
