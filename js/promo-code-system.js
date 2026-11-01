@@ -40,7 +40,7 @@ function mount(){
  refresh();
 }
 async function loadAdmin(){
- const result=await api('adminListMembers');const panel=$('mat-admin-panel'),box=$('mat-admin-members');panel.classList.remove('hidden');
+ const result=await api('adminListMembers'),promo=await api('adminPromoStatus');const panel=$('mat-admin-panel'),box=$('mat-admin-members');panel.classList.remove('hidden');$('mat-admin-add-form').classList.toggle('hidden',!result.canManage);const toggle=$('mat-admin-unlimited-toggle');toggle.classList.toggle('hidden',!result.canManage);toggle.textContent=promo.unlimitedEnabled?'Disable fixed Unlimited Code':'Enable fixed Unlimited Code';toggle.onclick=async()=>{try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await loadAdmin();}catch(e){$('mat-admin-message').textContent=e.message;}};
  box.innerHTML='<h3 class="font-bold text-gray-800 dark:text-white">Admin Members</h3>'+result.members.map(m=>'<div class="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 py-2 text-sm"><span class="min-w-0 break-all">'+esc(m.email)+' <small class="text-gray-500">('+esc(m.role)+')</small></span>'+(m.role==='SUPER_ADMIN'?'':'<button data-remove="'+esc(m.email)+'" class="text-xs font-bold text-rose-600">Remove</button>')+'</div>').join('');
  box.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('এই Admin Member-কে remove করবেন?'))return;try{await api('adminRemoveMember',{email:b.dataset.remove});await loadAdmin();}catch(e){$('mat-admin-message').textContent=e.message;}}));
 }
