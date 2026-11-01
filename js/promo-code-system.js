@@ -31,11 +31,12 @@ function mount(){
   <div><p class="text-xs font-bold uppercase tracking-wider text-rose-600">Restricted access</p><h2 class="text-xl font-extrabold text-gray-900 dark:text-white">Admin Panel</h2></div>
   <div class="rounded-xl bg-gray-50 dark:bg-gray-900 p-3 text-sm text-gray-600 dark:text-gray-300">Fixed Unlimited Code: <strong>Admin-only · 100,000 PB per redemption</strong><br>Code value is kept server-side and is not displayed here.</div>
   <div id="mat-admin-members" class="space-y-2"></div>
+  <button type="button" id="mat-admin-unlimited-toggle" class="rounded-xl px-4 py-2 bg-gray-800 text-white text-sm font-bold">Loading fixed code status…</button>
   <form id="mat-admin-add-form" class="flex flex-col sm:flex-row gap-2"><input id="mat-admin-email" type="email" required placeholder="Registered member Gmail" class="flex-1 min-w-0 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-3 text-sm"><button class="rounded-xl px-4 py-3 bg-rose-600 text-white font-bold">Add Admin</button></form>
   <p id="mat-admin-message" class="text-sm" aria-live="polite"></p>
  </div>`;
  view.appendChild(section);
- $('mat-promo-redeem-form').addEventListener('submit',async e=>{e.preventDefault();const input=$('mat-promo-input'),msg=$('mat-promo-message');msg.textContent='Redeeming…';try{const r=await api('redeemPromoCode',{code:input.value});msg.textContent='+'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';input.value='';$('mat-promo-balance').textContent=Number(r.promoPB).toLocaleString()+' PB';if(r.user&&window.app)window.app.profile=Object.assign(window.app.profile||{},r.user);}catch(err){msg.textContent=err.message;}});
+ $('mat-promo-redeem-form').addEventListener('submit',async e=>{e.preventDefault();const input=$('mat-promo-input'),msg=$('mat-promo-message');msg.textContent='Redeeming…';try{const r=await api('redeemPromoCode',{code:input.value});msg.textContent='+'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';input.value='';$('mat-promo-balance').textContent=Number(r.promoPB).toLocaleString()+' PB';if(r.user&&window.app){window.app.profile=Object.assign(window.app.profile||{},r.user);window.app.profile.pb=Number(r.user.pb||0);window.app.profile.promoPB=Number(r.user.promoPB||0);}}catch(err){msg.textContent=err.message;}});
  $('mat-admin-add-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving…';try{await api('adminAddMember',{email:$('mat-admin-email').value});$('mat-admin-email').value='';msg.textContent='Admin member added.';await loadAdmin();}catch(err){msg.textContent=err.message;}});
  refresh();
 }
