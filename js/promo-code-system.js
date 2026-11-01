@@ -466,6 +466,23 @@ async function loadAdmin(){
     userId:id,uid:id,accountType:'GUEST',
     name:source.name||row&&row.name||'Guest Student'
    });
+   // Add a clear return path because the admin dashboard is temporarily hidden
+   // while the shared student profile view is displayed.
+   const profileView=$('view-student-profile');
+   if(profileView&&!$('mat-back-to-guest-admin')){
+    const back=document.createElement('button');
+    back.type='button';
+    back.id='mat-back-to-guest-admin';
+    back.className='mb-3 inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-100 shadow-sm hover:border-rose-400';
+    back.textContent='← Back to Admin Panel · Guest Account Deletion';
+    back.addEventListener('click',function(){
+     const admin=$('mat-admin-dashboard');
+     if(admin)admin.classList.remove('hidden');
+     const guestSection=$('mat-admin-guest-deletion');
+     if(guestSection)guestSection.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    profileView.insertBefore(back,profileView.firstChild);
+   }
    try{
     window.MedStudentProfile.open(profile);
    }catch(error){
