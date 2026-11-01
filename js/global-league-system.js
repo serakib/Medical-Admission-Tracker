@@ -1871,13 +1871,20 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       }
     }
     if (requestId !== loadSequence) return;
-    if (!API_URL()) { setStatus('Medical Sheets API URL সেট করা নেই।', true); setLeaderboardRefreshBusy(false); return; }
+    if (!API_URL()) {
+      if (!cache.length) renderRows([]);
+      setStatus('Medical Sheets API URL সেট করা নেই।', true);
+      setLeaderboardRefreshBusy(false);
+      return;
+    }
     if (!app.authStateResolved && !app.authUser) {
+      if (!cache.length) renderRows([]);
       setStatus('Account session যাচাই হচ্ছে…', false);
       setLeaderboardRefreshBusy(false);
       return;
     }
     if (app.__medicalRegistrationInProgress) {
+      if (!cache.length) renderRows([]);
       setStatus('Account তৈরি হচ্ছে…', false);
       if (!silent) setLeaderboardRefreshBusy(false);
       return;
@@ -1946,6 +1953,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       refreshSucceeded = true;
     } catch (error) {
       if (requestId !== loadSequence) return;
+      if (!getCache(periodForRequest).length) renderRows([]);
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
       // A newer silent/background/tab refresh must also stop an animation started by a manual refresh.
