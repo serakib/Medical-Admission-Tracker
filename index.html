@@ -1395,7 +1395,7 @@ function toggleAppSidebarCollapse(){
 
                 <div class="profile-stat-card"><span>Total Attempts</span><strong id="profile-attempt-count">0</strong><small>exam history</small></div>
                 <div class="profile-stat-card"><span>Lifetime RP</span><strong id="profile-lifetime-rp">0</strong><small>display only</small></div>
-                <div class="profile-stat-card"><span>Monthly RP</span><strong id="profile-monthly-rp">0</strong><small>current month RP</small></div>
+                <div class="profile-stat-card"><span>Monthly RP</span><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500 text-2xl drop-shadow" aria-hidden="true"></i><span id="profile-monthly-rp">0</span></strong><small>current month RP</small></div>
                 <div class="profile-stat-card"><span>Highest Monthly RP</span><strong id="profile-highest-monthly-rp">0</strong><small>best monthly RP record</small></div>
                 <div class="profile-stat-card"><span>Highest Weekly RP</span><strong id="profile-highest-weekly-rp">0</strong><small>best weekly RP record</small></div>
                 <div class="profile-stat-card"><span>Best Score</span><strong id="profile-best-score">0.00</strong><small>highest result</small></div>
@@ -1528,8 +1528,8 @@ function toggleAppSidebarCollapse(){
               <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div class="mat-student-profile-stat"><small>Medical XP</small><strong id="student-profile-xp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Lifetime RP</small><strong id="student-profile-total-rp">—</strong></div>
-                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500" aria-hidden="true"></i><span id="student-profile-weekly-rp">—</span><span>RP</span></strong></div>
-                <div class="mat-student-profile-stat"><small>Monthly RP</small><strong id="student-profile-monthly-rp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500 text-2xl drop-shadow" aria-hidden="true"></i><span id="student-profile-weekly-rp">—</span><span>RP</span></strong></div>
+                <div class="mat-student-profile-stat"><small>Monthly RP</small><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500 text-2xl drop-shadow" aria-hidden="true"></i><span id="student-profile-monthly-rp">—</span><span>RP</span></strong></div>
                 <div class="mat-student-profile-stat"><small>Highest Monthly RP</small><strong id="student-profile-highest-monthly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Highest Weekly RP</small><strong id="student-profile-highest-weekly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Account Level</small><strong id="student-profile-level">—</strong></div>
@@ -2112,7 +2112,7 @@ main > .view-section.hidden { display: none !important; }
 <script type="module" src="./js/integrated-features.js?v=account-preferences-dots-20261101-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=admin-profile-badge-star-weekly-rp-20261101-2"></script>
+<script type="module" src="./js/global-league-system.js?v=leaderboard-rp-star-highlight-20261101-1"></script>
 <script type="module" src="./js/leaderboard-experience.js?v=admin-profile-badge-star-weekly-rp-20261101-1"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=daily-attempt-records-2" defer></script>
