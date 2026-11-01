@@ -3101,8 +3101,13 @@ function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().to
 // Request rows deliberately contain no Guest name, token, email, or profile data.
 function matAdminGuestProfileData_(row) {
   row = row || {};
+  const userId = String(row.UserID || '');
+  const weeklyRPByUser = matGetWeeklyRPByUser_();
+  const weeklyRP = Math.max(0, Number(
+    row.WeeklyRP || row.WeeklyRankPoints || weeklyRPByUser[userId] || 0
+  ) || 0);
   return {
-    userId: String(row.UserID || ''),
+    userId: userId,
     name: String(row.Name || row.DisplayName || 'Guest Student'),
     college: String(row.College || row.CollegeName || ''),
     batch: String(row.Batch || row.Class || row.HSCBatch || ''),
@@ -3110,11 +3115,16 @@ function matAdminGuestProfileData_(row) {
     level: Number(row.Level || 1),
     xp: Number(row.XP || row.TotalXP || 0),
     totalRP: Number(row.TotalRP || row.LifetimeRP || 0),
-    weeklyRP: Number(row.WeeklyRP || row.WeeklyRankPoints || 0),
+    weeklyRP: weeklyRP,
     monthlyRP: Number(row.MonthlyRP || 0),
     quizzes: Number(row.Quizzes || row.TotalQuizzes || 0),
     accuracy: Number(row.Accuracy || 0),
-    accountType: String(row.AccountType || 'GUEST')
+    accountType: String(row.AccountType || 'GUEST'),
+    guestDeletionPending: !!row.GuestDeletionScheduledAt,
+    guestDeletionRequestedAt: String(row.GuestDeletionRequestedAt || ''),
+    guestDeletionScheduledAt: String(row.GuestDeletionScheduledAt || ''),
+    guestDeletionReason: String(row.GuestDeletionReason || ''),
+    guestAutoDeletionAt: matGuestAutoDeletionAt_(row, weeklyRP)
   };
 }
 function matAdminListGuestDeletionTargets_(p) {
