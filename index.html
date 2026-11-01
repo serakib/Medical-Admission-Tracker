@@ -2034,8 +2034,13 @@ main > .view-section.hidden { display: none !important; }
         if (ended) return;
         ended = true;
         requestEnd();
+        if (actionButton) {
+          actionRequestCount = Math.max(0, actionRequestCount - 1);
+          if (actionRequestCount === 0) finishActionButtonSoon(550);
+        }
       }
       requestStart();
+      if (actionButton) { actionRequestCount += 1; clearTimeout(actionRestoreTimer); }
       xhr.addEventListener('loadend', endOnce, { once: true });
       try { return nativeSend.apply(xhr, arguments); }
       catch (error) { endOnce(); throw error; }
