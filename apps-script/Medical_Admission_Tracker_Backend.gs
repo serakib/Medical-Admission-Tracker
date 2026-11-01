@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.01.6';
+const MAT_API_VERSION = '2026.11.01.7';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -45,6 +45,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'top-ten-activity-telegram-queue',
   'daily-weekly-promotion-zone-check-asia-dhaka',
   'immediate-rank-promotion',
+  'weekly-and-monthly-full-tier-immediate-promotion',
   'expired-guest-cleanup',
   'guest-account-24-hour-pending-deletion-and-cancellation',
   'guest-cleanup-weekly-rp-zero',
@@ -327,6 +328,7 @@ function processDailyWeeklyPromotionReview() {
     const reviewWeekStart = isSaturday ? matOffsetDateKey_(weekStart, -7) : weekStart;
     const reviewWeekEnd = isSaturday ? weekStart : '';
     const weeklyRPByUser = matGetWeeklyRPByUser_(reviewWeekStart, reviewWeekEnd);
+    const monthlyRPByUser = matGetMonthlyRPByUser_();
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
     let processed = 0, promoted = 0, unchanged = 0, alreadyChecked = 0;
@@ -340,13 +342,21 @@ function processDailyWeeklyPromotionReview() {
       }
 
       const student = matReconcileStoredRankProgress_(source);
+      const weeklyEarnedRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[userId], 0));
+      const monthlyEarnedRP = Math.max(0, matFiniteNumber_(monthlyRPByUser[userId], 0));
+      const highestWeeklyRP = Math.max(0, matFiniteNumber_(student.HighestWeeklyRP, 0), weeklyEarnedRP);
+      const periodPromotion = matApplyPeriodRankPromotion_(student, weeklyEarnedRP, monthlyEarnedRP);
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
-      const weeklyEarnedRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[userId], 0));
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
-      const highestWeeklyRP = Math.max(0, matFiniteNumber_(student.HighestWeeklyRP, 0), weeklyEarnedRP);
 
-      if (rankIndex < MAT_RANKS.length - 1 &&
+      if (periodPromotion.promoted > 0) {
+        matUpdateObjectRow_(studentsSheet, student._rowNumber, {
+          HighestWeeklyRP: highestWeeklyRP,
+          LastWeeklyPromotionReviewDate: today
+        });
+        promoted += periodPromotion.promoted;
+      } else if (rankIndex < MAT_RANKS.length - 1 &&
           promotionZoneThreshold > 0 &&
           weeklyEarnedRP >= promotionZoneThreshold) {
         const nextRankIndex = rankIndex + 1;
@@ -379,7 +389,7 @@ function processDailyWeeklyPromotionReview() {
       promoted: promoted,
       unchanged: unchanged,
       alreadyChecked: alreadyChecked,
-      message: 'Daily Weekly Promotion Zone check completed. Promotion sets the new rank Basic RP; no bonus is added, and Weekly RP/Lifetime RP remain unchanged.'
+      message: 'Weekly 100% and Monthly 100% full-tier progress promote immediately; Weekly Promotion Zone progress is reviewed daily.'
     };
   } finally {
     lock.releaseLock();
@@ -1377,11 +1387,6 @@ function matFinalizeProcessingExam_(attempt) {
     if (rankResult.bonusRP > 0) matAppendRPEvent_(userId, rankResult.bonusRP, 'RANK-BONUS-EXAM-' + String(userId) + '-' + String(attemptId), matNowIso_());
   }
 
-  // Generate activity IDs deterministically from attempt + user to avoid duplicate
-  // queue entries if an execution stopped after enqueueing but before committing.
-  const newSnapshot = matBuildTop10_();
-  matEnqueueTop10Changes_(oldSnapshot, newSnapshot, String(attempt.SubmittedAt || matNowIso_()), attemptId);
-  matSaveTop10Snapshot_(newSnapshot);
   matUpdateObjectRow_(matGetExamSheet_(), attempt._rowNumber, {
     RewardStatus: 'COMMITTED',
     RankBefore: rankBefore,
@@ -1389,7 +1394,21 @@ function matFinalizeProcessingExam_(attempt) {
     LastError: ''
   });
 
-  const latest = matFindStudentById_(userId) || current;
+  // The committed exam now contributes to both period ledgers. Reconcile its
+  // full-tier promotion before returning the canonical profile and Top 10 state.
+  const committedStudent = matFindStudentById_(userId) || current;
+  const weeklyRPByUser = matGetWeeklyRPByUser_();
+  const monthlyRPByUser = matGetMonthlyRPByUser_();
+  matApplyPeriodRankPromotion_(committedStudent, weeklyRPByUser[userId], monthlyRPByUser[userId]);
+
+  const latest = matFindStudentById_(userId) || committedStudent;
+  rankAfter = String(latest.Rank || rankAfter);
+  matUpdateObjectRow_(matGetExamSheet_(), attempt._rowNumber, { RankAfter: rankAfter });
+
+  // Snapshot after the promotion so the rank label remains synchronized.
+  const newSnapshot = matBuildTop10_();
+  matEnqueueTop10Changes_(oldSnapshot, newSnapshot, String(attempt.SubmittedAt || matNowIso_()), attemptId);
+  matSaveTop10Snapshot_(newSnapshot);
   return {
     success: true,
     duplicate: alreadyApplied,
@@ -1461,11 +1480,19 @@ function matRankSafeZoneThreshold_(rankIndex) {
   return Math.ceil(cost * 0.30);
 }
 
+function matRankTierCumulativeCap_(rankIndex) {
+  const tierStart = matRankTierStartIndex_(rankIndex);
+  const tierEnd = Math.min(tierStart + 5, MAT_RANKS.length);
+  let cap = 0;
+  for (let index = 0; index < tierEnd; index++) cap += matRankPromotionCost_(index);
+  return cap;
+}
+
 function matRankPromotionZoneThreshold_(rankIndex) {
   if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
-  // Weekly Promotion Zone is 70% of the complete current Main Rank tier,
-  // matching the 5-subrank progress bar shown by every frontend surface.
-  return Math.ceil(matRankTierCap_(rankIndex) * 0.70);
+  const tierRequiredRP = matMainRankRequiredRP_(rankIndex);
+  const tierStartRP = Math.max(0, matRankTierCumulativeCap_(rankIndex) - tierRequiredRP);
+  return tierStartRP + Math.ceil(tierRequiredRP * 0.70);
 }
 
 function matGetRankProgress_(rank, currentRP) {
@@ -1531,6 +1558,64 @@ function matApplyRankProgress_(rank, currentRP, earnedRP) {
   return { rank: MAT_RANKS[index], rp: rp, before: before, promoted: promoted, bonusRP: bonusRP, tierReset: tierReset };
 }
 
+function matApplyPeriodRankPromotion_(student, weeklyRP, monthlyRP) {
+  if (!student || !student._rowNumber || !student.UserID) {
+    return { promoted: 0, rank: String(student && student.Rank || MAT_RANKS[0]) };
+  }
+
+  const periodRP = Math.max(0, matFiniteNumber_(weeklyRP, 0), matFiniteNumber_(monthlyRP, 0));
+  function promotionTarget(startRank) {
+    let index = MAT_RANKS.indexOf(String(startRank || MAT_RANKS[0]));
+    if (index < 0) index = 0;
+    const before = MAT_RANKS[index];
+    let promoted = 0;
+    while (index < MAT_RANKS.length - 1) {
+      const requiredRP = matRankTierCumulativeCap_(index);
+      if (requiredRP <= 0 || periodRP < requiredRP) break;
+      const nextRankIndex = Math.min(matRankTierStartIndex_(index) + 5, MAT_RANKS.length - 1);
+      if (nextRankIndex <= index) break;
+      index = nextRankIndex;
+      promoted += 1;
+    }
+    return { index: index, promoted: promoted, before: before };
+  }
+
+  const preview = promotionTarget(student.Rank);
+  if (!preview.promoted) return { promoted: 0, rank: String(student.Rank || MAT_RANKS[0]) };
+
+  // Reads and reward writes can overlap. Re-read the canonical row under the
+  // script lock before updating it, unless the caller already owns that lock.
+  const lock = LockService.getScriptLock();
+  const alreadyLocked = lock.hasLock();
+  if (!alreadyLocked) lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const latest = matFindStudentById_(student.UserID) || student;
+    const target = promotionTarget(latest.Rank);
+    if (!target.promoted) {
+      student.Rank = latest.Rank;
+      student.RP = latest.RP;
+      return { promoted: 0, rank: String(latest.Rank || MAT_RANKS[0]) };
+    }
+
+    const nextRank = MAT_RANKS[target.index];
+    const nextRP = matRankMilestoneCap_(target.index);
+    const updatedAt = matNowIso_();
+    matUpdateObjectRow_(matGetStudentsSheet_(), latest._rowNumber, {
+      Rank: nextRank,
+      RP: nextRP,
+      RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
+      UpdatedAt: updatedAt
+    });
+    student.Rank = nextRank;
+    student.RP = nextRP;
+    student.RankProgressVersion = MAT_RANK_PROGRESS_VERSION;
+    student.UpdatedAt = updatedAt;
+    return { promoted: target.promoted, before: target.before, rank: nextRank, rp: nextRP };
+  } finally {
+    if (!alreadyLocked) lock.releaseLock();
+  }
+}
+
 function matLevelRequiredXP_(level) {
   const safeLevel = Math.max(1, Math.floor(matFiniteNumber_(level, 1)));
   // Approved smooth progression curve: XP required from this level to the next.
@@ -1583,6 +1668,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
   const rows = students.map(function (s) {
     const weeklyRP = Math.max(0, Number(weeklyByUser[s.UserID] || 0));
     const monthlyRP = Math.max(0, Number(monthlyByUser[s.UserID] || 0));
+    matApplyPeriodRankPromotion_(s, weeklyRP, monthlyRP);
     const highestWeeklyRP = Math.max(
       0, matFiniteNumber_(s.HighestWeeklyRP, 0),
       matFiniteNumber_(historicalHighestByUser[s.UserID], 0), weeklyRP
@@ -1772,7 +1858,10 @@ function matMainRankRequiredRP_(rankIndex) {
 }
 
 function matMainRankSafeZoneThreshold_(rankIndex) {
-  return Math.ceil(matMainRankRequiredRP_(rankIndex) * 0.30);
+  if (rankIndex < 0 || rankIndex >= MAT_RANKS.length - 1) return 0;
+  const tierRequiredRP = matMainRankRequiredRP_(rankIndex);
+  const tierStartRP = Math.max(0, matRankTierCumulativeCap_(rankIndex) - tierRequiredRP);
+  return tierStartRP + Math.ceil(tierRequiredRP * 0.30);
 }
 
 function matAppendRPEvent_(userId, amount, eventId, timestamp) {
@@ -1789,6 +1878,12 @@ function matAppendRPEvent_(userId, amount, eventId, timestamp) {
     RecordType: 'RP_EVENT', AttemptID: id, UserID: uid, RPEarned: points,
     SubmittedAt: timestamp || matNowIso_(), RewardStatus: 'COMMITTED'
   });
+  const student = matFindStudentById_(uid);
+  if (student) {
+    const weeklyRPByUser = matGetWeeklyRPByUser_();
+    const monthlyRPByUser = matGetMonthlyRPByUser_();
+    matApplyPeriodRankPromotion_(student, weeklyRPByUser[uid], monthlyRPByUser[uid]);
+  }
   return true;
 }
 
@@ -2654,8 +2749,9 @@ function matPublicProfile_(r, includeEmail) {
   const highestMonthlyRPByUser = matGetHighestMonthlyRPByUser_();
   const weeklyRPByUser = matGetWeeklyRPByUser_();
   const weeklyRP = Math.max(0, Number(weeklyRPByUser[String(s.UserID || '')] || 0));
-  const guestAutoDeletionAt = matGuestAutoDeletionAt_(s, weeklyRP);
   const monthlyRP = Math.max(0, Number(monthlyRPByUser[String(s.UserID || '')] || 0));
+  matApplyPeriodRankPromotion_(s, weeklyRP, monthlyRP);
+  const guestAutoDeletionAt = matGuestAutoDeletionAt_(s, weeklyRP);
   const highestMonthlyRP = Math.max(0, matFiniteNumber_(s.HighestMonthlyRP, 0), Number(highestMonthlyRPByUser[String(s.UserID || '')] || 0), monthlyRP);
   const result = {
     userId: s.UserID,
