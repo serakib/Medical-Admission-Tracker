@@ -1376,7 +1376,7 @@ function toggleAppSidebarCollapse(){
                 <div class="profile-avatar"><i class="fa-solid fa-user-graduate"></i></div>
                 <div class="min-w-0 flex-1">
                     <div class="eyebrow"><i class="fa-solid fa-id-card"></i> Student Profile</div>
-                    <h2 id="profile-name" class="profile-name">Guest Student</h2>
+                    <div class="min-w-0 flex flex-wrap items-center gap-2"><h2 id="profile-name" class="profile-name">Guest Student</h2><span id="profile-admin-badge" class="hidden inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-black tracking-widest text-sky-700 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-300"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> ADMIN</span></div>
                     <p id="profile-email" class="profile-subtitle">Guest mode • আপনার progress এই device-এ সংরক্ষিত</p>
                 </div>
                
@@ -1515,7 +1515,7 @@ function toggleAppSidebarCollapse(){
             <div class="mat-student-profile-hero">
               <div id="student-profile-avatar" class="mat-student-profile-avatar" aria-label="Student avatar"><i class="fa-solid fa-user-graduate"></i></div>
               <div class="min-w-0 flex-1">
-                <h1 id="student-profile-name" class="mat-student-profile-title">Student Profile</h1>
+                <div class="min-w-0 flex flex-wrap items-center gap-2"><h1 id="student-profile-name" class="mat-student-profile-title">Student Profile</h1><span id="student-profile-admin-badge" class="hidden inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-black tracking-widest text-sky-700 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-300"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> ADMIN</span></div>
                 <p id="student-profile-college-batch" class="mat-student-profile-meta"></p>
                 <p id="student-profile-rank-level" class="mat-student-profile-meta"></p>
               </div>
@@ -1528,7 +1528,7 @@ function toggleAppSidebarCollapse(){
               <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div class="mat-student-profile-stat"><small>Medical XP</small><strong id="student-profile-xp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Lifetime RP</small><strong id="student-profile-total-rp">—</strong></div>
-                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong id="student-profile-weekly-rp">—</strong></div>
+                <div class="mat-student-profile-stat"><small>Weekly RP</small><strong class="inline-flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500" aria-hidden="true"></i><span id="student-profile-weekly-rp">—</span><span>RP</span></strong></div>
                 <div class="mat-student-profile-stat"><small>Monthly RP</small><strong id="student-profile-monthly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Highest Monthly RP</small><strong id="student-profile-highest-monthly-rp">—</strong></div>
                 <div class="mat-student-profile-stat"><small>Highest Weekly RP</small><strong id="student-profile-highest-weekly-rp">—</strong></div>
@@ -2108,12 +2108,12 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=firebase-auth-session-exposure-20261101-1"></script>
+<script type="module" src="script.js?v=admin-profile-badge-star-weekly-rp-20261101-1"></script>
 <script type="module" src="./js/integrated-features.js?v=account-preferences-dots-20261101-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=leaderboard-parse-fix-20261101-1"></script>
-<script type="module" src="./js/leaderboard-experience.js?v=own-rank-cache-fix-20261101-3"></script>
+<script type="module" src="./js/global-league-system.js?v=admin-profile-badge-star-weekly-rp-20261101-1"></script>
+<script type="module" src="./js/leaderboard-experience.js?v=admin-profile-badge-star-weekly-rp-20261101-1"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=daily-attempt-records-2" defer></script>
     <script src="./js/account-slideshow.js?v=popup-fullscreen-20261101-1" defer></script>
