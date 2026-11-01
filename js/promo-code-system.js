@@ -440,7 +440,7 @@ async function loadAdmin(){
      try{await api('adminResolveGuestDeletionRequest',{requestId,decision:approve?'APPROVE':'REJECT'});await loadAdmin();}
      catch(error){$('mat-admin-message').textContent=error.message||'Approval update failed.';button.disabled=false;}
     });
-   }catch(error){$('mat-guest-delete-requests').textContent=error.message||'Approval queue unavailable.';}
+   }catch(error){const message=String(error&&error.message||'');$('mat-guest-delete-requests').textContent=/getLastRow|undefined/i.test(message)?'Backend-এর deployed version পুরোনো বা deletion-request sheet initialize হয়নি। Apps Script-এ latest backend deploy করে setupBackend() একবার চালাতে হবে।':'Approval queue unavailable: '+(message||'Unknown error');}
    // Super Admin: manage already-approved deletion deadlines and inspect audit history.
    if(members.canManage){
     try{
