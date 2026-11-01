@@ -358,24 +358,25 @@ async function loadPremiumNameAccess(members){
 async function loadAdmin(){
  const [members,promo,config,targets]=await Promise.all([api('adminListMembers'),api('adminPromoStatus'),api('adminGetPromoConfig'),api('adminListPromoTargets')]);
  $('mat-admin-panel').classList.remove('hidden');
- // Compact jump navigation keeps long Admin panels easy to scan.
+ // Admin-friendly navigation: grouped sections, quick filter and active-section tracking.
  (function ensureAdminQuickNav(){
   const panel=$('mat-admin-panel');
   let nav=document.getElementById('mat-admin-quick-nav');
+  const items=[
+   {id:'mat-premium-name-access',label:'Golden Name',group:'Access & Rewards',keywords:'premium subscriber name access'},
+   {id:'mat-promo-global-form',label:'Global Promo',group:'Access & Rewards',keywords:'promo code global reward'},
+   {id:'mat-member-overrides',label:'Member Overrides',group:'Access & Rewards',keywords:'member individual promo limit'},
+   {id:'mat-admin-members',label:'Admin Members',group:'Admin Team',keywords:'admins roles remove members'},
+   {id:'mat-admin-add-form',label:'Add Admin',group:'Admin Team',keywords:'invite add email admin'},
+   {id:'mat-admin-unlimited-toggle',label:'Admin Code',group:'Admin Team',keywords:'unlimited admin only code'},
+   {id:'mat-admin-guest-deletion',label:'Guest Deletion',group:'Account Safety',keywords:'guest account delete approval pending schedule'}
+  ];
   if(!nav){
    nav=document.createElement('nav');
    nav.id='mat-admin-quick-nav';
-   nav.setAttribute('aria-label','Admin panel quick navigation');
-   nav.className='sticky top-2 z-30 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur p-2 shadow-sm';
-   nav.innerHTML='<p class="px-1 pb-2 text-[11px] font-extrabold uppercase tracking-wide text-gray-500">Quick navigation</p><div class="flex flex-wrap gap-2">'+[
-    ['mat-premium-name-access','Golden Name'],
-    ['mat-promo-global-form','Global Promo'],
-    ['mat-member-overrides','Member Overrides'],
-    ['mat-admin-members','Admin Members'],
-    ['mat-admin-unlimited-toggle','Admin Code'],
-    ['mat-admin-add-form','Add Admin'],
-    ['mat-admin-guest-deletion','Guest Deletion']
-   ].map(item=>'<a href="#'+item[0]+'" data-admin-jump="'+item[0]+'" class="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:border-rose-400 hover:text-rose-600">'+item[1]+'</a>').join('')+'</div>';
+   nav.setAttribute('aria-label','Admin panel navigation');
+   nav.className='sticky top-2 z-40 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3 shadow-lg space-y-3';
+   nav.innerHTML='<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"><div><p class="text-sm font-extrabold text-slate-900 dark:text-white">Admin Workspace</p><p class="text-[11px] text-slate-500">Jump to a tool · active section is highlighted</p></div><label class="relative block sm:w-64"><span class="sr-only">Search admin sections</span><input id="mat-admin-nav-search" type="search" autocomplete="off" placeholder="Search admin tools…" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 pl-9 text-xs outline-none focus:border-rose-400"><span class="pointer-events-none absolute left-3 top-2 text-slate-400">⌕</span></label></div><div id="mat-admin-nav-groups" class="space-y-2">'+['Access & Rewards','Admin Team','Account Safety'].map(group=>'<div data-admin-nav-group="'+group+'" class="space-y-1"><p class="px-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">'+group+'</p><div class="flex gap-2 overflow-x-auto pb-1">'+items.filter(item=>item.group===group).map(item=>'<a href="#'+item.id+'" data-admin-jump="'+item.id+'" data-label="'+item.label.toLowerCase()+'" data-keywords="'+item.keywords+'" class="shrink-0 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:border-rose-400 hover:text-rose-600" aria-current="false">'+item.label+'</a>').join('')+'</div></div>').join('')+'</div><div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2"><p id="mat-admin-nav-current" class="text-[11px] text-slate-500">Choose a section to get started</p><button type="button" id="mat-admin-nav-top" class="rounded-lg px-2 py-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30">↑ Back to top</button></div>';
    const heading=panel.firstElementChild;
    if(heading)heading.insertAdjacentElement('afterend',nav);else panel.insertBefore(nav,panel.firstChild);
    nav.addEventListener('click',function(event){
@@ -384,9 +385,42 @@ async function loadAdmin(){
     const target=document.getElementById(link.getAttribute('data-admin-jump'));
     if(target){event.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
    });
+   nav.querySelector('#mat-admin-nav-top').addEventListener('click',()=>panel.scrollIntoView({behavior:'smooth',block:'start'}));
+   nav.querySelector('#mat-admin-nav-search').addEventListener('input',function(){
+    const query=this.value.trim().toLowerCase();
+    nav.querySelectorAll('[data-admin-jump]').forEach(link=>link.classList.toggle('hidden',!!query&&!(link.dataset.label+' '+link.dataset.keywords).includes(query)));
+    nav.querySelectorAll('[data-admin-nav-group]').forEach(group=>group.classList.toggle('hidden',!group.querySelector('[data-admin-jump]:not(.hidden)')));
+   });
   }
-  const codeButton=$('mat-admin-unlimited-toggle');
-  if(codeButton&&codeButton.parentElement&&!codeButton.parentElement.id)codeButton.parentElement.id='mat-admin-unlimited-toggle';
+  items.forEach(item=>{
+   const link=nav.querySelector('[data-admin-jump="'+item.id+'"]');
+   const target=document.getElementById(item.id);
+   if(link)link.classList.toggle('hidden',!target||target.classList.contains('hidden'));
+  });
+  nav.querySelectorAll('[data-admin-nav-group]').forEach(group=>group.classList.toggle('hidden',!group.querySelector('[data-admin-jump]:not(.hidden)')));
+  const activate=function(id){
+   const link=nav.querySelector('[data-admin-jump="'+id+'"]');
+   if(!link)return;
+   nav.querySelectorAll('[data-admin-jump]').forEach(item=>{
+    const active=item===link;
+    item.classList.toggle('border-rose-500',active);
+    item.classList.toggle('bg-rose-50',active);
+    item.classList.toggle('text-rose-700',active);
+    item.classList.toggle('dark:bg-rose-950/30',active);
+    item.setAttribute('aria-current',active?'location':'false');
+   });
+   const current=nav.querySelector('#mat-admin-nav-current');
+   if(current)current.textContent='Current section: '+link.textContent.trim();
+  };
+  nav.querySelectorAll('[data-admin-jump]').forEach(link=>link.addEventListener('click',()=>activate(link.dataset.adminJump)));
+  if(!nav.dataset.observerReady&&'IntersectionObserver'in window){
+   const observer=new IntersectionObserver(entries=>{
+    const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+    if(visible)activate(visible.target.id);
+   },{rootMargin:'-18% 0px -68% 0px',threshold:[0,0.15,0.4]});
+   items.forEach(item=>{const target=document.getElementById(item.id);if(target){target.style.scrollMarginTop='150px';observer.observe(target);}});
+   nav.dataset.observerReady='true';
+  }
  })();
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
