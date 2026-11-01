@@ -272,6 +272,12 @@
     profile.xp = Math.max(0, Number(user.xp) || 0);
     profile.pb = Math.max(0, Number(user.pb != null ? user.pb : user.pendingPB) || 0);
     profile.pendingPB = profile.pb;
+    profile.availablePB = profile.pb;
+    // Permanent promo PB is a separate, non-expiring component of the canonical PB wallet.
+    // Preserve it when an older API response omits the field.
+    profile.promoPB = user.promoPB != null
+      ? Math.max(0, Number(user.promoPB) || 0)
+      : Math.max(0, Number(profile.promoPB) || 0);
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
     profile.monthlyRP = Math.max(0, Number(user.monthlyRP != null ? user.monthlyRP : user.monthlyRankPoints) || 0);
@@ -386,6 +392,8 @@
     } catch (_) {}
     return profile;
   }
+  // Shared entry point for every feature that receives a committed account snapshot.
+  app.applyMedicalAccountSnapshot = applyProfile;
   function setText(id, value) {
     var el = document.getElementById(id);
     if (el && value != null) el.textContent = String(value);
@@ -2609,6 +2617,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     loadLeaderboard: loadLeaderboard,
     recordLeaderboardResult: recordLeaderboardResult,
     getProgress: getServerProgress,
+    applyAccountSnapshot: applyProfile,
     convertPB: convertPB,
     getAccountSettings: getAccountSettings,
     requestGuestDeletion: requestGuestDeletion,
