@@ -68,12 +68,12 @@ function card(){
   msg.innerHTML='Redeeming <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
   try{
     const r=await api('redeemPromoCode',{code:input.value});
-    msg.textContent='+'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';
+    msg.textContent='Promo code successfully redeemed! +'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';
     input.value='';
     if(r.user&&window.MedGlobalLeague&&typeof window.MedGlobalLeague.applyAccountSnapshot==='function'){window.MedGlobalLeague.applyAccountSnapshot(r.user);}
     else if(r.user&&window.app){window.app.profile=Object.assign(window.app.profile||{},r.user);window.app.profile.pb=Number(r.user.pb||r.user.pendingPB||0);window.app.profile.availablePB=window.app.profile.pb;window.app.profile.promoPB=Number(r.user.promoPB||0);window.dispatchEvent(new CustomEvent('student-progress-updated',{detail:Object.assign({},window.app.profile,{source:'promo-redemption'})}));}
     $('mat-promo-balance').textContent=Number(r.promoPB).toLocaleString()+' PB';
-  }catch(err){msg.textContent=err.message;}
+  }catch(err){msg.textContent='Promo code redemption failed: '+(err&&err.message?err.message:'Please try again.');}
   finally{if(button){button.innerHTML=originalButtonHTML;button.disabled=false;button.removeAttribute('aria-busy');}}
  });
  $('mat-promo-global-form').addEventListener('submit',async e=>{e.preventDefault();const msg=$('mat-admin-message');msg.textContent='Saving global settings…';try{await api('adminSavePromoConfig',{code:$('mat-global-code').value,rewardPB:$('mat-global-reward').value,limitCount:$('mat-global-limit').value,limitPeriod:$('mat-global-period').value,enabled:$('mat-global-enabled').checked});msg.textContent='Global Promo Settings saved.';await refresh();}catch(err){msg.textContent=err.message;}});
