@@ -47,7 +47,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'immediate-rank-promotion',
   'weekly-and-monthly-full-tier-immediate-promotion',
   'expired-guest-cleanup',
-  'guest-account-24-hour-pending-deletion-and-cancellation',
+  'guest-account-72-hour-pending-deletion-and-cancellation',
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-committed-exams-and-rp-events',
   'rank-change-sets-target-rank-basic-rp-no-bonus',
@@ -2406,7 +2406,7 @@ function matRequestGuestDeletion_(p) {
     }
     const now = Date.now();
     const requestedAt = new Date(now).toISOString();
-    const scheduledAt = new Date(now + 24 * 60 * 60 * 1000).toISOString();
+    const scheduledAt = new Date(now + 72 * 60 * 60 * 1000).toISOString();
     matUpdateObjectRow_(matGetStudentsSheet_(), latest._rowNumber, {
       GuestDeletionRequestedAt: requestedAt,
       GuestDeletionScheduledAt: scheduledAt,
@@ -3141,7 +3141,8 @@ function matAdminResolveGuestDeletionRequest_(p) {
       const target = matFindStudentById_(userId);
       if (!target || String(target.AccountType||'').toUpperCase()!=='GUEST') throw new Error('Guest account no longer exists.');
       // The existing scheduled Guest cleanup trigger performs the full Sheets cleanup.
-      matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:now,GuestDeletionScheduledAt:now,UpdatedAt:now});
+      const scheduledAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+      matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionRequestedAt:now,GuestDeletionScheduledAt:scheduledAt,UpdatedAt:now});
     }
     matUpdateObjectRow_(sh,row._rowNumber,{Status:decision==='APPROVE'?'APPROVED':'REJECTED',ReviewedBy:matPromoEmail_(actor),ReviewedAt:now,Decision:decision});
     return {success:true,status:decision==='APPROVE'?'APPROVED':'REJECTED'};
