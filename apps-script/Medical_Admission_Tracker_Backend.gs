@@ -3072,15 +3072,27 @@ function matRedeemPromoCode_(p) {
     if (cfg.rewardPB == null) cfg.rewardPB = type === 'weekly' ? c.reward : type === 'daily' ? c.reward : 100000;
     const windowKey = matPromoWindowKey_(cfg.limitPeriod,new Date());
     const rows = matReadObjects_(matPromoSheets_().redemptions);
-    // Public Daily/Weekly codes are strictly one redemption per user and
-    // Bangladesh calendar period. Admin-configured limits must never loosen this.
-    if ((type === 'daily' || type === 'weekly') &&
-        rows.some(r => String(r.UserID) === String(u.UserID) &&
-          String(r.Type).toLowerCase() === type &&
-          String(r.PeriodKey) === String(c.period))) {
-      throw new Error(type === 'daily'
-        ? 'আজকের Daily Promo Code আপনি ইতিমধ্যে redeem করেছেন।'
-        : 'এই Weekly Promo Code আপনি ইতিমধ্যে redeem করেছেন।');
+    // Hard one-per-Bangladesh-day guard for public Daily codes.
+    // Match both the ledger period key and the actual redemption timestamp so
+    // older rows with missing/mismatched PeriodKey cannot bypass the check.
+    const dhakaToday = Utilities.formatDate(new Date(), MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd');
+    if (type === 'daily' && rows.some(r => {
+      if (String(r.UserID).trim() !== String(u.UserID).trim()) return false;
+      const redeemed = r.RedeemedAt ? new Date(r.RedeemedAt) : null;
+      const redeemedDay = redeemed && !isNaN(redeemed.getTime())
+        ? Utilities.formatDate(redeemed, MAT_CONFIG.TIME_ZONE, 'yyyy-MM-dd') : '';
+      return String(r.Type || '').trim().toLowerCase() === 'daily' &&
+        (String(r.PeriodKey || '').trim() === String(c.period || periodKey) ||
+         redeemedDay === dhakaToday);
+    })) {
+      throw new Error('আজকের Daily Promo Code আপনি ইতিমধ্যে redeem করেছেন।');
+    }
+    // Weekly public codes remain one redemption per Bangladesh week.
+    if (type === 'weekly' && rows.some(r =>
+      String(r.UserID).trim() === String(u.UserID).trim() &&
+      String(r.Type || '').trim().toLowerCase() === 'weekly' &&
+      String(r.PeriodKey || '').trim() === String(c.period || periodKey))) {
+      throw new Error('এই Weekly Promo Code আপনি ইতিমধ্যে redeem করেছেন।');
     }
     const limit = Math.max(0,Number(cfg.limitCount || 0));
     if (limit > 0 && matPromoCountForLimit_(rows,u.UserID,code,cfg.limitPeriod,windowKey) >= limit)
