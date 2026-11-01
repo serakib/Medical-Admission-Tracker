@@ -377,6 +377,42 @@ async function loadAdmin(){
  box.innerHTML='<h4 class="font-bold text-gray-800 dark:text-white">Admin Members</h4>'+members.members.map(m=>'<div class="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 py-2"><span class="min-w-0 break-all">'+esc(m.email)+' <small class="text-gray-500">('+esc(m.role)+')</small></span>'+(m.role==='SUPER_ADMIN'||!members.canManage?'':'<button data-remove="'+esc(m.email)+'" class="text-xs font-bold text-rose-600">Remove</button>')+'</div>').join('');
  $('mat-admin-add-form').classList.toggle('hidden',!members.canManage);
  box.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('এই Admin Member-কে remove করবেন?'))return;try{await api('adminRemoveMember',{email:b.dataset.remove});await loadAdmin();}catch(e){$('mat-admin-message').textContent=e.message;}}));
+
+ // Guest deletion is a two-person control: any Admin may request; only Super Admin may decide.
+ try {
+  const guestData = await api('adminListGuestDeletionTargets');
+  let section = $('mat-admin-guest-deletion');
+  if (!section) {
+   section = document.createElement('section');
+   section.id = 'mat-admin-guest-deletion';
+   section.className = 'rounded-2xl border border-amber-200 dark:border-amber-900 p-4 space-y-3';
+   box.parentNode.insertBefore(section, box.nextSibling);
+  }
+  section.innerHTML = '<div><h4 class="font-bold text-gray-900 dark:text-white">Guest Account Deletion</h4><p class="text-xs text-gray-500 mt-1">Admin request করতে পারবে; deletion কার্যকর হবে শুধু Super Admin approval-এর পর।</p></div><div class="flex flex-col sm:flex-row gap-2"><select id="mat-guest-delete-target" class="min-w-0 flex-1 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"><option value="">Select Guest account</option>'+guestData.guests.filter(g=>!g.deletionPending).map(g=>'<option value="'+esc(g.userId)+'">'+esc(g.userId)+'</option>').join('')+'</select><button id="mat-guest-delete-request" class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white">Request deletion</button></div><p id="mat-guest-delete-status" class="text-xs text-gray-500"></p>'+(members.canManage?'<div class="border-t border-amber-200 dark:border-amber-900 pt-3"><h5 class="font-bold text-sm">Pending Super Admin approvals</h5><div id="mat-guest-delete-requests" class="mt-2 space-y-2 text-sm">Loading…</div></div>':'');
+  $('mat-guest-delete-request').onclick = async function(){
+   const userId=$('mat-guest-delete-target').value,button=this,status=$('mat-guest-delete-status');
+   if(!userId){status.textContent='আগে Guest account select করুন।';return;}
+   if(!confirm('এই Guest account deletion-এর জন্য Super Admin approval request করবেন?'))return;
+   button.disabled=true;status.textContent='Request submitting…';
+   try{await api('adminCreateGuestDeletionRequest',{userId});status.textContent='Request Pending Approval হিসেবে জমা হয়েছে।';$('mat-guest-delete-target').value='';}
+   catch(error){status.textContent=error.message||'Request failed.';}
+   finally{button.disabled=false;}
+  };
+  if(members.canManage){
+   try{
+    const pending=await api('adminListGuestDeletionRequests'),host=$('mat-guest-delete-requests');
+    host.innerHTML=pending.requests.length?pending.requests.map(req=>'<div class="rounded-xl border border-gray-200 dark:border-gray-700 p-3"><p class="font-semibold break-all">'+esc(req.userId)+'</p><p class="text-xs text-gray-500 mt-1">Requested by '+esc(req.requestedBy)+' · '+esc(req.requestedAt)+'</p><div class="flex gap-2 mt-2"><button data-guest-approve="'+esc(req.requestId)+'" class="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-bold text-white">Approve deletion</button><button data-guest-reject="'+esc(req.requestId)+'" class="rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-bold">Reject</button></div></div>').join(''):'No pending requests.';
+    host.querySelectorAll('[data-guest-approve],[data-guest-reject]').forEach(button=>button.onclick=async()=>{
+     const approve=button.hasAttribute('data-guest-approve'),requestId=button.getAttribute(approve?'data-guest-approve':'data-guest-reject');
+     if(!confirm(approve?'Guest account deletion approve করবেন?':'এই deletion request reject করবেন?'))return;
+     button.disabled=true;
+     try{await api('adminResolveGuestDeletionRequest',{requestId,decision:approve?'APPROVE':'REJECT'});await loadAdmin();}
+     catch(error){$('mat-admin-message').textContent=error.message||'Approval update failed.';button.disabled=false;}
+    });
+   }catch(error){$('mat-guest-delete-requests').textContent=error.message||'Approval queue unavailable.';}
+  }
+ } catch(error) { console.warn('[Guest deletion approval]',error); }
+
  const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;}};
 }
 async function refresh(){
