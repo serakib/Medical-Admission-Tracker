@@ -665,6 +665,18 @@
     updatePBConversionPreview();
   }
 
+  // Repaint the open PB conversion panel whenever the canonical account snapshot changes.
+  window.addEventListener('student-progress-updated', event => {
+    const snapshot = event.detail || app.profile || {};
+    const ownId = userId();
+    const snapshotId = String(snapshot.userId || snapshot.uid || snapshot.playerId || '');
+    if (!ownId || snapshotId !== ownId) return;
+    if (document.getElementById('student-profile-pb-conversion')) {
+      activePublicProfile = Object.assign({}, activePublicProfile || {}, snapshot);
+      renderPBConversionPanel(activePublicProfile);
+    }
+  });
+
   if (!document.documentElement.dataset.pbConversionHandler) {
     document.documentElement.dataset.pbConversionHandler = '1';
     document.addEventListener('click', async event => {
