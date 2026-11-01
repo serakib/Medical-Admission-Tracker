@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.01.4';
+const MAT_API_VERSION = '2026.11.01.5';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -70,7 +70,8 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'member-specific-promo-code-configuration',
   'admin-promo-target-management',
   'admin-only-fixed-promo-code',
-  'server-side-promo-redemption-limits-and-ledger'
+  'server-side-promo-redemption-limits-and-ledger',
+  'daily-promo-one-redemption-per-dhaka-calendar-day'
 ]);
 
 const MAT_STUDENT_HEADERS = [
