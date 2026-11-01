@@ -1177,12 +1177,17 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return monthlyPointsForRow(row) >= monthlySafeZoneThresholdFor(row);
   }
   function promotionZoneThresholdFor(row) {
-    var vault = window.MedAchievementVaultTrophies;
-    var info = vault && typeof vault.getRankInfoForName === 'function' ? vault.getRankInfoForName(row && row.rank) : null;
-    if (!info && vault && typeof vault.getRankInfoForPoints === 'function') info = vault.getRankInfoForPoints(row && row.rankPoints || 0);
-    if (info && info.atMax) return 0;
-    // 70% begins the weekly Promotion Zone; reaching 100% promotes immediately server-side.
-    return Math.ceil(Math.max(0, Number(info && info.required) || 0) * 0.70);
+    var progress = row && row.rankProgress && typeof row.rankProgress === 'object' ? row.rankProgress : {};
+    var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
+    if (rankIndex < 0 || rankIndex >= RANKS.length - 1 || progress.isFinalRank === true) return 0;
+    var serverThreshold = Number(progress.weeklyPromotionZoneThreshold);
+    if (Number.isFinite(serverThreshold) && serverThreshold >= 0) return serverThreshold;
+    // Fallback mirrors the backend: 70% of the full five-subrank Main Rank tier.
+    var tierStart = Math.floor(rankIndex / 5) * 5;
+    var tierEnd = Math.min(tierStart + 4, RANKS.length - 1);
+    var tierCost = 0;
+    for (var i = tierStart; i <= tierEnd; i++) tierCost += rankPromotionCostForIndex(i);
+    return Math.ceil(tierCost * 0.70);
   }
   function isMaxRankRow(row) {
     var vault = window.MedAchievementVaultTrophies;
