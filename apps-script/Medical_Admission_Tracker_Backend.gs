@@ -1111,7 +1111,9 @@ function matGetAccountSettings_(p) {
   const user = matAuthenticate_(p);
   const student = matFindStudentById_(user.UserID);
   if (!student) throw new Error('Student profile not found.');
-  return { success: true, settings: Object.assign(matGetPBExpirySettings_(student), {
+  const superAdminEmail = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+  const authenticatedEmail = String(user.Email || '').trim().toLowerCase();
+  return { success: true, isSuperAdmin: !!(superAdminEmail && authenticatedEmail === superAdminEmail), settings: Object.assign(matGetPBExpirySettings_(student), {
     includePendingFriends: String(student.FriendsIncludePending || '').toLowerCase() === 'true'
   }) };
 }
@@ -2446,6 +2448,11 @@ function matDeleteAccount_(p) {
   const firebaseUser = matVerifyFirebaseIdToken_(idToken);
   const userId = String(firebaseUser.localId || '');
   if (!userId) throw new Error('Firebase identity could not be verified for account deletion.');
+  const superAdminEmail = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+  const authenticatedEmail = String(firebaseUser.email || '').trim().toLowerCase();
+  if (superAdminEmail && authenticatedEmail && authenticatedEmail === superAdminEmail) {
+    throw new Error('Super Admin account deletion is permanently disabled.');
+  }
 
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
