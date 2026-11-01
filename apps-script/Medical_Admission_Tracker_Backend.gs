@@ -176,6 +176,8 @@ function matDispatch_(action, p) {
     case 'redeemPromoCode': return matRedeemPromoCode_(p || {});
     case 'adminBootstrapStatus': return matAdminBootstrapStatus_(p || {});
     case 'adminListMembers': return matAdminListMembers_(p || {});
+    case 'adminListPremiumNameAccess': return matAdminListPremiumNameAccess_(p || {});
+    case 'adminSetPremiumNameAccess': return matAdminSetPremiumNameAccess_(p || {});
     case 'adminAddMember': return matAdminAddMember_(p || {});
     case 'adminRemoveMember': return matAdminRemoveMember_(p || {});
     case 'adminPromoStatus': return matAdminPromoStatus_(p || {});
@@ -1686,7 +1688,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
     return {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
       username: s.Name || 'Medical Student', name: s.Name || 'Medical Student',
-      accountType: s.AccountType || 'GUEST', isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s), college: s.College || '', batch: s.Batch || '',
+      accountType: s.AccountType || 'GUEST', isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s), isGoldName: matPromoHasGoldName_(s), college: s.College || '', batch: s.Batch || '',
       guestAutoDeletionAt: matGuestAutoDeletionAt_(s, weeklyRP),
       avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
@@ -2764,6 +2766,7 @@ function matPublicProfile_(r, includeEmail) {
     username: s.Name,
     accountType: String(s.AccountType || 'GUEST'),
     isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s),
+    isGoldName: matPromoHasGoldName_(s),
     guestDeletionPending: String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt,
     guestDeletionRequestedAt: String(s.GuestDeletionRequestedAt || ''),
     guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
@@ -2974,6 +2977,7 @@ function matPromoSheets_(){
 }
 function matPromoEmail_(u){return String(u&&u.Email||'').trim().toLowerCase();}
 var MAT_PROMO_ADMIN_EMAIL_LOOKUP_ = null;
+var MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_ = null;
 function matPromoAdminEmailLookup_(){
  if(MAT_PROMO_ADMIN_EMAIL_LOOKUP_)return MAT_PROMO_ADMIN_EMAIL_LOOKUP_;
  const lookup=Object.create(null),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
@@ -2990,6 +2994,62 @@ function matPromoAdminEmailLookup_(){
 function matPromoIsAdmin_(u){
  const email=matPromoEmail_(u);
  return !!(email&&matPromoAdminEmailLookup_()[email]);
+}
+function matPremiumNameAccessSheet_(){
+ const ss=SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
+ let sh=ss.getSheetByName('PremiumNameAccess');
+ if(!sh){sh=ss.insertSheet('PremiumNameAccess');sh.getRange(1,1,1,8).setValues([['UserID','Email','Name','Status','GrantedAt','GrantedBy','UpdatedAt','UpdatedBy']]);sh.setFrozenRows(1);}
+ else {
+  const old=matHeaders_(sh),missing=['UserID','Email','Name','Status','GrantedAt','GrantedBy','UpdatedAt','UpdatedBy'].filter(function(h){return old.indexOf(h)<0;});
+  if(missing.length)sh.getRange(1,old.length+1,1,missing.length).setValues([missing]);
+ }
+ return sh;
+}
+function matPremiumNameAccessLookup_(){
+ if(MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_)return MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_;
+ const lookup=Object.create(null);
+ try{
+  matReadObjects_(matPremiumNameAccessSheet_()).forEach(function(row){
+   const email=String(row.Email||'').trim().toLowerCase();
+   if(email&&String(row.Status||'').trim().toUpperCase()==='ACTIVE')lookup[email]=true;
+  });
+ }catch(error){Logger.log('Premium name access lookup unavailable: '+error);}
+ MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_=lookup;
+ return lookup;
+}
+function matPromoHasGoldName_(u){
+ if(!u||String(u.AccountType||'').toUpperCase()!=='REGISTERED')return false;
+ const email=matPromoEmail_(u);
+ return !!(email&&(matPromoIsAdmin_(u)||matPremiumNameAccessLookup_()[email]));
+}
+function matPromoRequireSuperAdmin_(p){
+ const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+ if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can manage Premium Name access.');
+ return actor;
+}
+function matAdminListPremiumNameAccess_(p){
+ matPromoRequireSuperAdmin_(p);
+ const rows=matReadObjects_(matPremiumNameAccessSheet_()).filter(function(row){return String(row.Status||'').trim().toUpperCase()==='ACTIVE';});
+ return {success:true,access:rows.map(function(row){return {userId:String(row.UserID||''),name:String(row.Name||''),email:String(row.Email||''),grantedAt:String(row.GrantedAt||'')};})};
+}
+function matAdminSetPremiumNameAccess_(p){
+ const actor=matPromoRequireSuperAdmin_(p),userId=String(p&&p.userId||'').trim(),enabled=p&&p.enabled===true;
+ if(!userId)throw new Error('Select a registered member.');
+ const target=matFindStudentById_(userId);
+ if(!target||String(target.AccountType||'').toUpperCase()!=='REGISTERED')throw new Error('Only registered members can receive Premium Name access.');
+ const email=String(target.Email||'').trim().toLowerCase();
+ if(!email)throw new Error('Member email is not available.');
+ if(matPromoIsAdmin_(target))throw new Error('Admin members already have automatic Golden Name access.');
+ const sh=matPremiumNameAccessSheet_(),rows=matReadObjects_(sh),old=rows.find(function(row){return String(row.UserID||'')===userId;});
+ const now=matNowIso_(),actorEmail=matPromoEmail_(actor);
+ if(enabled){
+  const values={UserID:userId,Email:email,Name:String(target.Name||''),Status:'ACTIVE',GrantedAt:old&&old.GrantedAt||now,GrantedBy:old&&old.GrantedBy||actorEmail,UpdatedAt:now,UpdatedBy:actorEmail};
+  if(old)matUpdateObjectRow_(sh,old._rowNumber,values);else matAppendObject_(sh,values);
+ }else if(old){
+  matUpdateObjectRow_(sh,old._rowNumber,{Status:'REVOKED',UpdatedAt:now,UpdatedBy:actorEmail});
+ }
+ MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_=null;
+ return {success:true,enabled:!!enabled,userId:userId};
 }
 function matPromoRequireAdmin_(p){const token=String(p&& (p.idToken||p.firebaseIdToken)||'').trim();if(!token)throw new Error('Registered Admin sign-in required.');const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified!==true)throw new Error('Admin account email must be verified in Firebase.');const u=matAuthenticate_(p);u.Email=String(identity.email||'').trim().toLowerCase();if(String(u.AccountType).toUpperCase()!=='REGISTERED'||!matPromoIsAdmin_(u))throw new Error('Admin access required.');return u;}
 function matAdminBootstrapStatus_(p){const u=matAuthenticate_(p);let verifiedEmail='';const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();if(token){const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified===true)verifiedEmail=String(identity.email||'').trim().toLowerCase();}u.Email=verifiedEmail;return {success:true,configured:!!matScriptProperty_('MAT_SUPER_ADMIN_EMAIL'),isAdmin:!!verifiedEmail&&String(u.AccountType).toUpperCase()==='REGISTERED'&&matPromoIsAdmin_(u)};}
