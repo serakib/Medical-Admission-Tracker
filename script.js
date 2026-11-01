@@ -2582,7 +2582,7 @@ window.handleAccountDeletion = function() {
             }
             setDeleteStatus(message, true);
             confirmButton.disabled = false;
-            passwordInput.disabled = false;
+            if (passwordInput) passwordInput.disabled = false;
             if (resetButton) resetButton.disabled = false;
             confirmButton.textContent = hasEmailPassword ? 'Verify password & delete account' : 'Verify with Google & delete account';
             passwordInput?.focus();
