@@ -65,7 +65,7 @@ function card(){
   const button=form.querySelector('button[type="submit"],button:not([type])');
   const originalButtonHTML=button?button.innerHTML:'';
   if(button){button.disabled=true;button.setAttribute('aria-busy','true');button.innerHTML='Redeeming <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';}
-  msg.innerHTML='Redeeming'+ " <span class=\\"mat-loading-dots\\" role=\\"img\\" aria-label=\\"loading\\"><i>.</i><i>.</i><i>.</i></span>";
+  msg.innerHTML='Redeeming <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
   try{
     const r=await api('redeemPromoCode',{code:input.value});
     msg.textContent='+'+Number(r.rewardPB).toLocaleString()+' PB যোগ হয়েছে।';
