@@ -163,6 +163,7 @@ function matDispatch_(action, p) {
     case 'adminAddMember': return matAdminAddMember_(p || {});
     case 'adminRemoveMember': return matAdminRemoveMember_(p || {});
     case 'adminPromoStatus': return matAdminPromoStatus_(p || {});
+    case 'adminSetUnlimitedEnabled': return matAdminSetUnlimitedEnabled_(p || {});
     case 'updateProfile':
     case 'saveProfile':
       return matUpdateProfile_(p || {});
@@ -2824,7 +2825,7 @@ function matErrorText_(err) {
 
 
 /* MAT_PROMO_SYSTEM_V1 — promo PB is held separately from expiring PB. */
-const MAT_PROMO_FIXED_CODE_='DC-27 ROLL-776';
+function matPromoFixedCode_(){return matScriptProperty_('MAT_PROMO_FIXED_CODE');}
 const MAT_PROMO_TZ_='Asia/Dhaka';
 function matPromoDate_(){return Utilities.formatDate(new Date(),MAT_PROMO_TZ_,'yyyy-MM-dd');}
 function matPromoOffset_(key,n){const a=key.split('-').map(Number),d=new Date(Date.UTC(a[0],a[1]-1,a[2]));d.setUTCDate(d.getUTCDate()+n);return Utilities.formatDate(d,'UTC','yyyy-MM-dd');}
@@ -2840,7 +2841,7 @@ function matPromoSheets_(){
 }
 function matPromoEmail_(u){return String(u&&u.Email||'').trim().toLowerCase();}
 function matPromoIsAdmin_(u){const e=matPromoEmail_(u),root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();if(root&&e===root)return true;return matReadObjects_(matPromoSheets_().admins).some(r=>String(r.Email||'').toLowerCase()===e&&String(r.Status).toUpperCase()==='ACTIVE');}
-function matPromoRequireAdmin_(p){const u=matAuthenticate_(p);if(String(u.AccountType).toUpperCase()!=='REGISTERED'||!matPromoIsAdmin_(u))throw new Error('Admin access required.');return u;}
+function matPromoRequireAdmin_(p){const token=String(p&& (p.idToken||p.firebaseIdToken)||'').trim();if(!token)throw new Error('Registered Admin sign-in required.');const identity=matVerifyFirebaseIdToken_(token);const u=matAuthenticate_(p);u.Email=String(identity.email||'').trim().toLowerCase();if(String(u.AccountType).toUpperCase()!=='REGISTERED'||!matPromoIsAdmin_(u))throw new Error('Admin access required.');return u;}
 function matAdminBootstrapStatus_(p){const u=matAuthenticate_(p);return {success:true,configured:!!matScriptProperty_('MAT_SUPER_ADMIN_EMAIL'),isAdmin:matPromoIsAdmin_(u)};}
 function matSetInitialPromoSuperAdmin(email){const e=String(email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid email required.');const p=PropertiesService.getScriptProperties();if(p.getProperty('MAT_SUPER_ADMIN_EMAIL'))throw new Error('Super Admin already configured.');p.setProperty('MAT_SUPER_ADMIN_EMAIL',e);return 'Super Admin configured.';}
 function matAdminListMembers_(p){matPromoRequireAdmin_(p);const root=matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase();return {success:true,members:[{email:root,role:'SUPER_ADMIN',status:'ACTIVE'}].concat(matReadObjects_(matPromoSheets_().admins).map(r=>({email:String(r.Email||''),role:'ADMIN',status:String(r.Status||'')})))};}
@@ -2851,7 +2852,7 @@ function matRedeemPromoCode_(p){
  const u=matAuthenticate_(p),input=String(p.code||'').trim().toUpperCase();if(!input)throw new Error('Promo Code লিখুন।');
  const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
  try{const sh=matPromoSheets_().redemptions,c=matPromoPublic_(),now=matNowIso_();let type,period,reward;
- if(input===MAT_PROMO_FIXED_CODE_){type='unlimited';period='';reward=100000;}
+ if(input===matPromoFixedCode_() && matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'){type='unlimited';period='';reward=100000;}
  else if(input===c.code.toUpperCase()){type=c.type;period=c.period;reward=c.reward;}
  else throw new Error('এই Promo Code এখন valid নয়।');
  const rows=matReadObjects_(sh);if(type!=='unlimited'&&rows.some(r=>String(r.UserID)===String(u.UserID)&&String(r.Type)===type&&String(r.PeriodKey)===period))throw new Error('এই period-এর code আপনি ইতিমধ্যে redeem করেছেন।');
@@ -2862,4 +2863,5 @@ function matRedeemPromoCode_(p){
  return {success:true,rewardPB:reward,promoPB:balance,user:matApiUser_(matFindStudentById_(u.UserID))};
  }finally{lock.releaseLock();}
 }
-function matAdminPromoStatus_(p){matPromoRequireAdmin_(p);const c=matPromoPublic_(),r=matReadObjects_(matPromoSheets_().redemptions);return {success:true,publicCode:c.code,publicType:c.type,publicRewardPB:c.reward,redemptions:r.length};}
+function matAdminPromoStatus_(p){matPromoRequireAdmin_(p);const c=matPromoPublic_(),r=matReadObjects_(matPromoSheets_().redemptions);return {success:true,publicCode:c.code,publicType:c.type,publicRewardPB:c.reward,redemptions:r.length,unlimitedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};}
+function matAdminSetUnlimitedEnabled_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can change this setting.');PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',p.enabled===true||String(p.enabled).toLowerCase()==='true'?'TRUE':'FALSE');return {success:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};}
