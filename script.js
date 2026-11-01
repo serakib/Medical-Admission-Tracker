@@ -2320,7 +2320,7 @@ function refreshGuestDeletionCard() {
     if (title) title.textContent = isPending ? 'Guest deletion pending' : 'Delete Guest Account';
     if (description) description.textContent = isPending
       ? 'আপনার Guest account এখনো চালু আছে। নির্ধারিত সময় শেষ হওয়ার আগে চাইলে deletion cancel করতে পারবেন।'
-      : 'Password ছাড়াই Guest account delete request করা যাবে। দুইবার confirmation-এর পর ২৪ ঘণ্টা pending থাকবে; এই সময়ে account ব্যবহার করতে পারবেন।';
+      : 'Password ছাড়াই Guest account delete request করা যাবে। দুইবার confirmation-এর পর ৭২ ঘণ্টা pending থাকবে; এই সময়ে account ব্যবহার করতে পারবেন।';
     if (start) {
       start.classList.toggle('hidden', isPending);
       start.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete Guest account';
@@ -2342,7 +2342,7 @@ function refreshGuestDeletionCard() {
           parts.push(String(hours).padStart(2, '0') + 'h', String(minutes).padStart(2, '0') + 'm', String(seconds).padStart(2, '0') + 's');
           pending.innerHTML = '<strong>Deletion pending</strong><div style="font-size:1.35rem;font-weight:900;letter-spacing:.04em;margin:5px 0">' + parts.join(' ') + ' remaining</div><small>সময় শেষ না হওয়া পর্যন্ত আপনার Guest account চালু থাকবে।</small>';
         } else {
-          pending.textContent = '২৪ ঘণ্টার সময়সীমা শেষ হয়েছে। Server cleanup শিগগিরই deletion সম্পন্ন করবে; এই পর্যায়ে cancellation আর সম্ভব নয়।';
+          pending.textContent = '৭২ ঘণ্টার সময়সীমা শেষ হয়েছে। Server cleanup শিগগিরই deletion সম্পন্ন করবে; এই পর্যায়ে cancellation আর সম্ভব নয়।';
         }
       }
     }
@@ -2365,7 +2365,7 @@ window.handleAccountDeletion = function() {
       overlay.innerHTML = `
         <section role="dialog" aria-modal="true" class="w-full max-w-md rounded-2xl border border-red-200 bg-white p-5 shadow-2xl dark:border-red-900 dark:bg-slate-900">
           <div class="mb-3 flex items-center gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600"><i class="fa-solid fa-hourglass-half"></i></span><h2 class="text-lg font-bold text-slate-900 dark:text-white">Guest account delete করবেন?</h2></div>
-          <p class="mb-4 text-sm leading-6 text-slate-600 dark:text-slate-300">প্রথম confirmation-এর পরও account delete হবে না। দ্বিতীয় confirmation দিলে ২৪ ঘণ্টার pending period শুরু হবে। এই সময়ে আপনি এই Guest account-এই পড়াশোনা ও পরীক্ষা চালিয়ে যেতে পারবেন।</p>
+          <p class="mb-4 text-sm leading-6 text-slate-600 dark:text-slate-300">প্রথম confirmation-এর পরও account delete হবে না। দ্বিতীয় confirmation দিলে ৭২ ঘণ্টার pending period শুরু হবে। এই সময়ে আপনি এই Guest account-এই পড়াশোনা ও পরীক্ষা চালিয়ে যেতে পারবেন।</p>
           <div class="flex justify-end gap-2"><button type="button" data-guest-delete-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold">Cancel</button><button type="button" data-guest-delete-next class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white">Continue</button></div>
         </section>`;
       document.body.appendChild(overlay);
@@ -2376,9 +2376,9 @@ window.handleAccountDeletion = function() {
         const dialog = overlay.querySelector('[role="dialog"]');
         dialog.innerHTML = `
           <div class="mb-3 flex items-center gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600"><i class="fa-solid fa-triangle-exclamation"></i></span><h2 class="text-lg font-bold text-slate-900 dark:text-white">Final confirmation</h2></div>
-          <p class="mb-4 text-sm leading-6 text-slate-600 dark:text-slate-300">আপনি কি নিশ্চিতভাবে এই Guest account delete করতে চান? Confirm করলে ২৪ ঘণ্টার countdown শুরু হবে। এই সময় account চালু থাকবে এবং Cancel deletion করা যাবে। সময় শেষ হলে account ও সংশ্লিষ্ট data স্থায়ীভাবে মুছে যাবে।</p>
+          <p class="mb-4 text-sm leading-6 text-slate-600 dark:text-slate-300">আপনি কি নিশ্চিতভাবে এই Guest account delete করতে চান? Confirm করলে ৭২ ঘণ্টার countdown শুরু হবে। এই সময় account চালু থাকবে এবং Cancel deletion করা যাবে। সময় শেষ হলে account ও সংশ্লিষ্ট data স্থায়ীভাবে মুছে যাবে।</p>
           <p id="guest-delete-status" class="hidden mb-3 rounded-xl p-3 text-sm" role="status"></p>
-          <div class="flex justify-end gap-2"><button type="button" data-guest-delete-back class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold">Go back</button><button type="button" data-guest-delete-confirm class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white">Confirm 24-hour deletion</button></div>`;
+          <div class="flex justify-end gap-2"><button type="button" data-guest-delete-back class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold">Go back</button><button type="button" data-guest-delete-confirm class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white">Confirm 72-hour deletion</button></div>`;
         dialog.querySelector('[data-guest-delete-back]').onclick = () => { close(); };
         dialog.querySelector('[data-guest-delete-confirm]').onclick = async event => {
           const button = event.currentTarget;
@@ -2394,11 +2394,11 @@ window.handleAccountDeletion = function() {
             await api.requestGuestDeletion();
             close();
             refreshGuestDeletionCard();
-            alert('আপনার Guest account-এর deletion ২৪ ঘণ্টার জন্য pending করা হয়েছে। এই সময় account ব্যবহার করতে পারবেন এবং Danger Zone থেকে cancel করতে পারবেন।');
+            alert('আপনার Guest account-এর deletion ৭২ ঘণ্টার জন্য pending করা হয়েছে। এই সময় account ব্যবহার করতে পারবেন এবং Danger Zone থেকে cancel করতে পারবেন।');
           } catch (error) {
             status.textContent = error?.message || 'Deletion request save হয়নি।';
             button.disabled = false;
-            button.textContent = 'Confirm 24-hour deletion';
+            button.textContent = 'Confirm 72-hour deletion';
           }
         };
       };
