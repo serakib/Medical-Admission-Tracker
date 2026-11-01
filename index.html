@@ -1843,6 +1843,7 @@ main > .view-section.hidden { display: none !important; }
     if (!label) return '';
     if (/(save|saving|update|submit|create|add|delete|remove|clear|redeem|convert|send|upload|import|export|sync|apply|reset|restore|সেভ|সংরক্ষণ|জমা|আপডেট|তৈরি|যোগ|মুছ|পরিবর্তন|পাঠান)/i.test(label)) return 'saving';
     if (/(load|loading|refresh|reload|fetch|search|খুঁজ|লোড|আনুন|রিফ্রেশ|দেখুন|open|view|history|profile|leaderboard)/i.test(label)) return 'loading';
+    if (button && button.closest && button.closest('form')) return 'saving';
     return '';
   }
 
