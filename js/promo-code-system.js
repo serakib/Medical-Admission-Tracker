@@ -81,10 +81,16 @@ function card(){
    <div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select id="mat-global-period" class="ml-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input id="mat-global-enabled" type="checkbox" checked> Enabled</label></div>
    <button class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Global Settings</button>
   </form>
-  <section id="mat-member-overrides" class="rounded-xl border border-gray-200 dark:border-gray-700 p-3 space-y-3">
-   <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="font-bold text-sm">Admin-only Promo Code & Individual Overrides</h4><p class="text-xs text-gray-500 dark:text-gray-400">Admin select করলে Super Admin তার Admin-only code access, PB reward এবং redemption limit আলাদাভাবে সেট করতে পারবেন। Regular member-এর override-ও এখান থেকে manage হবে।</p></div><button type="button" id="mat-member-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
-   <div id="mat-member-override-list" class="space-y-3"></div>
-   <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-member-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি section আলাদাভাবে Save করতে পারবেন, অথবা Save All ব্যবহার করতে পারবেন।</span></div>
+  <section id="mat-member-overrides" class="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+   <details>
+    <summary class="cursor-pointer list-none flex flex-wrap items-center justify-between gap-2"><span class="font-bold text-sm">Admin-only Promo Code & Individual Overrides</span><span class="text-xs text-gray-500">Expand / Collapse</span></summary>
+    <div class="pt-3 space-y-3">
+     <p class="text-xs text-gray-500 dark:text-gray-400">Admin select করলে Super Admin তার Admin-only code access, PB reward এবং redemption limit আলাদাভাবে সেট করতে পারবেন। Regular member-এর override-ও এখান থেকে manage হবে।</p>
+     <div class="flex justify-end"><button type="button" id="mat-member-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
+     <div id="mat-member-override-list" class="space-y-3"></div>
+     <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-member-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি section আলাদাভাবে Save করতে পারবেন, অথবা Save All ব্যবহার করতে পারবেন।</span></div>
+    </div>
+   </details>
   </section>
   <section id="mat-admin-overrides" class="hidden rounded-xl border border-rose-300 dark:border-rose-900 p-3 space-y-3">
    <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="font-bold text-sm">Admin Override · Super Admin Only</h4><p class="text-xs text-gray-500">প্রতিটি Admin member-এর আলাদা Admin-only code, PB reward ও redemption limit manage করুন। Member Override থেকে আলাদা।</p></div><button type="button" id="mat-admin-override-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
