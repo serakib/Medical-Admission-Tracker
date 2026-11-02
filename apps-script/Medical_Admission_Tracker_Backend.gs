@@ -3295,7 +3295,7 @@ function matAdminListMembers_(p){
  students.forEach(function(row){const email=String(row.Email||'').trim().toLowerCase();if(email)byEmail[email]=row;});
  function memberRecord(email,role,status,until){
   const key=String(email||'').trim().toLowerCase(),student=byEmail[key]||null,profile=student?matPublicProfile_(student,false):null;
-  return {email:key,role:role,status:status,suspendedUntil:status==='SUSPENDED'?until:'',userId:student?String(student.UserID||''):'',websiteName:profile?String(profile.name||''):'',profile:profile};
+  return {email:matPromoEmail_(actor)===root?key:'',role:role,status:status,suspendedUntil:status==='SUSPENDED'?until:'',userId:student?String(student.UserID||''):'',websiteName:profile?String(profile.name||''):'',profile:profile};
  }
  const admins=matReadObjects_(matPromoSheets_().admins).map(function(row){
   const status=String(row.Status||'').trim().toUpperCase(),until=String(row.SuspendedUntil||''),untilMs=Date.parse(until),effective=status==='SUSPENDED'&&Number.isFinite(untilMs)&&untilMs<=now?'ACTIVE':status;
