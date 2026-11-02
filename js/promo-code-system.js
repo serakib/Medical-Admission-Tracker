@@ -86,6 +86,15 @@ function card(){
    <div id="mat-member-override-list" class="space-y-3"></div>
    <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-member-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি section আলাদাভাবে Save করতে পারবেন, অথবা Save All ব্যবহার করতে পারবেন।</span></div>
   </section>
+  <section id="mat-admin-overrides" class="hidden rounded-xl border border-rose-300 dark:border-rose-900 p-3 space-y-3">
+   <div><h4 class="font-bold text-sm">Admin Override · Super Admin Only</h4><p class="text-xs text-gray-500">এখানে প্রতিটি Admin member-এর আলাদা Admin-only code, PB reward, redemption limit ও access control থাকবে। Regular Member Override থেকে সম্পূর্ণ আলাদা।</p></div>
+   <label class="block text-xs font-semibold">Admin member<select id="mat-admin-override-user" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><option value="">Select Admin member</option></select></label>
+   <label class="block text-xs font-semibold">Individual Admin-only Code<input id="mat-admin-override-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Blank = use shared master Admin-only code"></label>
+   <div class="grid grid-cols-2 gap-2"><label class="text-xs font-semibold">PB per redeem<input id="mat-admin-override-reward" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Default: 100000"></label><label class="text-xs font-semibold">Redeem limit<input id="mat-admin-override-limit" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="0 = unlimited"></label></div>
+   <div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select id="mat-admin-override-period" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="UNLIMITED">Unlimited</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select></label><label class="text-xs flex items-center gap-1"><input id="mat-admin-override-enabled" type="checkbox" checked> Enabled</label></div>
+   <div class="flex flex-wrap gap-2"><button type="button" id="mat-admin-override-save" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Admin Override</button><button type="button" id="mat-admin-override-clear" class="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-bold">Clear Admin Override</button></div>
+   <p id="mat-admin-override-status" class="text-xs text-gray-500" aria-live="polite">Select an Admin member to load their saved settings.</p>
+  </section>
   <div id="mat-admin-members" class="space-y-2 text-sm"></div>
   <section id="mat-admin-only-code-controls" class="hidden rounded-xl border border-rose-200 dark:border-rose-900 p-3 space-y-2"><h4 class="font-bold text-sm">Master Admin-only Promo Code · Super Admin</h4><label class="block text-xs font-semibold">Shared Admin-only Code<input id="mat-admin-fixed-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" autocomplete="off"></label><div class="flex flex-wrap gap-2"><button type="button" id="mat-admin-fixed-code-save" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Master Code</button><button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button></div><p class="text-xs text-gray-500">Only Super Admin can change the shared code and its enabled status.</p></section>
   <form id="mat-admin-add-form" class="hidden flex flex-col sm:flex-row gap-2"><input id="mat-admin-email" type="email" required placeholder="Registered member Gmail" class="flex-1 min-w-0 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><button class="rounded-lg px-3 py-2 bg-rose-600 text-white text-sm font-bold">Add Admin</button></form>
@@ -378,6 +387,7 @@ async function loadAdmin(){
    {id:'mat-premium-name-access',label:'Golden Name',group:'Access & Rewards',keywords:'premium subscriber name access'},
    {id:'mat-promo-global-form',label:'Global Promo',group:'Access & Rewards',keywords:'promo code global reward'},
    {id:'mat-member-overrides',label:'Member Overrides',group:'Access & Rewards',keywords:'member individual promo limit'},
+   {id:'mat-admin-overrides',label:'Admin Override',group:'Admin Team',keywords:'admin individual admin only promo code reward limit'},
    {id:'mat-admin-members',label:'Admin Members',group:'Admin Team',keywords:'admins roles remove members'},
    {id:'mat-admin-add-form',label:'Add Admin',group:'Admin Team',keywords:'invite add email admin'},
    {id:'mat-admin-unlimited-toggle',label:'Admin Code',group:'Admin Team',keywords:'unlimited admin only code'},
@@ -430,6 +440,42 @@ async function loadAdmin(){
   }
  })();
  const superAdmin=members.canManage===true;
+ $('mat-admin-overrides').classList.toggle('hidden',!superAdmin);
+ const adminOverrideSelect=$('mat-admin-override-user'),previousAdminOverride=adminOverrideSelect.value;
+ const adminTargets=memberTargets.filter(member=>member.isAdmin);
+ adminOverrideSelect.innerHTML='<option value="">Select Admin member</option>'+adminTargets.map(member=>'<option value="'+esc(member.userId)+'">'+esc(member.name||'Admin')+' · '+esc(member.email)+'</option>').join('');
+ if(previousAdminOverride&&adminTargets.some(member=>String(member.userId)===previousAdminOverride))adminOverrideSelect.value=previousAdminOverride;
+ const loadAdminOverrideFields=()=>{
+  const member=adminTargets.find(item=>String(item.userId)===adminOverrideSelect.value);
+  $('mat-admin-override-code').value=member?member.code||'':'';
+  $('mat-admin-override-reward').value=member&&member.rewardPB!=null?member.rewardPB:'';
+  $('mat-admin-override-limit').value=member&&member.limitCount!=null?member.limitCount:'';
+  $('mat-admin-override-period').value=member&&member.limitPeriod||'UNLIMITED';
+  $('mat-admin-override-enabled').checked=member?member.enabled!==false:true;
+  $('mat-admin-override-status').textContent=member?(member.hasOverride?'Saved Admin Override loaded.':'No individual override saved; shared master code/default reward will apply.'):'Select an Admin member.';
+ };
+ adminOverrideSelect.onchange=loadAdminOverrideFields;
+ loadAdminOverrideFields();
+ $('mat-admin-override-save').onclick=async()=>{
+  const userId=adminOverrideSelect.value,button=$('mat-admin-override-save');
+  if(!userId){$('mat-admin-override-status').textContent='আগে Admin member select করুন।';return;}
+  button.disabled=true;button.textContent='Saving…';
+  try{
+   await api('adminSaveMemberPromo',{userId,code:$('mat-admin-override-code').value,rewardPB:$('mat-admin-override-reward').value,limitCount:$('mat-admin-override-limit').value,limitPeriod:$('mat-admin-override-period').value,enabled:$('mat-admin-override-enabled').checked});
+   $('mat-admin-override-status').textContent='Admin Override saved successfully.';
+   await loadAdmin();
+  }catch(error){$('mat-admin-override-status').textContent=error.message||'Admin Override save failed.';}
+  finally{button.disabled=false;button.textContent='Save Admin Override';}
+ };
+ $('mat-admin-override-clear').onclick=async()=>{
+  const userId=adminOverrideSelect.value,button=$('mat-admin-override-clear');
+  if(!userId){$('mat-admin-override-status').textContent='আগে Admin member select করুন।';return;}
+  if(!confirm('এই Admin-এর individual override clear করবেন?'))return;
+  button.disabled=true;button.textContent='Clearing…';
+  try{await api('adminDeleteMemberPromo',{userId});$('mat-admin-override-status').textContent='Admin Override cleared.';await loadAdmin();}
+  catch(error){$('mat-admin-override-status').textContent=error.message||'Admin Override clear failed.';}
+  finally{button.disabled=false;button.textContent='Clear Admin Override';}
+ };
  $('mat-admin-only-code-controls').classList.toggle('hidden',!superAdmin);
  $('mat-admin-fixed-code').value=superAdmin?(config.fixedCode||''):'';
  $('mat-admin-unlimited-toggle').textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';
