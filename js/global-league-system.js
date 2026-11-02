@@ -464,6 +464,23 @@
     setText('profile-live-rank', profile.rank || RANKS[0]);
     setText('profile-best-rank', profile.rank || RANKS[0]);
   }
+  function setBackgroundSyncIndicator(active, hasSnapshot) {
+    var status = document.getElementById('leaderboard-status');
+    if (!status || !status.parentNode) return;
+    var indicator = document.getElementById('leaderboard-sync-indicator');
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'leaderboard-sync-indicator';
+      indicator.className = 'mb-3 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-300';
+      indicator.setAttribute('role','status'); indicator.setAttribute('aria-live','polite');
+      status.parentNode.insertBefore(indicator,status);
+    }
+    if (!active) { indicator.classList.add('hidden'); indicator.textContent=''; return; }
+    indicator.classList.remove('hidden');
+    indicator.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>' +
+      (hasSnapshot ? 'Background sync চলছে · সর্বশেষ data দেখানো হচ্ছে' : 'Leaderboard data load হচ্ছে…');
+  }
+
   function setStatus(message, isError) {
     var el = document.getElementById('leaderboard-status');
     if (!el) return;
@@ -723,7 +740,7 @@
     // A stale leaderboard cache must not downgrade the student's displayed trophy.
     var ownProfile = app.profile || currentProfile || {};
     var ownRank = String(ownProfile.rank || (currentProfile && currentProfile.rank) || '');
-    if (isCurrentAccount && !rawRank && RANKS.indexOf(ownRank) >= 0) rank = ownRank;
+    if (isCurrentAccount && RANKS.indexOf(ownRank) >= 0) rank = ownRank;
     var currentRP = Math.max(0, Number(isCurrentAccount && ownProfile.rankPoints != null ? ownProfile.rankPoints : (raw.rankPoints != null ? raw.rankPoints : (raw.rp != null ? raw.rp : raw.RP))) || 0);
     // Prefer explicit week totals. Older API deployments may expose the requested
     // period score as rankScore/score/boardPoints instead of weeklyRP fields.
@@ -750,11 +767,11 @@
     var boardPoints = (selectedPeriod === 'weekly' || selectedPeriod === 'friends') ? weeklyRP : monthlyRP;
     return {
       uid: id, userId: id, playerId: id,
-      name: safeText(raw.name || raw.username || raw.Name || 'Medical Student', 80),
-      college: safeText(raw.college || raw.College || '', 120),
-      batch: safeText(raw.batch || raw.Batch || '', 40),
+      name: safeText(isCurrentAccount ? (ownProfile.name || ownProfile.displayName || raw.name || raw.username || raw.Name || 'Medical Student') : (raw.name || raw.username || raw.Name || 'Medical Student'), 80),
+      college: safeText(isCurrentAccount ? (ownProfile.college || raw.college || raw.College || '') : (raw.college || raw.College || ''), 120),
+      batch: safeText(isCurrentAccount ? (ownProfile.batch || raw.batch || raw.Batch || '') : (raw.batch || raw.Batch || ''), 40),
       // Server-owned profile avatar is authoritative for every viewer; local storage is fallback only.
-      avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
+      avatar: safeText(isCurrentAccount ? (ownProfile.avatar || raw.avatar || raw.Avatar || '') : (raw.avatar || raw.Avatar || profileAvatarForUser(id) || ''), 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       isAdmin: raw.isAdmin === true || raw.IsAdmin === true,
       isGoldName: isCurrentAccount
@@ -1899,6 +1916,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
     // Paint this tab's own local snapshot before waiting on the API.
     var cache = getCache(periodForRequest);
+    setBackgroundSyncIndicator(true, cache.length > 0);
     if (cache.length) {
       rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
       renderRows(cache);
@@ -2035,7 +2053,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
       // A newer silent/background/tab refresh must also stop an animation started by a manual refresh.
-      if (requestId === loadSequence) setLeaderboardRefreshBusy(false, refreshSucceeded);
+      if (requestId === loadSequence) {
+        setLeaderboardRefreshBusy(false, refreshSucceeded);
+        setBackgroundSyncIndicator(false, false);
+      }
     }
   }
   function queueResult(item) {
