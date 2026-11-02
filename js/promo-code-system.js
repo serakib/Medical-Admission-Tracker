@@ -634,7 +634,39 @@ async function loadAdmin(){
      });
      const audit=await api('adminListGuestDeletionAudit');
      const auditHost=document.getElementById('mat-guest-delete-audit');
-     const auditEvents=audit.events||[],auditControls=document.getElementById('mat-guest-delete-audit-controls'),selectedAuditIds=new Set();if(auditEvents.length)auditControls.classList.remove('hidden');const renderAudit=()=>{const selectedCount=selectedAuditIds.size,selectAllButton=auditControls.querySelector('[data-audit-select-all]'),clearButton=auditControls.querySelector('[data-audit-clear-selection]'),removeButton=auditControls.querySelector('[data-audit-remove-selected]');auditControls.querySelector('[data-audit-selected-count]').textContent=selectedCount+' selected';selectAllButton.textContent=selectedCount===auditEvents.length?'Unselect All':'Select All';removeButton.disabled=!selectedCount;clearButton.disabled=!selectedCount;auditHost.innerHTML=auditEvents.length?auditEvents.map(e=>'<label class="flex items-start gap-2 border-t border-gray-100 dark:border-gray-800 py-2"><input type="checkbox" data-audit-event="'+esc(e.eventId)+'" class="mt-0.5" '+(selectedAuditIds.has(e.eventId)?'checked':'')+'><span><strong>'+esc(e.event)+'</strong> · '+esc(e.userId)+'<br><span>'+esc(e.role)+' '+esc(e.actor)+' · '+esc(e.at)+'</span>'+(e.newDeadline?'<br><span>Deadline: '+esc(e.newDeadline)+'</span>':'')+'</span></label>').join(''):'No audit events yet.';auditHost.querySelectorAll('[data-audit-event]').forEach(input=>input.onchange=()=>{if(input.checked)selectedAuditIds.add(input.getAttribute('data-audit-event'));else selectedAuditIds.delete(input.getAttribute('data-audit-event'));renderAudit();});};auditControls.querySelector('[data-audit-select-all]').onclick=()=>{if(selectedAuditIds.size===auditEvents.length)selectedAuditIds.clear();else auditEvents.forEach(e=>selectedAuditIds.add(e.eventId));renderAudit();};auditControls.querySelector('[data-audit-clear-selection]').onclick=()=>{selectedAuditIds.clear();renderAudit();};auditControls.querySelector('[data-audit-remove-selected]').onclick=async()=>{const ids=Array.from(selectedAuditIds);if(!ids.length)return;if(!confirm(ids.length+'টি selected audit record স্থায়ীভাবে remove করবেন? Guest deletion request বা approved schedule পরিবর্তন হবে না।'))return;const removeButton=auditControls.querySelector('[data-audit-remove-selected]');removeButton.disabled=true;removeButton.textContent='Removing…';try{await api('adminDeleteGuestDeletionAudit',{eventIds:ids});await loadAdmin();}catch(error){alert(error.message||'Audit records remove করা যায়নি।');removeButton.disabled=false;removeButton.textContent='Remove Selected';}};renderAudit();
+     const auditEvents=Array.isArray(audit.events)?audit.events:[],selectableAuditEvents=auditEvents.filter(e=>String(e.eventId||'').trim()),auditControls=document.getElementById('mat-guest-delete-audit-controls'),selectedAuditIds=new Set();
+     if(selectableAuditEvents.length)auditControls.classList.remove('hidden');
+     const renderAudit=()=>{
+      const selectedCount=selectedAuditIds.size,selectAllButton=auditControls.querySelector('[data-audit-select-all]'),clearButton=auditControls.querySelector('[data-audit-clear-selection]'),removeButton=auditControls.querySelector('[data-audit-remove-selected]');
+      auditControls.querySelector('[data-audit-selected-count]').textContent=selectedCount+' selected';
+      selectAllButton.textContent=selectableAuditEvents.length>0&&selectedCount===selectableAuditEvents.length?'Unselect All':'Select All';
+      selectAllButton.disabled=!selectableAuditEvents.length;
+      removeButton.disabled=!selectedCount;clearButton.disabled=!selectedCount;
+      auditHost.innerHTML=auditEvents.length?auditEvents.map(e=>{
+       const id=String(e.eventId||'').trim(),selectable=!!id;
+       return '<label class="flex items-start gap-2 border-t border-gray-100 dark:border-gray-800 py-2">'+(selectable?'<input type="checkbox" data-audit-event="'+esc(id)+'" class="mt-0.5" '+(selectedAuditIds.has(id)?'checked':'')+'>':'<span class="mt-0.5 inline-block w-3.5 shrink-0 text-gray-400" title="This legacy record has no Event ID">—</span>')+'<span><strong>'+esc(e.event)+'</strong> · '+esc(e.userId)+'<br><span>'+esc(e.role)+' '+esc(e.actor)+' · '+esc(e.at)+'</span>'+(e.newDeadline?'<br><span>Deadline: '+esc(e.newDeadline)+'</span>':'')+(e.notes?'<br><span>Reason / Notes: '+esc(e.notes)+'</span>':'')+(!selectable?'<br><span class="text-amber-600">Cannot select this older record because it has no Event ID.</span>':'')+'</span></label>';
+      }).join(''):'No audit events yet.';
+      auditHost.querySelectorAll('[data-audit-event]').forEach(input=>input.onchange=()=>{
+       const id=input.getAttribute('data-audit-event');if(!id)return;
+       if(input.checked)selectedAuditIds.add(id);else selectedAuditIds.delete(id);
+       renderAudit();
+      });
+     };
+     auditControls.querySelector('[data-audit-select-all]').onclick=()=>{
+      if(!selectableAuditEvents.length)return;
+      if(selectedAuditIds.size===selectableAuditEvents.length)selectedAuditIds.clear();
+      else selectableAuditEvents.forEach(e=>selectedAuditIds.add(String(e.eventId).trim()));
+      renderAudit();
+     };
+     auditControls.querySelector('[data-audit-clear-selection]').onclick=()=>{selectedAuditIds.clear();renderAudit();};
+     auditControls.querySelector('[data-audit-remove-selected]').onclick=async()=>{
+      const ids=Array.from(selectedAuditIds);if(!ids.length)return;
+      if(!confirm(ids.length+'টি selected audit record স্থায়ীভাবে remove করবেন? Guest deletion request বা approved schedule পরিবর্তন হবে না।'))return;
+      const removeButton=auditControls.querySelector('[data-audit-remove-selected]');removeButton.disabled=true;removeButton.textContent='Removing…';
+      try{const result=await api('adminDeleteGuestDeletionAudit',{eventIds:ids});if(!result||result.success!==true||Number(result.removed)!==ids.length)throw new Error('সব selected audit record remove হয়েছে কি না নিশ্চিত করা যায়নি। Refresh করে আবার যাচাই করুন।');await loadAdmin();}
+      catch(error){alert(error.message||'Audit records remove করা যায়নি।');removeButton.disabled=false;removeButton.textContent='Remove Selected';}
+     };
+     renderAudit();
     }catch(error){console.warn('[Guest deletion management]',error);}
    }
   }
