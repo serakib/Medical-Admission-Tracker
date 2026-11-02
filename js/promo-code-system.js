@@ -219,7 +219,13 @@ function renderMemberAdminRoleControl(card){
  if(promoFields){
   promoFields.classList.toggle('hidden',isAdmin&&!canManageAdminMembers);
   const codeLabel=promoFields.querySelector('[data-member-code-label]');
+  const codeInput=promoFields.querySelector('[data-member-field="code"]');
+  const rewardInput=promoFields.querySelector('[data-member-field="rewardPB"]');
+  const limitInput=promoFields.querySelector('[data-member-field="limitCount"]');
   if(codeLabel)codeLabel.firstChild.textContent=isAdmin?'Individual Admin-only Code':'Member-specific Promo Code';
+  if(codeInput)codeInput.placeholder=isAdmin?'Blank = use shared master Admin-only code':'Blank = inherit global/public code';
+  if(rewardInput)rewardInput.placeholder=isAdmin?'Default: 100000 PB':'Inherit global';
+  if(limitInput)limitInput.placeholder=isAdmin?'0 = unlimited':'Inherit global';
  }
  status.textContent=isRoot?'SUPER ADMIN · Master Admin-only code controls are available above; role revoke করা যাবে না':isAdmin?'ADMIN MEMBER · Super Admin এখান থেকে individual Admin-only code, PB ও limit সেট করতে পারবেন':'REGULAR MEMBER · এখানে regular promo override সেট হবে; Admin-only code ব্যবহার করতে পারবে না';
  button.classList.toggle('hidden',!canManageAdminMembers||isRoot);
