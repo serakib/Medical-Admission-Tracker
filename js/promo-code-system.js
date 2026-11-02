@@ -46,7 +46,7 @@ async function api(action,fields){
   return await Promise.race([request,timeoutPromise]);
  }catch(error){
   if(timedOut||(error&&error.name==='AbortError')){
-   const timeoutError=new Error('Request timed out after 30 seconds. Server response পাওয়া যায়নি; আবার চেষ্টা করার আগে PB balance check করুন।');
+   const timeoutError=new Error('Request timed out after 30 seconds. Server response পাওয়া যায়নি; operation-এর result confirm হয়নি। আবার করার আগে current status যাচাই করুন।');
    timeoutError.code='MAT_REQUEST_TIMEOUT';
    throw timeoutError;
   }
@@ -698,8 +698,23 @@ async function loadAdmin(){
   }
  } catch(error) {
   const section = $('mat-admin-guest-deletion');
-  if(section && !section.querySelector('#mat-guest-delete-status')){
-   section.innerHTML = '<details open><summary class="cursor-pointer list-none flex items-center justify-between gap-2 font-bold text-sm">Guest Account Deletion <span class="text-xs font-normal text-gray-500">Expand / Collapse</span></summary><p class="pt-3 text-sm text-rose-600">Guest deletion data could not be loaded: '+esc(error&&error.message||'Please refresh and try again.')+'</p></details>';
+  if(section){
+   let notice=section.querySelector('#mat-guest-delete-load-error');
+   if(!notice){
+    notice=document.createElement('div');
+    notice.id='mat-guest-delete-load-error';
+    notice.className='mt-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-3 space-y-2';
+    notice.setAttribute('role','status');
+    section.appendChild(notice);
+   }
+   const timedOut=!!(error&&error.code==='MAT_REQUEST_TIMEOUT');
+   notice.innerHTML='<p class="text-sm font-semibold text-amber-900 dark:text-amber-200">'+(timedOut?'Guest deletion data load timed out. Server response পাওয়া যায়নি।':'Guest deletion data could not be loaded: '+esc(error&&error.message||'Please try again.'))+'</p><p class="text-xs text-amber-800 dark:text-amber-300">'+(timedOut?'এটি শুধু data-load request। কোনো deletion approve বা cancel হয়েছে—এমন প্রমাণ পাওয়া যায়নি।':'Existing deletion schedules অপরিবর্তিত আছে কি না নিশ্চিত করতে আবার data load করুন।')+'</p><button type="button" id="mat-guest-delete-retry" class="rounded-lg border border-amber-500 px-3 py-2 text-xs font-bold text-amber-900 dark:text-amber-200">Retry loading data</button>';
+   const retry=notice.querySelector('#mat-guest-delete-retry');
+   retry.onclick=async()=>{
+    retry.disabled=true;retry.textContent='Loading…';
+    try{await loadAdmin();}
+    catch(retryError){retry.disabled=false;retry.textContent='Retry loading data';notice.querySelector('p').textContent='Retry failed: '+String(retryError&&retryError.message||'Unknown error');}
+   };
   }
   console.warn('[Guest deletion approval]',error);
  }
