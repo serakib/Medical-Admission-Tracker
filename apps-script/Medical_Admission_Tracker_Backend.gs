@@ -1705,7 +1705,6 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
       username: s.Name || 'Medical Student', name: s.Name || 'Medical Student',
       accountType: s.AccountType || 'GUEST', isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s), isGoldName: matPromoHasGoldName_(s), showGoldName: String(s.ShowGoldName == null || s.ShowGoldName === '' ? 'TRUE' : s.ShowGoldName).toUpperCase() !== 'FALSE', college: s.College || '', batch: s.Batch || '',
-      guestAutoDeletionAt: matGuestAutoDeletionAt_(s, weeklyRP),
       avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
       rank: s.Rank || MAT_RANKS[0],
@@ -1733,8 +1732,6 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
           ? Math.max(0, Math.floor(Number(s.Streak))) : Number(examStats.streak || 0),
         Math.max(0, Math.floor(matFiniteNumber_(s.HighestStreak, 0)))
       ),
-      lastStreakActivityDate: String(s.LastStreakActivityDate || ''),
-      streakActivityDates: matParseStreakDates_(s.StreakActivityDates, matDateKey_(matNowIso_()))
     };
   });
   rows.sort(function (a, b) {
@@ -2799,11 +2796,6 @@ function matPublicProfile_(r, includeEmail) {
     isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s),
     isGoldName: matPromoHasGoldName_(s),
     showGoldName: String(s.ShowGoldName == null || s.ShowGoldName === '' ? 'TRUE' : s.ShowGoldName).toUpperCase() !== 'FALSE',
-    guestDeletionPending: String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt,
-    guestDeletionReason: String(s.GuestDeletionReason || ''),
-    guestDeletionRequestedAt: String(s.GuestDeletionRequestedAt || ''),
-    guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
-    guestAutoDeletionAt: guestAutoDeletionAt,
     college: String(s.College || ''),
     batch: String(s.Batch || ''),
     avatar: String(s.Avatar || ''),
@@ -2827,16 +2819,25 @@ function matPublicProfile_(r, includeEmail) {
       (s.Streak != null && String(s.Streak).trim() !== '' && Number.isFinite(Number(s.Streak))) ? Math.max(0, Math.floor(Number(s.Streak))) : 0,
       Math.max(0, Math.floor(matFiniteNumber_(s.HighestStreak, 0)))
     ),
-    lastStreakActivityDate: String(s.LastStreakActivityDate || ''),
-    streakActivityDates: matParseStreakDates_(s.StreakActivityDates, matDateKey_(matNowIso_())),
-    pbExpiryEnabled: matGetPBExpirySettings_(s).enabled,
-    pbExpiryValue: matGetPBExpirySettings_(s).value,
-    pbExpiryUnit: matGetPBExpirySettings_(s).unit,
-    includePendingFriends: String(s.FriendsIncludePending || '').toLowerCase() === 'true',
     createdAt: String(s.CreatedAt || ''),
-    updatedAt: String(s.UpdatedAt || '')
   };
-  if (includeEmail) result.email = String(s.Email || '');
+  if (includeEmail) {
+    // Private account-management fields are returned only to the authenticated account owner.
+    result.email = String(s.Email || '');
+    result.guestDeletionPending = String(s.AccountType || '').toUpperCase() === 'GUEST' && !!s.GuestDeletionScheduledAt;
+    result.guestDeletionReason = String(s.GuestDeletionReason || '');
+    result.guestDeletionRequestedAt = String(s.GuestDeletionRequestedAt || '');
+    result.guestDeletionScheduledAt = String(s.GuestDeletionScheduledAt || '');
+    result.guestAutoDeletionAt = guestAutoDeletionAt;
+    result.streakActivityDates = matParseStreakDates_(s.StreakActivityDates, matDateKey_(matNowIso_()));
+    result.lastStreakActivityDate = String(s.LastStreakActivityDate || '');
+    const expiry = matGetPBExpirySettings_(s);
+    result.pbExpiryEnabled = expiry.enabled;
+    result.pbExpiryValue = expiry.value;
+    result.pbExpiryUnit = expiry.unit;
+    result.includePendingFriends = String(s.FriendsIncludePending || '').toLowerCase() === 'true';
+    result.updatedAt = String(s.UpdatedAt || '');
+  }
   return result;
 }
 
@@ -3293,7 +3294,7 @@ function matAdminListMembers_(p){
  const students=matReadObjects_(matGetStudentsSheet_()).filter(function(row){return String(row.AccountType||'').trim().toUpperCase()==='REGISTERED';}),byEmail=Object.create(null);
  students.forEach(function(row){const email=String(row.Email||'').trim().toLowerCase();if(email)byEmail[email]=row;});
  function memberRecord(email,role,status,until){
-  const key=String(email||'').trim().toLowerCase(),student=byEmail[key]||null,profile=student?matPublicProfile_(student,true):null;
+  const key=String(email||'').trim().toLowerCase(),student=byEmail[key]||null,profile=student?matPublicProfile_(student,false):null;
   return {email:key,role:role,status:status,suspendedUntil:status==='SUSPENDED'?until:'',userId:student?String(student.UserID||''):'',websiteName:profile?String(profile.name||''):'',profile:profile};
  }
  const admins=matReadObjects_(matPromoSheets_().admins).map(function(row){
