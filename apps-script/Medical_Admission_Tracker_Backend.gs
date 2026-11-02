@@ -190,6 +190,7 @@ function matDispatch_(action, p) {
     case 'adminRemoveMember': return matAdminRemoveMember_(p || {});
     case 'adminPromoStatus': return matAdminPromoStatus_(p || {});
     case 'adminSetUnlimitedEnabled': return matAdminSetUnlimitedEnabled_(p || {});
+    case 'adminSaveFixedPromoCode': return matAdminSaveFixedPromoCode_(p || {});
     case 'adminGetPromoConfig': return matAdminGetPromoConfig_(p || {});
     case 'adminSavePromoConfig': return matAdminSavePromoConfig_(p || {});
     case 'adminListPromoTargets': return matAdminListPromoTargets_(p || {});
@@ -3268,7 +3269,8 @@ function matRedeemPromoCode_(p){
  }finally{lock.releaseLock();}
 }
 function matAdminPromoStatus_(p){matPromoRequireAdmin_(p);const c=matPromoPublic_(),r=matReadObjects_(matPromoSheets_().redemptions);return {success:true,publicCode:c.code,publicType:c.type,publicRewardPB:c.reward,redemptions:r.length,unlimitedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};}
-function matAdminSetUnlimitedEnabled_(p){const actor=matPromoRequireAdmin_(p);if(matPromoEmail_(actor)!==matScriptProperty_('MAT_SUPER_ADMIN_EMAIL').toLowerCase())throw new Error('Only Super Admin can change this setting.');PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',p.enabled===true||String(p.enabled).toLowerCase()==='true'?'TRUE':'FALSE');return {success:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};}
+function matAdminSetUnlimitedEnabled_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change this setting.');PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',p.enabled===true||String(p.enabled).toLowerCase()==='true'?'TRUE':'FALSE');return {success:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};}
+function matAdminSaveFixedPromoCode_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change the Admin-only Promo Code.');const code=String(p.code||'').trim().toUpperCase();matPromoValidateCustomCode_(code);PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_CODE',code);return {success:true,code:code};}
 
 
 /* --------------------- Configurable global/member promo codes --------------------- */
@@ -3334,12 +3336,14 @@ function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
 }
 function matAdminGetPromoConfig_(p) {
   const actor = matPromoRequireAdmin_(p), all = matPromoReadConfig_();
+  const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+  const canManage = !!root && matPromoEmail_(actor) === root;
   const g = all.global;
-  return {success:true, canManage:true, global:{
+  return {success:true, canManage:canManage, global:{
     code:String(g.Code || ''), rewardPB:g.RewardPB === '' || g.RewardPB == null ? '' : Number(g.RewardPB),
     limitCount:g.LimitCount === '' || g.LimitCount == null ? '' : Number(g.LimitCount),
     limitPeriod:String(g.LimitPeriod || 'DAILY'), enabled:String(g.Enabled || 'TRUE') !== 'FALSE'
-  }, fixedCode:matPromoFixedCode_(), fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
+  }, fixedCode:canManage ? matPromoFixedCode_() : '', fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
 }
 function matAdminSavePromoConfig_(p) {
   const actor = matPromoRequireAdmin_(p), sh = matPromoConfigSheets_().global;
@@ -3359,12 +3363,16 @@ function matAdminListPromoTargets_(p) {
   matPromoRequireAdmin_(p);
   const students = matReadObjects_(matGetStudentsSheet_()).filter(x => String(x.AccountType || '').toUpperCase() === 'REGISTERED');
   const settings = matPromoReadConfig_().members;
+  const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+  const canManage = !!root && matPromoEmail_(matPromoRequireAdmin_(p)) === root;
   return {success:true,members:students.map(x => {
     const cfg = settings.find(y => String(y.UserID) === String(x.UserID)) || {};
-    return {userId:String(x.UserID),name:String(x.Name || ''),email:String(x.Email || ''),
-      code:String(cfg.Code || ''),rewardPB:cfg.RewardPB == null ? '' : cfg.RewardPB,
-      limitCount:cfg.LimitCount == null ? '' : cfg.LimitCount,limitPeriod:String(cfg.LimitPeriod || ''),
-      enabled:String(cfg.Enabled || 'TRUE') !== 'FALSE',hasOverride:!!cfg.UserID};
+    const adminTarget = matPromoIsAdmin_(x);
+    const reveal = !adminTarget || canManage;
+    return {userId:String(x.UserID),name:String(x.Name || ''),email:String(x.Email || ''),isAdmin:adminTarget,
+      code:reveal ? String(cfg.Code || '') : '',rewardPB:reveal && cfg.RewardPB != null ? cfg.RewardPB : '',
+      limitCount:reveal && cfg.LimitCount != null ? cfg.LimitCount : '',limitPeriod:reveal ? String(cfg.LimitPeriod || '') : '',
+      enabled:reveal ? String(cfg.Enabled || 'TRUE') !== 'FALSE' : true,hasOverride:reveal && !!cfg.UserID};
   })};
 }
 function matAdminSaveMemberPromo_(p) {
@@ -3390,9 +3398,14 @@ function matAdminSaveMemberPromo_(p) {
   return {success:true};
 }
 function matAdminDeleteMemberPromo_(p) {
-  matPromoRequireAdmin_(p);
+  const actor = matPromoRequireAdmin_(p);
   const userId = String(p.userId || '').trim();
   if (!userId) throw new Error('Select a registered member.');
+  const target = matFindStudentById_(userId);
+  if (target && matPromoIsAdmin_(target)) {
+    const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+    if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can remove an Admin member promo override.');
+  }
   const sh = matPromoConfigSheets_().members;
   const row = matReadObjects_(sh).find(x => String(x.UserID) === userId);
   if (row) sh.deleteRow(row._rowNumber);
