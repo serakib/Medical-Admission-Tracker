@@ -3044,8 +3044,10 @@ function matPremiumNameAccessLookup_(){
  const lookup=Object.create(null);
  try{
   matReadObjects_(matPremiumNameAccessSheet_()).forEach(function(row){
-   const email=String(row.Email||'').trim().toLowerCase();
-   if(email&&String(row.Status||'').trim().toUpperCase()==='ACTIVE')lookup[email]=true;
+   if(String(row.Status||'').trim().toUpperCase()!=='ACTIVE')return;
+   const userId=String(row.UserID||'').trim(),email=String(row.Email||'').trim().toLowerCase();
+   if(userId)lookup['uid:'+userId]=true;
+   if(email)lookup['email:'+email]=true;
   });
  }catch(error){Logger.log('Premium name access lookup unavailable: '+error);}
  MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_=lookup;
@@ -3053,8 +3055,9 @@ function matPremiumNameAccessLookup_(){
 }
 function matPromoHasGoldName_(u){
  if(!u||String(u.AccountType||'').toUpperCase()!=='REGISTERED')return false;
- const email=matPromoEmail_(u);
- return !!(email&&(matPromoIsAdmin_(u)||matPremiumNameAccessLookup_()[email]));
+ if(matPromoIsAdmin_(u))return true;
+ const lookup=matPremiumNameAccessLookup_(),userId=String(u.UserID||u.userId||'').trim(),email=matPromoEmail_(u);
+ return !!((userId&&lookup['uid:'+userId])||(email&&lookup['email:'+email]));
 }
 function matPromoRequireSuperAdmin_(p){
  const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
@@ -3063,8 +3066,18 @@ function matPromoRequireSuperAdmin_(p){
 }
 function matAdminListPremiumNameAccess_(p){
  matPromoRequireSuperAdmin_(p);
- const rows=matReadObjects_(matPremiumNameAccessSheet_()).filter(function(row){return String(row.Status||'').trim().toUpperCase()==='ACTIVE';});
- return {success:true,access:rows.map(function(row){return {userId:String(row.UserID||''),name:String(row.Name||''),email:String(row.Email||''),grantedAt:String(row.GrantedAt||'')};})};
+ const latestByUser=Object.create(null);
+ matReadObjects_(matPremiumNameAccessSheet_()).forEach(function(row){
+  const id=String(row.UserID||'').trim();
+  if(!id)return;
+  if(!latestByUser[id]||Number(row._rowNumber||0)>Number(latestByUser[id]._rowNumber||0))latestByUser[id]=row;
+ });
+ const access=Object.keys(latestByUser).map(function(id){
+  const row=latestByUser[id];if(String(row.Status||'').trim().toUpperCase()!=='ACTIVE')return null;
+  const current=matFindStudentById_(id);
+  return {userId:id,name:String(current&&current.Name||row.Name||''),email:String(current&&current.Email||row.Email||''),grantedAt:String(row.GrantedAt||''),status:'ACTIVE'};
+ }).filter(Boolean);
+ return {success:true,access:access};
 }
 function matAdminSetPremiumNameAccess_(p){
  const actor=matPromoRequireSuperAdmin_(p),userId=String(p&&p.userId||'').trim(),enabled=p&&p.enabled===true;
@@ -3074,16 +3087,26 @@ function matAdminSetPremiumNameAccess_(p){
  const email=String(target.Email||'').trim().toLowerCase();
  if(!email)throw new Error('Member email is not available.');
  if(matPromoIsAdmin_(target))throw new Error('Admin members already have automatic Golden Name access.');
- const sh=matPremiumNameAccessSheet_(),rows=matReadObjects_(sh),old=rows.find(function(row){return String(row.UserID||'')===userId;});
- const now=matNowIso_(),actorEmail=matPromoEmail_(actor);
- if(enabled){
-  const values={UserID:userId,Email:email,Name:String(target.Name||''),Status:'ACTIVE',GrantedAt:old&&old.GrantedAt||now,GrantedBy:old&&old.GrantedBy||actorEmail,UpdatedAt:now,UpdatedBy:actorEmail};
-  if(old)matUpdateObjectRow_(sh,old._rowNumber,values);else matAppendObject_(sh,values);
- }else if(old){
-  matUpdateObjectRow_(sh,old._rowNumber,{Status:'REVOKED',UpdatedAt:now,UpdatedBy:actorEmail});
- }
+ const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
+ let result;
+ try{
+  const sh=matPremiumNameAccessSheet_(),rows=matReadObjects_(sh),matches=rows.filter(function(row){return String(row.UserID||'').trim()===userId||String(row.Email||'').trim().toLowerCase()===email;});
+  const old=matches.reduce(function(best,row){return !best||Number(row._rowNumber||0)>Number(best._rowNumber||0)?row:best;},null);
+  const now=matNowIso_(),actorEmail=matPromoEmail_(actor);
+  const values=enabled
+   ? {UserID:userId,Email:email,Name:String(target.Name||''),Status:'ACTIVE',GrantedAt:old&&old.GrantedAt||now,GrantedBy:old&&old.GrantedBy||actorEmail,UpdatedAt:now,UpdatedBy:actorEmail}
+   : {UserID:userId,Email:email,Name:String(target.Name||''),Status:'REVOKED',UpdatedAt:now,UpdatedBy:actorEmail};
+  if(matches.length){matches.forEach(function(row){matUpdateObjectRow_(sh,row._rowNumber,values);});}
+  else if(enabled){matAppendObject_(sh,values);}
+  SpreadsheetApp.flush();
+  const verified=matReadObjects_(sh).filter(function(row){return String(row.UserID||'').trim()===userId||String(row.Email||'').trim().toLowerCase()===email;});
+  const latest=verified.reduce(function(best,row){return !best||Number(row._rowNumber||0)>Number(best._rowNumber||0)?row:best;},null);
+  const actual=!!(latest&&String(latest.Status||'').trim().toUpperCase()==='ACTIVE');
+  if(actual!==!!enabled)throw new Error('Golden Name access write verification failed. Please refresh and retry.');
+  result={success:true,verified:true,enabled:actual,userId:userId,email:email};
+ }finally{lock.releaseLock();}
  MAT_PROMO_GOLD_NAME_EMAIL_LOOKUP_=null;
- return {success:true,enabled:!!enabled,userId:userId};
+ return result;
 }
 function matSetGoldNameVisibility_(p) {
   const user = matAuthenticate_(p);
