@@ -184,6 +184,7 @@ function matDispatch_(action, p) {
     case 'adminCancelGuestDeletion': return matAdminCancelGuestDeletion_(p || {});
     case 'adminExtendGuestDeletion': return matAdminExtendGuestDeletion_(p || {});
     case 'adminListGuestDeletionAudit': return matAdminListGuestDeletionAudit_(p || {});
+    case 'adminDeleteGuestDeletionAudit': return matAdminDeleteGuestDeletionAudit_(p || {});
     case 'adminListPremiumNameAccess': return matAdminListPremiumNameAccess_(p || {});
     case 'adminSetPremiumNameAccess': return matAdminSetPremiumNameAccess_(p || {});
     case 'adminAddMember': return matAdminAddMember_(p || {});
@@ -3207,7 +3208,25 @@ function matAdminListGuestDeletionAudit_(p){
   const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
   if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can view deletion audit history.');
   const rows=matReadObjects_(matPromoSheets_().guestDeletionAudit);
-  return {success:true,events:rows.slice(-100).reverse().map(function(row){return {userId:String(row.TargetUserID||''),event:String(row.Event||''),actor:String(row.ActorEmail||''),role:String(row.ActorRole||''),at:String(row.EventAt||''),previousDeadline:String(row.PreviousDeadline||''),newDeadline:String(row.NewDeadline||''),notes:String(row.Notes||'')};})};
+  return {success:true,events:rows.slice(-100).reverse().map(function(row){return {eventId:String(row.EventID||''),userId:String(row.TargetUserID||''),event:String(row.Event||''),actor:String(row.ActorEmail||''),role:String(row.ActorRole||''),at:String(row.EventAt||''),previousDeadline:String(row.PreviousDeadline||''),newDeadline:String(row.NewDeadline||''),notes:String(row.Notes||'')};})};
+}
+function matAdminDeleteGuestDeletionAudit_(p){
+  const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+  if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can remove deletion audit records.');
+  const ids=Array.isArray(p.eventIds)?Array.from(new Set(p.eventIds.map(function(id){return String(id||'').trim();}).filter(Boolean))):[];
+  if(!ids.length||ids.length>100)throw new Error('Select between 1 and 100 audit records.');
+  const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
+  try{
+    const sheet=matPromoSheets_().guestDeletionAudit,values=sheet.getDataRange().getValues(),headers=values.length?values[0].map(String):[],idColumn=headers.indexOf('EventID');
+    if(idColumn<0)throw new Error('Audit EventID column is missing.');
+    const wanted=Object.create(null);ids.forEach(function(id){wanted[id]=true;});
+    const rowsToDelete=[];
+    for(let i=1;i<values.length;i++){const id=String(values[i][idColumn]||'').trim();if(id&&wanted[id])rowsToDelete.push(i+1);}
+    if(rowsToDelete.length!==ids.length)throw new Error('One or more selected audit records were not found. Refresh the history and try again.');
+    rowsToDelete.sort(function(a,b){return b-a;}).forEach(function(rowNumber){sheet.deleteRow(rowNumber);});
+    SpreadsheetApp.flush();
+    return {success:true,removed:rowsToDelete.length};
+  }finally{lock.releaseLock();}
 }
 function matAdminCancelGuestDeletion_(p){
   const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
