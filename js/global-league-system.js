@@ -524,7 +524,8 @@
     });
     if (!response.user) throw new Error('Medical API did not return the registered profile.');
     var registeredProfile = applyProfile(response.user);
-    await profileMirrorPromise;
+    // Firebase profile mirroring is secondary: never block leaderboard entry on it.
+    // applyProfile already schedules the mirror and logs/retries failures separately.
     return registeredProfile;
   }
   async function syncIdentity() {
@@ -1899,6 +1900,18 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
   }
 
+  function waitForLeaderboardStep(promise, label, timeoutMs) {
+    var timer = 0;
+    return Promise.race([
+      Promise.resolve(promise),
+      new Promise(function (_, reject) {
+        timer = setTimeout(function () {
+          reject(new Error(label + ' timed out after ' + Math.round(timeoutMs / 1000) + ' seconds.'));
+        }, timeoutMs);
+      })
+    ]).finally(function () { clearTimeout(timer); });
+  }
+
   async function loadLeaderboard(silent) {
     // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
     // If a silent refresh supersedes a manual refresh, release the old button state immediately.
@@ -1929,7 +1942,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
 
     if (periodForRequest === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
-      try { await window.MedStudentFriends.loadConnections(true); }
+      try {
+        await waitForLeaderboardStep(
+          window.MedStudentFriends.loadConnections(true),
+          'Friends connection sync',
+          12000
+        );
+      }
       catch (friendError) {
         if (requestId === loadSequence) {
           var friendsErrorText = window.MedStudentFriends && typeof window.MedStudentFriends.getLastConnectionError === 'function'
@@ -1958,19 +1977,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     if (!app.authStateResolved && !app.authUser) {
       if (!cache.length) renderRows([]);
-      setStatus('Account session যাচাই হচ্ছে…', false);
+      setStatus('Account session এখনো প্রস্তুত নয়। Retry করুন।', true);
       setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
       return;
     }
     if (app.__medicalRegistrationInProgress) {
       if (!cache.length) renderRows([]);
-      setStatus('Account তৈরি হচ্ছে…', false);
-      if (!silent) setLeaderboardRefreshBusy(false);
+      setStatus('Account তৈরি হচ্ছে। শেষ হলে Leaderboard আবার খুলুন।', false);
+      setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
       return;
     }
     var refreshSucceeded = false;
     try {
-      await syncIdentity();
+      await waitForLeaderboardStep(syncIdentity(), 'Account identity sync', 28000);
       if (requestId !== loadSequence) return;
       var apiPeriod = periodForRequest === 'weekly' ? 'weekly' : 'monthly';
       var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
