@@ -217,9 +217,13 @@
   }
   function getSavedReward(attemptId) { return getRewardCache()[String(attemptId || '')] || null; }
   function cacheKeyForPeriod(period) {
-    if (period === 'weekly') return CACHE_KEY + '_weekly';
-    if (period === 'friends') return CACHE_KEY + '_friends';
-    return CACHE_KEY + '_monthly';
+    // Isolate cached snapshots by account to prevent cross-account Friends data reuse.
+    var identity = currentUserId();
+    var scope = identity ? String(identity).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 96) : 'anonymous';
+    var base = CACHE_KEY + '_v2_' + (scope || 'anonymous');
+    if (period === 'weekly') return base + '_weekly';
+    if (period === 'friends') return base + '_friends';
+    return base + '_monthly';
   }
   function getCache(period) {
     var key = cacheKeyForPeriod(period || 'monthly');
