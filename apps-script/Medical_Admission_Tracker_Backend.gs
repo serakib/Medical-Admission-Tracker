@@ -3422,7 +3422,7 @@ function matAdminDeleteMemberPromo_(p) {
   const sh = matPromoConfigSheets_().members;
   const row = matReadObjects_(sh).find(x => String(x.UserID) === userId);
   if (row && target && matPromoIsAdmin_(target)) {
-    matUpdateObjectRow_(sh,row._rowNumber,{AdminCode:'',AdminRewardPB:'',AdminLimitCount:'',AdminLimitPeriod:'',AdminEnabled:'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
+    matUpdateObjectRow_(sh,row._rowNumber,{AdminCode:'',AdminRewardPB:'',AdminLimitCount:'',AdminLimitPeriod:'',AdminEnabled:'',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
   } else if (row) sh.deleteRow(row._rowNumber);
   return {success:true};
 }
