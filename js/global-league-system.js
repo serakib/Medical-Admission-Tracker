@@ -757,8 +757,12 @@
       avatar: safeText(raw.avatar || raw.Avatar || profileAvatarForUser(id) || '', 20000),
       accountType: safeText(raw.accountType || raw.AccountType || '', 20),
       isAdmin: raw.isAdmin === true || raw.IsAdmin === true,
-      isGoldName: raw.isGoldName === true || raw.IsGoldName === true || raw.isAdmin === true || raw.IsAdmin === true,
-      showGoldName: raw.showGoldName !== false && raw.ShowGoldName !== false,
+      isGoldName: isCurrentAccount
+        ? (ownProfile.isGoldName === true || ownProfile.isAdmin === true)
+        : (raw.isGoldName === true || raw.IsGoldName === true || raw.isAdmin === true || raw.IsAdmin === true),
+      showGoldName: isCurrentAccount
+        ? ownProfile.showGoldName !== false
+        : (raw.showGoldName !== false && raw.ShowGoldName !== false),
       guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
       xp: xp,
       level: boardLevel,
