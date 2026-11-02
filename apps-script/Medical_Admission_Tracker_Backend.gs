@@ -3154,16 +3154,20 @@ function matAdminCreateGuestDeletionRequest_(p) {
     if (duplicate) return {success:true,requestId:String(duplicate.RequestID),status:'PENDING',existing:true};
     const id = Utilities.getUuid(), now = matNowIso_();
     matAppendObject_(sh,{RequestID:id,TargetUserID:userId,Status:'PENDING',RequestedBy:matPromoEmail_(actor),RequestedAt:now,Reason:reason,ReviewedBy:'',ReviewedAt:'',Decision:''});
+    SpreadsheetApp.flush();
+    const saved = matReadObjects_(sh).find(function(row){return String(row.RequestID||'')===id && String(row.Status||'').trim().toUpperCase()==='PENDING';});
+    if(!saved) throw new Error('Request could not be verified in the Super Admin approval queue. Please retry; no success was recorded.');
     matGuestDeletionAudit_(userId,'ADMIN_DELETION_REQUESTED',actor,'','','Request '+id);
-    return {success:true,requestId:id,status:'PENDING'};
+    return {success:true,requestId:id,status:'PENDING',verified:true};
   } finally { lock.releaseLock(); }
 }
 function matAdminListGuestDeletionRequests_(p) {
   const actor = matPromoRequireAdmin_(p);
   const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
   if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can view Guest deletion requests.');
+  SpreadsheetApp.flush();
   const rows = matReadObjects_(matPromoSheets_().guestDeletionRequests);
-  return {success:true,requests:rows.filter(function(row){return String(row.Status||'').toUpperCase()==='PENDING';}).map(function(row){
+  return {success:true,requests:rows.filter(function(row){return String(row.Status||'').trim().toUpperCase()==='PENDING' && String(row.RequestID||'').trim();}).map(function(row){
     const userId = String(row.TargetUserID || '');
     const target = matFindStudentById_(userId);
     return {requestId:String(row.RequestID||''),userId:userId,name:target?String(target.Name||target.DisplayName||'Guest Student'):'Account unavailable',profile:target?matAdminGuestProfileData_(target):null,requestedAt:String(row.RequestedAt||''),requestedBy:String(row.RequestedBy||''),reason:String(row.Reason||'')};
