@@ -479,10 +479,9 @@
       indicator.setAttribute('role','status'); indicator.setAttribute('aria-live','polite');
       status.parentNode.insertBefore(indicator,status);
     }
-    if (!active) { indicator.classList.add('hidden'); indicator.textContent=''; return; }
+    if (!active || hasSnapshot) { indicator.classList.add('hidden'); indicator.textContent=''; return; }
     indicator.classList.remove('hidden');
-    indicator.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>' +
-      (hasSnapshot ? 'Background sync চলছে · সর্বশেষ data দেখানো হচ্ছে' : 'Leaderboard data load হচ্ছে…');
+    indicator.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>Leaderboard data load হচ্ছে…';
   }
 
   function setStatus(message, isError) {
