@@ -425,7 +425,6 @@ async function loadAdmin(){
  })();
  const superAdmin=members.canManage===true;
  $('mat-admin-only-code-controls').classList.toggle('hidden',!superAdmin);
- $('mat-promo-global-form').classList.toggle('hidden',!superAdmin);
  $('mat-admin-fixed-code').value=superAdmin?(config.fixedCode||''):'';
  $('mat-admin-unlimited-toggle').textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
