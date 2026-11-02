@@ -596,7 +596,7 @@ async function loadAdmin(){
     loadingStyle.textContent='@keyframes matRequestDotPulse{0%,65%,100%{opacity:.2;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}.mat-request-loading-dots{display:inline-flex;gap:1px;margin-left:2px}.mat-request-loading-dots i{font-style:normal;animation:matRequestDotPulse 1s infinite}.mat-request-loading-dots i:nth-child(2){animation-delay:.15s}.mat-request-loading-dots i:nth-child(3){animation-delay:.3s}';
     document.head.appendChild(loadingStyle);
    }
-   try{await api('adminCreateGuestDeletionRequest',{userId,reason});status.textContent='কারণসহ request Pending Approval হিসেবে জমা হয়েছে।';$('mat-guest-delete-target').value='';$('mat-guest-delete-reason').value='';}
+   try{const result=await api('adminCreateGuestDeletionRequest',{userId,reason});if(!result||result.success!==true||result.verified!==true)throw new Error('Backend request save verify করেনি। Latest Apps Script deployment check করে আবার চেষ্টা করুন।');$('mat-guest-delete-target').value='';$('mat-guest-delete-reason').value='';if(members.canManage){await loadAdmin();const refreshedStatus=$('mat-guest-delete-status');if(refreshedStatus)refreshedStatus.textContent='কারণসহ request Pending Approval queue-তে save ও verify হয়েছে।';}else{status.textContent='কারণসহ request Pending Approval queue-তে save ও verify হয়েছে।';}}
    catch(error){status.textContent=error.message||'Request failed.';}
    finally{button.disabled=false;button.innerHTML=previousButtonContent;}
   };
