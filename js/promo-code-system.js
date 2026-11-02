@@ -393,7 +393,7 @@ async function loadAdmin(){
   items.forEach(item=>{
    const link=nav.querySelector('[data-admin-jump="'+item.id+'"]');
    const target=document.getElementById(item.id);
-   if(link)link.classList.toggle('hidden',!target||target.classList.contains('hidden'));
+   if(link)link.classList.toggle('hidden',!!target&&target.classList.contains('hidden'));
   });
   const activate=function(id){
    const link=nav.querySelector('[data-admin-jump="'+id+'"]');
