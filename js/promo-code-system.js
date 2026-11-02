@@ -438,15 +438,15 @@ async function loadAdmin(){
  box.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('এই Admin Member-কে remove করবেন?'))return;b.disabled=true;b.textContent='Removing...';try{await api('adminRemoveMember',{email:b.dataset.remove});await loadAdmin();}catch(e){$('mat-admin-message').textContent=e.message;b.disabled=false;b.textContent='Remove';}}));
 
  // Guest deletion is a two-person control: any Admin may request; only Super Admin may decide.
+ let section = $('mat-admin-guest-deletion');
+ if (!section) {
+  section = document.createElement('section');
+  section.id = 'mat-admin-guest-deletion';
+  section.className = 'rounded-2xl border border-amber-200 dark:border-amber-900 p-4 space-y-3';
+  box.parentNode.insertBefore(section, box.nextSibling);
+ }
  try {
   const guestData = await api('adminListGuestDeletionTargets');
-  let section = $('mat-admin-guest-deletion');
-  if (!section) {
-   section = document.createElement('section');
-   section.id = 'mat-admin-guest-deletion';
-   section.className = 'rounded-2xl border border-amber-200 dark:border-amber-900 p-4 space-y-3';
-   box.parentNode.insertBefore(section, box.nextSibling);
-  }
   const openGuestAdminProfile = function(userId, profileRows){
    const id=String(userId||'').trim();
    const rows=Array.isArray(profileRows)?profileRows:[];
@@ -578,7 +578,13 @@ async function loadAdmin(){
     }catch(error){console.warn('[Guest deletion management]',error);}
    }
   }
- } catch(error) { console.warn('[Guest deletion approval]',error); }
+ } catch(error) {
+  const section = $('mat-admin-guest-deletion');
+  if(section && !section.querySelector('#mat-guest-delete-status')){
+   section.innerHTML = '<h4 class="font-bold text-gray-800 dark:text-white">Guest Deletion</h4><p class="text-sm text-rose-600">Guest deletion data could not be loaded: '+esc(error&&error.message||'Please refresh and try again.')+'</p>';
+  }
+  console.warn('[Guest deletion approval]',error);
+ }
 
  const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{const label=toggle.textContent;toggle.disabled=true;toggle.textContent=(promo.unlimitedEnabled?'Disabling':'Enabling')+'...';try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;toggle.disabled=false;toggle.textContent=label;}};
 }
