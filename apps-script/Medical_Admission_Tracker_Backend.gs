@@ -3151,7 +3151,7 @@ function matAdminCreateGuestDeletionRequest_(p) {
     const duplicate = rows.find(function (row) {
       return String(row.TargetUserID || '') === userId && String(row.Status || '').toUpperCase() === 'PENDING';
     });
-    if (duplicate) return {success:true,requestId:String(duplicate.RequestID),status:'PENDING',existing:true};
+    if (duplicate) { SpreadsheetApp.flush(); const verified=matReadObjects_(sh).some(function(row){return String(row.RequestID||'')===String(duplicate.RequestID) && String(row.Status||'').trim().toUpperCase()==='PENDING';}); if(!verified) throw new Error('Existing pending request could not be verified.'); return {success:true,requestId:String(duplicate.RequestID),status:'PENDING',existing:true,verified:true}; }
     const id = Utilities.getUuid(), now = matNowIso_();
     matAppendObject_(sh,{RequestID:id,TargetUserID:userId,Status:'PENDING',RequestedBy:matPromoEmail_(actor),RequestedAt:now,Reason:reason,ReviewedBy:'',ReviewedAt:'',Decision:''});
     SpreadsheetApp.flush();
