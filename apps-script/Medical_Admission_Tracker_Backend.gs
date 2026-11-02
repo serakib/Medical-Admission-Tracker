@@ -3243,19 +3243,22 @@ function matAdminCancelGuestDeletion_(p){
   }finally{lock.releaseLock();}
 }
 function matAdminExtendGuestDeletion_(p){
-  const actor=matPromoRequireAdmin_(p),userId=String(p.userId||'').trim(),days=Math.floor(Number(p.days));
-  if(!userId||!Number.isFinite(days)||days<1||days>365)throw new Error('Choose an extension from 1 to 365 days.');
+  const actor=matPromoRequireAdmin_(p),userId=String(p.userId||'').trim(),extensionMinutes=Math.round(Number(p.extensionMinutes)),reason=String(p.reason||'').trim();
+  if(!userId||!Number.isSafeInteger(extensionMinutes)||extensionMinutes<1||extensionMinutes>525600)throw new Error('Choose an extension from 1 minute to 365 days.');
+  if(!reason)throw new Error('Reason is required to extend a Guest deletion deadline.');
+  if(reason.length>1000)throw new Error('Reason must be 1000 characters or fewer.');
   const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
   try{
     const target=matFindStudentById_(userId);
     if(!target||String(target.AccountType||'').toUpperCase()!=='GUEST')throw new Error('Guest account not found.');
     const old=String(target.GuestDeletionScheduledAt||''),oldMs=Date.parse(old);
     if(!old||!Number.isFinite(oldMs)||oldMs<=Date.now())throw new Error('Only an active pending deletion can be extended.');
-    const next=new Date(oldMs+days*86400000).toISOString();
+    const next=new Date(oldMs+extensionMinutes*60000).toISOString();
     if(Date.parse(next)<=oldMs)throw new Error('A deadline cannot be shortened.');
     matUpdateObjectRow_(matGetStudentsSheet_(),target._rowNumber,{GuestDeletionScheduledAt:next,UpdatedAt:matNowIso_()});
-    matGuestDeletionAudit_(userId,'DEADLINE_EXTENDED',actor,old,next,days+' day(s) added');
-    return {success:true,userId:userId,previousDeadline:old,scheduledAt:next,daysAdded:days};
+    const durationLabel=extensionMinutes%1440===0?(extensionMinutes/1440)+' day(s)':extensionMinutes%60===0?(extensionMinutes/60)+' hour(s)':extensionMinutes+' minute(s)';
+    matGuestDeletionAudit_(userId,'DEADLINE_EXTENDED',actor,old,next,'Extension: '+durationLabel+'. Reason: '+reason);
+    return {success:true,userId:userId,previousDeadline:old,scheduledAt:next,extensionMinutes:extensionMinutes,reason:reason};
   }finally{lock.releaseLock();}
 }
 
