@@ -601,9 +601,17 @@ async function loadAdmin(){
      updateDeletionCountdowns();management.__countdownTimer=setInterval(updateDeletionCountdowns,1000);
      management.querySelectorAll('[data-guest-profile]').forEach(button=>button.onclick=()=>openGuestAdminProfile(button.getAttribute('data-guest-profile'),targets.guests));
      management.querySelectorAll('[data-guest-extend]').forEach(button=>button.onclick=async()=>{
-      const userId=button.getAttribute('data-guest-extend'),raw=prompt('বর্তমান deadline-এর সঙ্গে কত দিন যোগ করবেন? (1–365)','7'),days=Number(raw);
-      if(raw===null)return;if(!Number.isInteger(days)||days<1||days>365){alert('১ থেকে ৩৬৫ দিনের মধ্যে দিন লিখুন।');return;}
-      button.disabled=true;button.textContent='Extending...';try{await api('adminExtendGuestDeletion',{userId,days});await loadAdmin();}catch(error){alert(error.message||'Deadline extend করা যায়নি।');button.disabled=false;}
+      const userId=button.getAttribute('data-guest-extend');
+      const duration=prompt('বর্তমান deadline-এর সঙ্গে কত সময় যোগ করবেন? উদাহরণ: 2h 30m, 45m, 1d 4h');
+      if(duration===null)return;
+      const parts=String(duration).trim().match(/(\\d+(?:\\.\\d+)?)\\s*(d|day|days|h|hr|hrs|hour|hours|m|min|mins|minute|minutes)/gi);
+      if(!parts||parts.join('').replace(/\\s/g,'').toLowerCase()!==String(duration).replace(/[\\s,]+/g,'').toLowerCase()){alert('সময় লিখুন যেমন: 2h 30m, 45m বা 1d 4h।');return;}
+      let extensionMinutes=0;for(const part of parts){const match=part.trim().match(/^(\\d+(?:\\.\\d+)?)\\s*(d|day|days|h|hr|hrs|hour|hours|m|min|mins|minute|minutes)$/i);const unit=match[2].toLowerCase();extensionMinutes+=Number(match[1])*(unit[0]==='d'?1440:unit[0]==='h'?60:1);}
+      extensionMinutes=Math.round(extensionMinutes);
+      if(!Number.isSafeInteger(extensionMinutes)||extensionMinutes<1||extensionMinutes>525600){alert('কমপক্ষে ১ মিনিট এবং সর্বোচ্চ ৩৬৫ দিনের extension দিন।');return;}
+      const reason=prompt('Reason (required): কেন deadline extend করছেন?');
+      if(reason===null)return;if(!String(reason).trim()){alert('Deadline extend করতে Reason দেওয়া বাধ্যতামূলক।');return;}
+      button.disabled=true;button.textContent='Extending...';try{await api('adminExtendGuestDeletion',{userId,extensionMinutes,reason:String(reason).trim()});await loadAdmin();}catch(error){alert(error.message||'Deadline extend করা যায়নি।');button.disabled=false;button.textContent='Extend deadline';}
      });
      management.querySelectorAll('[data-guest-cancel-admin]').forEach(button=>button.onclick=async()=>{
       const userId=button.getAttribute('data-guest-cancel-admin');if(!confirm('এই Guest deletion Super Admin হিসেবে cancel করবেন?'))return;
