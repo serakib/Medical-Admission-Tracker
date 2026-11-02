@@ -87,7 +87,7 @@ function card(){
    <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-member-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-member-note" class="text-xs text-gray-500 dark:text-gray-400">প্রতিটি section আলাদাভাবে Save করতে পারবেন, অথবা Save All ব্যবহার করতে পারবেন।</span></div>
   </section>
   <div id="mat-admin-members" class="space-y-2 text-sm"></div>
-  <div class="flex flex-col sm:flex-row gap-2"><button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button></div>
+  <section id="mat-admin-only-code-controls" class="hidden rounded-xl border border-rose-200 dark:border-rose-900 p-3 space-y-2"><h4 class="font-bold text-sm">Master Admin-only Promo Code · Super Admin</h4><label class="block text-xs font-semibold">Shared Admin-only Code<input id="mat-admin-fixed-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" autocomplete="off"></label><div class="flex flex-wrap gap-2"><button type="button" id="mat-admin-fixed-code-save" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Master Code</button><button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button></div><p class="text-xs text-gray-500">Only Super Admin can change the shared code and its enabled status.</p></section>
   <form id="mat-admin-add-form" class="hidden flex flex-col sm:flex-row gap-2"><input id="mat-admin-email" type="email" required placeholder="Registered member Gmail" class="flex-1 min-w-0 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><button class="rounded-lg px-3 py-2 bg-rose-600 text-white text-sm font-bold">Add Admin</button></form>
   <p id="mat-admin-message" class="text-sm" aria-live="polite"></p>
  </div>`;
@@ -192,9 +192,9 @@ function memberOverrideCardMarkup(member){
  return '<article class="mat-member-override-card rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-3 space-y-2" data-override-card="'+id+'">'+
   '<div class="flex items-center justify-between gap-2"><strong class="text-xs uppercase tracking-wide text-slate-500">Member Override</strong><button type="button" data-remove-override class="text-xs font-bold text-rose-600">Remove</button></div>'+
   '<label class="block text-xs font-semibold">Registered member<select data-member-field="userId" required class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm">'+opts+'</select></label>'+
-  '<label class="block text-xs font-semibold">Member-specific Promo Code<input data-member-field="code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Blank = inherit global/public code"></label>'+
+  '<div data-member-promo-fields class="space-y-2"><label data-member-code-label class="block text-xs font-semibold">Member-specific Promo Code<input data-member-field="code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Blank = inherit global/public code"></label>'+
   '<div class="grid grid-cols-2 gap-2"><label class="text-xs font-semibold">PB per redeem<input data-member-field="rewardPB" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label><label class="text-xs font-semibold">Redeem limit<input data-member-field="limitCount" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Inherit global"></label></div>'+
-  '<div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select data-member-field="limitPeriod" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="">Inherit global</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input data-member-field="enabled" type="checkbox" checked> Enabled</label></div>'+
+  '<div class="flex flex-wrap items-center gap-2"><label class="text-xs font-semibold">Limit period<select data-member-field="limitPeriod" class="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="">Inherit global</option><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label><label class="text-xs flex items-center gap-1"><input data-member-field="enabled" type="checkbox" checked> Enabled</label></div></div>'+
   '<p data-member-card-note class="text-xs text-gray-500"></p><div data-admin-role-controls class="rounded-lg border border-slate-200 dark:border-slate-700 p-2 space-y-2"><p data-admin-role-status class="text-xs text-gray-500">Member select করলে Admin access status দেখা যাবে।</p><button type="button" data-admin-role-action class="hidden rounded-lg px-3 py-2 text-xs font-bold"></button></div><button type="button" data-save-override class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save This Member</button></article>';
 }
 function getMemberOverrideCards(){return Array.from(document.querySelectorAll('#mat-member-override-list [data-override-card]'));}
@@ -215,7 +215,13 @@ function renderMemberAdminRoleControl(card){
  const record=adminMemberRecords.find(m=>String(m.email||'').trim().toLowerCase()===email);
  const isRoot=!!record&&record.role==='SUPER_ADMIN';
  const isAdmin=!!record&&record.status==='ACTIVE';
- status.textContent=isRoot?'SUPER ADMIN · Admin-only code access ও settings manage করা যাবে; role revoke করা যাবে না':isAdmin?'ADMIN MEMBER · Super Admin এখান থেকে Admin-only code access, PB ও limit সেট করতে পারবেন':'REGULAR MEMBER · এখানে regular promo override সেট হবে; Admin-only code ব্যবহার করতে পারবে না';
+ const promoFields=card.querySelector('[data-member-promo-fields]');
+ if(promoFields){
+  promoFields.classList.toggle('hidden',isAdmin&&!canManageAdminMembers);
+  const codeLabel=promoFields.querySelector('[data-member-code-label]');
+  if(codeLabel)codeLabel.firstChild.textContent=isAdmin?'Individual Admin-only Code':'Member-specific Promo Code';
+ }
+ status.textContent=isRoot?'SUPER ADMIN · Master Admin-only code controls are available above; role revoke করা যাবে না':isAdmin?'ADMIN MEMBER · Super Admin এখান থেকে individual Admin-only code, PB ও limit সেট করতে পারবেন':'REGULAR MEMBER · এখানে regular promo override সেট হবে; Admin-only code ব্যবহার করতে পারবে না';
  button.classList.toggle('hidden',!canManageAdminMembers||isRoot);
  button.textContent=isAdmin?'Revoke Admin Member':'Make Admin Member';
  button.className=(canManageAdminMembers&&!isRoot?'':'hidden ')+'rounded-lg px-3 py-2 text-xs font-bold '+(isAdmin?'border border-rose-300 text-rose-700 dark:text-rose-300':'bg-rose-600 text-white');
@@ -417,6 +423,11 @@ async function loadAdmin(){
    nav.dataset.observerReady='true';
   }
  })();
+ const superAdmin=members.canManage===true;
+ $('mat-admin-only-code-controls').classList.toggle('hidden',!superAdmin);
+ $('mat-promo-global-form').classList.toggle('hidden',!superAdmin);
+ $('mat-admin-fixed-code').value=superAdmin?(config.fixedCode||''):'';
+ $('mat-admin-unlimited-toggle').textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
  memberTargets=targets.members||[];
@@ -586,7 +597,8 @@ async function loadAdmin(){
   console.warn('[Guest deletion approval]',error);
  }
 
- const toggle=$('mat-admin-unlimited-toggle');toggle.textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';toggle.onclick=async()=>{const label=toggle.textContent;toggle.disabled=true;toggle.textContent=(promo.unlimitedEnabled?'Disabling':'Enabling')+'...';try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;toggle.disabled=false;toggle.textContent=label;}};
+ const fixedSave=$('mat-admin-fixed-code-save');fixedSave.onclick=async()=>{fixedSave.disabled=true;fixedSave.textContent='Saving…';try{await api('adminSaveFixedPromoCode',{code:$('mat-admin-fixed-code').value});$('mat-admin-message').textContent='Master Admin-only Code saved.';await refresh();}catch(e){$('mat-admin-message').textContent=e.message||'Master code save failed.';}finally{fixedSave.disabled=false;fixedSave.textContent='Save Master Code';}};
+ const toggle=$('mat-admin-unlimited-toggle');toggle.onclick=async()=>{const label=toggle.textContent;toggle.disabled=true;toggle.textContent=(promo.unlimitedEnabled?'Disabling':'Enabling')+'...';try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;toggle.disabled=false;toggle.textContent=label;}};
 }
 async function refresh(){
  if(refreshInFlight){refreshPending=true;return;}
