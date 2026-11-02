@@ -3472,10 +3472,11 @@ function matRedeemPromoCode_(p) {
     const memberCfg = promoConfig.members.find(x => String(x.UserID) === String(u.UserID)) || {};
     const memberCode = String(memberCfg.Code || '').trim().toUpperCase();
     const adminCfg = verifiedAdmin ? matPromoAdminMemberConfig_(memberCfg, memberCfg.AdminCode || fixed) : null;
-    if (verifiedAdmin && !adminCfg.enabled) throw new Error('আপনার Admin-only Promo Code access বন্ধ করা হয়েছে।');
     if (verifiedAdmin && String(memberCfg.AdminCode || '').trim() && input === String(memberCfg.AdminCode).trim().toUpperCase()) {
+      if (!adminCfg.enabled) throw new Error('আপনার individual Admin-only Promo Code access বন্ধ করা হয়েছে।');
       type = 'admin-member-custom'; code = adminCfg.code; cfg = adminCfg;
     } else if (verifiedAdmin && input === String(fixed || '').toUpperCase() && fixed && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE') {
+      if (!adminCfg.enabled) throw new Error('আপনার Admin-only Promo Code access বন্ধ করা হয়েছে।');
       type = 'unlimited'; code = fixed; cfg = adminCfg;
     } else {
       const globalCfg = promoConfig.global || {};
