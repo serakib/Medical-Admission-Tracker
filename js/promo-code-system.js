@@ -92,10 +92,16 @@ function card(){
     </div>
    </details>
   </section>
-  <section id="mat-admin-overrides" class="hidden rounded-xl border border-rose-300 dark:border-rose-900 p-3 space-y-3">
-   <div class="flex flex-wrap items-center justify-between gap-2"><div><h4 class="font-bold text-sm">Admin Override · Super Admin Only</h4><p class="text-xs text-gray-500">প্রতিটি Admin member-এর আলাদা Admin-only code, PB reward ও redemption limit manage করুন। Member Override থেকে আলাদা।</p></div><button type="button" id="mat-admin-override-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
-   <div id="mat-admin-override-list" class="space-y-3"></div>
-   <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-admin-override-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-admin-override-status" class="text-xs text-gray-500" aria-live="polite">প্রতিটি card আলাদাভাবে save বা Save All ব্যবহার করুন।</span></div>
+  <section id="mat-admin-overrides" class="hidden rounded-xl border border-rose-300 dark:border-rose-900 p-3">
+   <details>
+    <summary class="cursor-pointer list-none flex flex-wrap items-center justify-between gap-2"><span class="font-bold text-sm">Admin Override · Super Admin Only</span><span class="text-xs text-gray-500">Expand / Collapse</span></summary>
+    <div class="pt-3 space-y-3">
+     <p class="text-xs text-gray-500">প্রতিটি Admin member-এর আলাদা Admin-only code, PB reward ও redemption limit manage করুন। Member Override থেকে আলাদা।</p>
+     <div class="flex justify-end"><button type="button" id="mat-admin-override-add-more" class="rounded-lg border border-rose-300 dark:border-rose-800 px-3 py-2 text-xs font-extrabold text-rose-700 dark:text-rose-300">+ Add More</button></div>
+     <div id="mat-admin-override-list" class="space-y-3"></div>
+     <div class="flex flex-wrap items-center gap-2"><button type="button" id="mat-admin-override-save-all" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save All</button><span id="mat-admin-override-status" class="text-xs text-gray-500" aria-live="polite">প্রতিটি card আলাদাভাবে save বা Save All ব্যবহার করুন।</span></div>
+    </div>
+   </details>
   </section>
   <div id="mat-admin-members" class="space-y-2 text-sm"></div>
   <section id="mat-admin-only-code-controls" class="hidden rounded-xl border border-rose-200 dark:border-rose-900 p-3 space-y-2"><h4 class="font-bold text-sm">Master Admin-only Promo Code · Super Admin</h4><label class="block text-xs font-semibold">Shared Admin-only Code<input id="mat-admin-fixed-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" autocomplete="off"></label><div class="flex flex-wrap gap-2"><button type="button" id="mat-admin-fixed-code-save" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Master Code</button><button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button></div><p class="text-xs text-gray-500">Only Super Admin can change the shared code and its enabled status.</p></section>
