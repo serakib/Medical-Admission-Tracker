@@ -1263,7 +1263,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
   function isInMonthlySafeZone(row) {
     var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
-    if (rankIndex >= 0 && (rankIndex >= RANKS.length - 1 || Math.floor(rankIndex / 5) === 0)) return true;
+    if (rankIndex >= RANKS.length - 1) return true;
+    // Bronze V is the entry sub-rank: users below its monthly safe-zone
+    // threshold must remain below the public Safe Zone boundary as well.
+    if (rankIndex > 0 && rankIndex >= 0 && Math.floor(rankIndex / 5) === 0) return true;
     return monthlyPointsForRow(row) >= monthlySafeZoneThresholdFor(row);
   }
   function promotionZoneThresholdFor(row) {
@@ -1421,7 +1424,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var monthlyRP = monthlyPointsForRow(row);
         var isMaxRank = isMaxRankRow(row);
         var rowRankIndex = RANKS.indexOf(String(row.rank || ''));
-        var isMinimumMainRank = rowRankIndex >= 0 && Math.floor(rowRankIndex / 5) === 0;
+        var isMinimumMainRank = rowRankIndex > 0 && Math.floor(rowRankIndex / 5) === 0;
         var safeStatus = selectedPeriod === 'monthly'
           ? (isMinimumMainRank
             ? '<small class="leader-safe-status" title="Minimum Main Rank; demotion is not applicable"><i class="fa-solid fa-shield-halved"></i> Minimum Main Rank</small>'
