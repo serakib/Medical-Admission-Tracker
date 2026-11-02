@@ -3289,7 +3289,7 @@ function matPromoConfigSheets_() {
   }
   return {
     global: ensure('PromoGlobalSettings', ['Key','Code','RewardPB','LimitCount','LimitPeriod','Enabled','UpdatedAt','UpdatedBy']),
-    members: ensure('PromoMemberSettings', ['UserID','Name','Email','Code','RewardPB','LimitCount','LimitPeriod','Enabled','UpdatedAt','UpdatedBy'])
+    members: ensure('PromoMemberSettings', ['UserID','Name','Email','Code','RewardPB','LimitCount','LimitPeriod','Enabled','UpdatedAt','UpdatedBy','AdminCode','AdminRewardPB','AdminLimitCount','AdminLimitPeriod','AdminEnabled'])
   };
 }
 function matPromoNormalizePeriod_(value) {
@@ -3327,6 +3327,13 @@ function matPromoEffectiveConfig_(user, kind, publicCode) {
   const periodRaw = String(own.LimitPeriod || '').trim() || String(global.LimitPeriod || '').trim();
   const limitPeriod = periodRaw ? matPromoNormalizePeriod_(periodRaw) : (kind === 'weekly' ? 'WEEKLY' : kind === 'daily' ? 'DAILY' : 'UNLIMITED');
   return { code:code, enabled:enabled, rewardPB:reward == null ? null : reward, limitCount:limitCount, limitPeriod:limitPeriod, hasMemberOverride:!!Object.keys(own).length, member:own, global:global };
+}
+function matPromoAdminMemberConfig_(row, code) {
+  row = row || {};
+  const reward = row.AdminRewardPB === '' || row.AdminRewardPB == null ? 100000 : matSafeNonNegativeInt_(row.AdminRewardPB, 'Admin Reward PB');
+  const count = row.AdminLimitCount === '' || row.AdminLimitCount == null ? 0 : matSafeNonNegativeInt_(row.AdminLimitCount, 'Admin redemption limit');
+  const period = String(row.AdminLimitPeriod || 'UNLIMITED').trim() ? matPromoNormalizePeriod_(row.AdminLimitPeriod) : 'UNLIMITED';
+  return {code:String(code || row.AdminCode || '').trim().toUpperCase(),enabled:String(row.AdminEnabled || 'TRUE').toUpperCase() !== 'FALSE',rewardPB:reward,limitCount:count,limitPeriod:period};
 }
 function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
   // A configured member/global limit applies across all Promo Code types for that member.
@@ -3370,9 +3377,12 @@ function matAdminListPromoTargets_(p) {
     const adminTarget = matPromoIsAdmin_(x);
     const reveal = !adminTarget || canManage;
     return {userId:String(x.UserID),name:String(x.Name || ''),email:String(x.Email || ''),isAdmin:adminTarget,
-      code:reveal ? String(cfg.Code || '') : '',rewardPB:reveal && cfg.RewardPB != null ? cfg.RewardPB : '',
-      limitCount:reveal && cfg.LimitCount != null ? cfg.LimitCount : '',limitPeriod:reveal ? String(cfg.LimitPeriod || '') : '',
-      enabled:reveal ? String(cfg.Enabled || 'TRUE') !== 'FALSE' : true,hasOverride:reveal && !!cfg.UserID};
+      code:reveal ? String(adminTarget ? cfg.AdminCode || '' : cfg.Code || '') : '',
+      rewardPB:reveal ? (adminTarget ? cfg.AdminRewardPB == null ? '' : cfg.AdminRewardPB : cfg.RewardPB == null ? '' : cfg.RewardPB) : '',
+      limitCount:reveal ? (adminTarget ? cfg.AdminLimitCount == null ? '' : cfg.AdminLimitCount : cfg.LimitCount == null ? '' : cfg.LimitCount) : '',
+      limitPeriod:reveal ? String(adminTarget ? cfg.AdminLimitPeriod || '' : cfg.LimitPeriod || '') : '',
+      enabled:reveal ? String((adminTarget ? cfg.AdminEnabled : cfg.Enabled) || 'TRUE') !== 'FALSE' : true,
+      hasOverride:reveal && !!(adminTarget ? cfg.AdminCode || cfg.AdminRewardPB != null || cfg.AdminLimitCount != null || cfg.AdminLimitPeriod || cfg.AdminEnabled : cfg.Code || cfg.RewardPB != null || cfg.LimitCount != null || cfg.LimitPeriod || cfg.Enabled)};
   })};
 }
 function matAdminSaveMemberPromo_(p) {
@@ -3393,7 +3403,10 @@ function matAdminSaveMemberPromo_(p) {
   const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
   const period = String(p.limitPeriod || '').trim() ? matPromoNormalizePeriod_(p.limitPeriod) : '';
   const sh = matPromoConfigSheets_().members, rows = matReadObjects_(sh), old = rows.find(x => String(x.UserID) === userId);
-  const v = {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
+  const adminTarget = matPromoIsAdmin_(target);
+  const v = adminTarget
+    ? {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),AdminCode:code,AdminRewardPB:reward,AdminLimitCount:count,AdminLimitPeriod:period,AdminEnabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)}
+    : {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
   if (old) matUpdateObjectRow_(sh,old._rowNumber,v); else matAppendObject_(sh,v);
   return {success:true};
 }
@@ -3408,27 +3421,35 @@ function matAdminDeleteMemberPromo_(p) {
   }
   const sh = matPromoConfigSheets_().members;
   const row = matReadObjects_(sh).find(x => String(x.UserID) === userId);
-  if (row) sh.deleteRow(row._rowNumber);
+  if (row && target && matPromoIsAdmin_(target)) {
+    matUpdateObjectRow_(sh,row._rowNumber,{AdminCode:'',AdminRewardPB:'',AdminLimitCount:'',AdminLimitPeriod:'',AdminEnabled:'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
+  } else if (row) sh.deleteRow(row._rowNumber);
   return {success:true};
 }
 // Override the legacy endpoint so Admin-only code details are returned only to a verified Admin.
 function matGetPromoInfo_(p) {
   const u = matAuthenticate_(p), c = matPromoPublic_();
-  let admin = false, fixedCode = '';
+  let admin = false, fixedCode = '', adminCodeEnabled = false, adminRewardPB = 100000;
   const token = String(p && (p.idToken || p.firebaseIdToken) || '').trim();
   if (token) {
     const identity = matVerifyFirebaseIdToken_(token);
     if (identity.emailVerified === true) {
       u.Email = String(identity.email || '').trim().toLowerCase();
       admin = String(u.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(u);
-      if (admin) fixedCode = matPromoFixedCode_();
+      if (admin) {
+        const own = matPromoReadConfig_().members.find(x => String(x.UserID) === String(u.UserID)) || {};
+        const ownAdmin = matPromoAdminMemberConfig_(own, own.AdminCode || matPromoFixedCode_());
+        fixedCode = ownAdmin.code;
+        adminCodeEnabled = ownAdmin.enabled && (String(own.AdminCode || '').trim() ? true : matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE');
+        adminRewardPB = ownAdmin.rewardPB;
+      }
     }
   }
   const effective = matPromoEffectiveConfig_(u, c.type, c.code);
   return {success:true,publicCode:c.code,publicType:c.type,rewardPB:effective.rewardPB == null ? c.reward : effective.rewardPB,
     promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin:admin,
-    adminCode:admin && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE' ? fixedCode : '',
-    adminCodeEnabled:admin && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
+    adminCode:admin && adminCodeEnabled ? fixedCode : '',
+    adminCodeEnabled:admin && adminCodeEnabled,adminCodeRewardPB:adminRewardPB};
 }
 // Override redemption to enforce verified Admin eligibility and server-side per-code limits.
 function matRedeemPromoCode_(p) {
@@ -3450,14 +3471,12 @@ function matRedeemPromoCode_(p) {
     const promoConfig = matPromoReadConfig_();
     const memberCfg = promoConfig.members.find(x => String(x.UserID) === String(u.UserID)) || {};
     const memberCode = String(memberCfg.Code || '').trim().toUpperCase();
-    if (verifiedAdmin && memberCode && input === memberCode) {
-      type = 'admin-member-custom'; code = memberCode; cfg = matPromoEffectiveConfig_(u,type,memberCode);
-      if (!cfg.enabled) throw new Error('আপনার individual Admin-only Promo Code access বন্ধ করা হয়েছে।');
-    } else if (input === String(fixed || '').toUpperCase() && fixed && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE') {
-      if (!verifiedAdmin) throw new Error('এই Promo Code এখন valid নয়।');
-      type = 'unlimited'; code = fixed;
-      cfg = matPromoEffectiveConfig_(u, type, fixed);
-      if (!cfg.enabled) throw new Error('আপনার Admin-only Promo Code access বন্ধ করা হয়েছে।');
+    const adminCfg = verifiedAdmin ? matPromoAdminMemberConfig_(memberCfg, memberCfg.AdminCode || fixed) : null;
+    if (verifiedAdmin && !adminCfg.enabled) throw new Error('আপনার Admin-only Promo Code access বন্ধ করা হয়েছে।');
+    if (verifiedAdmin && String(memberCfg.AdminCode || '').trim() && input === String(memberCfg.AdminCode).trim().toUpperCase()) {
+      type = 'admin-member-custom'; code = adminCfg.code; cfg = adminCfg;
+    } else if (verifiedAdmin && input === String(fixed || '').toUpperCase() && fixed && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE') {
+      type = 'unlimited'; code = fixed; cfg = adminCfg;
     } else {
       const globalCfg = promoConfig.global || {};
       const globalCode = String(globalCfg.Code || '').trim().toUpperCase();
