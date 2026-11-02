@@ -3447,17 +3447,21 @@ function matRedeemPromoCode_(p) {
         verifiedAdmin = String(u.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(u);
       }
     }
-    if (input === String(fixed || '').toUpperCase() && fixed && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE') {
+    const promoConfig = matPromoReadConfig_();
+    const memberCfg = promoConfig.members.find(x => String(x.UserID) === String(u.UserID)) || {};
+    const memberCode = String(memberCfg.Code || '').trim().toUpperCase();
+    if (verifiedAdmin && memberCode && input === memberCode) {
+      type = 'admin-member-custom'; code = memberCode; cfg = matPromoEffectiveConfig_(u,type,memberCode);
+      if (!cfg.enabled) throw new Error('আপনার individual Admin-only Promo Code access বন্ধ করা হয়েছে।');
+    } else if (input === String(fixed || '').toUpperCase() && fixed && matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE') {
       if (!verifiedAdmin) throw new Error('এই Promo Code এখন valid নয়।');
       type = 'unlimited'; code = fixed;
       cfg = matPromoEffectiveConfig_(u, type, fixed);
       if (!cfg.enabled) throw new Error('আপনার Admin-only Promo Code access বন্ধ করা হয়েছে।');
     } else {
-      const memberCfg = matPromoReadConfig_().members.find(x => String(x.UserID) === String(u.UserID)) || {};
-      const globalCfg = matPromoReadConfig_().global || {};
-      const memberCode = String(memberCfg.Code || '').trim().toUpperCase();
+      const globalCfg = promoConfig.global || {};
       const globalCode = String(globalCfg.Code || '').trim().toUpperCase();
-      if (memberCode && input === memberCode && String(memberCfg.Enabled || 'TRUE') !== 'FALSE') {
+      if (memberCode && input === memberCode && !verifiedAdmin && String(memberCfg.Enabled || 'TRUE') !== 'FALSE') {
         type = 'member-custom'; code = memberCode; cfg = matPromoEffectiveConfig_(u,type,memberCode);
       } else if (globalCode && input === globalCode && String(globalCfg.Enabled || 'TRUE') !== 'FALSE') {
         type = 'global-custom'; code = globalCode; cfg = matPromoEffectiveConfig_(u,type,globalCode);
