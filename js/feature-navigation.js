@@ -50,7 +50,6 @@
     target.setAttribute('aria-hidden', 'false');
     markActive(viewName);
     closeMobileMenu();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     return true;
   }
 
@@ -89,8 +88,7 @@
       document.body.classList.toggle('exam-active', viewName === 'exam');
       markActive(viewName);
       closeMobileMenu();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return true;
+        return true;
     };
     patchedApp = app;
   }
