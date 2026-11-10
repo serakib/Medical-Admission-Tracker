@@ -397,7 +397,9 @@ class MedicalExamApp {
             this.authReady = true;
         } catch (error) {
             console.error('Firebase initialization error:', error);
-            this.setAuthState(null, 'Firebase authentication failed. You can continue as Guest.');
+            this.setAuthState(null, 'Firebase authentication failed. Public browsing is still available.');
+            this.authStateResolved = true;
+            try { window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, authUnavailable: true } })); } catch (_) {}
         }
     }
 
