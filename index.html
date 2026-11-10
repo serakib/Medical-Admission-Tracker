@@ -392,15 +392,27 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
 </style>
 
     <style id="mat-initial-entry-loader-styles">
-      #mat-initial-entry-loader{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(145deg,#071d22 0%,#0b1b2c 58%,#091827 100%);color:#f8fafc;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
+      #mat-initial-entry-loader{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(13,148,136,.18),transparent 34%),linear-gradient(145deg,#06171d 0%,#0b1b2c 58%,#081522 100%);color:#f8fafc;opacity:1;visibility:visible;transition:opacity .32s ease,visibility .32s ease}
+      #mat-initial-entry-loader:before,#mat-initial-entry-loader:after{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(45,212,191,.08);border-radius:50%;pointer-events:none}
+      #mat-initial-entry-loader:before{transform:scale(1.45)}
+      #mat-initial-entry-loader:after{transform:scale(1.9)}
       #mat-initial-entry-loader.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
-      #mat-initial-entry-loader .mat-entry-loader-card{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
-      #mat-initial-entry-loader .mat-entry-loader-mark{display:grid;place-items:center;width:62px;height:62px;border:1px solid rgba(110,231,183,.3);border-radius:20px;background:rgba(16,185,129,.12);color:#6ee7b7;font-size:27px}
-      #mat-initial-entry-loader .mat-entry-loader-spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,.18);border-top-color:#6ee7b7;border-radius:50%;animation:matEntrySpin .8s linear infinite}
-      #mat-initial-entry-loader strong{font-size:16px;font-weight:800;letter-spacing:.01em}
-      #mat-initial-entry-loader small{color:#9eb1c4;font-size:12px}
-      @keyframes matEntrySpin{to{transform:rotate(360deg)}}
-      @media(prefers-reduced-motion:reduce){#mat-initial-entry-loader,#mat-initial-entry-loader .mat-entry-loader-spinner{transition:none;animation:none}}
+      #mat-initial-entry-loader .mat-entry-loader-card{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:min(100%,360px);gap:15px;text-align:center}
+      #mat-initial-entry-loader .mat-entry-loader-mark{display:grid;place-items:center;width:82px;height:82px;border:1px solid rgba(110,231,183,.34);border-radius:25px;background:linear-gradient(145deg,rgba(16,185,129,.2),rgba(14,116,144,.16));box-shadow:0 0 42px rgba(20,184,166,.16),inset 0 1px rgba(255,255,255,.08);color:#6ee7b7;font-size:35px;animation:matEntryPulse 2s ease-in-out infinite}
+      #mat-initial-entry-loader .mat-entry-loader-title{font-size:clamp(17px,4vw,21px);font-weight:800;line-height:1.45;letter-spacing:.01em}
+      #mat-initial-entry-loader .mat-entry-loader-subtitle{margin-top:-9px;color:#5eead4;font-size:13px;font-weight:600;letter-spacing:.04em}
+      #mat-initial-entry-loader .mat-entry-loader-features{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-top:2px}
+      #mat-initial-entry-loader .mat-entry-loader-features span{padding:5px 9px;border:1px solid rgba(148,163,184,.16);border-radius:999px;background:rgba(15,23,42,.42);color:#b8c7d5;font-size:10px}
+      #mat-initial-entry-loader .mat-entry-loader-progress{width:100%;margin-top:15px}
+      #mat-initial-entry-loader .mat-entry-loader-track{height:7px;overflow:hidden;padding:1px;border:1px solid rgba(148,163,184,.17);border-radius:999px;background:rgba(2,6,23,.58);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+      #mat-initial-entry-loader .mat-entry-loader-fill{width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#0d9488,#34d399,#67e8f9);box-shadow:0 0 14px rgba(45,212,191,.55);transition:width .42s ease}
+      #mat-initial-entry-loader .mat-entry-loader-status{display:flex;align-items:center;justify-content:center;gap:9px;min-height:25px;margin-top:11px;color:#cbd5e1;font-size:12px}
+      #mat-initial-entry-loader .mat-entry-loader-status i{color:#5eead4;font-size:12px}
+      #mat-initial-entry-loader .mat-entry-loader-percent{margin-top:2px;color:#8297aa;font-size:10px;font-variant-numeric:tabular-nums}
+      #mat-initial-entry-loader .mat-entry-loader-footer{position:absolute;z-index:1;bottom:max(18px,env(safe-area-inset-bottom));left:12px;right:12px;color:#647b8d;font-size:10px;text-align:center;letter-spacing:.04em}
+      @keyframes matEntryPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 9px rgba(45,212,191,.2))}50%{transform:scale(1.055);filter:drop-shadow(0 0 17px rgba(45,212,191,.55))}}
+      @media(max-width:420px){#mat-initial-entry-loader .mat-entry-loader-mark{width:72px;height:72px;font-size:30px}#mat-initial-entry-loader .mat-entry-loader-card{gap:13px}}
+      @media(prefers-reduced-motion:reduce){#mat-initial-entry-loader,#mat-initial-entry-loader .mat-entry-loader-fill{transition:none}#mat-initial-entry-loader .mat-entry-loader-mark{animation:none}}
     </style>
     <!-- Offline-ready global top loading bar (no libraries or remote assets). -->
     <style id="mat-global-loading-bar-styles">
@@ -412,28 +424,63 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
-    <div id="mat-initial-entry-loader" role="status" aria-live="polite" aria-label="Website loading">
+    <div id="mat-initial-entry-loader" role="status" aria-live="polite" aria-label="মেডিকেল ভর্তি প্রস্তুতি লোড হচ্ছে">
       <div class="mat-entry-loader-card">
         <span class="mat-entry-loader-mark"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i></span>
-        <strong>মেডিকেল ভর্তি পরীক্ষা প্রস্তুতি</strong>
-        <span class="mat-entry-loader-spinner" aria-hidden="true"></span>
-        <small>প্রস্তুত হচ্ছে...</small>
+        <strong class="mat-entry-loader-title">মেডিকেল ভর্তি পরীক্ষা প্রস্তুতি</strong>
+        <span class="mat-entry-loader-subtitle">with Rakib</span>
+        <div class="mat-entry-loader-features" aria-hidden="true"><span><i class="fa-solid fa-book-medical"></i> প্রশ্নব্যাংক</span><span><i class="fa-solid fa-clipboard-check"></i> মডেল টেস্ট</span><span><i class="fa-solid fa-trophy"></i> লিডারবোর্ড</span></div>
+        <div class="mat-entry-loader-progress">
+          <div class="mat-entry-loader-track"><div id="mat-entry-loader-fill" class="mat-entry-loader-fill"></div></div>
+          <div class="mat-entry-loader-status"><i id="mat-entry-loader-icon" class="fa-solid fa-gear" aria-hidden="true"></i><span id="mat-entry-loader-status-text">প্ল্যাটফর্ম প্রস্তুত করা হচ্ছে...</span></div>
+          <div id="mat-entry-loader-percent" class="mat-entry-loader-percent">০%</div>
+        </div>
       </div>
+      <div class="mat-entry-loader-footer">মেডিকেল ভর্তি প্রস্তুতি • Practice · Model Test · Progress</div>
     </div>
     <script>
       (function(){
         var key='mat_initial_entry_seen_v1';
         var overlay=document.getElementById('mat-initial-entry-loader');
-        var alreadySeen=false;
+        var fill=document.getElementById('mat-entry-loader-fill');
+        var status=document.getElementById('mat-entry-loader-status-text');
+        var icon=document.getElementById('mat-entry-loader-icon');
+        var percent=document.getElementById('mat-entry-loader-percent');
+        var alreadySeen=false, pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0;
         try { alreadySeen=sessionStorage.getItem(key)==='1'; if(!alreadySeen) sessionStorage.setItem(key,'1'); } catch(_){}
+        function setStep(value,message,iconClass){
+          if(!fill||finished)return;
+          fill.style.width=value+'%';
+          if(status)status.textContent=message;
+          if(icon)icon.className='fa-solid '+iconClass;
+          if(percent)percent.textContent=String(value).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯')+'%';
+        }
         function hide(){
-          if(!overlay) return;
-          overlay.classList.add('is-leaving');
-          window.setTimeout(function(){ if(overlay&&overlay.parentNode) overlay.parentNode.removeChild(overlay); },320);
+          if(!overlay||finished)return;
+          finished=true;
+          setStep(100,'শুরু করার জন্য প্রস্তুত!','fa-circle-check');
+          window.setTimeout(function(){
+            overlay.classList.add('is-leaving');
+            window.setTimeout(function(){if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);},340);
+          },180);
+        }
+        function tryFinish(){
+          if(finished||!pageLoaded)return;
+          if(appReady||Date.now()-startedAt>=2600){
+            window.clearTimeout(fallbackTimer);
+            var remaining=Math.max(0,1150-(Date.now()-startedAt));
+            window.setTimeout(hide,remaining);
+          }
         }
         window.MATInitialLoader={hide:hide};
-        if(alreadySeen) hide();
-        else window.addEventListener('load',function(){window.setTimeout(hide,900);},{once:true});
+        if(alreadySeen){hide();return;}
+        setStep(18,'প্ল্যাটফর্ম প্রস্তুত করা হচ্ছে...','fa-gear');
+        document.addEventListener('DOMContentLoaded',function(){setStep(38,'পরীক্ষা ও প্র্যাকটিস টুলস প্রস্তুত হচ্ছে...','fa-clipboard-check');},{once:true});
+        window.addEventListener('medical-app-ready',function(){appReady=true;setStep(78,'স্টুডেন্ট ড্যাশবোর্ড প্রস্তুত হচ্ছে...','fa-user-graduate');tryFinish();},{once:true});
+        window.addEventListener('student-auth-state-resolved',function(){if(!finished)setStep(91,'আপনার সেশন প্রস্তুত হচ্ছে...','fa-user-check');},{once:true});
+        window.addEventListener('load',function(){pageLoaded=true;setStep(66,'ওয়েবসাইটের প্রয়োজনীয় ফাইল প্রস্তুত...','fa-file-circle-check');tryFinish();},{once:true});
+        fallbackTimer=window.setTimeout(tryFinish,2700);
+        if(pageLoaded)tryFinish();
       })();
     </script>
 
