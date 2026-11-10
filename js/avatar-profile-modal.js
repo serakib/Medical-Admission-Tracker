@@ -12,6 +12,7 @@
      .mat-profile-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#fff;cursor:pointer}.mat-profile-modal-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
     .mat-profile-modal h2{margin:0;padding:0 24px;text-align:center;font-size:19px;font-weight:850;line-height:1.5}
     .mat-profile-modal-actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+    .mat-profile-modal-status[hidden]{display:none!important}.mat-profile-modal-status{margin:12px 0 0;color:#ff8a80;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
     .mat-profile-modal-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:12px;border:0;border-radius:8px;color:#fff;font-size:14px;font-weight:800;cursor:pointer}
     .mat-profile-modal-edit{background:#2563eb}
     .mat-profile-modal-upload{background:#10b981}
@@ -41,16 +42,18 @@
         '<div class="mat-profile-modal-actions">' +
           '<button type="button" class="mat-profile-modal-action mat-profile-modal-edit">আভাটার এডিট করো</button>' +
           '<button type="button" class="mat-profile-modal-action mat-profile-modal-upload">ছবি আপলোড করো</button>' +
-        '</div></section>';
+        '</div><p class="mat-profile-modal-status" role="status" aria-live="polite" hidden></p></section>';
       document.body.appendChild(overlay);
       overlay.addEventListener('click', event => {
         if (event.target === overlay || event.target.closest('.mat-profile-modal-close')) close();
       });
       overlay.querySelector('.mat-profile-modal-edit').addEventListener('click', () => {
+        clearStatus();
         close();
         document.dispatchEvent(new CustomEvent('mat-open-avatar-builder'));
       });
       overlay.querySelector('.mat-profile-modal-upload').addEventListener('click', () => {
+        clearStatus();
         close();
         document.getElementById('profile-avatar-upload-input')?.click();
       });
@@ -60,6 +63,8 @@
     document.body.style.overflow = 'hidden';
     overlay.querySelector('.mat-profile-modal-close')?.focus();
   }
+  function clearStatus() { const status = overlay?.querySelector('.mat-profile-modal-status'); if (status) { status.textContent = ''; status.hidden = true; } }
+  function showStatus(message) { open(); const status = overlay?.querySelector('.mat-profile-modal-status'); if (status) { status.textContent = String(message || ''); status.hidden = !status.textContent; } }
   function attach() {
     document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar').forEach(element => {
       if (element.querySelector('.mat-profile-edit-badge')) return;
@@ -82,5 +87,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && overlay && !overlay.hidden) close(); });
-  window.MedAvatarProfileModal = {open,close};
+  window.MedAvatarProfileModal = {open,close,showStatus,clearStatus};
 })();
