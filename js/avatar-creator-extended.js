@@ -102,7 +102,9 @@
       backgroundColor:toHex(c.background),
       backgroundType:'solid',
       medHeadphones:c.headphonesType,
-      medPet:c.petType
+      medPet:c.petType,
+      medHat:c.hat,
+      medHairStyle:c.hairStyle
     });
     return 'https://api.dicebear.com/10.x/avataaars/svg?' + params.toString();
   };
@@ -116,7 +118,7 @@
         expression:params.get('mouthVariant') || defaults.expression,
         eyeShape:params.get('eyesVariant') || defaults.eyeShape,
         eyebrowShape:params.get('eyebrowsVariant') || defaults.eyebrowShape,
-        hairStyle:params.get('topVariant') || defaults.hairStyle,
+        hairStyle:params.get('medHairStyle') || params.get('topVariant') || defaults.hairStyle,
         hairColor:params.get('hairColor') || defaults.hairColor,
         facialHair:params.get('facialHairProbability') === '0' ? 'none' : (params.get('facialHairVariant') || 'beardLight'),
         facialHairColor:params.get('facialHairColor') || defaults.facialHairColor,
@@ -126,11 +128,11 @@
         clothingType:params.get('clothesVariant') || defaults.clothingType,
         clothingColor:params.get('clothesColor') || defaults.clothingColor,
         headphonesType:params.get('medHeadphones') || 'none',
+        hat:params.get('medHat') || 'none',
         petType:params.get('medPet') || 'none',
         background:params.get('backgroundColor') || defaults.background
       };
-      if (c.hat === 'hat' || /^winterHat|^turban$/.test(c.hat)) c.hairStyle = defaults.hairStyle;
-      else c.hat = 'none';
+      if (!params.get('medHat')) c.hat = ['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'].includes(params.get('topVariant')) ? params.get('topVariant') : 'none';
       return normalize(c);
     } catch (_) { return null; }
   };
