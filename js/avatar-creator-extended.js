@@ -174,7 +174,7 @@
     pets:{
       chick:'./public/assets/pets/chick.svg',
       cat:'./public/assets/pets/cat.svg',
-      bear:'./public/assets/pets/bear.svg'
+      bear:'./public/assets/pets/white-bear.svg'
     }
   };
   window.MedAvatarCreator = base;
