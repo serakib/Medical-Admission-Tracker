@@ -1004,6 +1004,7 @@
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-category{color:#6b7280!important}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-category.is-active{color:#059669!important;border-bottom-color:#10b981!important}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option{background:#f1f5f9!important;border-color:#cbd5e1!important;color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack{background:#e5e7eb!important}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{background:#ecfdf5!important;border-color:#10b981!important}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{color:#111827!important}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-actions{background:#fff!important;border-color:#e5e7eb!important}
