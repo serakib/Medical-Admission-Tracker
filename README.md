@@ -12,18 +12,18 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 
 ## ✨ Features
 
-### 🏠 1. Home Dashboard
+### 📊 1. Home Dashboard
 - নিজের exam statistics ও preparation progress এক নজরে দেখো।
 - Question Bank, Practice এবং Model Test-এ দ্রুত প্রবেশ করো।
 - Subject-wise practice option ব্যবহার করো।
 
-### 🗃️ 2. Question Bank
+### 📚 2. Question Bank
 - Medical admission-এর MCQ প্রশ্নগুলো এক জায়গায় খুঁজে নাও।
 - Subject, Year, Source অথবা keyword দিয়ে Search ও Filter করো।
 - পড়ার সময় Answer show/hide করতে পারো।
 - Exam শুরু না করেও নিজের মতো করে প্রশ্ন পড়তে পারো।
 
-### 🎯 3. Practice Lab
+### 🧠 3. Practice Lab
 - আলাদা Practice environment-এ প্রশ্ন solve করো।
 - এক প্রশ্ন থেকে অন্য প্রশ্নে যাওয়া ও উত্তর যাচাই করার সুবিধা।
 - Practice History-তে ভুল করা (Wrong) এবং Review করা প্রশ্ন আলাদা করে দেখো।
@@ -32,7 +32,7 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 
 ### 🧪 4. Multiple Exam Modes
 
-**🔀 Random Mixed Test**
+**🎲 Random Mixed Test**
 - বিভিন্ন Subject থেকে random প্রশ্নে পরীক্ষা দাও।
 - চাইলে নির্দিষ্ট Subject নির্বাচন করো।
 
@@ -80,7 +80,7 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 - Exam attempts, Best Score ও Average Accuracy দেখো।
 - XP, Level, Rank, RP এবং Streak-এর অগ্রগতি অনুসরণ করো।
 
-### 📍 9. Question Coverage Tracking
+### ✅ 9. Question Coverage Tracking
 - Question Bank-এর কতগুলো প্রশ্ন practice করেছ তা track করো।
 - Unseen questions খুঁজে নিয়ে নতুন প্রশ্ন অনুশীলন করো।
 - নিজের question coverage ও attempt history দেখো।
