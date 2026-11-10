@@ -955,6 +955,24 @@
       .profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living,.mat-avatar-live-layer .med-avatar-pet{animation:none!important}
     }
   `;
+  avatarCustomizerStyle.textContent += `
+    .mat-avatar-preview-panel{isolation:isolate}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{transform-origin:50% 48%;animation:matAvatarPreviewBreath 4.2s ease-in-out infinite}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{transform-origin:50% 100%;animation:matAvatarPreviewPet 3.1s ease-in-out infinite}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-headphones{pointer-events:none}
+    .mat-avatar-transition-old{position:absolute!important;inset:0!important;z-index:4!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;animation:matAvatarCrossFadeOut .24s ease forwards!important;pointer-events:none!important}
+    .mat-avatar-transition-new{animation:matAvatarCrossFadeIn .28s ease both!important}
+    .mat-avatar-focus-zoom .profile-avatar-preview-stack .med-avatar-base{animation:matAvatarFocusZoom .62s cubic-bezier(.2,.75,.25,1) both}
+    @keyframes matAvatarCrossFadeIn{from{opacity:.35;filter:blur(2px)}to{opacity:1;filter:blur(0)}}
+    @keyframes matAvatarCrossFadeOut{from{opacity:1}to{opacity:0}}
+    @keyframes matAvatarFocusZoom{0%{transform:scale(1);filter:brightness(1)}38%{transform:scale(1.16);filter:brightness(1.04)}100%{transform:scale(1);filter:brightness(1)}}
+    @keyframes matAvatarPreviewBreath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.012)}}
+    @keyframes matAvatarPreviewPet{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-2deg)}}
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-preview-panel .profile-avatar-preview-stack,.mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet,
+      .mat-avatar-transition-old,.mat-avatar-transition-new,.mat-avatar-focus-zoom .profile-avatar-preview-stack .med-avatar-base{animation:none!important}
+    }
+  `;
   document.head.appendChild(avatarCustomizerStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
@@ -1248,7 +1266,8 @@
       glasses:'<path d="M2 10h3l1 7h5l2-5h-2l2 5h5l1-7h3M11 12h2"/>',
       clothes:'<path d="m8 4 4 2 4-2 5 4-3 4-2-2v10H8V10l-2 2-3-4z"/>',
       pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>',
-      headphones:'<path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/>'
+      headphones:'<path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/>',
+      background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
       {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
@@ -1258,7 +1277,8 @@
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
       {key:'headphones',title:'Headphones',icon:'headphones',fields:[{key:'headphonesType',title:'হেডফোন'}]},
-      {key:'pets-bg',title:'Pets & BG',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]}
+      {key:'pets-bg',title:'Pets',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
+      {key:'background',title:'Background',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
     ];
     const config = pendingAvatarConfig || readAvatarConfig();
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
@@ -1287,7 +1307,7 @@
       ? '<header class="profile-avatar-builder-header"><button type="button" id="profile-avatar-builder-back" aria-label="ফিরে যাও"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><h2>তোমার আভাটার বানাও</h2></header>' +
         '<div class="mat-avatar-workspace">' +
           '<section class="mat-avatar-preview-panel"><button type="button" id="profile-avatar-reset" class="mat-avatar-reset">রিসেট করুন</button>' +
-            window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(window.MedAvatarCreator.normalize(Object.assign({},config,{background:'a5a8ff'}))), window.MedAvatarCreator.normalize(Object.assign({},config,{background:'a5a8ff'})), 'profile-avatar-preview-stack') +
+            window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') +
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
@@ -1318,6 +1338,28 @@
           });
         }, {passive:true});
       }
+    }
+  }
+  function renderAvatarPickerWithTransition({focus=false} = {}) {
+    const panelBefore = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-preview-panel');
+    const previous = panelBefore?.querySelector('.profile-avatar-preview-stack')?.cloneNode(true) || null;
+    renderAvatarPicker();
+    const panel = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-preview-panel');
+    const next = panel?.querySelector('.profile-avatar-preview-stack');
+    if (panel && previous && next && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      previous.classList.add('mat-avatar-transition-old');
+      next.classList.add('mat-avatar-transition-new');
+      panel.appendChild(previous);
+      previous.addEventListener('animationend', () => previous.remove(), {once:true});
+      next.addEventListener('animationend', () => next.classList.remove('mat-avatar-transition-new'), {once:true});
+    }
+    if (panel && focus && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      panel.classList.remove('mat-avatar-focus-zoom');
+      void panel.offsetWidth;
+      panel.classList.add('mat-avatar-focus-zoom');
+      panel.addEventListener('animationend', event => {
+        if (event.target === panel) panel.classList.remove('mat-avatar-focus-zoom');
+      }, {once:true});
     }
   }
   function refreshAvatarViews() {
@@ -1460,7 +1502,8 @@
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
       const optionsScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
       const previousScrollTop = optionsScroll ? optionsScroll.scrollTop : 0;
-      renderAvatarPicker();
+      const needsFocus = ['eyeShape','expression','glasses'].includes(part);
+      renderAvatarPickerWithTransition({focus:needsFocus});
       const refreshedScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
       if (refreshedScroll) refreshedScroll.scrollTop = previousScrollTop;
       return;
@@ -1469,14 +1512,14 @@
     if (randomizeButton) {
       pendingAvatarConfig = window.MedAvatarCreator.randomize(avatarAccountId() + ':' + Date.now());
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
-      renderAvatarPicker();
+      renderAvatarPickerWithTransition();
       return;
     }
     const resetButton = event.target.closest('#profile-avatar-reset');
     if (resetButton) {
       pendingAvatarConfig = window.MedAvatarCreator.defaultConfig(avatarAccountId());
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
-      renderAvatarPicker();
+      renderAvatarPickerWithTransition();
       return;
     }
     const togglePicker = event.target.closest('#profile-avatar-toggle-picker');
