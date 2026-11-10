@@ -1046,7 +1046,7 @@
       '<button type="button" id="profile-avatar-toggle-picker" class="profile-avatar-toggle-button" aria-expanded="' + String(avatarPickerExpanded) + '">' +
       '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + (avatarPickerExpanded ? 'Close Avatar Creator' : 'Create Custom Avatar') + '</button></div>' +
       '<div class="profile-avatar-upload-controls"><label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Use Your Own Photo</label>' +
-      '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
+      '<input id="profile-avatar-upload-input" type="file" accept="image/*" multiple hidden>' +
       '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' uploaded</span></div>' +
       builderMarkup +
       externalPreviewMarkup +
