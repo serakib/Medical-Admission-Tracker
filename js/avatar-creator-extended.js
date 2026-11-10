@@ -13,7 +13,16 @@
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
     gender: [['male','পুরুষ'],['female','নারী']],
     ageGroup: [['teen','কিশোর/কিশোরী · ১৩–১৭'],['youngAdult','তরুণ/তরুণী · ১৮–২৫'],['adult','প্রাপ্তবয়স্ক · ২৬–৪০'],['mature','পরিণত বয়স · ৪১+']],
-    hairStyle: [['shortFlat','ছোট'],['shortCurly','ছোট কোঁকড়া'],['longButNotTooLong','লম্বা'],['bob','বব কাট'],['curly','কোঁকড়া'],['bun','খোঁপা'],['shaggy','এলোমেলো'],['hijab','হিজাব'],['straight01','সোজা ১'],['straight02','সোজা ২'],['theCaesar','সিজার কাট']],
+    hairStyle: [
+      ['shortFlat','ছোট সোজা'],['shortCurly','ছোট কোঁকড়া'],['shortRound','গোল ছোট'],['shortWaved','ঢেউ খেলানো ছোট'],
+      ['sides','সাইড পার্ট'],['theCaesar','সিজার কাট'],['theCaesarAndSidePart','সিজার + সাইড পার্ট'],
+      ['shaggy','লেয়ার কাট'],['shaggyMullet','মুলেট কাট'],['shavedSides','শেভড সাইড'],
+      ['bigHair','ভলিউমি'],['bob','বব কাট'],['bun','খোঁপা'],['curly','কোঁকড়া'],['curvy','কার্ভি'],
+      ['dreads','ড্রেডলক'],['dreads01','ড্রেডলক ১'],['dreads02','ড্রেডলক ২'],['frida','ফ্রিদা স্টাইল'],
+      ['frizzle','ফ্রিজল'],['fro','আফ্রো'],['froBand','আফ্রো ব্যান্ড'],['hijab','হিজাব'],
+      ['longButNotTooLong','লম্বা'],['miaWallace','মিয়া স্টাইল'],['straight01','সোজা ১'],
+      ['straight02','সোজা ২'],['straightAndStrand','সোজা স্ট্র্যান্ড']
+    ],
     hairColor: [['2c1b18','কালো'],['4a312c','গাঢ় বাদামি'],['724133','বাদামি'],['b58143','সোনালি বাদামি'],['a55728','কমলা-বাদামি'],['c93305','লাল']],
     facialHair: [['none','নেই'],['beardLight','হালকা দাড়ি'],['beardMedium','মাঝারি দাড়ি'],['beardMajestic','ঘন দাড়ি'],['moustacheFancy','গোঁফ'],['moustacheMagnum','ঘন গোঁফ']],
     facialHairColor: [['2c1b18','কালো'],['4a312c','বাদামি'],['724133','গাঢ় বাদামি'],['b58143','সোনালি বাদামি']],
@@ -33,8 +42,8 @@
     headphonesType:'headphones', petType:'chick', background:'a5a8ff'
   };
   const entries = Object.entries(choices);
-  const maleHair = ['shortFlat','shortCurly','shaggy','theCaesar'];
-  const femaleHair = ['longButNotTooLong','bob','curly','bun','hijab','straight01','straight02'];
+  const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','curly','dreads','dreads01','dreads02','fro','froBand'];
+  const femaleHair = ['bigHair','bob','bun','curly','curvy','dreads','dreads01','dreads02','frida','frizzle','fro','froBand','hijab','longButNotTooLong','miaWallace','shaggy','shaggyMullet','shavedSides','straight01','straight02','straightAndStrand'];
   const hairChoicesFor = (gender, ageGroup) => {
     const source = gender === 'female' ? femaleHair : maleHair;
     const allowed = ageGroup === 'teen'
@@ -127,8 +136,11 @@
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
     const headphones = c && c.headphonesType === 'headphones';
-    const ageLines = c && c.ageGroup === 'mature'
-      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".48"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>' : '';
+    const ageLines = c && c.ageGroup === 'adult'
+      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".24"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
+      : c && c.ageGroup === 'mature'
+        ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".48"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
+        : '';
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
       (headphones ? '<img class="med-avatar-headphones" src="' + escapeAttr(base.assetPaths.headphones) + '" alt="" aria-hidden="true" draggable="false">' : '') +
