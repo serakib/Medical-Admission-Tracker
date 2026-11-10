@@ -571,8 +571,8 @@
     if (targetId === userId()) {
       try { manualAvatar = localStorage.getItem('med_profile_avatar_manual_v1_' + targetId) === '1'; } catch (_) {}
     }
-    if ((avatar === defaultProfilePortraits[0] || /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(avatar)) &&
-        !/#mat-(?:default|custom)-avatar$/i.test(rawAvatar) && !manualAvatar) {
+    if (/^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(avatar) ||
+        (avatar === defaultProfilePortraits[0] && !/#mat-(?:default|custom)-avatar$/i.test(rawAvatar) && !manualAvatar)) {
       avatar = defaultProfileAvatarForUser(targetId);
     }
     if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) return '<img src="' + escapeHTML(avatar) + '" alt="" loading="lazy">';
