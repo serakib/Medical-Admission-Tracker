@@ -445,7 +445,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
-        var pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0;
+        var pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0, progressTimer=0;
         var displayedProgress=0;
         function setStep(value,message,iconClass){
           if(!fill||finished)return;
@@ -463,6 +463,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
             hideTimer=window.setTimeout(function(){hideTimer=0;hide();},remaining);
             return;
           }
+          if(progressTimer){window.clearInterval(progressTimer);progressTimer=0;}
           setStep(100,'শুরু করার জন্য প্রস্তুত!','fa-circle-check');
           finished=true;
           window.setTimeout(function(){
@@ -479,6 +480,11 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         }
         window.MATInitialLoader={hide:hide};
         setStep(18,'প্ল্যাটফর্ম প্রস্তুত করা হচ্ছে...','fa-gear');
+        // Keep the numeric percentage visibly moving between real loading milestones.
+        progressTimer=window.setInterval(function(){
+          if(finished||displayedProgress>=96)return;
+          setStep(Math.min(96,displayedProgress+1),status?status.textContent:'লোড হচ্ছে...',icon?icon.className.replace(/^.*fa-solid\\s*/,''):'fa-gear');
+        },120);
         document.addEventListener('DOMContentLoaded',function(){setStep(38,'পরীক্ষা ও প্র্যাকটিস টুলস প্রস্তুত হচ্ছে...','fa-clipboard-check');},{once:true});
         window.addEventListener('medical-app-ready',function(){appReady=true;setStep(78,'স্টুডেন্ট ড্যাশবোর্ড প্রস্তুত হচ্ছে...','fa-user-graduate');tryFinish();},{once:true});
         window.addEventListener('student-auth-state-resolved',function(){if(!finished)setStep(91,'আপনার সেশন প্রস্তুত হচ্ছে...','fa-user-check');},{once:true});
