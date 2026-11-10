@@ -2006,13 +2006,14 @@ class MedicalExamApp {
 
 
 
-/* Medical profile save feedback */
-.medical-save-dots { display:inline-flex; margin-left:.25rem; }
-.medical-save-dots i { font-style:normal; opacity:.25; animation:medicalSaveDot 1s infinite; }
-.medical-save-dots i:nth-child(2) { animation-delay:.18s; }
-.medical-save-dots i:nth-child(3) { animation-delay:.36s; }
-@keyframes medicalSaveDot { 0%, 70%, 100% { opacity:.25; transform:translateY(0); } 35% { opacity:1; transform:translateY(-2px); } }
-#medical-profile-save:disabled { opacity:.7; cursor:wait; }
+// Inject animated save-state dots without a separate stylesheet.
+(function addMedicalProfileSaveStyles() {
+    if (document.getElementById('medical-profile-save-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'medical-profile-save-styles';
+    style.textContent = '.medical-save-dots{display:inline-flex;margin-left:.25rem}.medical-save-dots i{font-style:normal;opacity:.25;animation:medicalSaveDot 1s infinite}.medical-save-dots i:nth-child(2){animation-delay:.18s}.medical-save-dots i:nth-child(3){animation-delay:.36s}@keyframes medicalSaveDot{0%,70%,100%{opacity:.25;transform:translateY(0)}35%{opacity:1;transform:translateY(-2px)}}#medical-profile-save:disabled{opacity:.7;cursor:wait}';
+    document.head.appendChild(style);
+})();
 
 window.app = new MedicalExamApp();
 
