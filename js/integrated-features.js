@@ -1014,6 +1014,31 @@
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-preview-caption{background:rgba(255,255,255,.88)!important;color:#374151!important}
     @media(prefers-reduced-motion:reduce){#mat-avatar-save-toast{transition:none!important}}
 
+
+    .mat-avatar-actions .profile-avatar-confirm-button[aria-busy="true"]{opacity:.96;cursor:wait}
+    .mat-avatar-actions .profile-avatar-confirm-button.is-success{background:#059669!important;color:#fff!important;opacity:1!important}
+    .mat-avatar-button-dots{display:inline-flex;align-items:center;gap:3px;margin-left:5px}
+    .mat-avatar-button-dots i{display:block;width:4px;height:4px;border-radius:50%;background:currentColor;animation:matAvatarDotPulse .9s ease-in-out infinite}
+    .mat-avatar-button-dots i:nth-child(2){animation-delay:.14s}
+    .mat-avatar-button-dots i:nth-child(3){animation-delay:.28s}
+    @keyframes matAvatarDotPulse{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
+    /* Face movement and breathing run continuously, not only during Gmail/custom swapping. */
+    .profile-avatar.mat-avatar-living .med-avatar-stack,
+    #sidebar-user-avatar.mat-avatar-living .med-avatar-stack,
+    .mat-avatar-live-layer.is-visible .med-avatar-stack{
+      animation:matAvatarNaturalIdle 5.8s ease-in-out infinite;
+      transform-origin:50% 55%;
+    }
+    .profile-avatar.mat-avatar-living .med-avatar-stack .med-avatar-pet,
+    #sidebar-user-avatar.mat-avatar-living .med-avatar-stack .med-avatar-pet{
+      animation:matAvatarPetFloat 3.8s ease-in-out infinite;
+    }
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-button-dots i,.profile-avatar.mat-avatar-living .med-avatar-stack,
+      #sidebar-user-avatar.mat-avatar-living .med-avatar-stack,
+      .mat-avatar-live-layer.is-visible .med-avatar-stack{animation:none!important}
+    }
+
     /* Keep the app sidebar and its bottom profile card visible beside the desktop builder. */
     #profile-avatar-picker.is-expanded{
       left:var(--sidebar-width,264px)!important;
