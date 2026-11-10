@@ -392,6 +392,8 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
 </style>
 
     <style id="mat-initial-entry-loader-styles">
+      /* Keep the mobile sidebar opener out of the initial splash screen. */
+      body:has(#mat-initial-entry-loader) #sidebar-toggle{display:none!important}
       #mat-initial-entry-loader{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(13,148,136,.18),transparent 34%),linear-gradient(145deg,#06171d 0%,#0b1b2c 58%,#081522 100%);color:#f8fafc;opacity:1;visibility:visible;transition:opacity .32s ease,visibility .32s ease}
       #mat-initial-entry-loader:before,#mat-initial-entry-loader:after{content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(45,212,191,.08);border-radius:50%;pointer-events:none}
       #mat-initial-entry-loader:before{transform:scale(1.45)}
