@@ -2011,9 +2011,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var monthlyResetUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -5, 0, 0);
     var monthlyResetSeconds = Math.max(0, Math.floor((monthlyResetUtc - now.getTime()) / 1000));
     var weeklyReviewSeconds = Math.max(0, Math.floor((matNextDhakaWeeklyReview_() - now.getTime()) / 1000));
+    monthlyNote.className = 'leaderboard-week-countdown mat-monthly-countdown-row';
     monthlyNote.innerHTML =
-      '<div>⏳ মাসিক Hard Reset: <strong>' + matCountdownText_(monthlyResetSeconds) + '</strong></div>' +
-      '<div class="mt-1">🛡️ Weekly Review: <strong>' + matCountdownText_(weeklyReviewSeconds) + '</strong></div>';
+      '<div class="mat-monthly-countdown-capsule mat-monthly-countdown-capsule--reset"><span>⏳ মাসিক Hard Reset</span><strong>' + matCountdownText_(monthlyResetSeconds) + '</strong></div>' +
+      '<div class="mat-monthly-countdown-capsule mat-monthly-countdown-capsule--weekly"><span>🛡️ Weekly Review</span><strong>' + matCountdownText_(weeklyReviewSeconds) + '</strong></div>';
     monthlyNote.setAttribute('role', 'status');
     monthlyNote.setAttribute('aria-live', 'off');
   }
