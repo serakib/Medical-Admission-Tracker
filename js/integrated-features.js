@@ -1294,7 +1294,9 @@
     const target = root.querySelector('.auth-btn-target');
     if (!target) return;
     const loggedIn = Boolean(app.authUser?.uid);
-    target.innerHTML = loggedIn
+    const guestActive = String(app.profile?.accountType || '').toUpperCase() === 'GUEST' &&
+      Boolean(localStorage.getItem('med_sheet_guest_token_v1'));
+    target.innerHTML = (loggedIn || guestActive)
       ? '<button type="button" id="profile-logout-action" class="ghost-btn">Log Out</button>'
       : '<button type="button" id="profile-login-action" class="ghost-btn">Log In / Sign up</button>';
     const logout = target.querySelector('#profile-logout-action');
