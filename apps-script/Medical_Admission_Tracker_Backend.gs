@@ -3554,7 +3554,7 @@ function matAdminGetPromoConfig_(p) {
   fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
 }
 function matAdminSavePromoConfig_(p) {
-  const actor = matPromoRequireAdmin_(p), sh = matPromoConfigSheets_().global;
+  const actor = matPromoRequireAdmin_(p);
   const code = String(p.code || '').trim().toUpperCase();
   matPromoValidateCustomCode_(code);
 
@@ -3562,10 +3562,28 @@ function matAdminSavePromoConfig_(p) {
   const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
   const period = matPromoNormalizePeriod_(p.limitPeriod);
   const enabled = p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE';
-  const row = matReadObjects_(sh).find(x => String(x.Key) === 'GLOBAL');
-  const values = {Key:'GLOBAL',Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:enabled,UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
-  if (row) matUpdateObjectRow_(sh,row._rowNumber,values); else matAppendObject_(sh,values);
-  return {success:true};
+  const expected = {Key:'GLOBAL',Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:enabled};
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const sh = matPromoConfigSheets_().global;
+    const row = matReadObjects_(sh).find(x => String(x.Key) === 'GLOBAL');
+    const values = Object.assign({}, expected, {UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
+    if (row) matUpdateObjectRow_(sh,row._rowNumber,values); else matAppendObject_(sh,values);
+    SpreadsheetApp.flush();
+
+    const saved = matReadObjects_(sh).find(x => String(x.Key) === 'GLOBAL');
+    const verified = !!saved &&
+      String(saved.Code || '') === expected.Code &&
+      String(saved.RewardPB == null ? '' : saved.RewardPB) === String(expected.RewardPB) &&
+      String(saved.LimitCount == null ? '' : saved.LimitCount) === String(expected.LimitCount) &&
+      matPromoNormalizePeriod_(saved.LimitPeriod) === expected.LimitPeriod &&
+      String(saved.Enabled || '').toUpperCase() === expected.Enabled;
+    if (!verified) throw new Error('Global Promo Settings write could not be verified in Google Sheets. Nothing was reported as saved.');
+    return {success:true,verified:true,global:{code:code,rewardPB:reward,limitCount:count,limitPeriod:period,enabled:enabled === 'TRUE'}};
+  } finally {
+    lock.releaseLock();
+  }
 }
 function matAdminListPromoTargets_(p) {
   matPromoRequireAdmin_(p);
@@ -3590,42 +3608,78 @@ function matAdminSaveMemberPromo_(p) {
   const actor = matPromoRequireAdmin_(p);
   const userId = String(p.userId || '').trim();
   if (!userId) throw new Error('Select a registered member.');
-  const target = matFindStudentById_(userId);
-  if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') throw new Error('Registered member not found.');
-  // Only Super Admin may change promo settings for another Admin account.
-  if (matPromoIsAdmin_(target)) {
-    const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
-    if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can edit Admin-only Promo Code settings.');
-  }
   const code = String(p.code || '').trim().toUpperCase();
   matPromoValidateCustomCode_(code);
 
   const reward = p.rewardPB === '' || p.rewardPB == null ? '' : matSafeNonNegativeInt_(p.rewardPB, 'Reward PB');
   const count = p.limitCount === '' || p.limitCount == null ? '' : matSafeNonNegativeInt_(p.limitCount, 'Redemption limit');
   const period = String(p.limitPeriod || '').trim() ? matPromoNormalizePeriod_(p.limitPeriod) : '';
-  const sh = matPromoConfigSheets_().members, rows = matReadObjects_(sh), old = rows.find(x => String(x.UserID) === userId);
-  const adminTarget = matPromoIsAdmin_(target);
-  const v = adminTarget
-    ? {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),AdminCode:code,AdminRewardPB:reward,AdminLimitCount:count,AdminLimitPeriod:period,AdminEnabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)}
-    : {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)};
-  if (old) matUpdateObjectRow_(sh,old._rowNumber,v); else matAppendObject_(sh,v);
-  return {success:true};
+  const enabled = p.enabled === false || String(p.enabled).toLowerCase() === 'false' ? 'FALSE' : 'TRUE';
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const target = matFindStudentById_(userId);
+    if (!target || String(target.AccountType || '').toUpperCase() !== 'REGISTERED') throw new Error('Registered member not found.');
+    const adminTarget = matPromoIsAdmin_(target);
+    // Only Super Admin may change promo settings for another Admin account.
+    if (adminTarget) {
+      const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+      if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can edit Admin-only Promo Code settings.');
+    }
+
+    const sh = matPromoConfigSheets_().members;
+    const old = matReadObjects_(sh).find(x => String(x.UserID) === userId);
+    const expected = adminTarget
+      ? {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),AdminCode:code,AdminRewardPB:reward,AdminLimitCount:count,AdminLimitPeriod:period,AdminEnabled:enabled}
+      : {UserID:userId,Name:String(target.Name || ''),Email:String(target.Email || ''),Code:code,RewardPB:reward,LimitCount:count,LimitPeriod:period,Enabled:enabled};
+    const values = Object.assign({}, expected, {UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
+    if (old) matUpdateObjectRow_(sh,old._rowNumber,values); else matAppendObject_(sh,values);
+    SpreadsheetApp.flush();
+
+    const saved = matReadObjects_(sh).find(x => String(x.UserID) === userId);
+    const fields = Object.keys(expected);
+    const verified = !!saved && fields.every(function (key) {
+      const actual = saved[key] == null ? '' : saved[key];
+      const wanted = expected[key] == null ? '' : expected[key];
+      return String(actual) === String(wanted);
+    });
+    if (!verified) throw new Error('Member Promo Override write could not be verified in Google Sheets. Nothing was reported as saved.');
+    return {success:true,verified:true,userId:userId,isAdmin:adminTarget};
+  } finally {
+    lock.releaseLock();
+  }
 }
 function matAdminDeleteMemberPromo_(p) {
   const actor = matPromoRequireAdmin_(p);
   const userId = String(p.userId || '').trim();
   if (!userId) throw new Error('Select a registered member.');
-  const target = matFindStudentById_(userId);
-  if (target && matPromoIsAdmin_(target)) {
-    const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
-    if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can remove an Admin member promo override.');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try {
+    const target = matFindStudentById_(userId);
+    if (target && matPromoIsAdmin_(target)) {
+      const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
+      if (!root || matPromoEmail_(actor) !== root) throw new Error('Only Super Admin can remove an Admin member promo override.');
+    }
+    const sh = matPromoConfigSheets_().members;
+    const row = matReadObjects_(sh).find(x => String(x.UserID) === userId);
+    if (row && target && matPromoIsAdmin_(target)) {
+      matUpdateObjectRow_(sh,row._rowNumber,{AdminCode:'',AdminRewardPB:'',AdminLimitCount:'',AdminLimitPeriod:'',AdminEnabled:'',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
+    } else if (row) {
+      sh.deleteRow(row._rowNumber);
+    }
+    SpreadsheetApp.flush();
+    const remaining = matReadObjects_(sh).find(x => String(x.UserID) === userId);
+    if (remaining && target && matPromoIsAdmin_(target)) {
+      const cleared = ['AdminCode','AdminRewardPB','AdminLimitCount','AdminLimitPeriod','AdminEnabled'].every(key => remaining[key] === '' || remaining[key] == null);
+      if (!cleared) throw new Error('Admin Promo Override removal could not be verified in Google Sheets.');
+    } else if (remaining) {
+      throw new Error('Member Promo Override deletion could not be verified in Google Sheets.');
+    }
+    return {success:true,verified:true,userId:userId};
+  } finally {
+    lock.releaseLock();
   }
-  const sh = matPromoConfigSheets_().members;
-  const row = matReadObjects_(sh).find(x => String(x.UserID) === userId);
-  if (row && target && matPromoIsAdmin_(target)) {
-    matUpdateObjectRow_(sh,row._rowNumber,{AdminCode:'',AdminRewardPB:'',AdminLimitCount:'',AdminLimitPeriod:'',AdminEnabled:'',UpdatedAt:matNowIso_(),UpdatedBy:matPromoEmail_(actor)});
-  } else if (row) sh.deleteRow(row._rowNumber);
-  return {success:true};
 }
 // Override the legacy endpoint so Admin-only code details are returned only to a verified Admin.
 function matGetPromoInfo_(p) {
