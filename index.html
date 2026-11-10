@@ -440,14 +440,12 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
     </div>
     <script>
       (function(){
-        var key='mat_initial_entry_seen_v1';
         var overlay=document.getElementById('mat-initial-entry-loader');
         var fill=document.getElementById('mat-entry-loader-fill');
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
-        var alreadySeen=false, pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0;
-        try { alreadySeen=sessionStorage.getItem(key)==='1'; if(!alreadySeen) sessionStorage.setItem(key,'1'); } catch(_){}
+        var pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0;
         function setStep(value,message,iconClass){
           if(!fill||finished)return;
           fill.style.width=value+'%';
@@ -477,7 +475,6 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
           }
         }
         window.MATInitialLoader={hide:hide};
-        if(alreadySeen){if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);finished=true;return;}
         setStep(18,'প্ল্যাটফর্ম প্রস্তুত করা হচ্ছে...','fa-gear');
         document.addEventListener('DOMContentLoaded',function(){setStep(38,'পরীক্ষা ও প্র্যাকটিস টুলস প্রস্তুত হচ্ছে...','fa-clipboard-check');},{once:true});
         window.addEventListener('medical-app-ready',function(){appReady=true;setStep(78,'স্টুডেন্ট ড্যাশবোর্ড প্রস্তুত হচ্ছে...','fa-user-graduate');tryFinish();},{once:true});
