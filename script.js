@@ -534,6 +534,8 @@ class MedicalExamApp {
 
         this.__medicalRegistrationInProgress = isRegister;
         try {
+            // Preserve the current Guest before Firebase changes the active identity.
+            try { window.MedGlobalLeague?.preserveActiveGuestForRegisteredLogin?.(); } catch (preserveError) { console.warn('Guest preservation before Registered authentication failed:', preserveError); }
             if (message) message.textContent = 'অনুগ্রহ করে অপেক্ষা করুন...';
             let result;
             if (isRegister) {
@@ -2248,6 +2250,8 @@ onAuthStateChanged(auth, (user) => {
 
 // গ্লোবাল রিডাইরেক্ট এবং লগআউট ফাংশন
 window.redirectToLogin = function() {
+    // Preserve the active Guest before moving to the separate Registered login page.
+    try { window.MedGlobalLeague?.preserveActiveGuestForRegisteredLogin?.(); } catch (error) { console.warn("Guest preservation before login navigation failed:", error); }
     // Login is a full-page destination; avoid an extra confirmation popup.
     window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
 };
