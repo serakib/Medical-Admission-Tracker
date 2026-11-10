@@ -42,8 +42,8 @@
     headphonesType:'headphones', petType:'chick', background:'a5a8ff'
   };
   const entries = Object.entries(choices);
-  const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','curly','dreads','dreads01','dreads02','fro','froBand'];
-  const femaleHair = ['bigHair','bob','bun','curly','curvy','dreads','dreads01','dreads02','frida','frizzle','fro','froBand','hijab','longButNotTooLong','miaWallace','shaggy','shaggyMullet','shavedSides','straight01','straight02','straightAndStrand'];
+  const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','dreads','dreads01','dreads02','froBand'];
+  const femaleHair = ['bigHair','bob','bun','curly','curvy','frida','frizzle','fro','hijab','longButNotTooLong','miaWallace','shaggy','straight01','straight02','straightAndStrand'];
   const hairChoicesFor = (gender, ageGroup) => {
     const source = gender === 'female' ? femaleHair : maleHair;
     const allowed = ageGroup === 'teen'
