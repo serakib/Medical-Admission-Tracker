@@ -751,7 +751,7 @@
   const stripAvatarDefaultMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
   const isStoredDefaultAvatar = value => /#mat-default-avatar$/i.test(String(value || ''));
   const isStoredCustomAvatar = value => /#mat-custom-avatar$/i.test(String(value || ''));
-  const defaultAvatarForUser = userId => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
+  const defaultAvatarForUser = userId => { const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="64" fill="#7b1fa2"/><text x="64" y="86" text-anchor="middle" font-family="Arial,sans-serif" font-size="68" font-weight="800" fill="#ffffff">R</text></svg>'; return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); };
   const isLegacyPortraitAvatar = value => /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(String(value || ''));
   const storedDefaultAvatarForUser = userId => defaultAvatarForUser(userId) + avatarDefaultMarker;
   const maxUploadedAvatars = 8;
