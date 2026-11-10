@@ -2395,59 +2395,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       batch: safeText(local.batch || remote.batch || local.class || '', 40)
     };
   }
-  function profileCompletionStorageKey() {
-    var id = currentUserId();
-    return id ? 'med_leaderboard_profile_complete_v1_' + id : '';
-  }
-  function markLeaderboardProfileComplete(profile) {
-    profile = profile || leaderboardProfileFields();
-    if (profile.name.length < 2 || !profile.college || !profile.batch) return false;
-    var key = profileCompletionStorageKey();
-    if (!key) return false;
-    try { localStorage.setItem(key, '1'); return true; } catch (_) { return false; }
-  }
-  function hasRequiredLeaderboardProfile() {
-    var profile = leaderboardProfileFields();
-    if (profile.name.length >= 2 && !!profile.college && !!profile.batch) {
-      markLeaderboardProfileComplete(profile);
-      return true;
-    }
-    var key = profileCompletionStorageKey();
-    if (key) {
-      try { if (localStorage.getItem(key) === '1') return true; } catch (_) {}
-    }
-    return false;
-  }
-  function showLeaderboardProfileGate() {
-    var fields = leaderboardProfileFields();
-    var accountView = document.getElementById('view-account');
-    if (accountView && accountView.classList.contains('hidden') && typeof app.showView === 'function') app.showView('account');
-    var editor = document.getElementById('medical-profile-editor');
-    var form = document.getElementById('medical-profile-form');
-    if (!editor || !form) return false;
-    var notice = document.getElementById('leaderboard-profile-gate-message');
-    if (!notice) {
-      notice = document.createElement('div');
-      notice.id = 'leaderboard-profile-gate-message';
-      notice.className = 'mat-profile-gate-notice';
-      notice.setAttribute('role', 'alert');
-      notice.innerHTML = '<i class="fa-solid fa-user-check" aria-hidden="true"></i><span><strong>Leaderboard খুলতে Personal Information পূরণ করুন</strong><small>আপনার নাম, কলেজ এবং ব্যাচ লিখে Save Profile করুন।</small></span>';
-      form.insertAdjacentElement('beforebegin', notice);
-    }
-    notice.hidden = false;
-    var nameInput = document.getElementById('medical-profile-name');
-    var collegeInput = document.getElementById('medical-profile-college');
-    var batchInput = document.getElementById('medical-profile-batch');
-    if (nameInput && !nameInput.value) nameInput.value = fields.name;
-    if (collegeInput && !collegeInput.value) collegeInput.value = fields.college;
-    if (batchInput && !batchInput.value) batchInput.value = fields.batch;
-    setTimeout(function () {
-      editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      var firstMissing = !fields.name || fields.name.length < 2 ? nameInput : !fields.college ? collegeInput : batchInput;
-      if (firstMissing) firstMissing.focus({ preventScroll: true });
-    }, 50);
-    return false;
-  }
+  // Profile details are optional; leaderboard access is tied to the account identity only.
   function ensureFriendManageButton() {
     var view = document.getElementById('view-leaderboard');
     if (!view) return null;
