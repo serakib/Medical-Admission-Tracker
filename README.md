@@ -147,6 +147,14 @@ Medical Admission preparation-এর জন্য পাঁচটি Subject:
 
 ওয়েবসাইটে প্রদর্শিত guideline অনুযায়ী পরীক্ষা 100 MCQ ও 60 মিনিটের। Passing score হিসেবে 40 দেখানো হয়েছে। তবে ভর্তি পরীক্ষার নিয়ম ও নম্বর বণ্টন পরিবর্তিত হতে পারে—তাই সংশ্লিষ্ট বছরের সর্বশেষ official admission circular অবশ্যই দেখে নেবে।
 
+## 🔄 Leaderboard Sync সমস্যা হলে
+
+কখনো internet connection বা server response দেরি করলে নতুন Leaderboard data load নাও হতে পারে। তখন website আগের cached data দেখাতে পারে, যা সর্বশেষ Ranking নাও হতে পারে। কিছুক্ষণ পর আবার Refresh করে চেষ্টা করো।
+
+Exam Submit করার পর Result বা Reward update না হলে একই Exam বারবার Submit কোরো না। আগে Profile ও Exam History আবার check করো।
+
+---
+
 ## 📚 Wiki
 
 **Project Wiki is available!** আরও তথ্যের জন্য repository-এর [Wiki](https://github.com/serakib/Medical-Admission-Tracker/wiki) দেখে নাও।
