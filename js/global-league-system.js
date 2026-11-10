@@ -2066,6 +2066,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     else if (leaderboardManualRefreshActive) setLeaderboardRefreshBusy(false, false);
     ensureUI();
     var periodForRequest = selectedPeriod;
+    if (periodForRequest === 'friends' && isAccountFreeVisitor()) {
+      renderRows([]);
+      setStatus('Friends Leaderboard দেখতে Guest Account তৈরি করুন অথবা Sign Up করুন।', false);
+      setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
+      return;
+    }
     // The public leaderboard is readable even when a previous Guest session expired.
     // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
     // Otherwise a slow friendConnections call leaves the old Monthly request valid long enough
@@ -2342,6 +2349,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
   async function flushQueue() {
     if (!navigator.onLine) return;
+    if (!app.authUser && (!getGuestToken() || readExpiredGuest())) return;
     var queue = getQueue();
     if (!queue.length) return;
     try { await syncIdentity(); } catch (_) { return; }
