@@ -2031,7 +2031,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var dailyLabel = dailyReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
     note.innerHTML =
       '<button type="button" class="leaderboard-week-details" data-open-week-popup aria-haspopup="dialog"><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
-      '<div class="mt-1 text-xs" data-promotion-review-countdown>🔁 ' + dailyLabel + ' হতে বাকি: <strong>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong> <small>(প্রতিদিন রাত ১টা, বাংলাদেশ সময়)</small></div>';
+      '<div class="mt-1 text-xs" data-promotion-review-countdown>🔁 ' + dailyLabel + ': <strong>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong></div>';
     var popup = ensureLeaderboardWeekPopup();
     var popupTools = popup.querySelector('[data-week-popup-tools]');
     if (popupTools) {
@@ -2049,7 +2049,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var popupContent = popup.querySelector('[data-week-popup-content]');
     if (popupContent) popupContent.innerHTML =
       '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown-popup>' + countdown + '</strong></p>' +
-      '<p>🔁 পরবর্তী Daily Promotion Zone Review / Weekly Hard Reset: <strong data-promotion-review-countdown-popup>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong></p>' +
+      '<p>🔁 Daily Review / Weekly Hard Reset: <strong data-promotion-review-countdown-popup>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong></p>' +
       '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
       '<p>Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।</p>';
     var openButton = note.querySelector('[data-open-week-popup]');
