@@ -2165,7 +2165,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         Object.prototype.hasOwnProperty.call(entry, 'score') ||
         Object.prototype.hasOwnProperty.call(entry, 'boardPoints'));
     })) throw new Error('Weekly RP fields missing in background refresh.');
-    var rows = normalizeRows(entries);
+    var previousSelectedPeriod = selectedPeriod;
+    selectedPeriod = period;
+    var rows;
+    try { rows = normalizeRows(entries); }
+    finally { selectedPeriod = previousSelectedPeriod; }
     saveCache(rows, period);
     if (selectedPeriod === period && !document.hidden) {
       rawRows = entries.slice();
