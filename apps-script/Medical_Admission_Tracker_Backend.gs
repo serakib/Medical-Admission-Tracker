@@ -1756,7 +1756,8 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       accountType: s.AccountType || 'GUEST', isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s), isGoldName: matPromoHasGoldName_(s), showGoldName: String(s.ShowGoldName == null || s.ShowGoldName === '' ? 'TRUE' : s.ShowGoldName).toUpperCase() !== 'FALSE', college: s.College || '', batch: s.Batch || '',
       avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
-      rank: s.Rank || MAT_RANKS[0],
+      // Weekly leaderboard must never display a higher rank for a zero-Weekly-RP account.
+      rank: safePeriod === 'weekly' && weeklyRP <= 0 ? MAT_RANKS[0] : (s.Rank || MAT_RANKS[0]),
       rankPoints: Number(s.RP || 0), rp: Number(s.RP || 0),
       // Lifetime RP is cumulative across all time; never substitute weekly/monthly RP.
       totalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
