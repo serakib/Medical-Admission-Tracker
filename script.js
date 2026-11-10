@@ -1065,7 +1065,8 @@ class MedicalExamApp {
         }
         if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
         const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
-        const hasGuestSession = !!(window.MedGlobalLeague && window.app?.profile && isGuestProfile);
+        const hasGuestSession = !!(window.MedGlobalLeague && window.app?.profile && isGuestProfile &&
+            localStorage.getItem('med_sheet_guest_token_v1') && !localStorage.getItem('med_guest_session_expired_v1'));
         const isRegisteredUser = Boolean(user && !isGuestProfile);
         const accountAuthTarget = document.getElementById('account-profile-auth-target');
         if (accountAuthTarget) {
@@ -2281,7 +2282,9 @@ function refreshGuestDeletionCard() {
     const card = document.getElementById('account-guest-delete-card');
     if (!card) return;
     const profile = window.app?.profile || {};
-    const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' && (!auth.currentUser || auth.currentUser.isAnonymous);
+    const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' &&
+      (!auth.currentUser || auth.currentUser.isAnonymous) &&
+      !!localStorage.getItem('med_sheet_guest_token_v1') && !localStorage.getItem('med_guest_session_expired_v1');
     if (isGuest) card.classList.remove('hidden');
     const title = card.querySelector('h3');
     const description = card.querySelector('p');
