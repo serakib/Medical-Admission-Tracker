@@ -4,7 +4,7 @@
 
   const css = `
     .mat-profile-edit-wrap{position:relative!important}
-    .mat-profile-edit-badge{position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:32px;height:32px;border:3px solid #1a1a24;border-radius:50%;background:#10b981;color:#121218;cursor:pointer;z-index:5}
+    .mat-profile-edit-badge{position:absolute;right:0;bottom:0;display:grid;place-items:center;width:32px;height:32px;border:3px solid #1a1a24;border-radius:50%;background:#10b981;color:#121218;cursor:pointer;z-index:5}
     .mat-profile-edit-badge svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .mat-profile-modal[hidden]{display:none!important}
     .mat-profile-modal{position:fixed;inset:0;z-index:100040;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
