@@ -618,8 +618,7 @@
   async function ensureGuest() {
     var expired = readExpiredGuest();
     if (expired) {
-      showGuestExpiredScreen(expired);
-      throw new Error('Your previous Guest session has expired. Create a new Guest account to continue.');
+      throw new Error('Your previous Guest session has expired. You can browse publicly or create a new Guest account.');
     }
     var savedToken = getGuestToken();
     var response;
@@ -690,7 +689,7 @@
     if (app.authUser && typeof app.authUser.getIdToken === 'function') {
       return { idToken: await app.authUser.getIdToken() };
     }
-    var token = getGuestToken();
+    var token = readExpiredGuest() ? '' : getGuestToken();
     if (!token) {
       if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') window.MedVisitorAccess.open();
       throw new Error('কাজটি করতে আগে Guest account তৈরি করুন অথবা Sign Up করুন।');
@@ -787,7 +786,7 @@
   // without this guard that event can recursively start another API sync.
   var streakSyncPromise = null;
   function syncDailyStreak() {
-    if (!app.authUser && !getGuestToken()) return Promise.resolve(false);
+    if (!app.authUser && (!getGuestToken() || readExpiredGuest())) return Promise.resolve(false);
     if (streakSyncPromise) return streakSyncPromise;
     // Defer work one microtask so the guard is installed before getAccountProgress()
     // can synchronously dispatch another student-progress-updated event.
