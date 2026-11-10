@@ -2017,6 +2017,8 @@ class MedicalExamApp {
 
 window.app = new MedicalExamApp();
 
+window.dispatchEvent(new Event('medical-app-ready'));
+
 /* Private per-account activity notification state adapter.
  * This reuses the modular Firestore instance already owned by the app.
  * The notification UI checks auth.currentUser matches the target uid before every read/write.
