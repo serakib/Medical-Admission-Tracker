@@ -658,13 +658,13 @@ function toggleAppSidebarCollapse(){
                 <div class="profile-panel-head"><div><span class="eyebrow">Medical Profile</span><h3>Personal Information</h3></div><i class="fa-solid fa-id-card" aria-hidden="true"></i></div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Guest এবং registered user—দুজনেই নিজের নাম, College ও Batch update করতে পারবেন। Avatar আপনার existing avatar system থেকেই নিয়ন্ত্রিত হবে।</p>
                 <form id="medical-profile-form" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <label class="text-sm font-semibold">নাম
-                        <input id="medical-profile-name" name="name" required minlength="2" maxlength="80" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" autocomplete="name">
+                    <label class="text-sm font-semibold">নাম (ঐচ্ছিক)
+                        <input id="medical-profile-name" name="name" maxlength="80" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" autocomplete="name">
                     </label>
-                    <label class="text-sm font-semibold">College
+                    <label class="text-sm font-semibold">College (ঐচ্ছিক)
                         <input id="medical-profile-college" name="college" maxlength="120" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" autocomplete="organization">
                     </label>
-                    <label class="text-sm font-semibold">Batch / Class
+                    <label class="text-sm font-semibold">Batch / Class (ঐচ্ছিক)
                         <input id="medical-profile-batch" name="batch" maxlength="40" class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5" placeholder="যেমন HSC 2027">
                     </label>
                     <div class="sm:col-span-2 flex flex-wrap items-center gap-3">
@@ -2141,11 +2141,11 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=single-profile-save-20261110-1"></script>
+<script type="module" src="script.js?v=optional-leaderboard-profile-20261110-1"></script>
 <script type="module" src="./js/integrated-features.js?v=account-preferences-dots-20261101-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=weekly-hard-reset-profile-save-20261110-4"></script>
+<script type="module" src="./js/global-league-system.js?v=optional-leaderboard-profile-20261110-1"></script>
 <script type="module" src="./js/leaderboard-experience.js?v=profile-rp-cleanup-weekly-sidebar-20261101-1"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=daily-attempt-records-2" defer></script>
