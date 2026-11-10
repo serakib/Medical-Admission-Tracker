@@ -25,11 +25,15 @@
 
   let overlay = null;
   let previousFocus = null;
-  function close() {
+  function close({restoreFocus = true} = {}) {
     if (!overlay || overlay.hidden) return;
     overlay.hidden = true;
     document.body.style.overflow = '';
-    if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+    const target = previousFocus;
+    previousFocus = null;
+    if (restoreFocus && target && typeof target.focus === 'function') {
+      target.focus({ preventScroll: true });
+    }
   }
   function open() {
     if (!overlay) {
@@ -49,12 +53,12 @@
       });
       overlay.querySelector('.mat-profile-modal-edit').addEventListener('click', () => {
         clearStatus();
-        close();
+        close({restoreFocus:false});
         document.dispatchEvent(new CustomEvent('mat-open-avatar-builder'));
       });
       overlay.querySelector('.mat-profile-modal-upload').addEventListener('click', () => {
         clearStatus();
-        close();
+        close({restoreFocus:false});
         document.getElementById('profile-avatar-upload-input')?.click();
       });
     }
@@ -62,7 +66,7 @@
     previousFocus = document.activeElement;
     overlay.hidden = false;
     document.body.style.overflow = 'hidden';
-    overlay.querySelector('.mat-profile-modal-close')?.focus();
+    overlay.querySelector('.mat-profile-modal-close')?.focus({ preventScroll: true });
   }
   function clearStatus() { const status = overlay?.querySelector('.mat-profile-modal-status'); if (status) { status.textContent = ''; status.hidden = true; } }
   function showStatus(message) { open(); const status = overlay?.querySelector('.mat-profile-modal-status'); if (status) { status.textContent = String(message || ''); status.hidden = !status.textContent; } }
