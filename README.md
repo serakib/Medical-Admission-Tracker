@@ -23,7 +23,7 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 - পড়ার সময় Answer show/hide করতে পারো।
 - Exam শুরু না করেও নিজের মতো করে প্রশ্ন পড়তে পারো।
 
-### 🎯 3. Practice Lab
+### 🧠 3. Practice Lab
 - আলাদা Practice environment-এ প্রশ্ন solve করো।
 - এক প্রশ্ন থেকে অন্য প্রশ্নে যাওয়া ও উত্তর যাচাই করার সুবিধা।
 - Practice History-তে ভুল করা (Wrong) এবং Review করা প্রশ্ন আলাদা করে দেখো।
@@ -36,11 +36,11 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 - বিভিন্ন Subject থেকে random প্রশ্নে পরীক্ষা দাও।
 - চাইলে নির্দিষ্ট Subject নির্বাচন করো।
 
-**📋 Full Model Test**
+**🧾 Full Model Test**
 - Medical Admission পরীক্ষার আদলে Model Test দাও।
 - Available question count ও time অনুযায়ী পরীক্ষা নির্বাচন করো।
 
-**📅 Previous Year Questions**
+**🗓️ Previous Year Questions**
 - বিগত বছরের available প্রশ্ন অনুশীলন করো।
 - পছন্দের Year নির্বাচন করে প্রশ্ন দেখো অথবা Quiz দাও।
 
@@ -80,7 +80,7 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 - Exam attempts, Best Score ও Average Accuracy দেখো।
 - XP, Level, Rank, RP এবং Streak-এর অগ্রগতি অনুসরণ করো।
 
-### 📈 9. Question Coverage Tracking
+### 🧭 9. Question Coverage Tracking
 - Question Bank-এর কতগুলো প্রশ্ন practice করেছ তা track করো।
 - Unseen questions খুঁজে নিয়ে নতুন প্রশ্ন অনুশীলন করো।
 - নিজের question coverage ও attempt history দেখো।
@@ -97,7 +97,7 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 
 **মনে রাখবে:** Weekly RP, Monthly RP এবং Lifetime RP আলাদা। Weekly reset হলে Lifetime RP মুছে যায় না। Rank ও RP-এর হিসাব website-এর নির্ধারিত নিয়ম অনুযায়ী হয়।
 
-### 📖 11. Syllabus & Examination Guidelines
+### 📑 11. Syllabus & Examination Guidelines
 - Subject-wise marks distribution।
 - Medical admission exam-এর নির্দেশনা।
 - Exam duration ও negative marking rules।
@@ -112,10 +112,10 @@ Medical Admission preparation-এর জন্য পাঁচটি Subject:
 - 🧬 **Biology**
 - 🧪 **Chemistry**
 - ⚛️ **Physics**
-- 🇬🇧 **English**
+- 🔤 **English**
 - 🌍 **General Knowledge (GK)**
 
-## 🎓 Who Is This For?
+## 🎯 Who Is This For?
 
 - HSC Class XI ও XII-এর শিক্ষার্থী।
 - বাংলাদেশের Medical Admission পরীক্ষার্থী।
@@ -123,7 +123,7 @@ Medical Admission preparation-এর জন্য পাঁচটি Subject:
 - যারা নিজের ভুল ও দুর্বলতা বুঝে preparation improve করতে চায়।
 - যারা Model Test ও Previous Year Questions solve করতে চায়।
 
-## 🚀 Getting Started
+## 🧭 Getting Started
 
 1. [Medical Admission Pro Website](https://serakib.github.io/Medical-Admission-Tracker/) খুলে নাও।
 2. Question Bank, Practice অথবা পছন্দের Exam Mode নির্বাচন করো।
@@ -132,7 +132,7 @@ Medical Admission preparation-এর জন্য পাঁচটি Subject:
 5. Result ও Practice History review করে ভুলগুলো আবার practice করো।
 6. Profile ও Leaderboard থেকে নিজের progress track করো।
 
-## ⚖️ Examination Mark Distribution
+## 📊 Examination Mark Distribution
 
 ওয়েবসাইটে প্রদর্শিত Subject-wise mark distribution:
 
@@ -155,7 +155,7 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 ---
 
-## 📚 Wiki
+## 🗂️ Wiki
 
 **Project Wiki is available!** আরও তথ্যের জন্য repository-এর [Wiki](https://github.com/serakib/Medical-Admission-Tracker/wiki) দেখে নাও।
 
@@ -171,7 +171,7 @@ No permission is granted to copy, redistribute, modify, republish, or commercial
 
 Third-party materials remain subject to their respective licenses. See the repository's `LICENSE` file for applicable terms.
 
-## 👨‍💻 Creator
+## 🖋️ Creator
 
 **Rakib Hasan** · [Visit Portfolio](https://rakibhasandc27.blogspot.com/)
 
