@@ -42,6 +42,7 @@
   var PERIOD_KEY = 'med_sheet_leaderboard_period_v1';
   var GUEST_TOKEN_KEY = 'med_sheet_guest_token_v1';
   var GUEST_ID_KEY = 'med_sheet_guest_id_v1';
+  var GUEST_VAULT_KEY = 'med_sheet_saved_guest_accounts_v1';
   var CACHE_KEY = 'med_sheet_leaderboard_cache_v1';
   var QUEUE_KEY = 'med_sheet_exam_pending_v1';
   var REWARD_KEY = 'med_sheet_exam_rewards_v1';
@@ -203,6 +204,76 @@
   function getGuestToken() {
     try { return String(localStorage.getItem(GUEST_TOKEN_KEY) || '').trim(); }
     catch (_) { return ''; }
+  }
+  function getSavedGuestAccounts() {
+    var list = parseJson(localStorage.getItem(GUEST_VAULT_KEY), []);
+    return Array.isArray(list) ? list.filter(function (item) {
+      return item && typeof item.token === 'string' && item.token.length > 12;
+    }).slice(0, 5) : [];
+  }
+  function saveGuestVault(list) {
+    try { localStorage.setItem(GUEST_VAULT_KEY, JSON.stringify((Array.isArray(list) ? list : []).slice(0, 5))); } catch (_) {}
+  }
+  function rememberActiveGuest() {
+    var token = getGuestToken();
+    if (!token) return false;
+    var profile = currentProfile || app.profile || {};
+    var id = String(localStorage.getItem(GUEST_ID_KEY) || profile.userId || profile.uid || '');
+    var list = getSavedGuestAccounts().filter(function (item) { return item.token !== token; });
+    list.unshift({
+      token: token, userId: id,
+      name: safeText(profile.name || profile.displayName || 'Guest Student', 80),
+      college: safeText(profile.college || '', 120),
+      batch: safeText(profile.batch || '', 40),
+      savedAt: Date.now()
+    });
+    saveGuestVault(list);
+    return true;
+  }
+  async function restoreSavedGuestAccount(index) {
+    var list = getSavedGuestAccounts();
+    var item = list[Math.max(0, Number(index) || 0)];
+    if (!item) throw new Error('আগের Guest account পাওয়া যায়নি।');
+    var response;
+    try {
+      response = await request({ action: 'createGuest', guestToken: item.token });
+    } catch (error) {
+      var message = String(error && error.message || error || '');
+      if (/guest session.*no longer available|guest session.*unavailable|guest.*deleted|guest.*expired|no longer exists/i.test(message)) {
+        saveGuestVault(list.filter(function (entry) { return entry.token !== item.token; }));
+        throw new Error('এই Guest account-এর validity শেষ হয়েছে বা account delete হয়েছে। নতুন Guest account তৈরি করতে পারেন।');
+      }
+      throw error;
+    }
+    if (!response.guestToken || !response.user) throw new Error('Guest account restore করা যায়নি।');
+    try {
+      localStorage.setItem(GUEST_TOKEN_KEY, response.guestToken);
+      localStorage.setItem(GUEST_ID_KEY, String(response.user.userId || item.userId || ''));
+      localStorage.removeItem(GUEST_EXPIRED_KEY);
+    } catch (_) {}
+    var profile = applyProfile(response.user);
+    app.authStateResolved = true;
+    closeVisitorAccess();
+    updateVisitorAccessUI();
+    window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guest: true } }));
+    loadLeaderboard(true);
+    return profile;
+  }
+  function logoutGuestAccount() {
+    if (!getGuestToken() || String((currentProfile || app.profile || {}).accountType || '').toUpperCase() !== 'GUEST') {
+      throw new Error('Active Guest account পাওয়া যায়নি।');
+    }
+    rememberActiveGuest();
+    try {
+      localStorage.removeItem(GUEST_TOKEN_KEY);
+      localStorage.removeItem(GUEST_ID_KEY);
+    } catch (_) {}
+    currentProfile = null;
+    app.profile = null;
+    app.authUser = null;
+    app.authStateResolved = true;
+    window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guestLoggedOut: true } }));
+    return true;
   }
   function getRewardCache() { return parseJson(localStorage.getItem(REWARD_KEY), {}) || {}; }
   function saveReward(reward) {
@@ -2651,6 +2722,19 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       return;
     }
     if (mode === 'guest') {
+      var savedGuests = getSavedGuestAccounts();
+      if (savedGuests.length) {
+        var savedGuestButtons = savedGuests.map(function (item, index) {
+          var displayName = String(item.name || 'Previous Guest').replace(/[&<>"']/g, function (ch) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]); });
+          var details = [item.college, item.batch].filter(Boolean).join(' · ');
+          return '<button type="button" data-va-resume-guest="' + index + '" style="width:100%;text-align:left;border:1px solid #a7f3d0;border-radius:12px;padding:13px;background:#ecfdf5;color:#065f46;font-weight:800;cursor:pointer">Continue as ' + displayName + '<small style="display:block;margin-top:4px;font-weight:500;color:#64748b">' + details + '</small></button>';
+        }).join('');
+        panel.innerHTML = close + back + intro + '<div style="display:grid;gap:10px"><p style="font-size:13px;color:var(--mat-va-muted,#64748b);margin:0">এই ডিভাইসে আগের Guest account পাওয়া গেছে। চালু থাকলে সেটি দিয়েই continue করতে পারবেন।</p>' + savedGuestButtons + '<button type="button" data-va-new-guest style="border:1px dashed #94a3b8;border-radius:12px;padding:13px;background:transparent;color:var(--mat-va-title,#334155);font-weight:800;cursor:pointer">Create a new Guest Account</button><p id="mat-va-status" role="status" style="font-size:13px;color:#dc2626"></p></div>';
+        return;
+      }
+      mode = 'guest-form';
+    }
+    if (mode === 'guest-form') {
       panel.innerHTML = close + back + intro + '<form id="mat-visitor-guest-form"><label style="' + labelStyle + '">নাম *<input name="name" maxlength="80" autocomplete="name" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">College *<input name="college" maxlength="120" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Batch *<input name="batch" maxlength="40" placeholder="যেমন: HSC 2027" required style="' + fieldStyle + '"></label><p style="font-size:12px;color:#64748b;line-height:1.6;margin:12px 0">তিনটি তথ্য পূরণ করার পর confirmation দিলে Guest Account তৈরি হবে।</p><p id="mat-va-status" role="status" style="font-size:13px;color:#dc2626"></p><button id="mat-va-submit" type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Continue</button></form>';
       return;
     }
@@ -2679,8 +2763,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     modal.setAttribute('aria-hidden', 'true');
     modal.innerHTML = '<div id="mat-visitor-access-panel" role="dialog" aria-modal="true" aria-label="Create account"></div>';
     document.body.appendChild(modal);
-    document.addEventListener('click', function (event) {
-      var target = event.target && event.target.closest ? event.target.closest('[data-va-open-guest],[data-va-open-signup],[data-va-mode],[data-va-back],[data-va-close]') : null;
+    document.addEventListener('click', async function (event) {
+      var target = event.target && event.target.closest ? event.target.closest('[data-va-open-guest],[data-va-open-signup],[data-va-mode],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest]') : null;
       if (!target) return;
       event.preventDefault();
       event.stopPropagation();
@@ -2688,6 +2772,20 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (target.hasAttribute('data-va-open-guest')) { openVisitorAccess('guest'); return; }
       if (target.hasAttribute('data-va-open-signup')) { openVisitorAccess('signup'); return; }
       if (target.hasAttribute('data-va-back')) { renderVisitorAccessStep('choices'); return; }
+      if (target.hasAttribute('data-va-new-guest')) { renderVisitorAccessStep('guest-form'); return; }
+      if (target.hasAttribute('data-va-resume-guest')) {
+        var index = Number(target.getAttribute('data-va-resume-guest')) || 0;
+        var status = document.getElementById('mat-va-status');
+        target.disabled = true;
+        if (status) status.textContent = 'আগের Guest account যাচাই করা হচ্ছে…';
+        try { await restoreSavedGuestAccount(index); }
+        catch (error) {
+          if (status) status.textContent = error && error.message || 'Guest account restore হয়নি।';
+          target.disabled = false;
+          if (/validity শেষ|delete হয়েছে/i.test(String(error && error.message || ''))) renderVisitorAccessStep('guest');
+        }
+        return;
+      }
       var mode = target.getAttribute('data-va-mode');
       if (mode) renderVisitorAccessStep(mode);
     }, true);
@@ -3131,6 +3229,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     syncIdentity: syncIdentity,
     registerUser: registerUser,
     createGuestAccount: createNewGuestAccount,
+    restoreGuestAccount: restoreSavedGuestAccount,
+    logoutGuestAccount: logoutGuestAccount,
     updateProfile: updateProfile,
     getCachedRows: getCache,
     verifyPublicAvatar: verifyPublicAvatar,
