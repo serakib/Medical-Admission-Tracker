@@ -1,0 +1,30 @@
+changelog:
+  categories:
+    - title: "New Features"
+      labels:
+        - "type: feature"
+    - title: "Improvements"
+      labels:
+        - "type: enhancement"
+        - "type: performance"
+    - title: "Bug Fixes"
+      labels:
+        - "type: bug"
+    - title: "Accessibility"
+      labels:
+        - "type: accessibility"
+    - title: "Security"
+      labels:
+        - "type: security"
+    - title: "Documentation and Maintenance"
+      labels:
+        - "type: documentation"
+        - "type: maintenance"
+    - title: "Other Changes"
+      labels:
+        - "*"
+  exclude:
+    labels:
+      - "skip-changelog"
+    authors:
+      - "github-actions[bot]"
