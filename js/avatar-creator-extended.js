@@ -271,7 +271,11 @@
       }
 
       const svg = doc.documentElement;
-      const eyes = svg.querySelector('g[id="eyes"]');
+      const findComponent = (id, transform) =>
+        svg.querySelector('g[id="' + id + '"]') ||
+        Array.from(svg.querySelectorAll('g')).find(group => group.getAttribute('transform') === transform) ||
+        null;
+      const eyes = findComponent('eyes', 'translate(98 98)');
       if (!eyes) throw new Error('Avatar eye component was not found.');
       const parameters = new URL(source).searchParams;
       const eyeVariant = parameters.get('eyesVariant') || 'default';
@@ -281,9 +285,9 @@
 
       const gaze = wrapSvgChildren(eyes, 'mat-avatar-eye-gaze', doc);
       const blink = wrapSvgChildren(gaze, 'mat-avatar-eye-blink', doc);
-      const browRoot = svg.querySelector('g[id="eyebrows"]');
-      const mouthRoot = svg.querySelector('g[id="mouth"]');
-      const hairRoot = svg.querySelector('g[id="top"]');
+      const browRoot = findComponent('eyebrows', 'translate(91.86 82)');
+      const mouthRoot = findComponent('mouth', 'translate(94 140)');
+      const hairRoot = findComponent('top', 'translate(8)');
       const brows = wrapSvgChildren(browRoot, 'mat-avatar-brow-motion', doc);
       const mouth = wrapSvgChildren(mouthRoot, 'mat-avatar-mouth-motion', doc);
       const hair = wrapSvgChildren(hairRoot, 'mat-avatar-hair-motion', doc);
