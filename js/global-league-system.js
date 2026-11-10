@@ -639,8 +639,7 @@
         detectedAt: new Date().toISOString()
       };
       try { localStorage.setItem(GUEST_EXPIRED_KEY, JSON.stringify(expiredInfo)); } catch (_) {}
-      showGuestExpiredScreen(expiredInfo);
-      throw new Error('Your previous Guest session is no longer available. Create a new Guest account when you are ready.');
+      throw new Error('Your previous Guest session is no longer available. You can browse publicly or create a new Guest account.');
     }
     if (!response.guestToken) throw new Error('Guest API returned no guest token.');
     try {
@@ -674,10 +673,13 @@
     identityPromise = (async function () {
       if (app.authUser) return registerUser({});
       // Public visitors remain account-free. Restore only a previously created Guest.
-      if (getGuestToken()) return ensureGuest();
-      if (readExpiredGuest()) {
-        showGuestExpiredScreen(readExpiredGuest());
-        throw new Error('Previous Guest session expired. Create a new Guest account when you are ready.');
+      if (getGuestToken()) {
+        try { return await ensureGuest(); }
+        catch (guestError) {
+          // An expired Guest becomes a public visitor again; browsing remains open.
+          if (readExpiredGuest()) return null;
+          throw guestError;
+        }
       }
       return null;
     })();
@@ -690,8 +692,6 @@
     }
     var token = getGuestToken();
     if (!token) {
-      var expired = readExpiredGuest();
-      if (expired) showGuestExpiredScreen(expired);
       if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') window.MedVisitorAccess.open();
       throw new Error('কাজটি করতে আগে Guest account তৈরি করুন অথবা Sign Up করুন।');
     }
@@ -787,6 +787,7 @@
   // without this guard that event can recursively start another API sync.
   var streakSyncPromise = null;
   function syncDailyStreak() {
+    if (!app.authUser && !getGuestToken()) return Promise.resolve(false);
     if (streakSyncPromise) return streakSyncPromise;
     // Defer work one microtask so the guard is installed before getAccountProgress()
     // can synchronously dispatch another student-progress-updated event.
@@ -2066,17 +2067,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     else if (leaderboardManualRefreshActive) setLeaderboardRefreshBusy(false, false);
     ensureUI();
     var periodForRequest = selectedPeriod;
-    // An expired Guest session must wait for the user's manual replacement action.
-    // Do not keep retrying identity sync or leave leaderboard skeletons spinning.
-    if (!app.authUser && readExpiredGuest()) {
-      var expiredScreen = document.getElementById('mat-guest-expired-screen');
-      if (!expiredScreen) showGuestExpiredScreen(readExpiredGuest());
-      renderRows([]);
-      setStatus('Previous Guest session expired. Create a new Guest account to continue.', true);
-      setLeaderboardRefreshBusy(false);
-      setBackgroundSyncIndicator(false, false);
-      return;
-    }
+    // The public leaderboard is readable even when a previous Guest session expired.
     // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
     // Otherwise a slow friendConnections call leaves the old Monthly request valid long enough
     // to repaint the table after the user has already switched to Friends.
@@ -2621,7 +2612,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   // Public visitors can browse every section; account-dependent actions are gated.
   var visitorAccessUIInstalled = false;
-  function isAccountFreeVisitor() { return app.authStateResolved === true && !app.authUser && !getGuestToken(); }
+  function isAccountFreeVisitor() {
+    return app.authStateResolved === true && !app.authUser && (!getGuestToken() || !!readExpiredGuest());
+  }
   function updateVisitorAccessUI() {
     var bar = document.getElementById('mat-visitor-access-bar');
     if (bar) bar.hidden = !isAccountFreeVisitor();
