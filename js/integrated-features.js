@@ -931,12 +931,12 @@
       .mat-avatar-option:has(.mat-avatar-swatch){width:42px;min-width:42px;height:42px;min-height:42px}
       .mat-avatar-options-scroll{padding-bottom:18px}
     }
-    .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;opacity:0;transition:opacity .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+    .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;opacity:0;transform:scale(.965);filter:blur(3px);transition:opacity .68s cubic-bezier(.22,.61,.36,1),transform .68s cubic-bezier(.22,.61,.36,1),filter .68s cubic-bezier(.22,.61,.36,1);pointer-events:none;will-change:opacity,transform,filter}
     #sidebar-user-avatar{position:relative}
     .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{position:absolute;right:-2px;bottom:-2px;z-index:20;display:grid;place-items:center;width:20px;height:20px;padding:0;border:2px solid #0a1220;border-radius:50%;background:#10b981;color:#052e20;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28)}
     .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     html[data-theme="light"] .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{border-color:#fff}
-    .mat-avatar-live-layer.is-visible{opacity:1}
+    .mat-avatar-live-layer.is-visible{opacity:1;transform:scale(1);filter:blur(0)}
     .mat-avatar-live-layer>img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
     .mat-avatar-live-layer .med-avatar-stack{width:100%;height:100%;border-radius:inherit}
     .mat-avatar-live-layer .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -992,7 +992,14 @@
   const avatarAccountId = () => {
     const known = app.authUser?.uid || app.profile?.userId || app.profile?.uid;
     if (known) return String(known);
-    try { return String(localStorage.getItem('med_sheet_guest_id_v1') || 'guest'); } catch (_) { return 'guest'; }
+    try {
+      let guestId = localStorage.getItem('med_sheet_guest_id_v1');
+      if (!guestId) {
+        guestId = 'guest-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
+        localStorage.setItem('med_sheet_guest_id_v1', guestId);
+      }
+      return String(guestId);
+    } catch (_) { return 'guest'; }
   };
   const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
   const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
@@ -1016,7 +1023,7 @@
   const stripAvatarDefaultMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
   const isStoredDefaultAvatar = value => /#mat-default-avatar$/i.test(String(value || ''));
   const isStoredCustomAvatar = value => /#mat-custom-avatar$/i.test(String(value || ''));
-  const defaultAvatarForUser = userId => { const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="64" fill="#7b1fa2"/><text x="64" y="86" text-anchor="middle" font-family="Arial,sans-serif" font-size="68" font-weight="800" fill="#ffffff">R</text></svg>'; return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); };
+  const defaultAvatarForUser = userId => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-default:' + String(userId || 'guest')));
   const isLegacyPortraitAvatar = value => /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(String(value || ''));
   const storedDefaultAvatarForUser = userId => defaultAvatarForUser(userId) + avatarDefaultMarker;
   const maxUploadedAvatars = 8;
@@ -1069,7 +1076,7 @@
     // The confirmed shared profile wins everywhere; browser-only avatar copies
     // are migration/offline fallbacks, never competing sources of truth.
     const sharedRaw = String(app.profile?.avatar || '').trim();
-    if (isRenderableAvatarSource(sharedRaw) && !isLegacyPortraitAvatar(stripAvatarDefaultMarker(sharedRaw))) return stripAvatarDefaultMarker(sharedRaw);
+    if (isRenderableAvatarSource(sharedRaw) && !isStoredDefaultAvatar(sharedRaw) && !isLegacyPortraitAvatar(stripAvatarDefaultMarker(sharedRaw))) return stripAvatarDefaultMarker(sharedRaw);
     const googleAvatar = readGoogleAvatar();
     if (googleAvatar && !manual) return googleAvatar;
     try {
@@ -1440,10 +1447,6 @@
         gmailLayer.classList.toggle('is-visible', showGmail);
       };
       element._matAvatarSwitchState = switchState;
-      if (!element.dataset.matAvatarHoverBound) {
-        element.dataset.matAvatarHoverBound = '1';
-        element.addEventListener('pointerenter', () => element._matAvatarSwitchState?.());
-      }
     });
   }
   let avatarTransitionTimer = 0;
@@ -1452,7 +1455,7 @@
     avatarTransitionTimer = setInterval(() => {
       if (document.querySelector('#profile-avatar-picker.is-expanded')) return;
       document.querySelectorAll('.profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living').forEach(element => element._matAvatarSwitchState?.());
-    }, 5000);
+    }, 10000);
   }
   const avatarMotionObserver = new MutationObserver(() => {
     if (installAvatarLiveTransitions._queued) return;
@@ -1477,7 +1480,14 @@
   });
   document.addEventListener('click', event => {
     const builderBack = event.target.closest('#profile-avatar-builder-back');
-    if (builderBack) { avatarPickerExpanded = false; renderAvatarPicker(); window.MedAvatarProfileModal?.open(); return; }
+    if (builderBack) {
+      avatarPickerExpanded = false;
+      pendingAvatarSource = null;
+      pendingAvatarConfig = null;
+      renderAvatarPicker();
+      window.MedAvatarProfileModal?.close();
+      return;
+    }
     const avatarGroup = event.target.closest('[data-avatar-group]');
     if (avatarGroup) {
       activeAvatarGroup = avatarGroup.dataset.avatarGroup;
