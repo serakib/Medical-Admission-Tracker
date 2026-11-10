@@ -1131,6 +1131,10 @@
       position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
       border-radius:0!important;object-fit:contain!important;
     }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack .med-avatar-pet{
+      position:absolute!important;left:auto!important;right:1.5%!important;bottom:1.5%!important;
+      width:19%!important;height:19%!important;z-index:3!important;
+    }
     /* Every colour, including beard colour, is a visible square swatch rather than an empty black tile. */
     #profile-avatar-picker.is-expanded .mat-avatar-option-grid:has(.mat-avatar-swatch){
       display:flex!important;flex-wrap:wrap!important;gap:7px!important;
