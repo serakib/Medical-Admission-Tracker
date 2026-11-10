@@ -1954,20 +1954,28 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var targetDhakaDate = new Date(target + 6 * 60 * 60 * 1000);
     return { timestamp: target, weekday: targetDhakaDate.getUTCDay() };
   }
+  function matNextDhakaWeeklyReview_() {
+    var now = new Date();
+    var today = dhakaDateParts(now);
+    var todayUtc = new Date(Date.UTC(today.year, today.month - 1, today.day));
+    var daysUntilSaturday = (6 - todayUtc.getUTCDay() + 7) % 7;
+    var target = Date.UTC(today.year, today.month - 1, today.day + daysUntilSaturday, -5, 0, 0); // Saturday 01:00 Asia/Dhaka
+    if (target <= now.getTime()) target += 7 * 86400000;
+    return target;
+  }
   function renderMonthlyCountdown() {
     if (selectedPeriod !== 'monthly') return;
     var monthlyNote = document.getElementById('leaderboard-month-countdown');
     if (!monthlyNote) return;
     var now = new Date();
     var dhakaNow = dhakaDateParts(now);
-    // Month boundary is midnight Dhaka; Safe Zone review runs at about 01:00 on day 1.
-    var nextMonthUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -6, 0, 0);
-    var reviewUtc = nextMonthUtc + 60 * 60 * 1000;
-    var monthSeconds = Math.max(0, Math.floor((nextMonthUtc - now.getTime()) / 1000));
-    var reviewSeconds = Math.max(0, Math.floor((reviewUtc - now.getTime()) / 1000));
+    // Monthly Hard Reset: first day of the next month, 01:00 Asia/Dhaka.
+    var monthlyResetUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -5, 0, 0);
+    var monthlyResetSeconds = Math.max(0, Math.floor((monthlyResetUtc - now.getTime()) / 1000));
+    var weeklyReviewSeconds = Math.max(0, Math.floor((matNextDhakaWeeklyReview_() - now.getTime()) / 1000));
     monthlyNote.innerHTML =
-      '<div>⏳ মাস শেষ হতে বাকি: <strong>' + matCountdownText_(monthSeconds) + '</strong></div>' +
-      '<div class="mt-1">🛡️ Monthly Safe Zone Review হতে বাকি: <strong>' + matCountdownText_(reviewSeconds) + '</strong> <small>(বাংলাদেশ সময়, ১ তারিখ রাত ১টা)</small></div>';
+      '<div>⏳ মাসিক Hard Reset: <strong>' + matCountdownText_(monthlyResetSeconds) + '</strong></div>' +
+      '<div class="mt-1">🛡️ Weekly Review: <strong>' + matCountdownText_(weeklyReviewSeconds) + '</strong></div>';
     monthlyNote.setAttribute('role', 'status');
     monthlyNote.setAttribute('aria-live', 'off');
   }
@@ -2020,7 +2028,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     note.className = 'leaderboard-week-countdown';
     note.setAttribute('role', 'status');
     var dailyReview = matNextDhakaDailyReview_();
-    var dailyLabel = dailyReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Promotion Zone Review';
+    var dailyLabel = dailyReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
     note.innerHTML =
       '<button type="button" class="leaderboard-week-details" data-open-week-popup aria-haspopup="dialog"><span aria-hidden="true">⏳</span><span>নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown>' + countdown + '</strong></span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
       '<div class="mt-1 text-xs" data-promotion-review-countdown>🔁 ' + dailyLabel + ' হতে বাকি: <strong>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong> <small>(প্রতিদিন রাত ১টা, বাংলাদেশ সময়)</small></div>';
@@ -2043,7 +2051,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ শুরু হতে বাকি: <strong data-weekly-countdown-popup>' + countdown + '</strong></p>' +
       '<p>🔁 পরবর্তী Daily Promotion Zone Review / Weekly Hard Reset: <strong data-promotion-review-countdown-popup>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong></p>' +
       '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
-      '<p>Promotion Zone প্রতিদিন রাত ১টায় review হয়; শনিবার রাত ১টায় নতুন সপ্তাহের Hard Reset হয়।</p>';
+      '<p>Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।</p>';
     var openButton = note.querySelector('[data-open-week-popup]');
     if (openButton) openButton.addEventListener('click', function () {
       popup.hidden = false;
@@ -2074,9 +2082,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (popupCountdown) popupCountdown.textContent = countdown;
 
     var review = matNextDhakaDailyReview_();
-    var label = review.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Promotion Zone Review';
-    var reviewText = label + ' হতে বাকি: ' + matCountdownText_((review.timestamp - now.getTime()) / 1000);
-    if (dailyMain) { dailyMain.innerHTML = '🔁 ' + reviewText + ' <small>(বাংলাদেশ সময়, রাত ১টা)</small>'; }
+    var label = review.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
+    var reviewText = label + ': ' + matCountdownText_((review.timestamp - now.getTime()) / 1000);
+    if (dailyMain) { dailyMain.innerHTML = '🔁 ' + reviewText; }
     if (dailyPopup) dailyPopup.textContent = reviewText;
   }
   function startLeaderboardNoteClock() {
