@@ -7,7 +7,7 @@
   if (base.dicebearAvataaars10) return;
 
   const choices = {
-    skinTone: [['#0d83b5','নীলাভ'],['#7200bd','বেগুনি'],['#b80d12','লাল'],['#252525','কালো'],['#00b85a','সবুজ'],['#ffffff','সাদা']],
+    skinTone: [['#f8d25c','হালকা সোনালি'],['#edb98a','উষ্ণ'],['#d08b5b','মাঝারি'],['#ae5d29','বাদামি'],['#614335','গাঢ়']],
     eyeShape: [['default','স্বাভাবিক'],['happy','হাসিখুশি'],['closed','বন্ধ'],['side','পাশে তাকানো'],['wink','চোখ টেপা'],['hearts','হার্ট'],['squint','চোখ ছোট'],['eyeRoll','চোখ ঘোরানো']],
     eyebrowShape: [['defaultNatural','স্বাভাবিক'],['default','সাধারণ'],['raisedExcited','উঁচু'],['angry','গম্ভীর'],['sadConcerned','চিন্তিত'],['flatNatural','সমান']],
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
