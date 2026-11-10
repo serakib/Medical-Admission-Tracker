@@ -515,7 +515,7 @@
     const state = this.examState;
     if (!state.submitted) {
       state.questions.forEach((q, i) => {
-        if (state.userAnswers[i] != null && state.userAnswers[i] !== correctIndex(q)) markWrong(q);
+        if (state.userAnswers[i] != null) { const wrongNow=state.userAnswers[i] !== correctIndex(q); putRecord(q,{wrong:wrongNow,userAnswerIndex:state.userAnswers[i],correctAnswerIndex:correctIndex(q)}); }
       });
     }
     const result = originalSubmitExam(autoSubmitted);
@@ -1567,14 +1567,14 @@ function setupPracticeUI(){
     const panel=document.createElement('section');
     panel.id='practice-exam-setup';
     panel.className='practice-exam-setup';
-    panel.innerHTML='<h3 style="font-weight:900;font-size:1.1rem">Practice Exam Setup</h3><p style="font-size:.82rem;color:var(--muted,#64748b);margin:4px 0 14px">Choose the question pool and count before starting.</p><label style="font-size:.85rem;font-weight:900">Exam Type</label><div class="practice-type-grid" role="group"><button type="button" class="practice-type-btn active" data-practice-type="all" aria-pressed="true">All Questions</button><button type="button" class="practice-type-btn" data-practice-type="reviewed" aria-pressed="false">Reviewed</button><button type="button" class="practice-type-btn" data-practice-type="wrong" aria-pressed="false">Wrong Answer</button><button type="button" class="practice-type-btn" data-practice-type="previous" aria-pressed="false">Previous Year</button></div><label style="display:block;font-size:.85rem;font-weight:900;margin-top:14px">Question Count</label><div class="practice-count-grid">'+[20,30,50,75,100].map(n=>'<button type="button" class="practice-count-btn '+(n===20?'active':'')+'" data-practice-count="'+n+'" aria-pressed="'+(n===20?'true':'false')+'">'+n+'</button>').join('')+'</div><div class="practice-setup-footer"><span id="practice-auto-time">20 questions · 10 minutes automatically</span><span id="practice-available-count">Loading questions…</span></div><div class="practice-start-row"><button type="button" id="practice-start-button" class="practice-start-btn"><i class="fa-solid fa-play" aria-hidden="true"></i> Start Practice</button></div>';
+    panel.innerHTML='<h3 style="font-weight:900;font-size:1.1rem">Practice Exam Setup</h3><p style="font-size:.82rem;color:var(--muted,#64748b);margin:4px 0 14px">Choose Exam Type and Question Count. Minimum 10 questions.</p><label style="font-size:.85rem;font-weight:900">Exam Type</label><div class="practice-type-grid" role="group"><button type="button" class="practice-type-btn active" data-practice-type="all" aria-pressed="true">All Questions</button><button type="button" class="practice-type-btn" data-practice-type="reviewed" aria-pressed="false">Reviewed</button><button type="button" class="practice-type-btn" data-practice-type="wrong" aria-pressed="false">Wrong Answer</button><button type="button" class="practice-type-btn" data-practice-type="previous" aria-pressed="false">Previous Year</button></div><label style="display:block;font-size:.85rem;font-weight:900;margin-top:14px">Question Count</label><div class="practice-count-grid">'+[20,30,50,75,100].map(n=>'<button type="button" class="practice-count-btn '+(n===20?'active':'')+'" data-practice-count="'+n+'" aria-pressed="'+(n===20?'true':'false')+'">'+n+'</button>').join('')+'</div><label for="practice-custom-count" style="display:block;font-size:.82rem;font-weight:800;margin-top:12px">Custom Question Count</label><input id="practice-custom-count" type="number" min="10" step="1" inputmode="numeric" placeholder="Enter 10 or more questions" oninput="document.getElementById(\'practice-auto-time\').textContent=(Math.max(10,Math.floor(Number(this.value)||10)))+\' questions · \' + Math.max(1,Math.round(Math.max(10,Math.floor(Number(this.value)||10))*.6))+\' minutes automatically\'" style="width:100%;min-height:42px;padding:9px 12px;border:1px solid var(--line,#cbd5e1);border-radius:11px;background:var(--surface,#fff);color:var(--text,#1e293b)"><div class="practice-setup-footer"><span id="practice-auto-time">20 questions · 12 minutes automatically</span><span id="practice-available-count">Loading questions…</span></div><div class="practice-start-row"><button type="button" id="practice-start-button" class="practice-start-btn"><i class="fa-solid fa-play" aria-hidden="true"></i> Start Practice</button></div>';
     browser.appendChild(panel);
     panel.addEventListener('click',e=>{
       const typeButton=e.target.closest('[data-practice-type]');
       const countButton=e.target.closest('[data-practice-count]');
       if(typeButton)panel.querySelectorAll('[data-practice-type]').forEach(b=>{b.classList.toggle('active',b===typeButton);b.setAttribute('aria-pressed',String(b===typeButton))});
       if(countButton)panel.querySelectorAll('[data-practice-count]').forEach(b=>{b.classList.toggle('active',b===countButton);b.setAttribute('aria-pressed',String(b===countButton))});
-      if(typeButton||countButton)updatePracticeUI();
+      if(countButton){const custom=panel.querySelector('#practice-custom-count');if(custom)custom.value='';}if(typeButton||countButton)updatePracticeUI();
     });
     panel.querySelector('#practice-start-button').onclick=()=>app.startPracticeFromBrowser();
   }
@@ -1586,14 +1586,15 @@ function setupPracticeUI(){
   }
   updatePracticeUI();
 }
-const practiceType=()=>document.querySelector('#practice-exam-setup [data-practice-type].active')?.dataset.practiceType||'all',practiceCount=()=>Number(document.querySelector('#practice-exam-setup [data-practice-count].active')?.dataset.practiceCount||20);
+const practiceType=()=>document.querySelector('#practice-exam-setup [data-practice-type].active')?.dataset.practiceType||'all',practiceCount=()=>{const el=document.getElementById('practice-custom-count'),v=el&&el.value.trim();return v?Math.max(10,Math.floor(Number(v)||10)):Number(document.querySelector('#practice-exam-setup [data-practice-count].active')?.dataset.practiceCount||20)};
 function practicePool(){const qs=Array.isArray(app.questionBank)?app.questionBank:[],type=practiceType();if(type==='reviewed')return qs.filter(q=>Boolean(record(q).reviewed));if(type==='wrong')return qs.filter(q=>Boolean(record(q).wrong));if(type==='previous')return qs.filter(q=>Boolean(q.isPreviousYear)||(q.year&&!/^practice$/i.test(String(q.year))));return qs.slice()}
-function updatePracticeUI(){const pool=practicePool(),count=Math.min(practiceCount(),pool.length),mins=Math.max(1,Math.round(count/2)),time=document.getElementById('practice-auto-time'),available=document.getElementById('practice-available-count');if(time)time.textContent=count+' questions · '+mins+' minutes automatically';if(available)available.textContent=pool.length+' matching questions'}
+function updatePracticeUI(){const pool=practicePool(),count=practiceCount(),mins=Math.max(1,Math.round(count*.6)),time=document.getElementById('practice-auto-time'),available=document.getElementById('practice-available-count');if(time)time.textContent=count+' questions · '+mins+' minutes automatically';if(available)available.textContent=pool.length+' matching questions'+(pool.length<count?' · Not enough questions for this count':'')}
 app.startPracticeFromBrowser=function(){
   if(!this.questionsLoaded||!this.questionBank.length){this.showDataError('প্রশ্ন ব্যাংক এখনো লোড হয়নি।');return}
-  const pool=practicePool();
-  if(!pool.length){alert(practiceType()==='reviewed'?'No Reviewed questions yet. Mark questions Reviewed in Question Bank.':practiceType()==='wrong'?'No Wrong Answer questions yet.':'No questions found for this Practice type.');return}
-  const selected=pool.slice().sort(()=>Math.random()-.5).slice(0,Math.min(practiceCount(),pool.length));
+  const pool=practicePool(),requestedCount=practiceCount();
+  if(!Number.isFinite(requestedCount)||requestedCount<10){alert('Minimum 10 questions are required.');return}
+  if(pool.length<requestedCount){alert('এই Exam Type-এ '+pool.length+'টি প্রশ্ন আছে। '+requestedCount+'টি প্রশ্নের পরীক্ষা দিতে আরও প্রশ্ন প্রয়োজন।');return}
+  const selected=pool.slice().sort(()=>Math.random()-.5).slice(0,requestedCount);
   if(this.practiceTimerInterval){clearInterval(this.practiceTimerInterval);this.practiceTimerInterval=null}
   if(this.examState?.timerInterval){clearInterval(this.examState.timerInterval);this.examState.timerInterval=null}
   if(typeof this.shuffleQuestionsAndOptions!=='function'||typeof this.beginPreparedExam!=='function'){this.showDataError('Strict Practice exam চালু করা যাচ্ছে না। পেজটি refresh করে আবার চেষ্টা করুন।');return}
@@ -1602,7 +1603,7 @@ app.startPracticeFromBrowser=function(){
     mode:'practice',
     subject:'all',
     year:'all',
-    durationMins:Math.max(1,Math.round(selected.length*0.5))
+    durationMins:Math.max(1,Math.round(selected.length*0.6))
   };
   const badge=document.getElementById('exam-mode-badge');
   if(badge)badge.textContent='Practice Exam';
@@ -1614,7 +1615,7 @@ app.startPracticeFromBrowser=function(){
   this.beginPreparedExam();
   updatePracticeUI();
 };
-const oldAnswer=app.answerPractice.bind(app);app.answerPractice=function(index){const q=this.practiceSession?.questions?.[this.practiceSession?.index],result=oldAnswer(index);if(q&&index!==q.answer){const h=readHistory(),key=qkey(q);h[key]={...(h[key]||{key,question:q,reviewed:false}),question:q,wrong:true,updatedAt:Date.now()};localStorage.setItem(hkey(),JSON.stringify(h));updatePracticeUI()}return result};
+const oldAnswer=app.answerPractice.bind(app);app.answerPractice=function(index){const q=this.practiceSession?.questions?.[this.practiceSession?.index],result=oldAnswer(index);if(q){const h=readHistory(),key=qkey(q),prior=h[key]||{key,question:q,reviewed:false};h[key]={...prior,question:q,wrong:index!==q.answer,userAnswerIndex:index,correctAnswerIndex:q.answer,updatedAt:Date.now()};localStorage.setItem(hkey(),JSON.stringify(h));updatePracticeUI()}return result};
 const oldBrowser=app.renderPracticeBrowser?.bind(app);if(oldBrowser)app.renderPracticeBrowser=function(){const r=oldBrowser();setupPracticeUI();updatePracticeUI();return r};
 const oldAuth=app.setAuthState.bind(app);app.setAuthState=function(user,...args){const r=oldAuth(user,...args);renderSidebarAuth();renderRankCard();setupPracticeUI();updatePracticeUI();return r};
 const oldShow=app.showView.bind(app);app.showView=function(name,...args){const r=oldShow(name,...args);if(name==='profile')renderRankCard();if(name==='practice'){setupPracticeUI();updatePracticeUI()}renderSidebarAuth();return r};
