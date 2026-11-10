@@ -11,6 +11,8 @@
     eyeShape: [['default','স্বাভাবিক'],['happy','হাসিখুশি'],['closed','বন্ধ'],['side','পাশে তাকানো'],['wink','চোখ টেপা'],['hearts','হার্ট'],['squint','চোখ ছোট'],['eyeRoll','চোখ ঘোরানো']],
     eyebrowShape: [['defaultNatural','স্বাভাবিক'],['default','সাধারণ'],['raisedExcited','উঁচু'],['angry','গম্ভীর'],['sadConcerned','চিন্তিত'],['flatNatural','সমান']],
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
+    gender: [['male','পুরুষ'],['female','নারী']],
+    ageGroup: [['teen','কিশোর/কিশোরী · ১৩–১৭'],['youngAdult','তরুণ/তরুণী · ১৮–২৫'],['adult','প্রাপ্তবয়স্ক · ২৬–৪০'],['mature','পরিণত বয়স · ৪১+']],
     hairStyle: [['shortFlat','ছোট'],['shortCurly','ছোট কোঁকড়া'],['longButNotTooLong','লম্বা'],['bob','বব কাট'],['curly','কোঁকড়া'],['bun','খোঁপা'],['shaggy','এলোমেলো'],['hijab','হিজাব'],['straight01','সোজা ১'],['straight02','সোজা ২'],['theCaesar','সিজার কাট']],
     hairColor: [['2c1b18','কালো'],['4a312c','গাঢ় বাদামি'],['724133','বাদামি'],['b58143','সোনালি বাদামি'],['a55728','কমলা-বাদামি'],['c93305','লাল']],
     facialHair: [['none','নেই'],['beardLight','হালকা দাড়ি'],['beardMedium','মাঝারি দাড়ি'],['beardMajestic','ঘন দাড়ি'],['moustacheFancy','গোঁফ'],['moustacheMagnum','ঘন গোঁফ']],
@@ -25,18 +27,34 @@
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
-    skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
+    gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'hat', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
     headphonesType:'headphones', petType:'chick', background:'a5a8ff'
   };
   const entries = Object.entries(choices);
+  const maleHair = ['shortFlat','shortCurly','shaggy','curly','theCaesar'];
+  const femaleHair = ['longButNotTooLong','bob','curly','bun','shaggy','hijab','straight01','straight02'];
+  const hairChoicesFor = (gender, ageGroup) => {
+    const source = gender === 'female' ? femaleHair : maleHair;
+    const allowed = ageGroup === 'teen'
+      ? source.filter(value => value !== 'bun')
+      : source.slice();
+    return choices.hairStyle.filter(([value]) => allowed.includes(value));
+  };
+  const inferGenderFromHair = hair => femaleHair.includes(String(hair || '')) && !maleHair.includes(String(hair || '')) ? 'female' : 'male';
   const normalize = input => {
     const result = {...defaults};
     entries.forEach(([key,list]) => {
       const value = input && input[key];
       if (list.some(([v]) => v === value)) result[key] = value;
     });
+    const supplied = input && typeof input === 'object' ? input : {};
+    result.gender = supplied.gender === 'female' || supplied.gender === 'male' ? supplied.gender : inferGenderFromHair(supplied.hairStyle);
+    result.ageGroup = choices.ageGroup.some(([value]) => value === supplied.ageGroup) ? supplied.ageGroup : defaults.ageGroup;
+    const allowedHair = hairChoicesFor(result.gender, result.ageGroup).map(([value]) => value);
+    if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
+    if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
     if (input && typeof input === 'object') {
       const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'];
       if (hats.includes(input.hat)) result.hat = input.hat;
@@ -49,7 +67,7 @@
   const buildUrl = input => {
     const c = normalize(input);
     const params = new URLSearchParams({
-      seed:'medavatar|hp='+c.headphonesType+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
+      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|hp='+c.headphonesType+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
       size:'512',
       skinColor:hex(c.skinTone),
       topVariant:c.hat !== 'none' ? c.hat : c.hairStyle,
@@ -86,6 +104,8 @@
         eyeShape:p.get('eyesVariant') || defaults.eyeShape,
         eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,
         expression:p.get('mouthVariant') || defaults.expression,
+        gender:meta.gender || inferGenderFromHair(meta.hair || top),
+        ageGroup:meta.age || defaults.ageGroup,
         hairStyle:meta.hair || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top),
         hairColor:p.get('hairColor') || defaults.hairColor,
         facialHair:p.get('facialHairProbability') === '0' ? 'none' : (p.get('facialHairVariant') || 'beardLight'),
@@ -107,8 +127,10 @@
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
     const headphones = c && c.headphonesType === 'headphones';
+    const ageLines = c && c.ageGroup === 'mature'
+      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".48"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>' : '';
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
-    return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage +
+    return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
       (headphones ? '<img class="med-avatar-headphones" src="' + escapeAttr(base.assetPaths.headphones) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       '</span>';
@@ -122,16 +144,24 @@
   };
   const pick = (list, seed, index) => list[(Math.abs(String(seed||'student').split('').reduce((h,ch)=>Math.imul(h^ch.charCodeAt(0),16777619),2166136261)+index)>>>0)%list.length][0];
   base.choices = Object.fromEntries(entries.map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
+  base.getOptionsForField = (fieldKey, input) => {
+    const config = normalize(input || defaults);
+    if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
+    if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
+    return (base.choices[fieldKey] || []).slice();
+  };
   base.defaultConfig = seed => {
     const identity = String(seed || 'student-default');
     const hatOptions = [['none',''],['hat',''],['winterHat1',''],['turban','']];
     return normalize({
       ...defaults,
+      gender:pick(choices.gender,identity,13),
+      ageGroup:pick(choices.ageGroup,identity,14),
       skinTone:pick(choices.skinTone,identity,0),
       eyeShape:pick(choices.eyeShape.filter(([value])=>['default','happy','side','squint','eyeRoll','surprised'].includes(value)),identity,1),
       eyebrowShape:pick(choices.eyebrowShape,identity,2),
       expression:pick(choices.expression,identity,3),
-      hairStyle:pick(choices.hairStyle,identity,4),
+      hairStyle:pick(hairChoicesFor(pick(choices.gender,identity,13),pick(choices.ageGroup,identity,14)),identity,4),
       hairColor:pick(choices.hairColor,identity,5),
       hat:pick(hatOptions,identity,6),
       hatColor:pick(choices.hatColor,identity,7),
