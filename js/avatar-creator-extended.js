@@ -147,6 +147,210 @@
   base.randomize = randomize;
   base.configFromAvatar = configFromAvatar;
   base.isAvatar = value => /^https:\/\/api\.dicebear\.com\/10\.x\/avataaars\/svg\?/i.test(String(value||'')) || /^data:image\/svg\+xml;charset=utf-8,/i.test(String(value||''));
+
+  /* Inline the trusted DiceBear SVG only for the large/live avatar surfaces.
+     Keeping its component groups editable lets the eyes, brows, mouth and hair
+     move independently instead of faking life with whole-image zoom alone. */
+  const livingSvgCache = new Map();
+  const svgNs = 'http://www.w3.org/2000/svg';
+  const livingTimers = new WeakMap();
+
+  function getLivingSvgText(source) {
+    if (!livingSvgCache.has(source)) {
+      const request = fetch(source, { mode:'cors', credentials:'omit', cache:'force-cache' })
+        .then(response => {
+          if (!response.ok) throw new Error('Avatar SVG request failed: ' + response.status);
+          return response.text();
+        })
+        .then(markup => {
+          if (!markup || markup.length > 180 * 1024) throw new Error('Avatar SVG is not a valid lightweight portrait.');
+          return markup;
+        })
+        .catch(error => {
+          livingSvgCache.delete(source);
+          throw error;
+        });
+      livingSvgCache.set(source, request);
+    }
+    return livingSvgCache.get(source);
+  }
+
+  function wrapSvgChildren(parent, className, doc) {
+    if (!parent) return null;
+    const existing = Array.from(parent.children).find(child =>
+      child.namespaceURI === svgNs && String(child.getAttribute('class') || '').split(/\\s+/).includes(className)
+    );
+    if (existing) return existing;
+    const wrapper = doc.createElementNS(svgNs, 'g');
+    wrapper.setAttribute('class', className);
+    while (parent.firstChild) wrapper.appendChild(parent.firstChild);
+    parent.appendChild(wrapper);
+    return wrapper;
+  }
+
+  function startLivingFaceMotion(stack, svg, motion) {
+    const previousCleanup = livingTimers.get(stack);
+    if (previousCleanup) previousCleanup();
+
+    const prefersReduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (prefersReduced()) return;
+
+    const timers = new Set();
+    const current = () => stack.isConnected && svg.isConnected && stack.contains(svg);
+    const later = (callback, delay) => {
+      const timer = window.setTimeout(() => {
+        timers.delete(timer);
+        if (current() && !prefersReduced()) callback();
+      }, delay);
+      timers.add(timer);
+      return timer;
+    };
+    const blink = () => {
+      if (document.hidden) { later(blink, 1400); return; }
+      motion.blink?.classList.add('is-blinking');
+      later(() => motion.blink?.classList.remove('is-blinking'), 105);
+      if (motion.blink && Math.random() < 0.17) {
+        later(() => {
+          motion.blink?.classList.add('is-blinking');
+          later(() => motion.blink?.classList.remove('is-blinking'), 100);
+        }, 205);
+      }
+      later(blink, 3900 + Math.random() * 3400);
+    };
+    const glance = () => {
+      if (document.hidden) { later(glance, 1600); return; }
+      const states = ['is-looking-left','is-looking-right','is-looking-down'];
+      const state = states[Math.floor(Math.random() * states.length)];
+      motion.gaze?.classList.add(state);
+      if (motion.brows && Math.random() < 0.38) motion.brows.classList.add('is-raised');
+      later(() => {
+        motion.gaze?.classList.remove(...states);
+        motion.brows?.classList.remove('is-raised');
+      }, 520 + Math.random() * 280);
+      later(glance, 4300 + Math.random() * 3900);
+    };
+    const expression = () => {
+      if (document.hidden) { later(expression, 1800); return; }
+      if (motion.mouth && Math.random() < 0.34) {
+        motion.mouth.classList.add('is-soft-smile');
+        later(() => motion.mouth?.classList.remove('is-soft-smile'), 520 + Math.random() * 260);
+      }
+      if (motion.hair && Math.random() < 0.3) {
+        motion.hair.classList.add('is-swaying');
+        later(() => motion.hair?.classList.remove('is-swaying'), 700);
+      }
+      later(expression, 7600 + Math.random() * 5200);
+    };
+
+    if (motion.canBlink) later(blink, 900 + Math.random() * 1300);
+    if (motion.canLook) later(glance, 1900 + Math.random() * 1600);
+    later(expression, 3200 + Math.random() * 2200);
+
+    livingTimers.set(stack, () => {
+      timers.forEach(timer => window.clearTimeout(timer));
+      timers.clear();
+    });
+  }
+
+  base.hydrateLivingFace = async stack => {
+    if (!stack || typeof stack.querySelector !== 'function') return false;
+    const image = stack.querySelector('img.med-avatar-base');
+    if (!image) return !!stack.querySelector('svg.med-avatar-inline-svg');
+    const source = String(image.currentSrc || image.src || '');
+    if (!/^https:\\/\\/api\\.dicebear\\.com\\/10\\.x\\/avataaars\\/svg\\?/i.test(source)) return false;
+    if (stack.dataset.matFaceMotionSource === source && stack.querySelector('svg.med-avatar-inline-svg')) return true;
+    if (stack.dataset.matFaceMotionPending === source) return false;
+    stack.dataset.matFaceMotionPending = source;
+
+    try {
+      const markup = await getLivingSvgText(source);
+      if (!stack.isConnected || stack.querySelector('img.med-avatar-base') !== image) return false;
+      const doc = new DOMParser().parseFromString(markup, 'image/svg+xml');
+      if (doc.querySelector('parsererror') || doc.documentElement.localName !== 'svg') {
+        throw new Error('DiceBear returned malformed SVG markup.');
+      }
+
+      const svg = doc.documentElement;
+      const eyes = svg.querySelector('g[id="eyes"]');
+      if (!eyes) throw new Error('Avatar eye component was not found.');
+      const parameters = new URL(source).searchParams;
+      const eyeVariant = parameters.get('eyesVariant') || 'default';
+      const accessories = parameters.get('accessoriesProbability') === '0'
+        ? 'none' : (parameters.get('accessoriesVariant') || 'none');
+      const canSeeEyes = eyeVariant !== 'closed' && !['sunglasses','eyepatch'].includes(accessories);
+
+      const gaze = wrapSvgChildren(eyes, 'mat-avatar-eye-gaze', doc);
+      const blink = wrapSvgChildren(gaze, 'mat-avatar-eye-blink', doc);
+      const browRoot = svg.querySelector('g[id="eyebrows"]');
+      const mouthRoot = svg.querySelector('g[id="mouth"]');
+      const hairRoot = svg.querySelector('g[id="top"]');
+      const brows = wrapSvgChildren(browRoot, 'mat-avatar-brow-motion', doc);
+      const mouth = wrapSvgChildren(mouthRoot, 'mat-avatar-mouth-motion', doc);
+      const hair = wrapSvgChildren(hairRoot, 'mat-avatar-hair-motion', doc);
+
+      const style = doc.createElementNS(svgNs, 'style');
+      style.textContent = [
+        '.mat-avatar-eye-gaze{transform-box:fill-box;transform-origin:center;transition:transform .48s cubic-bezier(.2,.8,.2,1)}',
+        '.mat-avatar-eye-gaze.is-looking-left{transform:translateX(-1.35px)}',
+        '.mat-avatar-eye-gaze.is-looking-right{transform:translateX(1.35px)}',
+        '.mat-avatar-eye-gaze.is-looking-down{transform:translateY(1px)}',
+        '.mat-avatar-eye-blink{transform-box:fill-box;transform-origin:center;transition:transform 95ms cubic-bezier(.2,.8,.2,1)}',
+        '.mat-avatar-eye-blink.is-blinking{transform:scaleY(.055)}',
+        '.mat-avatar-brow-motion{transform-box:fill-box;transform-origin:center;transition:transform .38s ease}',
+        '.mat-avatar-brow-motion.is-raised{transform:translateY(-.75px)}',
+        '.mat-avatar-mouth-motion{transform-box:fill-box;transform-origin:center;transition:transform .42s ease}',
+        '.mat-avatar-mouth-motion.is-soft-smile{transform:scaleY(1.045)}',
+        '.mat-avatar-hair-motion{transform-box:fill-box;transform-origin:50% 80%;transition:transform .55s ease}',
+        '.mat-avatar-hair-motion.is-swaying{transform:rotate(.35deg)}',
+        '@media(prefers-reduced-motion:reduce){.mat-avatar-eye-gaze,.mat-avatar-eye-blink,.mat-avatar-brow-motion,.mat-avatar-mouth-motion,.mat-avatar-hair-motion{transition:none!important}}'
+      ].join('');
+      svg.insertBefore(style, svg.firstChild);
+      svg.setAttribute('class', 'med-avatar-base med-avatar-inline-svg');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.setAttribute('aria-hidden', 'true');
+
+      // The avatar URL is generated by this adapter from the official DiceBear host.
+      // Strip executable and external-reference nodes before inserting it inline.
+      svg.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(node => node.remove());
+      svg.querySelectorAll('*').forEach(node => {
+        Array.from(node.attributes).forEach(attribute => {
+          const name = attribute.name.toLowerCase();
+          const value = attribute.value.trim();
+          if (name.startsWith('on') || ((name === 'href' || name.endsWith(':href')) && !value.startsWith('#'))) {
+            node.removeAttribute(attribute.name);
+          }
+        });
+      });
+
+      const inlineSvg = document.importNode(svg, true);
+      image.replaceWith(inlineSvg);
+      stack.dataset.matFaceMotionSource = source;
+      const liveEyes = inlineSvg.querySelector('.mat-avatar-eye-blink');
+      const liveGaze = inlineSvg.querySelector('.mat-avatar-eye-gaze');
+      const liveBrows = inlineSvg.querySelector('.mat-avatar-brow-motion');
+      const liveMouth = inlineSvg.querySelector('.mat-avatar-mouth-motion');
+      const liveHair = inlineSvg.querySelector('.mat-avatar-hair-motion');
+      startLivingFaceMotion(stack, inlineSvg, {
+        blink: liveEyes,
+        gaze: liveGaze,
+        brows: liveBrows,
+        mouth: liveMouth,
+        hair: liveHair,
+        canBlink: canSeeEyes && !!liveEyes,
+        canLook: canSeeEyes && !!liveGaze
+      });
+      return true;
+    } catch (error) {
+      // Keep the original <img> visible whenever SVG inlining is unavailable.
+      console.warn('[Avatar motion] Using static avatar fallback:', error);
+      return false;
+    } finally {
+      if (stack.dataset.matFaceMotionPending === source) delete stack.dataset.matFaceMotionPending;
+    }
+  };
+
   base.dicebearAvataaars10 = true;
   base.renderLayersMarkup = renderLayersMarkup;
   base.assetPaths = {headphones:'./public/assets/headphones/headphones.svg',pets:{chick:'./public/assets/pets/chick.svg',cat:'./public/assets/pets/cat.svg',bear:'./public/assets/pets/white-bear.svg'}};
