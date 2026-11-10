@@ -843,7 +843,10 @@
     .mat-avatar-option-preview-stack{position:relative;display:block;width:100%;height:100%;aspect-ratio:1;overflow:hidden;border-radius:9px;isolation:isolate}
     .mat-avatar-option-preview-stack .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
     .mat-avatar-option-preview-stack .med-avatar-headphones{position:absolute;z-index:2;top:5%;left:14%;width:72%;height:54%;object-fit:contain}
-    .mat-avatar-option-preview-stack .med-avatar-pet{position:absolute;z-index:3;right:0;bottom:0;width:36%;height:36%;object-fit:contain}
+    .mat-avatar-option-preview-stack .med-avatar-pet{position:absolute;z-index:3;left:0!important;right:auto!important;bottom:5%;width:36%;height:36%;object-fit:contain}
+    .profile-avatar-preview-stack .med-avatar-pet{left:0!important;right:auto!important;bottom:5%!important}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{animation:matAvatarBreath 4s ease-in-out infinite}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:matAvatarPetFloat 3.2s ease-in-out infinite}
     .mat-avatar-option-grid:has(.mat-avatar-swatch){display:flex;flex-wrap:nowrap;gap:9px;overflow-x:auto;padding:2px 2px 7px}
     .mat-avatar-option:has(.mat-avatar-swatch){width:48px;min-width:48px;height:48px;min-height:48px;aspect-ratio:1;padding:0;border-radius:11px;background:transparent}
     .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:9px}
