@@ -1070,41 +1070,53 @@
   const avatarBuilderFinalStyle = document.createElement('style');
   avatarBuilderFinalStyle.id = 'mat-avatar-builder-final-polish';
   avatarBuilderFinalStyle.textContent = `
-    /* The character is a full transparent portrait; only the preview panel gets the selected backdrop. */
-    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack,
-    #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack{
-      border-radius:0!important;overflow:visible!important;background:transparent!important;
-      clip-path:none!important;mask:none!important;box-shadow:none!important;
+    /* Compact portrait preview: the selected accessories remain separate. */
+    #profile-avatar-picker.is-expanded .mat-avatar-workspace{
+      grid-template-columns:minmax(210px,245px) minmax(0,756px)!important;
+      gap:18px!important;max-width:1019px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
+      width:100%!important;height:310px!important;max-height:310px!important;
+      min-height:0!important;aspect-ratio:auto!important;align-self:center!important;
+      display:flex!important;align-items:center!important;justify-content:center!important;
+      overflow:visible!important;border-radius:16px!important;
     }
     #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{
-      width:min(100%,420px)!important;height:100%!important;max-width:100%!important;
-      aspect-ratio:1/1!important;margin:auto!important;isolation:isolate!important;
-      transform-origin:50% 55%;
+      position:relative!important;width:172px!important;height:214px!important;
+      max-width:172px!important;max-height:214px!important;aspect-ratio:auto!important;
+      margin:auto!important;overflow:visible!important;border-radius:0!important;
+      background:transparent!important;clip-path:none!important;mask:none!important;
+      box-shadow:none!important;transform-origin:50% 60%!important;
+      animation:matAvatarPreviewLife 3.1s ease-in-out infinite!important;
     }
     #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-base,
     #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-inline-svg{
       position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
       border-radius:0!important;object-fit:contain!important;overflow:visible!important;
+      animation:matAvatarFaceLife 3.4s ease-in-out infinite!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
-      display:flex!important;align-items:center!important;justify-content:center!important;
-      min-height:0!important;overflow:visible!important;border-radius:16px!important;
       background-image:none!important;transition:background-color .18s ease!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{
-      left:auto!important;right:1.5%!important;bottom:1.5%!important;
-      width:19%!important;height:19%!important;z-index:3!important;
-      transform-origin:70% 100%!important;
+    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-pet{
+      position:absolute!important;left:auto!important;right:-9%!important;bottom:-5%!important;
+      width:20%!important;height:20%!important;z-index:4!important;
+      object-fit:contain!important;transform-origin:50% 100%!important;
+      animation:matAvatarCompanionLife 2.5s ease-in-out infinite!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack{
+      border-radius:0!important;overflow:visible!important;background:transparent!important;
+      clip-path:none!important;mask:none!important;box-shadow:none!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
-      grid-template-columns:repeat(6,minmax(0,1fr))!important;
+      display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
       gap:8px!important;align-items:start!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-option{
       width:100%!important;max-width:112px!important;min-width:0!important;
       min-height:0!important;height:auto!important;aspect-ratio:1/1!important;
       justify-self:start!important;padding:4px!important;border:1px solid #777!important;
-      border-radius:10px!important;background:#3b3b3b!important;
+      border-radius:10px!important;background:#3b3b3b!important;color:#f8fafc!important;
       box-shadow:none!important;overflow:hidden!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{
@@ -1112,8 +1124,7 @@
       background:#3b3b3b!important;box-shadow:none!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack{
-      display:block!important;width:100%!important;height:100%!important;
-      aspect-ratio:1/1!important;border-radius:0!important;
+      display:block!important;width:100%!important;height:100%!important;aspect-ratio:1/1!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack .med-avatar-base,
     #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack .med-avatar-inline-svg{
@@ -1121,10 +1132,34 @@
       border-radius:0!important;object-fit:contain!important;
     }
     #profile-avatar-picker.is-expanded .mat-avatar-option-preview-stack .med-avatar-pet{
-      position:absolute!important;left:auto!important;right:1.5%!important;bottom:1.5%!important;
-      width:19%!important;height:19%!important;z-index:3!important;
+      position:absolute!important;left:auto!important;right:-9%!important;bottom:-5%!important;
+      width:20%!important;height:20%!important;z-index:4!important;
     }
-
+    #profile-avatar-picker.is-expanded .mat-avatar-option-grid:has(.mat-avatar-swatch){
+      display:flex!important;flex-wrap:wrap!important;gap:7px!important;
+      overflow:visible!important;padding:2px 0 5px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch){
+      display:grid!important;place-items:center!important;flex:0 0 36px!important;
+      width:36px!important;min-width:36px!important;height:36px!important;
+      min-height:36px!important;max-width:36px!important;padding:2px!important;
+      border:1px solid #777!important;border-radius:8px!important;background:transparent!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{
+      display:block!important;width:100%!important;height:100%!important;
+      border:0!important;border-radius:5px!important;background:var(--swatch)!important;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{
+      border:2px solid #10b981!important;padding:1px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-group-section[hidden]{display:none!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{
+      scroll-behavior:auto!important;overscroll-behavior:contain!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category-bar{
+      scroll-behavior:auto!important;scroll-snap-type:none!important;
+    }
     html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option{
       background:#3b3b3b!important;border-color:#777!important;color:#f8fafc!important;
     }
@@ -1149,92 +1184,32 @@
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{
       border-color:#059669!important;
     }
-
-    /* Every colour, including beard colour, is a visible square swatch rather than an empty black tile. */
-    #profile-avatar-picker.is-expanded .mat-avatar-option-grid:has(.mat-avatar-swatch){
-      display:flex!important;flex-wrap:wrap!important;gap:7px!important;
-      overflow:visible!important;padding:2px 0 5px!important;
+    /* A chosen pet remains separate from the character in the application sidebar. */
+    .sidebar-bottom{overflow:visible!important}
+    .sidebar-user-avatar-wrap{overflow:visible!important}
+    #sidebar-user-avatar{overflow:visible!important}
+    #sidebar-user-avatar .account-avatar-stack .med-avatar-pet,
+    #sidebar-user-avatar .mat-avatar-live-layer .med-avatar-pet{display:none!important}
+    #sidebar-user-avatar .account-avatar-stack{
+      position:relative!important;display:block!important;width:100%!important;height:100%!important;
+      overflow:visible!important;border-radius:0!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch){
-      display:grid!important;place-items:center!important;flex:0 0 36px!important;
-      width:36px!important;min-width:36px!important;height:36px!important;
-      min-height:36px!important;max-width:36px!important;padding:2px!important;
-      border:1px solid #777!important;border-radius:8px!important;
-      background:transparent!important;
+    #sidebar-user-avatar .account-avatar-stack .med-avatar-base,
+    #sidebar-user-avatar .account-avatar-stack .med-avatar-inline-svg{
+      border-radius:50%!important;overflow:hidden!important;object-fit:cover!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{
-      display:block!important;width:100%!important;height:100%!important;
-      border:0!important;border-radius:5px!important;background:var(--swatch)!important;
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)!important;
-    }
-    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{
-      border:2px solid #10b981!important;padding:1px!important;
-    }
-    /* No automatic smooth scroll when a choice is tapped. Scroll only follows the user's own gesture. */
-    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{
-      scroll-behavior:auto!important;overscroll-behavior:contain!important;
-      overflow-y:auto!important;overflow-x:hidden!important;
-    }
-    #profile-avatar-picker.is-expanded .mat-avatar-category-bar{
-      scroll-behavior:auto!important;scroll-snap-type:none!important;
-    }
-    @media(max-width:1024px){
-      #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
-        grid-template-columns:repeat(4,minmax(0,1fr))!important;
-      }
-    }
-    @media(max-width:767px){
-      #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
-        grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;
-      }
-      #profile-avatar-picker.is-expanded .mat-avatar-option{max-width:100%!important}
-      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
-        border-radius:12px!important;min-height:0!important;
-      }
-      #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{
-        width:min(100%,210px)!important;height:100%!important;
-      }
-      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{
-        width:19%!important;height:19%!important;
-      }
-    }
-    @media(prefers-reduced-motion:reduce){
-      #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{animation:none!important}
-    }
-  `;
-
-    /* Keep the preview small and the controls in their own independent categories. */
-    #profile-avatar-picker.is-expanded .mat-avatar-workspace{
-      grid-template-columns:minmax(210px,245px) minmax(0,756px)!important;
-      gap:18px!important;max-width:1019px!important;
-    }
-    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
-      width:100%!important;height:310px!important;max-height:310px!important;
-      min-height:0!important;aspect-ratio:auto!important;align-self:center!important;
-      overflow:visible!important;
-    }
-    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{
-      position:relative!important;width:172px!important;height:214px!important;
-      max-width:172px!important;max-height:214px!important;aspect-ratio:auto!important;
-      margin:auto!important;overflow:visible!important;border-radius:0!important;
-      transform-origin:50% 60%!important;
-      animation:matAvatarPreviewLife 3.1s ease-in-out infinite!important;
-    }
-    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-base,
-    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-inline-svg{
-      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-      border-radius:0!important;object-fit:contain!important;overflow:visible!important;
-      animation:matAvatarFaceLife 3.4s ease-in-out infinite!important;
-    }
-    /* The companion is a separate little character beside/below the portrait, never across the face. */
-    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-pet{
-      position:absolute!important;left:auto!important;right:-9%!important;bottom:-5%!important;
-      width:20%!important;height:20%!important;z-index:4!important;
-      object-fit:contain!important;transform-origin:50% 100%!important;
+    .mat-sidebar-pet-companion{
+      position:absolute!important;right:-5px!important;bottom:-8px!important;
+      display:block!important;width:14px!important;height:14px!important;
+      object-fit:contain!important;z-index:12!important;pointer-events:none!important;
+      transform-origin:50% 100%!important;
       animation:matAvatarCompanionLife 2.5s ease-in-out infinite!important;
+      filter:drop-shadow(0 1px 1px rgba(15,23,42,.22));
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-group-section[hidden]{display:none!important}
-    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{scroll-behavior:auto!important}
+    #view-profile .profile-hero .profile-avatar .med-avatar-stack,
+    #view-account .profile-hero .profile-avatar .med-avatar-stack{
+      animation:matAvatarPreviewLife 3.7s ease-in-out infinite!important;
+    }
     @keyframes matAvatarPreviewLife{
       0%,100%{transform:translateY(0) rotate(0) scale(1)}
       42%{transform:translateY(-3px) rotate(-.55deg) scale(1.012)}
@@ -1249,44 +1224,15 @@
       44%{transform:translateY(-3px) rotate(-7deg)}
       72%{transform:translateY(-1px) rotate(5deg)}
     }
-
-    .sidebar-bottom{overflow:visible!important}
-    .sidebar-user-avatar-wrap{overflow:visible!important}
-    #sidebar-user-avatar .account-avatar-stack .med-avatar-pet,
-    #sidebar-user-avatar .mat-avatar-live-layer .med-avatar-pet{display:none!important}
-    .mat-sidebar-pet-companion{
-      position:absolute!important;right:-5px!important;bottom:-8px!important;
-      display:block!important;width:14px!important;height:14px!important;
-      object-fit:contain!important;z-index:12!important;pointer-events:none!important;
-      transform-origin:50% 100%!important;
-      animation:matAvatarCompanionLife 2.5s ease-in-out infinite!important;
-      filter:drop-shadow(0 1px 1px rgba(15,23,42,.22));
-    }
-    /* Sidebar avatar is round; its optional pet sits just below the lower edge. */
-    #sidebar-user-avatar{overflow:visible!important}
-    #sidebar-user-avatar .account-avatar-stack{
-      position:relative!important;display:block!important;width:100%!important;height:100%!important;
-      overflow:visible!important;border-radius:0!important;
-    }
-    #sidebar-user-avatar .account-avatar-stack .med-avatar-base,
-    #sidebar-user-avatar .account-avatar-stack .med-avatar-inline-svg{
-      border-radius:50%!important;overflow:hidden!important;object-fit:cover!important;
-    }
-    #sidebar-user-avatar .account-avatar-stack .med-avatar-pet{
-      left:auto!important;right:-12%!important;bottom:-14%!important;
-      width:22%!important;height:22%!important;z-index:7!important;
-      object-fit:contain!important;transform-origin:50% 100%!important;
-      animation:matAvatarCompanionLife 2.5s ease-in-out infinite!important;
-    }
-    #view-profile .profile-hero .profile-avatar .med-avatar-stack,
-    #view-account .profile-hero .profile-avatar .med-avatar-stack{
-      animation:matAvatarPreviewLife 3.7s ease-in-out infinite!important;
+    @media(max-width:1024px){
+      #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
+        grid-template-columns:repeat(4,minmax(0,1fr))!important;
+      }
     }
     @media(max-width:767px){
       #profile-avatar-picker.is-expanded .mat-avatar-workspace{
         grid-template-columns:minmax(0,1fr)!important;
-        grid-template-rows:minmax(112px,18vh) minmax(0,1fr)!important;
-        gap:7px!important;
+        grid-template-rows:minmax(112px,18vh) minmax(0,1fr)!important;gap:7px!important;
       }
       #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
         height:auto!important;max-height:18vh!important;min-height:112px!important;
@@ -1294,6 +1240,10 @@
       #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{
         width:104px!important;height:112px!important;max-width:104px!important;max-height:112px!important;
       }
+      #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-option{max-width:100%!important}
     }
     @media(prefers-reduced-motion:reduce){
       #profile-avatar-picker.is-expanded .profile-avatar-preview-stack,
@@ -1301,10 +1251,11 @@
       #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-inline-svg,
       #profile-avatar-picker.is-expanded .profile-avatar-preview-stack .med-avatar-pet,
       #sidebar-user-avatar .account-avatar-stack .med-avatar-pet,
+      .mat-sidebar-pet-companion,
       #view-profile .profile-hero .profile-avatar .med-avatar-stack,
       #view-account .profile-hero .profile-avatar .med-avatar-stack{animation:none!important}
     }
-
+  `;
   document.head.appendChild(avatarBuilderFinalStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
