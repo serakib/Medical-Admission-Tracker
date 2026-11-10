@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.01.7';
+const MAT_API_VERSION = '2026.11.10.1';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -44,6 +44,8 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'daily-streak-sync',
   'top-ten-activity-telegram-queue',
   'daily-weekly-promotion-zone-check-asia-dhaka',
+  'weekly-hard-reset-bronze-v-zero-rp-asia-dhaka',
+  'weekly-only-rank-promotion-ledger',
   'immediate-rank-promotion',
   'weekly-and-monthly-full-tier-immediate-promotion',
   'expired-guest-cleanup',
@@ -52,7 +54,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'guest-cleanup-weekly-rp-zero',
   'weekly-rp-ledger-includes-committed-exams-and-rp-events',
   'rank-change-sets-target-rank-basic-rp-no-bonus',
-  'weekly-rank-review-promotion-zone-no-demotion-no-safe-zone',
+  'weekly-rank-review-daily-promotion-plus-unconditional-weekly-reset',
   'canonical-main-rank-weekly-promotion-threshold',
   'highest-weekly-rp-profile-stat',
   'monthly-rp-profile-stat',
@@ -81,7 +83,7 @@ const MAT_STUDENT_HEADERS = [
   'UserID', 'Name', 'AccountType', 'Email', 'College', 'Batch', 'Avatar',
   'XP', 'RP', 'RankProgressVersion', 'PB', 'PBEntries', 'TotalRP', 'Level', 'Rank', 'CreatedAt', 'UpdatedAt',
   'SignupTelegramSent', 'GuestTokenHash', 'LastSeenAt', 'LastError', 'LastRewardAttemptID',
-  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'GuestDeletionReason', 'LastWeeklyPromotionReviewDate', 'PromoPB', 'ShowGoldName'
+  'LastWeeklyDemotionWeek', 'LastMonthlyRankReviewMonth', 'HighestWeeklyRP', 'HighestMonthlyRP', 'Streak', 'HighestStreak', 'LastStreakActivityDate', 'StreakActivityDates', 'GuestZeroRPAt', 'PBExpiryEnabled', 'PBExpiryValue', 'PBExpiryUnit', 'FriendsIncludePending', 'GuestDeletionRequestedAt', 'GuestDeletionScheduledAt', 'GuestDeletionReason', 'LastWeeklyPromotionReviewDate', 'LastWeeklyRankResetWeek', 'PromoPB', 'ShowGoldName'
 ];
 
 // Exam records and queued activity notifications share this one tab to keep
@@ -274,8 +276,8 @@ function setupBackend() {
       .everyHours(1)
       .create();
   }
-  // Reconcile the daily Weekly Promotion Zone trigger on every setup run,
-  // removing any previous Saturday-only weekly review trigger.
+  // Keep one daily weekly-rank review trigger. Sunday-Friday checks promotions;
+  // Saturday performs the unconditional new-week Bronze V / 0 RP reset.
   triggers.forEach(function (t) {
     if (t.getHandlerFunction() === 'processWeeklyRankDemotions' ||
         t.getHandlerFunction() === 'processDailyWeeklyPromotionReview') {
@@ -308,7 +310,7 @@ function setupBackend() {
     friendsTab: friendsSheet.getName(),
     notificationLimit: MAT_CONFIG.ACTIVITY_DAILY_LIMIT,
     activityQueue: 'Persistent FIFO queue stored in ExamAttempts rows',
-    weeklyRankReview: 'Checks the completed Saturday-Friday week on Saturday and the current week Sunday-Friday, daily at about 01:00 Asia/Dhaka; promotes at most one subrank per daily check; the check itself never resets or reduces RP; no Safe Zone or demotion applies',
+    weeklyRankReview: 'Sunday-Friday daily Promotion Zone review using current-week RP; Saturday about 01:00 Asia/Dhaka unconditionally resets every existing account to Bronze V and 0 current RP, regardless of Safe Zone; lifetime XP, TotalRP, PB, streaks and history are preserved',
     monthlyRankReview: 'Runs on the first day of each month at about 01:00 Asia/Dhaka; checks the previous month Safe Zone for the whole Main Rank and demotes at most one Main Rank; no Promotion Zone'
   };
   Logger.log(JSON.stringify(result, null, 2));
@@ -331,6 +333,14 @@ function processPendingActivityNotifications() {
  * reduces Weekly RP or Lifetime RP. A successful promotion sets current RP
  * to the promoted rank's Basic RP; no extra Safe Zone reward is added.
  */
+/**
+ * Daily weekly-rank review in Asia/Dhaka.
+ * Sunday-Friday: evaluate the current week's Promotion Zone.
+ * Saturday: close the completed Saturday-Friday week, record its high-water
+ * mark, then reset EVERY existing account to Bronze V / 0 current RP.
+ * Safe Zone status never exempts an account from the Saturday hard reset.
+ * Lifetime XP, TotalRP, PB, streaks and historical records are preserved.
+ */
 function processDailyWeeklyPromotionReview() {
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
@@ -338,20 +348,46 @@ function processDailyWeeklyPromotionReview() {
     const studentsSheet = matGetStudentsSheet_();
     const today = matDateKey_(matNowIso_());
     const weekStart = matWeekStartKey_();
-    // Saturday's daily check closes the just-finished Saturday-Friday week;
-    // Sunday-Friday checks the week currently in progress.
     const isSaturday = Utilities.formatDate(new Date(), MAT_CONFIG.TIME_ZONE, 'u') === '6';
     const reviewWeekStart = isSaturday ? matOffsetDateKey_(weekStart, -7) : weekStart;
     const reviewWeekEnd = isSaturday ? weekStart : '';
     const weeklyRPByUser = matGetWeeklyRPByUser_(reviewWeekStart, reviewWeekEnd);
-    const monthlyRPByUser = matGetMonthlyRPByUser_();
     const students = matReadObjects_(studentsSheet);
     const now = matNowIso_();
     let processed = 0, promoted = 0, unchanged = 0, alreadyChecked = 0;
+    let reset = 0, alreadyReset = 0;
 
     students.forEach(function (source) {
       const userId = String(source.UserID || '').trim();
       if (!userId || !source._rowNumber) return;
+
+      // The reset is keyed to the new Saturday week-start date, making retries
+      // idempotent while ensuring Safe Zone status cannot preserve the old rank.
+      if (isSaturday) {
+        if (String(source.LastWeeklyRankResetWeek || '') === weekStart) {
+          alreadyReset += 1;
+          return;
+        }
+        const completedWeekRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[userId], 0));
+        const highestWeeklyRP = Math.max(
+          0,
+          matFiniteNumber_(source.HighestWeeklyRP, 0),
+          completedWeekRP
+        );
+        matUpdateObjectRow_(studentsSheet, source._rowNumber, {
+          Rank: MAT_RANKS[0],
+          RP: 0,
+          RankProgressVersion: MAT_RANK_PROGRESS_VERSION,
+          HighestWeeklyRP: highestWeeklyRP,
+          LastWeeklyPromotionReviewDate: today,
+          LastWeeklyRankResetWeek: weekStart,
+          UpdatedAt: now
+        });
+        processed += 1;
+        reset += 1;
+        return;
+      }
+
       if (String(source.LastWeeklyPromotionReviewDate || '') === today) {
         alreadyChecked += 1;
         return;
@@ -359,9 +395,11 @@ function processDailyWeeklyPromotionReview() {
 
       const student = matReconcileStoredRankProgress_(source);
       const weeklyEarnedRP = Math.max(0, matFiniteNumber_(weeklyRPByUser[userId], 0));
-      const monthlyEarnedRP = Math.max(0, matFiniteNumber_(monthlyRPByUser[userId], 0));
       const highestWeeklyRP = Math.max(0, matFiniteNumber_(student.HighestWeeklyRP, 0), weeklyEarnedRP);
-      const periodPromotion = matApplyPeriodRankPromotion_(student, weeklyEarnedRP, monthlyEarnedRP);
+
+      // Rank promotion is based only on this Saturday-Friday week's earned RP.
+      // Month-to-date RP must not re-promote a student after the weekly reset.
+      const periodPromotion = matApplyPeriodRankPromotion_(student, weeklyEarnedRP, 0);
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
@@ -386,7 +424,6 @@ function processDailyWeeklyPromotionReview() {
         });
         promoted += 1;
       } else {
-        // A non-promotion check must not alter either current RP or Weekly RP.
         matUpdateObjectRow_(studentsSheet, student._rowNumber, {
           HighestWeeklyRP: highestWeeklyRP,
           LastWeeklyPromotionReviewDate: today
@@ -404,14 +441,17 @@ function processDailyWeeklyPromotionReview() {
       processed: processed,
       promoted: promoted,
       unchanged: unchanged,
+      reset: reset,
+      alreadyReset: alreadyReset,
       alreadyChecked: alreadyChecked,
-      message: 'Weekly 100% and Monthly 100% full-tier progress promote immediately; Weekly Promotion Zone progress is reviewed daily.'
+      message: isSaturday
+        ? 'Weekly hard reset completed: every existing account starts the new week at Bronze V with 0 RP. Lifetime records are preserved.'
+        : 'Daily Weekly Promotion Zone review completed using current-week RP only.'
     };
   } finally {
     lock.releaseLock();
   }
 }
-
 function processMonthlyRankReview() {
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
@@ -1581,7 +1621,9 @@ function matApplyPeriodRankPromotion_(student, weeklyRP, monthlyRP) {
     return { promoted: 0, rank: String(student && student.Rank || MAT_RANKS[0]) };
   }
 
-  const periodRP = Math.max(0, matFiniteNumber_(weeklyRP, 0), matFiniteNumber_(monthlyRP, 0));
+  // Rank progression belongs to the Saturday-Friday weekly cycle only.
+  // Ignore month-to-date RP so it cannot restore an old rank after Saturday's hard reset.
+  const periodRP = Math.max(0, matFiniteNumber_(weeklyRP, 0));
   function promotionTarget(startRank) {
     let index = MAT_RANKS.indexOf(String(startRank || MAT_RANKS[0]));
     if (index < 0) index = 0;
