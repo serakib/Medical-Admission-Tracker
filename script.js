@@ -647,42 +647,36 @@ class MedicalExamApp {
     }
 
     async syncFirebaseStudentProfile(fields = {}) {
-        if (!this.authUser) return false;
+        if (!this.authUser) {
+            const error = new Error('No authenticated user. Please sign in and try again.');
+            error.code = 'auth/not-authenticated';
+            throw error;
+        }
+        if (!this.firestore) {
+            const error = new Error('Firebase Firestore is not initialized. Check your Firebase configuration.');
+            error.code = 'firestore/not-initialized';
+            throw error;
+        }
         const safeFields = {};
         ['name', 'college', 'batch', 'class', 'mobile', 'bloodGroup', 'avatar'].forEach(key => {
             if (Object.prototype.hasOwnProperty.call(fields, key)) safeFields[key] = fields[key];
         });
-        let firebaseProfileSyncSucceeded = true;
         if (safeFields.name && String(this.authUser.displayName || '') !== String(safeFields.name)) {
-            try { await updateProfile(this.authUser, { displayName: String(safeFields.name).slice(0, 80) }); }
-            catch (error) {
-                firebaseProfileSyncSucceeded = false;
-                console.warn('Firebase display name sync failed:', error);
-            }
+            await updateProfile(this.authUser, { displayName: String(safeFields.name).slice(0, 80) });
         }
-        const firebaseProfileChanged = !!this.__profileMirrorPending || Object.keys(safeFields).some(key =>
-            String((this.profile || {})[key] ?? '') !== String(safeFields[key] ?? '')
-        );
-        if (this.firestore && firebaseProfileChanged) {
-            try {
-                await setDoc(doc(this.firestore, 'students', this.authUser.uid), {
-                    uid: this.authUser.uid,
-                    email: this.authUser.email || '',
-                    ...safeFields,
-                    updatedAt: serverTimestamp()
-                }, { merge: true });
-            } catch (error) {
-                firebaseProfileSyncSucceeded = false;
-                console.warn('Firebase student profile sync failed:', error);
-            }
-        }
-        this.__profileMirrorPending = !firebaseProfileSyncSucceeded;
+        await setDoc(doc(this.firestore, 'students', this.authUser.uid), {
+            uid: this.authUser.uid,
+            email: this.authUser.email || '',
+            ...safeFields,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+        this.__profileMirrorPending = false;
         this.profile = Object.assign({}, this.profile || {}, safeFields, {
             uid: this.authUser.uid,
             email: this.authUser.email || (this.profile && this.profile.email) || ''
         });
         this.renderAccountProfile();
-        return firebaseProfileSyncSucceeded;
+        return true;
     }
 
     getDemoLeaderboardRows(){ return []; }
@@ -2010,8 +2004,75 @@ class MedicalExamApp {
     }
 }
 
+
+
+/* Medical profile save feedback */
+.medical-save-dots { display:inline-flex; margin-left:.25rem; }
+.medical-save-dots i { font-style:normal; opacity:.25; animation:medicalSaveDot 1s infinite; }
+.medical-save-dots i:nth-child(2) { animation-delay:.18s; }
+.medical-save-dots i:nth-child(3) { animation-delay:.36s; }
+@keyframes medicalSaveDot { 0%, 70%, 100% { opacity:.25; transform:translateY(0); } 35% { opacity:1; transform:translateY(-2px); } }
+#medical-profile-save:disabled { opacity:.7; cursor:wait; }
+
 window.app = new MedicalExamApp();
-window.dispatchEvent(new Event('medical-app-ready'));
+
+// Medical profile editor: report the real Firebase result instead of optimistic success.
+(function bindMedicalProfileSave() {
+    const bind = () => {
+        const form = document.getElementById('medical-profile-form');
+        if (!form || form.dataset.saveHandlerBound === '1') return;
+        form.dataset.saveHandlerBound = '1';
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const button = document.getElementById('medical-profile-save');
+            const status = document.getElementById('medical-profile-save-status');
+            const name = document.getElementById('medical-profile-name');
+            const college = document.getElementById('medical-profile-college');
+            const batch = document.getElementById('medical-profile-batch');
+            if (!button || !status) return;
+            if (!form.reportValidity()) return;
+            const originalLabel = button.dataset.originalLabel || button.textContent.trim() || 'Save Profile';
+            button.dataset.originalLabel = originalLabel;
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+            button.innerHTML = 'Saving profile<span class="medical-save-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>';
+            status.className = 'text-sm text-blue-600 dark:text-blue-400';
+            status.textContent = 'Saving profile…';
+            status.removeAttribute('title');
+            try {
+                const app = window.app;
+                if (!app || typeof app.syncFirebaseStudentProfile !== 'function') {
+                    const error = new Error('Medical app is not ready. Refresh the page and try again.');
+                    error.code = 'app/not-ready';
+                    throw error;
+                }
+                await app.syncFirebaseStudentProfile({
+                    name: String(name?.value || '').trim(),
+                    college: String(college?.value || '').trim(),
+                    batch: String(batch?.value || '').trim(),
+                    class: String(batch?.value || '').trim()
+                });
+                status.className = 'text-sm font-semibold text-emerald-600 dark:text-emerald-400';
+                status.textContent = 'Saved ✓';
+                status.title = 'Profile successfully saved to Firebase Firestore.';
+            } catch (error) {
+                const code = String(error?.code || 'unknown');
+                const message = String(error?.message || error || 'Unknown error');
+                console.error('[Medical Profile Save] Firebase save failed:', error);
+                status.className = 'text-sm font-semibold text-red-600 dark:text-red-400';
+                status.textContent = 'Not saved ✕ — ' + message + ' (Code: ' + code + ')';
+                status.title = message + ' | ' + code;
+            } finally {
+                button.disabled = false;
+                button.removeAttribute('aria-busy');
+                button.textContent = originalLabel;
+            }
+        });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, { once: true });
+    else bind();
+    window.addEventListener('medical-app-ready', bind);
+})();
 
 /* Private per-account activity notification state adapter.
  * This reuses the modular Firestore instance already owned by the app.
