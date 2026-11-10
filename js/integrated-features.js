@@ -1249,6 +1249,19 @@
       44%{transform:translateY(-3px) rotate(-7deg)}
       72%{transform:translateY(-1px) rotate(5deg)}
     }
+
+    .sidebar-bottom{overflow:visible!important}
+    .sidebar-user-avatar-wrap{overflow:visible!important}
+    #sidebar-user-avatar .account-avatar-stack .med-avatar-pet,
+    #sidebar-user-avatar .mat-avatar-live-layer .med-avatar-pet{display:none!important}
+    .mat-sidebar-pet-companion{
+      position:absolute!important;right:-5px!important;bottom:-8px!important;
+      display:block!important;width:14px!important;height:14px!important;
+      object-fit:contain!important;z-index:12!important;pointer-events:none!important;
+      transform-origin:50% 100%!important;
+      animation:matAvatarCompanionLife 2.5s ease-in-out infinite!important;
+      filter:drop-shadow(0 1px 1px rgba(15,23,42,.22));
+    }
     /* Sidebar avatar is round; its optional pet sits just below the lower edge. */
     #sidebar-user-avatar{overflow:visible!important}
     #sidebar-user-avatar .account-avatar-stack{
@@ -1798,6 +1811,28 @@
     const gmailPhoto = user ? readGoogleAvatar() : '';
     const hasGuestSession = (() => { try { return !!localStorage.getItem('med_sheet_guest_token_v1') && !localStorage.getItem('med_guest_session_expired_v1'); } catch (_) { return false; } })();
     const targets = Array.from(document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar,#sidebar-user-avatar'));
+    const sidebarAvatar = document.getElementById('sidebar-user-avatar');
+    const sidebarWrap = sidebarAvatar?.parentElement;
+    if (sidebarWrap) {
+      const savedConfig = readAvatarConfig();
+      const petPath = savedConfig.petType !== 'none'
+        ? String(window.MedAvatarCreator.assetPaths?.pets?.[savedConfig.petType] || '')
+        : '';
+      let companion = sidebarWrap.querySelector('.mat-sidebar-pet-companion');
+      if (petPath) {
+        if (!companion) {
+          companion = document.createElement('img');
+          companion.className = 'mat-sidebar-pet-companion';
+          companion.alt = '';
+          companion.setAttribute('aria-hidden', 'true');
+          companion.draggable = false;
+          sidebarWrap.appendChild(companion);
+        }
+        if (companion.getAttribute('src') !== petPath) companion.src = petPath;
+      } else {
+        companion?.remove();
+      }
+    }
     targets.forEach(element => {
       element.classList.add('mat-avatar-living');
       if (element.id === 'sidebar-user-avatar' && !(user || hasGuestSession)) {
