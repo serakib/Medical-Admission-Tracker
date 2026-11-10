@@ -1498,7 +1498,6 @@
           const thumbnailInput = Object.assign({}, config, { [field.key]: option.value });
           if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
           if (field.key !== 'petType') thumbnailInput.petType = 'none';
-          if (field.key !== 'headphonesType') thumbnailInput.headphonesType = 'none';
           const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
           const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
           visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
@@ -1624,7 +1623,6 @@
       glasses:'<path d="M2 10h3l1 7h5l2-5h-2l2 5h5l1-7h3M11 12h2"/>',
       clothes:'<path d="m8 4 4 2 4-2 5 4-3 4-2-2v10H8V10l-2 2-3-4z"/>',
       pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>',
-      headphones:'<path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/>',
       background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
@@ -1635,7 +1633,6 @@
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
-      {key:'headphones',title:'Headphones',icon:'headphones',fields:[{key:'headphonesType',title:'হেডফোন'}]},
       {key:'pets-bg',title:'Pets',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
       {key:'background',title:'Background',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
     ];
@@ -1650,7 +1647,7 @@
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-          '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
+          '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '"' + (group.key === activeGroup.key ? '' : ' hidden') + '>' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
@@ -1838,7 +1835,9 @@
         tab.classList.toggle('is-active', active);
         tab.setAttribute('aria-pressed', String(active));
       });
-      // Category navigation only changes the active icon; it never scrolls the options panel.
+      controls?.querySelectorAll('[data-avatar-group-section]').forEach(section => {
+        section.hidden = section.dataset.avatarGroupSection !== activeAvatarGroup;
+      });
       return;
     }
     const avatarPart = event.target.closest('[data-avatar-part]');
@@ -1862,9 +1861,10 @@
     }
     const resetButton = event.target.closest('#profile-avatar-reset');
     if (resetButton) {
-      pendingAvatarConfig = window.MedAvatarCreator.defaultConfig(avatarAccountId());
+      const latestSavedSource = readAvatar();
+      pendingAvatarConfig = window.MedAvatarCreator.configFromAvatar(latestSavedSource) || readAvatarConfig();
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
-      renderAvatarPickerWithTransition();
+      updateAvatarPreviewInPlace('reset');
       return;
     }
     const togglePicker = event.target.closest('#profile-avatar-toggle-picker');
