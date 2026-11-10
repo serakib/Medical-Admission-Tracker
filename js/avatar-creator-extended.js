@@ -3,8 +3,8 @@
    Optional headphone and pet artwork is served from local, attributed SVG assets. */
 (function () {
   'use strict';
-  const base = window.MedAvatarCreator;
-  if (!base || base.dicebearAvataaars10) return;
+  const base = window.MedAvatarCreator || {};
+  if (base.dicebearAvataaars10) return;
 
   const choices = {
     skinTone: [
