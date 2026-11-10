@@ -16,6 +16,8 @@
     facialHair: [['none','নেই'],['beardLight','হালকা দাড়ি'],['beardMedium','মাঝারি দাড়ি'],['beardMajestic','ঘন দাড়ি'],['moustacheFancy','গোঁফ'],['moustacheMagnum','ঘন গোঁফ']],
     facialHairColor: [['2c1b18','কালো'],['4a312c','বাদামি'],['724133','গাঢ় বাদামি'],['b58143','সোনালি বাদামি']],
     glasses: [['none','নেই'],['round','গোল'],['prescription01','চশমা ১'],['prescription02','চশমা ২'],['wayfarers','ওয়েফেয়ার'],['sunglasses','সানগ্লাস']],
+    hat: [['none','নেই'],['hat','ক্যাপ'],['winterHat1','শীতের টুপি ১'],['winterHat02','শীতের টুপি ২'],['winterHat03','শীতের টুপি ৩'],['winterHat04','শীতের টুপি ৪'],['turban','পাগড়ি']],
+    hatColor: [['dc2626','লাল'],['2563eb','নীল'],['7c3aed','বেগুনি'],['10b981','সবুজ'],['f8fafc','সাদা'],['333344','ডার্ক']],
     clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার']],
     clothingColor: [['2563eb','নীল'],['7c3aed','বেগুনি'],['dc2626','লাল'],['333344','ডার্ক গ্রে'],['10b981','সবুজ'],['f8fafc','সাদা']],
     headphonesType: [['none','নেই'],['headphones','হেডফোন']],
