@@ -566,7 +566,9 @@
       var status = document.getElementById('mat-guest-expired-status');
       if (status) status.textContent = 'Please wait while your new Guest account is created…';
       try {
-        await createNewGuestAccount();
+        if (window.MedVisitorAccess && typeof window.MedVisitorAccess.openGuestForm === 'function') {
+          window.MedVisitorAccess.openGuestForm();
+        } else throw new Error('Guest account form এখনো প্রস্তুত হয়নি। পেজ reload করে আবার চেষ্টা করুন।');
       } catch (error) {
         button.disabled = false;
         button.textContent = 'Try Again — Create New Guest';
@@ -592,10 +594,15 @@
     currentProfile = null;
     app.profile = null;
   }
-  async function createNewGuestAccount() {
+  async function createNewGuestAccount(fields) {
+    fields = fields || {};
+    var name = safeText(fields.name || '', 80);
+    var college = safeText(fields.college || '', 120);
+    var batch = safeText(fields.batch || '', 40);
+    if (!name || !college || !batch) throw new Error('Guest account তৈরির আগে নাম, College ও Batch পূরণ করুন।');
     var info = readExpiredGuest() || {};
     clearExpiredGuestLocalData(info);
-    var response = await request({ action: 'createGuest' });
+    var response = await request({ action: 'createGuest', name: name, college: college, batch: batch });
     if (!response.guestToken) throw new Error('Guest API returned no guest token.');
     try {
       localStorage.setItem(GUEST_TOKEN_KEY, response.guestToken);
@@ -666,7 +673,13 @@
     if (identityPromise) return identityPromise;
     identityPromise = (async function () {
       if (app.authUser) return registerUser({});
-      return ensureGuest();
+      // Public visitors remain account-free. Restore only a previously created Guest.
+      if (getGuestToken()) return ensureGuest();
+      if (readExpiredGuest()) {
+        showGuestExpiredScreen(readExpiredGuest());
+        throw new Error('Previous Guest session expired. Create a new Guest account when you are ready.');
+      }
+      return null;
     })();
     try { return await identityPromise; }
     finally { identityPromise = null; }
@@ -678,11 +691,10 @@
     var token = getGuestToken();
     if (!token) {
       var expired = readExpiredGuest();
-      if (expired) { showGuestExpiredScreen(expired); throw new Error('Previous Guest session expired. Create a new Guest account to continue.'); }
-      await ensureGuest();
-      token = getGuestToken();
+      if (expired) showGuestExpiredScreen(expired);
+      if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') window.MedVisitorAccess.open();
+      throw new Error('কাজটি করতে আগে Guest account তৈরি করুন অথবা Sign Up করুন।');
     }
-    if (!token) throw new Error('Guest session is unavailable. Please reload the page.');
     return { guestToken: token };
   }
   async function getServerProgress() {
@@ -2607,6 +2619,153 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return requestId;
   }
 
+  // Public visitors can browse every section; account-dependent actions are gated.
+  var visitorAccessUIInstalled = false;
+  function isAccountFreeVisitor() { return app.authStateResolved === true && !app.authUser && !getGuestToken(); }
+  function updateVisitorAccessUI() {
+    var bar = document.getElementById('mat-visitor-access-bar');
+    if (bar) bar.hidden = !isAccountFreeVisitor();
+  }
+  function openVisitorAccess(mode) {
+    ensureVisitorAccessUI();
+    var modal = document.getElementById('mat-visitor-access-modal');
+    if (!modal) return;
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    renderVisitorAccessStep(mode || 'choices');
+  }
+  function closeVisitorAccess() {
+    var modal = document.getElementById('mat-visitor-access-modal');
+    if (modal) { modal.hidden = true; modal.setAttribute('aria-hidden', 'true'); }
+  }
+  function renderVisitorAccessStep(mode) {
+    var panel = document.getElementById('mat-visitor-access-panel');
+    if (!panel) return;
+    var close = '<button type="button" data-va-close aria-label="Close" style="float:right;border:0;background:transparent;font-size:23px;color:#64748b;cursor:pointer">×</button>';
+    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account তৈরি করুন</h2><p style="font-size:13px;line-height:1.7;color:var(--mat-va-muted,#64748b);margin:8px 0 0">Website-এর সবকিছু দেখতে পারবেন। Quiz, Practice ও অন্যান্য কাজ করতে Account প্রয়োজন।</p></div>';
+    var fieldStyle = 'width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#0f172a;font:inherit;margin-top:6px';
+    var labelStyle = 'display:block;font-size:13px;font-weight:700;color:var(--mat-va-title,#334155);margin:12px 0 0';
+    var back = '<button type="button" data-va-back style="border:0;background:transparent;color:#64748b;font-weight:700;padding:8px 0;cursor:pointer">← Back</button>';
+    if (mode === 'choices') {
+      panel.innerHTML = close + intro + '<div style="display:grid;gap:11px"><button type="button" data-va-mode="guest" style="border:0;border-radius:12px;padding:14px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;font-weight:800;cursor:pointer">Continue as Guest</button><button type="button" data-va-mode="signup" style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;background:#fff;color:#0f172a;font-weight:800;cursor:pointer">Sign Up</button><button type="button" data-va-mode="login" style="border:0;background:transparent;color:#0284c7;padding:8px;font-weight:700;cursor:pointer">আগে Account থাকলে Login করুন</button></div>';
+      return;
+    }
+    if (mode === 'guest') {
+      panel.innerHTML = close + back + intro + '<form id="mat-visitor-guest-form"><label style="' + labelStyle + '">নাম *<input name="name" maxlength="80" autocomplete="name" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">College *<input name="college" maxlength="120" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Batch *<input name="batch" maxlength="40" placeholder="যেমন: HSC 2027" required style="' + fieldStyle + '"></label><p style="font-size:12px;color:#64748b;line-height:1.6;margin:12px 0">তিনটি তথ্য পূরণ করার পর confirmation দিলে Guest Account তৈরি হবে।</p><p id="mat-va-status" role="status" style="font-size:13px;color:#dc2626"></p><button id="mat-va-submit" type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Continue</button></form>';
+      return;
+    }
+    if (mode === 'signup') {
+      panel.innerHTML = close + back + intro + '<form id="mat-visitor-signup-form"><label style="' + labelStyle + '">নাম *<input id="auth-name" name="name" maxlength="80" autocomplete="name" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">College *<input id="auth-college" name="college" maxlength="120" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Batch *<input id="auth-class" name="batch" maxlength="40" placeholder="যেমন: HSC 2027" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Email *<input id="auth-email" name="email" type="email" autocomplete="email" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Password *<input id="auth-password" name="password" type="password" minlength="6" autocomplete="new-password" required style="' + fieldStyle + '"></label><input id="auth-mobile" type="hidden" value=""><input id="auth-blood" type="hidden" value=""><p id="authMessage" role="status" style="font-size:13px;color:#dc2626;margin:10px 0"></p><button id="mat-va-submit" type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Review & Create Account</button></form>';
+      return;
+    }
+    if (mode === 'login') {
+      panel.innerHTML = close + back + intro + '<form id="mat-visitor-login-form"><label style="' + labelStyle + '">Email<input id="auth-email" type="email" autocomplete="email" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Password<input id="auth-password" type="password" autocomplete="current-password" required style="' + fieldStyle + '"></label><input id="auth-name" type="hidden" value=""><input id="auth-college" type="hidden" value=""><input id="auth-class" type="hidden" value=""><input id="auth-mobile" type="hidden" value=""><input id="auth-blood" type="hidden" value=""><p id="authMessage" role="status" style="font-size:13px;color:#dc2626;margin:10px 0"></p><button type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Login</button></form>';
+    }
+  }
+  function ensureVisitorAccessUI() {
+    if (visitorAccessUIInstalled) { updateVisitorAccessUI(); return; }
+    visitorAccessUIInstalled = true;
+    var style = document.createElement('style');
+    style.id = 'mat-visitor-access-styles';
+    style.textContent = '#mat-visitor-access-bar{position:fixed;z-index:2147482000;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:9px 11px;border:1px solid rgba(148,163,184,.35);border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 12px 38px rgba(15,23,42,.2);backdrop-filter:blur(14px);font:600 12px/1.4 system-ui,sans-serif;color:#334155}#mat-visitor-access-bar[hidden],#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-bar span{white-space:nowrap}#mat-visitor-access-bar button{border:0;border-radius:10px;padding:10px 12px;font-weight:800;white-space:nowrap;cursor:pointer}#mat-visitor-access-bar [data-va-open-guest]{background:#059669;color:#fff}#mat-visitor-access-bar [data-va-open-signup]{background:#0f172a;color:#fff}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}@media(max-width:480px){#mat-visitor-access-bar{width:calc(100vw - 20px);justify-content:center;gap:6px;padding:8px}#mat-visitor-access-bar span{display:none}#mat-visitor-access-bar button{flex:1;padding:11px 8px;font-size:11px}#mat-visitor-access-panel{padding:18px}}';
+    document.head.appendChild(style);
+    var bar = document.createElement('div');
+    bar.id = 'mat-visitor-access-bar';
+    bar.innerHTML = '<span>কাজ করতে Account প্রয়োজন</span><button type="button" data-va-open-guest>Continue as Guest</button><button type="button" data-va-open-signup>Sign Up</button>';
+    document.body.appendChild(bar);
+    var modal = document.createElement('div');
+    modal.id = 'mat-visitor-access-modal';
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = '<div id="mat-visitor-access-panel" role="dialog" aria-modal="true" aria-label="Create account"></div>';
+    document.body.appendChild(modal);
+    document.addEventListener('click', function (event) {
+      var target = event.target && event.target.closest ? event.target.closest('[data-va-open-guest],[data-va-open-signup],[data-va-mode],[data-va-back],[data-va-close]') : null;
+      if (!target) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (target.hasAttribute('data-va-close')) { closeVisitorAccess(); return; }
+      if (target.hasAttribute('data-va-open-guest')) { openVisitorAccess('guest'); return; }
+      if (target.hasAttribute('data-va-open-signup')) { openVisitorAccess('signup'); return; }
+      if (target.hasAttribute('data-va-back')) { renderVisitorAccessStep('choices'); return; }
+      var mode = target.getAttribute('data-va-mode');
+      if (mode) renderVisitorAccessStep(mode);
+    }, true);
+    document.addEventListener('submit', async function (event) {
+      var form = event.target;
+      if (!form || !form.id || !form.id.startsWith('mat-visitor-')) return;
+      event.preventDefault();
+      event.stopPropagation();
+      var status = form.querySelector('[role="status"]') || document.getElementById('authMessage');
+      var button = form.querySelector('button[type="submit"]');
+      if (button) button.disabled = true;
+      try {
+        if (form.id === 'mat-visitor-guest-form') {
+          var values = Object.fromEntries(new FormData(form).entries());
+          var name = safeText(values.name || '', 80), college = safeText(values.college || '', 120), batch = safeText(values.batch || '', 40);
+          if (!name || !college || !batch) throw new Error('নাম, College ও Batch পূরণ করুন।');
+          if (!window.confirm('এই তথ্য দিয়ে Guest Account তৈরি করবেন?\n\nনাম: ' + name + '\nCollege: ' + college + '\nBatch: ' + batch)) {
+            if (button) button.disabled = false;
+            return;
+          }
+          if (status) { status.style.color = '#059669'; status.textContent = 'Guest Account তৈরি হচ্ছে…'; }
+          if (!window.MedGlobalLeague || typeof window.MedGlobalLeague.createGuestAccount !== 'function') throw new Error('Guest account service এখনো প্রস্তুত নয়।');
+          await window.MedGlobalLeague.createGuestAccount({ name: name, college: college, batch: batch });
+          app.authStateResolved = true;
+          app.authUser = null;
+          closeVisitorAccess();
+          updateVisitorAccessUI();
+          window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guest: true } }));
+          return;
+        }
+        if (form.id === 'mat-visitor-signup-form' || form.id === 'mat-visitor-login-form') {
+          var isSignup = form.id === 'mat-visitor-signup-form';
+          if (!window.app || typeof window.app.handleAuthSubmit !== 'function') throw new Error('Authentication service এখনো প্রস্তুত নয়।');
+          window.app.authMode = isSignup ? 'register' : 'login';
+          await window.app.handleAuthSubmit({ preventDefault: function () {} });
+          if (window.app.authUser) { closeVisitorAccess(); updateVisitorAccessUI(); }
+          else if (button) button.disabled = false;
+          return;
+        }
+      } catch (error) {
+        if (status) { status.style.color = '#dc2626'; status.textContent = error && error.message || 'Account তৈরি করা যায়নি।'; }
+        if (button) button.disabled = false;
+      }
+    }, true);
+    // Keep navigation/read-only views available, but block actions for anonymous visitors.
+    document.addEventListener('click', function (event) {
+      if (!isAccountFreeVisitor()) return;
+      var target = event.target;
+      if (!target || !target.closest) return;
+      if (target.closest('#mat-visitor-access-bar,#mat-visitor-access-modal')) return;
+      if (target.closest('a[href]')) return;
+      if (target.closest('.nav-btn,.sidebar-nav button,.sidebar-brand,[data-feature-view],[data-nav-view],button[onclick*="showView("],button[onclick*="goHome("]')) return;
+      var control = target.closest('button,input,select,textarea,[role="button"],[onclick],form');
+      if (!control) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+      openVisitorAccess('choices');
+    }, true);
+    document.addEventListener('focusin', function (event) {
+      if (!isAccountFreeVisitor()) return;
+      var target = event.target;
+      if (!target || !target.matches || !target.matches('input,textarea,select')) return;
+      if (target.closest('#mat-visitor-access-modal')) return;
+      target.blur();
+      openVisitorAccess('choices');
+    }, true);
+    window.addEventListener('student-auth-state-resolved', updateVisitorAccessUI);
+    window.addEventListener('student-profile-loaded', updateVisitorAccessUI);
+    window.MedVisitorAccess = Object.freeze({
+      open: function () { openVisitorAccess('choices'); },
+      openGuestForm: function () { openVisitorAccess('guest'); },
+      openSignupForm: function () { openVisitorAccess('signup'); },
+      close: closeVisitorAccess
+    });
+    updateVisitorAccessUI();
+  }
+
   function ensureUI() {
     injectStyles();
     ensureTopControls();
@@ -2614,6 +2773,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     ensureFriendDirectory();
     ensureOverlays();
     ensureRankBanner();
+    ensureVisitorAccessUI();
     // selectedPeriod is the live UI state. Do not overwrite it here during
     // refreshes or background syncs; only boot/storage/tab events may change it.
     updatePeriodTabs();
@@ -2970,6 +3130,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     setGoldNameVisibility: setGoldNameVisibility,
     syncIdentity: syncIdentity,
     registerUser: registerUser,
+    createGuestAccount: createNewGuestAccount,
     updateProfile: updateProfile,
     getCachedRows: getCache,
     verifyPublicAvatar: verifyPublicAvatar,
