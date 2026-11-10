@@ -44,6 +44,7 @@
   var GUEST_ID_KEY = 'med_sheet_guest_id_v1';
   var GUEST_VAULT_KEY = 'med_sheet_saved_guest_accounts_v1';
   var CACHE_KEY = 'med_sheet_leaderboard_cache_v1';
+  var leaderboardCacheMemory = Object.create(null);
   var QUEUE_KEY = 'med_sheet_exam_pending_v1';
   var REWARD_KEY = 'med_sheet_exam_rewards_v1';
   var SELECTED_RANK_KEY = 'med_sheet_selected_rank_v1_';
@@ -306,6 +307,7 @@
   }
   function getCache(period) {
     var key = cacheKeyForPeriod(period || 'monthly');
+    if (Array.isArray(leaderboardCacheMemory[key])) return leaderboardCacheMemory[key];
     var rows = parseJson(localStorage.getItem(key), null);
     // One-time compatibility read for snapshots saved by the previous v2 key scheme.
     // Copy a found snapshot into the stable v3 key so future visits use one location.
@@ -327,11 +329,15 @@
         try { localStorage.setItem(key, JSON.stringify(rows)); } catch (_) {}
       }
     }
-    return Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
+    var safeRows = Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
+    leaderboardCacheMemory[key] = safeRows;
+    return safeRows;
   }
   function saveCache(rows, period) {
     var list = Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
-    try { localStorage.setItem(cacheKeyForPeriod(period || 'monthly'), JSON.stringify(list)); } catch (_) {}
+    var key = cacheKeyForPeriod(period || 'monthly');
+    leaderboardCacheMemory[key] = list;
+    try { localStorage.setItem(key, JSON.stringify(list)); } catch (_) {}
     return list;
   }
   function getQueue() {
@@ -2130,6 +2136,37 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     ]).finally(function () { clearTimeout(timer); });
   }
 
+  async function refreshLeaderboardCacheForPeriod(period) {
+    if (!navigator.onLine || !API_URL() || (period !== 'weekly' && period !== 'monthly')) return false;
+    var payload = { action: 'leaderboard', period: period };
+    var response = await request(payload, { method: 'GET' });
+    var entries = extractEntries(response);
+    var responsePeriod = String(response && (response.period || response.scope) || '').toLowerCase();
+    if (responsePeriod && responsePeriod !== period) throw new Error('Leaderboard period mismatch: ' + responsePeriod);
+    if (period === 'weekly' && entries.length && !entries.every(function (entry) {
+      return entry && (Object.prototype.hasOwnProperty.call(entry, 'weeklyRP') ||
+        Object.prototype.hasOwnProperty.call(entry, 'weeklyRankPoints') ||
+        Object.prototype.hasOwnProperty.call(entry, 'rankScore') ||
+        Object.prototype.hasOwnProperty.call(entry, 'score') ||
+        Object.prototype.hasOwnProperty.call(entry, 'boardPoints'));
+    })) throw new Error('Weekly RP fields missing in background refresh.');
+    var rows = normalizeRows(entries);
+    saveCache(rows, period);
+    if (selectedPeriod === period && !document.hidden) {
+      rawRows = entries.slice();
+      renderRows(rows);
+      setStatus('Leaderboard background sync complete.', false);
+    }
+    return true;
+  }
+
+  function preloadOtherLeaderboardPeriod() {
+    var other = selectedPeriod === 'weekly' ? 'monthly' : 'weekly';
+    refreshLeaderboardCacheForPeriod(other).catch(function (error) {
+      console.warn('[Leaderboard] Background ' + other + ' cache refresh failed:', error);
+    });
+  }
+
   async function loadLeaderboard(silent) {
     // Only an explicit refresh-button click should animate; tab changes and background syncs are silent.
     // If a silent refresh supersedes a manual refresh, release the old button state immediately.
@@ -3238,6 +3275,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   updateTopControls(currentProfile || app.profile || {});
   // Render saved leaderboard data immediately; online refresh runs independently.
   loadLeaderboard(true);
+  if (app.authStateResolved) {
+    Promise.resolve().then(function () {
+      if (app.authUser || getGuestToken()) return syncIdentity();
+      return null;
+    }).then(preloadOtherLeaderboardPeriod).catch(function (error) {
+      console.warn('[Leaderboard] Background startup preparation failed:', error);
+    });
+  }
   document.addEventListener('student-progress-updated', function () {
     updateTopControls(currentProfile || app.profile || {});
     if (navigator.onLine) syncDailyStreak();
@@ -3263,13 +3308,22 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   window.addEventListener('student-profile-loaded', function () { syncDailyStreak(); });
   window.addEventListener('student-auth-state-resolved', function () {
     selectedRank = '';
-    syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
+    loadLeaderboard(true);
+    syncIdentity().then(preloadOtherLeaderboardPeriod).catch(function (error) {
+      console.warn('[Leaderboard] Background identity/preload failed:', error);
+    });
   });
   window.addEventListener('student-profile-loaded', function () {
-    syncIdentity().then(function () { return loadLeaderboard(true); }).catch(function (error) { setStatus(apiErrorMessage(error), true); });
+    loadLeaderboard(true);
+    syncIdentity().then(preloadOtherLeaderboardPeriod).catch(function (error) {
+      console.warn('[Leaderboard] Background profile/preload failed:', error);
+    });
   });
   window.addEventListener('storage', function (event) {
-    if (event.key === PERIOD_KEY) {
+    if (event.key && event.key.indexOf(CACHE_KEY + '_v3_') === 0) {
+      delete leaderboardCacheMemory[event.key];
+      if (event.key === cacheKeyForPeriod(selectedPeriod)) loadLeaderboard(true);
+    } else if (event.key === PERIOD_KEY) {
       // An explicit selection made in another tab is allowed to sync here; a
       // same-tab refresh never re-reads stale localStorage over the active choice.
       selectedPeriod = normalizePeriod(event.newValue) || readPeriod();
