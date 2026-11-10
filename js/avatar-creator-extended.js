@@ -122,7 +122,26 @@
   };
   const pick = (list, seed, index) => list[(Math.abs(String(seed||'student').split('').reduce((h,ch)=>Math.imul(h^ch.charCodeAt(0),16777619),2166136261)+index)>>>0)%list.length][0];
   base.choices = Object.fromEntries(entries.map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
-  base.defaultConfig = seed => normalize({...defaults,hairStyle:pick(choices.hairStyle,seed,0),hairColor:pick(choices.hairColor,seed,1)});
+  base.defaultConfig = seed => {
+    const identity = String(seed || 'student-default');
+    const hatOptions = [['none',''],['hat',''],['winterHat1',''],['turban','']];
+    return normalize({
+      ...defaults,
+      skinTone:pick(choices.skinTone,identity,0),
+      eyeShape:pick(choices.eyeShape,identity,1),
+      eyebrowShape:pick(choices.eyebrowShape,identity,2),
+      expression:pick(choices.expression,identity,3),
+      hairStyle:pick(choices.hairStyle,identity,4),
+      hairColor:pick(choices.hairColor,identity,5),
+      hat:pick(hatOptions,identity,6),
+      hatColor:pick(choices.hatColor,identity,7),
+      clothingType:pick(choices.clothingType,identity,8),
+      clothingColor:pick(choices.clothingColor,identity,9),
+      headphonesType:pick(choices.headphonesType,identity,10),
+      petType:pick(choices.petType,identity,11),
+      background:pick(choices.background,identity,12)
+    });
+  };
   base.normalize = normalize;
   base.render = buildUrl;
   base.randomize = randomize;
