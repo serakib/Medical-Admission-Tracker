@@ -9,7 +9,7 @@
     .mat-profile-modal[hidden]{display:none!important}
     .mat-profile-modal{position:fixed;inset:0;z-index:100040;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
     .mat-profile-modal-card{position:relative;width:min(320px,100%);padding:24px;border-radius:16px;background:#1a1a24;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3)}
-    .mat-profile-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer}
+     .mat-profile-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#fff;cursor:pointer}.mat-profile-modal-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
     .mat-profile-modal h2{margin:0;padding:0 24px;text-align:center;font-size:19px;font-weight:850;line-height:1.5}
     .mat-profile-modal-actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
     .mat-profile-modal-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:12px;border:0;border-radius:8px;color:#fff;font-size:14px;font-weight:800;cursor:pointer}
@@ -36,7 +36,7 @@
       overlay.className = 'mat-profile-modal';
       overlay.hidden = true;
       overlay.innerHTML = '<section class="mat-profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="mat-profile-modal-title">' +
-        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন">×</button>' +
+        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
         '<h2 id="mat-profile-modal-title">আভাটার আপডেট</h2>' +
         '<div class="mat-profile-modal-actions">' +
           '<button type="button" class="mat-profile-modal-action mat-profile-modal-edit">আভাটার এডিট করো</button>' +
