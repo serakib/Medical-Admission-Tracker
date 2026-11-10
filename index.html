@@ -429,6 +429,13 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
 function syncSidebarAuthButton(){
   var button=document.getElementById('sidebar-account-settings-button');
   if(!button)return;
+  var app=window.app||{};
+  var hasGuest=!!(function(){try{return localStorage.getItem('med_sheet_guest_token_v1');}catch(_){return ''}})();
+  if(app.authStateResolved&&!app.authUser&&!hasGuest){
+    button.hidden=true;
+    return;
+  }
+  button.hidden=false;
   button.setAttribute('aria-label','Account settings');
   button.setAttribute('title','Account settings');
   button.innerHTML='<i class="fa-solid fa-gear" aria-hidden="true"></i>';
@@ -447,6 +454,24 @@ function syncSidebarUserProfile(){
   var user=app.authUser||null;
   syncSidebarAuthButton(user);
   var profile=app.profile||{};
+  var hasGuest=!!(function(){try{return localStorage.getItem('med_sheet_guest_token_v1');}catch(_){return ''}})();
+  var isVisitor=app.authStateResolved===true&&!user&&!hasGuest;
+  if(isVisitor){
+    if(nameEl){nameEl.textContent='Create Account';nameEl.style.color='';}
+    if(batchEl)batchEl.textContent='Continue as Guest or Sign Up';
+    if(avatarEl)avatarEl.innerHTML='<i class="fa-solid fa-user-plus" aria-hidden="true"></i>';
+    var trigger=document.getElementById('sidebar-user-trigger');
+    if(trigger){
+      trigger.setAttribute('aria-label','Create Account');
+      trigger.onclick=function(){if(window.MedVisitorAccess&&typeof window.MedVisitorAccess.open==='function')window.MedVisitorAccess.open();if(typeof window.closeAppSidebar==='function')window.closeAppSidebar();};
+    }
+    return;
+  }
+  var trigger=document.getElementById('sidebar-user-trigger');
+  if(trigger){
+    trigger.setAttribute('aria-label','Open Student Profile');
+    trigger.onclick=function(){if(window.app&&typeof window.app.openProfile==='function')window.app.openProfile();if(typeof window.closeAppSidebar==='function')window.closeAppSidebar();};
+  }
   var name=profile.name||(user&&(user.displayName||user.name))||(document.getElementById('profile-name')&&document.getElementById('profile-name').textContent.trim())||'Guest Student';
   if(nameEl){
     var hasGoldName=profile.isGoldName===true||profile.isAdmin===true;
@@ -2141,11 +2166,11 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=visitor-account-gate-20261110-3"></script>
+<script type="module" src="script.js?v=guest-logout-vault-20261110-1"></script>
 <script type="module" src="./js/integrated-features.js?v=account-preferences-dots-20261101-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=visitor-account-gate-20261110-3"></script>
+<script type="module" src="./js/global-league-system.js?v=cache-first-guest-vault-20261110-1"></script>
 <script type="module" src="./js/leaderboard-experience.js?v=profile-rp-cleanup-weekly-sidebar-20261101-1"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=daily-attempt-records-2" defer></script>
