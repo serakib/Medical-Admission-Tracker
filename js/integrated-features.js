@@ -1009,7 +1009,6 @@
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-save-feedback[data-state="error"]{color:#b91c1c}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-reset{background:rgba(255,255,255,.9)!important;color:#111827!important;border:1px solid #d1d5db!important}
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-preview-caption{background:rgba(255,255,255,.88)!important;color:#374151!important}
-    @media(prefers-reduced-motion:reduce){#mat-avatar-save-toast{transition:none!important}}
 
 
     .mat-avatar-actions .profile-avatar-confirm-button[aria-busy="true"]{opacity:.96;cursor:wait}
@@ -1135,6 +1134,32 @@
       position:absolute!important;left:auto!important;right:1.5%!important;bottom:1.5%!important;
       width:19%!important;height:19%!important;z-index:3!important;
     }
+
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option{
+      background:#3b3b3b!important;border-color:#777!important;color:#f8fafc!important;
+    }
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{
+      background:#3b3b3b!important;border-color:#10b981!important;
+    }
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{
+      color:#f8fafc!important;
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option{
+      background:#f1f5f9!important;border-color:#cbd5e1!important;color:#111827!important;
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{
+      background:#ecfdf5!important;border-color:#10b981!important;
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{
+      color:#111827!important;
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch){
+      background:transparent!important;border-color:#cbd5e1!important;
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{
+      border-color:#059669!important;
+    }
+
     /* Every colour, including beard colour, is a visible square swatch rather than an empty black tile. */
     #profile-avatar-picker.is-expanded .mat-avatar-option-grid:has(.mat-avatar-swatch){
       display:flex!important;flex-wrap:wrap!important;gap:7px!important;
@@ -1472,6 +1497,8 @@
         } else {
           const thumbnailInput = Object.assign({}, config, { [field.key]: option.value });
           if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
+          if (field.key !== 'petType') thumbnailInput.petType = 'none';
+          if (field.key !== 'headphonesType') thumbnailInput.headphonesType = 'none';
           const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
           const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
           visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
