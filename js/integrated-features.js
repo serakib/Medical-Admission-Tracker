@@ -1357,9 +1357,8 @@
       panel.classList.remove('mat-avatar-focus-zoom');
       void panel.offsetWidth;
       panel.classList.add('mat-avatar-focus-zoom');
-      panel.addEventListener('animationend', event => {
-        if (event.target === panel) panel.classList.remove('mat-avatar-focus-zoom');
-      }, {once:true});
+      const focusImage = panel.querySelector('.profile-avatar-preview-stack .med-avatar-base');
+      focusImage?.addEventListener('animationend', () => panel.classList.remove('mat-avatar-focus-zoom'), {once:true});
     }
   }
   function refreshAvatarViews() {
