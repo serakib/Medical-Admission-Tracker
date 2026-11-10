@@ -1025,12 +1025,19 @@
   function renderAvatarPicker() {
     const root = document.getElementById('view-profile');
     if (!root) return;
-    let picker = root.querySelector('#profile-avatar-picker');
+    let picker = document.getElementById('profile-avatar-picker');
     if (!picker) {
       picker = document.createElement('div');
       picker.id = 'profile-avatar-picker';
       picker.className = 'profile-avatar-picker';
       picker.setAttribute('aria-label', 'Avatar customizer');
+      const hero = root.querySelector('.profile-hero');
+      if (hero) hero.insertAdjacentElement('afterend', picker);
+      else root.prepend(picker);
+    }
+    if (avatarPickerExpanded && picker.parentNode !== document.body) {
+      document.body.appendChild(picker);
+    } else if (!avatarPickerExpanded && picker.parentNode === document.body) {
       const hero = root.querySelector('.profile-hero');
       if (hero) hero.insertAdjacentElement('afterend', picker);
       else root.prepend(picker);
