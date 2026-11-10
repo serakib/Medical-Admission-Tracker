@@ -773,6 +773,66 @@
     }
     @media(prefers-reduced-motion:reduce){#profile-avatar-picker.is-expanded{animation:none!important}}
   `;
+
+  avatarCustomizerStyle.textContent += `
+    #profile-avatar-picker.is-expanded{padding:24px 3.2vw!important;gap:18px!important}
+    #profile-avatar-picker.is-expanded .profile-avatar-builder-header{max-width:1440px;flex-basis:42px}
+    .mat-avatar-workspace{grid-template-columns:minmax(300px,390px) minmax(0,756px);gap:26px;max-width:1172px}
+    .mat-avatar-preview-panel{min-height:0;aspect-ratio:0.82;max-height:min(70vh,540px);align-self:start;justify-content:center;padding:0;background:#a5a8ff;border-radius:30px;overflow:hidden}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{width:100%;height:100%;max-width:none;aspect-ratio:auto;margin:0;border-radius:0;overflow:hidden}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-base{width:100%;height:100%;object-fit:cover}
+    .mat-avatar-preview-panel .mat-avatar-reset{z-index:3;top:14px;right:14px;border:0;border-radius:20px;background:rgba(24,27,70,.72);color:#fff}
+    .mat-avatar-preview-caption{position:absolute;left:14px;bottom:12px;margin:0;padding:5px 9px;border-radius:8px;background:rgba(24,27,70,.5);color:#fff}
+    .mat-avatar-controls{padding:0;border:1px solid #77777b;border-radius:30px;background:#121212}
+    .mat-avatar-category-bar{height:74px;flex:0 0 74px;align-items:stretch;justify-content:space-around;gap:0;margin:0;padding:0 8px;border-bottom:1px solid #77777b;border-radius:30px 30px 0 0;background:#171717;scrollbar-width:none}
+    .mat-avatar-category-bar::-webkit-scrollbar{display:none}
+    .mat-avatar-category{position:relative;display:grid;place-items:center;min-width:54px;min-height:72px;flex:1 0 54px;padding:8px 10px;border:0;border-bottom:4px solid transparent;border-radius:0;background:transparent;color:#777;font-size:0}
+    .mat-avatar-category svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mat-avatar-category.is-active{border-bottom-color:#10b981;color:#10b981}
+    .mat-avatar-category:hover{color:#d1d5db}
+    .mat-avatar-category.is-active:hover{color:#10b981}
+    .mat-avatar-options-scroll{gap:24px;padding:22px 20px 18px;scrollbar-width:thin;scrollbar-color:#343443 transparent}
+    .mat-avatar-option-section h3{margin-bottom:12px;font-size:14px}
+    .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .mat-avatar-option{min-height:56px;border:2px solid #777;border-radius:15px;background:#393939;color:#f4f4f5;font-size:12px}
+    .mat-avatar-option.is-selected{border:2px solid #10b981;background:#393939;box-shadow:0 0 0 1px #10b98122}
+    .mat-avatar-option:has(.mat-avatar-swatch){width:52px;min-width:52px;height:52px;min-height:52px;padding:0;border:0;border-radius:11px;background:transparent;box-shadow:none}
+    .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:11px;background:var(--swatch)}
+    .mat-avatar-option:has(.mat-avatar-swatch) span:not(.mat-avatar-swatch){display:none}
+    .mat-avatar-option:has(.mat-avatar-swatch).is-selected{border:2px solid #10b981;padding:2px}
+    .mat-avatar-option:has(.mat-avatar-swatch).is-selected .mat-avatar-swatch{border-radius:8px}
+    .mat-avatar-actions{margin:0;padding:13px 16px;border-top:1px solid #777}
+    .mat-avatar-actions .profile-avatar-confirm-button{min-height:54px;border-radius:15px;background:#16a34a;box-shadow:0 4px 0 #087c36;font-size:16px}
+    .mat-avatar-actions .profile-avatar-confirm-button:active{transform:translateY(2px);box-shadow:0 2px 0 #087c36}
+    .mat-avatar-option:hover,.mat-avatar-category:hover{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+    .mat-avatar-option:hover{transform:scale(1.025);border-color:#10b981}
+    @media(max-width:760px){
+      #profile-avatar-picker.is-expanded{padding:12px!important;gap:10px!important}
+      .mat-avatar-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(120px,22vh) minmax(0,1fr);gap:10px}
+      .mat-avatar-preview-panel{width:100%;max-height:none;aspect-ratio:auto;min-height:0;border-radius:18px}
+      .mat-avatar-preview-panel .profile-avatar-preview-stack{width:auto;height:100%;max-width:100%;aspect-ratio:1;margin:0 auto}
+      .mat-avatar-preview-panel .mat-avatar-preview-stack .med-avatar-base{width:100%;height:100%;object-fit:contain}
+      .mat-avatar-reset{top:8px!important;right:8px!important}
+      .mat-avatar-controls{border-radius:20px}
+      .mat-avatar-category-bar{height:60px;flex-basis:60px;border-radius:20px 20px 0 0;justify-content:flex-start;overflow-x:auto}
+      .mat-avatar-category{min-width:48px;min-height:58px;flex-basis:48px;padding:7px}
+      .mat-avatar-category svg{width:22px;height:22px}
+      .mat-avatar-options-scroll{padding:14px 12px;gap:18px}
+      .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .mat-avatar-option{min-height:48px;padding:6px}
+      .mat-avatar-option:has(.mat-avatar-swatch){width:44px;min-width:44px;height:44px;min-height:44px}
+      .mat-avatar-actions{padding:9px 10px}
+      .mat-avatar-actions .profile-avatar-confirm-button{min-height:46px}
+    }
+    @media(max-height:560px) and (max-width:760px){
+      .mat-avatar-workspace{grid-template-rows:92px minmax(0,1fr)}
+      .mat-avatar-preview-panel .profile-avatar-preview-stack{width:90px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-option,.mat-avatar-category,.mat-avatar-actions .profile-avatar-confirm-button{transition:none!important}
+      .mat-avatar-option:hover{transform:none}
+    }
+  `;
   document.head.appendChild(avatarCustomizerStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
@@ -1057,15 +1117,25 @@
       avatar.setAttribute('aria-label', 'Current profile avatar');
     }
 
+    const avatarCategoryIcons = {
+      body:'<circle cx="12" cy="7" r="3.2"/><path d="M5 21v-2.2a7 7 0 0 1 14 0V21M8 12l-2 2m10-2 2 2"/>',
+      eyes:'<path d="M2.5 12s3.4-5 9.5-5 9.5 5 9.5 5-3.4 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.2"/>',
+      mouth:'<path d="M4 14c2.2 4 13.8 4 16 0"/><path d="M6 12h12"/>',
+      hair:'<path d="M4 13a8 8 0 0 1 16 0v2H4zM4 12c0-5 3-8 8-8s8 3 8 8M8 5l-2-2m10 2 2-2"/>',
+      beard:'<path d="M5 9c0 7 3 12 7 12s7-5 7-12M5 9l-2-3m16 3 2-3M8 14l4 3 4-3"/>',
+      glasses:'<path d="M2 10h3l1 7h5l2-5h-2l2 5h5l1-7h3M11 12h2"/>',
+      clothes:'<path d="m8 4 4 2 4-2 5 4-3 4-2-2v10H8V10l-2 2-3-4z"/>',
+      pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>'
+    };
     const groups = [
-      {key:'body',title:'Body',icon:'fa-user',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
-      {key:'eyes',title:'Eyes',icon:'fa-eye',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
-      {key:'mouth',title:'Mouth',icon:'fa-face-smile',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
-      {key:'hair',title:'Hair',icon:'fa-scissors',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
-      {key:'beard',title:'Beard',icon:'fa-user-tie',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
-      {key:'glasses',title:'Glasses',icon:'fa-glasses',fields:[{key:'glasses',title:'চশমা'}]},
-      {key:'clothes',title:'Clothes',icon:'fa-shirt',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'জামার রঙ'}]},
-      {key:'pets',title:'Pets',icon:'fa-paw',fields:[{key:'headphonesType',title:'অ্যাক্সেসরি'},{key:'petType',title:'Pets আকার'}]}
+      {key:'body',title:'Body',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'}]},
+      {key:'eyes',title:'Eyes',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
+      {key:'mouth',title:'Mouth',icon:'mouth',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
+      {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
+      {key:'beard',title:'Beard',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
+      {key:'glasses',title:'Glasses',icon:'glasses',fields:[{key:'glasses',title:'চশমা'}]},
+      {key:'clothes',title:'Clothes',icon:'clothes',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'জামার রঙ'}]},
+      {key:'pets',title:'Pets',icon:'pets',fields:[{key:'headphonesType',title:'অ্যাক্সেসরি'},{key:'petType',title:'Pets আকার'}]}
     ];
     const config = pendingAvatarConfig || readAvatarConfig();
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
@@ -1096,7 +1166,7 @@
             window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') +
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
-            groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><i class="fa-solid ' + group.icon + '" aria-hidden="true"></i><span>' + group.title + '</span></button>').join('') +
+            groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" title="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
           '</nav><div class="mat-avatar-options-scroll">' + activeGroup.fields.map(fieldMarkup).join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button></div></section>' +
         '</div>'
