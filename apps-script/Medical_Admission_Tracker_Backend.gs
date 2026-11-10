@@ -3431,28 +3431,34 @@ function matAdminSetUnlimitedEnabled_(p){
  const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
  if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change this setting.');
  const enabled=p.enabled===true||String(p.enabled).toLowerCase()==='true';
- PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',enabled?'TRUE':'FALSE');
- return {success:true,verified:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};
+ const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
+ try{
+  PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',enabled?'TRUE':'FALSE');
+  const verified=matScriptProperty_('MAT_PROMO_FIXED_ENABLED')===(enabled?'TRUE':'FALSE');
+  if(!verified)throw new Error('Admin-only Promo Code status save verification failed.');
+  return {success:true,verified:true,enabled:verified&&enabled};
+ }finally{lock.releaseLock();}
 }
 function matAdminSaveFixedPromoCode_(p){
  const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
  if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change the Admin-only Promo Code settings.');
  const code=String(p.code||'').trim().toUpperCase();
- if(code.length<3||code.length>80||/^DAILY \d{2}-\d{2}-\d{4}$/.test(code)||/^WEEK \d{2} [A-Z]{3} - \d{2} [A-Z]{3}$/.test(code))throw new Error('Admin-only Promo Code must be 3–80 characters and cannot use a reserved Daily/Weekly format.');
+ if(code.length<3||code.length>80||/^DAILY \\d{2}-\\d{2}-\\d{4}$/.test(code)||/^WEEK \\d{2} [A-Z]{3} - \\d{2} [A-Z]{3}$/.test(code))throw new Error('Admin-only Promo Code must be 3–80 characters and cannot use a reserved Daily/Weekly format.');
  const reward=matSafeNonNegativeInt_(p.rewardPB,'Master Admin Reward PB');
  const limit=matSafeNonNegativeInt_(p.limitCount,'Master Admin redemption limit');
- const period=matPromoNormalizePeriod_(p.limitPeriod);
+ const rawPeriod=String(p.limitPeriod||'').trim().toUpperCase();
+ if(['DAILY','WEEKLY','MONTHLY','UNLIMITED'].indexOf(rawPeriod)<0)throw new Error('Choose a valid redemption limit period.');
+ const period=rawPeriod;
  const enabled=p.enabled===false||String(p.enabled).toLowerCase()==='false'?'FALSE':'TRUE';
- const props=PropertiesService.getScriptProperties();
- props.setProperties({MAT_PROMO_FIXED_CODE:code,MAT_PROMO_FIXED_REWARD_PB:String(reward),MAT_PROMO_FIXED_LIMIT_COUNT:String(limit),MAT_PROMO_FIXED_LIMIT_PERIOD:period,MAT_PROMO_FIXED_ENABLED:enabled},false);
- const verified=matScriptProperty_('MAT_PROMO_FIXED_CODE')===code&&Number(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB'))===reward&&Number(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT'))===limit&&matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD'))===period&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')===enabled;
- if(!verified)throw new Error('Master Promo Settings save verification failed.');
- return {success:true,verified:true,code:code,rewardPB:reward,limitCount:limit,limitPeriod:period,enabled:enabled==='TRUE'};
+ const lock=LockService.getScriptLock();lock.waitLock(MAT_LOCK_WAIT_MS);
+ try{
+  const props=PropertiesService.getScriptProperties();
+  props.setProperties({MAT_PROMO_FIXED_CODE:code,MAT_PROMO_FIXED_REWARD_PB:String(reward),MAT_PROMO_FIXED_LIMIT_COUNT:String(limit),MAT_PROMO_FIXED_LIMIT_PERIOD:period,MAT_PROMO_FIXED_ENABLED:enabled},false);
+  const verified=matScriptProperty_('MAT_PROMO_FIXED_CODE')===code&&Number(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB'))===reward&&Number(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT'))===limit&&matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD'))===period&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')===enabled;
+  if(!verified)throw new Error('Master Promo Settings save verification failed.');
+  return {success:true,verified:true,code:code,rewardPB:reward,limitCount:limit,limitPeriod:period,enabled:enabled==='TRUE'};
+ }finally{lock.releaseLock();}
 }
-
-
-/* --------------------- Configurable global/member promo codes --------------------- */
-// Global values are defaults. A member row overrides only the fields it explicitly sets.
 function matPromoConfigSheets_() {
   const ss = SpreadsheetApp.openById(MAT_CONFIG.PROFILE_SPREADSHEET_ID);
   function ensure(name, headers) {
@@ -3518,10 +3524,19 @@ function matPromoAdminMemberConfig_(row, code) {
   return {code:String(code || row.AdminCode || '').trim().toUpperCase(),enabled:String(row.AdminEnabled || 'TRUE').toUpperCase() !== 'FALSE',rewardPB:reward,limitCount:count,limitPeriod:period};
 }
 function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
-  // A configured member/global limit applies across all Promo Code types for that member.
-  return rows.filter(r => String(r.UserID) === String(userId) &&
-    String(r.LimitPeriod || 'UNLIMITED').toUpperCase() === period &&
-    String(r.LimitWindow || 'ALL') === windowKey).length;
+  // Count every redemption by this member in the active window. Derive the window
+  // from RedeemedAt so older ledger rows (created before LimitPeriod/LimitWindow
+  // columns existed) are included when a limit is configured later.
+  return rows.filter(function (row) {
+    if (String(row.UserID || '').trim() !== String(userId || '').trim()) return false;
+    const redeemedAt = row.RedeemedAt ? new Date(row.RedeemedAt) : null;
+    if (redeemedAt && !isNaN(redeemedAt.getTime())) {
+      return matPromoWindowKey_(period, redeemedAt) === windowKey;
+    }
+    // Backward-compatible fallback for ledger rows without a usable timestamp.
+    return String(row.LimitPeriod || 'UNLIMITED').toUpperCase() === period &&
+      String(row.LimitWindow || 'ALL') === windowKey;
+  }).length;
 }
 function matAdminGetPromoConfig_(p) {
   const actor = matPromoRequireAdmin_(p), all = matPromoReadConfig_();
