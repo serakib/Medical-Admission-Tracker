@@ -1263,12 +1263,26 @@
     body.mat-avatar-customizer-open{
       overflow-anchor:none!important;overscroll-behavior:none!important;
     }
+    /* One continuous vertical scroll region: the options pane only. */
     #profile-avatar-picker.is-expanded,
     #profile-avatar-picker.is-expanded .mat-avatar-workspace,
     #profile-avatar-picker.is-expanded .mat-avatar-preview-panel,
-    #profile-avatar-picker.is-expanded .mat-avatar-controls,
+    #profile-avatar-picker.is-expanded .mat-avatar-controls{
+      overflow:hidden!important;overflow-anchor:none!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category-bar{
+      flex:0 0 auto!important;overflow-x:auto!important;overflow-y:hidden!important;
+    }
     #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{
-      overflow-anchor:none!important;scroll-behavior:auto!important;
+      display:block!important;flex:1 1 0%!important;min-height:0!important;min-width:0!important;
+      max-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;
+      overscroll-behavior-y:contain!important;overflow-anchor:none!important;
+      scroll-behavior:smooth!important;touch-action:pan-y!important;
+      scrollbar-width:thin;scrollbar-gutter:stable;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-group-section,
+    #profile-avatar-picker.is-expanded .mat-avatar-option-section{
+      overflow:visible!important;
     }
   `;
   document.head.appendChild(avatarBuilderFinalStyle);
