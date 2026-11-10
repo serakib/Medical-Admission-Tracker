@@ -1072,6 +1072,8 @@
       const part = avatarPart.dataset.avatarPart;
       const value = avatarPart.dataset.avatarValue;
       const next = Object.assign({}, pendingAvatarConfig || readAvatarConfig(), { [part]: value });
+      if (part === 'hairStyle') next.hat = 'none';
+      if (part === 'hat' && value !== 'none') next.hairStyle = next.hairStyle || 'shortFlat';
       pendingAvatarConfig = window.MedAvatarCreator.normalize(next);
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
       renderAvatarPicker();
