@@ -178,7 +178,7 @@
   function wrapSvgChildren(parent, className, doc) {
     if (!parent) return null;
     const existing = Array.from(parent.children).find(child =>
-      child.namespaceURI === svgNs && String(child.getAttribute('class') || '').split(/\\s+/).includes(className)
+      child.namespaceURI === svgNs && String(child.getAttribute('class') || '').split(/\s+/).includes(className)
     );
     if (existing) return existing;
     const wrapper = doc.createElementNS(svgNs, 'g');
@@ -257,7 +257,7 @@
     const image = stack.querySelector('img.med-avatar-base');
     if (!image) return !!stack.querySelector('svg.med-avatar-inline-svg');
     const source = String(image.currentSrc || image.src || '');
-    if (!/^https:\\/\\/api\\.dicebear\\.com\\/10\\.x\\/avataaars\\/svg\\?/i.test(source)) return false;
+    if (!source.startsWith('https://api.dicebear.com/10.x/avataaars/svg?')) return false;
     if (stack.dataset.matFaceMotionSource === source && stack.querySelector('svg.med-avatar-inline-svg')) return true;
     if (stack.dataset.matFaceMotionPending === source) return false;
     stack.dataset.matFaceMotionPending = source;
