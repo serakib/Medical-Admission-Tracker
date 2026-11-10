@@ -1,6 +1,9 @@
 name: Feature request
 description: Suggest an improvement or a new student-facing feature.
 title: "[Feature]: "
+labels:
+  - "type: feature"
+  - "status: needs-triage"
 body:
   - type: markdown
     attributes:
