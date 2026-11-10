@@ -860,7 +860,11 @@
       .mat-avatar-option:has(.mat-avatar-swatch){width:42px;min-width:42px;height:42px;min-height:42px}
       .mat-avatar-options-scroll{padding-bottom:18px}
     }
-    .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+    .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;opacity:0;transition:opacity .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+    #sidebar-user-avatar{position:relative}
+    .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{position:absolute;right:-2px;bottom:-2px;z-index:20;display:grid;place-items:center;width:20px;height:20px;padding:0;border:2px solid #0a1220;border-radius:50%;background:#10b981;color:#052e20;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28)}
+    .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    html[data-theme="light"] .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{border-color:#fff}
     .mat-avatar-live-layer.is-visible{opacity:1}
     .mat-avatar-live-layer>img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
     .mat-avatar-live-layer .med-avatar-stack{width:100%;height:100%;border-radius:inherit}
@@ -1233,9 +1237,23 @@
   function installAvatarLiveTransitions() {
     const user = app.authUser || null;
     const gmailPhoto = user ? readGoogleAvatar() : '';
+    const hasGuestSession = (() => { try { return !!localStorage.getItem('med_sheet_guest_token_v1') && !localStorage.getItem('med_guest_session_expired_v1'); } catch (_) { return false; } })();
     const targets = Array.from(document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar,#sidebar-user-avatar'));
     targets.forEach(element => {
       element.classList.add('mat-avatar-living');
+      if (element.id === 'sidebar-user-avatar' && (user || hasGuestSession)) {
+        const wrapper = element.parentElement;
+        if (wrapper && !wrapper.querySelector('.mat-sidebar-avatar-edit')) {
+          wrapper.style.position = 'relative';
+          const edit = document.createElement('button');
+          edit.type = 'button';
+          edit.className = 'mat-sidebar-avatar-edit';
+          edit.setAttribute('aria-label','আভাটার এডিট');
+          edit.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+          edit.addEventListener('click',event => { event.preventDefault(); event.stopPropagation(); window.MedAvatarProfileModal?.open(); });
+          wrapper.appendChild(edit);
+        }
+      }
       if (!user || !gmailPhoto) {
         element.querySelectorAll('.mat-avatar-live-layer').forEach(layer => layer.remove());
         element.dataset.matAvatarMotionKey = '';
@@ -1252,7 +1270,7 @@
       if (!customSource || customSource === gmailPhoto) customSource = window.MedAvatarCreator.render(readAvatarConfig());
       const key = gmailPhoto + '|' + customSource;
       if (element.dataset.matAvatarMotionKey === key && element.querySelector('.mat-avatar-live-layer')) return;
-      element.querySelectorAll('.mat-avatar-live-layer,.mat-sidebar-avatar-edit').forEach(node => node.remove());
+      element.querySelectorAll('.mat-avatar-live-layer').forEach(node => node.remove());
       element.dataset.matAvatarMotionKey = key;
       const customLayer = document.createElement('span');
       customLayer.className = 'mat-avatar-live-layer is-visible';
@@ -1287,19 +1305,6 @@
       if (!element.dataset.matAvatarHoverBound) {
         element.dataset.matAvatarHoverBound = '1';
         element.addEventListener('pointerenter', () => element._matAvatarSwitchState?.());
-      }
-      if (element.id === 'sidebar-user-avatar' && !element.querySelector('.mat-sidebar-avatar-edit')) {
-        const edit = document.createElement('button');
-        edit.type = 'button';
-        edit.className = 'mat-sidebar-avatar-edit';
-        edit.setAttribute('aria-label','আভাটার এডিট');
-        edit.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
-        edit.addEventListener('click',event => {
-          event.preventDefault();
-          event.stopPropagation();
-          window.MedAvatarProfileModal?.open();
-        });
-        element.appendChild(edit);
       }
     });
   }
@@ -1347,7 +1352,8 @@
       });
       if (target) {
         const scroller = controls.querySelector('.mat-avatar-options-scroll');
-        scroller.scrollTo({ top: Math.max(0, target.offsetTop - scroller.offsetTop - 8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        const destination = target.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 8;
+        scroller.scrollTo({ top: Math.max(0, destination), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       }
       return;
     }
