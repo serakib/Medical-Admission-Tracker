@@ -973,6 +973,29 @@
       .mat-avatar-transition-old,.mat-avatar-transition-new,.mat-avatar-focus-zoom .profile-avatar-preview-stack .med-avatar-base{animation:none!important}
     }
   `;
+
+  avatarCustomizerStyle.textContent += `
+    /* Reference finish: clear full-face preview cards and genuinely subtle idle motion. */
+    .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+    .mat-avatar-option{min-height:0!important;aspect-ratio:1!important;padding:5px!important;border:2px solid #777!important;border-radius:16px!important;background:#3b3b3b!important}
+    .mat-avatar-option.is-selected{border:2px solid #10b981!important;background:#3b3b3b!important;box-shadow:0 0 0 1px rgba(16,185,129,.2)!important}
+    .mat-avatar-option-preview-stack{width:100%!important;height:100%!important;border-radius:11px!important;background:#3b3b3b!important}
+    .mat-avatar-option-preview-stack .med-avatar-base,.mat-avatar-option-preview-stack .med-avatar-inline-svg{width:100%!important;height:100%!important;object-fit:contain!important}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{transform-origin:50% 55%;animation:matAvatarNaturalIdle 5.8s ease-in-out infinite!important}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:matAvatarPetFloat 3.8s ease-in-out infinite}
+    .med-avatar-inline-svg{display:block;overflow:visible}
+    @keyframes matAvatarNaturalIdle{0%,100%{transform:translateY(0) rotate(0) scale(1)}42%{transform:translateY(-1.6px) rotate(-.18deg) scale(1.004)}76%{transform:translateY(-.5px) rotate(.12deg) scale(1.002)}}
+    @keyframes matAvatarBreath{0%,100%{transform:translateY(0) scale(1)}48%{transform:translateY(-1px) scale(1.005)}}
+    @media(max-width:760px){
+      .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+      .mat-avatar-option{border-radius:13px!important}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-preview-panel .profile-avatar-preview-stack,.mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet,
+      .profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living{animation:none!important}
+    }
+  `;
+
   document.head.appendChild(avatarCustomizerStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
@@ -1224,6 +1247,15 @@
       image.src = objectUrl;
     });
   }
+
+  function hydrateLivingAvatarFaces(scope = document) {
+    const hydrate = window.MedAvatarCreator?.hydrateLivingFace;
+    if (typeof hydrate !== 'function' || !scope?.querySelectorAll) return;
+    scope.querySelectorAll('.profile-avatar-stack,.profile-avatar-preview-stack,.account-avatar-stack').forEach(stack => {
+      hydrate(stack).catch(error => console.warn('[Avatar motion] Face hydration skipped:', error));
+    });
+  }
+
   function renderAvatarPicker() {
     const root = document.getElementById('view-profile');
     if (!root) return;
@@ -1262,6 +1294,7 @@
     if (avatar) {
       avatar.innerHTML = window.MedAvatarCreator.renderLayersMarkup(current, currentConfig, 'profile-avatar-stack');
       avatar.setAttribute('aria-label', 'Current profile avatar');
+      hydrateLivingAvatarFaces(avatar);
     }
 
     const avatarCategoryIcons = {
@@ -1326,6 +1359,7 @@
     picker.innerHTML = builderMarkup +
       (pendingUpload ? '<button type="button" id="profile-avatar-confirm" hidden>Confirm uploaded avatar</button>' : '') +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
+    hydrateLivingAvatarFaces(picker);
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
     if (avatarPickerExpanded) {
       const scroller = picker.querySelector('.mat-avatar-options-scroll');
@@ -1448,6 +1482,7 @@
       };
       element._matAvatarSwitchState = switchState;
     });
+    hydrateLivingAvatarFaces(document);
   }
   let avatarTransitionTimer = 0;
   function startAvatarTransitionCycle() {
