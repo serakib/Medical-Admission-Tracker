@@ -975,6 +975,18 @@
   `;
 
   avatarCustomizerStyle.textContent += `
+    /* Keep the app sidebar and its bottom profile card visible beside the desktop builder. */
+    #profile-avatar-picker.is-expanded{
+      left:var(--sidebar-width,264px)!important;
+      width:calc(100vw - var(--sidebar-width,264px))!important;
+      min-width:0!important;
+    }
+    body.sidebar-collapsed #profile-avatar-picker.is-expanded{
+      left:70px!important;width:calc(100vw - 70px)!important;
+    }
+    @media(max-width:767px){
+      #profile-avatar-picker.is-expanded{left:0!important;width:100vw!important}
+    }
     /* Reference finish: clear full-face preview cards and genuinely subtle idle motion. */
     .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
     .mat-avatar-option{min-height:0!important;aspect-ratio:1!important;padding:5px!important;border:2px solid #777!important;border-radius:16px!important;background:#3b3b3b!important}
