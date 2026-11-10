@@ -763,6 +763,12 @@
       const saved = JSON.parse(localStorage.getItem(avatarConfigKey()) || 'null');
       if (saved && typeof saved === 'object') return window.MedAvatarCreator.normalize(saved);
     } catch (_) {}
+    const sharedConfig = window.MedAvatarCreator.configFromAvatar(app.profile?.avatar);
+    if (sharedConfig) return sharedConfig;
+    try {
+      const localConfig = window.MedAvatarCreator.configFromAvatar(localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()));
+      if (localConfig) return localConfig;
+    } catch (_) {}
     return window.MedAvatarCreator.defaultConfig(avatarAccountId());
   };
   const isUploadedAvatarSource = value => {
