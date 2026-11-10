@@ -21,13 +21,14 @@
     clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার']],
     clothingColor: [['2563eb','নীল'],['7c3aed','বেগুনি'],['dc2626','লাল'],['333344','ডার্ক গ্রে'],['10b981','সবুজ'],['f8fafc','সাদা']],
     headphonesType: [['none','নেই'],['headphones','হেডফোন']],
-    petType: [['none','নেই'],['chick','ছোট ছানা'],['cat','বিড়াল'],['bear','সাদা ভালুক']]
+    petType: [['none','নেই'],['chick','ছোট ছানা'],['cat','বিড়াল'],['bear','সাদা ভালুক']],
+    background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
     skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'hat', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
-    headphonesType:'headphones', petType:'chick', background:'121218'
+    headphonesType:'headphones', petType:'chick', background:'a5a8ff'
   };
   const entries = Object.entries(choices);
   const normalize = input => {
