@@ -454,7 +454,7 @@ function syncSidebarUserProfile(){
   var user=app.authUser||null;
   syncSidebarAuthButton(user);
   var profile=app.profile||{};
-  var hasGuest=!!(function(){try{return localStorage.getItem('med_sheet_guest_token_v1');}catch(_){return ''}})();
+  var hasGuest=!!(function(){try{return localStorage.getItem('med_sheet_guest_token_v1')&&!localStorage.getItem('med_guest_session_expired_v1');}catch(_){return ''}})();
   var isVisitor=app.authStateResolved===true&&!user&&!hasGuest;
   if(isVisitor){
     if(nameEl){nameEl.textContent='Create Account';nameEl.style.color='';}
@@ -2167,7 +2167,7 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
 <script type="module" src="script.js?v=guest-logout-vault-20261110-1"></script>
-<script type="module" src="./js/integrated-features.js?v=account-preferences-dots-20261101-1"></script>
+<script type="module" src="./js/integrated-features.js?v=guest-logout-20261110-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
 <script type="module" src="./js/global-league-system.js?v=cache-first-guest-vault-20261110-1"></script>
