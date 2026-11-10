@@ -23,70 +23,17 @@
     const questionText = q => q && (q.question_bn || q.question || q.questionText || q.question_en) || 'Question text unavailable';
     const answerText = (q, index) => q && Array.isArray(q.options) && q.options[index] != null ? q.options[index] : String(index == null ? '—' : index);
     const explanationText = q => q && (q.explanation_bn || q.explanationBn || q.explanation || q.explanation_en || q.solution || q.answerExplanation || q.rationale) || '';
-    let filter = 'all';
-    const selected = new Set();
-    function renderHistory() {
-      const view = document.getElementById('view-practice');
-      if (!view) return;
-      let panel = document.getElementById('practice-attempt-history');
-      if (!panel) {
-        panel = document.createElement('section');
-        panel.id = 'practice-attempt-history';
-        panel.className = 'practice-attempt-history';
-        const existing = document.getElementById('enhanced-review-history') || document.getElementById('practice-browser') || view;
-        existing.insertAdjacentElement('afterend', panel);
-      }
-      const history = safeRead();
-      const entries = Object.values(history).filter(entry => entry && entry.attempted === true);
-      const filtered = entries.filter(entry => filter === 'all' || (filter === 'correct' ? entry.correct : !entry.correct));
-      const selectedVisible = filtered.length > 0 && filtered.every(entry => selected.has(entry.key));
-      panel.innerHTML = '<h3>Practice History <span class="practice-history-total">(' + entries.length + ' unique attempted questions)</span></h3>' +
-        '<p class="text-sm opacity-75">শুধু উত্তর দেওয়া প্রশ্ন সংরক্ষণ করা হয়। Skipped প্রশ্ন এখানে দেখানো হয় না।</p>' +
-        '<div class="practice-history-toolbar" role="group" aria-label="Practice history filters">' +
-        '<button type="button" data-practice-history-filter="all" class="' + (filter === 'all' ? 'active' : '') + '">All (' + entries.length + ')</button>' +
-        '<button type="button" data-practice-history-filter="correct" class="' + (filter === 'correct' ? 'active' : '') + '">Correct (' + entries.filter(e => e.correct).length + ')</button>' +
-        '<button type="button" data-practice-history-filter="wrong" class="' + (filter === 'wrong' ? 'active' : '') + '">Wrong (' + entries.filter(e => !e.correct).length + ')</button>' +
-        '<button type="button" id="practice-history-select-all">' + (selectedVisible ? 'Unselect All' : 'Select All') + '</button>' +
-        '<button type="button" id="practice-history-repractice" ' + (selected.size ? '' : 'disabled') + '>Practice Selected (' + selected.size + ')</button>' +
-        '<button type="button" id="practice-history-clear" ' + (entries.length ? '' : 'disabled') + '>Clear History</button></div>' +
-        '<div class="practice-history-list">' + (filtered.length ? filtered.slice().sort((a,b) => Number(b.updatedAt||0)-Number(a.updatedAt||0)).map(entry =>
-          '<article class="practice-history-card"><div class="practice-history-meta"><label><input type="checkbox" data-practice-history-key="' + esc(entry.key) + '" ' + (selected.has(entry.key) ? 'checked' : '') + '> Select</label><span>' + esc(entry.subject || 'Medical') + ' · ' + (entry.correct ? 'Correct' : 'Wrong') + ' · ' + Number(entry.attempts || 1) + ' attempt(s)</span></div>' +
-          '<h4>' + esc(questionText(entry.question)) + '</h4>' +
-          (Array.isArray(entry.question && entry.question.options) && entry.question.options.length ? '<div class="practice-history-options"><strong>Options:</strong><ol>' + entry.question.options.map((option, optionIndex) => '<li class="' + (optionIndex === Number(entry.correctAnswerIndex) ? 'is-correct-option ' : '') + (optionIndex === Number(entry.userAnswerIndex) ? 'is-selected-option' : '') + '"><span class="practice-history-option-letter">' + String.fromCharCode(65 + optionIndex) + '.</span> ' + esc(option) + (optionIndex === Number(entry.userAnswerIndex) ? ' <span class="practice-history-option-tag">Your answer</span>' : '') + (optionIndex === Number(entry.correctAnswerIndex) ? ' <span class="practice-history-option-tag">Correct answer</span>' : '') + '</li>').join('') + '</ol></div>' : '') +
-          '<div class="practice-history-answer ' + (entry.correct ? 'is-correct' : 'is-wrong') + '"><strong>Your answer:</strong> ' + esc(answerText(entry.question, entry.userAnswerIndex)) + '<br><strong>Correct answer:</strong> ' + esc(answerText(entry.question, entry.correctAnswerIndex)) + '</div>' +
-          '<section class="practice-history-explanation"><h5>ব্যাখ্যা (Explanation)</h5><p>' + esc(explanationText(entry.question) || 'এই প্রশ্নের ডেটায় এখনো ব্যাখ্যা যোগ করা হয়নি।') + '</p></section></article>'
-        ).join('') : '<div class="enhanced-empty">এখনো কোনো প্রশ্ন attempt করা হয়নি। উত্তর দেওয়া শুরু করলে এখানে history জমা হবে।</div>') + '</div>';
-      panel.querySelectorAll('[data-practice-history-filter]').forEach(button => button.addEventListener('click', () => {
-        filter = button.dataset.practiceHistoryFilter;
-        renderHistory();
-      }));
-      panel.querySelector('#practice-history-select-all').addEventListener('click', () => {
-        const visible = filtered.map(entry => entry.key);
-        const allSelected = visible.length > 0 && visible.every(key => selected.has(key));
-        visible.forEach(key => allSelected ? selected.delete(key) : selected.add(key));
-        renderHistory();
-      });
-      panel.querySelectorAll('[data-practice-history-key]').forEach(input => input.addEventListener('change', () => {
-        input.checked ? selected.add(input.dataset.practiceHistoryKey) : selected.delete(input.dataset.practiceHistoryKey);
-        renderHistory();
-      }));
-      panel.querySelector('#practice-history-repractice').addEventListener('click', () => {
-        const chosen = entries.filter(entry => selected.has(entry.key)).map(entry => entry.question).filter(Boolean);
-        if (!chosen.length) return;
-        if (app.practiceTimerInterval) { clearInterval(app.practiceTimerInterval); app.practiceTimerInterval = null; }
-        app.preparedExam = { questions: chosen, mode: 'practice', subject: 'all', year: 'all', durationMins: Math.max(1, Math.round(chosen.length * 0.5)) };
-        const browser = document.getElementById('practice-browser');
-        const quiz = document.getElementById('practice-quiz-view');
-        if (browser) browser.hidden = true;
-        if (quiz) quiz.hidden = true;
-        if (typeof app.beginPreparedExam === 'function') app.beginPreparedExam();
-      });
-      panel.querySelector('#practice-history-clear').addEventListener('click', () => {
-        if (!entries.length || !window.confirm('এই account-এর Practice History মুছে ফেলবেন?')) return;
-        safeWrite({});
-        selected.clear();
-        renderHistory();
-      });
+    let filter='wrong';
+    function renderHistory(){
+      const view=document.getElementById('view-practice');if(!view)return;let panel=document.getElementById('practice-attempt-history');
+      if(!panel){panel=document.createElement('section');panel.id='practice-attempt-history';panel.className='practice-attempt-history';const host=document.getElementById('enhanced-review-history')||document.getElementById('practice-browser')||view;host.insertAdjacentElement('afterend',panel);}
+      const attempts=safeRead(),rk='med_review_history_v2_'+String(app.authUser&&app.authUser.uid||'guest');let reviews={};try{reviews=JSON.parse(localStorage.getItem(rk)||'{}')||{};}catch(_){}
+      const map=new Map();Object.values(attempts).filter(e=>e&&e.attempted).forEach(e=>{const r=reviews[e.key]||{};map.set(e.key,{...e,reviewed:!!r.reviewed,wrong:r.wrong===undefined?!e.correct:!!r.wrong});});
+      Object.values(reviews).filter(e=>e&&(e.reviewed||e.wrong)).forEach(e=>{const p=map.get(e.key)||{};map.set(e.key,{...e,...p,key:e.key,question:p.question||e.question,reviewed:!!e.reviewed,wrong:!!e.wrong});});
+      const entries=[...map.values()],wrong=entries.filter(e=>e.wrong),reviewed=entries.filter(e=>e.reviewed),shown=filter==='wrong'?wrong:reviewed;
+      panel.innerHTML='<h3>Practice History <span class="practice-history-total">('+entries.length+' saved questions)</span></h3><p class="text-sm opacity-75">প্রশ্ন, উত্তর ও ব্যাখ্যা review করার জন্য এখানে সংরক্ষিত থাকে।</p><div class="practice-history-toolbar" role="group" aria-label="Practice history filters"><button type="button" data-practice-history-filter="wrong" class="'+(filter==='wrong'?'active':'')+'">Wrong ('+wrong.length+')</button><button type="button" data-practice-history-filter="reviewed" class="'+(filter==='reviewed'?'active':'')+'">Reviewed ('+reviewed.length+')</button><button type="button" id="practice-history-clear" '+(entries.length?'':'disabled')+'>Clear History</button></div><div class="practice-history-list">'+(shown.length?shown.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0)).map(e=>{const q=e.question||{},ui=e.userAnswerIndex,ci=e.correctAnswerIndex!=null?e.correctAnswerIndex:Number(q.answer),has=ui!==null&&ui!==undefined&&ui!=='';return '<article class="practice-history-card"><div class="practice-history-meta"><span>'+esc(e.subject||q.subject||'Medical')+' · '+(e.wrong?'Wrong':'Reviewed')+' · '+Number(e.attempts||1)+' attempt(s)</span></div><h4>'+esc(questionText(q))+'</h4>'+(Array.isArray(q.options)&&q.options.length?'<div class="practice-history-options"><strong>Options:</strong><ol>'+q.options.map((o,i)=>'<li class="'+(i===Number(ci)?'is-correct-option ':'')+(has&&i===Number(ui)?'is-selected-option':'')+'"><span class="practice-history-option-letter">'+String.fromCharCode(65+i)+'.</span> '+esc(o)+(has&&i===Number(ui)?' <span class="practice-history-option-tag">Your answer</span>':'')+(i===Number(ci)?' <span class="practice-history-option-tag">Correct answer</span>':'')+'</li>').join('')+'</ol></div>':'')+'<div class="practice-history-answer '+(e.wrong?'is-wrong':'is-correct')+'"><strong>Your answer:</strong> '+esc(has?answerText(q,ui):'আগের উত্তর সংরক্ষিত নেই')+'<br><strong>Correct answer:</strong> '+esc(answerText(q,ci))+'</div><section class="practice-history-explanation"><h5>ব্যাখ্যা (Explanation)</h5><p>'+esc(explanationText(q)||'এই প্রশ্নের ডেটায় এখনো ব্যাখ্যা যোগ করা হয়নি।')+'</p></section></article>';}).join(''):'<div class="enhanced-empty">'+(filter==='wrong'?'এখনো কোনো ভুল উত্তর নেই।':'এখনো কোনো reviewed প্রশ্ন নেই।')+'</div>')+'</div>';
+      panel.querySelectorAll('[data-practice-history-filter]').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.practiceHistoryFilter;renderHistory();}));
+      panel.querySelector('#practice-history-clear').addEventListener('click',()=>{if(!entries.length||!window.confirm('এই account-এর Practice History মুছে ফেলবেন?'))return;safeWrite({});try{localStorage.removeItem(rk);}catch(_){}renderHistory();});
     }
     const originalSubmit = app.submitExam.bind(app);
     app.submitExam = function (autoSubmitted) {
@@ -129,8 +76,9 @@
           };
         });
         safeWrite(history);
-        selected.clear();
-        renderHistory();
+        const rk='med_review_history_v2_'+String(this.authUser&&this.authUser.uid||'guest');let rh={};try{rh=JSON.parse(localStorage.getItem(rk)||'{}')||{};}catch(_){}
+        state.questions.forEach((q,i)=>{const ans=state.userAnswers[i];if(ans===null||ans===undefined||ans==='')return;const key=questionKey(q),ci=Number(q&&q.answer),p=rh[key]||{key,question:q,reviewed:false,wrong:false};rh[key]={...p,key,question:q,userAnswerIndex:Number(ans),correctAnswerIndex:ci,wrong:Number(ans)!==ci,updatedAt:now};});
+        try{localStorage.setItem(rk,JSON.stringify(rh));}catch(_){}renderHistory();
       }
       return originalSubmit(autoSubmitted);
     };
