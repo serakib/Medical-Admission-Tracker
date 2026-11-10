@@ -3306,6 +3306,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     registerUser: registerUser,
     createGuestAccount: createNewGuestAccount,
     restoreGuestAccount: restoreSavedGuestAccount,
+    restoreMostRecentGuestAccount: async function () {
+      if (!getSavedGuestAccounts().length) return false;
+      await restoreSavedGuestAccount(0);
+      return true;
+    },
     logoutGuestAccount: logoutGuestAccount,
     updateProfile: updateProfile,
     getCachedRows: getCache,
