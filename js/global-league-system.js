@@ -11,13 +11,13 @@
   if (app.__medicalSheetsAdapter) return;
   app.__medicalSheetsAdapter = true;
 
-  var DEFAULT_STUDENT_AVATAR = 'https://i.pravatar.cc/120?img=1';
-  var STUDENT_AVATAR_CHOICES = Array.from({length:24}, function (_, i) { return 'https://i.pravatar.cc/120?img=' + (i + 1); });
+  var STUDENT_AVATAR_CHOICES = Array.from({length:24}, function (_, i) {
+    return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i));
+  });
   function defaultStudentAvatarForUser(userId) {
-    var key = String(userId || 'guest'); var hash = 2166136261;
-    for (var i = 0; i < key.length; i++) hash = Math.imul(hash ^ key.charCodeAt(i), 16777619);
-    return STUDENT_AVATAR_CHOICES[(hash >>> 0) % STUDENT_AVATAR_CHOICES.length];
+    return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
   }
+  var DEFAULT_STUDENT_AVATAR = defaultStudentAvatarForUser('student');
   function avatarHasDefaultMarker(value) { return /#mat-default-avatar$/i.test(String(value || '')); }
   function avatarHasCustomMarker(value) { return /#mat-custom-avatar$/i.test(String(value || '')); }
   function stripAvatarDefaultMarker(value) { return String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, ''); }
