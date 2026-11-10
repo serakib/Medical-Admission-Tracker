@@ -2069,12 +2069,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     // Otherwise a slow friendConnections call leaves the old Monthly request valid long enough
     // to repaint the table after the user has already switched to Friends.
     var requestId = ++loadSequence;
-    var leaderboardView = document.getElementById('view-leaderboard');
-    if (leaderboardView && !leaderboardView.classList.contains('hidden') && !hasRequiredLeaderboardProfile()) {
-      showLeaderboardProfileGate();
-      setLeaderboardRefreshBusy(false);
-      return;
-    }
+    // Leaderboard access never depends on optional personal profile details.
+    // Students can participate with the default account display name.
 
     // Paint this tab's own local snapshot before waiting on the API.
     var cache = getCache(periodForRequest);
@@ -2935,8 +2931,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var submittedName = safeText((nameField || {}).value || '', 80);
         var submittedCollege = safeText((collegeField || {}).value || '', 120);
         var submittedBatch = safeText((batchField || {}).value || '', 40);
-        if (submittedName.length < 2) {
-          if (status) status.textContent = 'নাম কমপক্ষে ২ অক্ষরের হতে হবে।';
+        if (submittedName && submittedName.length < 2) {
+          if (status) status.textContent = 'নাম দিলে কমপক্ষে ২ অক্ষরের হতে হবে; না চাইলে ফাঁকা রাখতে পারেন।';
           if (nameField) nameField.focus();
           return;
         }
@@ -2954,25 +2950,18 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         try {
           // Google Sheets is the canonical profile store for both Guest and registered users.
           // applyProfile mirrors the saved data to Firebase in the background for registered users.
-          var updated = await updateProfile({
-            name: submittedName,
+          var profileChanges = {
             college: submittedCollege,
             batch: submittedBatch
-          });
+          };
+          if (submittedName) profileChanges.name = submittedName;
+          var updated = await updateProfile(profileChanges);
           var savedName = safeText(updated.name || submittedName, 80);
           var savedCollege = safeText(updated.college != null ? updated.college : submittedCollege, 120);
           var savedBatch = safeText(updated.batch != null ? updated.batch : submittedBatch, 40);
-          var profileIsComplete = savedName.length >= 2 && !!savedCollege && !!savedBatch;
-          if (profileIsComplete) {
-            markLeaderboardProfileComplete({ name: savedName, college: savedCollege, batch: savedBatch });
-            var gateNotice = document.getElementById('leaderboard-profile-gate-message');
-            if (gateNotice) gateNotice.hidden = true;
-          }
           if (status) {
             status.className = 'text-sm font-semibold text-emerald-600 dark:text-emerald-400';
-            status.textContent = profileIsComplete
-              ? 'Saved ✓'
-              : 'Saved ✓ — Leaderboard unlock করতে College ও Batch-ও পূরণ করুন।';
+            status.textContent = 'Saved ✓ — Leaderboard-এর জন্য কোনো personal information বাধ্যতামূলক নয়।';
             status.title = 'Profile successfully saved to Medical Sheets. Firebase mirror syncs in the background.';
           }
           // A leaderboard refresh is secondary; it must not change the confirmed save result.
