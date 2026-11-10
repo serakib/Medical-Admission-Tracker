@@ -446,7 +446,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
-        var alreadySeen=false, pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0;
+        var alreadySeen=false, pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0;
         try { alreadySeen=sessionStorage.getItem(key)==='1'; if(!alreadySeen) sessionStorage.setItem(key,'1'); } catch(_){}
         function setStep(value,message,iconClass){
           if(!fill||finished)return;
@@ -456,7 +456,12 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
           if(percent)percent.textContent=String(value).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯')+'%';
         }
         function hide(){
-          if(!overlay||finished)return;
+          if(!overlay||finished||hideTimer)return;
+          var remaining=Math.max(0,3000-(Date.now()-startedAt));
+          if(remaining){
+            hideTimer=window.setTimeout(function(){hideTimer=0;hide();},remaining);
+            return;
+          }
           setStep(100,'শুরু করার জন্য প্রস্তুত!','fa-circle-check');
           finished=true;
           window.setTimeout(function(){
@@ -468,12 +473,11 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
           if(finished||!pageLoaded)return;
           if(appReady||Date.now()-startedAt>=2600){
             window.clearTimeout(fallbackTimer);
-            var remaining=Math.max(0,1150-(Date.now()-startedAt));
-            window.setTimeout(hide,remaining);
+            hide();
           }
         }
         window.MATInitialLoader={hide:hide};
-        if(alreadySeen){hide();return;}
+        if(alreadySeen){if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);finished=true;return;}
         setStep(18,'প্ল্যাটফর্ম প্রস্তুত করা হচ্ছে...','fa-gear');
         document.addEventListener('DOMContentLoaded',function(){setStep(38,'পরীক্ষা ও প্র্যাকটিস টুলস প্রস্তুত হচ্ছে...','fa-clipboard-check');},{once:true});
         window.addEventListener('medical-app-ready',function(){appReady=true;setStep(78,'স্টুডেন্ট ড্যাশবোর্ড প্রস্তুত হচ্ছে...','fa-user-graduate');tryFinish();},{once:true});
