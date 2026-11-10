@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.7';
+const MAT_API_VERSION = '2026.11.10.8';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'permanent-account-deletion-cleans-all-user-ledger-and-friend-records',
@@ -70,6 +70,8 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'bronze-v-weekly-rp-zero',
   'admin-bootstrap-status',
   'verified-firebase-admin-authorization',
+  'admin-suspension-expiry-metadata-persistence',
+  'weekly-leaderboard-zero-rp-bronze-v-display',
   'super-admin-script-property-configuration',
   'admin-member-management',
   'super-admin-only-admin-management',
