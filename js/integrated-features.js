@@ -717,7 +717,7 @@
   const avatarCustomizerStyle = document.createElement('style');
   avatarCustomizerStyle.id = 'mat-avatar-customizer-strict-style';
   avatarCustomizerStyle.textContent = `
-    body.mat-avatar-customizer-open{overflow:hidden!important}
+    body.mat-avatar-customizer-open{overflow-anchor:none!important;overscroll-behavior:none!important}
     #profile-avatar-picker:not(.is-expanded){display:none!important}
     #profile-avatar-picker.is-expanded{position:fixed!important;inset:0!important;z-index:100030!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;margin:0!important;padding:20px!important;display:flex!important;flex-direction:column!important;gap:16px!important;overflow:hidden!important;border:0!important;border-radius:0!important;background:#121218!important;color:#fff!important;box-sizing:border-box!important}
     #profile-avatar-picker.is-expanded .profile-avatar-builder-header{display:flex;align-items:center;gap:12px;flex:0 0 40px;width:100%;max-width:960px;margin:0 auto}
@@ -833,7 +833,7 @@
   `;
   avatarCustomizerStyle.textContent += `
     /* Final dual-pane sizing and a single continuous vertical options scroller. */
-    html:has(#profile-avatar-picker.is-expanded),body.mat-avatar-customizer-open{width:100%;height:100%;overflow:hidden!important}
+    html:has(#profile-avatar-picker.is-expanded),body.mat-avatar-customizer-open{width:100%;height:100%}
     #profile-avatar-picker.is-expanded{box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;overflow:hidden!important;padding:clamp(12px,2.4vw,28px)!important;gap:clamp(10px,1.5vh,18px)!important}
     #profile-avatar-picker.is-expanded .profile-avatar-builder-header{width:100%;max-width:1172px;flex:0 0 42px}
     .mat-avatar-workspace{display:grid;grid-template-columns:minmax(280px,390px) minmax(0,756px);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:clamp(12px,2vw,26px);width:100%;max-width:1172px;min-height:0;flex:1;margin:0 auto;overflow:hidden}
@@ -1261,7 +1261,7 @@
     /* Dynamic Avatar Builder changes must not trigger browser scroll anchoring. */
     html,body{scroll-behavior:auto!important}
     body.mat-avatar-customizer-open{
-      overflow:hidden!important;overflow-anchor:none!important;overscroll-behavior:none!important;
+      overflow-anchor:none!important;overscroll-behavior:none!important;
     }
     #profile-avatar-picker.is-expanded,
     #profile-avatar-picker.is-expanded .mat-avatar-workspace,
@@ -1329,6 +1329,7 @@
   let activeAvatarGroup = 'identity';
   let pendingAvatarSource = null;
   let pendingAvatarConfig = null;
+  let avatarBuilderScrollState = null;
   const avatarConfigKey = () => 'med_profile_avatar_config_v1_' + avatarAccountId();
   const readAvatarConfig = () => {
     try {
@@ -1614,6 +1615,55 @@
     hydrateLivingAvatarFaces(picker);
   }
 
+  function avatarScrollStyleSnapshot(element, properties) {
+    const snapshot = {};
+    properties.forEach(property => {
+      snapshot[property] = {
+        value: element.style.getPropertyValue(property),
+        priority: element.style.getPropertyPriority(property)
+      };
+    });
+    return snapshot;
+  }
+
+  function restoreAvatarScrollStyles(element, snapshot) {
+    Object.entries(snapshot || {}).forEach(([property, saved]) => {
+      if (saved.value) element.style.setProperty(property, saved.value, saved.priority);
+      else element.style.removeProperty(property);
+    });
+  }
+
+  function lockAvatarBuilderPageScroll() {
+    if (avatarBuilderScrollState || !document.body) return;
+    const body = document.body;
+    const root = document.documentElement;
+    const x = window.scrollX || root.scrollLeft || body.scrollLeft || 0;
+    const y = window.scrollY || root.scrollTop || body.scrollTop || 0;
+    avatarBuilderScrollState = {
+      x, y,
+      body: avatarScrollStyleSnapshot(body, ['position','top','left','right','width','overflow','overscroll-behavior']),
+      root: avatarScrollStyleSnapshot(root, ['overflow'])
+    };
+    body.style.setProperty('position','fixed');
+    body.style.setProperty('top',(-y)+'px');
+    body.style.setProperty('left',(-x)+'px');
+    body.style.setProperty('right','0');
+    body.style.setProperty('width','100%');
+    body.style.setProperty('overflow','hidden');
+    body.style.setProperty('overscroll-behavior','none');
+    root.style.setProperty('overflow','hidden');
+  }
+
+  function unlockAvatarBuilderPageScroll() {
+    if (!avatarBuilderScrollState) return;
+    const saved = avatarBuilderScrollState;
+    avatarBuilderScrollState = null;
+    restoreAvatarScrollStyles(document.body, saved.body);
+    restoreAvatarScrollStyles(document.documentElement, saved.root);
+    // This is an exact restoration of the pre-Builder viewport, not navigation.
+    window.scrollTo({left:saved.x,top:saved.y,behavior:'auto'});
+  }
+
   function syncAvatarBuilderSidebarLayout(picker) {
     if (!picker || !avatarPickerExpanded) return;
     const mobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
@@ -1653,6 +1703,8 @@
       else root.prepend(picker);
     }
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
+    if (avatarPickerExpanded) lockAvatarBuilderPageScroll();
+    else unlockAvatarBuilderPageScroll();
     document.body.classList.toggle('mat-avatar-customizer-open', avatarPickerExpanded);
     let uploadInput = document.getElementById('profile-avatar-upload-input');
     if (!uploadInput) {
