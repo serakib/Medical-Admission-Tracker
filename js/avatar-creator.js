@@ -89,7 +89,7 @@
     if (c.accessory === 'headphones') accessory = '<path d="M55 99V86Q55 27 128 27Q201 27 201 86V99" fill="none" stroke="#273449" stroke-width="12"/><rect x="48" y="91" width="19" height="45" rx="9" fill="#273449"/><rect x="189" y="91" width="19" height="45" rx="9" fill="#273449"/>';
     if (c.accessory === 'flower') accessory = '<g><circle cx="183" cy="59" r="9" fill="#fff"/><circle cx="171" cy="50" r="8" fill="#fff"/><circle cx="195" cy="48" r="8" fill="#fff"/><circle cx="194" cy="69" r="8" fill="#fff"/><circle cx="171" cy="69" r="8" fill="#fff"/><circle cx="183" cy="59" r="6" fill="#f5b942"/></g>';
     const face = '<ellipse cx="128" cy="105" rx="59" ry="70" fill="' + c.skin + '"/><path d="M77 112Q84 165 128 169Q172 165 179 112" fill="none" stroke="' + skinShadow + '" stroke-opacity=".22" stroke-width="3"/><ellipse cx="105" cy="104" rx="6" ry="9" fill="#292321"/><ellipse cx="151" cy="104" rx="6" ry="9" fill="#292321"/><circle cx="107" cy="101" r="2" fill="#fff"/><circle cx="153" cy="101" r="2" fill="#fff"/><path d="M120 126Q128 132 136 126" fill="none" stroke="' + skinShadow + '" stroke-width="3" stroke-linecap="round"/><path d="M111 144Q128 157 145 144" fill="none" stroke="#a4484a" stroke-width="4" stroke-linecap="round"/><ellipse cx="86" cy="128" rx="11" ry="6" fill="#e98d83" opacity=".25"/><ellipse cx="170" cy="128" rx="11" ry="6" fill="#e98d83" opacity=".25"/>';
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + c.background + '"/><stop offset="1" stop-color="#ffffff"/></linearGradient><linearGradient id="shirt" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff" stop-opacity=".14"/><stop offset="1" stop-color="#111827" stop-opacity=".12"/></linearGradient></defs><circle cx="128" cy="128" r="126" fill="url(#bg)"/><circle cx="128" cy="128" r="111" fill="#fff" opacity=".18"/><path d="M40 256Q45 181 93 164L128 188L163 164Q211 181 216 256Z" fill="#0f172a" opacity=".08"/><path d="M105 151H151V184Q128 203 105 184Z" fill="' + c.skin + '"/>' + outfit + '<path d="M91 165L128 190L165 165" fill="none" stroke="url(#shirt)" stroke-width="6"/>' + hairBack + face + hairFront + accessory + '</svg>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" data-avatar-config="' + encodeURIComponent(JSON.stringify(c)) + '" viewBox="0 0 256 256"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + c.background + '"/><stop offset="1" stop-color="#ffffff"/></linearGradient><linearGradient id="shirt" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff" stop-opacity=".14"/><stop offset="1" stop-color="#111827" stop-opacity=".12"/></linearGradient></defs><circle cx="128" cy="128" r="126" fill="url(#bg)"/><circle cx="128" cy="128" r="111" fill="#fff" opacity=".18"/><path d="M40 256Q45 181 93 164L128 188L163 164Q211 181 216 256Z" fill="#0f172a" opacity=".08"/><path d="M105 151H151V184Q128 203 105 184Z" fill="' + c.skin + '"/>' + outfit + '<path d="M91 165L128 190L165 165" fill="none" stroke="url(#shirt)" stroke-width="6"/>' + hairBack + face + hairFront + accessory + '</svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   };
 
@@ -105,5 +105,15 @@
     }, {});
   };
 
-  window.MedAvatarCreator = { choices, defaultConfig, normalize, render, randomize, isAvatar: value => /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(String(value || '')) };
+  const configFromAvatar = source => {
+    try {
+      const clean = String(source || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
+      if (!/^data:image\\/svg\\+xml;charset=utf-8,/i.test(clean)) return null;
+      const encoded = clean.slice(clean.indexOf(',') + 1);
+      const svg = decodeURIComponent(encoded);
+      const match = svg.match(/data-avatar-config="([^"]+)"/);
+      return match ? normalize(JSON.parse(decodeURIComponent(match[1]))) : null;
+    } catch (_) { return null; }
+  };
+  window.MedAvatarCreator = { choices, defaultConfig, normalize, render, randomize, configFromAvatar, isAvatar: value => /^data:image\\/svg\\+xml;charset=utf-8,%3Csvg/i.test(String(value || '')) };
 })();
