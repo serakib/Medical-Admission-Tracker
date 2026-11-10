@@ -47,7 +47,7 @@ const MAT_API_CAPABILITIES = Object.freeze([
   'weekly-hard-reset-bronze-v-zero-rp-asia-dhaka',
   'weekly-only-rank-promotion-ledger',
   'immediate-rank-promotion',
-  'weekly-and-monthly-full-tier-immediate-promotion',
+  'weekly-full-tier-immediate-promotion',
   'expired-guest-cleanup',
   'guest-account-72-hour-pending-deletion-and-cancellation',
   'guest-deletion-audit-and-super-admin-deadline-management',
