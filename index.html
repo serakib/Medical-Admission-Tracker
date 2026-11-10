@@ -389,6 +389,17 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
 @media(prefers-reduced-motion:reduce){.app-sidebar,.sidebar-nav button,.sidebar-action,.sidebar-collapse-toggle{transition:none}.ai-float-btn{animation:none!important}}
 </style>
 
+    <style id="mat-initial-entry-loader-styles">
+      #mat-initial-entry-loader{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(145deg,#071d22 0%,#0b1b2c 58%,#091827 100%);color:#f8fafc;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
+      #mat-initial-entry-loader.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+      #mat-initial-entry-loader .mat-entry-loader-card{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+      #mat-initial-entry-loader .mat-entry-loader-mark{display:grid;place-items:center;width:62px;height:62px;border:1px solid rgba(110,231,183,.3);border-radius:20px;background:rgba(16,185,129,.12);color:#6ee7b7;font-size:27px}
+      #mat-initial-entry-loader .mat-entry-loader-spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,.18);border-top-color:#6ee7b7;border-radius:50%;animation:matEntrySpin .8s linear infinite}
+      #mat-initial-entry-loader strong{font-size:16px;font-weight:800;letter-spacing:.01em}
+      #mat-initial-entry-loader small{color:#9eb1c4;font-size:12px}
+      @keyframes matEntrySpin{to{transform:rotate(360deg)}}
+      @media(prefers-reduced-motion:reduce){#mat-initial-entry-loader,#mat-initial-entry-loader .mat-entry-loader-spinner{transition:none;animation:none}}
+    </style>
     <!-- Offline-ready global top loading bar (no libraries or remote assets). -->
     <style id="mat-global-loading-bar-styles">
       #mat-global-loading-bar{position:fixed;top:0;left:0;width:100%;height:3px;z-index:2147483647;pointer-events:none;opacity:0;transition:opacity .22s ease;contain:strict}
@@ -399,6 +410,30 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
+    <div id="mat-initial-entry-loader" role="status" aria-live="polite" aria-label="Website loading">
+      <div class="mat-entry-loader-card">
+        <span class="mat-entry-loader-mark"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i></span>
+        <strong>মেডিকেল ভর্তি পরীক্ষা প্রস্তুতি</strong>
+        <span class="mat-entry-loader-spinner" aria-hidden="true"></span>
+        <small>প্রস্তুত হচ্ছে...</small>
+      </div>
+    </div>
+    <script>
+      (function(){
+        var key='mat_initial_entry_seen_v1';
+        var overlay=document.getElementById('mat-initial-entry-loader');
+        var alreadySeen=false;
+        try { alreadySeen=sessionStorage.getItem(key)==='1'; if(!alreadySeen) sessionStorage.setItem(key,'1'); } catch(_){}
+        function hide(){
+          if(!overlay) return;
+          overlay.classList.add('is-leaving');
+          window.setTimeout(function(){ if(overlay&&overlay.parentNode) overlay.parentNode.removeChild(overlay); },320);
+        }
+        window.MATInitialLoader={hide:hide};
+        if(alreadySeen) hide();
+        else window.addEventListener('load',function(){window.setTimeout(hide,900);},{once:true});
+      })();
+    </script>
 
     <!-- Fixed responsive sidebar navigation -->
     <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false" onclick="(function(){var b=document.getElementById('app-sidebar'),o=b.classList.toggle('sidebar-open');document.getElementById('sidebar-overlay').classList.toggle('overlay-visible',o);document.getElementById('sidebar-toggle').setAttribute('aria-expanded',o?'true':'false');document.getElementById('sidebar-toggle').innerHTML=o?'&times;':'☰';})();">☰</button>
@@ -2166,11 +2201,11 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script type="module" src="./js/student-ai.js"></script>
-<script type="module" src="script.js?v=guest-logout-vault-20261110-2"></script>
+<script type="module" src="script.js?v=entry-background-load-20261110-1"></script>
 <script type="module" src="./js/integrated-features.js?v=custom-practice-timer-history-20261110-1"></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
-<script type="module" src="./js/global-league-system.js?v=cache-first-guest-vault-20261110-6"></script>
+<script type="module" src="./js/global-league-system.js?v=cache-first-guest-vault-delete-20261110-7"></script>
 <script type="module" src="./js/leaderboard-experience.js?v=profile-rp-cleanup-weekly-sidebar-20261101-1"></script>
 <script src="./js/dashboard-rp-streak-shortcuts.js?v=streak-popup-toggle-10-observer-scope" defer></script>
     <script src="./js/practice-history.js?v=wrong-reviewed-history-20261110-1" defer></script>
