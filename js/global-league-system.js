@@ -334,10 +334,22 @@
     return safeRows;
   }
   function saveCache(rows, period) {
+    var selected = period || 'monthly';
     var list = Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
-    var key = cacheKeyForPeriod(period || 'monthly');
+    var key = cacheKeyForPeriod(selected);
     leaderboardCacheMemory[key] = list;
     try { localStorage.setItem(key, JSON.stringify(list)); } catch (_) {}
+    // Keep a public, account-neutral snapshot too, so anonymous visitors can
+    // immediately see the latest global board without inheriting another user's isMine flag.
+    if (selected !== 'friends') {
+      var suffix = selected === 'weekly' ? '_weekly' : '_monthly';
+      var publicKey = CACHE_KEY + '_v3_anonymous' + suffix;
+      if (publicKey !== key) {
+        var publicRows = list.map(function (row) { return Object.assign({}, row, { isMine: false }); });
+        leaderboardCacheMemory[publicKey] = publicRows;
+        try { localStorage.setItem(publicKey, JSON.stringify(publicRows)); } catch (_) {}
+      }
+    }
     return list;
   }
   function getQueue() {
