@@ -2277,7 +2277,19 @@ window.handleLogout = function() {
                 const api = window.MedGlobalLeague;
                 if (!api?.logoutGuestAccount) throw new Error('Guest logout service এখনো প্রস্তুত নয়।');
                 api.logoutGuestAccount();
-            } else if (auth.currentUser) await signOut(auth);
+            } else if (auth.currentUser) {
+                await signOut(auth);
+                // After every Registered logout, return to the most recently used
+                // saved Guest account when one exists. Otherwise remain a public visitor.
+                const guestAccess = window.MedGlobalLeague;
+                if (guestAccess && typeof guestAccess.restoreMostRecentGuestAccount === 'function') {
+                    try {
+                        await guestAccess.restoreMostRecentGuestAccount();
+                    } catch (restoreError) {
+                        console.warn('Could not automatically restore the previous Guest account:', restoreError);
+                    }
+                }
+            }
             localStorage.removeItem('med_guest_mode');
             window.location.reload();
         } catch (error) {
