@@ -1,6 +1,9 @@
 name: Accessibility issue
 description: Report a barrier involving keyboard use, screen readers, contrast, motion, zoom, or layout.
 title: "[Accessibility]: "
+labels:
+  - "type: accessibility"
+  - "status: needs-triage"
 body:
   - type: markdown
     attributes:
