@@ -247,6 +247,10 @@
       throw error;
     }
     if (!response.guestToken || !response.user) throw new Error('Guest account restore করা যায়নি।');
+    // The Guest the student just selected becomes the most recently used one.
+    list.splice(Math.max(0, Number(index) || 0), 1);
+    list.unshift(Object.assign({}, item, { savedAt: Date.now() }));
+    saveGuestVault(list);
     try {
       localStorage.setItem(GUEST_TOKEN_KEY, response.guestToken);
       localStorage.setItem(GUEST_ID_KEY, String(response.user.userId || item.userId || ''));
@@ -3306,6 +3310,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     registerUser: registerUser,
     createGuestAccount: createNewGuestAccount,
     restoreGuestAccount: restoreSavedGuestAccount,
+    preserveActiveGuestForRegisteredLogin: function () {
+      var profile = app.profile || currentProfile || {};
+      if (String(profile.accountType || '').toUpperCase() !== 'GUEST' || !getGuestToken()) return false;
+      return rememberActiveGuest();
+    },
     restoreMostRecentGuestAccount: async function () {
       if (!getSavedGuestAccounts().length) return false;
       await restoreSavedGuestAccount(0);
