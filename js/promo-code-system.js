@@ -112,7 +112,24 @@ function card(){
    <summary class="cursor-pointer list-none flex flex-wrap items-center justify-between gap-2 font-bold text-sm"><span>Admin Members</span><span class="text-xs font-normal text-gray-500">Expand / Collapse</span></summary>
    <div class="pt-3"><div id="mat-admin-members" class="space-y-2 text-sm"></div></div>
   </details>
-  <section id="mat-admin-only-code-controls" class="hidden rounded-xl border border-rose-200 dark:border-rose-900 p-3 space-y-2"><h4 class="font-bold text-sm">Master Admin-only Promo Code · Super Admin</h4><label class="block text-xs font-semibold">Shared Admin-only Code<input id="mat-admin-fixed-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" autocomplete="off"></label><div class="flex flex-wrap gap-2"><button type="button" id="mat-admin-fixed-code-save" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Master Code</button><button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button></div><p class="text-xs text-gray-500">Only Super Admin can change the shared code and its enabled status.</p></section>
+  <section id="mat-admin-only-code-controls" class="hidden rounded-xl border border-rose-200 dark:border-rose-900 p-3 space-y-3">
+   <div><h4 class="font-bold text-sm">Master Admin-only Promo Code · Super Admin</h4><p class="mt-1 text-xs text-gray-500">সব Admin account-এর shared code ও reward/limit এখানে নিয়ন্ত্রণ করুন। প্রতিটি Admin-এর নিজস্ব override থাকলে সেটি Master setting-কে override করবে।</p></div>
+   <label class="block text-xs font-semibold">Shared Admin-only Promo Code<input id="mat-admin-fixed-code" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" autocomplete="off" maxlength="80" placeholder="Enter master promo code"></label>
+   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <label class="block text-xs font-semibold">PB per redeem<input id="mat-admin-fixed-reward" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="Default: 100000"></label>
+    <label class="block text-xs font-semibold">Redeem limit per period<input id="mat-admin-fixed-limit" type="number" min="0" step="1" class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm" placeholder="0 = unlimited"></label>
+   </div>
+   <div class="flex flex-wrap items-center gap-3">
+    <label class="text-xs font-semibold">Limit period<select id="mat-admin-fixed-period" class="ml-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-2"><option value="DAILY">Daily</option><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option><option value="UNLIMITED">Unlimited</option></select></label>
+    <label class="text-xs flex items-center gap-1"><input id="mat-admin-fixed-enabled" type="checkbox" checked> Enabled</label>
+   </div>
+   <div class="flex flex-wrap gap-2">
+    <button type="button" id="mat-admin-fixed-code-save" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-bold text-white">Save Master Settings</button>
+    <button type="button" id="mat-admin-unlimited-toggle" class="rounded-lg px-3 py-2 bg-gray-800 text-white text-xs font-bold">Loading Admin Code…</button>
+   </div>
+   <p id="mat-admin-fixed-code-status" class="text-xs text-gray-600 dark:text-gray-300" aria-live="polite"></p>
+   <p class="text-xs text-gray-500">Only Super Admin can edit the shared code, PB reward, redemption limit, period and enabled status. Limit applies separately to each Admin account.</p>
+  </section>
   <form id="mat-admin-add-form" class="hidden flex flex-col sm:flex-row gap-2"><input id="mat-admin-email" type="email" required placeholder="Registered member Gmail" class="flex-1 min-w-0 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm"><button class="rounded-lg px-3 py-2 bg-rose-600 text-white text-sm font-bold">Add Admin</button></form>
   <p id="mat-admin-message" class="text-sm" aria-live="polite"></p>
  </div>`;
@@ -473,6 +490,10 @@ async function loadAdmin(){
  if(superAdmin){renderAdminOverrideCards();$('mat-admin-override-add-more').onclick=()=>addAdminOverrideCard();$('mat-admin-override-save-all').onclick=()=>saveAllAdminOverrides();}
  $('mat-admin-only-code-controls').classList.toggle('hidden',!superAdmin);
  $('mat-admin-fixed-code').value=superAdmin?(config.fixedCode||''):'';
+ $('mat-admin-fixed-reward').value=superAdmin?(config.fixedRewardPB==null?'100000':config.fixedRewardPB):'';
+ $('mat-admin-fixed-limit').value=superAdmin?(config.fixedLimitCount==null?'0':config.fixedLimitCount):'';
+ $('mat-admin-fixed-period').value=superAdmin?(config.fixedLimitPeriod||'UNLIMITED'):'UNLIMITED';
+ $('mat-admin-fixed-enabled').checked=superAdmin&&config.fixedEnabled!==false;
  $('mat-admin-unlimited-toggle').textContent=promo.unlimitedEnabled?'Disable Admin-only Code':'Enable Admin-only Code';
  $('mat-global-code').value=config.global.code||'';$('mat-global-reward').value=config.global.rewardPB==null?'':config.global.rewardPB;
  $('mat-global-limit').value=config.global.limitCount==null?'':config.global.limitCount;$('mat-global-period').value=config.global.limitPeriod||'DAILY';$('mat-global-enabled').checked=config.global.enabled!==false;
@@ -742,8 +763,42 @@ async function loadAdmin(){
   console.warn('[Guest deletion approval]',error);
  }
 
- const fixedSave=$('mat-admin-fixed-code-save');fixedSave.onclick=async()=>{fixedSave.disabled=true;fixedSave.textContent='Saving…';try{await api('adminSaveFixedPromoCode',{code:$('mat-admin-fixed-code').value});$('mat-admin-message').textContent='Master Admin-only Code saved.';await refresh();}catch(e){$('mat-admin-message').textContent=e.message||'Master code save failed.';}finally{fixedSave.disabled=false;fixedSave.textContent='Save Master Code';}};
- const toggle=$('mat-admin-unlimited-toggle');toggle.onclick=async()=>{const label=toggle.textContent;toggle.disabled=true;toggle.textContent=(promo.unlimitedEnabled?'Disabling':'Enabling')+'...';try{await api('adminSetUnlimitedEnabled',{enabled:!promo.unlimitedEnabled});await refresh();}catch(e){$('mat-admin-message').textContent=e.message;toggle.disabled=false;toggle.textContent=label;}};
+ const fixedSave=$('mat-admin-fixed-code-save'),fixedStatus=$('mat-admin-fixed-code-status');
+ fixedSave.onclick=async()=>{
+  if(fixedSave.disabled)return;
+  const payload={code:$('mat-admin-fixed-code').value,rewardPB:$('mat-admin-fixed-reward').value,limitCount:$('mat-admin-fixed-limit').value,limitPeriod:$('mat-admin-fixed-period').value,enabled:$('mat-admin-fixed-enabled').checked};
+  if(!String(payload.code||'').trim()){fixedStatus.textContent='Master Promo Code লিখুন।';$('mat-admin-fixed-code').focus();return;}
+  if(payload.rewardPB===''||payload.limitCount===''){fixedStatus.textContent='PB reward এবং redemption limit—দুটিই পূরণ করুন।';return;}
+  fixedSave.disabled=true;fixedSave.setAttribute('aria-busy','true');
+  fixedSave.innerHTML='Saving Settings <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
+  fixedStatus.innerHTML='Master Promo Settings save হচ্ছে <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
+  try{
+   const saved=await api('adminSaveFixedPromoCode',payload);
+   if(!saved||saved.success!==true||saved.verified!==true)throw new Error('Backend save verify করেনি। Latest Apps Script deployment পরীক্ষা করুন।');
+   fixedStatus.textContent='✓ Master Promo Code ও সব settings সফলভাবে save হয়েছে।';
+   $('mat-admin-message').textContent='Master Admin-only Promo Settings saved successfully.';
+   await refresh();
+   const status=$('mat-admin-fixed-code-status');if(status)status.textContent='✓ Master Promo Code ও সব settings সফলভাবে save হয়েছে।';
+  }catch(e){fixedStatus.textContent='Save failed: '+(e.message||'Unknown error');}
+  finally{fixedSave.disabled=false;fixedSave.removeAttribute('aria-busy');fixedSave.textContent='Save Master Settings';}
+ };
+ const toggle=$('mat-admin-unlimited-toggle');
+ toggle.onclick=async()=>{
+  if(toggle.disabled)return;
+  const enabled=!promo.unlimitedEnabled;
+  toggle.disabled=true;toggle.setAttribute('aria-busy','true');
+  toggle.innerHTML=(enabled?'Enabling':'Disabling')+' <span class="mat-loading-dots" role="img" aria-label="loading"><i>.</i><i>.</i><i>.</i></span>';
+  fixedStatus.innerHTML=(enabled?'Enabling':'Disabling')+' Admin-only Code <span class="mat-loading-dots"><i>.</i><i>.</i><i>.</i></span>';
+  try{
+   const result=await api('adminSetUnlimitedEnabled',{enabled});
+   if(!result||result.success!==true||result.verified!==true)throw new Error('Backend change verify করেনি।');
+   $('mat-admin-fixed-enabled').checked=enabled;
+   fixedStatus.textContent=enabled?'✓ Master Admin-only Code enabled successfully.':'✓ Master Admin-only Code disabled successfully.';
+   await refresh();
+   const status=$('mat-admin-fixed-code-status');if(status)status.textContent=enabled?'✓ Master Admin-only Code enabled successfully.':'✓ Master Admin-only Code disabled successfully.';
+  }catch(e){fixedStatus.textContent=e.message||'Admin Code status update failed.';}
+  finally{toggle.disabled=false;toggle.removeAttribute('aria-busy');toggle.textContent=enabled?'Disable Admin-only Code':'Enable Admin-only Code';}
+ };
 }
 async function refresh(){
  if(refreshInFlight){refreshPending=true;return;}
