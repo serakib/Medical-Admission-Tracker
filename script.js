@@ -122,6 +122,11 @@ class MedicalExamApp {
             throw error;
         });
 
+        this.__initialQuestionBankPromise.then(
+            () => window.dispatchEvent(new CustomEvent('medical-initial-data-ready', { detail: { success: true } })),
+            error => window.dispatchEvent(new CustomEvent('medical-initial-data-ready', { detail: { success: false, message: error?.message || 'প্রশ্ন ব্যাংক লোড করা যায়নি' } }))
+        );
+
         // Keep the site interactive while the question bank and account data refresh.
         // Existing per-action loading feedback and the Question Bank status banner remain intact.
         let uiError = null;
@@ -141,12 +146,6 @@ class MedicalExamApp {
         safeRun('leaderboard', () => this.loadLeaderboard(true));
         safeRun('exam setup', () => this.updateSetupUI());
         safeRun('practice browser', () => this.renderPracticeBrowser());
-
-        // The entry overlay is only for the first SPA entry in this tab. It must
-        // never wait for network data or reappear during in-app navigation.
-        if (window.MATInitialLoader && typeof window.MATInitialLoader.hide === 'function') {
-            window.MATInitialLoader.hide();
-        }
 
         this.__initialQuestionBankPromise.then(() => {
             safeRun('subject counts', () => this.updateSubjectCountsUI());
