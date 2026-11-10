@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.9';
+const MAT_API_VERSION = '2026.11.10.10';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'permanent-account-deletion-cleans-all-user-ledger-and-friend-records',
