@@ -499,7 +499,93 @@
     el.classList.remove('hidden');
   }
 
+  var GUEST_EXPIRED_KEY = 'med_guest_session_expired_v1';
+  function readExpiredGuest() {
+    try { return parseJson(localStorage.getItem(GUEST_EXPIRED_KEY), null); } catch (_) { return null; }
+  }
+  function showGuestExpiredScreen(details) {
+    if (app.authUser) return;
+    var old = document.getElementById('mat-guest-expired-screen');
+    if (old) return;
+    var info = details || readExpiredGuest() || {};
+    var name = safeText(info.name || 'Previous Guest', 80);
+    var college = safeText(info.college || '', 120);
+    var id = safeText(info.userId || '', 80);
+    var screen = document.createElement('div');
+    screen.id = 'mat-guest-expired-screen';
+    screen.setAttribute('role', 'dialog');
+    screen.setAttribute('aria-modal', 'true');
+    screen.setAttribute('aria-labelledby', 'mat-guest-expired-title');
+    screen.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(5,10,25,.88);backdrop-filter:blur(10px);';
+    screen.innerHTML = '<div style="width:min(100%,460px);padding:28px;border-radius:22px;background:#fff;color:#172033;box-shadow:0 24px 80px rgba(0,0,0,.35);text-align:center">' +
+      '<div style="font-size:42px;margin-bottom:10px" aria-hidden="true">⌛</div>' +
+      '<div style="display:inline-block;padding:5px 12px;border-radius:999px;background:#fff1f0;color:#c2413b;font-size:12px;font-weight:700;margin-bottom:12px">GUEST SESSION EXPIRED</div>' +
+      '<h2 id="mat-guest-expired-title" style="font-size:22px;font-weight:800;margin:0 0 10px">Your previous Guest account is no longer available</h2>' +
+      '<p style="font-size:14px;line-height:1.65;color:#596579;margin:0 0 18px">Your previous Guest session may have expired or been deleted due to inactivity or another account policy. You can view its saved identity details below, but its old progress cannot be restored.</p>' +
+      '<div style="padding:14px;border:1px solid #e5eaf1;border-radius:14px;background:#f8fafc;text-align:left;margin-bottom:18px">' +
+      '<div style="font-size:11px;color:#7b8798;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Previous Guest Profile</div>' +
+      '<div style="font-weight:750;margin-top:5px">' + escapeHtml(name) + '</div>' +
+      (college ? '<div style="font-size:13px;color:#64748b;margin-top:3px">' + escapeHtml(college) + '</div>' : '') +
+      (id ? '<div style="font-size:11px;color:#94a3b8;margin-top:7px">Previous ID: ' + escapeHtml(id) + '</div>' : '') +
+      '<div style="font-size:12px;color:#c2413b;font-weight:700;margin-top:9px">Status: No longer active</div></div>' +
+      '<button type="button" id="mat-create-new-guest" style="width:100%;border:0;border-radius:12px;padding:14px 18px;background:linear-gradient(135deg,#059669,#0d9488);color:white;font-weight:800;font-size:15px;cursor:pointer">Create New Guest Account</button>' +
+      '<p id="mat-guest-expired-status" role="status" aria-live="polite" style="font-size:12px;color:#64748b;margin:12px 0 0">A new account starts fresh. Previous Guest progress will not return.</p></div>';
+    document.body.appendChild(screen);
+    var button = document.getElementById('mat-create-new-guest');
+    if (button) button.addEventListener('click', async function () {
+      button.disabled = true;
+      button.textContent = 'Creating new Guest…';
+      var status = document.getElementById('mat-guest-expired-status');
+      if (status) status.textContent = 'Please wait while your new Guest account is created…';
+      try {
+        await createNewGuestAccount();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = 'Try Again — Create New Guest';
+        if (status) status.textContent = 'Account তৈরি হয়নি: ' + apiErrorMessage(error);
+      }
+    });
+  }
+  function clearExpiredGuestLocalData(info) {
+    var oldGuestId = String((info && info.userId) || '');
+    try {
+      localStorage.removeItem(GUEST_TOKEN_KEY);
+      localStorage.removeItem(GUEST_ID_KEY);
+      if (oldGuestId) {
+        localStorage.removeItem('med_sheet_profile_v1_' + oldGuestId);
+        localStorage.removeItem('med_account_progress_v1_' + oldGuestId);
+        localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_monthly');
+        localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_weekly');
+        localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_friends');
+      }
+    } catch (storageError) {
+      console.warn('[Guest session] Could not clear expired local Guest data:', storageError);
+    }
+    currentProfile = null;
+    app.profile = null;
+  }
+  async function createNewGuestAccount() {
+    var info = readExpiredGuest() || {};
+    clearExpiredGuestLocalData(info);
+    var response = await request({ action: 'createGuest' });
+    if (!response.guestToken) throw new Error('Guest API returned no guest token.');
+    try {
+      localStorage.setItem(GUEST_TOKEN_KEY, response.guestToken);
+      if (response.user && response.user.userId) localStorage.setItem(GUEST_ID_KEY, String(response.user.userId));
+      localStorage.removeItem(GUEST_EXPIRED_KEY);
+    } catch (_) {}
+    var profile = applyProfile(response.user || {});
+    var screen = document.getElementById('mat-guest-expired-screen');
+    if (screen) screen.remove();
+    await loadLeaderboard(true);
+    return profile;
+  }
   async function ensureGuest() {
+    var expired = readExpiredGuest();
+    if (expired) {
+      showGuestExpiredScreen(expired);
+      throw new Error('Your previous Guest session has expired. Create a new Guest account to continue.');
+    }
     var savedToken = getGuestToken();
     var response;
     try {
@@ -508,27 +594,18 @@
       var message = String(error && error.message || error || '');
       var staleGuestSession = /guest session.*no longer available|guest session.*unavailable|guest.*deleted|guest.*expired|no longer exists/i.test(message);
       if (!savedToken || !staleGuestSession) throw error;
-
-      // The previous Guest identity has already been deleted/expired.
-      // Drop only that Guest's local identity and retry once as a brand-new Guest.
       var oldGuestId = '';
       try { oldGuestId = String(localStorage.getItem(GUEST_ID_KEY) || '').trim(); } catch (_) {}
-      try {
-        localStorage.removeItem(GUEST_TOKEN_KEY);
-        localStorage.removeItem(GUEST_ID_KEY);
-        if (oldGuestId) {
-          localStorage.removeItem('med_sheet_profile_v1_' + oldGuestId);
-          localStorage.removeItem('med_account_progress_v1_' + oldGuestId);
-          localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_monthly');
-          localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_weekly');
-          localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_friends');
-        }
-      } catch (storageError) {
-        console.warn('[Guest session] Could not clear stale local Guest data:', storageError);
-      }
-      currentProfile = null;
-      app.profile = null;
-      response = await request({ action: 'createGuest' });
+      var previousProfile = app.profile || currentProfile || {};
+      var expiredInfo = {
+        userId: oldGuestId || String(previousProfile.userId || previousProfile.uid || ''),
+        name: safeText(previousProfile.name || previousProfile.displayName || 'Previous Guest', 80),
+        college: safeText(previousProfile.college || '', 120),
+        detectedAt: new Date().toISOString()
+      };
+      try { localStorage.setItem(GUEST_EXPIRED_KEY, JSON.stringify(expiredInfo)); } catch (_) {}
+      showGuestExpiredScreen(expiredInfo);
+      throw new Error('Your previous Guest session is no longer available. Create a new Guest account when you are ready.');
     }
     if (!response.guestToken) throw new Error('Guest API returned no guest token.');
     try {
@@ -572,6 +649,8 @@
     }
     var token = getGuestToken();
     if (!token) {
+      var expired = readExpiredGuest();
+      if (expired) { showGuestExpiredScreen(expired); throw new Error('Previous Guest session expired. Create a new Guest account to continue.'); }
       await ensureGuest();
       token = getGuestToken();
     }
