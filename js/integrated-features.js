@@ -706,14 +706,13 @@
   const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:none;width:100%;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;margin-top:12px;align-items:start}.profile-avatar-picker.is-expanded .profile-avatar-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr))}.profile-avatar-toggle-button,.profile-avatar-confirm-button,.profile-avatar-cancel-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-toggle-button:hover,.profile-avatar-confirm-button:hover{background:#10b98125}.profile-avatar-confirm-button:disabled{opacity:.45;cursor:not-allowed}.profile-avatar-cancel-button{border-color:var(--line,#cbd5e1);background:transparent}.profile-avatar-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.profile-avatar-comparison-card{min-width:0;padding:12px;border:1px solid var(--line,#cbd5e1);border-radius:14px;display:flex;align-items:center;flex-direction:column;gap:8px;text-align:center}.profile-avatar-comparison-card img{width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid var(--line,#cbd5e1)}.profile-avatar-comparison-card.is-current img{border-color:#10b981}.profile-avatar-comparison-card.is-preview img{border-color:#0ea5e9}.profile-avatar-comparison-card small{font-size:12px;font-weight:850}.profile-avatar-comparison-placeholder{width:88px;height:88px;display:grid;place-items:center;border-radius:50%;border:2px dashed var(--line,#cbd5e1);font-size:11px;color:var(--muted,#64748b);padding:8px}.profile-avatar-confirm-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}.profile-avatar-choice.is-current{border-color:#10b981;box-shadow:0 0 0 2px #10b98138}.profile-avatar-choice.is-pending{border-color:#0ea5e9;box-shadow:0 0 0 3px #0ea5e938;transform:scale(1.04)}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-picker.is-expanded .profile-avatar-options{grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}.profile-avatar-choice{min-width:0}}';
   humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:flex;align-items:center;gap:6px;margin:10px 0 0;padding:7px 10px;border:1px solid var(--border,#dbe3ed);border-radius:11px;background:linear-gradient(110deg,rgba(16,185,129,.07),rgba(14,165,233,.05));color:var(--text,#0f172a);font-size:11px;line-height:1.4;box-sizing:border-box}@media(max-width:480px){.profile-avatar-upload-hint{gap:6px 8px;padding:8px}.profile-avatar-upload-hint .avatar-guide-warning{align-items:flex-start}}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.profile-avatar-delete-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border:1px solid #ef444466;border-radius:10px;background:#ef444410;color:#dc2626;font-size:12px;font-weight:800;cursor:pointer}.profile-avatar-delete-button:hover{background:#ef44441c}.profile-avatar-delete-button:disabled{opacity:.45;cursor:not-allowed}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-confirm-button:focus-visible,.profile-avatar-cancel-button:focus-visible,.profile-avatar-delete-button:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
   humanAvatarStyle.textContent += '.profile-avatar-picker{margin:18px 0;padding:18px;border:1px solid var(--line,#dbe3ed);border-radius:20px;background:var(--surface,#fff)}.profile-avatar-picker-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.profile-avatar-picker-heading p{margin:4px 0 0;color:var(--muted,#64748b);font-size:12px}.profile-avatar-builder{display:grid;grid-template-columns:minmax(140px,190px) minmax(0,1fr);gap:12px;margin-top:14px}.profile-avatar-builder-preview{grid-row:span 7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid var(--line,#dbe3ed);border-radius:16px;background:var(--surface-2,#f8fafc);position:sticky;top:12px;align-self:start}.profile-avatar-builder-preview img{width:min(100%,170px);aspect-ratio:1;object-fit:contain;border-radius:50%}.profile-avatar-builder-preview span{font-size:11px;font-weight:800;color:var(--muted,#64748b)}.profile-avatar-part{min-width:0;padding:10px 11px;border:1px solid var(--line,#dbe3ed);border-radius:13px}.profile-avatar-part h4{margin:0 0 8px;font-size:12px;font-weight:850}.profile-avatar-part-options{display:flex;flex-wrap:wrap;gap:7px}.profile-avatar-part-option{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line,#cbd5e1);border-radius:999px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:11px;font-weight:750;cursor:pointer}.profile-avatar-part-option.is-selected{border-color:#10b981;background:#10b98114;box-shadow:0 0 0 2px #10b98120}.profile-avatar-swatch{width:17px;height:17px;border:1px solid #0002;border-radius:50%;background:var(--avatar-swatch);flex:0 0 auto}.profile-avatar-builder-actions{grid-column:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.profile-avatar-secondary-button{padding:9px 12px;border:1px solid var(--line,#cbd5e1);border-radius:10px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:12px;font-weight:800;cursor:pointer}.profile-avatar-photo-options{margin-top:15px}.profile-avatar-photo-options>strong{display:block;margin-bottom:8px;font-size:12px}.profile-avatar-upload-controls{margin-top:12px}.profile-avatar-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}.profile-avatar-choice{width:48px;height:48px}.profile-avatar-choice img{width:100%;height:100%;object-fit:cover;border-radius:50%}@media(max-width:640px){.profile-avatar-picker{padding:13px}.profile-avatar-builder{grid-template-columns:minmax(0,1fr)}.profile-avatar-builder-preview{grid-row:auto;position:static}.profile-avatar-builder-preview img{width:128px}.profile-avatar-builder-actions{grid-column:1}.profile-avatar-part{padding:9px}.profile-avatar-part-option{padding:6px 8px}}';
+  humanAvatarStyle.textContent += '.profile-avatar-external-preview{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding:11px;border:1px solid var(--line,#dbe3ed);border-radius:14px}.profile-avatar-external-preview>div:first-child{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:800}.profile-avatar-external-preview img{width:64px;height:64px;border-radius:50%;object-fit:cover}';
   document.head.appendChild(humanAvatarStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:24}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
   // Keep broken remote avatar URLs from exposing their alt text in profile circles.
   // This embedded portrait is local, so it also works offline and when the avatar CDN fails.
-  const avatarFallbackDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="60" fill="#e2e8f0"/><circle cx="60" cy="43" r="22" fill="#64748b"/><path d="M18 112c2-26 19-41 42-41s40 15 42 41" fill="#64748b"/></svg>'
-  );
+  const avatarFallbackDataUri = window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('avatar-fallback'));
   document.addEventListener('error', event => {
     const image = event.target;
     if (!(image instanceof HTMLImageElement)) return;
@@ -1017,6 +1016,14 @@
           '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (!pending || pending === current ? ' disabled' : '') + '>Save Avatar</button>' +
         '</div></div>'
       : '';
+    const externalPreviewMarkup = !avatarPickerExpanded && pending
+      ? '<div class="profile-avatar-external-preview"><div><img src="' + pending + '" alt="Selected image preview"><span>Selected image</span></div>' +
+        '<div class="profile-avatar-confirm-actions">' +
+          (uploaded.includes(pending) ? '<button type="button" id="profile-avatar-delete" class="profile-avatar-delete-button">Delete upload</button>' : '') +
+          '<button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button">Cancel</button>' +
+          '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button">Use this image</button>' +
+        '</div></div>'
+      : '';
     picker.innerHTML = '<div class="profile-avatar-picker-heading"><div><span class="profile-avatar-picker-label">Profile Avatar</span>' +
       '<p>নিজের পছন্দমতো Character তৈরি করো।</p></div>' +
       '<button type="button" id="profile-avatar-toggle-picker" class="profile-avatar-toggle-button" aria-expanded="' + String(avatarPickerExpanded) + '">' +
@@ -1025,6 +1032,7 @@
       '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
       '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' uploaded</span></div>' +
       builderMarkup +
+      externalPreviewMarkup +
       (googleOptions || uploadedOptions ? '<div class="profile-avatar-photo-options"><strong>Other Profile Images</strong><div class="profile-avatar-options">' + googleOptions + uploadedOptions + '</div></div>' : '') +
       '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span>PNG/JPG/JPEG/WEBP/SVG · ছবির সর্বোচ্চ আকার ৫ MB</span></div>' +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
@@ -1277,6 +1285,7 @@
     const result = originalSetAuthStateForAvatar(user, ...args);
     avatarPickerExpanded = false;
     pendingAvatarSource = null;
+    pendingAvatarConfig = null;
     renderAvatarPicker();
     return result;
   };
@@ -1285,6 +1294,7 @@
     if (viewName !== 'profile') {
       avatarPickerExpanded = false;
       pendingAvatarSource = null;
+      pendingAvatarConfig = null;
     }
     const result = originalShowViewForAvatar(viewName, force);
     if (viewName === 'profile') renderAvatarPicker();
@@ -1696,35 +1706,27 @@ const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId(
 const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
 const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
 const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
-const portraitChoices=Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
 function portraitDefaultForId(userId){
-  const key=String(userId||'guest');let hash=2166136261;
-  for(let i=0;i<key.length;i++)hash=Math.imul(hash^key.charCodeAt(i),16777619);
-  return portraitChoices[(hash>>>0)%portraitChoices.length];
+  return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
 }
 function portraitForRow(row){
   const rawAvatar=String(row?.avatar||row?.Avatar||'').trim();
   const rowId=String(row?.uid||row?.userId||row?.playerId||row?.id||row?.name||'guest');
   const usableAvatar=value=>{
     const avatar=String(value||'').trim().replace(/#mat-(?:default|custom)-avatar$/i,'');
-    if(/^https:\/\//i.test(avatar)||/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(avatar)||/^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar))return avatar;
+    if(/^https:\/\//i.test(avatar)||/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(avatar)||window.MedAvatarCreator.isAvatar(avatar))return avatar;
     return '';
   };
+  const isLegacyPortrait=value=>/^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(String(value||'').trim());
   const mine=rowId===avatarAccountId();
-  let manuallyChosen=false;
-  if(mine){try{manuallyChosen=localStorage.getItem(manualAvatarKey())==='1';}catch(_){}}
   const rowAvatar=usableAvatar(rawAvatar);
-  if(rowAvatar){
-    if(rowAvatar===portraitChoices[0]&&!/#mat-(?:default|custom)-avatar$/i.test(rawAvatar)&&!manuallyChosen)return portraitDefaultForId(rowId);
-    return rowAvatar;
-  }
+  if(rowAvatar && !isLegacyPortrait(rowAvatar))return rowAvatar;
   if(mine){
     const profileAvatar=usableAvatar(app.profile?.avatar);
-    if(profileAvatar && (profileAvatar!==portraitChoices[0]||manuallyChosen))return profileAvatar;
+    if(profileAvatar && !isLegacyPortrait(profileAvatar))return profileAvatar;
     try{
-      const saved=localStorage.getItem(avatarKey())||localStorage.getItem(legacyAvatarKey());
-      const uploaded=JSON.parse(localStorage.getItem(uploadedAvatarKey())||'[]');
-      if((portraitChoices.includes(saved)&&(saved!==portraitChoices[0]||manuallyChosen))||(Array.isArray(uploaded)&&uploaded.includes(saved)&&usableAvatar(saved)))return usableAvatar(saved);
+      const saved=usableAvatar(localStorage.getItem(avatarKey())||localStorage.getItem(legacyAvatarKey()));
+      if(saved && !isLegacyPortrait(saved))return saved;
     }catch(_){}
   }
   return portraitDefaultForId(rowId);
