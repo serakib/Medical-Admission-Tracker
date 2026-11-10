@@ -1765,7 +1765,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (isMine) {
       try { manualAvatar = localStorage.getItem('med_profile_avatar_manual_v1_' + rowId) === '1'; } catch (_) {}
     }
-    if (avatar === DEFAULT_STUDENT_AVATAR && !avatarHasDefaultMarker(rawAvatar) && !avatarHasCustomMarker(rawAvatar) && !manualAvatar) {
+    if (/^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(avatar) ||
+        (avatar === DEFAULT_STUDENT_AVATAR && !avatarHasDefaultMarker(rawAvatar) && !avatarHasCustomMarker(rawAvatar) && !manualAvatar)) {
       avatar = defaultStudentAvatarForUser(rowId);
     }
     if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/i.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) {
