@@ -2923,30 +2923,42 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (player) { event.preventDefault(); event.stopImmediatePropagation(); showPublicProfile(player.dataset.medPlayer); }
     });
     var profileForm = document.getElementById('medical-profile-form');
-    if (profileForm) {
+    if (profileForm && profileForm.dataset.saveHandlerBound !== '1') {
+      profileForm.dataset.saveHandlerBound = '1';
       profileForm.addEventListener('submit', async function (event) {
         event.preventDefault();
         var status = document.getElementById('medical-profile-save-status');
         var button = document.getElementById('medical-profile-save');
-        var submittedName = safeText((document.getElementById('medical-profile-name') || {}).value || '', 80);
-        var submittedCollege = safeText((document.getElementById('medical-profile-college') || {}).value || '', 120);
-        var submittedBatch = safeText((document.getElementById('medical-profile-batch') || {}).value || '', 40);
+        var nameField = document.getElementById('medical-profile-name');
+        var collegeField = document.getElementById('medical-profile-college');
+        var batchField = document.getElementById('medical-profile-batch');
+        var submittedName = safeText((nameField || {}).value || '', 80);
+        var submittedCollege = safeText((collegeField || {}).value || '', 120);
+        var submittedBatch = safeText((batchField || {}).value || '', 40);
         if (submittedName.length < 2) {
           if (status) status.textContent = 'নাম কমপক্ষে ২ অক্ষরের হতে হবে।';
-          var nameField = document.getElementById('medical-profile-name');
           if (nameField) nameField.focus();
           return;
         }
-        if (button) button.disabled = true;
-        if (status) status.textContent = 'Profile save হচ্ছে…';
+        if (button) {
+          if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent.trim() || 'Save Profile';
+          button.disabled = true;
+          button.setAttribute('aria-busy', 'true');
+          button.innerHTML = 'Saving profile<span class="medical-save-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>';
+        }
+        if (status) {
+          status.className = 'text-sm text-blue-600 dark:text-blue-400';
+          status.textContent = 'Profile save হচ্ছে…';
+          status.removeAttribute('title');
+        }
         try {
+          // Google Sheets is the canonical profile store for both Guest and registered users.
+          // applyProfile mirrors the saved data to Firebase in the background for registered users.
           var updated = await updateProfile({
             name: submittedName,
             college: submittedCollege,
-            batch: submittedBatch,
+            batch: submittedBatch
           });
-          // Remember successful personal-info completion per account, so a temporary
-          // profile-loading delay after exam/session completion cannot reopen the gate.
           var savedName = safeText(updated.name || submittedName, 80);
           var savedCollege = safeText(updated.college != null ? updated.college : submittedCollege, 120);
           var savedBatch = safeText(updated.batch != null ? updated.batch : submittedBatch, 40);
@@ -2956,18 +2968,31 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             var gateNotice = document.getElementById('leaderboard-profile-gate-message');
             if (gateNotice) gateNotice.hidden = true;
           }
-          if (status) status.textContent = profileIsComplete
-            ? 'Profile update সফল হয়েছে।'
-            : 'তথ্য সংরক্ষিত হয়েছে। Leaderboard unlock করতে College ও Batch-ও পূরণ করুন।';
-          // Refreshing the leaderboard is secondary; never let it undo a confirmed save.
+          if (status) {
+            status.className = 'text-sm font-semibold text-emerald-600 dark:text-emerald-400';
+            status.textContent = profileIsComplete
+              ? 'Saved ✓'
+              : 'Saved ✓ — Leaderboard unlock করতে College ও Batch-ও পূরণ করুন।';
+            status.title = 'Profile successfully saved to Medical Sheets. Firebase mirror syncs in the background.';
+          }
+          // A leaderboard refresh is secondary; it must not change the confirmed save result.
           loadLeaderboard(true).catch(function (refreshError) {
             console.warn('[Profile save] Leaderboard refresh failed after profile was saved:', refreshError);
           });
         } catch (error) {
-          if (status) status.textContent = apiErrorMessage(error);
-          setStatus('Profile update হয়নি। ' + apiErrorMessage(error), true);
+          var message = apiErrorMessage(error);
+          if (status) {
+            status.className = 'text-sm font-semibold text-red-600 dark:text-red-400';
+            status.textContent = 'Not saved ✕ — ' + message;
+            status.title = message;
+          }
+          setStatus('Profile update হয়নি। ' + message, true);
         } finally {
-          if (button) button.disabled = false;
+          if (button) {
+            button.disabled = false;
+            button.removeAttribute('aria-busy');
+            button.textContent = button.dataset.originalLabel || 'Save Profile';
+          }
         }
       });
     }
