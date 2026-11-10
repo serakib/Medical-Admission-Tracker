@@ -1716,7 +1716,7 @@
       if (scroller && scroller.dataset.navSync !== '1') {
         scroller.dataset.navSync = '1';
         scroller.addEventListener('scroll', () => {
-          const sections = Array.from(scroller.querySelectorAll('[data-avatar-group-section]'));
+          const sections = Array.from(scroller.querySelectorAll('[data-avatar-group-section]:not([hidden])'));
           const top = scroller.getBoundingClientRect().top + 24;
           let current = sections[0];
           sections.forEach(section => { if (section.getBoundingClientRect().top <= top) current = section; });
