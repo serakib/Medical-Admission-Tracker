@@ -2164,9 +2164,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
 
   function preloadOtherLeaderboardPeriod() {
-    var other = selectedPeriod === 'weekly' ? 'monthly' : 'weekly';
-    refreshLeaderboardCacheForPeriod(other).catch(function (error) {
-      console.warn('[Leaderboard] Background ' + other + ' cache refresh failed:', error);
+    ['monthly', 'weekly'].forEach(function (period) {
+      if (period === selectedPeriod) return;
+      refreshLeaderboardCacheForPeriod(period).catch(function (error) {
+        console.warn('[Leaderboard] Background ' + period + ' cache refresh failed:', error);
+      });
     });
   }
 
