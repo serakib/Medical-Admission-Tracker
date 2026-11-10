@@ -1,139 +1,180 @@
-# 🩺 Medical Admission Pro
+# 🩺 Medical Admission Pro with Rakib
 
-### বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার্থীদের প্রস্তুতির সঙ্গী
+### বাংলাদেশের Medical Admission প্রস্তুতির জন্য একটি Smart Practice Platform
 
 **Practice smarter. Track your progress. Prepare with confidence.**
 
-🌐 **[ওয়েবসাইটে প্রবেশ করুন — Medical Admission Pro](https://serakib.github.io/Medical-Admission-Tracker/)**
+🔗 **Live Website:** [Medical Admission Pro](https://serakib.github.io/Medical-Admission-Tracker/)
 
-Medical Admission Pro হলো HSC একাদশ–দ্বাদশ শ্রেণির শিক্ষার্থী এবং বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার প্রস্তুতকারীদের জন্য তৈরি একটি অনলাইন MCQ practice platform। এখানে প্রশ্ন অনুশীলন, মডেল টেস্ট, বিগত বছরের প্রশ্ন, নিজের অগ্রগতি দেখা এবং অন্য শিক্ষার্থীদের সঙ্গে leaderboard-এ প্রতিযোগিতা করার সুবিধা রয়েছে।
+Medical Admission Pro হলো বাংলাদেশের HSC একাদশ–দ্বাদশ শ্রেণির শিক্ষার্থী এবং Medical Admission পরীক্ষার্থীদের জন্য তৈরি একটি online MCQ practice platform। এখানে Question Bank, Practice, Model Test, Previous Year Questions, Result Analysis এবং Leaderboard—সবকিছু এক জায়গায় পাওয়া যাবে।
 
 ---
 
-## 📚 কী কী করতে পারবে?
+## ✨ Features
 
-### ১. Question Bank
-- বিষয়, বছর বা উৎস অনুযায়ী প্রশ্ন খুঁজে নিতে পারবে।
-- প্রয়োজন অনুযায়ী প্রশ্ন সার্চ ও ফিল্টার করতে পারবে।
-- পড়ার সময় উত্তর দেখানো বা লুকিয়ে রাখতে পারবে।
-- পরীক্ষা শুরু না করেও প্রশ্ন অনুশীলন করতে পারবে।
+### 🏠 1. Home Dashboard
+- নিজের exam statistics ও preparation progress এক নজরে দেখো।
+- Question Bank, Practice এবং Model Test-এ দ্রুত প্রবেশ করো।
+- Subject-wise practice option ব্যবহার করো।
 
-### ২. Practice Lab
-- নিজের পছন্দমতো প্রশ্ন অনুশীলন করতে পারবে।
-- আগের ও পরের প্রশ্নে যাওয়া এবং উত্তর যাচাই করার সুবিধা রয়েছে।
-- Practice History-তে ভুল করা ও Review করা প্রশ্ন আলাদা করে দেখতে পারবে।
-- প্রশ্নের সঠিক উত্তর ও উপলভ্য বাংলা ব্যাখ্যা আবার পড়তে পারবে।
-- Practice History থেকে প্রয়োজন হলে Clear History ব্যবহার করতে পারবে।
+### 📚 2. Question Bank
+- Medical admission-এর MCQ প্রশ্নগুলো এক জায়গায় খুঁজে নাও।
+- Subject, Year, Source অথবা keyword দিয়ে Search ও Filter করো।
+- পড়ার সময় Answer show/hide করতে পারো।
+- Exam শুরু না করেও নিজের মতো করে প্রশ্ন পড়তে পারো।
 
-### ৩. বিভিন্ন ধরনের পরীক্ষা
-- **Random Test:** বিভিন্ন বিষয় বা নির্দিষ্ট বিষয় থেকে এলোমেলো প্রশ্নে পরীক্ষা।
-- **Full Model Test:** মেডিকেল ভর্তি পরীক্ষার আদলে নির্ধারিত প্রশ্নসংখ্যা ও সময়ের পরীক্ষা।
-- **Previous Year:** বিগত বছরের উপলভ্য প্রশ্নপত্র অনুশীলন ও কুইজ।
-- **Practice Exam:** নিজের পছন্দমতো প্রশ্নের সংখ্যা দিয়ে অনুশীলনমূলক পরীক্ষা।
+### 🎯 3. Practice Lab
+- আলাদা Practice environment-এ প্রশ্ন solve করো।
+- এক প্রশ্ন থেকে অন্য প্রশ্নে যাওয়া ও উত্তর যাচাই করার সুবিধা।
+- Practice History-তে ভুল করা (Wrong) এবং Review করা প্রশ্ন আলাদা করে দেখো।
+- সঠিক উত্তর ও available বাংলা Explanation আবার পড়ে নাও।
+- প্রয়োজন হলে Clear History ব্যবহার করে saved practice history মুছতে পারো।
 
-### ৪. পরীক্ষার সুবিধা
-- নির্ধারিত সময়ের countdown timer।
-- প্রশ্নের মধ্যে সামনে-পেছনে যাওয়া।
-- Question Palette থেকে যেকোনো প্রশ্নে সরাসরি যাওয়া।
-- প্রয়োজনীয় প্রশ্ন Mark for Review করা।
-- পরীক্ষা Submit করার পর ফলাফল দেখা।
+### 📝 4. Multiple Exam Modes
 
-### ৫. ফলাফল ও বিশ্লেষণ
-পরীক্ষা শেষে দেখতে পারবে:
-- মোট স্কোর ও শতকরা ফলাফল।
-- সঠিক, ভুল ও উত্তর না দেওয়া প্রশ্নের সংখ্যা।
-- Negative marking-এর হিসাব।
-- পরীক্ষায় ব্যয় করা সময়।
-- বিষয়ভিত্তিক পারফরম্যান্স।
-- প্রশ্ন, নিজের উত্তর, সঠিক উত্তর এবং উপলভ্য ব্যাখ্যা।
+**🎲 Random Mixed Test**
+- বিভিন্ন Subject থেকে random প্রশ্নে পরীক্ষা দাও।
+- চাইলে নির্দিষ্ট Subject নির্বাচন করো।
 
-### ৬. Negative Marking
-ওয়েবসাইটের পরীক্ষায় প্রদর্শিত নম্বর বণ্টন:
+**📋 Full Model Test**
+- Medical Admission পরীক্ষার আদলে Model Test দাও।
+- Available question count ও time অনুযায়ী পরীক্ষা নির্বাচন করো।
 
-| উত্তরের ধরন | নম্বর |
+**📅 Previous Year Questions**
+- বিগত বছরের available প্রশ্ন অনুশীলন করো।
+- পছন্দের Year নির্বাচন করে প্রশ্ন দেখো অথবা Quiz দাও।
+
+**✍️ Practice Exam**
+- নিজের প্রয়োজন অনুযায়ী Exam Type ও Question Count নির্বাচন করে practice করো।
+
+### ⏱️ 5. Timed Examination System
+- নির্ধারিত সময়ের Countdown Timer।
+- Question Palette থেকে যেকোনো প্রশ্নে সরাসরি যাও।
+- প্রয়োজনীয় প্রশ্ন Mark for Review করো।
+- আগের ও পরের প্রশ্নে যাওয়া এবং উত্তর পরিবর্তনের সুবিধা।
+- পরীক্ষা শেষে Submit করে Result দেখো।
+
+### ➖ 6. Negative Marking
+
+ওয়েবসাইটে প্রদর্শিত scoring system:
+
+| Response | Marks |
 |---|---:|
-| সঠিক উত্তর | +১.০০ |
-| ভুল উত্তর | −০.২৫ |
-| উত্তর না দিলে | ০.০০ |
+| Correct Answer | +1.00 |
+| Wrong Answer | −0.25 |
+| Unanswered | 0.00 |
 
-পরীক্ষার বছরের জন্য প্রযোজ্য সর্বশেষ সরকারি ভর্তি বিজ্ঞপ্তি অবশ্যই দেখে নেবে।
+### 📊 7. Results & Performance Analysis
+পরীক্ষা শেষে নিজের performance বিস্তারিত দেখো:
+- Total Score ও Percentage।
+- Correct, Wrong এবং Unanswered প্রশ্নের সংখ্যা।
+- Negative Marking-এর হিসাব।
+- Exam-এ ব্যয় করা সময়।
+- Subject-wise Performance।
+- নিজের Answer, Correct Answer এবং available বাংলা Explanation review করো।
 
-### ৭. Student Profile ও Progress
-নিজের প্রোফাইলে অনুশীলন ও পরীক্ষার অগ্রগতি দেখতে পারবে। যেমন:
-- XP, Level ও Rank।
-- Rank Points (RP) এবং Lifetime RP।
-- Personal Best (PB) ও পরীক্ষার পরিসংখ্যান।
-- Streak এবং সর্বোচ্চ Streak।
-- সাম্প্রতিক পরীক্ষার ফলাফল ও History।
+### 👤 8. Student Profile
+- Guest Account দিয়ে শুরু করার সুবিধা।
+- Registered Account-এর জন্য Login ও Sign Up।
+- নিজের Profile information দেখো ও available তথ্য update করো।
+- Exam attempts, Best Score ও Average Accuracy দেখো।
+- XP, Level, Rank, RP এবং Streak-এর অগ্রগতি অনুসরণ করো।
 
-### ৮. Medical Leaderboard
-নিজের অগ্রগতি অন্য শিক্ষার্থীদের সঙ্গে তুলনা করতে পারবে:
-- **Weekly Leaderboard:** সাপ্তাহিক RP অনুযায়ী অবস্থান।
-- **Monthly Leaderboard:** মাসিক RP অনুযায়ী অবস্থান।
-- **Friends Leaderboard:** বন্ধুদের সঙ্গে নিজের অবস্থান তুলনা।
-- শিক্ষার্থীর নাম, কলেজ ও উপলভ্য প্রোফাইল তথ্য দেখা।
-- Student Search ও Friend Request-এর মাধ্যমে বন্ধু যুক্ত করা।
+### 📈 9. Question Coverage Tracking
+- Question Bank-এর কতগুলো প্রশ্ন practice করেছ তা track করো।
+- Unseen questions খুঁজে নিয়ে নতুন প্রশ্ন অনুশীলন করো।
+- নিজের question coverage ও attempt history দেখো।
 
-Leaderboard-এর Rank ধাপ Bronze V থেকে শুরু হয়ে ধাপে ধাপে Immortal পর্যন্ত যায়। Rank ও RP-এর অগ্রগতি ওয়েবসাইটের নিয়ম অনুযায়ী হিসাব করা হয়।
+### 🏆 10. Medical Leaderboard
+অন্য শিক্ষার্থীদের সঙ্গে নিজের progress তুলনা করো:
+- **Weekly Leaderboard:** সাপ্তাহিক RP অনুযায়ী Ranking।
+- **Monthly Leaderboard:** মাসিক RP অনুযায়ী Ranking।
+- **Friends Leaderboard:** বন্ধুদের সঙ্গে Ranking তুলনা।
+- Student Search করে অন্য শিক্ষার্থী খুঁজে পাও এবং Friend Request পাঠাও।
+- Profile-এ নিজের Rank, XP, RP ও অন্যান্য progress দেখো।
 
-**মনে রাখবে:** XP, সাপ্তাহিক RP এবং Lifetime RP এক জিনিস নয়। সাপ্তাহিক RP-এর reset হলেও Lifetime RP তোমার সামগ্রিক অর্জন হিসেবে সংরক্ষিত থাকে।
+**Rank System:** Bronze V থেকে শুরু করে ধাপে ধাপে Immortal পর্যন্ত Rank progression রয়েছে।
 
-### ৯. Account
-- শুরুতে Guest Account ব্যবহার করতে পারবে।
-- চাইলে Registered Account তৈরি করে Login করতে পারবে।
-- Guest Account তৈরি করতে নাম, কলেজ ও HSC Batch দিতে হয়।
-- প্রোফাইলের উপলভ্য তথ্য পরিবর্তন করতে পারবে।
-- Account ব্যবহারের সময় নিজের Login তথ্য নিরাপদে রাখবে।
+**মনে রাখবে:** Weekly RP, Monthly RP এবং Lifetime RP আলাদা। Weekly reset হলে Lifetime RP মুছে যায় না। Rank ও RP-এর হিসাব website-এর নির্ধারিত নিয়ম অনুযায়ী হয়।
 
-### ১০. Syllabus ও ভর্তি-সংক্রান্ত তথ্য
-ওয়েবসাইটে মেডিকেল ভর্তি প্রস্তুতির বিষয়ভিত্তিক তথ্য, পরীক্ষার নির্দেশনা এবং প্রস্তুতি-সংক্রান্ত গাইডলাইন দেখতে পারবে। নিয়ম বা নম্বর বণ্টন পরিবর্তিত হতে পারে, তাই সর্বশেষ সরকারি ভর্তি বিজ্ঞপ্তিকে চূড়ান্ত হিসেবে ধরবে।
-
----
-
-## 🧬 প্রস্তুতির বিষয়সমূহ
-
-- Biology
-- Chemistry
-- Physics
-- English
-- General Knowledge (GK)
-
-## 🎓 কাদের জন্য?
-
-- HSC একাদশ ও দ্বাদশ শ্রেণির শিক্ষার্থী।
-- বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার প্রস্তুতকারীরা।
-- যারা নিয়মিত MCQ অনুশীলন করতে চায়।
-- যারা নিজের ভুল, দুর্বলতা ও অগ্রগতি বুঝে প্রস্তুতি নিতে চায়।
+### 📖 11. Syllabus & Examination Guidelines
+- Subject-wise marks distribution।
+- Medical admission exam-এর নির্দেশনা।
+- Exam duration ও negative marking rules।
+- Preparation-এর জন্য প্রয়োজনীয় তথ্য ও guideline।
 
 ---
 
-## 🚀 কীভাবে শুরু করবে?
+## 📘 Subjects
 
-1. [Medical Admission Pro ওয়েবসাইটে](https://serakib.github.io/Medical-Admission-Tracker/) প্রবেশ করো।
-2. Question Bank, Practice অথবা পছন্দের Exam Mode বেছে নাও।
-3. বিষয়, প্রশ্নসংখ্যা বা পরীক্ষার বছর নির্বাচন করো—যেখানে এই অপশন আছে।
-4. সময়ের মধ্যে প্রশ্নের উত্তর দাও এবং পরীক্ষা Submit করো।
-5. Result ও Practice History দেখে ভুলগুলো আবার অনুশীলন করো।
-6. Profile ও Leaderboard থেকে নিজের অগ্রগতি অনুসরণ করো।
+Medical Admission preparation-এর জন্য পাঁচটি Subject:
+
+- 🧬 **Biology**
+- 🧪 **Chemistry**
+- ⚛️ **Physics**
+- 🇬🇧 **English**
+- 🌍 **General Knowledge (GK)**
+
+## 🎓 Who Is This For?
+
+- HSC Class XI ও XII-এর শিক্ষার্থী।
+- বাংলাদেশের Medical Admission পরীক্ষার্থী।
+- যারা নিয়মিত MCQ practice করতে চায়।
+- যারা নিজের ভুল ও দুর্বলতা বুঝে preparation improve করতে চায়।
+- যারা Model Test ও Previous Year Questions solve করতে চায়।
+
+## 🚀 Getting Started
+
+1. [Medical Admission Pro Website](https://serakib.github.io/Medical-Admission-Tracker/) খুলে নাও।
+2. Question Bank, Practice অথবা পছন্দের Exam Mode নির্বাচন করো।
+3. Subject, Question Count বা Exam Year নির্বাচন করো—যেখানে option available।
+4. সময়ের মধ্যে প্রশ্ন solve করে Exam Submit করো।
+5. Result ও Practice History review করে ভুলগুলো আবার practice করো।
+6. Profile ও Leaderboard থেকে নিজের progress track করো।
+
+## ⚖️ Examination Mark Distribution
+
+ওয়েবসাইটে প্রদর্শিত Subject-wise mark distribution:
+
+| Subject | Marks |
+|---|---:|
+| Biology | 30 |
+| Chemistry | 25 |
+| Physics | 20 |
+| English | 15 |
+| General Knowledge | 10 |
+| **Total** | **100** |
+
+ওয়েবসাইটে প্রদর্শিত guideline অনুযায়ী পরীক্ষা 100 MCQ ও 60 মিনিটের। Passing score হিসেবে 40 দেখানো হয়েছে। তবে ভর্তি পরীক্ষার নিয়ম ও নম্বর বণ্টন পরিবর্তিত হতে পারে—তাই সংশ্লিষ্ট বছরের সর্বশেষ official admission circular অবশ্যই দেখে নেবে।
+
+## 🔔 Leaderboard Sync সমস্যা হলে
+
+কখনো internet connection বা server response দেরি করলে নতুন Leaderboard data load নাও হতে পারে। তখন website আগের cached data দেখাতে পারে, যা সর্বশেষ Ranking নাও হতে পারে। কিছুক্ষণ পর আবার Refresh করে চেষ্টা করো।
+
+Exam Submit করার পর Result বা Reward update না হলে একই Exam বারবার Submit কোরো না। আগে Profile ও Exam History আবার check করো।
+
+## 📚 Wiki
+
+**Project Wiki is available!** আরও তথ্যের জন্য repository-এর [Wiki](https://github.com/serakib/Medical-Admission-Tracker/wiki) দেখে নাও।
 
 ---
 
-## ℹ️ Leaderboard বা Sync সমস্যা হলে
+## 🔒 Copyright & License
 
-কখনো ইন্টারনেট বা সার্ভারের সাময়িক সমস্যার কারণে নতুন Leaderboard data লোড হতে দেরি হতে পারে। তখন ওয়েবসাইট আগের সংরক্ষিত data দেখাতে পারে। এমন বার্তা দেখলে কিছুক্ষণ পর আবার চেষ্টা করো। Cached data সবসময় সর্বশেষ ranking নাও হতে পারে।
+**Copyright (c) 2026 Rakib Hasan. All Rights Reserved.**
 
-পরীক্ষা Submit করার পরও যদি ফলাফল বা reward আপডেট না হয়, একই পরীক্ষা বারবার Submit না করে আগে Profile ও History আবার পরীক্ষা করো।
+Unless expressly stated otherwise, the source code, original designs, documentation, and original question-bank materials are proprietary.
+
+No permission is granted to copy, redistribute, modify, republish, or commercially exploit these materials without prior written authorization from the copyright owner, except where permitted by applicable law.
+
+Third-party materials remain subject to their respective licenses. See the repository's `LICENSE` file for applicable terms.
+
+## 👨‍💻 Creator
+
+**Rakib Hasan** · [Visit Portfolio](https://rakibhasandc27.blogspot.com/)
+
+🔗 **[Open Medical Admission Pro](https://serakib.github.io/Medical-Admission-Tracker/)**
 
 ---
 
-## © পরিচিতি
-
-**Medical Admission Pro with Rakib**  
-Created by **Rakib Hasan**
-
-🔗 [ওয়েবসাইট খুলুন](https://serakib.github.io/Medical-Admission-Tracker/)  
-🔗 [Developer Portfolio](https://rakibhasandc27.blogspot.com/)
-
----
-
-*বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার্থীদের প্রস্তুতিতে সহায়তার জন্য তৈরি।*
+*Made for students preparing for Medical Admission in Bangladesh.*
