@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.3';
+const MAT_API_VERSION = '2026.11.10.4';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
@@ -1759,6 +1759,7 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       rankPoints: Number(s.RP || 0), rp: Number(s.RP || 0),
       // Lifetime RP is cumulative across all time; never substitute weekly/monthly RP.
       totalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
+      lifetimeRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
       TotalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
       rankProgress: matGetRankProgress_(s.Rank, s.RP),
       leaderboardRequiredRPMultiplier: safePeriod === 'monthly' ? 5 : 1,
@@ -2854,6 +2855,7 @@ function matPublicProfile_(r, includeEmail) {
     pendingPB: Math.max(0, matFiniteNumber_(s.PB, 0)) + Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
     promoPB: Math.max(0, matFiniteNumber_(s.PromoPB, 0)),
     totalRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
+    lifetimeRP: Math.max(0, matFiniteNumber_(s.TotalRP, 0), matFiniteNumber_(s.RP, 0)),
     monthlyRP: monthlyRP,
     monthlyRankPoints: monthlyRP,
     highestWeeklyRP: s.HighestWeeklyRP,
