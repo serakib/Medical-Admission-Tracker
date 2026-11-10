@@ -424,6 +424,65 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
       #mat-global-loading-bar.is-finishing #mat-global-loading-bar-fill{width:100%!important;transition:width .18s ease-out}
       @media(prefers-reduced-motion:reduce){#mat-global-loading-bar,#mat-global-loading-bar-fill{transition:none!important}}
     </style>
+
+    <style id="mat-sidebar-profile-card-final">
+      .sidebar-bottom{
+        gap:0!important;align-items:center!important;justify-content:space-between!important;
+        margin-top:auto!important;padding:9px 9px!important;min-height:68px!important;
+        border:1px solid #34343f!important;border-radius:16px!important;
+        background:#17171f!important;overflow:visible!important;box-sizing:border-box!important;
+      }
+      .sidebar-user-trigger{gap:10px!important;min-height:48px!important;padding:0!important;border-radius:11px!important}
+      .sidebar-user-trigger:hover{background:rgba(255,255,255,.045)!important}
+      .sidebar-user-avatar-wrap{flex:0 0 48px!important;width:48px!important;height:48px!important}
+      .sidebar-user-avatar{width:48px!important;height:48px!important;border:1px solid rgba(255,255,255,.14)!important;background:#242430!important}
+      .sidebar-user-avatar img,.sidebar-user-avatar .med-avatar-stack{width:100%!important;height:100%!important}
+      .sidebar-user-dot{
+        position:absolute!important;top:-4px!important;right:-4px!important;z-index:12!important;
+        display:none;place-items:center;min-width:19px!important;height:19px!important;
+        padding:0 4px!important;border:2px solid #17171f!important;border-radius:999px!important;
+        background:#ef4444!important;color:#fff!important;font-size:9px!important;
+        line-height:1!important;font-weight:900!important;letter-spacing:-.02em;
+        box-shadow:0 2px 5px rgba(0,0,0,.28);white-space:nowrap;
+      }
+      .sidebar-user-copy{gap:3px!important;padding-right:4px!important}
+      .sidebar-user-name{font-size:13px!important;font-weight:800!important;line-height:1.25!important;color:#f8fafc!important}
+      .sidebar-user-batch{font-size:11px!important;font-weight:600!important;line-height:1.25!important;color:#a1a1aa!important}
+      #sidebar-account-settings-button{
+        position:relative!important;flex:0 0 36px!important;width:36px!important;height:40px!important;
+        margin-left:8px!important;padding:0!important;border:0!important;border-radius:9px!important;
+        background:transparent!important;color:#a1a1aa!important;box-shadow:none!important;
+      }
+      #sidebar-account-settings-button:before{
+        content:"";position:absolute;left:-8px;top:5px;bottom:5px;width:1px;
+        background:#3b3b46;
+      }
+      #sidebar-account-settings-button:hover{background:rgba(255,255,255,.07)!important;color:#fff!important}
+      #sidebar-account-settings-button i{font-size:16px}
+      html[data-theme="light"] .sidebar-bottom{
+        border-color:#e2e2e8!important;background:#fff!important;
+        box-shadow:0 3px 12px rgba(15,23,42,.05);
+      }
+      html[data-theme="light"] .sidebar-user-avatar{background:#f1f5f9!important;border-color:#d8dee8!important}
+      html[data-theme="light"] .sidebar-user-dot{border-color:#fff!important}
+      html[data-theme="light"] .sidebar-user-name{color:#111827!important}
+      html[data-theme="light"] .sidebar-user-batch{color:#64748b!important}
+      html[data-theme="light"] #sidebar-account-settings-button{color:#64748b!important}
+      html[data-theme="light"] #sidebar-account-settings-button:before{background:#e2e8f0}
+      @media(min-width:768px){
+        .app-sidebar.sidebar-collapsed .sidebar-bottom{
+          gap:9px!important;padding:9px 5px!important;min-height:0!important;
+          flex-direction:column!important;align-items:center!important;
+        }
+        .app-sidebar.sidebar-collapsed .sidebar-user-trigger{width:100%;min-height:48px!important}
+        .app-sidebar.sidebar-collapsed .sidebar-user-avatar-wrap{margin:auto}
+        .app-sidebar.sidebar-collapsed #sidebar-account-settings-button{margin:0!important}
+        .app-sidebar.sidebar-collapsed #sidebar-account-settings-button:before{display:none}
+      }
+      @media(prefers-reduced-motion:reduce){
+        .sidebar-user-trigger,#sidebar-account-settings-button{transition:none!important}
+      }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
     <div id="mat-initial-entry-loader" role="status" aria-live="polite" aria-label="মেডিকেল ভর্তি প্রস্তুতি লোড হচ্ছে">
@@ -631,7 +690,12 @@ function syncSidebarUserProfile(){
     }
   }
   var badge=document.querySelector('[data-mat-notification-badge]');
-  if(dotEl)dotEl.style.display=badge&&!badge.hidden&&Number(badge.textContent)>0?'block':'none';
+  var unreadCount=badge&&!badge.hidden?(parseInt(String(badge.textContent||'').replace(/[^0-9]/g,''),10)||0):0;
+  if(dotEl){
+    dotEl.textContent=unreadCount>9?'9+':String(unreadCount);
+    dotEl.style.display=unreadCount>0?'grid':'none';
+    dotEl.setAttribute('aria-label',unreadCount+' unread notifications');
+  }
 }
 document.addEventListener('DOMContentLoaded',function(){
   syncSidebarUserProfile();
@@ -2275,10 +2339,10 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/leaderboard-config.js?v=medical-sheet-api-5"></script>
 <script src="./js/feature-navigation.js?v=leaderboard-nav-hook-preserve-20261101-1" defer></script>
 <script src="./js/avatar-creator.js?v=dicebear-bootstrap-20261110-1"></script>
-<script src="./js/avatar-creator-extended.js?v=avatar-unique-defaults-10sec-cycle-20261110-6"></script>
+<script src="./js/avatar-creator-extended.js?v=avatar-living-face-motion-20261110-7"></script>
 <script type="module" src="./js/student-ai.js"></script>
 <script type="module" src="script.js?v=entry-background-load-20261110-1"></script>
-<script type="module" src="./js/integrated-features.js?v=avatar-no-modal-repeat-unique-default-10sec-20261110-12"></script>
+<script type="module" src="./js/integrated-features.js?v=avatar-reference-layout-live-face-20261110-13"></script>
 <script src="./js/avatar-profile-modal.js?v=avatar-modal-design-20261110-5" defer></script>
 <script src="./js/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
 <script src="./js/final-exam-type-lifetime.js?v=previous-year-fix-5-observer-scope" defer></script>
