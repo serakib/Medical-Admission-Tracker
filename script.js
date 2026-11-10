@@ -2613,8 +2613,14 @@ window.handleAccountDeletion = function() {
                 localStorage.setItem('med_sheet_exam_pending_v1', JSON.stringify(queue.filter(item => String(item && item.userId || '') !== uid)));
               }
             } catch (_) {}
-            ['med_sheet_leaderboard_cache_v1_monthly','med_sheet_leaderboard_cache_v1_all-time','med_sheet_leaderboard_cache_v1_weekly','med_sheet_leaderboard_cache_v1_friends']
-              .forEach(key => { try { localStorage.removeItem(key); } catch (_) {} });
+            // Clear every versioned/account-scoped leaderboard snapshot on this device.
+            // Cache keys include a per-user UID, so removing only legacy fixed keys
+            // would leave the deleted account visible in its old v3 cache.
+            try {
+              Object.keys(localStorage).filter(key =>
+                key.indexOf('med_sheet_leaderboard_cache_v1') === 0
+              ).forEach(key => localStorage.removeItem(key));
+            } catch (_) {}
             try {
               const remembered = JSON.parse(localStorage.getItem('med_recent_accounts_v1') || '[]');
               if (Array.isArray(remembered)) {
