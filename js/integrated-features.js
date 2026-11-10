@@ -1061,7 +1061,7 @@
   }
   document.addEventListener('click', event => {
     const builderBack = event.target.closest('#profile-avatar-builder-back');
-    if (builderBack) { avatarPickerExpanded = false; pendingAvatarSource = null; pendingAvatarConfig = null; renderAvatarPicker(); return; }
+    if (builderBack) { avatarPickerExpanded = false; renderAvatarPicker(); window.MedAvatarProfileModal?.open(); return; }
     const avatarGroup = event.target.closest('[data-avatar-group]');
     if (avatarGroup) { activeAvatarGroup = avatarGroup.dataset.avatarGroup; renderAvatarPicker(); return; }
     const avatarPart = event.target.closest('[data-avatar-part]');
@@ -1091,8 +1091,8 @@
     const togglePicker = event.target.closest('#profile-avatar-toggle-picker');
     if (togglePicker) {
       avatarPickerExpanded = !avatarPickerExpanded;
-      pendingAvatarConfig = avatarPickerExpanded ? readAvatarConfig() : null;
-      pendingAvatarSource = avatarPickerExpanded ? window.MedAvatarCreator.render(pendingAvatarConfig) : null;
+      pendingAvatarConfig = avatarPickerExpanded ? (pendingAvatarConfig || readAvatarConfig()) : null;
+      pendingAvatarSource = avatarPickerExpanded ? (pendingAvatarSource || window.MedAvatarCreator.render(pendingAvatarConfig)) : null;
       renderAvatarPicker();
       return;
     }
