@@ -18,6 +18,8 @@ Use the repository's issue forms:
 
 Provide clear steps and relevant environment details. Never include passwords, authentication tokens, private student records, or other sensitive information in a public issue.
 
+**Security vulnerabilities must not be reported through public Issues.** Follow [SECURITY.md](./SECURITY.md) and use a private reporting route.
+
 ## Pull requests
 
 - Keep each pull request focused on one related change.
@@ -27,9 +29,11 @@ Provide clear steps and relevant environment details. Never include passwords, a
 - For user-interface changes, include screenshots when they help reviewers understand the result.
 - Review the checklist in the pull request template before submitting.
 
-## Accessibility
+## Project standards
 
-Accessibility is part of the implementation and review process. Follow the guidance in [ACCESSIBILITY.md](./ACCESSIBILITY.md), especially for keyboard operation, visible focus, form feedback, reduced motion, responsive layout, and Bangla text.
+- Follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+- Follow [ACCESSIBILITY.md](./ACCESSIBILITY.md), especially for keyboard operation, visible focus, form feedback, reduced motion, responsive layout, and Bangla text.
+- Follow [SECURITY.md](./SECURITY.md) when handling credentials, student data, and vulnerability reports.
 
 ## Scope and review
 
