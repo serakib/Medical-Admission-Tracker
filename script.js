@@ -122,9 +122,8 @@ class MedicalExamApp {
             throw error;
         });
 
-        // A secondary UI/rendering error must never prevent the loading status from
-        // being replaced with a ready/error message. Non-critical data refreshes run
-        // in the background and never hold up the initial question-bank request.
+        // Keep the site interactive while the question bank and account data refresh.
+        // Existing per-action loading feedback and the Question Bank status banner remain intact.
         let uiError = null;
         const safeRun = (label, callback) => {
             try {
@@ -140,22 +139,32 @@ class MedicalExamApp {
 
         safeRun('progress stats', () => this.loadProgressStats());
         safeRun('leaderboard', () => this.loadLeaderboard(true));
-
-        try {
-            await this.__initialQuestionBankPromise;
-        } catch (_) {}
-
-        safeRun('subject counts', () => this.updateSubjectCountsUI());
         safeRun('exam setup', () => this.updateSetupUI());
         safeRun('practice browser', () => this.renderPracticeBrowser());
 
-        if (loadError) {
-            this.setDataStatus('error', loadError.message || 'questions.json লোড করা যায়নি।');
-        } else if (uiError) {
-            this.setDataStatus('error', 'প্রশ্নগুলো লোড হয়েছে, কিন্তু পেজের কিছু অংশ দেখাতে সমস্যা হয়েছে। Console error পরীক্ষা করুন।');
-        } else {
-            this.setDataStatus('ready');
+        // The entry overlay is only for the first SPA entry in this tab. It must
+        // never wait for network data or reappear during in-app navigation.
+        if (window.MATInitialLoader && typeof window.MATInitialLoader.hide === 'function') {
+            window.MATInitialLoader.hide();
         }
+
+        this.__initialQuestionBankPromise.then(() => {
+            safeRun('subject counts', () => this.updateSubjectCountsUI());
+            safeRun('exam setup after question refresh', () => this.updateSetupUI());
+            safeRun('practice browser after question refresh', () => this.renderPracticeBrowser());
+            if (uiError) {
+                this.setDataStatus('error', 'প্রশ্নগুলো লোড হয়েছে, কিন্তু পেজের কিছু অংশ দেখাতে সমস্যা হয়েছে। Console error পরীক্ষা করুন।');
+            } else {
+                this.setDataStatus('ready');
+            }
+        }).catch(() => {
+            // Failure is reported in the existing Question Bank status area;
+            // the rest of the website remains usable.
+            safeRun('subject counts after question error', () => this.updateSubjectCountsUI());
+            safeRun('exam setup after question error', () => this.updateSetupUI());
+            safeRun('practice browser after question error', () => this.renderPracticeBrowser());
+            this.setDataStatus('error', loadError?.message || 'questions.json লোড করা যায়নি।');
+        });
     }
 
     setDataStatus(state, message = '') {
