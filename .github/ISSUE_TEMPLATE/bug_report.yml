@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a reproducible problem in Medical Admission Pro.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. Please do not include passwords, Firebase tokens, private student information, or other secrets. Redact personal information from screenshots and logs.
+  - type: input
+    id: page
+    attributes:
+      label: Affected page or feature
+      description: Where did the problem happen?
+      placeholder: "For example: Practice Lab, Model Test, Profile"
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen.
+      placeholder: "Actual behaviour and expected behaviour"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the steps another person can follow to see the same problem.
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Press ...
+        4. Observe ...
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: "For example: Chrome 157"
+    validations:
+      required: false
+  - type: input
+    id: device
+    attributes:
+      label: Device and operating system
+      placeholder: "For example: Windows 11 desktop / Android 15 phone"
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots, screen recording, or console message
+      description: Add evidence that helps reproduce the issue. Remove personal data and secrets first.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have checked that a similar issue has not already been reported.
+          required: true
+        - label: I have removed passwords, tokens, and private student information from this report.
+          required: true
