@@ -432,7 +432,8 @@
       : Math.max(0, Number(profile.promoPB) || 0);
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.weeklyRP = Math.max(0, Number(user.weeklyRP != null ? user.weeklyRP : (user.weeklyRankPoints != null ? user.weeklyRankPoints : profile.weeklyRP)) || 0);
-    profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : profile.rankPoints) || 0);
+    profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : (user.lifetimeRP != null ? user.lifetimeRP : profile.rankPoints)) || 0);
+    profile.lifetimeRP = profile.totalRP;
     profile.monthlyRP = Math.max(0, Number(user.monthlyRP != null ? user.monthlyRP : user.monthlyRankPoints) || 0);
     profile.highestMonthlyRP = Math.max(0, Number(user.highestMonthlyRP) || 0, profile.monthlyRP);
     profile.highestWeeklyRP = Math.max(0, Number(user.highestWeeklyRP) || 0);
@@ -1027,6 +1028,8 @@
         : (raw.showGoldName !== false && raw.ShowGoldName !== false),
       guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
       xp: xp,
+      totalRP: Math.max(0, Number(raw.totalRP != null ? raw.totalRP : (raw.lifetimeRP != null ? raw.lifetimeRP : raw.TotalRP)) || (isCurrentAccount ? Number(ownProfile.totalRP || ownProfile.lifetimeRP || 0) : 0)),
+      lifetimeRP: Math.max(0, Number(raw.lifetimeRP != null ? raw.lifetimeRP : (raw.totalRP != null ? raw.totalRP : raw.TotalRP)) || (isCurrentAccount ? Number(ownProfile.lifetimeRP || ownProfile.totalRP || 0) : 0)),
       level: boardLevel,
       rank: rank, rankPoints: currentRP, monthlyRP: monthlyRP,
       highestWeeklyRP: Math.max(0, Number(raw.highestWeeklyRP != null ? raw.highestWeeklyRP : raw.HighestWeeklyRP) || 0, weeklyRP),
