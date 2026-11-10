@@ -43,7 +43,7 @@
   };
   const entries = Object.entries(choices);
   const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','dreads','dreads01','dreads02','froBand'];
-  const femaleHair = ['bigHair','bob','bun','curly','curvy','frida','frizzle','fro','hijab','longButNotTooLong','miaWallace','shaggy','straight01','straight02','straightAndStrand'];
+  const femaleHair = ['bigHair','bob','bun','curly','curvy','frida','frizzle','fro','hijab','longButNotTooLong','miaWallace','straight01','straight02','straightAndStrand'];
   const hairChoicesFor = (gender, ageGroup) => {
     const source = gender === 'female' ? femaleHair : maleHair;
     const allowed = ageGroup === 'teen'
@@ -76,7 +76,7 @@
   const buildUrl = input => {
     const c = normalize(input);
     const params = new URLSearchParams({
-      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|hp='+c.headphonesType+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
+      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|bg='+hex(c.background)+'|hp='+c.headphonesType+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
       size:'512',
       skinColor:hex(c.skinTone),
       topVariant:c.hat !== 'none' ? c.hat : c.hairStyle,
@@ -97,7 +97,7 @@
       clothesVariant:c.clothingType,
       clothesProbability:'100',
       clothesColor:hex(c.clothingColor),
-      backgroundColor:hex(c.background)
+      // The avatar SVG stays transparent; the selected background is rendered by the full preview panel.
     });
     return 'https://api.dicebear.com/10.x/avataaars/svg?' + params.toString();
   };
@@ -126,7 +126,7 @@
         clothingColor:p.get('clothesColor') || defaults.clothingColor,
         headphonesType:meta.hp || defaults.headphonesType,
         petType:meta.pet || defaults.petType,
-        background:p.get('backgroundColor') || defaults.background
+        background:meta.bg || p.get('backgroundColor') || defaults.background
       };
       return normalize(c);
     } catch (_) { return null; }
