@@ -597,8 +597,9 @@ function syncSidebarUserProfile(){
     var savedIsDefault=/#mat-default-avatar$/i.test(savedAvatar);
     var sharedAvatar=app.profile&&app.profile.avatar?String(app.profile.avatar):'';
     var cleanShared=sharedAvatar.replace(/#mat-(?:default|custom)-avatar$/i,'');
+    var isOldPortrait=function(value){return /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(String(value||''));};
     var photo=user&&(user.photoURL||user.photoUrl||user.avatarUrl);
-    var selectedAvatar=cleanShared||((manualAvatar&&cleanSaved)?cleanSaved:'');
+    var selectedAvatar=(!isOldPortrait(cleanShared)&&cleanShared)||((manualAvatar&&cleanSaved&&!isOldPortrait(cleanSaved))?cleanSaved:'');
     var avatarSource=selectedAvatar||photo||(!user&&cleanSaved)||'';
     if(!avatarSource&&!user){
       avatarSource=window.MedAvatarCreator
