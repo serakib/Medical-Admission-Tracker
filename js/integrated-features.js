@@ -1009,7 +1009,7 @@
       ? '<div class="profile-avatar-builder">' +
         '<div class="profile-avatar-builder-preview"><img src="' + (pending || window.MedAvatarCreator.render(config)) + '" alt="Custom avatar preview"><span>Live Preview</span></div>' +
         groups.map(group => {
-          const options = window.MedAvatarCreator.choices[group.key] || [];
+          const allOptions = window.MedAvatarCreator.choices[group.key] || [];\n          const options = group.key === 'petColor' ? (config.petType === 'cat' ? allOptions.filter(option => ['#f8fafc','#111827','#f59e0b'].includes(option.value)) : config.petType === 'bird' ? allOptions.filter(option => ['#facc15','#2563eb','#16a34a'].includes(option.value)) : []) : allOptions;
           return '<section class="profile-avatar-part"><h4>' + group.title + '</h4><div class="profile-avatar-part-options">' +
             options.map(option => {
               const selected = config[group.key] === option.value;
