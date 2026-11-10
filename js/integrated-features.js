@@ -969,93 +969,70 @@
       picker = document.createElement('div');
       picker.id = 'profile-avatar-picker';
       picker.className = 'profile-avatar-picker';
-      picker.setAttribute('aria-label', 'Create or select a profile avatar');
+      picker.setAttribute('aria-label', 'Avatar customizer');
       const hero = root.querySelector('.profile-hero');
       if (hero) hero.insertAdjacentElement('afterend', picker);
       else root.prepend(picker);
     }
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
-    const uploaded = readUploadedAvatars();
+    document.body.classList.toggle('mat-avatar-customizer-open', avatarPickerExpanded);
+
     const current = readAvatar();
-    const pending = isAvatarSource(pendingAvatarSource) ? stripAvatarDefaultMarker(pendingAvatarSource) : null;
-    if (!pending) pendingAvatarSource = null;
-    const preview = pending || current;
+    const currentConfig = window.MedAvatarCreator.configFromAvatar(current);
     const avatar = root.querySelector('.profile-hero .profile-avatar');
     if (avatar) {
-      const currentConfig = window.MedAvatarCreator.configFromAvatar(current);
       avatar.innerHTML = window.MedAvatarCreator.renderLayersMarkup(current, currentConfig, 'profile-avatar-stack');
       avatar.setAttribute('aria-label', 'Current profile avatar');
     }
-    const optionButton = (value, index, source, label) => {
-      const cleanValue = stripAvatarDefaultMarker(value);
-      const isCurrent = cleanValue === current;
-      const isPending = cleanValue === pending;
-      const classes = 'profile-avatar-choice' + (isCurrent ? ' is-current' : '') + (isPending ? ' is-pending' : '');
-      return '<button type="button" class="' + classes + '" data-avatar-source="' + source + '" data-avatar-index="' + index + '" aria-pressed="' + String(isPending) + '" aria-label="' + label + '"><img src="' + cleanValue + '" alt="' + label + '" loading="lazy"></button>';
-    };
-    const googleAvatar = readGoogleAvatar();
-    const googleOptions = googleAvatar ? optionButton(googleAvatar, 0, 'google', 'Google profile photo') : '';
-    const uploadedOptions = uploaded.map((value, i) => optionButton(value, i, 'uploaded', 'Uploaded image ' + (i + 1))).join('');
+
     const groups = [
-      { key: 'face', title: 'ত্বক', fields: [{key:'skinTone',title:'ত্বকের রং'}] },
-      { key: 'eyes', title: 'চোখ, ভ্রু ও মুখ', fields: [{key:'eyeShape',title:'চোখের ধরন'},{key:'eyebrowShape',title:'ভ্রুর ধরন'},{key:'expression',title:'মুখের ভাব'}] },
-      { key: 'hair', title: 'চুল', fields: [{key:'hairStyle',title:'চুলের স্টাইল'},{key:'hairColor',title:'চুলের রং'}] },
-      { key: 'beard', title: 'দাড়ি ও গোঁফ', fields: [{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রং'}] },
-      { key: 'accessories', title: 'চশমা ও মাথার পোশাক', fields: [{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি / হেডওয়্যার'},{key:'hatColor',title:'টুপি রং'}] },
-      { key: 'clothes', title: 'পোশাক', fields: [{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'পোশাকের রং'}] },
-      { key: 'audio', title: 'হেডফোন', fields: [{key:'headphonesType',title:'হেডফোন'}] },
-      { key: 'extras', title: 'সঙ্গী ও ব্যাকগ্রাউন্ড', fields: [{key:'petType',title:'সঙ্গী'},{key:'background',title:'ব্যাকগ্রাউন্ড'}] }
+      {key:'body',title:'Body',icon:'fa-user',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
+      {key:'eyes',title:'Eyes',icon:'fa-eye',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
+      {key:'mouth',title:'Mouth',icon:'fa-face-smile',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
+      {key:'hair',title:'Hair',icon:'fa-scissors',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
+      {key:'beard',title:'Beard',icon:'fa-user-tie',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
+      {key:'glasses',title:'Glasses',icon:'fa-glasses',fields:[{key:'glasses',title:'চশমা'}]},
+      {key:'clothes',title:'Clothes',icon:'fa-shirt',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'জামার রঙ'}]},
+      {key:'pets',title:'Pets',icon:'fa-paw',fields:[{key:'headphonesType',title:'অ্যাক্সেসরি'},{key:'petType',title:'Pets আকার'}]}
     ];
     const config = pendingAvatarConfig || readAvatarConfig();
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
-    const builderMarkup = avatarPickerExpanded
-      ? '<div class="profile-avatar-builder">' +
-        '<div class="profile-avatar-builder-preview"><button type="button" id="profile-avatar-reset" class="profile-avatar-preview-reset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> রিসেট করুন</button>' + window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') + '<span>Live Preview</span></div>' +
-        '<div class="profile-avatar-customizer"><nav class="profile-avatar-group-tabs" aria-label="Avatar categories">' +
-        groups.map(group => '<button type="button" class="profile-avatar-group-tab' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><i class="fa-solid ' + (group.key === 'face' ? 'fa-user' : group.key === 'eyes' ? 'fa-eye' : group.key === 'hair' ? 'fa-wand-magic-sparkles' : group.key === 'beard' ? 'fa-user-tie' : group.key === 'accessories' ? 'fa-glasses' : group.key === 'clothes' ? 'fa-shirt' : group.key === 'audio' ? 'fa-headphones' : 'fa-paw') + '" aria-hidden="true"></i> ' + group.title + '</button>').join('') +
-        '</nav><div class="profile-avatar-group-fields">' +
-        activeGroup.fields.map(field => {
-          const allOptions = window.MedAvatarCreator.choices[field.key] || [];
-          const options = allOptions;
-          return '<section class="profile-avatar-part"><h4>' + field.title + '</h4><div class="profile-avatar-part-options">' +
-            options.map(option => {
-              const selected = config[field.key] === option.value;
-              const isColor = /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(option.value);
-              const swatch = isColor
-                ? '<span class="profile-avatar-swatch" style="--avatar-swatch:' + (option.value.startsWith('#') ? option.value : '#' + option.value) + '"></span>'
-                : '';
-              const glyph = swatch ? '' : '<span class="profile-avatar-option-glyph" aria-hidden="true">' + (option.value === 'cat' ? '🐱' : option.value === 'chick' ? '🐤' : option.value === 'bear' ? '🐻‍❄️' : option.value === 'none' ? '○' : option.value === 'hat' ? '🧢' : option.value === 'headphones' ? '🎧' : option.value === 'hoodie' ? '🧥' : option.value === 'smile' ? '☺' : option.value === 'sad' ? '☹' : option.value === 'surprised' ? '😮' : option.value === 'closed' ? '－' : '✦') + '</span>';
-              return '<button type="button" class="profile-avatar-part-option' + (selected ? ' is-selected' : '') +
-                '" data-avatar-part="' + field.key + '" data-avatar-value="' + option.value + '" aria-pressed="' + String(selected) + '">' +
-                swatch + glyph + '<span>' + option.label + '</span></button>';
-            }).join('') +
-          '</div></section>';
+    const fieldMarkup = field => {
+      const options = window.MedAvatarCreator.choices[field.key] || [];
+      return '<section class="mat-avatar-option-section"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
+        options.map(option => {
+          const selected = config[field.key] === option.value;
+          const raw = String(option.value);
+          const isColor = /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(raw);
+          let visual = '';
+          if (isColor) {
+            visual = '<span class="mat-avatar-swatch" style="--swatch:#' + raw.replace(/^#/,'') + '" aria-hidden="true"></span>';
+          } else if (field.key === 'petType' && raw !== 'none') {
+            const path = window.MedAvatarCreator.assetPaths.pets[raw];
+            visual = path ? '<img class="mat-avatar-option-art" src="' + path + '" alt="" aria-hidden="true">' : '';
+          } else if (field.key === 'headphonesType' && raw === 'headphones') {
+            visual = '<img class="mat-avatar-option-art mat-avatar-headphone-option" src="' + window.MedAvatarCreator.assetPaths.headphones + '" alt="" aria-hidden="true">';
+          }
+          return '<button type="button" class="mat-avatar-option' + (selected ? ' is-selected' : '') + '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw + '" aria-pressed="' + String(selected) + '">' + visual + '<span>' + option.label + '</span></button>';
         }).join('') +
-        '</div><div class="profile-avatar-builder-actions">' +
-          '<button type="button" id="profile-avatar-randomize" class="profile-avatar-secondary-button"><i class="fa-solid fa-shuffle" aria-hidden="true"></i > এলোমেলো সাজাও</button>' +
-          '<button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button" >বাতিল</button>' +
-          '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (!pending || pending === current ? ' disabled' : '') + '>কনফার্ম করো</button>' +
-        '</div></div></div>'
+      '</div></section>';
+    };
+    const builderMarkup = avatarPickerExpanded
+      ? '<header class="profile-avatar-builder-header"><button type="button" id="profile-avatar-builder-back" aria-label="ফিরে যাও"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><h2>তোমার আভাটার বানাও</h2></header>' +
+        '<div class="mat-avatar-workspace">' +
+          '<section class="mat-avatar-preview-panel"><button type="button" id="profile-avatar-reset" class="mat-avatar-reset">রিসেট করুন</button>' +
+            window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') +
+            '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
+          '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
+            groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><i class="fa-solid ' + group.icon + '" aria-hidden="true"></i><span>' + group.title + '</span></button>').join('') +
+          '</nav><div class="mat-avatar-options-scroll">' + activeGroup.fields.map(fieldMarkup).join('') + '</div>' +
+          '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button></div></section>' +
+        '</div>'
       : '';
-    const externalPreviewMarkup = !avatarPickerExpanded && pending
-      ? '<div class="profile-avatar-external-preview"><div><img src="' + pending + '" alt="Selected image preview"><span>Selected image</span></div>' +
-        '<div class="profile-avatar-confirm-actions">' +
-          (uploaded.includes(pending) ? '<button type="button" id="profile-avatar-delete" class="profile-avatar-delete-button">Delete upload</button>' : '') +
-          '<button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button">Cancel</button>' +
-          '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button">Use this image</button>' +
-        '</div></div>'
-      : '';
-    picker.innerHTML = (avatarPickerExpanded ? '<header class="profile-avatar-builder-header"><button type="button" id="profile-avatar-builder-back" aria-label="ফিরে যাও"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button><h2>তোমার আভাটার বানাও</h2><span></span></header>' : '') + '<div class="profile-avatar-picker-heading"><div><span class="profile-avatar-picker-label">Profile Avatar</span>' +
-      '<p>নিজের পছন্দমতো Character তৈরি করো।</p></div>' +
-      '<button type="button" id="profile-avatar-toggle-picker" class="profile-avatar-toggle-button" aria-expanded="' + String(avatarPickerExpanded) + '">' +
-      '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + (avatarPickerExpanded ? 'Close Avatar Creator' : 'Create Custom Avatar') + '</button></div>' +
-      '<div class="profile-avatar-upload-controls"><label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Use Your Own Photo</label>' +
-      '<input id="profile-avatar-upload-input" type="file" accept="image/*" multiple hidden>' +
-      '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' uploaded</span></div>' +
-      builderMarkup +
-      externalPreviewMarkup +
-      (googleOptions || uploadedOptions ? '<div class="profile-avatar-photo-options"><strong>Other Profile Images</strong><div class="profile-avatar-options">' + googleOptions + uploadedOptions + '</div></div>' : '') +
-      '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span>PNG/JPG/JPEG/WEBP/SVG · ছবির সর্বোচ্চ আকার ৫ MB</span></div>' +
+    const pendingUpload = !avatarPickerExpanded && isAvatarSource(pendingAvatarSource) && pendingAvatarSource !== current;
+    picker.innerHTML = builderMarkup +
+      '<input id="profile-avatar-upload-input" type="file" accept="image/*" hidden>' +
+      (pendingUpload ? '<button type="button" id="profile-avatar-confirm" hidden>Confirm uploaded avatar</button>' : '') +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
   }
