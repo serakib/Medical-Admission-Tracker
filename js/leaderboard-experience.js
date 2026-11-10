@@ -557,11 +557,11 @@
     list.innerHTML = content || '<div class="mat-profile-empty">এখন কোনো pending request বা accepted friend নেই। Student search থেকে Add Friend চাপুন।</div>';
   }
 
-  const defaultProfilePortraits = Array.from({length:24}, (_, i) => 'https://i.pravatar.cc/120?img=' + (i + 1));
+  const defaultProfilePortraits = Array.from({length:24}, (_, i) =>
+    window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i))
+  );
   function defaultProfileAvatarForUser(userId) {
-    const key = String(userId || 'guest'); let hash = 2166136261;
-    for (let i = 0; i < key.length; i++) hash = Math.imul(hash ^ key.charCodeAt(i), 16777619);
-    return defaultProfilePortraits[(hash >>> 0) % defaultProfilePortraits.length];
+    return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
   }
   function avatarMarkup(profile) {
     const rawAvatar = safeText(profile?.avatar || profile?.Avatar || '', 20000);
@@ -571,7 +571,8 @@
     if (targetId === userId()) {
       try { manualAvatar = localStorage.getItem('med_profile_avatar_manual_v1_' + targetId) === '1'; } catch (_) {}
     }
-    if (avatar === defaultProfilePortraits[0] && !/#mat-(?:default|custom)-avatar$/i.test(rawAvatar) && !manualAvatar) {
+    if ((avatar === defaultProfilePortraits[0] || /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(avatar)) &&
+        !/#mat-(?:default|custom)-avatar$/i.test(rawAvatar) && !manualAvatar) {
       avatar = defaultProfileAvatarForUser(targetId);
     }
     if (/^https:\/\//i.test(avatar) || /^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(avatar) || /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(avatar)) return '<img src="' + escapeHTML(avatar) + '" alt="" loading="lazy">';
