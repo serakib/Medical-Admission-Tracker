@@ -27,7 +27,7 @@ clothingColor:[['#2563eb','নীল'],['#dc2626','লাল'],['#111827','ক�
 headphonesType:[['none','নেই'],['over_ear','ওভার-ইয়ার'],['earbuds','ইয়ারবাড'],['gaming','গেমিং'],['neckband','নেকব্যান্ড']],
 headphonesColor:[['#111827','কালো'],['#f8fafc','সাদা'],['#dc2626','লাল'],['#2563eb','নীল']],
 petType:[['none','নেই'],['cat','বিড়াল'],['bird','পাখি']],
-petColor:[['#f8fafc','সাদা'],['#111827','কালো'],['#f59e0b','কমলা'],['#2563eb','নীল'],['#16a34a','সবুজ']],
+petColor:[['#f8fafc','সাদা'],['#111827','কালো'],['#f59e0b','কমলা'],['#facc15','হলুদ'],['#2563eb','নীল'],['#16a34a','সবুজ']],
 background:[['white','সাদা'],['gradient','গ্রেডিয়েন্ট'],['pattern','প্যাটার্ন'],['nature','প্রকৃতি']]
 };
 const defaults={skinTone:'#eab99a',faceShape:'oval',expression:'smile',cheeks:'light',ears:'small',eyeShape:'happy',eyeColor:'#3b2418',eyebrowShape:'default',eyebrowColor:'#493025',noseShape:'small',hairStyle:'short',hairColor:'#211a19',beardShape:'none',beardColor:'#493025',mustacheShape:'none',mustacheColor:'#493025',glassesShape:'none',glassesColor:'#111827',hatShape:'cap',hatColor:'#dc2626',clothingType:'hoodie',clothingColor:'#2563eb',headphonesType:'over_ear',headphonesColor:'#111827',petType:'bird',petColor:'#f59e0b',background:'gradient'};
@@ -36,6 +36,7 @@ const oldRender=base.render;
 function render(input){
  const c=normalize(input),old={skin:c.skinTone,hairStyle:c.hairStyle,hairColor:c.hairColor,outfit:c.clothingType==='blazer'?'coat':c.clothingType==='shirt'?'school':c.clothingType==='tshirt'?'sweater':'hoodie',outfitColor:c.clothingColor,accessory:'none',background:c.background==='white'?'#ffffff':c.background==='nature'?'#d1fae5':c.background==='pattern'?'#ede9fe':'#dbeafe'};
  let uri=oldRender(old),svg=decodeURIComponent(uri.slice(uri.indexOf(',')+1));
+ const faceSize=c.faceShape==='round'?[67,67]:c.faceShape==='square'?[56,66]:c.faceShape==='long'?[52,78]:[59,70];svg=svg.replace('rx="59" ry="70"','rx="'+faceSize[0]+'" ry="'+faceSize[1]+'"');
  const eye=c.eyeShape==='closed'?'<path d="M91 101q10 7 20 0m34 0q10 7 20 0" fill="none" stroke="'+c.eyeColor+'" stroke-width="4" stroke-linecap="round"/>':'<ellipse cx="105" cy="104" rx="'+(c.eyeShape==='wide'?8:6)+'" ry="'+(c.eyeShape==='sleepy'?4:8)+'" fill="'+c.eyeColor+'"/><ellipse cx="151" cy="104" rx="'+(c.eyeShape==='wide'?8:6)+'" ry="'+(c.eyeShape==='sleepy'?4:8)+'" fill="'+c.eyeColor+'"/>';
  const brows='<path d="M86 84q15 '+(c.eyebrowShape==='angled'?-8:0)+' 30 0m24 0q15 '+(c.eyebrowShape==='angled'?-8:0)+' 30 0" stroke="'+c.eyebrowColor+'" stroke-width="'+(c.eyebrowShape==='thin'?2:c.eyebrowShape==='thick'?6:4)+'" stroke-linecap="round" fill="none"/>';
  const mouth=c.expression==='sad'?'M111 145q17 -14 34 0':c.expression==='surprised'?'M128 137a7 10 0 1 0 0 20a7 10 0 1 0 0-20':'M110 143q18 '+(c.expression==='neutral'?0:14)+' 36 0';
