@@ -2177,7 +2177,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     else if (leaderboardManualRefreshActive) setLeaderboardRefreshBusy(false, false);
     ensureUI();
     var periodForRequest = selectedPeriod;
-    if (periodForRequest === 'friends' && isAccountFreeVisitor()) {
+    if (periodForRequest === 'friends' && (!app.authStateResolved || isAccountFreeVisitor())) {
       renderRows([]);
       setStatus('Friends Leaderboard দেখতে Guest Account তৈরি করুন অথবা Sign Up করুন।', false);
       setLeaderboardRefreshBusy(false);
@@ -2230,6 +2230,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (!cache.length) renderRows([]);
       setStatus('Medical Sheets API URL সেট করা নেই।', true);
       setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
       return;
     }
     var refreshSucceeded = false;
@@ -2271,6 +2272,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         var myId = currentUserId();
         if (myId) friendIds.push(String(myId));
         leaderboardPayload.userIds = Array.from(new Set(friendIds)).slice(0, 500);
+        if (!leaderboardPayload.userIds.length) {
+          if (!cache.length) renderRows([]);
+          setStatus('Friends Leaderboard-এর জন্য account connection load হচ্ছে।', false);
+          setLeaderboardRefreshBusy(false);
+          setBackgroundSyncIndicator(false, false);
+          return;
+        }
       }
       var requestController = typeof AbortController !== 'undefined' ? new AbortController() : null;
       var requestTimedOut = false, requestTimeoutId = 0;
