@@ -58,6 +58,7 @@
         document.getElementById('profile-avatar-upload-input')?.click();
       });
     }
+    clearStatus();
     previousFocus = document.activeElement;
     overlay.hidden = false;
     document.body.style.overflow = 'hidden';
