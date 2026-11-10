@@ -941,7 +941,7 @@
     .mat-avatar-live-layer .med-avatar-stack{width:100%;height:100%;border-radius:inherit}
     .mat-avatar-live-layer .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     .mat-avatar-live-layer .med-avatar-headphones{position:absolute;z-index:2;top:5%;left:14%;width:72%;height:54%;object-fit:contain}
-    .mat-avatar-live-layer .med-avatar-pet{position:absolute;z-index:3;right:0;bottom:0;width:36%;height:36%;object-fit:contain}
+    .mat-avatar-live-layer .med-avatar-pet{position:absolute;z-index:3;left:0!important;right:auto!important;bottom:5%!important;width:36%;height:36%;object-fit:contain}
     .profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living{animation:matAvatarBreath 4s ease-in-out infinite;isolation:isolate}
     .profile-avatar.mat-avatar-living .mat-profile-edit-badge{z-index:8}
     .mat-avatar-live-layer .med-avatar-pet{transform-origin:50% 100%;animation:matAvatarPetFloat 3.2s ease-in-out infinite}
@@ -1253,7 +1253,7 @@
     const groups = [
       {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
       {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
-      {key:'nose-hair',title:'Nose & Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুল'},{key:'hairColor',title:'চুলের রঙ'}]},
+      {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুল'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
