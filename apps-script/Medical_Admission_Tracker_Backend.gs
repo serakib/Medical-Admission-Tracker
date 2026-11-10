@@ -25,9 +25,10 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.4';
+const MAT_API_VERSION = '2026.11.10.5';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
+  'permanent-account-deletion-cleans-all-user-ledger-and-friend-records',
   'persistent-guest-accounts',
   'guest-creation-requires-name-college-batch-confirmation',
   'guest-logout-restorable-while-token-valid',
@@ -2545,7 +2546,10 @@ function matDeleteAccount_(p) {
     const activitySourceMarker = 'MAT-' + userId + '-';
     const top10TargetMarker = ':TOP10:' + userId;
     const examRowNumbers = examRows.filter(function (row) {
-      if (matIsExamRecord_(row)) return String(row.UserID || '') === userId;
+      // Remove every row owned by this UID, not only visible exam rows. This
+      // includes RP_EVENT / MONTHLY_START ledger entries and queued activity
+      // notifications, so deleted users cannot reappear in weekly/monthly boards.
+      if (String(row.UserID || '') === userId) return true;
       if (String(row.RecordType || '').toUpperCase() !== 'ACTIVITY') return false;
       const activityId = String(row.ActivityID || '');
       return activityId.indexOf(activitySourceMarker) >= 0 || activityId.endsWith(top10TargetMarker);
