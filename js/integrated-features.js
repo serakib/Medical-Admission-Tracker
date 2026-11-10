@@ -1175,7 +1175,8 @@
       beard:'<path d="M5 9c0 7 3 12 7 12s7-5 7-12M5 9l-2-3m16 3 2-3M8 14l4 3 4-3"/>',
       glasses:'<path d="M2 10h3l1 7h5l2-5h-2l2 5h5l1-7h3M11 12h2"/>',
       clothes:'<path d="m8 4 4 2 4-2 5 4-3 4-2-2v10H8V10l-2 2-3-4z"/>',
-      pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>'
+      pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>',
+      headphones:'<path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/>'
     };
     const groups = [
       {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
@@ -1184,7 +1185,7 @@
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
-      {key:'headphones',title:'Headphones',icon:'pets',fields:[{key:'headphonesType',title:'হেডফোন'}]},
+      {key:'headphones',title:'Headphones',icon:'headphones',fields:[{key:'headphonesType',title:'হেডফোন'}]},
       {key:'pets-bg',title:'Pets & BG',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]}
     ];
     const config = pendingAvatarConfig || readAvatarConfig();
@@ -1241,6 +1242,9 @@
     const targets = Array.from(document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar,#sidebar-user-avatar'));
     targets.forEach(element => {
       element.classList.add('mat-avatar-living');
+      if (element.id === 'sidebar-user-avatar' && !(user || hasGuestSession)) {
+        element.parentElement?.querySelector('.mat-sidebar-avatar-edit')?.remove();
+      }
       if (element.id === 'sidebar-user-avatar' && (user || hasGuestSession)) {
         const wrapper = element.parentElement;
         if (wrapper && !wrapper.querySelector('.mat-sidebar-avatar-edit')) {
