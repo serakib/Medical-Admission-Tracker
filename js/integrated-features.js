@@ -1032,8 +1032,8 @@
           '</div></section>';
         }).join('') +
         '</div><div class="profile-avatar-builder-actions">' +
-          '<button type="button" id="profile-avatar-randomize" class="profile-avatar-secondary-button"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> Randomize</button>' +
-          '<button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button">বাতিল</button>' +
+          '<button type="button" id="profile-avatar-randomize" class="profile-avatar-secondary-button"><i class="fa-solid fa-shuffle" aria-hidden="true"></i > এলোমেলো সাজাও</button>' +
+          '<button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button" >বাতিল</button>' +
           '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (!pending || pending === current ? ' disabled' : '') + '>কনফার্ম করো</button>' +
         '</div></div></div>'
       : '';
