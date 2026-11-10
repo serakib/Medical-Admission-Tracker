@@ -440,17 +440,21 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
     </div>
     <script>
       (function(){
+        // Prevent duplicate loader runtimes from resetting the visible percentage.
+        if(window.__MATInitialLoaderInstalled)return;
+        window.__MATInitialLoaderInstalled=true;
         var overlay=document.getElementById('mat-initial-entry-loader');
         var fill=document.getElementById('mat-entry-loader-fill');
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
         var pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0, progressTimer=0;
-        var displayedProgress=0;
+        var displayedProgress=Number(window.__MATInitialLoaderProgress)||0;
         function setStep(value,message,iconClass){
           if(!fill||finished)return;
           value=Math.max(displayedProgress,Math.min(100,Number(value)||0));
           displayedProgress=value;
+          window.__MATInitialLoaderProgress=value;
           fill.style.width=value+'%';
           if(status)status.textContent=message;
           if(icon)icon.className='fa-solid '+iconClass;
