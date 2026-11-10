@@ -155,9 +155,15 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 ---
 
-## 📚 Wiki
+## 📚 Project Wiki & Documentation
 
-**Project Wiki is available!** আরও তথ্যের জন্য repository-এর [Wiki](https://github.com/serakib/Medical-Admission-Tracker/wiki) দেখে নাও।
+Detailed student guides, technical references, troubleshooting, security and accessibility documentation are organized in the repository's documentation hub.
+
+- [📖 Documentation Home](docs/wiki/Home.md)
+- [🗂️ Complete Documentation Index](docs/wiki/README.md)
+- [🌐 GitHub Wiki](https://github.com/serakib/Medical-Admission-Tracker/wiki)
+
+The GitHub Wiki feature is enabled. The prepared Markdown guides are maintained under **docs/wiki/** and can be published to the Wiki pages using GitHub's Wiki editor.
 
 ---
 
