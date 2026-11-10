@@ -1,0 +1,103 @@
+name: Sync repository labels and milestones
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/labels.json"
+      - ".github/milestones.json"
+      - ".github/workflows/sync-repository-metadata.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: repository-metadata-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync labels and milestones
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create or update labels and milestones
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require("node:fs");
+            const labels = JSON.parse(fs.readFileSync(".github/labels.json", "utf8"));
+            const milestones = JSON.parse(fs.readFileSync(".github/milestones.json", "utf8"));
+            const { owner, repo } = context.repo;
+
+            let labelsCreated = 0;
+            let labelsUpdated = 0;
+            let milestonesCreated = 0;
+            let milestonesUpdated = 0;
+
+            for (const label of labels) {
+              try {
+                const { data: current } = await github.rest.issues.getLabel({
+                  owner, repo, name: label.name
+                });
+                if (
+                  current.color !== label.color.toLowerCase() ||
+                  (current.description || "") !== label.description
+                ) {
+                  await github.rest.issues.updateLabel({
+                    owner, repo, name: label.name,
+                    new_name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                  labelsUpdated += 1;
+                }
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner, repo, name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                labelsCreated += 1;
+              }
+            }
+
+            const existingMilestones = await github.paginate(
+              github.rest.issues.listMilestones,
+              { owner, repo, state: "all", per_page: 100 }
+            );
+
+            for (const milestone of milestones) {
+              const current = existingMilestones.find(item => item.title === milestone.title);
+              if (!current) {
+                await github.rest.issues.createMilestone({
+                  owner, repo,
+                  title: milestone.title,
+                  description: milestone.description
+                });
+                milestonesCreated += 1;
+                continue;
+              }
+              if (current.state === "closed") {
+                core.notice(`Milestone "${milestone.title}" already exists but is closed; leaving it unchanged.`);
+                continue;
+              }
+              if ((current.description || "") !== milestone.description) {
+                await github.rest.issues.updateMilestone({
+                  owner, repo,
+                  milestone_number: current.number,
+                  title: milestone.title,
+                  description: milestone.description
+                });
+                milestonesUpdated += 1;
+              }
+            }
+
+            core.notice(
+              `Metadata sync complete. Labels: ${labelsCreated} created, ${labelsUpdated} updated. Milestones: ${milestonesCreated} created, ${milestonesUpdated} updated.`
+            );
