@@ -1111,8 +1111,8 @@
   }
   document.addEventListener('mat-open-avatar-builder', () => {
     avatarPickerExpanded = true;
-    pendingAvatarConfig = readAvatarConfig();
-    pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
+    pendingAvatarConfig = pendingAvatarConfig || readAvatarConfig();
+    pendingAvatarSource = pendingAvatarSource || window.MedAvatarCreator.render(pendingAvatarConfig);
     activeAvatarGroup = 'body';
     renderAvatarPicker();
   });
