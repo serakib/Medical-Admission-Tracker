@@ -143,7 +143,7 @@
     const petPath = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
     const headphones = c && c.headphonesType === 'headphones';
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
-    if (!petPath && !headphones) return baseImage;
+    if (!petPath && !headphones) return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + '</span>';
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage +
       (headphones ? '<img class="med-avatar-headphones" src="' + escapeAttr(base.assetPaths.headphones) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       (petPath ? '<img class="med-avatar-pet" src="' + escapeAttr(petPath) + '" alt="" aria-hidden="true" draggable="false">' : '') +
