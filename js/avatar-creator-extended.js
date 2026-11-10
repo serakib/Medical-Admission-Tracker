@@ -31,15 +31,14 @@
     hatColor: [['dc2626','লাল'],['2563eb','নীল'],['7c3aed','বেগুনি'],['10b981','সবুজ'],['f8fafc','সাদা'],['333344','ডার্ক']],
     clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার']],
     clothingColor: [['2563eb','নীল'],['7c3aed','বেগুনি'],['dc2626','লাল'],['333344','ডার্ক গ্রে'],['10b981','সবুজ'],['f8fafc','সাদা']],
-    headphonesType: [['none','নেই'],['headphones','হেডফোন']],
     petType: [['none','নেই'],['chick','ছোট ছানা'],['cat','বিড়াল'],['bear','সাদা ভালুক']],
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
     gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
-    glasses:'none', hat:'hat', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
-    headphonesType:'headphones', petType:'chick', background:'a5a8ff'
+    glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
+    petType:'none', background:'a5a8ff'
   };
   const entries = Object.entries(choices);
   const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','dreads','dreads01','dreads02','froBand'];
@@ -76,7 +75,7 @@
   const buildUrl = input => {
     const c = normalize(input);
     const params = new URLSearchParams({
-      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|bg='+hex(c.background)+'|hp='+c.headphonesType+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
+      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|bg='+hex(c.background)+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
       size:'512',
       skinColor:hex(c.skinTone),
       topVariant:c.hat !== 'none' ? c.hat : c.hairStyle,
@@ -124,7 +123,6 @@
         hatColor:p.get('hatColor') || defaults.hatColor,
         clothingType:p.get('clothesVariant') || defaults.clothingType,
         clothingColor:p.get('clothesColor') || defaults.clothingColor,
-        headphonesType:meta.hp || defaults.headphonesType,
         petType:meta.pet || defaults.petType,
         background:meta.bg || p.get('backgroundColor') || defaults.background
       };
@@ -135,7 +133,6 @@
   const renderLayersMarkup = (source, input, className) => {
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
-    const headphones = c && c.headphonesType === 'headphones';
     const ageLines = c && c.ageGroup === 'adult'
       ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".24"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
       : c && c.ageGroup === 'mature'
@@ -143,7 +140,6 @@
         : '';
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
-      (headphones ? '<img class="med-avatar-headphones" src="' + escapeAttr(base.assetPaths.headphones) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       '</span>';
   };
@@ -399,6 +395,6 @@
 
   base.dicebearAvataaars10 = true;
   base.renderLayersMarkup = renderLayersMarkup;
-  base.assetPaths = {headphones:'./public/assets/headphones/headphones.svg',pets:{chick:'./public/assets/pets/chick.svg',cat:'./public/assets/pets/cat.svg',bear:'./public/assets/pets/white-bear.svg'}};
+  base.assetPaths = {pets:{chick:'./public/assets/pets/chick.svg',cat:'./public/assets/pets/cat.svg',bear:'./public/assets/pets/white-bear.svg'}};
   window.MedAvatarCreator = base;
 })();
