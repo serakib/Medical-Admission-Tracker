@@ -328,12 +328,6 @@ function processPendingActivityNotifications() {
 }
 
 /**
- * Daily check of the current Saturday-Friday Weekly RP Promotion Zone.
- * This check only decides whether to promote one subrank. It never resets or
- * reduces Weekly RP or Lifetime RP. A successful promotion sets current RP
- * to the promoted rank's Basic RP; no extra Safe Zone reward is added.
- */
-/**
  * Daily weekly-rank review in Asia/Dhaka.
  * Sunday-Friday: evaluate the current week's Promotion Zone.
  * Saturday: close the completed Saturday-Friday week, record its high-water
