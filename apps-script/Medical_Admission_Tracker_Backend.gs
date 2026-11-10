@@ -3426,8 +3426,28 @@ function matRedeemPromoCode_(p){
  }finally{lock.releaseLock();}
 }
 function matAdminPromoStatus_(p){matPromoRequireAdmin_(p);const c=matPromoPublic_(),r=matReadObjects_(matPromoSheets_().redemptions);return {success:true,publicCode:c.code,publicType:c.type,publicRewardPB:c.reward,redemptions:r.length,unlimitedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'};}
-function matAdminSetUnlimitedEnabled_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change this setting.');PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',p.enabled===true||String(p.enabled).toLowerCase()==='true'?'TRUE':'FALSE');return {success:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};}
-function matAdminSaveFixedPromoCode_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change the Admin-only Promo Code.');const code=String(p.code||'').trim().toUpperCase();if(code.length<3||code.length>80||/^DAILY \d{2}-\d{2}-\d{4}$/.test(code)||/^WEEK \d{2} [A-Z]{3} - \d{2} [A-Z]{3}$/.test(code))throw new Error('Admin-only Promo Code must be 3–80 characters and cannot use a reserved Daily/Weekly format.');PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_CODE',code);return {success:true,code:code};}
+function matAdminSetUnlimitedEnabled_(p){
+ const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+ if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change this setting.');
+ const enabled=p.enabled===true||String(p.enabled).toLowerCase()==='true';
+ PropertiesService.getScriptProperties().setProperty('MAT_PROMO_FIXED_ENABLED',enabled?'TRUE':'FALSE');
+ return {success:true,verified:true,enabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED')==='TRUE'};
+}
+function matAdminSaveFixedPromoCode_(p){
+ const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+ if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change the Admin-only Promo Code settings.');
+ const code=String(p.code||'').trim().toUpperCase();
+ if(code.length<3||code.length>80||/^DAILY \d{2}-\d{2}-\d{4}$/.test(code)||/^WEEK \d{2} [A-Z]{3} - \d{2} [A-Z]{3}$/.test(code))throw new Error('Admin-only Promo Code must be 3–80 characters and cannot use a reserved Daily/Weekly format.');
+ const reward=matSafeNonNegativeInt_(p.rewardPB,'Master Admin Reward PB');
+ const limit=matSafeNonNegativeInt_(p.limitCount,'Master Admin redemption limit');
+ const period=matPromoNormalizePeriod_(p.limitPeriod);
+ const enabled=p.enabled===false||String(p.enabled).toLowerCase()==='false'?'FALSE':'TRUE';
+ const props=PropertiesService.getScriptProperties();
+ props.setProperties({MAT_PROMO_FIXED_CODE:code,MAT_PROMO_FIXED_REWARD_PB:String(reward),MAT_PROMO_FIXED_LIMIT_COUNT:String(limit),MAT_PROMO_FIXED_LIMIT_PERIOD:period,MAT_PROMO_FIXED_ENABLED:enabled},false);
+ const verified=matScriptProperty_('MAT_PROMO_FIXED_CODE')===code&&Number(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB'))===reward&&Number(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT'))===limit&&matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD'))===period&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')===enabled;
+ if(!verified)throw new Error('Master Promo Settings save verification failed.');
+ return {success:true,verified:true,code:code,rewardPB:reward,limitCount:limit,limitPeriod:period,enabled:enabled==='TRUE'};
+}
 
 
 /* --------------------- Configurable global/member promo codes --------------------- */
@@ -3487,9 +3507,13 @@ function matPromoEffectiveConfig_(user, kind, publicCode) {
 }
 function matPromoAdminMemberConfig_(row, code) {
   row = row || {};
-  const reward = row.AdminRewardPB === '' || row.AdminRewardPB == null ? 100000 : matSafeNonNegativeInt_(row.AdminRewardPB, 'Admin Reward PB');
-  const count = row.AdminLimitCount === '' || row.AdminLimitCount == null ? 0 : matSafeNonNegativeInt_(row.AdminLimitCount, 'Admin redemption limit');
-  const period = String(row.AdminLimitPeriod || 'UNLIMITED').trim() ? matPromoNormalizePeriod_(row.AdminLimitPeriod) : 'UNLIMITED';
+  // A member-specific Admin override wins; otherwise use Super Admin's shared master settings.
+  const rewardDefault = matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB') || 100000, 'Master Admin Reward PB');
+  const limitDefault = matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT') || 0, 'Master Admin redemption limit');
+  const periodDefault = matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD') || 'UNLIMITED');
+  const reward = row.AdminRewardPB === '' || row.AdminRewardPB == null ? rewardDefault : matSafeNonNegativeInt_(row.AdminRewardPB, 'Admin Reward PB');
+  const count = row.AdminLimitCount === '' || row.AdminLimitCount == null ? limitDefault : matSafeNonNegativeInt_(row.AdminLimitCount, 'Admin redemption limit');
+  const period = String(row.AdminLimitPeriod || '').trim() ? matPromoNormalizePeriod_(row.AdminLimitPeriod) : periodDefault;
   return {code:String(code || row.AdminCode || '').trim().toUpperCase(),enabled:String(row.AdminEnabled || 'TRUE').toUpperCase() !== 'FALSE',rewardPB:reward,limitCount:count,limitPeriod:period};
 }
 function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
@@ -3507,7 +3531,11 @@ function matAdminGetPromoConfig_(p) {
     code:String(g.Code || ''), rewardPB:g.RewardPB === '' || g.RewardPB == null ? '' : Number(g.RewardPB),
     limitCount:g.LimitCount === '' || g.LimitCount == null ? '' : Number(g.LimitCount),
     limitPeriod:String(g.LimitPeriod || 'DAILY'), enabled:String(g.Enabled || 'TRUE') !== 'FALSE'
-  }, fixedCode:canManage ? matPromoFixedCode_() : '', fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
+  }, fixedCode:canManage ? matPromoFixedCode_() : '',
+  fixedRewardPB:canManage ? matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB') || 100000, 'Master Admin Reward PB') : null,
+  fixedLimitCount:canManage ? matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT') || 0, 'Master Admin redemption limit') : null,
+  fixedLimitPeriod:canManage ? matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD') || 'UNLIMITED') : '',
+  fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
 }
 function matAdminSavePromoConfig_(p) {
   const actor = matPromoRequireAdmin_(p), sh = matPromoConfigSheets_().global;
