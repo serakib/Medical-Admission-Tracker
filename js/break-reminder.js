@@ -26,7 +26,7 @@
 
   function hasAnotherDialog() {
     return !!document.querySelector(
-      '.mat-overlay:not(.hidden), [role="dialog"]:not([aria-hidden="true"]), dialog[open]'
+      '.mat-overlay:not(.hidden), [role="dialog"]:not([aria-hidden="true"]):not([hidden]):not(.hidden), dialog[open]'
     );
   }
 
