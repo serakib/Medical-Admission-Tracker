@@ -167,6 +167,18 @@ The GitHub Wiki feature is enabled. The prepared Markdown guides are maintained 
 
 ---
 
+## 🗂️ Project Management & Releases
+
+Repository planning and release operations are documented separately:
+
+- [Project board, labels, milestones, and webhook setup](docs/REPOSITORY_MANAGEMENT.md)
+- [Release checklist](docs/RELEASING.md)
+- [Changelog](CHANGELOG.md)
+
+Labels and milestone definitions are maintained in the .github directory and synchronized through GitHub Actions. Version tags trigger generated release notes and a GitHub Release.
+
+---
+
 ## ©️ Copyright & License
 
 **Copyright (c) 2026 Rakib Hasan. All Rights Reserved.**
