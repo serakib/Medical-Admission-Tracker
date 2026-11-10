@@ -1165,11 +1165,8 @@ class MedicalExamApp {
         });
         document.body.classList.toggle('exam-active', viewName === 'exam');
         if (viewName === 'exam') { history.pushState({ exam: true }, '', '#exam'); }
-        // Preserve the viewport for Profile/Avatar interactions.
-        // Other app navigation resets instantly rather than animated scrolling.
-        if (viewName !== 'profile' && !document.body.classList.contains('mat-avatar-customizer-open')) {
-            window.scrollTo({ top: 0, behavior: 'auto' });
-        }
+        // Keep the current viewport. Navigation changes the visible view only;
+        // users decide when and where the document itself should scroll.
     }
 
     openSetupView() {
