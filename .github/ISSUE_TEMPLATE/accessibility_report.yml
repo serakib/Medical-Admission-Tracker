@@ -1,0 +1,72 @@
+name: Accessibility issue
+description: Report a barrier involving keyboard use, screen readers, contrast, motion, zoom, or layout.
+title: "[Accessibility]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You do not need to know a WCAG rule number to report an accessibility barrier. Describe what you were trying to do and what prevented you from doing it. Do not share passwords, tokens, or private student data.
+  - type: input
+    id: location
+    attributes:
+      label: Affected page or component
+      placeholder: "For example: Login dialog, question palette, profile menu"
+    validations:
+      required: true
+  - type: dropdown
+    id: barrier
+    attributes:
+      label: Type of barrier
+      options:
+        - Keyboard navigation or focus
+        - Screen reader or accessible name
+        - Contrast, colour, or text readability
+        - Zoom, resizing, or responsive layout
+        - Motion or animation
+        - Forms, labels, or error messages
+        - Captions, images, charts, or other non-text content
+        - Other / Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to encounter the barrier
+      description: What were you trying to do? List the steps that led to the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: actual_expected
+    attributes:
+      label: What happened and what did you expect?
+      placeholder: "Describe the barrier and the outcome that would make the task accessible."
+    validations:
+      required: true
+  - type: input
+    id: assistive_technology
+    attributes:
+      label: Assistive technology or input method (optional)
+      placeholder: "For example: NVDA, VoiceOver, keyboard only, screen magnifier"
+    validations:
+      required: false
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, device, and operating system (optional)
+      placeholder: "For example: Firefox on Windows 11"
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Additional context
+      description: Add a screenshot or short recording only if it helps. Redact names, account details, and all sensitive information.
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I have removed passwords, authentication tokens, and private student information.
+          required: true
