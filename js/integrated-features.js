@@ -837,6 +837,7 @@
       app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: sharedAvatar });
       try { localStorage.setItem(avatarKey(), stripAvatarDefaultMarker(sharedAvatar)); } catch (_) {}
       renderAvatarPicker();
+      window.dispatchEvent(new Event('student-profile-loaded'));
       if (typeof window.MedGlobalLeague.reload === 'function') await window.MedGlobalLeague.reload();
       else if (typeof app.loadLeaderboard === 'function') await app.loadLeaderboard(true);
     })().catch(error => {
