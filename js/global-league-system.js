@@ -730,6 +730,8 @@
         detectedAt: new Date().toISOString()
       };
       try { localStorage.setItem(GUEST_EXPIRED_KEY, JSON.stringify(expiredInfo)); } catch (_) {}
+      updateVisitorAccessUI();
+      try { window.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { source: 'guest-session-expired' } })); } catch (_) {}
       throw new Error('Your previous Guest session is no longer available. You can browse publicly or create a new Guest account.');
     }
     if (!response.guestToken) throw new Error('Guest API returned no guest token.');
