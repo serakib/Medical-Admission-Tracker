@@ -440,7 +440,6 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
     </div>
     <script>
       (function(){
-        // Prevent duplicate loader runtimes from resetting the visible percentage.
         if(window.__MATInitialLoaderInstalled)return;
         window.__MATInitialLoaderInstalled=true;
         var overlay=document.getElementById('mat-initial-entry-loader');
@@ -448,54 +447,44 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
-        var pageLoaded=document.readyState==='complete', appReady=!!window.app, initialDataReady=false, authResolved=false, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0, progressTimer=0;
-        var displayedProgress=Number(window.__MATInitialLoaderProgress)||0;
-        function setStep(value,message,iconClass){
+        var ready={page:document.readyState==='complete',app:!!window.app,questions:false,auth:false,leaderboard:false};
+        var finished=false, displayedProgress=0;
+        var weights={page:10,app:10,questions:40,auth:20,leaderboard:20};
+        function toBangla(value){return String(value).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯');}
+        function update(message,iconClass){
           if(!fill||finished)return;
-          value=Math.max(displayedProgress,Math.min(100,Number(value)||0));
-          displayedProgress=value;
-          window.__MATInitialLoaderProgress=value;
-          fill.style.width=value+'%';
+          var value=Object.keys(ready).reduce(function(total,key){return total+(ready[key]?weights[key]:0);},0);
+          displayedProgress=Math.max(displayedProgress,value);
+          fill.style.width=displayedProgress+'%';
+          if(percent)percent.textContent=toBangla(displayedProgress)+'%';
           if(status)status.textContent=message;
           if(icon)icon.className='fa-solid '+iconClass;
-          if(percent)percent.textContent=String(value).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯')+'%';
+          if(Object.keys(ready).every(function(key){return ready[key];}))finish();
         }
-        function hide(){
-          if(!overlay||finished||hideTimer)return;
-          var remaining=Math.max(0,5000-(Date.now()-startedAt));
-          if(remaining){
-            hideTimer=window.setTimeout(function(){hideTimer=0;hide();},remaining);
-            return;
-          }
-          if(progressTimer){window.clearInterval(progressTimer);progressTimer=0;}
-          setStep(100,'শুরু করার জন্য প্রস্তুত!','fa-circle-check');
+        function finish(){
+          if(finished)return;
           finished=true;
+          displayedProgress=100;
+          fill.style.width='100%';
+          if(percent)percent.textContent='১০০%';
+          if(status)status.textContent='প্রয়োজনীয় প্রাথমিক লোডিং সম্পন্ন!';
+          if(icon)icon.className='fa-solid fa-circle-check';
           window.setTimeout(function(){
             overlay.classList.add('is-leaving');
             window.setTimeout(function(){if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);},340);
-          },180);
+          },220);
         }
-        function tryFinish(){
-          if(finished||!pageLoaded)return;
-          if(pageLoaded&&appReady&&initialDataReady&&authResolved){
-            window.clearTimeout(fallbackTimer);
-            hide();
-          }
-        }
+        function hide(){ if(Object.keys(ready).every(function(key){return ready[key];}))finish(); }
         window.MATInitialLoader={hide:hide};
-        setStep(0,'প্ল্যাটফর্ম প্রস্তুত করা হচ্ছে...','fa-gear');
-        // Keep the numeric percentage visibly moving between real loading milestones.
-        progressTimer=window.setInterval(function(){
-          if(finished||displayedProgress>=96)return;
-          setStep(Math.min(96,displayedProgress+1),status?status.textContent:'লোড হচ্ছে...',icon?icon.className.replace(/^.*fa-solid\\s*/,''):'fa-gear');
-        },50);
-        document.addEventListener('DOMContentLoaded',function(){setStep(displayedProgress,'পরীক্ষা ও প্র্যাকটিস টুলস প্রস্তুত হচ্ছে...','fa-clipboard-check');},{once:true});
-        window.addEventListener('medical-app-ready',function(){appReady=true;setStep(displayedProgress,'স্টুডেন্ট ড্যাশবোর্ড প্রস্তুত হচ্ছে...','fa-user-graduate');tryFinish();},{once:true});
-        window.addEventListener('medical-initial-data-ready',function(event){initialDataReady=true;setStep(displayedProgress,event.detail&&event.detail.success?'প্রশ্নব্যাংক প্রস্তুত হয়েছে...':'প্রশ্নব্যাংক লোড সম্পন্ন; সাইট প্রস্তুত হচ্ছে...','fa-database');tryFinish();},{once:true});
-        window.addEventListener('student-auth-state-resolved',function(){authResolved=true;if(!finished)setStep(displayedProgress,'আপনার সেশন প্রস্তুত হচ্ছে...','fa-user-check');tryFinish();},{once:true});
-        window.addEventListener('load',function(){pageLoaded=true;setStep(displayedProgress,'ওয়েবসাইটের প্রয়োজনীয় ফাইল প্রস্তুত...','fa-file-circle-check');tryFinish();},{once:true});
-        // No artificial timeout: keep the splash visible until initial data and auth state resolve.
-        if(pageLoaded)tryFinish();
+        update('ওয়েবসাইট প্রস্তুত করা হচ্ছে...','fa-gear');
+        document.addEventListener('DOMContentLoaded',function(){ready.page=true;update('পেজের কাঠামো প্রস্তুত...','fa-file-circle-check');},{once:true});
+        window.addEventListener('load',function(){ready.page=true;update('প্রয়োজনীয় ফাইল লোড হয়েছে...','fa-file-circle-check');},{once:true});
+        window.addEventListener('medical-app-ready',function(){ready.app=true;update('অ্যাপ চালু হচ্ছে...','fa-user-graduate');},{once:true});
+        window.addEventListener('medical-initial-data-ready',function(event){ready.questions=true;update(event.detail&&event.detail.success?'প্রশ্নব্যাংক লোড সম্পন্ন...':'প্রশ্নব্যাংক লোডে সমস্যা হয়েছে; বাকি প্রস্তুতি চলছে...','fa-database');},{once:true});
+        window.addEventListener('student-auth-state-resolved',function(){ready.auth=true;update('অ্যাকাউন্ট সেশন যাচাই সম্পন্ন...','fa-user-check');},{once:true});
+        window.addEventListener('medical-initial-leaderboard-ready',function(){ready.leaderboard=true;update('লিডারবোর্ড ডেটা লোড সম্পন্ন...','fa-trophy');},{once:true});
+        if(ready.page)update('পেজের কাঠামো প্রস্তুত...','fa-file-circle-check');
+        if(ready.app)update('অ্যাপ চালু হচ্ছে...','fa-user-graduate');
       })();
     </script>
 
