@@ -2231,7 +2231,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   async function refreshLeaderboardCacheForPeriod(period) {
     if (!navigator.onLine || !API_URL() || (period !== 'weekly' && period !== 'monthly')) return false;
-    var payload = { action: 'leaderboard', period: period };
+    var ownId = String(currentUserId() || '');
+    // Ask the backend to include this account even when it is outside the public Top-N list.
+    var payload = { action: 'leaderboard', period: period, includeUserIds: ownId ? [ownId] : [] };
     var response = await request(payload, { method: 'GET' });
     var entries = extractEntries(response);
     var responsePeriod = String(response && (response.period || response.scope) || '').toLowerCase();
