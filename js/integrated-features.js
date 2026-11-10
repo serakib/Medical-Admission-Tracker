@@ -990,13 +990,19 @@
     const googleOptions = googleAvatar ? optionButton(googleAvatar, 0, 'google', 'Google profile photo') : '';
     const uploadedOptions = uploaded.map((value, i) => optionButton(value, i, 'uploaded', 'Uploaded image ' + (i + 1))).join('');
     const groups = [
-      { key: 'skin', title: 'Skin Tone' },
-      { key: 'hairStyle', title: 'Hairstyle' },
-      { key: 'hairColor', title: 'Hair Color' },
-      { key: 'outfit', title: 'Outfit' },
-      { key: 'outfitColor', title: 'Outfit Color' },
-      { key: 'accessory', title: 'Accessories' },
-      { key: 'background', title: 'Background' }
+      { key: 'skinTone', title: 'ত্বকের রং' }, { key: 'faceShape', title: 'মুখের গঠন' },
+      { key: 'expression', title: 'মুখের ভাব' }, { key: 'cheeks', title: 'গাল' }, { key: 'ears', title: 'কান' },
+      { key: 'eyeShape', title: 'চোখের ধরন' }, { key: 'eyeColor', title: 'চোখের রং' },
+      { key: 'eyebrowShape', title: 'ভ্রুর ধরন' }, { key: 'eyebrowColor', title: 'ভ্রুর রং' },
+      { key: 'noseShape', title: 'নাকের ধরন' }, { key: 'hairStyle', title: 'চুলের স্টাইল' },
+      { key: 'hairColor', title: 'চুলের রং' }, { key: 'beardShape', title: 'দাড়ির ধরন' },
+      { key: 'beardColor', title: 'দাড়ির রং' }, { key: 'mustacheShape', title: 'গোঁফের ধরন' },
+      { key: 'mustacheColor', title: 'গোঁফের রং' }, { key: 'glassesShape', title: 'চশমার ধরন' },
+      { key: 'glassesColor', title: 'চশমার রং' }, { key: 'hatShape', title: 'টুপি' },
+      { key: 'hatColor', title: 'টুপর রং' }, { key: 'clothingType', title: 'পোশাকের ধরন' },
+      { key: 'clothingColor', title: 'পোশাকের রং' }, { key: 'headphonesType', title: 'হেডফোনের ধরন' },
+      { key: 'headphonesColor', title: 'হেডফোনের রং' }, { key: 'petType', title: 'সঙ্গী' },
+      { key: 'petColor', title: 'সঙ্গীর রং' }, { key: 'background', title: 'ব্যাকগ্রাউন্ড' }
     ];
     const config = pendingAvatarConfig || readAvatarConfig();
     const builderMarkup = avatarPickerExpanded
