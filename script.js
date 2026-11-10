@@ -2074,6 +2074,7 @@ window.app = new MedicalExamApp();
     else bind();
     window.addEventListener('medical-app-ready', bind);
 })();
+window.dispatchEvent(new Event('medical-app-ready'));
 
 /* Private per-account activity notification state adapter.
  * This reuses the modular Firestore instance already owned by the app.
