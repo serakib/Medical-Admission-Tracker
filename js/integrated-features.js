@@ -1037,6 +1037,15 @@
     }
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
     document.body.classList.toggle('mat-avatar-customizer-open', avatarPickerExpanded);
+    let uploadInput = document.getElementById('profile-avatar-upload-input');
+    if (!uploadInput) {
+      uploadInput = document.createElement('input');
+      uploadInput.id = 'profile-avatar-upload-input';
+      uploadInput.type = 'file';
+      uploadInput.accept = 'image/*';
+      uploadInput.hidden = true;
+      document.body.appendChild(uploadInput);
+    }
 
     const current = readAvatar();
     const currentConfig = window.MedAvatarCreator.configFromAvatar(current);
@@ -1092,7 +1101,6 @@
       : '';
     const pendingUpload = !avatarPickerExpanded && isAvatarSource(pendingAvatarSource) && pendingAvatarSource !== current;
     picker.innerHTML = builderMarkup +
-      '<input id="profile-avatar-upload-input" type="file" accept="image/*" hidden>' +
       (pendingUpload ? '<button type="button" id="profile-avatar-confirm" hidden>Confirm uploaded avatar</button>' : '') +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
