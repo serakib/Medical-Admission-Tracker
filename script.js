@@ -143,7 +143,15 @@ class MedicalExamApp {
         };
 
         safeRun('progress stats', () => this.loadProgressStats());
-        safeRun('leaderboard', () => this.loadLeaderboard(true));
+        this.__initialLeaderboardPromise = Promise.resolve()
+            .then(() => this.loadLeaderboard(true))
+            .catch(error => {
+                console.warn('Initial leaderboard load failed:', error);
+                return { __initialLoadFailed: true };
+            })
+            .finally(() => {
+                window.dispatchEvent(new CustomEvent('medical-initial-leaderboard-ready'));
+            });
         safeRun('exam setup', () => this.updateSetupUI());
         safeRun('practice browser', () => this.renderPracticeBrowser());
 
