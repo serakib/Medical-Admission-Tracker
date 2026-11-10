@@ -2736,7 +2736,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (savedGuests.length) {
         var savedGuestButtons = savedGuests.map(function (item, index) {
           var displayName = String(item.name || 'Previous Guest').replace(/[&<>"']/g, function (ch) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]); });
-          var details = [item.college, item.batch].filter(Boolean).join(' · ');
+          var details = [item.college, item.batch].filter(Boolean).join(' · ').replace(/[&<>"']/g, function (ch) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]); });
           return '<button type="button" data-va-resume-guest="' + index + '" style="width:100%;text-align:left;border:1px solid #a7f3d0;border-radius:12px;padding:13px;background:#ecfdf5;color:#065f46;font-weight:800;cursor:pointer">Continue as ' + displayName + '<small style="display:block;margin-top:4px;font-weight:500;color:#64748b">' + details + '</small></button>';
         }).join('');
         panel.innerHTML = close + back + intro + '<div style="display:grid;gap:10px"><p style="font-size:13px;color:var(--mat-va-muted,#64748b);margin:0">এই ডিভাইসে আগের Guest account পাওয়া গেছে। চালু থাকলে সেটি দিয়েই continue করতে পারবেন।</p>' + savedGuestButtons + '<button type="button" data-va-new-guest style="border:1px dashed #94a3b8;border-radius:12px;padding:13px;background:transparent;color:var(--mat-va-title,#334155);font-weight:800;cursor:pointer">Create a new Guest Account</button><p id="mat-va-status" role="status" style="font-size:13px;color:#dc2626"></p></div>';
