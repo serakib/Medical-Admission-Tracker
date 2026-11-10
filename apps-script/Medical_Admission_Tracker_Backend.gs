@@ -3361,7 +3361,33 @@ function matAdminListMembers_(p){
  return {success:true,canManage:matPromoEmail_(actor)===root,members:[memberRecord(root,'SUPER_ADMIN','ACTIVE','')].concat(admins)};
 }
 function matAdminAddMember_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))throw new Error('Valid registered email required.');const registered=matReadObjects_(matGetStudentsSheet_()).some(x=>String(x.AccountType||'').toUpperCase()==='REGISTERED'&&String(x.Email||'').trim().toLowerCase()===e);if(!registered)throw new Error('এই email দিয়ে আগে website-এ একবার sign in করতে হবে।');if(e===root)throw new Error('Already Super Admin.');const sh=matPromoSheets_().admins,rows=matReadObjects_(sh),r=rows.find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'ACTIVE',SuspendedUntil:'',UpdatedAt:matNowIso_(),UpdatedBy:root});else matAppendObject_(sh,{Email:e,Role:'ADMIN',Status:'ACTIVE',AddedAt:matNowIso_(),AddedBy:root});MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;return matAdminListMembers_(p);}
-function matAdminRemoveMember_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can manage Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!e||e===root)throw new Error('Super Admin cannot be removed.');const sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(r)matUpdateObjectRow_(sh,r._rowNumber,{Status:'REMOVED',SuspendedUntil:'',UpdatedAt:matNowIso_(),UpdatedBy:root});MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;return matAdminListMembers_(p);}
+function matAdminRemoveMember_(p){
+  const actor=matPromoRequireAdmin_(p);
+  const root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
+  if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can manage Admin Members.');
+  const email=String(p.email||'').trim().toLowerCase();
+  if(!email||email===root)throw new Error('Super Admin cannot be removed.');
+  const lock=LockService.getScriptLock();
+  lock.waitLock(MAT_LOCK_WAIT_MS);
+  try{
+    const sheet=matPromoSheets_().admins;
+    const member=matReadObjects_(sheet).find(row=>String(row.Email||'').trim().toLowerCase()===email);
+    if(!member)throw new Error('Admin Member not found or already removed.');
+    if(String(member.Status||'').trim().toUpperCase()==='REMOVED')throw new Error('Admin Member is already removed.');
+    matUpdateObjectRow_(sheet,member._rowNumber,{
+      Status:'REMOVED',SuspendedUntil:'',UpdatedAt:matNowIso_(),UpdatedBy:root
+    });
+    SpreadsheetApp.flush();
+    const verified=matReadObjects_(sheet).find(row=>String(row.Email||'').trim().toLowerCase()===email);
+    if(!verified||String(verified.Status||'').trim().toUpperCase()!=='REMOVED'){
+      throw new Error('Admin access removal could not be verified. Refresh and try again.');
+    }
+    MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;
+  }finally{
+    lock.releaseLock();
+  }
+  return matAdminListMembers_(p);
+}
 function matAdminSuspendMember_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can suspend Admin Members.');const e=String(p.email||'').trim().toLowerCase(),minutes=Math.round(Number(p.durationMinutes));if(!e||e===root)throw new Error('Super Admin cannot be suspended.');if(!Number.isSafeInteger(minutes)||minutes<1||minutes>525600)throw new Error('Suspension must be between 1 minute and 365 days.');const sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(!r||String(r.Status||'').toUpperCase()==='REMOVED')throw new Error('Active Admin Member not found.');const until=new Date(Date.now()+minutes*60000).toISOString();matUpdateObjectRow_(sh,r._rowNumber,{Status:'SUSPENDED',SuspendedUntil:until,UpdatedAt:matNowIso_(),UpdatedBy:root});MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;return {success:true,email:e,status:'SUSPENDED',suspendedUntil:until};}
 function matAdminReactivateMember_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can reactivate Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!e||e===root)throw new Error('Invalid Admin Member.');const sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(!r||String(r.Status||'').toUpperCase()==='REMOVED')throw new Error('Admin Member not found or already removed.');matUpdateObjectRow_(sh,r._rowNumber,{Status:'ACTIVE',SuspendedUntil:'',UpdatedAt:matNowIso_(),UpdatedBy:root});MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;return {success:true,email:e,status:'ACTIVE'};}
 function matGetPromoInfo_(p){
