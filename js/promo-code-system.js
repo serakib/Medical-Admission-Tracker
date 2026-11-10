@@ -510,7 +510,28 @@ async function loadAdmin(){
   try{window.MedStudentProfile.open(Object.assign({},member.profile,{userId:member.userId,uid:member.userId,accountType:'REGISTERED',name:member.websiteName||member.profile.name||member.email}));}
   catch(error){if(dashboard)dashboard.classList.remove('hidden');$('mat-admin-message').textContent='Profile খোলা যায়নি: '+(error&&error.message||'Unknown error');}
  });
- box.querySelectorAll('[data-remove]').forEach(button=>button.onclick=async()=>{const email=button.dataset.remove;if(!confirm(email+'-এর Admin access স্থায়ীভাবে revoke করবেন?'))return;button.disabled=true;button.textContent='Removing…';try{await api('adminRemoveMember',{email});await loadAdmin();}catch(error){$('mat-admin-message').textContent=error.message;button.disabled=false;button.textContent='Remove Admin';}});
+ box.querySelectorAll('[data-remove]').forEach(button=>button.onclick=async()=>{
+  const email=String(button.dataset.remove||'').trim();
+  if(!email||!confirm(email+'-এর Admin access স্থায়ীভাবে revoke করবেন?'))return;
+  button.disabled=true;
+  button.setAttribute('aria-busy','true');
+  button.textContent='Removing…';
+  $('mat-admin-message').textContent=email+' — Admin access সরানো হচ্ছে। Server confirmation না আসা পর্যন্ত অপেক্ষা করুন।';
+  try{
+   const result=await api('adminRemoveMember',{email});
+   const verified=(result.members||[]).find(member=>String(member.email||'').trim().toLowerCase()===email.toLowerCase());
+   if(!verified||String(verified.status||'').toUpperCase()!=='REMOVED')throw new Error('Server থেকে Admin access removal নিশ্চিত করা যায়নি। Refresh করে আবার চেষ্টা করুন।');
+   button.textContent='Removed ✓';
+   $('mat-admin-message').textContent=email+' — Admin access সফলভাবে revoke হয়েছে।';
+   await loadAdmin();
+  }catch(error){
+   $('mat-admin-message').textContent=(error&&error.message)||'Admin access remove করা যায়নি।';
+   button.disabled=false;
+   button.textContent='Remove Admin';
+  }finally{
+   button.removeAttribute('aria-busy');
+  }
+ });
  box.querySelectorAll('[data-suspend]').forEach(button=>button.onclick=async()=>{const email=button.dataset.suspend,raw=prompt('কত সময়ের জন্য suspend করবেন? উদাহরণ: 2h 30m, 45m, 1d 4h');if(raw===null)return;const parts=String(raw).trim().match(/(\d+(?:\.\d+)?)\s*(d|day|days|h|hr|hrs|hour|hours|m|min|mins|minute|minutes)/gi);if(!parts||parts.join('').replace(/\s/g,'').toLowerCase()!==String(raw).replace(/[\s,]+/g,'').toLowerCase()){alert('সময় লিখুন যেমন: 2h 30m বা 1d 4h।');return;}let minutes=0;for(const part of parts){const match=part.trim().match(/^(\d+(?:\.\d+)?)\s*(d|day|days|h|hr|hrs|hour|hours|m|min|mins|minute|minutes)$/i),unit=match[2].toLowerCase();minutes+=Number(match[1])*(unit[0]==='d'?1440:unit[0]==='h'?60:1);}minutes=Math.round(minutes);if(!Number.isSafeInteger(minutes)||minutes<1||minutes>525600){alert('কমপক্ষে ১ মিনিট এবং সর্বোচ্চ ৩৬৫ দিনের suspension দিন।');return;}if(!confirm(email+'-কে '+raw+' সময়ের জন্য suspend করবেন? সময় শেষ হলে access স্বয়ংক্রিয়ভাবে ফিরে আসবে।'))return;button.disabled=true;button.textContent='Suspending…';try{await api('adminSuspendMember',{email,durationMinutes:minutes});await loadAdmin();}catch(error){$('mat-admin-message').textContent=error.message;button.disabled=false;button.textContent='Suspend Temporarily';}});
  box.querySelectorAll('[data-reactivate]').forEach(button=>button.onclick=async()=>{const email=button.dataset.reactivate;if(!confirm(email+'-এর Admin access এখনই reactivate করবেন?'))return;button.disabled=true;button.textContent='Reactivating…';try{await api('adminReactivateMember',{email});await loadAdmin();}catch(error){$('mat-admin-message').textContent=error.message;button.disabled=false;button.textContent='Reactivate';}});
 
