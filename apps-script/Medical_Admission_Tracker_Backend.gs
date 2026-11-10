@@ -25,10 +25,11 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.1';
+const MAT_API_VERSION = '2026.11.10.2';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
+  'guest-creation-requires-name-college-batch-confirmation',
   'server-profile-management',
   'exam-rewards-idempotency',
   'full-rp-all-exam-modes-and-question-counts',
@@ -591,6 +592,10 @@ function cleanupExpiredGuestAccounts() {
 }
 
 function matCreateGuest_(p) {
+  // A brand-new Guest account is created only after the visitor submits the required profile.
+  const guestName = matCleanText_(p.name || '', 80);
+  const guestCollege = matCleanText_(p.college || '', 120);
+  const guestBatch = matCleanText_(p.batch || '', 40);
   // Reuse the current Guest if its persisted token was provided.
   const providedToken = String(p.guestToken || '').trim();
   if (providedToken) {
@@ -605,6 +610,10 @@ function matCreateGuest_(p) {
     return { success: true, user: matPublicProfile_(latest, true), guestToken: providedToken, existing: true, deletionPending: !!latest.GuestDeletionScheduledAt };
   }
 
+  if (!guestName || !guestCollege || !guestBatch) {
+    throw new Error('নতুন Guest account তৈরির জন্য নাম, College ও Batch পূরণ করুন।');
+  }
+
   const lock = LockService.getScriptLock();
   lock.waitLock(MAT_LOCK_WAIT_MS);
   let created;
@@ -615,11 +624,11 @@ function matCreateGuest_(p) {
     const randomNumber = Math.floor(1000 + Math.random() * 9000);
     const guest = {
       UserID: guestId,
-      Name: 'Guest Student ' + randomNumber,
+      Name: matSheetSafeText_(guestName),
       AccountType: 'GUEST',
       Email: '',
-      College: '',
-      Batch: '',
+      College: matSheetSafeText_(guestCollege),
+      Batch: matSheetSafeText_(guestBatch),
       Avatar: '',
       XP: 0,
       RP: 0,
