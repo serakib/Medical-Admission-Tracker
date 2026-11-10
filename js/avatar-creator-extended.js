@@ -128,7 +128,7 @@
     return normalize({
       ...defaults,
       skinTone:pick(choices.skinTone,identity,0),
-      eyeShape:pick(choices.eyeShape,identity,1),
+      eyeShape:pick(choices.eyeShape.filter(([value])=>['default','happy','side','squint','eyeRoll','surprised'].includes(value)),identity,1),
       eyebrowShape:pick(choices.eyebrowShape,identity,2),
       expression:pick(choices.expression,identity,3),
       hairStyle:pick(choices.hairStyle,identity,4),
