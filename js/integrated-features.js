@@ -1284,7 +1284,9 @@
             setAvatarStatus('Avatar saved to your account. Public leaderboard response-এ আপনার row পাওয়া যায়নি, তাই অন্য viewer-এর display এখনো verify করা যায়নি।');
           }
         }).catch(error => {
-          setAvatarStatus('Global avatar sync failed: ' + String(error?.message || error || 'Unknown API error').slice(0, 220));
+          const syncMessage = 'Global avatar sync failed: ' + String(error?.message || error || 'Unknown API error').slice(0, 220);
+          setAvatarStatus(syncMessage);
+          window.MedAvatarProfileModal?.showStatus('Avatar এই ডিভাইসে সংরক্ষিত হয়েছে, কিন্তু account-এর সঙ্গে sync হয়নি। ' + syncMessage);
           console.warn('[Profile avatar] Global server sync failed:', error);
         });
       } else if (avatarStatus) {
@@ -1340,6 +1342,7 @@
     } catch (error) {
       const errorStatus = document.getElementById('profile-avatar-upload-status');
       if (errorStatus) errorStatus.textContent = error?.message || 'The avatar upload failed. Try a smaller supported image.';
+      window.MedAvatarProfileModal?.showStatus(error?.message || 'ছবিটি আপলোড করা যায়নি। অন্য একটি ছবি দিয়ে চেষ্টা করো।');
     }
     input.value = '';
   });
