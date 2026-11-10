@@ -1065,15 +1065,16 @@ class MedicalExamApp {
         }
         if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
         const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+        const hasGuestSession = !!(window.MedGlobalLeague && window.app?.profile && isGuestProfile);
         const isRegisteredUser = Boolean(user && !isGuestProfile);
         const accountAuthTarget = document.getElementById('account-profile-auth-target');
         if (accountAuthTarget) {
-            accountAuthTarget.innerHTML = isRegisteredUser
+            accountAuthTarget.innerHTML = (isRegisteredUser || hasGuestSession)
                 ? '<button type="button" class="account-auth-button account-auth-logout" onclick="window.handleLogout()"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Log out</button>'
                 : '<button type="button" class="account-auth-button account-auth-login" onclick="window.redirectToLogin()"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Sign in</button>';
         }
         const logoutCard = document.getElementById('account-logout-card');
-        if (logoutCard) logoutCard.classList.toggle('hidden', !isRegisteredUser);
+        if (logoutCard) logoutCard.classList.toggle('hidden', !(isRegisteredUser || hasGuestSession));
         const deleteCard = document.getElementById('account-delete-card');
         // Keep the destructive action hidden until the server confirms this is not
         // the protected Super Admin identity. The backend independently blocks deletion.
@@ -2235,55 +2236,37 @@ window.redirectToLogin = function() {
 };
 
 window.handleLogout = function() {
-    // Logout is exclusively for registered, non-anonymous accounts.
     const currentUser = auth.currentUser;
-    const currentProfileType = String(window.app?.profile?.accountType || '').toUpperCase();
-    if (!currentUser || currentUser.isAnonymous || currentProfileType === 'GUEST') return;
-    // Require an explicit confirmation before signing out.
+    const profile = window.app?.profile || {};
+    const isGuest = String(profile.accountType || '').toUpperCase() === 'GUEST' && !!localStorage.getItem('med_sheet_guest_token_v1');
+    const isRegistered = !!currentUser && !currentUser.isAnonymous && !isGuest;
+    if (!isRegistered && !isGuest) return;
     if (document.getElementById('logout-confirmation-modal')) return;
-
     const overlay = document.createElement('div');
     overlay.id = 'logout-confirmation-modal';
     overlay.className = 'fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/60 p-4';
-    overlay.setAttribute('role', 'presentation');
-    overlay.innerHTML = `
-        <section role="dialog" aria-modal="true" aria-labelledby="logout-confirmation-title"
-            class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <div class="mb-3 flex items-center gap-3">
-                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-300">
-                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-                </span>
-                <h2 id="logout-confirmation-title" class="text-lg font-bold text-slate-900 dark:text-white">লগআউট নিশ্চিত করুন</h2>
-            </div>
-            <p class="mb-5 text-sm leading-6 text-slate-600 dark:text-slate-300">আপনি কি সত্যিই আপনার অ্যাকাউন্ট থেকে লগআউট করতে চান?</p>
-            <div class="flex justify-end gap-2">
-                <button type="button" data-logout-cancel class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">বাতিল</button>
-                <button type="button" data-logout-confirm class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">লগআউট</button>
-            </div>
-        </section>`;
+    overlay.innerHTML = `<section role="dialog" aria-modal="true" aria-labelledby="logout-confirmation-title" class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900"><div class="mb-3 flex items-center gap-3"><span class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600"><i class="fa-solid fa-right-from-bracket"></i></span><h2 id="logout-confirmation-title" class="text-lg font-bold">লগআউট নিশ্চিত করুন</h2></div><p class="mb-5 text-sm leading-6">${isGuest ? 'Guest account থেকে logout করবেন? পরে validity থাকলে এই ডিভাইসে আবার continue করতে পারবেন।' : 'আপনি কি সত্যিই account থেকে logout করতে চান?'}</p><div class="flex justify-end gap-2"><button type="button" data-logout-cancel class="rounded-xl border px-4 py-2">বাতিল</button><button type="button" data-logout-confirm class="rounded-xl bg-red-600 px-4 py-2 text-white">লগআউট</button></div></section>`;
     document.body.appendChild(overlay);
-
     const closeDialog = () => overlay.remove();
     overlay.querySelector('[data-logout-cancel]').addEventListener('click', closeDialog);
-    overlay.addEventListener('click', event => {
-        if (event.target === overlay) closeDialog();
-    });
-    overlay.addEventListener('keydown', event => {
-        if (event.key === 'Escape') closeDialog();
-    });
+    overlay.addEventListener('click', event => { if (event.target === overlay) closeDialog(); });
+    overlay.addEventListener('keydown', event => { if (event.key === 'Escape') closeDialog(); });
     const confirmButton = overlay.querySelector('[data-logout-confirm]');
     confirmButton.addEventListener('click', async () => {
         confirmButton.disabled = true;
         confirmButton.textContent = 'লগআউট হচ্ছে...';
         try {
-            if (auth.currentUser) await signOut(auth);
-            // Guest mode is a local session, not necessarily a Firebase-authenticated user.
+            if (isGuest) {
+                const api = window.MedGlobalLeague;
+                if (!api?.logoutGuestAccount) throw new Error('Guest logout service এখনো প্রস্তুত নয়।');
+                api.logoutGuestAccount();
+            } else if (auth.currentUser) await signOut(auth);
             localStorage.removeItem('med_guest_mode');
             window.location.reload();
         } catch (error) {
             console.error('Logout Error:', error);
             closeDialog();
-            alert('লগআউট করতে ব্যর্থ হয়েছে।');
+            alert(error?.message || 'লগআউট করতে ব্যর্থ হয়েছে।');
         }
     });
     overlay.querySelector('[data-logout-cancel]').focus();
