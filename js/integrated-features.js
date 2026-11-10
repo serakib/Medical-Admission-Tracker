@@ -1441,17 +1441,12 @@
     if (avatarGroup) {
       activeAvatarGroup = avatarGroup.dataset.avatarGroup;
       const controls = avatarGroup.closest('.mat-avatar-controls');
-      const target = controls?.querySelector('[data-avatar-group-section="' + activeAvatarGroup + '"]');
       controls?.querySelectorAll('.mat-avatar-category').forEach(tab => {
         const active = tab === avatarGroup;
         tab.classList.toggle('is-active', active);
         tab.setAttribute('aria-pressed', String(active));
       });
-      if (target) {
-        const scroller = controls.querySelector('.mat-avatar-options-scroll');
-        const destination = target.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 8;
-        scroller.scrollTo({ top: Math.max(0, destination), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-      }
+      // Category navigation only changes the active icon; it never scrolls the options panel.
       return;
     }
     const avatarPart = event.target.closest('[data-avatar-part]');
