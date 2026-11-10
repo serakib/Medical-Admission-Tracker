@@ -600,8 +600,8 @@ function syncSidebarUserProfile(){
     var isOldPortrait=function(value){return /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(String(value||''));};
     var photo=user&&(user.photoURL||user.photoUrl||user.avatarUrl);
     var selectedAvatar=(!isOldPortrait(cleanShared)&&cleanShared)||((manualAvatar&&cleanSaved&&!isOldPortrait(cleanSaved))?cleanSaved:'');
-    var avatarSource=selectedAvatar||photo||(!user&&cleanSaved)||'';
-    if(!avatarSource&&!user){
+    var avatarSource=selectedAvatar||photo||(!user&&cleanSaved&&!isOldPortrait(cleanSaved))||'';
+    if(!avatarSource){
       avatarSource=window.MedAvatarCreator
         ? window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(accountId))
         : '';
