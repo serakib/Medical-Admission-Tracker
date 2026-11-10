@@ -448,7 +448,8 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
         var ready={page:document.readyState==='complete',app:!!window.app,questions:false,auth:false,leaderboard:false};
-        var finished=false, displayedProgress=0;
+        var finished=false, displayedProgress=0, startedAt=Date.now(), finishScheduled=false;
+        var minimumDisplayMs=6000;
         var weights={page:10,app:10,questions:40,auth:20,leaderboard:20};
         function toBangla(value){return String(value).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯');}
         function update(message,iconClass){
@@ -463,6 +464,14 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         }
         function finish(){
           if(finished)return;
+          var remaining=minimumDisplayMs-(Date.now()-startedAt);
+          if(remaining>0){
+            if(!finishScheduled){
+              finishScheduled=true;
+              window.setTimeout(function(){finishScheduled=false;finish();},remaining);
+            }
+            return;
+          }
           finished=true;
           displayedProgress=100;
           fill.style.width='100%';
