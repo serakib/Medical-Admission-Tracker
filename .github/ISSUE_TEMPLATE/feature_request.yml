@@ -1,0 +1,63 @@
+name: Feature request
+description: Suggest an improvement or a new student-facing feature.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explain the student need first. A clear problem statement helps the maintainers evaluate the idea.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+      description: Describe the current limitation or student need.
+      placeholder: "As a student, I find it difficult to ..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behaviour or experience you would like to see.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Mention any alternative approach or workaround you have considered.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Related area
+      options:
+        - Dashboard
+        - Question Bank
+        - Practice Lab
+        - Model Test / Examination
+        - Results and analytics
+        - Profile and account
+        - Leaderboard and friends
+        - Admin / backend
+        - Accessibility
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Add examples, sketches, or screenshots. Remove private information before sharing.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have checked that this idea has not already been requested.
+          required: true
+        - label: This suggestion is relevant to the Medical Admission Pro project.
+          required: true
