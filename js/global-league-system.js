@@ -462,6 +462,9 @@
     profile.guestDeletionScheduledAt = String(user.guestDeletionScheduledAt || '');
     if (user.rankProgress && typeof user.rankProgress === 'object') profile.rankProgress = Object.assign({}, user.rankProgress);
     app.profile = profile;
+    if (typeof app.renderAccountProfile === 'function') {
+      try { app.renderAccountProfile(); } catch (profileUiError) { console.warn('[Profile UI] Could not refresh account controls:', profileUiError); }
+    }
     // Medical Sheets is the canonical shared profile for name, college, batch and avatar.
     // Keep Firebase Auth/Firestore as a synchronized mirror for every app surface.
     profileMirrorPromise = app.authUser && typeof app.syncFirebaseStudentProfile === 'function'
