@@ -401,6 +401,22 @@
     if (value.indexOf('silver') === 0) return '🥈';
     return '🥉';
   }
+  var weeklyProfileRefreshPromise = null;
+  var weeklyProfileRefreshAt = 0;
+  function refreshOwnWeeklyRPFromLeaderboard() {
+    if (!navigator.onLine || !API_URL()) return Promise.resolve(false);
+    if (weeklyProfileRefreshPromise) return weeklyProfileRefreshPromise;
+    if (Date.now() - weeklyProfileRefreshAt < 30000) return Promise.resolve(false);
+    weeklyProfileRefreshAt = Date.now();
+    weeklyProfileRefreshPromise = refreshLeaderboardCacheForPeriod('weekly')
+      .catch(function (error) {
+        console.warn('[Weekly RP] Could not refresh the own-account weekly total:', error);
+        return false;
+      })
+      .finally(function () { weeklyProfileRefreshPromise = null; });
+    return weeklyProfileRefreshPromise;
+  }
+
   function applyProfile(user) {
     if (!user) return null;
     currentProfile = user;
@@ -436,6 +452,11 @@
       : Math.max(0, Number(profile.promoPB) || 0);
     profile.rankPoints = Math.max(0, Number(user.rankPoints != null ? user.rankPoints : user.rp) || 0);
     profile.weeklyRP = Math.max(0, Number(user.weeklyRP != null ? user.weeklyRP : (user.weeklyRankPoints != null ? user.weeklyRankPoints : profile.weeklyRP)) || 0);
+    if (user.weeklyRP == null && user.weeklyRankPoints == null) {
+      // Older Apps Script deployments omit Weekly RP from the profile action.
+      // The weekly leaderboard still exposes the authoritative current-week total.
+      refreshOwnWeeklyRPFromLeaderboard();
+    }
     profile.totalRP = Math.max(0, Number(user.totalRP != null ? user.totalRP : (user.lifetimeRP != null ? user.lifetimeRP : profile.rankPoints)) || 0);
     profile.lifetimeRP = profile.totalRP;
     profile.monthlyRP = Math.max(0, Number(user.monthlyRP != null ? user.monthlyRP : user.monthlyRankPoints) || 0);
@@ -1280,6 +1301,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           rank: profile.rank,
           rankPoints: profile.rankPoints,
           totalRP: profile.totalRP,
+          weeklyRP: profile.weeklyRP,
+          weeklyRankPoints: profile.weeklyRankPoints != null ? profile.weeklyRankPoints : profile.weeklyRP,
           rankProgress: profile.rankProgress
         };
       }
@@ -1337,7 +1360,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (!area) return;
     if (!me) {
       var profile = currentProfile || app.profile || null;
-      if (profile && profile.rank) me = { rank: profile.rank, rankPoints: profile.rankPoints, totalRP: profile.totalRP, monthlyRP: profile.monthlyRP, rankProgress: profile.rankProgress };
+      if (profile && profile.rank) me = { rank: profile.rank, rankPoints: profile.rankPoints, totalRP: profile.totalRP, weeklyRP: profile.weeklyRP, weeklyRankPoints: profile.weeklyRankPoints != null ? profile.weeklyRankPoints : profile.weeklyRP, monthlyRP: profile.monthlyRP, rankProgress: profile.rankProgress };
     }
     if (!me) {
       area.innerHTML = '<div class="mat-rank-locked"><i class="fa-solid fa-circle-info"></i><span>নিজের নাম, কলেজ ও ব্যাচ পূরণ করে Save করলে Leaderboard ও trophy progress ব্যবহার করতে পারবেন।</span></div>';
@@ -1594,6 +1617,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       }
     }
     var me = getMe(all);
+    if (me && (selectedPeriod === 'weekly' || selectedPeriod === 'friends')) {
+      var ownWeeklyTotal = weeklyPointsForRow(me);
+      if (app.profile && String(app.profile.userId || app.profile.uid || '') === String(me.userId || me.uid || '')) {
+        app.profile.weeklyRP = ownWeeklyTotal;
+        setText('profile-weekly-rp', ownWeeklyTotal.toLocaleString());
+      }
+      if (currentProfile && String(currentProfile.userId || currentProfile.uid || '') === String(me.userId || me.uid || '')) {
+        currentProfile.weeklyRP = ownWeeklyTotal;
+      }
+    }
     if (me && !rankSelectionTouched) selectedRank = me.rank;
     else if (!selectedRank) selectedRank = (me && me.rank) || (currentProfile && currentProfile.rank) || (app.profile && app.profile.rank) || RANKS[0];
     if ((selectedPeriod === 'weekly' || selectedPeriod === 'monthly') && RANKS.indexOf(selectedRank) >= 0) {
@@ -2216,6 +2249,24 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     try { rows = normalizeRows(entries); }
     finally { selectedPeriod = previousSelectedPeriod; }
     saveCache(rows, period);
+    if (period === 'weekly') {
+      var ownId = String(currentUserId() || '');
+      var ownWeeklyRow = ownId ? rows.find(function (row) {
+        return String(row.userId || row.uid || row.playerId || '') === ownId;
+      }) : null;
+      if (ownWeeklyRow) {
+        var latestWeeklyRP = weeklyPointsForRow(ownWeeklyRow);
+        if (app.profile && String(app.profile.userId || app.profile.uid || '') === ownId) {
+          app.profile.weeklyRP = latestWeeklyRP;
+        }
+        if (currentProfile && String(currentProfile.userId || currentProfile.uid || '') === ownId) {
+          currentProfile.weeklyRP = latestWeeklyRP;
+        }
+        if (String(app.profile && (app.profile.userId || app.profile.uid) || '') === ownId) {
+          setText('profile-weekly-rp', latestWeeklyRP.toLocaleString());
+        }
+      }
+    }
     if (selectedPeriod === period && !document.hidden) {
       rawRows = entries.slice();
       renderRows(rows);
