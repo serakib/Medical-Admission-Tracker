@@ -217,10 +217,18 @@
   }
   function getSavedReward(attemptId) { return getRewardCache()[String(attemptId || '')] || null; }
   function cacheKeyForPeriod(period) {
-    // Isolate cached snapshots by account to prevent cross-account Friends data reuse.
-    var identity = currentUserId();
-    var scope = identity ? String(identity).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 96) : 'anonymous';
-    var base = CACHE_KEY + '_v2_' + (scope || 'anonymous');
+    // Use the same stable local account key before and after identity sync.
+    // Previously the first read could use "anonymous" while the later write
+    // used the server identity, making the saved snapshot appear to be missing.
+    var identity = '';
+    try {
+      identity = String((app.authUser && app.authUser.uid) || localStorage.getItem(GUEST_ID_KEY) ||
+        (currentProfile && (currentProfile.userId || currentProfile.uid)) || '');
+    } catch (_) {
+      identity = String((app.authUser && app.authUser.uid) || (currentProfile && (currentProfile.userId || currentProfile.uid)) || '');
+    }
+    var scope = identity ? identity.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 96) : 'anonymous';
+    var base = CACHE_KEY + '_v3_' + (scope || 'anonymous');
     if (period === 'weekly') return base + '_weekly';
     if (period === 'friends') return base + '_friends';
     return base + '_monthly';
@@ -2108,6 +2116,20 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       return;
     }
     var refreshSucceeded = false;
+    // Never leave skeletons/spinners running indefinitely. Cached rows stay visible;
+    // without a cache, replace the skeleton with an actionable empty/error state.
+    var leaderboardFallbackTimer = window.setTimeout(function () {
+      if (requestId !== loadSequence) return;
+      if (!getCache(periodForRequest).length) renderRows([]);
+      setStatus(
+        getCache(periodForRequest).length
+          ? 'Saved data দেখানো হচ্ছে। Online sync একটু বেশি সময় নিচ্ছে—চাইলে Refresh চাপুন।'
+          : 'Leaderboard load হতে বেশি সময় নিচ্ছে। Internet check করে Refresh চাপুন।',
+        true
+      );
+      setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
+    }, 35000);
     try {
       await waitForLeaderboardStep(syncIdentity(), 'Account identity sync', 28000);
       if (requestId !== loadSequence) return;
@@ -2194,6 +2216,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (!getCache(periodForRequest).length) renderRows([]);
       setStatus('Medical leaderboard sync হয়নি; available cached data দেখানো হচ্ছে। ' + apiErrorMessage(error), true);
     } finally {
+      window.clearTimeout(leaderboardFallbackTimer);
       // A newer silent/background/tab refresh must also stop an animation started by a manual refresh.
       if (requestId === loadSequence) {
         setLeaderboardRefreshBusy(false, refreshSucceeded);
