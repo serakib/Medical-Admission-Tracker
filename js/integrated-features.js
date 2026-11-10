@@ -833,6 +833,52 @@
       .mat-avatar-option:hover{transform:none}
     }
   `;
+  avatarCustomizerStyle.textContent += `
+    /* One continuous options scroller: every group stays in this single flow. */
+    .mat-avatar-options-scroll{display:block!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;scroll-behavior:smooth}
+    .mat-avatar-group-section{display:grid;gap:22px;margin:0 0 28px}
+    .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .mat-avatar-option{position:relative;display:grid;place-items:center;min-width:0;min-height:76px;aspect-ratio:1;padding:4px;border:1px solid #555;border-radius:13px;background:#29292e;color:#fff;overflow:hidden}
+    .mat-avatar-option.is-selected{border:2px solid #10b981;background:#29292e;box-shadow:0 0 0 1px #10b98122}
+    .mat-avatar-option-preview-stack{position:relative;display:block;width:100%;height:100%;aspect-ratio:1;overflow:hidden;border-radius:9px;isolation:isolate}
+    .mat-avatar-option-preview-stack .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+    .mat-avatar-option-preview-stack .med-avatar-headphones{position:absolute;z-index:2;top:5%;left:14%;width:72%;height:54%;object-fit:contain}
+    .mat-avatar-option-preview-stack .med-avatar-pet{position:absolute;z-index:3;right:0;bottom:0;width:36%;height:36%;object-fit:contain}
+    .mat-avatar-option:has(.mat-avatar-swatch){width:48px;min-width:48px;height:48px;min-height:48px;aspect-ratio:1;padding:0;border-radius:11px;background:transparent}
+    .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:9px}
+    .mat-avatar-option:has(.mat-avatar-swatch).is-selected{padding:2px}
+    .mat-avatar-category{font-size:0!important}
+    .mat-avatar-category svg{width:25px;height:25px}
+    .mat-avatar-preview-caption{display:none!important}
+    .mat-avatar-controls{min-height:0}
+    .mat-avatar-actions{position:relative;flex:0 0 auto}
+    .mat-avatar-actions .profile-avatar-confirm-button{width:100%}
+    .mat-avatar-option:hover{transform:scale(1.035);border-color:#10b981}
+    @media(max-width:760px){
+      .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .mat-avatar-option{min-height:64px}
+      .mat-avatar-option:has(.mat-avatar-swatch){width:42px;min-width:42px;height:42px;min-height:42px}
+      .mat-avatar-options-scroll{padding-bottom:18px}
+    }
+    .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+    .mat-avatar-live-layer.is-visible{opacity:1}
+    .mat-avatar-live-layer>img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+    .mat-avatar-live-layer .med-avatar-stack{width:100%;height:100%;border-radius:inherit}
+    .mat-avatar-live-layer .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .mat-avatar-live-layer .med-avatar-headphones{position:absolute;z-index:2;top:5%;left:14%;width:72%;height:54%;object-fit:contain}
+    .mat-avatar-live-layer .med-avatar-pet{position:absolute;z-index:3;right:0;bottom:0;width:36%;height:36%;object-fit:contain}
+    .profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living{animation:matAvatarBreath 4s ease-in-out infinite;isolation:isolate}
+    .profile-avatar.mat-avatar-living .mat-profile-edit-badge{z-index:8}
+    .mat-avatar-live-layer .med-avatar-pet{transform-origin:50% 100%;animation:matAvatarPetFloat 3.2s ease-in-out infinite}
+    @keyframes matAvatarBreath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.015)}}
+    @keyframes matAvatarPetFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-2deg)}}
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-options-scroll{scroll-behavior:auto!important}
+      .mat-avatar-option,.mat-avatar-live-layer{transition:none!important}
+      .mat-avatar-option:hover{transform:none}
+      .profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living,.mat-avatar-live-layer .med-avatar-pet{animation:none!important}
+    }
+  `;
   document.head.appendChild(avatarCustomizerStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
@@ -1141,7 +1187,7 @@
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
     const fieldMarkup = field => {
       const options = window.MedAvatarCreator.choices[field.key] || [];
-      return '<section class="mat-avatar-option-section"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
+      return '<section class="mat-avatar-option-section" data-avatar-field="' + field.key + '"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
         options.map(option => {
           const selected = config[field.key] === option.value;
           const raw = String(option.value);
@@ -1149,13 +1195,12 @@
           let visual = '';
           if (isColor) {
             visual = '<span class="mat-avatar-swatch" style="--swatch:#' + raw.replace(/^#/,'') + '" aria-hidden="true"></span>';
-          } else if (field.key === 'petType' && raw !== 'none') {
-            const path = window.MedAvatarCreator.assetPaths.pets[raw];
-            visual = path ? '<img class="mat-avatar-option-art" src="' + path + '" alt="" aria-hidden="true">' : '';
-          } else if (field.key === 'headphonesType' && raw === 'headphones') {
-            visual = '<img class="mat-avatar-option-art mat-avatar-headphone-option" src="' + window.MedAvatarCreator.assetPaths.headphones + '" alt="" aria-hidden="true">';
+          } else {
+            const thumbnailConfig = window.MedAvatarCreator.normalize(Object.assign({}, config, { [field.key]: option.value }));
+            const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
+            visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
           }
-          return '<button type="button" class="mat-avatar-option' + (selected ? ' is-selected' : '') + '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw + '" aria-pressed="' + String(selected) + '">' + visual + '<span>' + option.label + '</span></button>';
+          return '<button type="button" class="mat-avatar-option' + (selected ? ' is-selected' : '') + '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw + '" aria-label="' + field.key + ' ' + raw + '" aria-pressed="' + String(selected) + '">' + visual + '</button>';
         }).join('') +
       '</div></section>';
     };
@@ -1167,7 +1212,7 @@
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" title="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-          '</nav><div class="mat-avatar-options-scroll">' + activeGroup.fields.map(fieldMarkup).join('') + '</div>' +
+          '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button></div></section>' +
         '</div>'
       : '';
@@ -1180,7 +1225,106 @@
   function refreshAvatarViews() {
     renderAvatarPicker();
     if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
+    requestAnimationFrame(installAvatarLiveTransitions);
   }
+
+  // Registered accounts alternate between their composed custom avatar and Gmail photo.
+  // Guests intentionally keep their own avatar without a Gmail/default-image transition.
+  function installAvatarLiveTransitions() {
+    const user = app.authUser || null;
+    const gmailPhoto = user ? readGoogleAvatar() : '';
+    const targets = Array.from(document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar,#sidebar-user-avatar'));
+    targets.forEach(element => {
+      element.classList.add('mat-avatar-living');
+      if (!user || !gmailPhoto) {
+        element.querySelectorAll('.mat-avatar-live-layer').forEach(layer => layer.remove());
+        element.dataset.matAvatarMotionKey = '';
+        return;
+      }
+      let customSource = '';
+      try {
+        const stored = localStorage.getItem(avatarKey()) || '';
+        const manual = localStorage.getItem(manualAvatarKey()) === '1';
+        const shared = String(app.profile?.avatar || '').replace(/#mat-(?:default|custom)-avatar$/i,'');
+        if (manual && isRenderableAvatarSource(stored)) customSource = stored;
+        else if (shared && shared !== gmailPhoto && isRenderableAvatarSource(shared) && !isLegacyPortraitAvatar(shared)) customSource = shared;
+      } catch (_) {}
+      if (!customSource || customSource === gmailPhoto) customSource = window.MedAvatarCreator.render(readAvatarConfig());
+      const key = gmailPhoto + '|' + customSource;
+      if (element.dataset.matAvatarMotionKey === key && element.querySelector('.mat-avatar-live-layer')) return;
+      element.querySelectorAll('.mat-avatar-live-layer,.mat-sidebar-avatar-edit').forEach(node => node.remove());
+      element.dataset.matAvatarMotionKey = key;
+      const customLayer = document.createElement('span');
+      customLayer.className = 'mat-avatar-live-layer is-visible';
+      const customConfig = window.MedAvatarCreator.configFromAvatar(customSource);
+      if (customConfig) customLayer.innerHTML = window.MedAvatarCreator.renderLayersMarkup(customSource,customConfig,'account-avatar-stack');
+      else {
+        const image = document.createElement('img');
+        image.alt = '';
+        image.draggable = false;
+        image.src = customSource;
+        customLayer.appendChild(image);
+      }
+      const gmailLayer = document.createElement('span');
+      gmailLayer.className = 'mat-avatar-live-layer';
+      const gmailImage = document.createElement('img');
+      gmailImage.alt = '';
+      gmailImage.draggable = false;
+      gmailImage.src = gmailPhoto;
+      gmailLayer.appendChild(gmailImage);
+      element.insertBefore(customLayer, element.firstChild);
+      element.insertBefore(gmailLayer, customLayer.nextSibling);
+      const badge = element.querySelector('.mat-profile-edit-badge');
+      if (badge) element.appendChild(badge);
+      element.dataset.matAvatarState = 'custom';
+      const switchState = () => {
+        const showGmail = element.dataset.matAvatarState !== 'gmail';
+        element.dataset.matAvatarState = showGmail ? 'gmail' : 'custom';
+        customLayer.classList.toggle('is-visible', !showGmail);
+        gmailLayer.classList.toggle('is-visible', showGmail);
+      };
+      element._matAvatarSwitchState = switchState;
+      if (!element.dataset.matAvatarHoverBound) {
+        element.dataset.matAvatarHoverBound = '1';
+        element.addEventListener('pointerenter', () => element._matAvatarSwitchState?.());
+      }
+      if (element.id === 'sidebar-user-avatar' && !element.querySelector('.mat-sidebar-avatar-edit')) {
+        const edit = document.createElement('button');
+        edit.type = 'button';
+        edit.className = 'mat-sidebar-avatar-edit';
+        edit.setAttribute('aria-label','আভাটার এডিট');
+        edit.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+        edit.addEventListener('click',event => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.MedAvatarProfileModal?.open();
+        });
+        element.appendChild(edit);
+      }
+    });
+  }
+  let avatarTransitionTimer = 0;
+  function startAvatarTransitionCycle() {
+    if (avatarTransitionTimer) clearInterval(avatarTransitionTimer);
+    avatarTransitionTimer = setInterval(() => {
+      if (document.querySelector('#profile-avatar-picker.is-expanded')) return;
+      document.querySelectorAll('.profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living').forEach(element => element._matAvatarSwitchState?.());
+    }, 5000);
+  }
+  const avatarMotionObserver = new MutationObserver(() => {
+    if (installAvatarLiveTransitions._queued) return;
+    installAvatarLiveTransitions._queued = true;
+    requestAnimationFrame(() => {
+      installAvatarLiveTransitions._queued = false;
+      installAvatarLiveTransitions();
+    });
+  });
+  avatarMotionObserver.observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('student-auth-state-changed',installAvatarLiveTransitions);
+  window.addEventListener('student-auth-state-resolved',installAvatarLiveTransitions);
+  window.addEventListener('student-profile-loaded',installAvatarLiveTransitions);
+  installAvatarLiveTransitions();
+  startAvatarTransitionCycle();
   document.addEventListener('mat-open-avatar-builder', () => {
     avatarPickerExpanded = true;
     pendingAvatarConfig = pendingAvatarConfig || readAvatarConfig();
@@ -1192,7 +1336,21 @@
     const builderBack = event.target.closest('#profile-avatar-builder-back');
     if (builderBack) { avatarPickerExpanded = false; renderAvatarPicker(); window.MedAvatarProfileModal?.open(); return; }
     const avatarGroup = event.target.closest('[data-avatar-group]');
-    if (avatarGroup) { activeAvatarGroup = avatarGroup.dataset.avatarGroup; renderAvatarPicker(); return; }
+    if (avatarGroup) {
+      activeAvatarGroup = avatarGroup.dataset.avatarGroup;
+      const controls = avatarGroup.closest('.mat-avatar-controls');
+      const target = controls?.querySelector('[data-avatar-group-section="' + activeAvatarGroup + '"]');
+      controls?.querySelectorAll('.mat-avatar-category').forEach(tab => {
+        const active = tab === avatarGroup;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-pressed', String(active));
+      });
+      if (target) {
+        const scroller = controls.querySelector('.mat-avatar-options-scroll');
+        scroller.scrollTo({ top: Math.max(0, target.offsetTop - scroller.offsetTop - 8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      }
+      return;
+    }
     const avatarPart = event.target.closest('[data-avatar-part]');
     if (avatarPart) {
       const part = avatarPart.dataset.avatarPart;
@@ -1202,7 +1360,11 @@
       if (part === 'hat' && value !== 'none') next.hairStyle = next.hairStyle || 'shortFlat';
       pendingAvatarConfig = window.MedAvatarCreator.normalize(next);
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
+      const optionsScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
+      const previousScrollTop = optionsScroll ? optionsScroll.scrollTop : 0;
       renderAvatarPicker();
+      const refreshedScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
+      if (refreshedScroll) refreshedScroll.scrollTop = previousScrollTop;
       return;
     }
     const randomizeButton = event.target.closest('#profile-avatar-randomize');
