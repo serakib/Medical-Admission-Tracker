@@ -34,6 +34,12 @@
       const value = input && input[key];
       if (list.some(([v]) => v === value)) result[key] = value;
     });
+    if (input && typeof input === 'object') {
+      const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'];
+      if (hats.includes(input.hat)) result.hat = input.hat;
+      if (/^#?[0-9a-f]{6}$/i.test(String(input.hatColor || ''))) result.hatColor = String(input.hatColor).replace(/^#/,'');
+      if (/^#?[0-9a-f]{6}$/i.test(String(input.background || ''))) result.background = String(input.background).replace(/^#/,'');
+    }
     return result;
   };
   const hex = value => String(value || '').replace(/^#/,'');
