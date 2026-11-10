@@ -1950,7 +1950,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var today = dhakaDateParts(now);
     var target = Date.UTC(today.year, today.month - 1, today.day, -5, 0, 0); // 01:00 Asia/Dhaka
     if (target <= now.getTime()) target += 86400000;
-    return { timestamp: target, weekday: new Date(Date.UTC(today.year, today.month - 1, today.day)).getUTCDay() };
+    // Convert the next 01:00 Dhaka target back to its Dhaka calendar date.
+    var targetDhakaDate = new Date(target + 6 * 60 * 60 * 1000);
+    return { timestamp: target, weekday: targetDhakaDate.getUTCDay() };
   }
   function renderMonthlyCountdown() {
     if (selectedPeriod !== 'monthly') return;
