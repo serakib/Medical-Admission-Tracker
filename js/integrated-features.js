@@ -1210,6 +1210,9 @@
     #view-account .profile-hero .profile-avatar .med-avatar-stack{
       animation:matAvatarPreviewLife 3.7s ease-in-out infinite!important;
     }
+    #sidebar-user-avatar .account-avatar-stack{
+      animation:matAvatarPreviewLife 3.7s ease-in-out infinite!important;
+    }
     @keyframes matAvatarPreviewLife{
       0%,100%{transform:translateY(0) rotate(0) scale(1)}
       42%{transform:translateY(-3px) rotate(-.55deg) scale(1.012)}
@@ -1575,7 +1578,7 @@
       panel.dataset.avatarBackground = background;
     }
 
-    if (changedPart === 'gender' || changedPart === 'ageGroup') {
+    if (changedPart === 'gender' || changedPart === 'ageGroup' || changedPart === 'reset') {
       const dependentFields = [
         { key:'hairStyle', title:'চুলের ধরন' },
         { key:'facialHair', title:'দাড়ি ও গোঁফ' }
