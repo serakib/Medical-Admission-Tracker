@@ -505,6 +505,14 @@ class MedicalExamApp {
             if (message) message.textContent = 'সঠিক ইমেইল দিন এবং অন্তত ৬ অক্ষরের পাসওয়ার্ড ব্যবহার করুন।';
             return;
         }
+        if (isRegister && (!name || !college || !studentClass)) {
+            if (message) message.textContent = 'Sign Up করতে নাম, College ও Batch—তিনটি তথ্যই পূরণ করতে হবে।';
+            return;
+        }
+        if (isRegister && !window.confirm(
+            'আপনার দেওয়া Personal Information দিয়ে Registered Account তৈরি করবেন?\n\nনাম: ' + name +
+            '\nCollege: ' + college + '\nBatch: ' + studentClass
+        )) return;
 
         this.__medicalRegistrationInProgress = isRegister;
         try {
@@ -582,12 +590,17 @@ class MedicalExamApp {
     }
 
     continueAsGuest() {
-        this.authUser = null;
-        localStorage.setItem('med_guest_mode', 'true');
-        this.authStateResolved = true;
-        this.closeAuthModal();
-        this.setAuthState(null);
-        try { window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null } })); } catch (_) {}
+        // Never create a local-only pseudo Guest. All Guest accounts must be
+        // created through the required Personal Information + confirmation flow.
+        if (window.MedVisitorAccess && typeof window.MedVisitorAccess.openGuestForm === 'function') {
+            window.MedVisitorAccess.openGuestForm();
+            return;
+        }
+        if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') {
+            window.MedVisitorAccess.open();
+            return;
+        }
+        console.warn('Guest account onboarding is not ready yet.');
     }
 
     friendlyAuthError(error) {
@@ -2779,6 +2792,10 @@ window.handleAccountDeletion = function() {
     return { streak: Math.max(0, Number(progress.streak) || 0), lastStreakActivityDate: String(progress.lastStreakActivityDate || today), highestStreak: Math.max(0, Number(progress.highestStreak || progress.maxStreak) || 0), pending: !!progress.streakSyncPending };
   };
   function trackDailyVisit() {
+    // Anonymous visitors can browse the site but do not receive account progress.
+    let hasGuestAccount = false;
+    try { hasGuestAccount = !!localStorage.getItem('med_sheet_guest_token_v1'); } catch (_) {}
+    if (!app.authUser && !hasGuestAccount) return;
     try { app.recordDailyStreakActivity(); } catch (_) {}
   }
   // Track on page entry and when returning to the site on a later day.
