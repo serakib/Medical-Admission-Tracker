@@ -2026,6 +2026,17 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     else if (leaderboardManualRefreshActive) setLeaderboardRefreshBusy(false, false);
     ensureUI();
     var periodForRequest = selectedPeriod;
+    // An expired Guest session must wait for the user's manual replacement action.
+    // Do not keep retrying identity sync or leave leaderboard skeletons spinning.
+    if (!app.authUser && readExpiredGuest()) {
+      var expiredScreen = document.getElementById('mat-guest-expired-screen');
+      if (!expiredScreen) showGuestExpiredScreen(readExpiredGuest());
+      renderRows([]);
+      setStatus('Previous Guest session expired. Create a new Guest account to continue.', true);
+      setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
+      return;
+    }
     // Invalidate the previous tab request immediately, before any asynchronous Friends sync.
     // Otherwise a slow friendConnections call leaves the old Monthly request valid long enough
     // to repaint the table after the user has already switched to Friends.
