@@ -108,12 +108,12 @@
   const configFromAvatar = source => {
     try {
       const clean = String(source || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
-      if (!/^data:image\\/svg\\+xml;charset=utf-8,/i.test(clean)) return null;
+      if (!/^data:image\/svg\+xml;charset=utf-8,/i.test(clean)) return null;
       const encoded = clean.slice(clean.indexOf(',') + 1);
       const svg = decodeURIComponent(encoded);
       const match = svg.match(/data-avatar-config="([^"]+)"/);
       return match ? normalize(JSON.parse(decodeURIComponent(match[1]))) : null;
     } catch (_) { return null; }
   };
-  window.MedAvatarCreator = { choices, defaultConfig, normalize, render, randomize, configFromAvatar, isAvatar: value => /^data:image\\/svg\\+xml;charset=utf-8,%3Csvg/i.test(String(value || '')) };
+  window.MedAvatarCreator = { choices, defaultConfig, normalize, render, randomize, configFromAvatar, isAvatar: value => /^data:image\/svg\+xml;charset=utf-8,%3Csvg/i.test(String(value || '')) };
 })();
