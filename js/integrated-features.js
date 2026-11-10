@@ -1926,11 +1926,6 @@
           wrapper.appendChild(edit);
         }
       }
-      if (!user || !gmailPhoto) {
-        element.querySelectorAll('.mat-avatar-live-layer').forEach(layer => layer.remove());
-        element.dataset.matAvatarMotionKey = '';
-        return;
-      }
       let customSource = '';
       try {
         const stored = localStorage.getItem(avatarKey()) || '';
@@ -1939,8 +1934,10 @@
         if (manual && isRenderableAvatarSource(stored)) customSource = stored;
         else if (shared && shared !== gmailPhoto && isRenderableAvatarSource(shared) && !isLegacyPortraitAvatar(shared)) customSource = shared;
       } catch (_) {}
+      // Every account gets its own composed avatar and live facial motion.
+      // A Gmail photo is an optional alternate portrait, never a prerequisite.
       if (!customSource || customSource === gmailPhoto) customSource = window.MedAvatarCreator.render(readAvatarConfig());
-      const key = gmailPhoto + '|' + customSource;
+      const key = (gmailPhoto || '') + '|' + customSource;
       if (element.dataset.matAvatarMotionKey === key && element.querySelector('.mat-avatar-live-layer')) return;
       element.querySelectorAll('.mat-avatar-live-layer').forEach(node => node.remove());
       element.dataset.matAvatarMotionKey = key;
@@ -1955,19 +1952,23 @@
         image.src = customSource;
         customLayer.appendChild(image);
       }
-      const gmailLayer = document.createElement('span');
-      gmailLayer.className = 'mat-avatar-live-layer';
-      const gmailImage = document.createElement('img');
-      gmailImage.alt = '';
-      gmailImage.draggable = false;
-      gmailImage.src = gmailPhoto;
-      gmailLayer.appendChild(gmailImage);
+      let gmailLayer = null;
+      if (gmailPhoto) {
+        gmailLayer = document.createElement('span');
+        gmailLayer.className = 'mat-avatar-live-layer';
+        const gmailImage = document.createElement('img');
+        gmailImage.alt = '';
+        gmailImage.draggable = false;
+        gmailImage.src = gmailPhoto;
+        gmailLayer.appendChild(gmailImage);
+      }
       element.insertBefore(customLayer, element.firstChild);
-      element.insertBefore(gmailLayer, customLayer.nextSibling);
+      if (gmailLayer) element.insertBefore(gmailLayer, customLayer.nextSibling);
       const badge = element.querySelector('.mat-profile-edit-badge');
       if (badge) element.appendChild(badge);
       element.dataset.matAvatarState = 'custom';
       const switchState = () => {
+        if (!gmailLayer) return;
         const showGmail = element.dataset.matAvatarState !== 'gmail';
         element.dataset.matAvatarState = showGmail ? 'gmail' : 'custom';
         customLayer.classList.toggle('is-visible', !showGmail);
