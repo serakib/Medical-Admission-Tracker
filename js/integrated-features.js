@@ -1019,8 +1019,9 @@
           return '<section class="profile-avatar-part"><h4>' + field.title + '</h4><div class="profile-avatar-part-options">' +
             options.map(option => {
               const selected = config[field.key] === option.value;
-              const swatch = /^#[0-9a-f]{6}$/i.test(option.value)
-                ? '<span class="profile-avatar-swatch" style="--avatar-swatch:' + option.value + '"></span>'
+              const isColor = /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(option.value);
+              const swatch = isColor
+                ? '<span class="profile-avatar-swatch" style="--avatar-swatch:' + (option.value.startsWith('#') ? option.value : '#' + option.value) + '"></span>'
                 : '';
               const glyph = swatch ? '' : '<span class="profile-avatar-option-glyph" aria-hidden="true">' + (option.value === 'cat' ? '🐱' : option.value === 'chick' ? '🐤' : option.value === 'bear' ? '🐻‍❄️' : option.value === 'none' ? '○' : option.value === 'hat' ? '🧢' : option.value === 'headphones' ? '🎧' : option.value === 'hoodie' ? '🧥' : option.value === 'smile' ? '☺' : option.value === 'sad' ? '☹' : option.value === 'surprised' ? '😮' : option.value === 'closed' ? '－' : '✦') + '</span>';
               return '<button type="button" class="profile-avatar-part-option' + (selected ? ' is-selected' : '') +
