@@ -1255,7 +1255,7 @@
       {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
       {key:'nose-hair',title:'Nose & Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুল'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
-      {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি'র রঙ'}]},
+      {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
       {key:'headphones',title:'Headphones',icon:'headphones',fields:[{key:'headphonesType',title:'হেডফোন'}]},
       {key:'pets-bg',title:'Pets & BG',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]}
