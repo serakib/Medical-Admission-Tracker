@@ -1,1 +1,86 @@
-(function(){'use strict';if(window.MedAvatarProfileModal)return;const css='.mat-profile-edit-wrap{position:relative!important}.mat-profile-edit-badge{position:absolute;right:-5px;bottom:-5px;width:32px;height:32px;border:3px solid var(--surface,#fff);border-radius:50%;background:#10b981;color:#ffffff;display:grid;place-items:center;cursor:pointer;z-index:5}.mat-profile-modal[hidden]{display:none!important}.mat-profile-modal{position:fixed;inset:0;z-index:100040;background:#050812c9;backdrop-filter:blur(8px);display:grid;place-items:center;padding:16px}.mat-profile-modal-card{position:relative;width:min(360px,100%);padding:24px;border-radius:14px;background:#1a1a24;color:#f8fafc;border:1px solid #ffffff20;box-shadow:0 24px 70px #0008}.mat-profile-modal-close{position:absolute;right:13px;top:10px;width:34px;height:34px;border:0;border-radius:50%;background:#ffffff12;color:inherit;font-size:23px;cursor:pointer}.mat-profile-modal h2{font-size:24px;font-weight:900;margin:0 35px 8px 0}.mat-profile-modal p{color:#a1a1b3;font-size:13px;line-height:1.7;margin:0 0 18px}.mat-profile-modal-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:10px;border:0;border-radius:13px;color:#fff;font-weight:850;cursor:pointer}.mat-profile-modal-edit{background:#2563eb}.mat-profile-modal-upload{background:#10b981}html[data-theme="light"] .mat-profile-modal-card{background:#fff;color:#172033;border-color:#e2e8f0;box-shadow:0 24px 70px #0f172a30}html[data-theme="light"] .mat-profile-modal-close{background:#f1f5f9;color:#334155}html[data-theme="light"] .mat-profile-modal p{color:#64748b}';const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);let overlay;function open(){if(!overlay){overlay=document.createElement('div');overlay.className='mat-profile-modal';overlay.hidden=true;overlay.innerHTML='<section class="mat-profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="mat-profile-modal-title"><button class="mat-profile-modal-close" type="button" aria-label="Close">×</button><h2 id="mat-profile-modal-title">আভাটার আপডেট</h2><p>তোমার পছন্দমতো আভাটার তৈরি করো অথবা নিজের ছবি আপলোড করো।</p><button type="button" class="mat-profile-modal-action mat-profile-modal-edit">🎨 আভাটার এডিট করো</button><button type="button" class="mat-profile-modal-action mat-profile-modal-upload">📷 ছবি আপলোড করো</button></section>';document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay||e.target.closest('.mat-profile-modal-close'))close();});overlay.querySelector('.mat-profile-modal-edit').onclick=()=>{close();const b=document.getElementById('profile-avatar-toggle-picker');if(b){if(b.getAttribute('aria-expanded')!=='true')b.click();document.getElementById('profile-avatar-picker')?.scrollIntoView({behavior:'smooth',block:'center'});}else document.getElementById('profile-avatar-picker')?.scrollIntoView({behavior:'smooth',block:'center'});};overlay.querySelector('.mat-profile-modal-upload').onclick=()=>{close();document.getElementById('profile-avatar-upload-input')?.click();};}overlay.hidden=false;document.body.style.overflow='hidden';overlay.querySelector('.mat-profile-modal-close')?.focus();}function close(){if(overlay){overlay.hidden=true;document.body.style.overflow='';}}function attach(){document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar').forEach(el=>{if(el.querySelector('.mat-profile-edit-badge'))return;el.classList.add('mat-profile-edit-wrap');const b=document.createElement('button');b.type='button';b.className='mat-profile-edit-badge';b.innerHTML='<i class="fa-solid fa-pencil" aria-hidden="true"></i>';b.setAttribute('aria-label','আভাটার আপডেট');b.addEventListener('click',open);el.appendChild(b);});}function init(){attach();new MutationObserver(attach).observe(document.body,{childList:true,subtree:true});window.addEventListener('student-profile-loaded',attach);window.addEventListener('student-auth-state-changed',attach);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay&&!overlay.hidden)close();});window.MedAvatarProfileModal={open,close};})();
+(function () {
+  'use strict';
+  if (window.MedAvatarProfileModal) return;
+
+  const css = `
+    .mat-profile-edit-wrap{position:relative!important}
+    .mat-profile-edit-badge{position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:32px;height:32px;border:3px solid #1a1a24;border-radius:50%;background:#10b981;color:#121218;cursor:pointer;z-index:5}
+    .mat-profile-edit-badge svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .mat-profile-modal[hidden]{display:none!important}
+    .mat-profile-modal{position:fixed;inset:0;z-index:100040;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+    .mat-profile-modal-card{position:relative;width:min(320px,100%);padding:24px;border-radius:16px;background:#1a1a24;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+    .mat-profile-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer}
+    .mat-profile-modal h2{margin:0;padding:0 24px;text-align:center;font-size:19px;font-weight:850;line-height:1.5}
+    .mat-profile-modal-actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+    .mat-profile-modal-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:12px;border:0;border-radius:8px;color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+    .mat-profile-modal-edit{background:#2563eb}
+    .mat-profile-modal-upload{background:#10b981}
+    .mat-profile-modal button:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+  `;
+  const style = document.createElement('style');
+  style.id = 'mat-profile-modal-strict-style';
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  let overlay = null;
+  let previousFocus = null;
+  function close() {
+    if (!overlay || overlay.hidden) return;
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+  }
+  function open() {
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'mat-profile-modal';
+      overlay.hidden = true;
+      overlay.innerHTML = '<section class="mat-profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="mat-profile-modal-title">' +
+        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন">×</button>' +
+        '<h2 id="mat-profile-modal-title">আভাটার আপডেট</h2>' +
+        '<div class="mat-profile-modal-actions">' +
+          '<button type="button" class="mat-profile-modal-action mat-profile-modal-edit">আভাটার এডিট করো</button>' +
+          '<button type="button" class="mat-profile-modal-action mat-profile-modal-upload">ছবি আপলোড করো</button>' +
+        '</div></section>';
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', event => {
+        if (event.target === overlay || event.target.closest('.mat-profile-modal-close')) close();
+      });
+      overlay.querySelector('.mat-profile-modal-edit').addEventListener('click', () => {
+        close();
+        document.dispatchEvent(new CustomEvent('mat-open-avatar-builder'));
+      });
+      overlay.querySelector('.mat-profile-modal-upload').addEventListener('click', () => {
+        close();
+        document.getElementById('profile-avatar-upload-input')?.click();
+      });
+    }
+    previousFocus = document.activeElement;
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    overlay.querySelector('.mat-profile-modal-close')?.focus();
+  }
+  function attach() {
+    document.querySelectorAll('#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar').forEach(element => {
+      if (element.querySelector('.mat-profile-edit-badge')) return;
+      element.classList.add('mat-profile-edit-wrap');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'mat-profile-edit-badge';
+      button.setAttribute('aria-label', 'আভাটার আপডেট');
+      button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+      button.addEventListener('click', open);
+      element.appendChild(button);
+    });
+  }
+  function init() {
+    attach();
+    new MutationObserver(attach).observe(document.body, {childList:true,subtree:true});
+    window.addEventListener('student-profile-loaded', attach);
+    window.addEventListener('student-auth-state-changed', attach);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && overlay && !overlay.hidden) close(); });
+  window.MedAvatarProfileModal = {open,close};
+})();
