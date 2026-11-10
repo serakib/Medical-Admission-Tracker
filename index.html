@@ -446,8 +446,11 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
         var pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0;
+        var displayedProgress=0;
         function setStep(value,message,iconClass){
           if(!fill||finished)return;
+          value=Math.max(displayedProgress,Math.min(100,Number(value)||0));
+          displayedProgress=value;
           fill.style.width=value+'%';
           if(status)status.textContent=message;
           if(icon)icon.className='fa-solid '+iconClass;
