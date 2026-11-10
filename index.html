@@ -457,8 +457,8 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         }
         function hide(){
           if(!overlay||finished)return;
-          finished=true;
           setStep(100,'শুরু করার জন্য প্রস্তুত!','fa-circle-check');
+          finished=true;
           window.setTimeout(function(){
             overlay.classList.add('is-leaving');
             window.setTimeout(function(){if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);},340);
