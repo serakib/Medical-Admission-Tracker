@@ -25,11 +25,13 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.2';
+const MAT_API_VERSION = '2026.11.10.3';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'persistent-guest-accounts',
   'guest-creation-requires-name-college-batch-confirmation',
+  'guest-logout-restorable-while-token-valid',
+  'total-rp-is-cumulative-lifetime-rp-never-weekly-reset',
   'server-profile-management',
   'exam-rewards-idempotency',
   'full-rp-all-exam-modes-and-question-counts',
@@ -1517,7 +1519,8 @@ function matRankTierCap_(rankIndex) {
 }
 
 // One-time migration from old sub-rank-local RP to Tier-cumulative RP.
-// TotalRP is retained only as the profile's Lifetime RP display value; it is not a leaderboard score.
+// TotalRP is the cumulative Lifetime RP earned by the account across its entire life.
+// It is never replaced by weekly/monthly RP and is preserved by the weekly hard reset.
 function matPrepareRankProgress_(source, sheet) {
   const student = Object.assign({}, source || {});
   if (Number(student.RankProgressVersion) >= MAT_RANK_PROGRESS_VERSION) return student;
