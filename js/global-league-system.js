@@ -2087,6 +2087,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       renderLeaderboardLoadingSkeleton();
     }
 
+    // Offline-first: do not start identity/friends/API requests without a connection.
+    // The local snapshot is rendered above; show a clear state and stop the skeleton.
+    if (!navigator.onLine) {
+      if (!cache.length) renderRows([]);
+      setStatus(
+        cache.length
+          ? 'আপনি offline আছেন। এই ডিভাইসে সংরক্ষিত সর্বশেষ data দেখানো হচ্ছে।'
+          : 'আপনি offline আছেন এবং এই tab-এর কোনো saved data নেই। Internet এলে আবার চেষ্টা হবে।',
+        !cache.length
+      );
+      setLeaderboardRefreshBusy(false);
+      setBackgroundSyncIndicator(false, false);
+      return;
+    }
+
     if (periodForRequest === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
       try {
         await waitForLeaderboardStep(
@@ -3081,5 +3096,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
   window.addEventListener('focus', refreshLeaderboardWhenVisible);
   document.addEventListener('visibilitychange', refreshLeaderboardWhenVisible);
+  window.addEventListener('online', function () {
+    var view = document.getElementById('view-leaderboard');
+    if (view && !view.classList.contains('hidden')) loadLeaderboard(true);
+    flushQueue();
+  });
   window.setInterval(function () { syncDailyStreak(); flushQueue(); }, 30000);
 })();
