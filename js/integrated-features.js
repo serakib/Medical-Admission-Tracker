@@ -1178,14 +1178,14 @@
       pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>'
     };
     const groups = [
-      {key:'body',title:'Body',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'}]},
-      {key:'eyes',title:'Eyes',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
-      {key:'mouth',title:'Mouth',icon:'mouth',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
-      {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
-      {key:'beard',title:'Beard',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
-      {key:'glasses',title:'Glasses',icon:'glasses',fields:[{key:'glasses',title:'চশমা'}]},
-      {key:'clothes',title:'Clothes',icon:'clothes',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'জামার রঙ'}]},
-      {key:'pets',title:'Pets',icon:'pets',fields:[{key:'headphonesType',title:'অ্যাক্সেসরি'},{key:'petType',title:'Pets আকার'}]}
+      {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
+      {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
+      {key:'nose-hair',title:'Nose & Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুল'},{key:'hairColor',title:'চুলের রঙ'}]},
+      {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
+      {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'}]},
+      {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
+      {key:'headphones',title:'Headphones',icon:'pets',fields:[{key:'headphonesType',title:'হেডফোন'}]},
+      {key:'pets-bg',title:'Pets & BG',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]}
     ];
     const config = pendingAvatarConfig || readAvatarConfig();
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
@@ -1334,7 +1334,7 @@
     avatarPickerExpanded = true;
     pendingAvatarConfig = pendingAvatarConfig || readAvatarConfig();
     pendingAvatarSource = pendingAvatarSource || window.MedAvatarCreator.render(pendingAvatarConfig);
-    activeAvatarGroup = 'body';
+    activeAvatarGroup = 'face';
     renderAvatarPicker();
   });
   document.addEventListener('click', event => {
