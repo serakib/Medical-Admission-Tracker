@@ -834,7 +834,74 @@
     }
   `;
   avatarCustomizerStyle.textContent += `
-    /* One continuous options scroller: every group stays in this single flow. */
+    /* Final dual-pane sizing and a single continuous vertical options scroller. */
+    html:has(#profile-avatar-picker.is-expanded),body.mat-avatar-customizer-open{width:100%;height:100%;overflow:hidden!important}
+    #profile-avatar-picker.is-expanded{box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;overflow:hidden!important;padding:clamp(12px,2.4vw,28px)!important;gap:clamp(10px,1.5vh,18px)!important}
+    #profile-avatar-picker.is-expanded .profile-avatar-builder-header{width:100%;max-width:1172px;flex:0 0 42px}
+    .mat-avatar-workspace{display:grid;grid-template-columns:minmax(280px,390px) minmax(0,756px);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:clamp(12px,2vw,26px);width:100%;max-width:1172px;min-height:0;flex:1;margin:0 auto;overflow:hidden}
+    .mat-avatar-preview-panel{position:relative;align-self:stretch;justify-content:center;min-height:0;max-height:none;aspect-ratio:auto;padding:0;overflow:hidden;border-radius:clamp(16px,2.2vw,30px);background:#a5a8ff}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{position:relative;width:100%;height:100%;max-width:none;aspect-ratio:auto;margin:0;border-radius:inherit;overflow:hidden}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-headphones{z-index:2}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{z-index:3;left:0!important;right:auto!important;bottom:5%!important}
+    .mat-avatar-preview-panel .mat-avatar-reset{position:absolute;z-index:5;top:14px;right:14px;border:0;border-radius:999px;padding:7px 13px;background:rgba(24,27,70,.72);color:#fff}
+    .mat-avatar-controls{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;padding:0;border:1px solid #777;border-radius:clamp(16px,2.2vw,30px);background:#121212}
+    .mat-avatar-category-bar{display:flex;flex:0 0 68px;align-items:stretch;justify-content:space-around;gap:0;min-width:0;margin:0;padding:0 8px;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid #555;border-radius:inherit;background:#171717;scrollbar-width:none}
+    .mat-avatar-category-bar::-webkit-scrollbar{display:none}
+    .mat-avatar-category{display:grid;place-items:center;flex:1 0 48px;min-width:48px;min-height:66px;padding:8px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#888;font-size:0!important}
+    .mat-avatar-category svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mat-avatar-category.is-active{border-bottom-color:#10b981;color:#10b981}
+    .mat-avatar-options-scroll{display:block!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;scrollbar-width:thin;scrollbar-color:#45454d transparent;padding:20px 18px 24px!important;scroll-behavior:smooth}
+    .mat-avatar-group-section{display:grid;gap:20px;margin:0 0 30px}
+    .mat-avatar-option-section{min-width:0}
+    .mat-avatar-option-section h3{margin:0 0 11px;color:#f4f4f5;font-size:14px;font-weight:800}
+    .mat-avatar-option-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+    .mat-avatar-option{display:grid;place-items:center;min-width:0;min-height:72px;aspect-ratio:1;padding:4px;border:1px solid #555;border-radius:13px;background:#29292e;color:#fff;overflow:hidden}
+    .mat-avatar-option.is-selected{border:2px solid #10b981;background:#29292e;box-shadow:0 0 0 1px #10b98122}
+    .mat-avatar-option-preview-stack{position:relative;display:block;width:100%;height:100%;aspect-ratio:1;overflow:hidden;border-radius:9px;isolation:isolate}
+    .mat-avatar-option-preview-stack .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+    .mat-avatar-option-preview-stack .med-avatar-headphones{position:absolute;z-index:2;top:5%;left:14%;width:72%;height:54%;object-fit:contain}
+    .mat-avatar-option-preview-stack .med-avatar-pet{position:absolute;z-index:3;left:0!important;right:auto!important;bottom:5%;width:36%;height:36%;object-fit:contain}
+    .mat-avatar-option-grid:has(.mat-avatar-swatch){display:flex;flex-wrap:nowrap;gap:9px;overflow-x:auto;padding:2px 2px 7px}
+    .mat-avatar-option:has(.mat-avatar-swatch){width:48px;min-width:48px;height:48px;min-height:48px;aspect-ratio:1;padding:0;border-radius:11px;background:transparent}
+    .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:9px}
+    .mat-avatar-option:has(.mat-avatar-swatch).is-selected{padding:2px}
+    .mat-avatar-actions{flex:0 0 auto;margin:0;padding:12px 16px;border-top:1px solid #555}
+    .mat-avatar-actions .profile-avatar-confirm-button{display:flex;width:100%;min-height:52px;align-items:center;justify-content:center;border:0;border-radius:12px;background:#10b981;color:#fff;font-size:16px;font-weight:850}
+    .mat-avatar-actions .profile-avatar-confirm-button:disabled{opacity:.45}
+    .mat-avatar-option:hover{transform:scale(1.035);border-color:#10b981}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{animation:matAvatarBreath 4s ease-in-out infinite}
+    .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:matAvatarPetFloat 3.2s ease-in-out infinite}
+    @media(max-width:760px){
+      #profile-avatar-picker.is-expanded{padding:10px!important;gap:8px!important}
+      .mat-avatar-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(112px,21vh) minmax(0,1fr);gap:8px}
+      .mat-avatar-preview-panel{width:100%;max-height:none;min-height:0;aspect-ratio:auto;border-radius:16px}
+      .mat-avatar-preview-panel .profile-avatar-preview-stack{width:auto;height:100%;max-width:100%;aspect-ratio:1;margin:0 auto}
+      .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-base{object-fit:contain}
+      .mat-avatar-preview-panel .mat-avatar-reset{top:7px;right:7px;padding:5px 10px;font-size:11px}
+      .mat-avatar-controls{border-radius:16px}
+      .mat-avatar-category-bar{height:56px;flex-basis:56px;justify-content:flex-start;overflow-x:auto}
+      .mat-avatar-category{min-width:46px;min-height:54px;flex-basis:46px}
+      .mat-avatar-category svg{width:21px;height:21px}
+      .mat-avatar-options-scroll{padding:13px 11px 18px!important}
+      .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .mat-avatar-option{min-height:60px}
+      .mat-avatar-option:has(.mat-avatar-swatch){width:42px;min-width:42px;height:42px;min-height:42px}
+      .mat-avatar-actions{padding:8px 10px}
+      .mat-avatar-actions .profile-avatar-confirm-button{min-height:44px}
+    }
+    @media(max-height:560px) and (max-width:760px){
+      .mat-avatar-workspace{grid-template-rows:86px minmax(0,1fr)}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-options-scroll{scroll-behavior:auto!important}
+      .mat-avatar-option,.mat-avatar-category,.mat-avatar-actions .profile-avatar-confirm-button{transition:none!important}
+      .mat-avatar-option:hover{transform:none}
+      .mat-avatar-preview-panel .profile-avatar-preview-stack,.mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:none!important}
+    }
+  `;
+  avatarCustomizerStyle.textContent += `
+    /* Avatar previews, state transitions and the single-scroll navigation. */
     .mat-avatar-options-scroll{display:block!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;scroll-behavior:smooth}
     .mat-avatar-group-section{display:grid;gap:22px;margin:0 0 28px}
     .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -1188,7 +1255,7 @@
       {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
       {key:'nose-hair',title:'Nose & Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুল'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
-      {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'}]},
+      {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি'র রঙ'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
       {key:'headphones',title:'Headphones',icon:'headphones',fields:[{key:'headphonesType',title:'হেডফোন'}]},
       {key:'pets-bg',title:'Pets & BG',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]}
@@ -1220,7 +1287,7 @@
       ? '<header class="profile-avatar-builder-header"><button type="button" id="profile-avatar-builder-back" aria-label="ফিরে যাও"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><h2>তোমার আভাটার বানাও</h2></header>' +
         '<div class="mat-avatar-workspace">' +
           '<section class="mat-avatar-preview-panel"><button type="button" id="profile-avatar-reset" class="mat-avatar-reset">রিসেট করুন</button>' +
-            window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') +
+            window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(window.MedAvatarCreator.normalize(Object.assign({},config,{background:'a5a8ff'}))), window.MedAvatarCreator.normalize(Object.assign({},config,{background:'a5a8ff'})), 'profile-avatar-preview-stack') +
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" title="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
