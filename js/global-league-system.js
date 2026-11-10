@@ -235,7 +235,27 @@
   }
   function getCache(period) {
     var key = cacheKeyForPeriod(period || 'monthly');
-    var rows = parseJson(localStorage.getItem(key), []);
+    var rows = parseJson(localStorage.getItem(key), null);
+    // One-time compatibility read for snapshots saved by the previous v2 key scheme.
+    // Copy a found snapshot into the stable v3 key so future visits use one location.
+    if (!Array.isArray(rows)) {
+      var legacyIds = [];
+      try {
+        legacyIds.push(String((app.authUser && app.authUser.uid) || ''));
+        legacyIds.push(String(localStorage.getItem(GUEST_ID_KEY) || ''));
+        legacyIds.push(String(currentUserId() || ''));
+        legacyIds.push('anonymous');
+      } catch (_) { legacyIds.push(String(currentUserId() || ''), 'anonymous'); }
+      for (var i = 0; i < legacyIds.length && !Array.isArray(rows); i++) {
+        var legacyScope = legacyIds[i].replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 96) || 'anonymous';
+        var suffix = period === 'weekly' ? '_weekly' : (period === 'friends' ? '_friends' : '_monthly');
+        var legacyRows = parseJson(localStorage.getItem(CACHE_KEY + '_v2_' + legacyScope + suffix), null);
+        if (Array.isArray(legacyRows)) rows = legacyRows;
+      }
+      if (Array.isArray(rows)) {
+        try { localStorage.setItem(key, JSON.stringify(rows)); } catch (_) {}
+      }
+    }
     return Array.isArray(rows) ? rows.filter(function (row) { return row && !row.isDemo; }) : [];
   }
   function saveCache(rows, period) {
