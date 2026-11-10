@@ -1,180 +1,139 @@
-# 🩺 Medical Admission Pro with Rakib
+# 🩺 Medical Admission Pro
 
-### Medical Admission Preparation Platform by Rakib Hasan
+### বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার্থীদের প্রস্তুতির সঙ্গী
 
-**Practice smarter. Track your progress. Prepare for medical admission.**
+**Practice smarter. Track your progress. Prepare with confidence.**
 
-🔗 **Live Website:** [Medical Admission Tester](https://serakib.github.io/Medical-Admission-Tracker/)
+🌐 **[ওয়েবসাইটে প্রবেশ করুন — Medical Admission Pro](https://serakib.github.io/Medical-Admission-Tracker/)**
 
-Medical Admission Tester is a web-based practice platform designed for HSC students and medical admission candidates in Bangladesh. It provides subject-wise question practice, model tests, previous-year questions, performance tracking, and quiz challenges in one place.
-
-## ✨ Features
-
-### 🏠 1. Home Dashboard
-- Overview of exam statistics and performance.
-- Quick access to question banks, practice sessions, and model tests.
-- Subject-wise practice options.
-- Multiple exam modes for flexible preparation.
-
-### 📚 2. Question Bank
-- Browse medical admission questions in one place.
-- Search questions by keyword, subject, year, or source.
-- Filter questions using available selection options.
-- Reveal or hide answers while studying.
-- Study questions without starting an examination.
-
-### 🎯 3. Practice Lab
-- Practice questions in a dedicated learning environment.
-- Navigate between questions.
-- Review answers and improve subject knowledge.
-- Practice without earning leaderboard points.
-
-### 📝 4. Multiple Exam Modes
-
-**Random Mixed Test**
-- Practice randomized questions across subjects or a selected subject.
-
-**Full Model Test**
-- Simulate a medical admission examination.
-- Choose from supported question counts and time limits.
-- Practice under timed examination conditions.
-
-**Previous Year Questions**
-- Study verified previous-year medical admission questions.
-- Select an available examination year.
-- Review question papers or start a quiz.
-
-### ⏱️ 5. Timed Examination System
-- Configurable question count and examination duration.
-- Countdown timer.
-- Question navigation and question palette.
-- Mark questions for review.
-- Clear a selected answer where supported.
-- Submit the examination and view the results.
-
-### ➖ 6. Negative Marking
-The examination system follows this scoring scheme:
-
-| Response | Marks |
-|---|---:|
-| Correct answer | +1.00 |
-| Incorrect answer | −0.25 |
-| Unanswered question | 0.00 |
-
-### 📊 7. Results & Performance Analysis
-- Final score and percentage.
-- Correct and incorrect answer counts.
-- Unanswered question statistics.
-- Negative marks calculation.
-- Time spent on the examination.
-- Subject-wise performance analysis.
-- Detailed answer review with Bengali explanations.
-
-### 👤 8. Student Profile
-- Guest mode for getting started.
-- Login and sign-up interface.
-- Questions practiced and examination attempts.
-- Best score and average accuracy.
-- Progress and performance statistics.
-- Recent examination history.
-
-### 📈 9. Question Coverage Tracking
-- Track progress through the available question bank.
-- Monitor question bank coverage.
-- Practice from unseen questions to reduce repetition.
-- Review coverage and attempt history.
-
-### 🏆 10. Leaderboard
-- Quiz challenge rankings.
-- Student and college information.
-- Quiz participation statistics.
-- Accuracy and points comparison.
-- Refreshable leaderboard interface.
-
-*Submitted Challenge Quiz, Previous Year, Model Test, Random Test, and Previous Exam results are sent to the configured global Rank API. Review-only actions do not submit leaderboard points.*
-
-### 🌐 Medical Leaderboard & Rank API
-
-Medical Admission Tracker uses Firebase Authentication together with its own Google Apps Script / Google Sheets API. Guest and registered users can view the leaderboard without first taking an exam, edit their profile, and earn Medical-only XP/RP from exams. The API supports All Time and Weekly leaderboards, sequential sub-rank promotion up to Immortal, and the Telegram notification queue. No other website's game account or reward balance is shared.
-
-See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md) for API actions and security notes. The existing Get in Touch form remains separate and continues to use the portfolio's messaging endpoint.
-
-### 📖 11. Syllabus & Examination Guidelines
-- Subject-wise marks distribution.
-- Medical admission examination instructions.
-- Examination duration and negative marking rules.
-- Preparation information for HSC students and admission candidates.
-
-## 📘 Subjects
-
-The platform is designed around five medical admission preparation subjects:
-
-- 🧬 Biology
-- 🧪 Chemistry
-- ⚛️ Physics
-- 🇬🇧 English
-- 🌍 General Knowledge (GK)
-
-## 🎓 Who Is This For?
-
-- HSC Class XI and XII students.
-- Medical admission candidates in Bangladesh.
-- Students who want to practice MCQs regularly.
-- Learners who want to analyze their strengths and weaknesses.
-- Candidates preparing with previous-year questions and model tests.
-
-## 🚀 Getting Started
-
-1. Visit the [Medical Admission Tester website](https://serakib.github.io/Medical-Admission-Tracker/).
-2. Choose a practice mode or open the question bank.
-3. Select your preferred subject, question count, or examination year where available.
-4. Answer questions and review your results.
-5. Monitor your progress and continue practicing.
-
-## ⚖️ Examination Mark Distribution
-
-The website displays the following subject-wise distribution:
-
-| Subject | Marks |
-|---|---:|
-| Biology | 30 |
-| Chemistry | 25 |
-| Physics | 20 |
-| English | 15 |
-| General Knowledge | 10 |
-| **Total** | **100** |
-
-The displayed examination guidelines specify 100 MCQs, 60 minutes, and a passing score of 40. Always check the latest official admission circular for the applicable examination year.
-
- ## Wiki is Available ,Check it out!
-
- 
-## 🔒 Copyright & License
-
-**Copyright (c) 2026 Rakib Hasan. All Rights Reserved.**
-
-Unless expressly stated otherwise, the source code, original designs, documentation, and original question-bank materials are proprietary.
-
-No permission is granted to copy, redistribute, modify, republish, or commercially exploit these materials without prior written authorization from the copyright owner, except where permitted by applicable law.
-
-Third-party materials remain subject to their respective licenses. Unauthorized use may result in legal action under applicable law.
-
-See the repository's `LICENSE` file for the applicable terms.
-
-## 👨‍💻 Developer
-
-**Rakib Hasan** [Visit Developer Portfolio](https://rakibhasandc27.blogspot.com/)
-
-
-Medical Admission Tester — a web-based platform for medical admission preparation.
-
-🔗 [Open the Live Website](https://serakib.github.io/Medical-Admission-Tracker/)
+Medical Admission Pro হলো HSC একাদশ–দ্বাদশ শ্রেণির শিক্ষার্থী এবং বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার প্রস্তুতকারীদের জন্য তৈরি একটি অনলাইন MCQ practice platform। এখানে প্রশ্ন অনুশীলন, মডেল টেস্ট, বিগত বছরের প্রশ্ন, নিজের অগ্রগতি দেখা এবং অন্য শিক্ষার্থীদের সঙ্গে leaderboard-এ প্রতিযোগিতা করার সুবিধা রয়েছে।
 
 ---
 
-*Made for students preparing for medical admission in Bangladesh.*
+## 📚 কী কী করতে পারবে?
 
+### ১. Question Bank
+- বিষয়, বছর বা উৎস অনুযায়ী প্রশ্ন খুঁজে নিতে পারবে।
+- প্রয়োজন অনুযায়ী প্রশ্ন সার্চ ও ফিল্টার করতে পারবে।
+- পড়ার সময় উত্তর দেখানো বা লুকিয়ে রাখতে পারবে।
+- পরীক্ষা শুরু না করেও প্রশ্ন অনুশীলন করতে পারবে।
 
-## Medical leaderboard / Rank API
+### ২. Practice Lab
+- নিজের পছন্দমতো প্রশ্ন অনুশীলন করতে পারবে।
+- আগের ও পরের প্রশ্নে যাওয়া এবং উত্তর যাচাই করার সুবিধা রয়েছে।
+- Practice History-তে ভুল করা ও Review করা প্রশ্ন আলাদা করে দেখতে পারবে।
+- প্রশ্নের সঠিক উত্তর ও উপলভ্য বাংলা ব্যাখ্যা আবার পড়তে পারবে।
+- Practice History থেকে প্রয়োজন হলে Clear History ব্যবহার করতে পারবে।
 
-Medical Admission Tracker uses Firebase Authentication plus its own Google Apps Script / Google Sheets API. Its rewards and data are independent from other websites. See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) and [GLOBAL_LEADERBOARD_API.md](GLOBAL_LEADERBOARD_API.md).
+### ৩. বিভিন্ন ধরনের পরীক্ষা
+- **Random Test:** বিভিন্ন বিষয় বা নির্দিষ্ট বিষয় থেকে এলোমেলো প্রশ্নে পরীক্ষা।
+- **Full Model Test:** মেডিকেল ভর্তি পরীক্ষার আদলে নির্ধারিত প্রশ্নসংখ্যা ও সময়ের পরীক্ষা।
+- **Previous Year:** বিগত বছরের উপলভ্য প্রশ্নপত্র অনুশীলন ও কুইজ।
+- **Practice Exam:** নিজের পছন্দমতো প্রশ্নের সংখ্যা দিয়ে অনুশীলনমূলক পরীক্ষা।
+
+### ৪. পরীক্ষার সুবিধা
+- নির্ধারিত সময়ের countdown timer।
+- প্রশ্নের মধ্যে সামনে-পেছনে যাওয়া।
+- Question Palette থেকে যেকোনো প্রশ্নে সরাসরি যাওয়া।
+- প্রয়োজনীয় প্রশ্ন Mark for Review করা।
+- পরীক্ষা Submit করার পর ফলাফল দেখা।
+
+### ৫. ফলাফল ও বিশ্লেষণ
+পরীক্ষা শেষে দেখতে পারবে:
+- মোট স্কোর ও শতকরা ফলাফল।
+- সঠিক, ভুল ও উত্তর না দেওয়া প্রশ্নের সংখ্যা।
+- Negative marking-এর হিসাব।
+- পরীক্ষায় ব্যয় করা সময়।
+- বিষয়ভিত্তিক পারফরম্যান্স।
+- প্রশ্ন, নিজের উত্তর, সঠিক উত্তর এবং উপলভ্য ব্যাখ্যা।
+
+### ৬. Negative Marking
+ওয়েবসাইটের পরীক্ষায় প্রদর্শিত নম্বর বণ্টন:
+
+| উত্তরের ধরন | নম্বর |
+|---|---:|
+| সঠিক উত্তর | +১.০০ |
+| ভুল উত্তর | −০.২৫ |
+| উত্তর না দিলে | ০.০০ |
+
+পরীক্ষার বছরের জন্য প্রযোজ্য সর্বশেষ সরকারি ভর্তি বিজ্ঞপ্তি অবশ্যই দেখে নেবে।
+
+### ৭. Student Profile ও Progress
+নিজের প্রোফাইলে অনুশীলন ও পরীক্ষার অগ্রগতি দেখতে পারবে। যেমন:
+- XP, Level ও Rank।
+- Rank Points (RP) এবং Lifetime RP।
+- Personal Best (PB) ও পরীক্ষার পরিসংখ্যান।
+- Streak এবং সর্বোচ্চ Streak।
+- সাম্প্রতিক পরীক্ষার ফলাফল ও History।
+
+### ৮. Medical Leaderboard
+নিজের অগ্রগতি অন্য শিক্ষার্থীদের সঙ্গে তুলনা করতে পারবে:
+- **Weekly Leaderboard:** সাপ্তাহিক RP অনুযায়ী অবস্থান।
+- **Monthly Leaderboard:** মাসিক RP অনুযায়ী অবস্থান।
+- **Friends Leaderboard:** বন্ধুদের সঙ্গে নিজের অবস্থান তুলনা।
+- শিক্ষার্থীর নাম, কলেজ ও উপলভ্য প্রোফাইল তথ্য দেখা।
+- Student Search ও Friend Request-এর মাধ্যমে বন্ধু যুক্ত করা।
+
+Leaderboard-এর Rank ধাপ Bronze V থেকে শুরু হয়ে ধাপে ধাপে Immortal পর্যন্ত যায়। Rank ও RP-এর অগ্রগতি ওয়েবসাইটের নিয়ম অনুযায়ী হিসাব করা হয়।
+
+**মনে রাখবে:** XP, সাপ্তাহিক RP এবং Lifetime RP এক জিনিস নয়। সাপ্তাহিক RP-এর reset হলেও Lifetime RP তোমার সামগ্রিক অর্জন হিসেবে সংরক্ষিত থাকে।
+
+### ৯. Account
+- শুরুতে Guest Account ব্যবহার করতে পারবে।
+- চাইলে Registered Account তৈরি করে Login করতে পারবে।
+- Guest Account তৈরি করতে নাম, কলেজ ও HSC Batch দিতে হয়।
+- প্রোফাইলের উপলভ্য তথ্য পরিবর্তন করতে পারবে।
+- Account ব্যবহারের সময় নিজের Login তথ্য নিরাপদে রাখবে।
+
+### ১০. Syllabus ও ভর্তি-সংক্রান্ত তথ্য
+ওয়েবসাইটে মেডিকেল ভর্তি প্রস্তুতির বিষয়ভিত্তিক তথ্য, পরীক্ষার নির্দেশনা এবং প্রস্তুতি-সংক্রান্ত গাইডলাইন দেখতে পারবে। নিয়ম বা নম্বর বণ্টন পরিবর্তিত হতে পারে, তাই সর্বশেষ সরকারি ভর্তি বিজ্ঞপ্তিকে চূড়ান্ত হিসেবে ধরবে।
+
+---
+
+## 🧬 প্রস্তুতির বিষয়সমূহ
+
+- Biology
+- Chemistry
+- Physics
+- English
+- General Knowledge (GK)
+
+## 🎓 কাদের জন্য?
+
+- HSC একাদশ ও দ্বাদশ শ্রেণির শিক্ষার্থী।
+- বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার প্রস্তুতকারীরা।
+- যারা নিয়মিত MCQ অনুশীলন করতে চায়।
+- যারা নিজের ভুল, দুর্বলতা ও অগ্রগতি বুঝে প্রস্তুতি নিতে চায়।
+
+---
+
+## 🚀 কীভাবে শুরু করবে?
+
+1. [Medical Admission Pro ওয়েবসাইটে](https://serakib.github.io/Medical-Admission-Tracker/) প্রবেশ করো।
+2. Question Bank, Practice অথবা পছন্দের Exam Mode বেছে নাও।
+3. বিষয়, প্রশ্নসংখ্যা বা পরীক্ষার বছর নির্বাচন করো—যেখানে এই অপশন আছে।
+4. সময়ের মধ্যে প্রশ্নের উত্তর দাও এবং পরীক্ষা Submit করো।
+5. Result ও Practice History দেখে ভুলগুলো আবার অনুশীলন করো।
+6. Profile ও Leaderboard থেকে নিজের অগ্রগতি অনুসরণ করো।
+
+---
+
+## ℹ️ Leaderboard বা Sync সমস্যা হলে
+
+কখনো ইন্টারনেট বা সার্ভারের সাময়িক সমস্যার কারণে নতুন Leaderboard data লোড হতে দেরি হতে পারে। তখন ওয়েবসাইট আগের সংরক্ষিত data দেখাতে পারে। এমন বার্তা দেখলে কিছুক্ষণ পর আবার চেষ্টা করো। Cached data সবসময় সর্বশেষ ranking নাও হতে পারে।
+
+পরীক্ষা Submit করার পরও যদি ফলাফল বা reward আপডেট না হয়, একই পরীক্ষা বারবার Submit না করে আগে Profile ও History আবার পরীক্ষা করো।
+
+---
+
+## © পরিচিতি
+
+**Medical Admission Pro with Rakib**  
+Created by **Rakib Hasan**
+
+🔗 [ওয়েবসাইট খুলুন](https://serakib.github.io/Medical-Admission-Tracker/)  
+🔗 [Developer Portfolio](https://rakibhasandc27.blogspot.com/)
+
+---
+
+*বাংলাদেশের মেডিকেল ভর্তি পরীক্ষার্থীদের প্রস্তুতিতে সহায়তার জন্য তৈরি।*
