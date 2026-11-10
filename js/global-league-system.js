@@ -501,7 +501,35 @@
 
   async function ensureGuest() {
     var savedToken = getGuestToken();
-    var response = await request({ action: 'createGuest', guestToken: savedToken });
+    var response;
+    try {
+      response = await request({ action: 'createGuest', guestToken: savedToken });
+    } catch (error) {
+      var message = String(error && error.message || error || '');
+      var staleGuestSession = /guest session.*no longer available|guest session.*unavailable|guest.*deleted|guest.*expired|no longer exists/i.test(message);
+      if (!savedToken || !staleGuestSession) throw error;
+
+      // The previous Guest identity has already been deleted/expired.
+      // Drop only that Guest's local identity and retry once as a brand-new Guest.
+      var oldGuestId = '';
+      try { oldGuestId = String(localStorage.getItem(GUEST_ID_KEY) || '').trim(); } catch (_) {}
+      try {
+        localStorage.removeItem(GUEST_TOKEN_KEY);
+        localStorage.removeItem(GUEST_ID_KEY);
+        if (oldGuestId) {
+          localStorage.removeItem('med_sheet_profile_v1_' + oldGuestId);
+          localStorage.removeItem('med_account_progress_v1_' + oldGuestId);
+          localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_monthly');
+          localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_weekly');
+          localStorage.removeItem('med_sheet_leaderboard_cache_v2_' + oldGuestId + '_friends');
+        }
+      } catch (storageError) {
+        console.warn('[Guest session] Could not clear stale local Guest data:', storageError);
+      }
+      currentProfile = null;
+      app.profile = null;
+      response = await request({ action: 'createGuest' });
+    }
     if (!response.guestToken) throw new Error('Guest API returned no guest token.');
     try {
       localStorage.setItem(GUEST_TOKEN_KEY, response.guestToken);
