@@ -705,9 +705,10 @@
   /* Human portrait avatar picker: people only, no animal avatars. */
   const humanAvatarStyle=document.createElement('style');humanAvatarStyle.textContent='.sidebar-action.logout-action{color:#f87171!important;border-color:#ef444455!important;background:#ef444410!important}.sidebar-action.logout-action:hover{background:#ef444420!important}.leader-avatar,.podium-avatar{overflow:hidden;flex-shrink:0}.profile-avatar-options{display:none;width:100%;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;margin-top:12px;align-items:start}.profile-avatar-picker.is-expanded .profile-avatar-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr))}.profile-avatar-toggle-button,.profile-avatar-confirm-button,.profile-avatar-cancel-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-toggle-button:hover,.profile-avatar-confirm-button:hover{background:#10b98125}.profile-avatar-confirm-button:disabled{opacity:.45;cursor:not-allowed}.profile-avatar-cancel-button{border-color:var(--line,#cbd5e1);background:transparent}.profile-avatar-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.profile-avatar-comparison-card{min-width:0;padding:12px;border:1px solid var(--line,#cbd5e1);border-radius:14px;display:flex;align-items:center;flex-direction:column;gap:8px;text-align:center}.profile-avatar-comparison-card img{width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid var(--line,#cbd5e1)}.profile-avatar-comparison-card.is-current img{border-color:#10b981}.profile-avatar-comparison-card.is-preview img{border-color:#0ea5e9}.profile-avatar-comparison-card small{font-size:12px;font-weight:850}.profile-avatar-comparison-placeholder{width:88px;height:88px;display:grid;place-items:center;border-radius:50%;border:2px dashed var(--line,#cbd5e1);font-size:11px;color:var(--muted,#64748b);padding:8px}.profile-avatar-confirm-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}.profile-avatar-choice.is-current{border-color:#10b981;box-shadow:0 0 0 2px #10b98138}.profile-avatar-choice.is-pending{border-color:#0ea5e9;box-shadow:0 0 0 3px #0ea5e938;transform:scale(1.04)}.profile-avatar-choice{display:block;width:100%;aspect-ratio:1;border-radius:50%;padding:3px;border:2px solid transparent;background:transparent;overflow:hidden;cursor:pointer;transition:transform .16s,border-color .16s}.profile-avatar-choice img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}.profile-avatar-choice:hover{transform:translateY(-2px)}.profile-avatar-choice.is-selected{border-color:#10b981;box-shadow:0 0 0 3px #10b98125}.profile-avatar-picker-label{font-weight:800;display:block;margin-bottom:5px}@media(max-width:640px){.profile-avatar-picker.is-expanded .profile-avatar-options{grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}.profile-avatar-choice{min-width:0}}';
   humanAvatarStyle.textContent += '.profile-avatar-upload-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.profile-avatar-upload-button{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #10b98166;border-radius:11px;background:#10b98114;color:var(--text,#0f172a);font-weight:850;font-size:13px;cursor:pointer}.profile-avatar-upload-button:hover{background:#10b98125}.profile-avatar-upload-hint{display:flex;align-items:center;gap:6px;margin:10px 0 0;padding:7px 10px;border:1px solid var(--border,#dbe3ed);border-radius:11px;background:linear-gradient(110deg,rgba(16,185,129,.07),rgba(14,165,233,.05));color:var(--text,#0f172a);font-size:11px;line-height:1.4;box-sizing:border-box}@media(max-width:480px){.profile-avatar-upload-hint{gap:6px 8px;padding:8px}.profile-avatar-upload-hint .avatar-guide-warning{align-items:flex-start}}.profile-avatar-upload-status{display:block;margin-top:8px;font-size:12px;font-weight:700}.profile-avatar-uploaded-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}.profile-avatar-delete-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border:1px solid #ef444466;border-radius:10px;background:#ef444410;color:#dc2626;font-size:12px;font-weight:800;cursor:pointer}.profile-avatar-delete-button:hover{background:#ef44441c}.profile-avatar-delete-button:disabled{opacity:.45;cursor:not-allowed}.profile-avatar-choice:focus-visible,.profile-avatar-upload-button:focus-visible,.profile-avatar-confirm-button:focus-visible,.profile-avatar-cancel-button:focus-visible,.profile-avatar-delete-button:focus-visible{outline:3px solid #0ea5e9;outline-offset:2px}';
+  humanAvatarStyle.textContent += '.profile-avatar-picker{margin:18px 0;padding:18px;border:1px solid var(--line,#dbe3ed);border-radius:20px;background:var(--surface,#fff)}.profile-avatar-picker-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.profile-avatar-picker-heading p{margin:4px 0 0;color:var(--muted,#64748b);font-size:12px}.profile-avatar-builder{display:grid;grid-template-columns:minmax(140px,190px) minmax(0,1fr);gap:12px;margin-top:14px}.profile-avatar-builder-preview{grid-row:span 7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid var(--line,#dbe3ed);border-radius:16px;background:var(--surface-2,#f8fafc);position:sticky;top:12px;align-self:start}.profile-avatar-builder-preview img{width:min(100%,170px);aspect-ratio:1;object-fit:contain;border-radius:50%}.profile-avatar-builder-preview span{font-size:11px;font-weight:800;color:var(--muted,#64748b)}.profile-avatar-part{min-width:0;padding:10px 11px;border:1px solid var(--line,#dbe3ed);border-radius:13px}.profile-avatar-part h4{margin:0 0 8px;font-size:12px;font-weight:850}.profile-avatar-part-options{display:flex;flex-wrap:wrap;gap:7px}.profile-avatar-part-option{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line,#cbd5e1);border-radius:999px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:11px;font-weight:750;cursor:pointer}.profile-avatar-part-option.is-selected{border-color:#10b981;background:#10b98114;box-shadow:0 0 0 2px #10b98120}.profile-avatar-swatch{width:17px;height:17px;border:1px solid #0002;border-radius:50%;background:var(--avatar-swatch);flex:0 0 auto}.profile-avatar-builder-actions{grid-column:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.profile-avatar-secondary-button{padding:9px 12px;border:1px solid var(--line,#cbd5e1);border-radius:10px;background:var(--surface,#fff);color:var(--text,#0f172a);font-size:12px;font-weight:800;cursor:pointer}.profile-avatar-photo-options{margin-top:15px}.profile-avatar-photo-options>strong{display:block;margin-bottom:8px;font-size:12px}.profile-avatar-upload-controls{margin-top:12px}.profile-avatar-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}.profile-avatar-choice{width:48px;height:48px}.profile-avatar-choice img{width:100%;height:100%;object-fit:cover;border-radius:50%}@media(max-width:640px){.profile-avatar-picker{padding:13px}.profile-avatar-builder{grid-template-columns:minmax(0,1fr)}.profile-avatar-builder-preview{grid-row:auto;position:static}.profile-avatar-builder-preview img{width:128px}.profile-avatar-builder-actions{grid-column:1}.profile-avatar-part{padding:9px}.profile-avatar-part-option{padding:6px 8px}}';
   document.head.appendChild(humanAvatarStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
-  const avatarChoices = Array.from({length:24},(_,i)=>'https://i.pravatar.cc/120?img='+(i+1));
+  const avatarChoices = Array.from({length:24}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
   // Keep broken remote avatar URLs from exposing their alt text in profile circles.
   // This embedded portrait is local, so it also works offline and when the avatar CDN fails.
   const avatarFallbackDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
@@ -750,15 +751,21 @@
   const stripAvatarDefaultMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
   const isStoredDefaultAvatar = value => /#mat-default-avatar$/i.test(String(value || ''));
   const isStoredCustomAvatar = value => /#mat-custom-avatar$/i.test(String(value || ''));
-  const defaultAvatarForUser = userId => {
-    const key = String(userId || 'guest'); let hash = 2166136261;
-    for (let i = 0; i < key.length; i++) hash = Math.imul(hash ^ key.charCodeAt(i), 16777619);
-    return avatarChoices[(hash >>> 0) % avatarChoices.length];
-  };
+  const defaultAvatarForUser = userId => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
+  const isLegacyPortraitAvatar = value => /^https:\/\/i\.pravatar\.cc\/120\?img=\d+$/i.test(String(value || ''));
   const storedDefaultAvatarForUser = userId => defaultAvatarForUser(userId) + avatarDefaultMarker;
   const maxUploadedAvatars = 8;
   let avatarPickerExpanded = false;
   let pendingAvatarSource = null;
+  let pendingAvatarConfig = null;
+  const avatarConfigKey = () => 'med_profile_avatar_config_v1_' + avatarAccountId();
+  const readAvatarConfig = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(avatarConfigKey()) || 'null');
+      if (saved && typeof saved === 'object') return window.MedAvatarCreator.normalize(saved);
+    } catch (_) {}
+    return window.MedAvatarCreator.defaultConfig(avatarAccountId());
+  };
   const isUploadedAvatarSource = value => {
     if (typeof value !== 'string') return false;
     if (/^data:image\/(?:webp|png);base64,[A-Za-z0-9+/=]+$/.test(value)) return true;
@@ -770,7 +777,11 @@
       return Array.isArray(saved) ? saved.filter(isUploadedAvatarSource).slice(0, maxUploadedAvatars) : [];
     } catch (_) { return []; }
   };
-  const isAvatarSource = value => avatarChoices.includes(value) || readUploadedAvatars().includes(value) || (!!readGoogleAvatar() && value === readGoogleAvatar());
+  const isAvatarSource = value => {
+    const clean = stripAvatarDefaultMarker(value);
+    return window.MedAvatarCreator.isAvatar(clean) || avatarChoices.includes(clean) ||
+      readUploadedAvatars().includes(clean) || (!!readGoogleAvatar() && clean === readGoogleAvatar());
+  };
   const isRenderableAvatarSource = value => {
     const avatar = String(value || '').trim();
     return !!avatar && (
@@ -786,15 +797,13 @@
     // The confirmed shared profile wins everywhere; browser-only avatar copies
     // are migration/offline fallbacks, never competing sources of truth.
     const sharedRaw = String(app.profile?.avatar || '').trim();
-    if (isRenderableAvatarSource(sharedRaw)) return stripAvatarDefaultMarker(sharedRaw);
+    if (isRenderableAvatarSource(sharedRaw) && !isLegacyPortraitAvatar(stripAvatarDefaultMarker(sharedRaw))) return stripAvatarDefaultMarker(sharedRaw);
     const googleAvatar = readGoogleAvatar();
     if (googleAvatar && !manual) return googleAvatar;
     try {
       const value = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || '';
-      if (isAvatarSource(value)) {
-        if (value === avatarChoices[0] && !manual) return defaultAvatarForUser(id);
-        return stripAvatarDefaultMarker(value);
-      }
+      if (isLegacyPortraitAvatar(stripAvatarDefaultMarker(value))) return defaultAvatarForUser(id);
+      if (isAvatarSource(value)) return stripAvatarDefaultMarker(value);
     } catch (_) {}
     return defaultAvatarForUser(id);
   };
@@ -812,13 +821,14 @@
       const shared = String(app.profile?.avatar || '').trim();
       let manual = false;
       try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
-      const isOldAutoDefault = shared === avatarChoices[0] && !isStoredDefaultAvatar(shared) && !isStoredCustomAvatar(shared) && !manual;
+      const isOldAutoDefault = isLegacyPortraitAvatar(stripAvatarDefaultMarker(shared)) ||
+        (shared === avatarChoices[0] && !isStoredDefaultAvatar(shared) && !isStoredCustomAvatar(shared) && !manual);
       const isMarkedAutoDefault = isStoredDefaultAvatar(shared) || isOldAutoDefault;
       const googleAvatar = readGoogleAvatar();
       if (isRenderableAvatarSource(shared) && !isMarkedAutoDefault && !(googleAvatar && !manual)) return;
       let saved = '';
       try { saved = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || ''; } catch (_) {}
-      const savedIsExplicit = isAvatarSource(saved) && (saved !== avatarChoices[0] || manual);
+      const savedIsExplicit = isAvatarSource(saved) && !isLegacyPortraitAvatar(stripAvatarDefaultMarker(saved));
       const candidate = !manual && googleAvatar ? googleAvatar : (savedIsExplicit ? stripAvatarDefaultMarker(saved) : storedDefaultAvatarForUser(accountId));
       const updated = await window.MedGlobalLeague.updateProfile({ avatar: candidate });
       const sharedAvatar = String(updated?.avatar || '').trim();
@@ -947,7 +957,7 @@
       picker = document.createElement('div');
       picker.id = 'profile-avatar-picker';
       picker.className = 'profile-avatar-picker';
-      picker.setAttribute('aria-label', 'Choose or upload profile avatars');
+      picker.setAttribute('aria-label', 'Create or select a profile avatar');
       const hero = root.querySelector('.profile-hero');
       if (hero) hero.insertAdjacentElement('afterend', picker);
       else root.prepend(picker);
@@ -955,44 +965,68 @@
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
     const uploaded = readUploadedAvatars();
     const current = readAvatar();
-    const pending = isAvatarSource(pendingAvatarSource) ? pendingAvatarSource : null;
+    const pending = isAvatarSource(pendingAvatarSource) ? stripAvatarDefaultMarker(pendingAvatarSource) : null;
     if (!pending) pendingAvatarSource = null;
+    const preview = pending || current;
     const avatar = root.querySelector('.profile-hero .profile-avatar');
     if (avatar) {
       avatar.innerHTML = '<img src="' + current + '" alt="Current profile avatar" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
       avatar.setAttribute('aria-label', 'Current profile avatar');
     }
-    // Keep the current avatar in the choices grid so users can compare it with a candidate.
     const optionButton = (value, index, source, label) => {
-      const isCurrent = value === current;
-      const isPending = value === pending;
+      const cleanValue = stripAvatarDefaultMarker(value);
+      const isCurrent = cleanValue === current;
+      const isPending = cleanValue === pending;
       const classes = 'profile-avatar-choice' + (isCurrent ? ' is-current' : '') + (isPending ? ' is-pending' : '');
-      const stateLabel = isCurrent && isPending ? 'Current selection' : isPending ? 'Preview candidate' : isCurrent ? 'Current avatar' : 'Choose avatar';
-      return '<button type="button" class="' + classes + '" data-avatar-source="' + source + '" data-avatar-index="' + index + '" aria-pressed="' + String(isPending) + '" aria-label="' + stateLabel + ': ' + label + '"><img src="' + value + '" alt="' + label + '" loading="lazy"></button>';
+      return '<button type="button" class="' + classes + '" data-avatar-source="' + source + '" data-avatar-index="' + index + '" aria-pressed="' + String(isPending) + '" aria-label="' + label + '"><img src="' + cleanValue + '" alt="' + label + '" loading="lazy"></button>';
     };
     const googleAvatar = readGoogleAvatar();
-    const googleOptions = googleAvatar ? optionButton(googleAvatar, 0, 'google', 'Saved Google profile photo') : '';
-    const presetOptions = avatarChoices.map((value, i) => optionButton(value, i, 'preset', 'Preset avatar ' + (i+1))).join('');
-    const uploadedOptions = uploaded.map((value, i) => optionButton(value, i, 'uploaded', 'Uploaded avatar ' + (i+1))).join('');
-    let compareMarkup = '';
-    if (avatarPickerExpanded) {
-      compareMarkup = '<div class="profile-avatar-comparison" aria-label="Compare current and candidate avatars">' +
-        '<div class="profile-avatar-comparison-card is-current"><small>Current avatar</small><img src="' + current + '" alt="Current avatar comparison"></div>' +
-        '<div class="profile-avatar-comparison-card is-preview"><small>Selected preview</small>' +
-        (pending ? '<img src="' + pending + '" alt="Candidate avatar preview">' : '<div class="profile-avatar-comparison-placeholder">Choose a thumbnail</div>') +
-        '</div></div>' +
-        '<div class="profile-avatar-confirm-actions"><button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button">Cancel</button>' +
-        (pending && uploaded.includes(pending) ? '<button type="button" id="profile-avatar-delete" class="profile-avatar-delete-button"><i class="fa-solid fa-trash" aria-hidden="true"></i> Delete this upload</button>' : '') +
-        '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (!pending || pending === current ? ' disabled' : '') + '>Confirm avatar</button></div>';
-    }
-    picker.innerHTML = '<span class="profile-avatar-picker-label">Profile avatar</span>' +
-      '<div class="profile-avatar-upload-controls"><button type="button" id="profile-avatar-toggle-picker" class="profile-avatar-toggle-button" aria-expanded="' + String(avatarPickerExpanded) + '"><i class="fa-solid fa-user-pen" aria-hidden="true"></i> ' + (avatarPickerExpanded ? 'Hide avatar choices' : 'Select another avatar') + '</button>' +
-      '<label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Upload avatar images</label>' +
+    const googleOptions = googleAvatar ? optionButton(googleAvatar, 0, 'google', 'Google profile photo') : '';
+    const uploadedOptions = uploaded.map((value, i) => optionButton(value, i, 'uploaded', 'Uploaded image ' + (i + 1))).join('');
+    const groups = [
+      { key: 'skin', title: 'Skin Tone' },
+      { key: 'hairStyle', title: 'Hairstyle' },
+      { key: 'hairColor', title: 'Hair Color' },
+      { key: 'outfit', title: 'Outfit' },
+      { key: 'outfitColor', title: 'Outfit Color' },
+      { key: 'accessory', title: 'Accessories' },
+      { key: 'background', title: 'Background' }
+    ];
+    const config = pendingAvatarConfig || readAvatarConfig();
+    const builderMarkup = avatarPickerExpanded
+      ? '<div class="profile-avatar-builder">' +
+        '<div class="profile-avatar-builder-preview"><img src="' + (pending || window.MedAvatarCreator.render(config)) + '" alt="Custom avatar preview"><span>Live Preview</span></div>' +
+        groups.map(group => {
+          const options = window.MedAvatarCreator.choices[group.key] || [];
+          return '<section class="profile-avatar-part"><h4>' + group.title + '</h4><div class="profile-avatar-part-options">' +
+            options.map(option => {
+              const selected = config[group.key] === option.value;
+              const swatch = /^#[0-9a-f]{6}$/i.test(option.value)
+                ? '<span class="profile-avatar-swatch" style="--avatar-swatch:' + option.value + '"></span>'
+                : '';
+              return '<button type="button" class="profile-avatar-part-option' + (selected ? ' is-selected' : '') +
+                '" data-avatar-part="' + group.key + '" data-avatar-value="' + option.value + '" aria-pressed="' + String(selected) + '">' +
+                swatch + '<span>' + option.label + '</span></button>';
+            }).join('') +
+          '</div></section>';
+        }).join('') +
+        '<div class="profile-avatar-builder-actions">' +
+          '<button type="button" id="profile-avatar-randomize" class="profile-avatar-secondary-button">🎲 Randomize</button>' +
+          '<button type="button" id="profile-avatar-reset" class="profile-avatar-secondary-button">↺ Reset</button>' +
+          '<button type="button" id="profile-avatar-cancel" class="profile-avatar-cancel-button">Cancel</button>' +
+          '<button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (!pending || pending === current ? ' disabled' : '') + '>Save Avatar</button>' +
+        '</div></div>'
+      : '';
+    picker.innerHTML = '<div class="profile-avatar-picker-heading"><div><span class="profile-avatar-picker-label">Profile Avatar</span>' +
+      '<p>নিজের পছন্দমতো Character তৈরি করো।</p></div>' +
+      '<button type="button" id="profile-avatar-toggle-picker" class="profile-avatar-toggle-button" aria-expanded="' + String(avatarPickerExpanded) + '">' +
+      '<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + (avatarPickerExpanded ? 'Close Avatar Creator' : 'Create Custom Avatar') + '</button></div>' +
+      '<div class="profile-avatar-upload-controls"><label class="profile-avatar-upload-button" for="profile-avatar-upload-input"><i class="fa-solid fa-upload" aria-hidden="true"></i> Use Your Own Photo</label>' +
       '<input id="profile-avatar-upload-input" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp" multiple hidden>' +
-      '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' custom avatars</span></div>' +
-      '<div class="profile-avatar-options" aria-label="Available avatars">' + googleOptions + presetOptions + uploadedOptions + '</div>' +
-      compareMarkup +
-      '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span>PNG/JPG/JPEG/WEBP/SVG · ছবি ≤ 5 MB (8000×8000 px), SVG ≤ 50 KB</span></div>' +
+      '<span style="font-size:12px;color:var(--muted,#64748b)">' + uploaded.length + ' / ' + maxUploadedAvatars + ' uploaded</span></div>' +
+      builderMarkup +
+      (googleOptions || uploadedOptions ? '<div class="profile-avatar-photo-options"><strong>Other Profile Images</strong><div class="profile-avatar-options">' + googleOptions + uploadedOptions + '</div></div>' : '') +
+      '<div class="profile-avatar-upload-hint" role="note" aria-label="Avatar upload instructions"><span>PNG/JPG/JPEG/WEBP/SVG · ছবির সর্বোচ্চ আকার ৫ MB</span></div>' +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
   }
@@ -1001,16 +1035,42 @@
     if (typeof app.loadLeaderboard === 'function') app.loadLeaderboard(true);
   }
   document.addEventListener('click', event => {
+    const avatarPart = event.target.closest('[data-avatar-part]');
+    if (avatarPart) {
+      const part = avatarPart.dataset.avatarPart;
+      const value = avatarPart.dataset.avatarValue;
+      const next = Object.assign({}, pendingAvatarConfig || readAvatarConfig(), { [part]: value });
+      pendingAvatarConfig = window.MedAvatarCreator.normalize(next);
+      pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
+      renderAvatarPicker();
+      return;
+    }
+    const randomizeButton = event.target.closest('#profile-avatar-randomize');
+    if (randomizeButton) {
+      pendingAvatarConfig = window.MedAvatarCreator.randomize(avatarAccountId() + ':' + Date.now());
+      pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
+      renderAvatarPicker();
+      return;
+    }
+    const resetButton = event.target.closest('#profile-avatar-reset');
+    if (resetButton) {
+      pendingAvatarConfig = window.MedAvatarCreator.defaultConfig(avatarAccountId());
+      pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
+      renderAvatarPicker();
+      return;
+    }
     const togglePicker = event.target.closest('#profile-avatar-toggle-picker');
     if (togglePicker) {
       avatarPickerExpanded = !avatarPickerExpanded;
-      pendingAvatarSource = null;
+      pendingAvatarConfig = avatarPickerExpanded ? readAvatarConfig() : null;
+      pendingAvatarSource = avatarPickerExpanded ? window.MedAvatarCreator.render(pendingAvatarConfig) : null;
       renderAvatarPicker();
       return;
     }
     const cancelButton = event.target.closest('#profile-avatar-cancel');
     if (cancelButton) {
       pendingAvatarSource = null;
+      pendingAvatarConfig = null;
       avatarPickerExpanded = false;
       renderAvatarPicker();
       return;
@@ -1029,6 +1089,7 @@
           const fallbackStored = storedDefaultAvatarForUser(avatarAccountId());
           localStorage.setItem(avatarKey(), stripAvatarDefaultMarker(fallbackStored));
           localStorage.removeItem(manualAvatarKey());
+          localStorage.removeItem(avatarConfigKey());
           app.profile = Object.assign({}, app.profile || {}, { avatar: fallbackStored });
         }
       } catch (_) {
@@ -1065,12 +1126,15 @@
       try {
         localStorage.setItem(avatarKey(), candidate);
         localStorage.setItem(manualAvatarKey(), '1');
+        if (pendingAvatarConfig) localStorage.setItem(avatarConfigKey(), JSON.stringify(window.MedAvatarCreator.normalize(pendingAvatarConfig)));
+        else localStorage.removeItem(avatarConfigKey());
       } catch (_) {
         const status = document.getElementById('profile-avatar-upload-status');
         if (status) status.textContent = 'Avatar could not be saved in this browser. Check available site storage.';
         return;
       }
       pendingAvatarSource = null;
+      pendingAvatarConfig = null;
       avatarPickerExpanded = false;
       // Keep the existing avatar picker as the single source of truth, and sync the
       // chosen image to the Medical Sheets profile so leaderboard/public profiles use it.
@@ -1082,7 +1146,7 @@
       };
       setAvatarStatus('Avatar saved on this device. Syncing it to your student profile…');
       if (window.MedGlobalLeague && typeof window.MedGlobalLeague.updateProfile === 'function') {
-        const avatarToSync = candidate === avatarChoices[0] ? candidate + avatarCustomMarker : candidate;
+        const avatarToSync = candidate;
         window.MedGlobalLeague.updateProfile({ avatar: avatarToSync }).then(async updated => {
           const serverAvatar = String(updated?.avatar || '').trim();
           if (serverAvatar !== avatarToSync) {
@@ -1145,14 +1209,13 @@
     let value = null;
     if (source === 'google') {
       value = readGoogleAvatar() || null;
-    } else if (source === 'preset' && Number.isInteger(index) && index >= 0 && index < avatarChoices.length) {
-      value = avatarChoices[index];
     } else if (source === 'uploaded') {
       const uploaded = readUploadedAvatars();
       if (Number.isInteger(index) && index >= 0 && index < uploaded.length) value = uploaded[index];
     }
     if (!value) return;
     pendingAvatarSource = value;
+    pendingAvatarConfig = null;
     renderAvatarPicker();
   });
   document.addEventListener('change', async event => {
@@ -1178,7 +1241,8 @@
       const combined = existing.concat(added);
       localStorage.setItem(uploadedAvatarKey(), JSON.stringify(combined));
       pendingAvatarSource = added[0];
-      avatarPickerExpanded = true;
+      pendingAvatarConfig = null;
+      avatarPickerExpanded = false;
       renderAvatarPicker();
       const newStatus = document.getElementById('profile-avatar-upload-status');
       if (newStatus) newStatus.textContent = added.length + ' avatar image(s) added. Compare the preview, then confirm to apply it.';
