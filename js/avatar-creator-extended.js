@@ -62,7 +62,11 @@
       clothesProbability:'100',
       clothesColor:hex(c.clothingColor),
       backgroundColor:hex(c.background),
-      backgroundType:'solid'
+      backgroundType:'solid',
+      medHeadphones:c.headphonesType,
+      medPet:c.petType,
+      medHat:c.hat,
+      medHairStyle:c.hairStyle
     });
     return 'https://api.dicebear.com/10.x/avataaars/svg?' + params.toString();
   };
@@ -77,17 +81,17 @@
         eyeShape:p.get('eyesVariant') || defaults.eyeShape,
         eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,
         expression:p.get('mouthVariant') || defaults.expression,
-        hairStyle:['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top,
+        hairStyle:p.get('medHairStyle') || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top),
         hairColor:p.get('hairColor') || defaults.hairColor,
         facialHair:p.get('facialHairProbability') === '0' ? 'none' : (p.get('facialHairVariant') || 'beardLight'),
         facialHairColor:p.get('facialHairColor') || defaults.facialHairColor,
         glasses:p.get('accessoriesProbability') === '0' ? 'none' : (p.get('accessoriesVariant') || 'round'),
-        hat:['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'].includes(top) ? top : 'none',
+        hat:p.get('medHat') || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'].includes(top) ? top : 'none'),
         hatColor:p.get('hatColor') || defaults.hatColor,
         clothingType:p.get('clothesVariant') || defaults.clothingType,
         clothingColor:p.get('clothesColor') || defaults.clothingColor,
-        headphonesType:'headphones',
-        petType:'chick',
+        headphonesType:p.get('medHeadphones') || defaults.headphonesType,
+        petType:p.get('medPet') || defaults.petType,
         background:p.get('backgroundColor') || defaults.background
       };
       return normalize(c);
