@@ -1929,3 +1929,26 @@ body.dark #mat-notification-center .mat-notification-bulk-actions button:hover:n
 #view-profile .profile-hero .profile-avatar{border-radius:50%;background:#7b1fa2}
 html:not([data-theme="light"]) #view-profile .profile-hero{background:#121218;border-color:#292936;color:#f8fafc}
 html[data-theme="light"] #view-profile .profile-hero{background:#fff;border-color:#e2e8f0;color:#172033}
+
+
+/* Monthly leaderboard reset timers: two compact, separate capsules. */
+.leaderboard-week-countdown.mat-monthly-countdown-row{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex-wrap:wrap!important;gap:7px!important;width:100%;max-width:100%;margin:8px 0 0!important;
+}
+.mat-monthly-countdown-capsule{
+  display:inline-flex;align-items:center;justify-content:flex-start;gap:8px;
+  min-width:0;max-width:100%;padding:6px 10px;border:1px solid;
+  border-radius:999px;font-size:10.5px;font-weight:700;line-height:1.35;
+  white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+.mat-monthly-countdown-capsule span{font-weight:800;letter-spacing:.01em}
+.mat-monthly-countdown-capsule strong{font-variant-numeric:tabular-nums;font-size:10px;font-weight:850}
+.mat-monthly-countdown-capsule--reset{color:#b45309;border-color:rgba(245,158,11,.27);background:rgba(245,158,11,.09)}
+.mat-monthly-countdown-capsule--weekly{color:#047857;border-color:rgba(16,185,129,.27);background:rgba(16,185,129,.09)}
+html.dark .mat-monthly-countdown-capsule--reset,body.dark .mat-monthly-countdown-capsule--reset{color:#fcd34d;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.1)}
+html.dark .mat-monthly-countdown-capsule--weekly,body.dark .mat-monthly-countdown-capsule--weekly{color:#6ee7b7;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.1)}
+@media(max-width:560px){
+  .leaderboard-week-countdown.mat-monthly-countdown-row{gap:6px!important}
+  .mat-monthly-countdown-capsule{flex:1 1 100%;justify-content:space-between;white-space:normal;padding:6px 9px;font-size:10px}
+}
