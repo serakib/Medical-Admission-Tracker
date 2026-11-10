@@ -2179,51 +2179,17 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
 
     if (periodForRequest === 'friends' && window.MedStudentFriends && typeof window.MedStudentFriends.loadConnections === 'function') {
-      try {
-        await waitForLeaderboardStep(
-          window.MedStudentFriends.loadConnections(true),
-          'Friends connection sync',
-          12000
-        );
-      }
-      catch (friendError) {
-        if (requestId === loadSequence) {
-          var friendsErrorText = window.MedStudentFriends && typeof window.MedStudentFriends.getLastConnectionError === 'function'
-            ? window.MedStudentFriends.getLastConnectionError() : '';
-          setStatus(friendsErrorText || 'Friends list load হয়নি। Existing Google Sheets API/deployment পরীক্ষা করুন।', true);
-        }
-      }
-      if (requestId !== loadSequence) return;
-      // Re-filter the cached Friends snapshot using the freshly loaded friend IDs.
-      cache = getCache(periodForRequest);
-      if (cache.length) {
-        rawRows = cache.map(function (row) { return row && row.raw ? row.raw : row; });
-        renderRows(cache);
-      } else {
-        rawRows = [];
-        renderRows([]);
-        renderLeaderboardLoadingSkeleton();
-      }
+      // Refresh connections in parallel; never hold the leaderboard request for them.
+      Promise.resolve().then(function () {
+        return window.MedStudentFriends.loadConnections(true);
+      }).catch(function (friendError) {
+        console.warn('[Friends] Background connection refresh failed:', friendError);
+      });
     }
-    if (requestId !== loadSequence) return;
     if (!API_URL()) {
       if (!cache.length) renderRows([]);
       setStatus('Medical Sheets API URL সেট করা নেই।', true);
       setLeaderboardRefreshBusy(false);
-      return;
-    }
-    if (!app.authStateResolved && !app.authUser) {
-      if (!cache.length) renderRows([]);
-      setStatus('Account session এখনো প্রস্তুত নয়। Retry করুন।', true);
-      setLeaderboardRefreshBusy(false);
-      setBackgroundSyncIndicator(false, false);
-      return;
-    }
-    if (app.__medicalRegistrationInProgress) {
-      if (!cache.length) renderRows([]);
-      setStatus('Account তৈরি হচ্ছে। শেষ হলে Leaderboard আবার খুলুন।', false);
-      setLeaderboardRefreshBusy(false);
-      setBackgroundSyncIndicator(false, false);
       return;
     }
     var refreshSucceeded = false;
@@ -2242,8 +2208,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       setBackgroundSyncIndicator(false, false);
     }, 35000);
     try {
-      await waitForLeaderboardStep(syncIdentity(), 'Account identity sync', 28000);
-      if (requestId !== loadSequence) return;
+      // Public leaderboard fetch does not wait for Firebase or Guest identity sync.
+      if (app.authStateResolved && (app.authUser || getGuestToken())) {
+        syncIdentity().catch(function (identityError) {
+          console.warn('[Medical API] Background identity refresh failed:', identityError);
+        });
+      }
       var apiPeriod = periodForRequest === 'weekly' ? 'weekly' : 'monthly';
       var leaderboardPayload = { action: 'leaderboard', period: apiPeriod };
       if (periodForRequest !== 'friends' && currentUserId()) {
@@ -3266,6 +3236,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   };
   ensureUI();
   updateTopControls(currentProfile || app.profile || {});
+  // Render saved leaderboard data immediately; online refresh runs independently.
+  loadLeaderboard(true);
   document.addEventListener('student-progress-updated', function () {
     updateTopControls(currentProfile || app.profile || {});
     if (navigator.onLine) syncDailyStreak();
