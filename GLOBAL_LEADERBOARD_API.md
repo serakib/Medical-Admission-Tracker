@@ -66,3 +66,8 @@ The bell/notification center builds activity and trophy notifications in the bro
 6. Test the deployed `?action=health` and `?action=capabilities` endpoints before checking profile, rewards, PB conversion/expiry, leaderboards, friends, streaks, and scheduled jobs.
 
 Apps Script deployment and Firebase Firestore Security Rules are separate operations; neither is updated by a GitHub commit.
+
+
+## Super Admin master promo settings
+
+The Master Admin-only Promo Code is controlled by the verified Super Admin only. The Super Admin can change the shared code, PB reward per redemption, redemption count per period, period (Daily, Weekly, Monthly, or Unlimited), and enabled status. These values are stored in Apps Script Script Properties and are enforced server-side during redemption. A redemption limit of `0` means unlimited; a finite limit is counted separately for each Admin account within the selected Bangladesh-time period window. Per-Admin overrides remain higher priority than the shared master reward and limit defaults. Admin-only promo configuration reads and writes must use a verified Admin session, and master-setting writes additionally verify the configured `MAT_SUPER_ADMIN_EMAIL`.
