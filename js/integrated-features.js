@@ -975,6 +975,45 @@
   `;
 
   avatarCustomizerStyle.textContent += `
+
+    /* Save feedback stays visible while the real account update is running. */
+    .mat-avatar-save-feedback{display:block;margin-top:10px;min-height:18px;text-align:center;font-size:12px;font-weight:750;line-height:1.45}
+    .mat-avatar-save-feedback[hidden]{display:none!important}
+    .mat-avatar-save-feedback[data-state="loading"]{color:#10b981}
+    .mat-avatar-save-feedback[data-state="loading"]:after{content:"";display:inline-block;width:1.2em;text-align:left;animation:matAvatarSavingDots 1.05s steps(4,end) infinite;vertical-align:baseline}
+    .mat-avatar-save-feedback[data-state="success"]{color:#10b981}
+    .mat-avatar-save-feedback[data-state="warning"]{color:#d97706}
+    .mat-avatar-save-feedback[data-state="error"]{color:#ef4444}
+    @keyframes matAvatarSavingDots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
+    #mat-avatar-save-toast{position:fixed;z-index:300000;left:50%;bottom:24px;max-width:min(92vw,520px);padding:12px 18px;border:1px solid #10b98155;border-radius:12px;background:#10251d;color:#ecfdf5;font-size:13px;font-weight:800;line-height:1.5;box-shadow:0 10px 35px rgba(0,0,0,.22);opacity:0;transform:translate(-50%,10px);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+    #mat-avatar-save-toast.is-visible{opacity:1;transform:translate(-50%,0)}
+    #mat-avatar-save-toast[data-state="warning"]{border-color:#d97706;background:#2b2010;color:#ffedd5}
+    #mat-avatar-save-toast[data-state="error"]{border-color:#dc2626;background:#2b1111;color:#fee2e2}
+    /* Light and Dark use identical geometry and restrained neutral surfaces. */
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded{background:#121218!important;color:#f8fafc!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-controls{background:#121218!important;border-color:#44444d!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-category-bar{background:#171717!important;border-color:#44444d!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option{background:#3b3b3b!important;border-color:#777!important;color:#f8fafc!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{border-color:#10b981!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{color:#f8fafc!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded{background:#f8fafc!important;color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .profile-avatar-builder-header h2{color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .profile-avatar-builder-header button{background:#fff!important;border-color:#d1d5db!important;color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-controls{background:#fff!important;border-color:#d1d5db!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-category-bar{background:#fff!important;border-color:#e5e7eb!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-category{color:#6b7280!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-category.is-active{color:#059669!important;border-bottom-color:#10b981!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option{background:#f1f5f9!important;border-color:#cbd5e1!important;color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{background:#ecfdf5!important;border-color:#10b981!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-actions{background:#fff!important;border-color:#e5e7eb!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-save-feedback{color:#047857}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-save-feedback[data-state="warning"]{color:#b45309}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-save-feedback[data-state="error"]{color:#b91c1c}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-reset{background:rgba(255,255,255,.9)!important;color:#111827!important;border:1px solid #d1d5db!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-preview-caption{background:rgba(255,255,255,.88)!important;color:#374151!important}
+    @media(prefers-reduced-motion:reduce){#mat-avatar-save-toast{transition:none!important}}
+
     /* Keep the app sidebar and its bottom profile card visible beside the desktop builder. */
     #profile-avatar-picker.is-expanded{
       left:var(--sidebar-width,264px)!important;
@@ -1063,7 +1102,7 @@
   const storedDefaultAvatarForUser = userId => defaultAvatarForUser(userId) + avatarDefaultMarker;
   const maxUploadedAvatars = 8;
   let avatarPickerExpanded = false;
-  let activeAvatarGroup = 'face';
+  let activeAvatarGroup = 'identity';
   let pendingAvatarSource = null;
   let pendingAvatarConfig = null;
   const avatarConfigKey = () => 'med_profile_avatar_config_v1_' + avatarAccountId();
@@ -1268,6 +1307,33 @@
     });
   }
 
+
+  function setAvatarSaveFeedback(message, state) {
+    const status = document.getElementById('mat-avatar-save-feedback');
+    if (!status) return;
+    status.textContent = String(message || '');
+    status.dataset.state = String(state || 'loading');
+    status.hidden = !message;
+  }
+  function showAvatarSaveToast(message, state) {
+    let toast = document.getElementById('mat-avatar-save-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'mat-avatar-save-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.dataset.state = String(state || 'success');
+    toast.textContent = String(message || '');
+    toast.classList.add('is-visible');
+    clearTimeout(showAvatarSaveToast.timer);
+    showAvatarSaveToast.timer = window.setTimeout(() => {
+      toast?.classList.remove('is-visible');
+      window.setTimeout(() => { if (toast && !toast.classList.contains('is-visible')) toast.remove(); }, 260);
+    }, 4200);
+  }
+
   function renderAvatarPicker() {
     const root = document.getElementById('view-profile');
     if (!root) return;
@@ -1322,9 +1388,10 @@
       background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
+      {key:'identity',title:'পরিচয়',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'ageGroup',title:'বয়স'}]},
       {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
       {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
-      {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুল'},{key:'hairColor',title:'চুলের রঙ'}]},
+      {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
@@ -1335,7 +1402,7 @@
     const config = pendingAvatarConfig || readAvatarConfig();
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
     const fieldMarkup = field => {
-      const options = window.MedAvatarCreator.choices[field.key] || [];
+      const options = typeof window.MedAvatarCreator.getOptionsForField === 'function' ? window.MedAvatarCreator.getOptionsForField(field.key, config) : (window.MedAvatarCreator.choices[field.key] || []);
       return '<section class="mat-avatar-option-section" data-avatar-field="' + field.key + '"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
         options.map(option => {
           const selected = config[field.key] === option.value;
@@ -1364,7 +1431,7 @@
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
           '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
-          '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button></div></section>' +
+          '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
     const pendingUpload = !avatarPickerExpanded && isAvatarSource(pendingAvatarSource) && pendingAvatarSource !== current;
@@ -1558,10 +1625,16 @@
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
       const optionsScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
       const previousScrollTop = optionsScroll ? optionsScroll.scrollTop : 0;
-      const needsFocus = ['eyeShape','expression','glasses'].includes(part);
-      renderAvatarPickerWithTransition({focus:needsFocus});
-      const refreshedScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
-      if (refreshedScroll) refreshedScroll.scrollTop = previousScrollTop;
+      const previousWindowX = window.scrollX || 0;
+      const previousWindowY = window.scrollY || 0;
+      renderAvatarPickerWithTransition();
+      const restoreSelectionViewport = () => {
+        const refreshedScroll = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-options-scroll');
+        if (refreshedScroll) refreshedScroll.scrollTop = previousScrollTop;
+        window.scrollTo(previousWindowX, previousWindowY);
+      };
+      restoreSelectionViewport();
+      requestAnimationFrame(restoreSelectionViewport);
       return;
     }
     const randomizeButton = event.target.closest('#profile-avatar-randomize');
