@@ -1258,6 +1258,18 @@
       #view-profile .profile-hero .profile-avatar .med-avatar-stack,
       #view-account .profile-hero .profile-avatar .med-avatar-stack{animation:none!important}
     }
+    /* Dynamic Avatar Builder changes must not trigger browser scroll anchoring. */
+    html,body{scroll-behavior:auto!important}
+    body.mat-avatar-customizer-open{
+      overflow:hidden!important;overflow-anchor:none!important;overscroll-behavior:none!important;
+    }
+    #profile-avatar-picker.is-expanded,
+    #profile-avatar-picker.is-expanded .mat-avatar-workspace,
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel,
+    #profile-avatar-picker.is-expanded .mat-avatar-controls,
+    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{
+      overflow-anchor:none!important;scroll-behavior:auto!important;
+    }
   `;
   document.head.appendChild(avatarBuilderFinalStyle);
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
