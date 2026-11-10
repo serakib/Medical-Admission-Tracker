@@ -135,6 +135,19 @@
     } catch (_) { return null; }
   };
   const render = input => buildUrl(input);
+  const escapeAttr = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const renderLayersMarkup = (source, input, className) => {
+    const c = input && typeof input === 'object' ? normalize(input) : null;
+    const petPath = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
+    const headphones = c && c.headphonesType === 'headphones';
+    const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
+    if (!petPath && !headphones) return baseImage;
+    return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage +
+      (headphones ? '<img class="med-avatar-headphones" src="' + escapeAttr(base.assetPaths.headphones) + '" alt="" aria-hidden="true" draggable="false">' : '') +
+      (petPath ? '<img class="med-avatar-pet" src="' + escapeAttr(petPath) + '" alt="" aria-hidden="true" draggable="false">' : '') +
+      '</span>';
+  };
+
   const randomize = seed => {
     const result = {};
     entries.forEach(([key,list],index) => { result[key] = pick(list, String(seed || Date.now()) + ':' + index, index); });
@@ -155,6 +168,7 @@
   base.configFromAvatar = configFromAvatar;
   base.isAvatar = isAvatar;
   base.dicebearAvataaars10 = true;
+  base.renderLayersMarkup = renderLayersMarkup;
   base.assetPaths = {
     headphones:'./public/assets/headphones/headphones.svg',
     pets:{
