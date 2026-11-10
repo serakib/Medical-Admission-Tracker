@@ -1,0 +1,53 @@
+name: Publish tagged release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Generate release notes and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate notes and publish release
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const tag = context.ref.replace("refs/tags/", "");
+            if (!/^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(tag)) {
+              throw new Error(`Tag "${tag}" does not follow vMAJOR.MINOR.PATCH format.`);
+            }
+
+            const { owner, repo } = context.repo;
+            try {
+              const { data: existing } = await github.rest.repos.getReleaseByTag({
+                owner, repo, tag
+              });
+              core.notice(`Release already exists for ${tag}: ${existing.html_url}`);
+              return;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+
+            const { data: notes } = await github.rest.repos.generateReleaseNotes({
+              owner, repo, tag_name: tag, target_commitish: "main"
+            });
+            const isPrerelease = tag.includes("-");
+            const { data: release } = await github.rest.repos.createRelease({
+              owner, repo,
+              tag_name: tag,
+              name: notes.name || `Medical Admission Pro ${tag}`,
+              body: notes.body,
+              draft: false,
+              prerelease: isPrerelease,
+              make_latest: isPrerelease ? "false" : "true"
+            });
+            core.notice(`Published release: ${release.html_url}`);
