@@ -1714,56 +1714,74 @@
     if (confirmButton) {
       const current = readAvatar();
       const candidate = isAvatarSource(pendingAvatarSource) ? pendingAvatarSource : null;
-      if (!candidate || candidate === current || confirmButton.disabled) return;
-      try {
-        localStorage.setItem(avatarKey(), candidate);
-        localStorage.setItem(manualAvatarKey(), '1');
-        if (pendingAvatarConfig) localStorage.setItem(avatarConfigKey(), JSON.stringify(window.MedAvatarCreator.normalize(pendingAvatarConfig)));
-        else localStorage.removeItem(avatarConfigKey());
-      } catch (_) {
-        const status = document.getElementById('profile-avatar-upload-status');
-        if (status) status.textContent = 'Avatar could not be saved in this browser. Check available site storage.';
-        return;
-      }
-      pendingAvatarSource = null;
-      pendingAvatarConfig = null;
-      avatarPickerExpanded = false;
-      // Keep the existing avatar picker as the single source of truth, and sync the
-      // chosen image to the Medical Sheets profile so leaderboard/public profiles use it.
-      app.profile = Object.assign({}, app.profile || {}, { avatar: candidate });
-      refreshAvatarViews();
-      const setAvatarStatus = message => {
-        const status = document.getElementById('profile-avatar-upload-status');
-        if (status) status.textContent = String(message || '');
-      };
-      setAvatarStatus('Avatar saved on this device. Syncing it to your student profile…');
-      if (window.MedGlobalLeague && typeof window.MedGlobalLeague.updateProfile === 'function') {
-        const avatarToSync = candidate;
-        window.MedGlobalLeague.updateProfile({ avatar: avatarToSync }).then(async updated => {
-          const serverAvatar = String(updated?.avatar || '').trim();
-          if (serverAvatar !== avatarToSync) {
-            throw new Error('Google Sheets API saved no matching avatar. Check that the latest Apps Script backend is deployed and its Students sheet has an Avatar column.');
-          }
-          app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: serverAvatar });
-          try { localStorage.setItem(avatarKey(), candidate); } catch (_) {}
-          setAvatarStatus('Profile avatar saved. Checking the public leaderboard copy…');
-          refreshAvatarViews();
-          if (typeof window.MedGlobalLeague?.reload === 'function') {
-            await window.MedGlobalLeague.reload();
-          } else if (typeof app.loadLeaderboard === 'function') {
-            await app.loadLeaderboard(true);
+      const retrySync = confirmButton.dataset.retrySync === '1';
+      if (!candidate || (!retrySync && candidate === current) || confirmButton.disabled) return;
+
+      void (async () => {
+        let localSaved = retrySync;
+        confirmButton.disabled = true;
+        confirmButton.setAttribute('aria-busy', 'true');
+        confirmButton.classList.remove('is-success');
+        confirmButton.innerHTML = 'সংরক্ষণ হচ্ছে<span class="mat-avatar-button-dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+        setAvatarSaveFeedback('তোমার আভাটার অ্যাকাউন্টে সংরক্ষণ করা হচ্ছে', 'loading');
+
+        try {
+          if (!retrySync) {
+            try {
+              localStorage.setItem(avatarKey(), candidate);
+              localStorage.setItem(manualAvatarKey(), '1');
+              if (pendingAvatarConfig) {
+                localStorage.setItem(avatarConfigKey(), JSON.stringify(window.MedAvatarCreator.normalize(pendingAvatarConfig)));
+              } else {
+                localStorage.removeItem(avatarConfigKey());
+              }
+              localSaved = true;
+            } catch (storageError) {
+              throw new Error('এই ডিভাইসে Avatar সংরক্ষণ করা যায়নি। Browser storage পরীক্ষা করে আবার চেষ্টা করো।');
+            }
           }
 
-          // Verify the separate public leaderboard endpoint, not just the private
-          // updateProfile response. A stale Apps Script deployment can save the
-          // profile yet still return blank/old avatars to every other viewer.
+          app.profile = Object.assign({}, app.profile || {}, { avatar: candidate });
+          if (!window.MedGlobalLeague || typeof window.MedGlobalLeague.updateProfile !== 'function') {
+            throw new Error('Account sync service এখনো প্রস্তুত নয়। Internet connection ঠিক করে আবার চেষ্টা করো।');
+          }
+
+          const updated = await window.MedGlobalLeague.updateProfile({ avatar: candidate });
+          const serverAvatar = String(updated?.avatar || '').trim();
+          if (serverAvatar !== candidate) {
+            throw new Error('Server থেকে নতুন Avatar নিশ্চিত করা যায়নি। Apps Script backend-এর latest version deploy করা আছে কি না পরীক্ষা করো।');
+          }
+
+          app.profile = Object.assign({}, app.profile || {}, updated || {}, { avatar: serverAvatar });
+          try { localStorage.setItem(avatarKey(), candidate); } catch (_) {}
+
+          setAvatarSaveFeedback('অ্যাকাউন্টে সংরক্ষিত হয়েছে। Public Profile যাচাই করা হচ্ছে', 'loading');
+          let publicState = 'success';
+          let finalMessage = 'আভাটার সফলভাবে সংরক্ষিত হয়েছে।';
+          try {
+            if (typeof window.MedGlobalLeague.reload === 'function') {
+              await window.MedGlobalLeague.reload();
+            } else if (typeof app.loadLeaderboard === 'function') {
+              await app.loadLeaderboard(true);
+            }
+          } catch (refreshError) {
+            console.warn('[Profile avatar] Account save succeeded, but leaderboard refresh failed:', refreshError);
+            publicState = 'warning';
+            finalMessage = 'আভাটার অ্যাকাউন্টে সংরক্ষিত হয়েছে; Leaderboard refresh আবার চেষ্টা করবে।';
+          }
+
           const stripMarker = value => String(value || '').replace(/#mat-(?:default|custom)-avatar$/i, '');
           const expectedAvatar = stripMarker(serverAvatar);
           const ownId = String(app.authUser?.uid || app.profile?.userId || app.profile?.uid || '');
           let publicRow = null;
           if (ownId && typeof window.MedGlobalLeague?.verifyPublicAvatar === 'function') {
-            // Fetch an authoritative, fresh All Time response that explicitly includes this user.
-            publicRow = await window.MedGlobalLeague.verifyPublicAvatar(ownId);
+            try {
+              publicRow = await window.MedGlobalLeague.verifyPublicAvatar(ownId);
+            } catch (verifyError) {
+              console.warn('[Profile avatar] Could not verify public leaderboard copy:', verifyError);
+              publicState = 'warning';
+              finalMessage = 'আভাটার অ্যাকাউন্টে সংরক্ষিত হয়েছে; Public Profile যাচাই করা যায়নি।';
+            }
           } else if (ownId && typeof window.MedGlobalLeague?.getCachedRows === 'function') {
             ['monthly', 'weekly', 'friends'].some(period => {
               const rows = window.MedGlobalLeague.getCachedRows(period);
@@ -1773,27 +1791,46 @@
               return !!publicRow;
             });
           }
+
           if (publicRow) {
             const raw = publicRow.raw || publicRow;
             const publicAvatar = stripMarker(raw.avatar || raw.Avatar || '');
             if (publicAvatar !== expectedAvatar) {
-              setAvatarStatus('Profile API-তে avatar save হয়েছে, কিন্তু public leaderboard এখনো updated avatar দিচ্ছে না। Apps Script Web App-এর latest Medical_Admission_Tracker_Backend.gs version deploy করুন।');
-              console.warn('[Profile avatar] Private profile updated, but public leaderboard avatar is stale/missing.', { expectedAvatar, publicAvatar });
-              return;
+              publicState = 'warning';
+              finalMessage = 'আভাটার অ্যাকাউন্টে সংরক্ষিত হয়েছে, তবে Public Leaderboard এখনো পুরোনো Avatar দেখাচ্ছে।';
             }
-            setAvatarStatus('Global avatar synced and verified in the public leaderboard.');
-          } else {
-            setAvatarStatus('Avatar saved to your account. Public leaderboard response-এ আপনার row পাওয়া যায়নি, তাই অন্য viewer-এর display এখনো verify করা যায়নি।');
+          } else if (!ownId || publicState === 'warning') {
+            publicState = 'warning';
+            if (!ownId) finalMessage = 'আভাটার সংরক্ষিত হয়েছে; Public Profile যাচাই করা যায়নি।';
           }
-        }).catch(error => {
-          const syncMessage = 'Global avatar sync failed: ' + String(error?.message || error || 'Unknown API error').slice(0, 220);
-          setAvatarStatus(syncMessage);
-          window.MedAvatarProfileModal?.showStatus('Avatar এই ডিভাইসে সংরক্ষিত হয়েছে, কিন্তু account-এর সঙ্গে sync হয়নি। ' + syncMessage);
-          console.warn('[Profile avatar] Global server sync failed:', error);
-        });
-      } else if (avatarStatus) {
-        avatarStatus.textContent = 'Avatar saved on this device, but global profile sync is not ready.';
-      }
+
+          confirmButton.classList.add('is-success');
+          confirmButton.textContent = 'সফলভাবে সংরক্ষিত ✓';
+          setAvatarSaveFeedback(finalMessage, publicState);
+          await new Promise(resolve => window.setTimeout(resolve, 1000));
+
+          pendingAvatarSource = null;
+          pendingAvatarConfig = null;
+          avatarPickerExpanded = false;
+          refreshAvatarViews();
+          window.MedAvatarProfileModal?.close();
+          showAvatarSaveToast(finalMessage, publicState);
+        } catch (error) {
+          const message = String(error?.message || error || 'Unknown sync error').slice(0, 260);
+          setAvatarSaveFeedback(
+            localSaved
+              ? 'ডিভাইসে সংরক্ষিত হয়েছে, কিন্তু Account Sync হয়নি: ' + message
+              : message,
+            'error'
+          );
+          confirmButton.disabled = false;
+          confirmButton.dataset.retrySync = localSaved ? '1' : '0';
+          confirmButton.textContent = localSaved ? 'আবার Sync করো' : 'আবার চেষ্টা করো';
+          console.warn('[Profile avatar] Avatar save/sync failed:', error);
+        } finally {
+          confirmButton.removeAttribute('aria-busy');
+        }
+      })();
       return;
     }
     const avatarChoice = event.target.closest('[data-avatar-source]');
