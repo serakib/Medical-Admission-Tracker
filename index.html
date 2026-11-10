@@ -448,7 +448,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
-        var pageLoaded=document.readyState==='complete', appReady=!!window.app, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0, progressTimer=0;
+        var pageLoaded=document.readyState==='complete', appReady=!!window.app, initialDataReady=false, authResolved=false, startedAt=Date.now(), finished=false, fallbackTimer=0, hideTimer=0, progressTimer=0;
         var displayedProgress=Number(window.__MATInitialLoaderProgress)||0;
         function setStep(value,message,iconClass){
           if(!fill||finished)return;
@@ -477,7 +477,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         }
         function tryFinish(){
           if(finished||!pageLoaded)return;
-          if(appReady||Date.now()-startedAt>=2600){
+          if(pageLoaded&&appReady&&initialDataReady&&authResolved){
             window.clearTimeout(fallbackTimer);
             hide();
           }
@@ -491,9 +491,10 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         },50);
         document.addEventListener('DOMContentLoaded',function(){setStep(displayedProgress,'পরীক্ষা ও প্র্যাকটিস টুলস প্রস্তুত হচ্ছে...','fa-clipboard-check');},{once:true});
         window.addEventListener('medical-app-ready',function(){appReady=true;setStep(displayedProgress,'স্টুডেন্ট ড্যাশবোর্ড প্রস্তুত হচ্ছে...','fa-user-graduate');tryFinish();},{once:true});
-        window.addEventListener('student-auth-state-resolved',function(){if(!finished)setStep(displayedProgress,'আপনার সেশন প্রস্তুত হচ্ছে...','fa-user-check');},{once:true});
+        window.addEventListener('medical-initial-data-ready',function(event){initialDataReady=true;setStep(displayedProgress,event.detail&&event.detail.success?'প্রশ্নব্যাংক প্রস্তুত হয়েছে...':'প্রশ্নব্যাংক লোড সম্পন্ন; সাইট প্রস্তুত হচ্ছে...','fa-database');tryFinish();},{once:true});
+        window.addEventListener('student-auth-state-resolved',function(){authResolved=true;if(!finished)setStep(displayedProgress,'আপনার সেশন প্রস্তুত হচ্ছে...','fa-user-check');tryFinish();},{once:true});
         window.addEventListener('load',function(){pageLoaded=true;setStep(displayedProgress,'ওয়েবসাইটের প্রয়োজনীয় ফাইল প্রস্তুত...','fa-file-circle-check');tryFinish();},{once:true});
-        fallbackTimer=window.setTimeout(tryFinish,2700);
+        // No artificial timeout: keep the splash visible until initial data and auth state resolve.
         if(pageLoaded)tryFinish();
       })();
     </script>
