@@ -844,6 +844,7 @@
     .mat-avatar-option-preview-stack .med-avatar-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
     .mat-avatar-option-preview-stack .med-avatar-headphones{position:absolute;z-index:2;top:5%;left:14%;width:72%;height:54%;object-fit:contain}
     .mat-avatar-option-preview-stack .med-avatar-pet{position:absolute;z-index:3;right:0;bottom:0;width:36%;height:36%;object-fit:contain}
+    .mat-avatar-option-grid:has(.mat-avatar-swatch){display:flex;flex-wrap:nowrap;gap:9px;overflow-x:auto;padding:2px 2px 7px}
     .mat-avatar-option:has(.mat-avatar-swatch){width:48px;min-width:48px;height:48px;min-height:48px;aspect-ratio:1;padding:0;border-radius:11px;background:transparent}
     .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:9px}
     .mat-avatar-option:has(.mat-avatar-swatch).is-selected{padding:2px}
@@ -1201,7 +1202,9 @@
           if (isColor) {
             visual = '<span class="mat-avatar-swatch" style="--swatch:#' + raw.replace(/^#/,'') + '" aria-hidden="true"></span>';
           } else {
-            const thumbnailConfig = window.MedAvatarCreator.normalize(Object.assign({}, config, { [field.key]: option.value }));
+            const thumbnailInput = Object.assign({}, config, { [field.key]: option.value });
+            if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
+            const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
             const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
             visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
           }
@@ -1226,6 +1229,25 @@
       (pendingUpload ? '<button type="button" id="profile-avatar-confirm" hidden>Confirm uploaded avatar</button>' : '') +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
+    if (avatarPickerExpanded) {
+      const scroller = picker.querySelector('.mat-avatar-options-scroll');
+      if (scroller && scroller.dataset.navSync !== '1') {
+        scroller.dataset.navSync = '1';
+        scroller.addEventListener('scroll', () => {
+          const sections = Array.from(scroller.querySelectorAll('[data-avatar-group-section]'));
+          const top = scroller.getBoundingClientRect().top + 24;
+          let current = sections[0];
+          sections.forEach(section => { if (section.getBoundingClientRect().top <= top) current = section; });
+          if (!current) return;
+          activeAvatarGroup = current.dataset.avatarGroupSection;
+          picker.querySelectorAll('.mat-avatar-category').forEach(tab => {
+            const active = tab.dataset.avatarGroup === activeAvatarGroup;
+            tab.classList.toggle('is-active', active);
+            tab.setAttribute('aria-pressed', String(active));
+          });
+        }, {passive:true});
+      }
+    }
   }
   function refreshAvatarViews() {
     renderAvatarPicker();
