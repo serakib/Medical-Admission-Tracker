@@ -1,0 +1,14 @@
+[
+  {
+    "title": "v1.0.0 — Core Stabilization",
+    "description": "Prepare a dependable first public release: resolve launch-blocking defects, verify the main student journeys, validate exam and scoring behaviour, and complete essential documentation and deployment checks."
+  },
+  {
+    "title": "v1.1.0 — Student Experience",
+    "description": "Improve the student-facing experience across profile and avatar, question discovery, practice history, accessibility, friends, notifications, and leaderboard interactions."
+  },
+  {
+    "title": "v1.2.0 — Reliability & Operations",
+    "description": "Strengthen backend reliability, data integrity, security practices, monitoring, automated validation, release operations, and recovery documentation."
+  }
+]
