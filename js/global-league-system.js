@@ -14,6 +14,9 @@
   var STUDENT_AVATAR_CHOICES = Array.from({length:24}, function (_, i) {
     return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i));
   });
+  // This public, stable user ID only selects a deterministic visual avatar.
+  // It never creates or protects credentials, session tokens, reward IDs, or permissions.
+  // codeql[js/insecure-randomness]
   function defaultStudentAvatarForUser(userId) {
     return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
   }
