@@ -881,6 +881,7 @@
     @keyframes matAvatarBreath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.015)}}
     @keyframes matAvatarPetFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-2deg)}}
     @media(prefers-reduced-motion:reduce){
+      .mat-avatar-preview-panel .profile-avatar-preview-stack,.mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:none!important}
       .mat-avatar-options-scroll{scroll-behavior:auto!important}
       .mat-avatar-option,.mat-avatar-live-layer{transition:none!important}
       .mat-avatar-option:hover{transform:none}
