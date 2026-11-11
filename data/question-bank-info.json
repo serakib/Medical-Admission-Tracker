@@ -1,13 +1,14 @@
 {
-  "totalQuestions": 520,
+  "totalQuestions": 685,
   "subjects": {
-    "biology": 116,
-    "chemistry": 86,
-    "physics": 86,
-    "english": 96,
-    "gk": 96
+    "biology": 205,
+    "chemistry": 174,
+    "physics": 152,
+    "english": 89,
+    "gk": 65
   },
-  "authenticPreviousYearPreserved": true,
-  "generatedPracticeQuestions": 330,
-  "note": "Authentic previous-year questions are preserved from supplied project/question-bank data. Additional questions are original practice questions and are not labeled as authentic previous-year papers."
+  "practiceTaggedQuestions": 100,
+  "yearTaggedQuestions": 539,
+  "untaggedYearQuestions": 46,
+  "note": "Counts are calculated from questions.json. Year/source labels are retained from the supplied question records; automated checks validate structure and answer keys, not the historical authenticity of source labels."
 }
