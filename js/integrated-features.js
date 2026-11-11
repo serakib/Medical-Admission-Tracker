@@ -1590,7 +1590,7 @@
         let visual = '';
         if (isColor) {
           const color = '#' + raw.replace(/^#/, '');
-          visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background:' + color + ' !important;background-color:' + color + ' !important" aria-hidden="true"></span>';
+          visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background-color:' + color + '" aria-hidden="true"></span>';
         } else {
           const thumbnailInput = Object.assign({}, config, { [field.key]: option.value });
           if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
@@ -1630,10 +1630,8 @@
 
     if (changedPart === 'gender' || changedPart === 'ageGroup' || changedPart === 'reset') {
       const dependentFields = [
-        { key:'characterStyle', title:'তোমার Character বেছে নাও' },
         { key:'hairStyle', title:'চুলের ধরন' },
-        { key:'facialHair', title:'দাড়ি ও গোঁফ' },
-        { key:'outfitStyle', title:'একই Gender-এর সব Character-এর পোশাক' }
+        { key:'facialHair', title:'দাড়ি ও গোঁফ' }
       ];
       dependentFields.forEach(field => {
         const existing = picker.querySelector('[data-avatar-field="' + field.key + '"]');
@@ -1776,13 +1774,13 @@
       background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
-      {key:'identity',title:'পরিচয়',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'characterStyle',title:'তোমার Character বেছে নাও'},{key:'ageGroup',title:'বয়স'}]},
+      {key:'identity',title:'পরিচয়',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'ageGroup',title:'বয়স'}]},
       {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
       {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
       {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
-      {key:'clothing',title:'Wardrobe',icon:'clothes',fields:[{key:'outfitStyle',title:'একই Gender-এর সব Character-এর পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
+      {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
       {key:'pets-bg',title:'Pets',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
       {key:'background',title:'Background',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
     ];
