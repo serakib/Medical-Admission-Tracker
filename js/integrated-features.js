@@ -2084,6 +2084,10 @@
   window.addEventListener('student-profile-loaded',installAvatarLiveTransitions);
   installAvatarLiveTransitions();
   startAvatarTransitionCycle();
+  document.addEventListener('med-avatar-assets-updated', () => {
+    if (avatarPickerExpanded) renderAvatarPicker();
+    installAvatarLiveTransitions();
+  });
   document.addEventListener('mat-open-avatar-builder', () => {
     avatarPickerExpanded = true;
     pendingAvatarConfig = pendingAvatarConfig || readAvatarConfig();
