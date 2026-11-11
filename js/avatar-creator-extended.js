@@ -12,7 +12,6 @@
     nose: [['default','স্বাভাবিক']],
     clothingGraphic: [['none','নেই']],
     gender: [['male','পুরুষ'],['female','নারী']],
-    ageGroup: [['teen','HSC শিক্ষার্থী · ১৬–১৮']],
     hairStyle: [
       ['shortFlat','ছোট সোজা'],['shortCurly','ছোট কোঁকড়া'],['shortRound','গোল ছোট'],['shortWaved','ঢেউ খেলানো ছোট'],
       ['sides','সাইড পার্ট'],['theCaesar','সিজার কাট'],['theCaesarAndSidePart','সিজার + সাইড পার্ট'],
@@ -299,12 +298,12 @@
     return normalize({
       ...defaults,
       gender:pick(choices.gender,identity,13),
-      ageGroup:pick(choices.ageGroup,identity,14),
+      ageGroup:'teen',
       skinTone:pick(choices.skinTone,identity,0),
       eyeShape:pick(choices.eyeShape.filter(([value])=>['default','happy','side','squint','eyeRoll','surprised'].includes(value)),identity,1),
       eyebrowShape:pick(choices.eyebrowShape,identity,2),
       expression:pick(choices.expression,identity,3),
-      hairStyle:pick(hairChoicesFor(pick(choices.gender,identity,13),pick(choices.ageGroup,identity,14)),identity,4),
+      hairStyle:pick(hairChoicesFor(pick(choices.gender,identity,13)),identity,4),
       hairColor:pick(choices.hairColor,identity,5),
       hat:'none',
       hatColor:pick(choices.hatColor,identity,7),
