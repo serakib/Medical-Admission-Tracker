@@ -15,3 +15,7 @@ Technical setup, backend integration, API behaviour and question-bank maintenanc
 - [Frontend JavaScript modules](../../js/)
 - [Stylesheets](../../css/)
 - [Project architecture](../project/ARCHITECTURE.md)
+
+## Reliability and offline tools
+
+- [PWA, Offline Practice, Live Health and Local Backup](./PWA_OFFLINE_HEALTH_BACKUP.md)
