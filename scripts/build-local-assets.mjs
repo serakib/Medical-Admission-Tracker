@@ -16,6 +16,18 @@ console.log('[assets] Building local Tailwind CSS...');
 const tailwindCli = path.join(root, 'node_modules', 'tailwindcss', 'lib', 'cli.js');
 run(process.execPath, [tailwindCli, '-c', 'config/tailwind.config.cjs', '-i', 'css/tailwind.input.css', '-o', 'css/tailwind.generated.css', '--minify']);
 
+console.log('[assets] Bundling the main app and Firebase modular SDK locally...');
+await esbuild.build({
+  entryPoints: ['js/app.js'],
+  bundle: true,
+  platform: 'browser',
+  format: 'esm',
+  target: ['es2020'],
+  outfile: 'js/vendor/app.bundle.js',
+  legalComments: 'none',
+  sourcemap: false
+});
+
 console.log('[assets] Bundling local Firebase compat SDK...');
 fs.mkdirSync(path.join(root, 'js', 'vendor'), { recursive: true });
 await esbuild.build({
