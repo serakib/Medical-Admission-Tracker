@@ -235,8 +235,17 @@
       const auth = app?.auth;
       const firestore = app?.firestore;
       const user = auth?.currentUser || app?.authUser;
-      add('Firebase Auth', app?.authStateResolved && auth ? 'ok' : 'warn',
-        app?.authStateResolved ? (user ? 'Signed in' : 'Auth ready · signed out') : 'Auth state এখনো resolve হয়নি');
+      if (user?.uid && typeof user.getIdToken === 'function') {
+        try {
+          await user.getIdToken(true);
+          add('Firebase Auth', 'ok', 'Firebase ID token refresh সফল');
+        } catch (error) {
+          add('Firebase Auth', 'fail', String(error?.code || error?.message || 'Token refresh failed').slice(0, 120));
+        }
+      } else {
+        add('Firebase Auth', app?.authStateResolved && auth ? 'warn' : 'fail',
+          app?.authStateResolved ? 'Auth SDK ready · live token test-এর জন্য login প্রয়োজন' : 'Auth state এখনো resolve হয়নি');
+      }
       if (user?.uid && firestore) {
         try {
           const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
