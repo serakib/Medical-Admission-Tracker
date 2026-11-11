@@ -2051,65 +2051,90 @@ main > .view-section.hidden { display: none !important; }
   var bar, fill, progress = 0, active = false, pending = 0;
   var trickleTimer = 0, hideTimer = 0, watchdogTimer = 0, idleTimer = 0, notificationFinishTimer = 0;
   var startedAt = 0, generation = 0;
-  var actionButton = null, actionButtonHTML = '', actionButtonDisabled = false;
-  var actionRequestCount = 0, actionRestoreTimer = 0;
-  var MIN_VISIBLE_MS = 280;
+  // Each button owns an independent feedback state. Never disable a button:
+  // its original click handler and async operation must remain in control.
+  var actionRecords = new Set(), actionRecordByButton = new WeakMap(), activeActionRecord = null;
+  var MIN_ACTION_FEEDBACK_MS = 700, LOCAL_ACTION_FALLBACK_MS = 1800, ACTION_SAFETY_MS = 60000;
 
-  // Give save/load controls immediate, consistent feedback while their async work runs.
   function actionType(button) {
     var label = String(button && (button.getAttribute('data-loading-label') || button.innerText || button.value) || '').trim();
     if (/(save|saving|update|submit|create|add|delete|remove|clear|redeem|convert|send|upload|import|export|sync|apply|reset|restore|সেভ|সংরক্ষণ|জমা|আপডেট|তৈরি|যোগ|মুছ|পরিবর্তন|পাঠান)/i.test(label)) return 'saving';
     if (/(load|loading|refresh|reload|fetch|search|খুঁজ|লোড|আনুন|রিফ্রেশ|দেখুন|history|profile|leaderboard)/i.test(label)) return 'loading';
-    if (/(open|view|go|back|next|continue|login|sign\s*up|guest|start|play|navigate|খুল|যাও|পরবর্তী|চালু)/i.test(label)) return 'opening';
+    if (/(open|view|go|back|next|continue|login|sign\\s*up|guest|start|play|navigate|খুল|যাও|পরবর্তী|চালু)/i.test(label)) return 'opening';
     if (button && button.closest && button.closest('form')) return 'saving';
     return 'working';
   }
 
-  function restoreActionButton() {
-    clearTimeout(actionRestoreTimer);
-    actionRestoreTimer = 0;
-    if (!actionButton) return;
-    if (/^(INPUT)$/.test(actionButton.tagName)) {
-      actionButton.value = actionButtonHTML;
-    } else {
-      actionButton.innerHTML = actionButtonHTML;
+  function restoreActionRecord(record) {
+    if (!record || record.restored) return;
+    record.restored = true;
+    clearTimeout(record.fallbackTimer);
+    clearTimeout(record.safetyTimer);
+    if (record.button && record.button.isConnected) {
+      if (record.isInput) record.button.value = record.original;
+      else record.button.innerHTML = record.original;
+      record.button.removeAttribute('aria-busy');
+      record.button.classList.remove('mat-action-is-busy');
     }
-    actionButton.disabled = actionButtonDisabled;
-    actionButton.removeAttribute('aria-busy');
-    actionButton.classList.remove('mat-action-is-busy');
-    actionButton = null;
-    actionButtonHTML = '';
-    actionButtonDisabled = false;
-    actionRequestCount = 0;
+    actionRecords.delete(record);
+    actionRecordByButton.delete(record.button);
+    if (activeActionRecord === record) activeActionRecord = null;
   }
 
-  function finishActionButtonSoon(delay) {
-    clearTimeout(actionRestoreTimer);
-    actionRestoreTimer = setTimeout(function () {
-      if (actionRequestCount === 0) restoreActionButton();
-    }, delay);
+  function maybeFinishActionRecord(record) {
+    if (!record || record.restored || record.pending > 0) return;
+    var remaining = MIN_ACTION_FEEDBACK_MS - (Date.now() - record.startedAt);
+    if (remaining > 0) {
+      clearTimeout(record.fallbackTimer);
+      record.fallbackTimer = setTimeout(function () { maybeFinishActionRecord(record); }, remaining);
+      return;
+    }
+    restoreActionRecord(record);
   }
 
   function markActionButton(button) {
+    if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return null;
+    var existing = actionRecordByButton.get(button);
+    if (existing && !existing.restored) return existing;
+    var isInput = button.tagName === 'INPUT';
+    var original = isInput ? button.value : button.innerHTML;
     var kind = actionType(button);
-    if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return;
-    if (actionButton && actionButton !== button) restoreActionButton();
-    if (actionButton === button) return;
-    actionButton = button;
-    var isInput = /^(INPUT)$/.test(button.tagName);
-    actionButtonHTML = isInput ? button.value : button.innerHTML;
-    actionButtonDisabled = button.disabled;
     var status = kind === 'saving' ? 'Saving' : kind === 'loading' ? 'Loading' : kind === 'opening' ? 'Opening' : 'Working';
+    var record = {
+      button: button, isInput: isInput, original: original,
+      pending: 0, startedAt: Date.now(), restored: false,
+      fallbackTimer: 0, safetyTimer: 0
+    };
+    actionRecords.add(record);
+    actionRecordByButton.set(button, record);
+    activeActionRecord = record;
     button.setAttribute('aria-busy', 'true');
     button.classList.add('mat-action-is-busy');
     if (isInput) button.value = status + '...';
     else button.innerHTML = '<span class="mat-action-feedback-label">' + status + '</span><span class="mat-animated-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
-    actionRequestCount = 0;
-    // Defer disabling until the current click has reached its original handler.
-    setTimeout(function () {
-      if (actionButton === button) button.disabled = true;
-    }, 0);
-    finishActionButtonSoon(900);
+    record.fallbackTimer = setTimeout(function () { maybeFinishActionRecord(record); }, LOCAL_ACTION_FALLBACK_MS);
+    record.safetyTimer = setTimeout(function () { restoreActionRecord(record); }, ACTION_SAFETY_MS);
+    setTimeout(function () { if (activeActionRecord === record) activeActionRecord = null; }, 0);
+    return record;
+  }
+
+  function trackActionRequestStart() {
+    var record = activeActionRecord;
+    if (record && !record.restored) {
+      record.pending += 1;
+      clearTimeout(record.fallbackTimer);
+    }
+    return record;
+  }
+
+  function trackActionRequestEnd(record) {
+    if (!record || record.restored) return;
+    record.pending = Math.max(0, record.pending - 1);
+    if (record.pending === 0) maybeFinishActionRecord(record);
+  }
+
+  function restoreActionButton() {
+    Array.from(actionRecords).forEach(restoreActionRecord);
   }
 
   var HIDE_DELAY_MS = 220;
@@ -2251,17 +2276,17 @@ main > .view-section.hidden { display: none !important; }
     var nativeFetch = window.fetch;
     window.fetch = function () {
       requestStart();
-      if (actionButton) { actionRequestCount += 1; clearTimeout(actionRestoreTimer); }
+      var actionRequestRecord = trackActionRequestStart();
       var result;
       try { result = nativeFetch.apply(this, arguments); }
-      catch (error) { requestEnd(); if (actionButton) { actionRequestCount = Math.max(0, actionRequestCount - 1); finishActionButtonSoon(450); } throw error; }
+      catch (error) { requestEnd(); trackActionRequestEnd(actionRequestRecord); throw error; }
       return Promise.resolve(result).then(function (response) {
         requestEnd();
-        if (actionButton) { actionRequestCount = Math.max(0, actionRequestCount - 1); if (actionRequestCount === 0) finishActionButtonSoon(550); }
+        trackActionRequestEnd(actionRequestRecord);
         return response;
       }, function (error) {
         requestEnd();
-        if (actionButton) { actionRequestCount = Math.max(0, actionRequestCount - 1); if (actionRequestCount === 0) finishActionButtonSoon(550); }
+        trackActionRequestEnd(actionRequestRecord);
         throw error;
       });
     };
