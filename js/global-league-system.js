@@ -3046,9 +3046,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var back = '<button type="button" data-va-back style="border:0;background:transparent;color:#64748b;font-weight:700;padding:8px 0;cursor:pointer">← Back</button>';
     if (mode === 'choices') {
       var choiceIntro = '<div style="position:relative;text-align:center;margin:8px 0 18px;padding:0 42px 0 0"><button type="button" data-va-info aria-label="Account information" title="Account সম্পর্কে জানুন" style="position:absolute;right:0;top:2px;width:30px;height:30px;display:grid;place-items:center;border:1px solid #cbd5e1;border-radius:50%;background:transparent;color:#64748b;font-size:15px;font-weight:800;cursor:pointer">i</button><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">নিজের তথ্য Server-এ সংরক্ষণ করুন</h2></div>';
+      var availableGuests = getSavedGuestAccounts();
+      var availableGuestButtons = availableGuests.map(function (item, index) {
+        var displayName = String(item.name || 'Previous Guest').replace(/[&<>"']/g, function (ch) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]); });
+        var details = [item.college, item.batch].filter(Boolean).join(' · ').replace(/[&<>"']/g, function (ch) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]); });
+        return '<button type="button" data-va-resume-guest="' + index + '" style="width:100%;text-align:left;border:1px solid #a7f3d0;border-radius:12px;padding:13px;background:#ecfdf5;color:#065f46;font-weight:800;cursor:pointer">আগের Guest account-এ Continue করুন: ' + displayName + '<small style="display:block;margin-top:4px;font-weight:500;color:#64748b">' + details + '</small></button>';
+      }).join('');
       panel.innerHTML = close + choiceIntro +
         '<div style="display:grid;gap:11px">' +
-          '<button type="button" data-va-mode="guest" style="border:0;border-radius:12px;padding:14px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;font-weight:800;cursor:pointer">Continue as Guest</button>' +
+          (availableGuests.length ? '<p style="font-size:13px;color:var(--mat-va-muted,#64748b);margin:0">এই ডিভাইসে আগে ব্যবহার করা Guest account পাওয়া গেছে। চালু থাকলে সেটিতে ফিরে যেতে নিচে চাপ দিন:</p>' + availableGuestButtons : '') +
+          '<button type="button" data-va-mode="guest" style="border:0;border-radius:12px;padding:14px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;font-weight:800;cursor:pointer">' + (availableGuests.length ? 'অন্য Guest account / নতুন Guest' : 'Continue as Guest') + '</button>' +
           '<button type="button" class="mat-va-choice-signup" data-va-mode="signup" style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;background:#fff;color:#0f172a;font-weight:800;cursor:pointer">Sign Up</button>' +
           '<button type="button" data-va-mode="login" style="border:0;background:transparent;color:#0284c7;padding:8px;font-weight:700;cursor:pointer">আগে Account থাকলে Login করুন</button>' +
         '</div>';
