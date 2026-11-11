@@ -42,4 +42,4 @@ Maintainer decisions should be fair, consistent, and focused on keeping the proj
 
 - [Contributing Guide](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
-- [Accessibility Guidelines](ACCESSIBILITY.md)
+- [Accessibility Guidelines](docs/guides/ACCESSIBILITY.md)
