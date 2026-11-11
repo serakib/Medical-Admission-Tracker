@@ -1430,6 +1430,88 @@
       #profile-avatar-picker.is-expanded .mat-avatar-option-art{max-width:84px!important;max-height:84px!important}
     }
   `;
+
+    /* Desktop/tablet workspace geometry: keep both columns inside the viewport. */
+    #profile-avatar-picker.is-expanded .mat-avatar-workspace{
+      display:grid!important;
+      width:100%!important;
+      max-width:1384px!important;
+      min-width:0!important;
+      margin-inline:auto!important;
+      padding:0!important;
+      box-sizing:border-box!important;
+      grid-template-columns:minmax(0,.72fr) minmax(0,1fr)!important;
+      gap:clamp(16px,2vw,28px)!important;
+      align-items:stretch!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel,
+    #profile-avatar-picker.is-expanded .mat-avatar-controls{
+      width:100%!important;
+      min-width:0!important;
+      max-width:100%!important;
+      box-sizing:border-box!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
+      aspect-ratio:.96!important;
+      max-height:min(72vh,620px)!important;
+      overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{
+      max-width:100%!important;
+      max-height:100%!important;
+      min-width:0!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-controls{
+      overflow-x:hidden!important;
+      overflow-y:auto!important;
+      overscroll-behavior:contain!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-actions{
+      position:sticky!important;
+      bottom:0!important;
+      z-index:5!important;
+      width:100%!important;
+      min-width:0!important;
+      box-sizing:border-box!important;
+      padding:12px!important;
+      margin-top:10px!important;
+      background:inherit!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-actions .profile-avatar-confirm-button{
+      width:100%!important;
+      max-width:100%!important;
+      box-sizing:border-box!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
+      min-width:0!important;
+      width:100%!important;
+      box-sizing:border-box!important;
+    }
+    @media(max-width:900px){
+      #profile-avatar-picker.is-expanded .mat-avatar-workspace{
+        grid-template-columns:minmax(0,1fr)!important;
+        grid-template-rows:minmax(180px,34vh) minmax(0,1fr)!important;
+        gap:12px!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
+        width:100%!important;
+        max-height:34vh!important;
+        aspect-ratio:auto!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-controls{
+        min-height:0!important;
+      }
+    }
+    @media(max-width:520px){
+      #profile-avatar-picker.is-expanded .mat-avatar-workspace{
+        grid-template-rows:minmax(120px,22vh) minmax(0,1fr)!important;
+        gap:9px!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
+        max-height:22vh!important;
+      }
+    }
+
   document.head.appendChild(avatarAssetCardStyle);
 
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
