@@ -164,7 +164,10 @@ for (const [destination, content] of files) {
     written++;
     continue;
   }
-  if (!fs.existsSync(destination)) continue; // Explicitly deleted SVGs stay deleted; the asset manifest removes them.
+  if (!fs.existsSync(destination)) {
+    if (relative === 'base/face-and-body.svg') errors.push({ file: relative, missing: true, required: true });
+    continue; // Optional deleted variants disappear from the manifest; the base is mandatory.
+  }
   let expectedShapes;
   if (relative === 'base/face-and-body.svg') {
     expectedShapes = collectExpectedShapes(DEFINITION.canvas.elements);
