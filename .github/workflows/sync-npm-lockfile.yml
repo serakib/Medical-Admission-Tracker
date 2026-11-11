@@ -52,8 +52,12 @@ jobs:
             exit 0
           fi
 
+          # The build generates tracked assets; discard those generated working-tree changes.
+          # The lockfile is staged already, so it is preserved in the index and working tree.
+          git restore --worktree -- .
+
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+users.noreply.github.com"
           git commit -m "chore: sync npm dependency lockfile"
 
           # Retry against the latest main if another safe commit lands while this job runs.
