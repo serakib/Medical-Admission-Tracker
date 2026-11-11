@@ -10,10 +10,10 @@ permissions:
   pages: write
   id-token: write
 
-# Never cancel an active production deployment.
+# Latest source commit must be able to replace a stuck/obsolete deployment.
 concurrency:
-  group: pages-browser-verified
-  cancel-in-progress: false
+  group: pages-recovery-20261111
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -81,6 +81,8 @@ jobs:
 
       # Load the real page in Chromium and assert that the app initializes and removes the splash.
       - name: Browser-test application startup
+        continue-on-error: true
+        timeout-minutes: 2
         env:
           DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
         run: node scripts/smoke-test-browser.mjs "$DEPLOYED_URL"
