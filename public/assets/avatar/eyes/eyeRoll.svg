@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- eyes / eyeRoll; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<!-- eyes / eyeRoll; Avataaars by Pablo Stanley. Source: scripts/data/avataaars-style-definition.json. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 36.27" width="84" height="36.27" fill="none" role="img" aria-label="eyes / eyeRoll">
-<g transform="translate(2)"></g>
-<g transform="translate(10)"></g>
+<g transform="translate(2)"><circle cx="14" cy="14" r="14" fill="#ffffff"/><circle cx="66" cy="14" r="14" fill="#ffffff"/></g>
+<g transform="translate(10)"><circle cx="6" cy="6" r="6" fill="#000000" fill-opacity=".7"/><circle cx="58" cy="6" r="6" fill="#000000" fill-opacity=".7"/></g>
 </svg>
