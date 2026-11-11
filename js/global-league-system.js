@@ -2610,6 +2610,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       subject: safeText(item.subject || '', 80),
       year: safeText(item.year || '', 40),
       timeUsed: safeText(item.timeUsed || '', 20),
+      questionIds: Array.isArray(item.questionIds) ? item.questionIds.slice(0, 1000) : [],
       // Include the latest browser-persisted streak snapshot so a backend
       // deployment that stores streak metadata can keep the server in sync.
       streak: Math.max(0, Number((app.getAccountProgress && app.getAccountProgress() || {}).streak) || 0),
@@ -2650,7 +2651,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       examMode: safeText(meta.examMode || (app.examState && app.examState.mode) || 'Exam', 60),
       subject: safeText(meta.subject || (app.examState && app.examState.subject) || '', 80),
       year: safeText(meta.year || (app.examState && app.examState.year) || '', 40),
-      timeUsed: safeText(meta.timeUsed || '', 20)
+      timeUsed: safeText(meta.timeUsed || '', 20),
+      questionIds: Array.isArray(meta.questionIds) ? Array.from(new Set(meta.questionIds.map(id => safeText(id, 160)).filter(Boolean))).slice(0, 1000) : []
     };
     // A public Visitor may complete exams and keep their learning history locally.
     // Do not call the Medical API, open the account dialog, or queue an anonymous result.
