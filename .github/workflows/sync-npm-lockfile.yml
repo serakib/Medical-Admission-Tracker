@@ -46,14 +46,14 @@ jobs:
       - name: Commit lockfile when it changes
         run: |
           set -euo pipefail
-          if git diff --quiet -- package-lock.json; then
+          git add package-lock.json
+          if git diff --cached --quiet -- package-lock.json; then
             echo "package-lock.json is already synchronized."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
           git commit -m "chore: sync npm dependency lockfile"
 
           # Retry against the latest main if another safe commit lands while this job runs.
