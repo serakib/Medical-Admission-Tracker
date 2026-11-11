@@ -2045,7 +2045,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return target;
   }
   function renderMonthlyCountdown() {
-    if (selectedPeriod !== 'monthly') return;
     var monthlyNote = document.getElementById('leaderboard-month-countdown');
     if (!monthlyNote) return;
     var now = new Date();
@@ -2054,10 +2053,14 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var monthlyResetUtc = Date.UTC(dhakaNow.year, dhakaNow.month, 1, -5, 0, 0);
     var monthlyResetSeconds = Math.max(0, Math.floor((monthlyResetUtc - now.getTime()) / 1000));
     var weeklyReviewSeconds = Math.max(0, Math.floor((matNextDhakaWeeklyReview_() - now.getTime()) / 1000));
+    var dailyReview = matNextDhakaDailyReview_();
+    var dailyReviewSeconds = Math.max(0, Math.floor((dailyReview.timestamp - now.getTime()) / 1000));
+    var dailyReviewLabel = dailyReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
     monthlyNote.className = 'leaderboard-week-countdown mat-monthly-countdown-row';
     monthlyNote.innerHTML =
       '<div class="mat-monthly-countdown-capsule mat-monthly-countdown-capsule--reset"><span>⏳ মাসিক Hard Reset</span><strong>' + matCountdownText_(monthlyResetSeconds) + '</strong></div>' +
-      '<div class="mat-monthly-countdown-capsule mat-monthly-countdown-capsule--weekly"><span>🛡️ Weekly Review</span><strong>' + matCountdownText_(weeklyReviewSeconds) + '</strong></div>';
+      '<div class="mat-monthly-countdown-capsule mat-monthly-countdown-capsule--weekly"><span>🛡️ Weekly Review</span><strong>' + matCountdownText_(weeklyReviewSeconds) + '</strong></div>' +
+      '<div class="mat-monthly-countdown-capsule mat-monthly-countdown-capsule--daily"><span>🔁 ' + dailyReviewLabel + '</span><strong>' + matCountdownText_(dailyReviewSeconds) + '</strong></div>';
     monthlyNote.setAttribute('role', 'status');
     monthlyNote.setAttribute('aria-live', 'off');
   }
@@ -2073,8 +2076,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       monthlyNote.className = 'leaderboard-week-countdown';
       note.parentNode.insertBefore(monthlyNote, note.nextSibling);
     }
-    monthlyNote.classList.toggle('hidden', selectedPeriod !== 'monthly');
-    if (selectedPeriod === 'monthly') renderMonthlyCountdown();
+    monthlyNote.classList.toggle('hidden', false);
+    renderMonthlyCountdown();
     var toolbarActions = document.querySelector('#view-leaderboard .leaderboard-toolbar-actions');
     var refreshButton = document.querySelector('#view-leaderboard #leaderboard-refresh-button') || document.querySelector('#view-leaderboard button[onclick*="loadLeaderboard"]');
     if (selectedPeriod !== 'weekly') {
@@ -2109,11 +2112,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var weekDescription = 'এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, Monthly RP অপরিবর্তিত থাকবে।';
     note.className = 'leaderboard-week-countdown mat-weekly-countdown-row';
     note.setAttribute('role', 'status');
-    var dailyReview = matNextDhakaDailyReview_();
-    var dailyLabel = dailyReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
     note.innerHTML =
-      '<button type="button" class="leaderboard-week-details mat-weekly-countdown-capsule mat-weekly-countdown-capsule--week" data-open-week-popup aria-haspopup="dialog"><span>⏳ নতুন সপ্তাহ</span><strong data-weekly-countdown>' + countdown + '</strong><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
-      '<div class="mat-weekly-countdown-capsule mat-weekly-countdown-capsule--review" data-promotion-review-countdown><span data-review-label>🔁 ' + dailyLabel + '</span><strong>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong></div>';
+      '<button type="button" class="leaderboard-week-details mat-weekly-countdown-capsule mat-weekly-countdown-capsule--week" data-open-week-popup aria-haspopup="dialog"><span>⏳ নতুন সপ্তাহ</span><strong data-weekly-countdown>' + countdown + '</strong><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
     var popup = ensureLeaderboardWeekPopup();
     var popupTools = popup.querySelector('[data-week-popup-tools]');
     if (popupTools) {
@@ -2180,7 +2180,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (leaderboardNoteClockStarted) return;
     leaderboardNoteClockStarted = true;
     window.setInterval(function () {
-      if (selectedPeriod === 'monthly') renderMonthlyCountdown();
+      renderMonthlyCountdown();
     }, 1000);
     window.setInterval(function () {
       if (selectedPeriod === 'weekly') renderWeeklyCountdown();
