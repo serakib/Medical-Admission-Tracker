@@ -2928,12 +2928,31 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var panel = document.getElementById('mat-visitor-access-panel');
     if (!panel) return;
     var close = '<button type="button" data-va-close aria-label="Close" style="float:right;border:0;background:transparent;font-size:23px;color:#64748b;cursor:pointer">×</button>';
-    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">নিজের তথ্য Server-এ সংরক্ষণ করুন</h2><p style="font-size:13px;line-height:1.7;color:var(--mat-va-muted,#64748b);margin:8px 0 0">Visitor হিসেবে website ব্যবহার, public latest information ও leaderboard দেখা এবং practice করতে পারবেন। আপনার practice ও progress এই device-এ local থাকবে; server-এ verified হবে না। নিজের profile, exam result ও verified XP/RP server-এ সংরক্ষণ ও sync করতে Guest বা Registered Account তৈরি করুন।</p></div>';
+    var intro = '<div style="text-align:center;margin:2px 28px 18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">কেন Account তৈরি করবে?</h2><p style="font-size:13px;line-height:1.6;color:var(--mat-va-muted,#64748b);margin:6px 0 0">তোমার প্রয়োজন অনুযায়ী নিচের option বেছে নাও</p></div>';
     var fieldStyle = 'width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#0f172a;font:inherit;margin-top:6px';
     var labelStyle = 'display:block;font-size:13px;font-weight:700;color:var(--mat-va-title,#334155);margin:12px 0 0';
     var back = '<button type="button" data-va-back style="border:0;background:transparent;color:#64748b;font-weight:700;padding:8px 0;cursor:pointer">← Back</button>';
     if (mode === 'choices') {
-      panel.innerHTML = close + intro + '<div style="display:grid;gap:11px"><button type="button" data-va-mode="guest" style="border:0;border-radius:12px;padding:14px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;font-weight:800;cursor:pointer">Continue as Guest</button><button type="button" data-va-mode="signup" style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;background:#fff;color:#0f172a;font-weight:800;cursor:pointer">Sign Up</button><button type="button" data-va-mode="login" style="border:0;background:transparent;color:#0284c7;padding:8px;font-weight:700;cursor:pointer">আগে Account থাকলে Login করুন</button></div>';
+      var choiceCard = 'width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:15px;border:1px solid #dbe3ec;border-radius:15px;background:#fff;color:#0f172a;cursor:pointer;box-sizing:border-box;transition:border-color .18s,transform .18s,box-shadow .18s';
+      var choiceIcon = 'width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;font-size:20px';
+      var choiceCopy = 'display:block;min-width:0;flex:1';
+      var choiceTitle = 'display:block;font-size:14px;font-weight:850;line-height:1.35';
+      var choiceDescription = 'display:block;margin-top:4px;font-size:12px;font-weight:500;line-height:1.55;color:#64748b';
+      panel.innerHTML = close + intro +
+        '<div style="display:grid;gap:10px">' +
+          '<button type="button" data-va-mode="guest" style="' + choiceCard + ';border-color:#86d9bd;background:#f0fdf8">' +
+            '<span style="' + choiceIcon + ';background:#d1fae5;color:#047857">☘</span>' +
+            '<span style="' + choiceCopy + '"><strong style="' + choiceTitle + ';color:#065f46">Guest Account</strong><small style="' + choiceDescription + '">নাম, College ও Batch দিয়ে Profile, Exam Result এবং XP/RP server-এ Save ও Sync করো। Email বা Password লাগবে না।</small></span>' +
+            '<span aria-hidden="true" style="font-size:20px;color:#059669">›</span>' +
+          '</button>' +
+          '<button type="button" data-va-mode="signup" style="' + choiceCard + '">' +
+            '<span style="' + choiceIcon + ';background:#e0e7ff;color:#4338ca">🔐</span>' +
+            '<span style="' + choiceCopy + '"><strong style="' + choiceTitle + '">Registered Account</strong><small style="' + choiceDescription + '">Email ও Password দিয়ে নিজের স্থায়ী Account তৈরি করো। Profile, Result ও Progress server-এ Sync থাকবে।</small></span>' +
+            '<span aria-hidden="true" style="font-size:20px;color:#64748b">›</span>' +
+          '</button>' +
+          '<button type="button" data-va-mode="login" style="width:100%;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#0284c7;font-size:13px;font-weight:750;cursor:pointer">আগে থেকেই Account আছে? Login করুন</button>' +
+        '</div>' +
+        '<p style="margin:14px 3px 0;padding:10px 12px;border-radius:11px;background:#f1f5f9;color:#64748b;font-size:11px;line-height:1.55;text-align:center">Account ছাড়াও public information, latest leaderboard ও practice ব্যবহার করতে পারবে। Visitor-এর progress শুধু এই device-এ local থাকবে।</p>';
       return;
     }
     if (mode === 'guest') {
