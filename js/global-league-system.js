@@ -1618,12 +1618,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return monthlyPointsForRow(row) >= monthlySafeZoneThresholdFor(row);
   }
   function promotionZoneThresholdFor(row) {
-    var progress = row && row.rankProgress && typeof row.rankProgress === 'object' ? row.rankProgress : {};
     var rankIndex = RANKS.indexOf(String(row && row.rank || ''));
-    if (rankIndex < 0 || rankIndex >= RANKS.length - 1 || progress.isFinalRank === true) return 0;
-    var serverThreshold = Number(progress.weeklyPromotionZoneThreshold);
-    if (Number.isFinite(serverThreshold) && serverThreshold >= 0) return serverThreshold;
-    // Fallback mirrors the backend: 70% of the full five-subrank Main Rank tier.
+    if (rankIndex < 0 || rankIndex >= RANKS.length - 1) return 0;
+    // Use the effective rank shown on this leaderboard row. The API can
+    // temporarily show Bronze V for a zero-Weekly-RP account while its
+    // rankProgress still describes its stored (possibly terminal) rank.
+    // Reusing that stale threshold can incorrectly make 0 RP look promoted.
     var tierStart = Math.floor(rankIndex / 5) * 5;
     var tierEnd = Math.min(tierStart + 4, RANKS.length - 1);
     var priorRequired = 0, tierCost = 0;
@@ -1649,7 +1649,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   }
   function isInWeeklyPromotionZone(row) {
     if (isMaxRankRow(row)) return false;
-    return subRankPointsForRow(row) >= promotionZoneThresholdFor(row);
+    var earnedWeeklyRP = subRankPointsForRow(row);
+    var threshold = promotionZoneThresholdFor(row);
+    return earnedWeeklyRP > 0 && threshold > 0 && earnedWeeklyRP >= threshold;
   }
   function isInWeeklySafeZone(row) {
     return subRankPointsForRow(row) >= safeZoneThresholdFor(row);
