@@ -20,7 +20,7 @@
 
 ## How the live Preview uses the files
 
-1. GitHub Pages deployment scans every SVG and embeds its exact source text in `public/assets/asset-manifest.json`.
+1. GitHub Pages deployment `public/assets/avatar/` এবং `public/assets/pets/`-এর SVG scan করে exact source text `public/assets/asset-manifest.json`-এ রাখে। Website favicon ও Font Awesome icon sprite এই Avatar manifest-এ ঢোকে না।
 2. The browser loads that manifest and builds each avatar from the original SVG component files.
 3. Each component uses its own official `viewBox` and Avataaars canvas position; fill colors are supplied through the SVG custom properties.
 4. The same manifest also supplies the option-card artwork and character thumbnails.
@@ -28,7 +28,7 @@
 
 ## Add or remove an SVG
 
-- Add a correctly named SVG to its matching category folder. Its filename becomes the option ID.
+- `public/assets/avatar/` বা `public/assets/pets/`-এর সঠিক category folder-এ SVG যোগ করো। Its filename becomes the option ID.
 - Delete an SVG to remove that option on the next GitHub Pages deployment.
 - Keep SVG `viewBox` and artwork coordinates intact. Components are placed using the official 280×280 Avataaars canvas.
 - For a new component category, the renderer must have a canvas placement/layer mapping before it can appear in the composed character. A file being detected in the manifest alone does not determine where an unknown category belongs.
