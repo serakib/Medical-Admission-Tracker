@@ -37,7 +37,7 @@ try {
     let targetUrl = requestUrl.href;
 
     if (requestUrl.origin === localOrigin) {
-      const relativePath = requestUrl.pathname.replace(/^\\/+/, '');
+      const relativePath = requestUrl.pathname.split('/').filter(Boolean).join('/');
       targetUrl = relativePath
         ? new URL(relativePath + requestUrl.search, baseUrl).href
         : baseUrl.href;
