@@ -2216,12 +2216,6 @@ function matPublicStudentDirectoryEntry_(student, weeklyByUser, examStatsByUser)
   const stats = (examStatsByUser && examStatsByUser[uid]) || { matches: 0, correct: 0, wrong: 0, accuracy: 0, streak: 0 };
   profile.weeklyRP = weeklyRP;
   profile.weeklyRankPoints = weeklyRP;
-  if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
-    profile.guestAutoDeletionAt = matGuestAutoDeletionAt_(student, weeklyRP);
-    profile.guestDeletionPending = !!String(student.GuestDeletionScheduledAt || '').trim();
-    profile.guestDeletionScheduledAt = String(student.GuestDeletionScheduledAt || '');
-    profile.guestDeletionReason = String(student.GuestDeletionReason || '');
-  }
   profile.matches = Math.max(0, matFiniteNumber_(stats.matches, 0));
   profile.completedExams = profile.matches;
   profile.correctCount = Math.max(0, matFiniteNumber_(stats.correct, 0));
@@ -2865,6 +2859,12 @@ function matPublicProfile_(r, includeEmail) {
     name: s.Name,
     username: s.Name,
     accountType: String(s.AccountType || 'GUEST'),
+    // Public-safe deletion status: show scheduled deletion for any account type
+    // when a deadline exists; automatic inactivity expiry applies to Guests.
+    accountDeletionPending: !!String(s.GuestDeletionScheduledAt || '').trim(),
+    accountDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
+    accountDeletionReason: String(s.GuestDeletionReason || ''),
+    autoDeletionAt: String(s.AccountType || '').toUpperCase() === 'GUEST' ? guestAutoDeletionAt : '',
     isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s),
     isGoldName: matPromoHasGoldName_(s),
     showGoldName: String(s.ShowGoldName == null || s.ShowGoldName === '' ? 'TRUE' : s.ShowGoldName).toUpperCase() !== 'FALSE',
