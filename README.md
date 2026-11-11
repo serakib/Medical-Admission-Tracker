@@ -255,10 +255,10 @@ Project documentation is grouped by purpose so you can find the right guide quic
 
 - [📚 Project documentation hub](docs/project/README.md)
 - [🤝 Support and help](.github/SUPPORT.md)
-- [🛡️ Security policy](SECURITY.md)
+- [🛡️ Security policy](.github/SECURITY.md)
 - [♿ Accessibility guidelines](docs/guides/ACCESSIBILITY.md)
-- [🤝 Code of Conduct](CODE_OF_CONDUCT.md)
-- [🧑‍💻 Contributing guide](CONTRIBUTING.md)
+- [🤝 Code of Conduct](.github/CODE_OF_CONDUCT.md)
+- [🧑‍💻 Contributing guide](.github/CONTRIBUTING.md)
 - [📜 Project governance](docs/project/GOVERNANCE.md)
 - [🗺️ Project roadmap](docs/project/ROADMAP.md)
 - [🏗️ System architecture](docs/project/ARCHITECTURE.md)
