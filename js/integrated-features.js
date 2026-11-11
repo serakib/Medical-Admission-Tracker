@@ -1327,19 +1327,14 @@
     image.src = avatarFallbackDataUri;
   }, true);
   const avatarAccountId = () => {
-    const known = app.authUser?.uid || app.profile?.userId || app.profile?.uid;
-    if (known) return String(known);
-    try {
-      let guestId = localStorage.getItem('med_sheet_guest_id_v1');
-      if (!guestId) {
-        guestId = 'guest-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
-        localStorage.setItem('med_sheet_guest_id_v1', guestId);
-      }
-      return String(guestId);
-    } catch (_) { return 'guest'; }
+    // Visitor avatar choices stay under a local-only Visitor key. Never invent
+    // a Guest server ID in localStorage without a Guest token from the backend.
+    return typeof app.getLocalIdentityKey === 'function'
+      ? String(app.getLocalIdentityKey())
+      : String(app.authUser?.uid || 'visitor');
   };
   const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
-  const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+  const legacyAvatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
   const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
   const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
   // Google/Gmail photo is saved separately in the Avatar Vault; it is not an uploaded/custom avatar.
@@ -2726,14 +2721,12 @@ const oldLeaderboard=app.renderLeaderboardRows?.bind(app);
 // This leaderboard enhancement is a separate IIFE from the avatar picker above.
 // Recreate its account-scoped storage helpers locally instead of referencing
 // lexical constants that are not visible across IIFE boundaries.
-const avatarAccountId = () => {
-  const known = app.authUser?.uid || app.profile?.userId || app.profile?.uid;
-  if (known) return String(known);
-  try { return String(localStorage.getItem('med_sheet_guest_id_v1') || 'guest'); } catch (_) { return 'guest'; }
-};
+const avatarAccountId = () => typeof app.getLocalIdentityKey === 'function'
+  ? String(app.getLocalIdentityKey())
+  : String(app.authUser?.uid || 'visitor');
 const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
 const avatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
-const legacyAvatarKey = () => 'med_profile_avatar_v1_' + (app.authUser?.uid || 'guest');
+const legacyAvatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
 const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
 function portraitDefaultForId(userId){
   return window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(userId || 'guest'));
