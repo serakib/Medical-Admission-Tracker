@@ -182,22 +182,25 @@ Labels and milestone definitions are maintained in the .github directory and syn
 
 ## 🧭 Repository Policies & Project Information
 
-- [Support and help](SUPPORT.md)
-- [Security policy](SECURITY.md)
-- [Accessibility guidelines](ACCESSIBILITY.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Contributing guide](CONTRIBUTING.md)
-- [Project governance](GOVERNANCE.md)
-- [Project roadmap](ROADMAP.md)
-- [System architecture](ARCHITECTURE.md)
-- [Authors and maintainers](AUTHORS.md)
-- [Citation metadata](CITATION.cff)
-- [Privacy, cookies and terms](legal.html)
-- [License](LICENSE)
+Project documentation is grouped by purpose so you can find the right guide quickly:
 
-Dependabot is configured for GitHub Actions workflow dependencies. See `.github/dependabot.yml`. Repository code ownership is defined in `CODEOWNERS`.
+- [📚 Project documentation hub](docs/project/README.md)
+- [🤝 Support and help](.github/SUPPORT.md)
+- [🛡️ Security policy](SECURITY.md)
+- [♿ Accessibility guidelines](ACCESSIBILITY.md)
+- [🤝 Code of Conduct](CODE_OF_CONDUCT.md)
+- [🧑‍💻 Contributing guide](CONTRIBUTING.md)
+- [📜 Project governance](docs/project/GOVERNANCE.md)
+- [🗺️ Project roadmap](docs/project/ROADMAP.md)
+- [🏗️ System architecture](docs/project/ARCHITECTURE.md)
+- [✍️ Authors and maintainers](docs/project/AUTHORS.md)
+- [🔖 Citation metadata](CITATION.cff)
+- [🔐 Privacy, cookies and terms](legal.html)
+- [⚖️ License](LICENSE)
 
-The privacy notice, cookie information and terms are maintained together in **legal.html** to avoid conflicting duplicate policy documents.
+GitHub Actions dependency updates are configured in `.github/dependabot.yml`, and repository code ownership is defined in `.github/CODEOWNERS`.
+
+The privacy notice, cookie information and terms remain together in **legal.html** to avoid conflicting duplicate policy documents.
 
 ## ©️ Copyright & License
 
