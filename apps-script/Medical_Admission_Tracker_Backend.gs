@@ -25,7 +25,7 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.11.1';
+const MAT_API_VERSION = '2026.11.11.2';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
   'unique-attempted-question-id-sync',
