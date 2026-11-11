@@ -1587,7 +1587,7 @@
         let visual = '';
         if (isColor) {
           const color = '#' + raw.replace(/^#/, '');
-          visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background-color:' + color + '" aria-hidden="true"></span>';
+          visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background:' + color + ' !important;background-color:' + color + ' !important" aria-hidden="true"></span>';
         } else {
           const thumbnailInput = Object.assign({}, config, { [field.key]: option.value });
           if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
@@ -1628,7 +1628,8 @@
     if (changedPart === 'gender' || changedPart === 'ageGroup' || changedPart === 'reset') {
       const dependentFields = [
         { key:'hairStyle', title:'চুলের ধরন' },
-        { key:'facialHair', title:'দাড়ি ও গোঁফ' }
+        { key:'facialHair', title:'দাড়ি ও গোঁফ' },
+        { key:'clothingType', title:'পোশাক' }
       ];
       dependentFields.forEach(field => {
         const existing = picker.querySelector('[data-avatar-field="' + field.key + '"]');
