@@ -2940,19 +2940,19 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var choiceDescription = 'display:block;margin-top:4px;font-size:12px;font-weight:500;line-height:1.55;color:#64748b';
       panel.innerHTML = close + intro +
         '<div style="display:grid;gap:10px">' +
-          '<button type="button" data-va-mode="guest" style="' + choiceCard + ';border-color:#86d9bd;background:#f0fdf8">' +
+          '<button type="button" class="mat-va-choice-card" data-va-mode="guest" style="' + choiceCard + ';border-color:#86d9bd;background:#f0fdf8">' +
             '<span style="' + choiceIcon + ';background:#d1fae5;color:#047857">☘</span>' +
             '<span style="' + choiceCopy + '"><strong style="' + choiceTitle + ';color:#065f46">Guest Account</strong><small style="' + choiceDescription + '">নাম, College ও Batch দিয়ে Profile, Exam Result এবং XP/RP server-এ Save ও Sync করো। Email বা Password লাগবে না।</small></span>' +
             '<span aria-hidden="true" style="font-size:20px;color:#059669">›</span>' +
           '</button>' +
-          '<button type="button" data-va-mode="signup" style="' + choiceCard + '">' +
+          '<button type="button" class="mat-va-choice-card" data-va-mode="signup" style="' + choiceCard + '">' +
             '<span style="' + choiceIcon + ';background:#e0e7ff;color:#4338ca">🔐</span>' +
             '<span style="' + choiceCopy + '"><strong style="' + choiceTitle + '">Registered Account</strong><small style="' + choiceDescription + '">Email ও Password দিয়ে নিজের স্থায়ী Account তৈরি করো। Profile, Result ও Progress server-এ Sync থাকবে।</small></span>' +
             '<span aria-hidden="true" style="font-size:20px;color:#64748b">›</span>' +
           '</button>' +
           '<button type="button" data-va-mode="login" style="width:100%;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#0284c7;font-size:13px;font-weight:750;cursor:pointer">আগে থেকেই Account আছে? Login করুন</button>' +
         '</div>' +
-        '<p style="margin:14px 3px 0;padding:10px 12px;border-radius:11px;background:#f1f5f9;color:#64748b;font-size:11px;line-height:1.55;text-align:center">Account ছাড়াও public information, latest leaderboard ও practice ব্যবহার করতে পারবে। Visitor-এর progress শুধু এই device-এ local থাকবে।</p>';
+        '<p class="mat-va-visitor-note" style="margin:14px 3px 0;padding:10px 12px;border-radius:11px;background:#f1f5f9;color:#64748b;font-size:11px;line-height:1.55;text-align:center">Account ছাড়াও public information, latest leaderboard ও practice ব্যবহার করতে পারবে। Visitor-এর progress শুধু এই device-এ local থাকবে।</p>';
       return;
     }
     if (mode === 'guest') {
@@ -2985,7 +2985,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     visitorAccessUIInstalled = true;
     var style = document.createElement('style');
     style.id = 'mat-visitor-access-styles';
-    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }@media(max-width:480px){#mat-visitor-access-panel{padding:18px}}';
+    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}html.dark #mat-visitor-access-panel .mat-va-choice-card,body.dark #mat-visitor-access-panel .mat-va-choice-card{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}html.dark #mat-visitor-access-panel .mat-va-choice-card strong,body.dark #mat-visitor-access-panel .mat-va-choice-card strong{color:#f8fafc!important}html.dark #mat-visitor-access-panel .mat-va-choice-card small,body.dark #mat-visitor-access-panel .mat-va-choice-card small{color:#cbd5e1!important}html.dark #mat-visitor-access-panel .mat-va-visitor-note,body.dark #mat-visitor-access-panel .mat-va-visitor-note{background:#1f2937!important;color:#cbd5e1!important}#mat-visitor-access-panel .mat-va-choice-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.09)}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }@media(max-width:480px){#mat-visitor-access-panel{padding:18px}}';
     document.head.appendChild(style);
     var modal = document.createElement('div');
     modal.id = 'mat-visitor-access-modal';
