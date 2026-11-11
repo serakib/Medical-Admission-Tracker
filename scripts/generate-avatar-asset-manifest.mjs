@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const root = process.cwd();
 const assetsRoot = path.join(root, 'public', 'assets');
@@ -32,14 +33,16 @@ for (const absolute of files) {
   (categories[category] ||= []).push({
     id: path.basename(filename, '.svg').toLowerCase().replace(/[^a-z0-9_-]/g, '-'),
     label: labelFromFilename(filename),
-    path: './public/assets/' + relative
+    path: './public/assets/' + relative,
+    content: fs.readFileSync(absolute, 'utf8')
   });
 }
 
 const manifest = {
   version: files.map(file => {
     const stat = fs.statSync(file);
-    return path.relative(assetsRoot, file).split(path.sep).join('/') + ':' + stat.size + ':' + Math.trunc(stat.mtimeMs);
+    const hash = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    return path.relative(assetsRoot, file).split(path.sep).join('/') + ':' + hash;
   }).join('|'),
   generatedAt: new Date().toISOString(),
   total: files.length,
