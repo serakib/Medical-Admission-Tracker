@@ -82,7 +82,7 @@ jobs:
         run: |
           {
             echo "## GitHub Pages deployment"
-            echo "- Commit: `$GITHUB_SHA`"
+            echo "- Commit: $GITHUB_SHA"
             echo "- URL: $DEPLOYED_URL"
             echo "- Validation: passed"
           } >> "$GITHUB_STEP_SUMMARY"
