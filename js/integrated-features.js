@@ -1493,9 +1493,9 @@
   document.head.appendChild(avatarReferenceLayoutStyle);
 
 
-  const avatarReferenceLayoutStyle = document.createElement('style');
-  avatarReferenceLayoutStyle.id = 'mat-avatar-reference-layout';
-  avatarReferenceLayoutStyle.textContent = `
+  const avatarReferencePetNavigationStyle = document.createElement('style');
+  avatarReferencePetNavigationStyle.id = 'mat-avatar-pet-navigation-style';
+  avatarReferencePetNavigationStyle.textContent = `
     /* Match the supplied reference: a clipped portrait card with the pet in front. */
     #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
       border-radius:30px!important;
@@ -1548,7 +1548,7 @@
       #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:none!important}
     }
   `;
-  document.head.appendChild(avatarReferenceLayoutStyle);
+  document.head.appendChild(avatarReferencePetNavigationStyle);
 
   const avatarAssetCardStyle = document.createElement('style');
   avatarAssetCardStyle.id = 'mat-avatar-individual-svg-card-style';
