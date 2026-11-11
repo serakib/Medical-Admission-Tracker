@@ -1005,6 +1005,9 @@
       if (nameInput && Object.prototype.hasOwnProperty.call(allowed, 'name')) nameInput.value = allowed.name;
       if (collegeInput && Object.prototype.hasOwnProperty.call(allowed, 'college')) collegeInput.value = allowed.college;
       if (batchInput && Object.prototype.hasOwnProperty.call(allowed, 'batch')) batchInput.value = allowed.batch;
+      try {
+        window.dispatchEvent(new CustomEvent('student-profile-loaded', { detail: Object.assign({}, visitorProfile, { localOnly: true }) }));
+      } catch (_) {}
       return visitorProfile;
     }
     var creds = await credentialsForCurrentUser();
@@ -2904,8 +2907,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     return true;
   }
   function updateVisitorAccessUI() {
-    var bar = document.getElementById('mat-visitor-access-bar');
-    if (bar) bar.hidden = !isAccountFreeVisitor();
+    // Account creation is offered only after an explicit account-dependent
+    // action or when the Visitor opens the account entry point.
+    var oldNudge = document.getElementById('mat-visitor-access-bar');
+    if (oldNudge) oldNudge.remove();
   }
   function openVisitorAccess(mode) {
     ensureVisitorAccessUI();
@@ -2961,12 +2966,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     visitorAccessUIInstalled = true;
     var style = document.createElement('style');
     style.id = 'mat-visitor-access-styles';
-    style.textContent = '#mat-visitor-access-bar{position:fixed;z-index:2147482000;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:9px 11px;border:1px solid rgba(148,163,184,.35);border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 12px 38px rgba(15,23,42,.2);backdrop-filter:blur(14px);font:600 12px/1.4 system-ui,sans-serif;color:#334155}#mat-visitor-access-bar[hidden],#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-bar span{white-space:nowrap}#mat-visitor-access-bar button{border:0;border-radius:10px;padding:10px 12px;font-weight:800;white-space:nowrap;cursor:pointer}#mat-visitor-access-bar [data-va-open-guest]{background:#059669;color:#fff}#mat-visitor-access-bar [data-va-open-signup]{background:#0f172a;color:#fff}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }@media(max-width:480px){#mat-visitor-access-bar{width:calc(100vw - 20px);justify-content:center;gap:6px;padding:8px}#mat-visitor-access-bar span{display:none}#mat-visitor-access-bar button{flex:1;padding:11px 8px;font-size:11px}#mat-visitor-access-panel{padding:18px}}';
+    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }@media(max-width:480px){#mat-visitor-access-panel{padding:18px}}';
     document.head.appendChild(style);
-    var bar = document.createElement('div');
-    bar.id = 'mat-visitor-access-bar';
-    bar.innerHTML = '<span>নিজের progress Server-এ রাখতে Account তৈরি করুন</span><button type="button" data-va-open-guest>Continue as Guest</button><button type="button" data-va-open-signup>Sign Up</button>';
-    document.body.appendChild(bar);
     var modal = document.createElement('div');
     modal.id = 'mat-visitor-access-modal';
     modal.hidden = true;
@@ -2974,13 +2975,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     modal.innerHTML = '<div id="mat-visitor-access-panel" role="dialog" aria-modal="true" aria-label="Create account"></div>';
     document.body.appendChild(modal);
     document.addEventListener('click', async function (event) {
-      var target = event.target && event.target.closest ? event.target.closest('[data-va-open-guest],[data-va-open-signup],[data-va-mode],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest],[data-va-external-login]') : null;
+      var target = event.target && event.target.closest ? event.target.closest('[data-va-mode],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest],[data-va-external-login]') : null;
       if (!target) return;
       event.preventDefault();
       event.stopPropagation();
       if (target.hasAttribute('data-va-close')) { closeVisitorAccess(); return; }
-      if (target.hasAttribute('data-va-open-guest')) { openVisitorAccess('guest'); return; }
-      if (target.hasAttribute('data-va-open-signup')) { openVisitorAccess('signup'); return; }
       if (target.hasAttribute('data-va-back')) { renderVisitorAccessStep('choices'); return; }
       if (target.hasAttribute('data-va-new-guest')) { renderVisitorAccessStep('guest-form'); return; }
       if (target.hasAttribute('data-va-external-login')) { window.location.href = 'https://serakib.github.io/Medical-Admission-Tracker-login/?mode=login'; return; }
