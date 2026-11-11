@@ -1561,7 +1561,10 @@
   function hydrateLivingAvatarFaces(scope = document) {
     const hydrate = window.MedAvatarCreator?.hydrateLivingFace;
     if (typeof hydrate !== 'function' || !scope?.querySelectorAll) return;
-    scope.querySelectorAll('.profile-avatar-stack,.profile-avatar-preview-stack,.account-avatar-stack').forEach(stack => {
+    const selector = '.profile-avatar-stack,.profile-avatar-preview-stack,.account-avatar-stack,.leaderboard-avatar-stack,.podium-avatar-stack,.leaderboard-me-stack';
+    const stacks = new Set(scope.matches?.(selector) ? [scope] : []);
+    scope.querySelectorAll(selector).forEach(stack => stacks.add(stack));
+    stacks.forEach(stack => {
       hydrate(stack).catch(error => console.warn('[Avatar motion] Face hydration skipped:', error));
     });
   }
@@ -2783,6 +2786,7 @@ function paintLeaderboardPeople(rows){
   });
   const me=document.getElementById('leaderboard-me'),mine=safe.find(row=>String(row?.userId||row?.uid||'')===String(app.authUser?.uid||''));
   if(me&&mine){const source=portraitForRow(mine);let wrap=me.querySelector('.leaderboard-me-avatar-wrap');if(!wrap){wrap=document.createElement('span');wrap.className='leaderboard-me-avatar-wrap';wrap.style.cssText='display:block;width:44px;height:44px;flex:0 0 44px;margin-inline-end:12px';me.prepend(wrap)}if(wrap.dataset.avatarSource!==source){wrap.innerHTML=window.MedAvatarCreator.renderLayersMarkup(source,window.MedAvatarCreator.configFromAvatar(source),'leaderboard-me-stack');wrap.dataset.avatarSource=source}}
+  hydrateLivingAvatarFaces(document);
 }
 if(oldLeaderboard)app.renderLeaderboardRows=function(rows){
   const result=oldLeaderboard(rows);paintLeaderboardPeople(rows);
