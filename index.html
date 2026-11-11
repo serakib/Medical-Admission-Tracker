@@ -665,7 +665,7 @@ function syncSidebarUserProfile(){
         ? window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig(accountId))
         : '';
     }
-    if(avatarSource&&window.MedAvatarCreator?.renderLayersMarkup){
+    if(avatarSource&&window.MedAvatarCreator?.renderLayersMarkup&&window.MedAvatarCreator.isAvatar(avatarSource)){
       var avatarConfig=window.MedAvatarCreator.configFromAvatar(avatarSource);
       avatarEl.innerHTML=window.MedAvatarCreator.renderLayersMarkup(avatarSource,avatarConfig,'account-avatar-stack');
     }else{
@@ -681,7 +681,7 @@ function syncSidebarUserProfile(){
       // otherwise the observer would trigger itself indefinitely.
       if(!currentAccountImage||currentAccountImage.src!==avatarImage.src){
         var syncedConfig=window.MedAvatarCreator?.configFromAvatar(avatarImage.src);
-        accountAvatar.innerHTML=window.MedAvatarCreator?.renderLayersMarkup
+        accountAvatar.innerHTML=window.MedAvatarCreator?.renderLayersMarkup&&window.MedAvatarCreator.isAvatar(avatarImage.src)
           ? window.MedAvatarCreator.renderLayersMarkup(avatarImage.src,syncedConfig,'account-avatar-stack')
           : '<img src="'+avatarImage.src.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" alt="Profile avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
       }
