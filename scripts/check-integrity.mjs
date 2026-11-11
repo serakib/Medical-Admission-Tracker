@@ -11,10 +11,10 @@ function checkLocalReference(raw, baseDir, label) {
   const value = String(raw || '').trim();
   if (!value || value.startsWith('#') || value.startsWith('//') ||
       /^(?:data:|blob:|javascript:|mailto:|tel:)/i.test(value) ||
-      /^[a-z][a-z\\d+.-]*:/i.test(value)) return;
+      /^[a-z][a-z\d+.-]*:/i.test(value)) return;
   const clean = value.split(/[?#]/, 1)[0];
   if (!clean) return;
-  const target = path.resolve(baseDir, clean.replace(/^\\.\\//, ''));
+  const target = path.resolve(baseDir, clean.replace(/^\.\//, ''));
   const relative = path.relative(root, target);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
     failures.push(`${label} escapes repository: ${raw}`);
@@ -25,13 +25,13 @@ function checkLocalReference(raw, baseDir, label) {
 }
 
 // Check HTML src/href attributes.
-for (const match of html.matchAll(/\\b(?:src|href)\\s*=\\s*["']([^"']+)["']/gi)) {
+for (const match of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
   checkLocalReference(match[1], root, 'index.html');
 }
 
 // Duplicate IDs break getElementById(), labels, and ARIA relationships.
 const idCounts = new Map();
-for (const match of html.matchAll(/\\bid=["']([^"']+)["']/gi)) {
+for (const match of html.matchAll(/\bid=["']([^"']+)["']/gi)) {
   idCounts.set(match[1], (idCounts.get(match[1]) || 0) + 1);
 }
 for (const [id, count] of idCounts) {
@@ -45,7 +45,7 @@ if (fs.existsSync(cssRoot)) {
     if (!entry.isFile() || !entry.name.endsWith('.css')) continue;
     const file = path.join(cssRoot, entry.name);
     const source = fs.readFileSync(file, 'utf8');
-    for (const match of source.matchAll(/url\\(\\s*["']?([^"')]+)["']?\\s*\\)/gi)) {
+    for (const match of source.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/gi)) {
       checkLocalReference(match[1], path.dirname(file), entry.name);
     }
   }
@@ -57,7 +57,7 @@ if (fs.existsSync(jsRoot)) {
   for (const entry of fs.readdirSync(jsRoot, { withFileTypes: true })) {
     if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
     const source = fs.readFileSync(path.join(jsRoot, entry.name), 'utf8');
-    for (const match of source.matchAll(/["']((?:\\.\\/)?public\\/assets\\/[^"'\\s]+)["']/g)) {
+    for (const match of source.matchAll(/["']((?:\.\/)?public\/assets\/[^"'\s]+)["']/g)) {
       checkLocalReference(match[1], root, entry.name);
     }
   }
@@ -102,7 +102,7 @@ if (fs.existsSync(questionsPath) && fs.existsSync(metadataPath)) {
       else if (question.year) yearTagged++;
       else untaggedYear++;
       for (const field of ['question', 'explanation', 'source']) {
-        if (typeof question[field] === 'string' && /\\[cite:\\s*\\d+\\]/i.test(question[field])) {
+        if (typeof question[field] === 'string' && /\[cite:\s*\d+\]/i.test(question[field])) {
           failures.push(`Unresolved citation marker in ${label}.`);
         }
       }
@@ -124,10 +124,10 @@ function inspectSvgDirectory(directory) {
     if (entry.isDirectory()) inspectSvgDirectory(target);
     else if (entry.isFile() && entry.name.toLowerCase().endsWith('.svg')) {
       const source = fs.readFileSync(target, 'utf8').trim();
-      if (!/^<\\?xml[^>]*\\?>\\s*/i.test(source) && !/^<svg\\b/i.test(source)) {
+      if (!/^<\?xml[^>]*\?>\s*/i.test(source) && !/^<svg\b/i.test(source)) {
         failures.push(`SVG file has no SVG root: ${path.relative(root, target)}`);
       }
-      if (!/<\\/svg>\\s*$/i.test(source)) failures.push(`SVG file is not closed: ${path.relative(root, target)}`);
+      if (!/<\/svg>\s*$/i.test(source)) failures.push(`SVG file is not closed: ${path.relative(root, target)}`);
     }
   }
 }
