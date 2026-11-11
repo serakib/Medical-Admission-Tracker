@@ -3513,11 +3513,11 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   const style = document.createElement('style');
   style.id = 'mat-avatar-skin-tone-theme-polish';
   style.textContent = `
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-grid{
+    #profile-avatar-picker.is-expanded .mat-avatar-option-grid.mat-avatar-skin-tone-grid:has(.mat-avatar-swatch){
       display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
       gap:10px!important;align-items:stretch!important;overflow:visible!important;padding:2px 0 8px!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch){
       display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
       gap:7px!important;min-width:0!important;width:auto!important;min-height:82px!important;height:auto!important;
       max-width:none!important;aspect-ratio:auto!important;padding:9px 6px!important;
@@ -3526,27 +3526,27 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
       box-shadow:0 1px 3px rgba(15,23,42,.08)!important;overflow:visible!important;
       transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch{
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch) .mat-avatar-swatch{
       display:block!important;width:36px!important;height:36px!important;min-width:36px!important;flex:0 0 36px!important;
       border:2px solid var(--mat-skin-swatch-border)!important;border-radius:50%!important;
       background:var(--swatch)!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10),0 1px 3px rgba(0,0,0,.12)!important;
       opacity:1!important;filter:none!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch-label{
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch) .mat-avatar-swatch-label{
       display:block!important;position:static!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;
       color:var(--mat-skin-label)!important;font-size:11px!important;font-weight:800!important;line-height:1.25!important;
       text-align:center!important;white-space:normal!important;overflow-wrap:anywhere!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option.is-selected{
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch).is-selected{
       border:2px solid var(--mat-skin-selected)!important;background:var(--mat-skin-selected-bg)!important;
       box-shadow:0 0 0 2px var(--mat-skin-selected-ring),0 3px 10px rgba(16,185,129,.12)!important;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option.is-selected:after{
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch).is-selected:after{
       content:"✓";position:absolute;top:5px;right:5px;display:grid;place-items:center;width:17px;height:17px;
       border-radius:50%;background:var(--mat-skin-selected);color:#fff;font-size:11px;font-weight:900;line-height:1;
     }
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option:focus-visible{outline:3px solid #0ea5e9!important;outline-offset:3px!important}
-    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option:hover{transform:translateY(-1px)!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch):focus-visible{outline:3px solid #0ea5e9!important;outline-offset:3px!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch):hover{transform:translateY(-1px)!important}
     html[data-theme="dark"] #profile-avatar-picker.is-expanded{
       --mat-skin-card-bg:#22222d;--mat-skin-card-border:#4a4a58;--mat-skin-swatch-border:rgba(255,255,255,.48);
       --mat-skin-label:#f4f4f5;--mat-skin-selected:#10b981;--mat-skin-selected-bg:#1d302c;--mat-skin-selected-ring:rgba(16,185,129,.24);
@@ -3568,18 +3568,18 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
     html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-preview-caption{color:#1f2937!important;background:rgba(255,255,255,.88)!important;border-color:rgba(15,23,42,.12)!important}
     html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{color:#f4f4f5!important}
     @media(max-width:850px){
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{min-height:76px!important;padding:8px 4px!important}
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch{width:32px!important;height:32px!important;min-width:32px!important;flex-basis:32px!important}
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch-label{font-size:10px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option-grid.mat-avatar-skin-tone-grid:has(.mat-avatar-swatch){grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch){min-height:76px!important;padding:8px 4px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:32px!important;height:32px!important;min-width:32px!important;flex-basis:32px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch) .mat-avatar-swatch-label{font-size:10px!important}
     }
     @media(max-width:390px){
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{min-height:72px!important;border-radius:11px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option-grid.mat-avatar-skin-tone-grid:has(.mat-avatar-swatch){grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch){min-height:72px!important;border-radius:11px!important}
     }
     @media(prefers-reduced-motion:reduce){
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{transition:none!important}
-      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option:hover{transform:none!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch){transition:none!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option.mat-avatar-skin-tone-option:has(.mat-avatar-swatch):hover{transform:none!important}
     }
   `;
   document.head.appendChild(style);
