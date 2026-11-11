@@ -1582,6 +1582,26 @@
     const colors = {'#24242b':'#24242b','#2563eb':'#2563eb','#dc2626':'#dc2626','#10b981':'#10b981','#f8fafc':'#f8fafc'};
     const color = colors[value] || '#d1d5db';
     const svg = body => '<span class="mat-avatar-asset-preview"><svg viewBox="0 0 96 72" aria-hidden="true">' + body + '</svg></span>';
+    if (fieldKey === 'eyeShape') {
+      const eyes = value === 'closed' ? '<path d="M15 34q10 10 20 0m26 0q10 10 20 0"/>' :
+        value === 'wink' ? '<circle cx="29" cy="34" r="8"/><path d="M59 35q10 8 19 0"/>' :
+        value === 'hearts' ? '<path d="M20 35c-10-10 4-20 10-8 7-12 20-2 10 8l-10 12zM56 35c-10-10 4-20 10-8 7-12 20-2 10 8L66 47z"/>' :
+        '<ellipse cx="29" cy="35" rx="10" ry="'+(value==='squint'?'5':'9')+'"/><ellipse cx="67" cy="35" rx="10" ry="'+(value==='squint'?'5':'9')+'"/><circle cx="29" cy="35" r="4" fill="#111"/><circle cx="67" cy="35" r="4" fill="#111"/>';
+      return svg(eyes.replace(/<ellipse/g,'<ellipse fill="none" stroke="#f4f4f5" stroke-width="3"').replace(/<path/g,'<path fill="none" stroke="#f4f4f5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"'));
+    }
+    if (fieldKey === 'eyebrowShape') {
+      const brow = value === 'angry' ? 'M15 25l28 9m10-9 28 9' : value === 'sadConcerned' ? 'M15 33l28-8m10 8 28-8' : value === 'raisedExcited' ? 'M15 25q14-12 28 0m10 0q14-12 28 0' : value === 'flatNatural' ? 'M15 28h28m10 0h28' : 'M15 29q14-7 28 0m10 0q14-7 28 0';
+      return svg('<path d="'+brow+'" fill="none" stroke="#2c1b18" stroke-width="5" stroke-linecap="round"/>');
+    }
+    if (fieldKey === 'expression') {
+      const mouth = value === 'serious' ? 'M29 46h38' : value === 'sad' || value === 'concerned' ? 'M28 52q20-22 40 0' : value === 'screamOpen' ? 'M39 38q9-8 18 0 8 22-9 22-17 0-9-22z' : value === 'twinkle' ? 'M28 45q20 18 40 0' : 'M28 42q20 23 40 0';
+      return svg('<path d="'+mouth+'" fill="'+(value==='screamOpen'?'#f472b6':'none')+'" stroke="#f4f4f5" stroke-width="4" stroke-linecap="round"/>');
+    }
+    if (fieldKey === 'petType') {
+      if (value === 'none') return svg('<circle cx="48" cy="37" r="18" fill="none" stroke="#9ca3af" stroke-width="3" stroke-dasharray="4 5"/>');
+      const pet = value === 'cat' ? '<path d="M25 30 21 12l18 10q9-4 18 0l18-10-4 18q8 25-23 31-31-6-23-31z"/>' : value === 'bear' ? '<circle cx="30" cy="22" r="10"/><circle cx="66" cy="22" r="10"/><circle cx="48" cy="39" r="27"/>' : '<ellipse cx="48" cy="41" rx="25" ry="24"/><path d="m29 28-7-12 18 7m29 5 7-12-18 7"/>';
+      return svg(pet+'<circle cx="39" cy="38" r="3" fill="#24242b"/><circle cx="57" cy="38" r="3" fill="#24242b"/><ellipse cx="48" cy="49" rx="5" ry="3" fill="#f472b6"/>').replace('<svg','<svg').replace(/<path/g,'<path fill="#f8fafc" stroke="#d1d5db" stroke-width="2"').replace(/<circle/g,'<circle fill="#f8fafc" stroke="#d1d5db" stroke-width="2"').replace(/<ellipse/g,'<ellipse fill="#f8fafc" stroke="#d1d5db" stroke-width="2"');
+    }
     if (fieldKey === 'headphones') return value === 'none'
       ? svg('<path d="M27 39v-7a21 21 0 0 1 42 0v7" fill="none" stroke="#9ca3af" stroke-width="6" stroke-linecap="round"/><rect x="21" y="36" width="12" height="23" rx="5" fill="none" stroke="#9ca3af" stroke-width="4"/><rect x="63" y="36" width="12" height="23" rx="5" fill="none" stroke="#9ca3af" stroke-width="4"/>')
       : svg('<path d="M27 39v-7a21 21 0 0 1 42 0v7" fill="none" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/><rect x="19" y="34" width="17" height="28" rx="6" fill="'+color+'" stroke="#f4f4f5" stroke-opacity=".45" stroke-width="2"/><rect x="60" y="34" width="17" height="28" rx="6" fill="'+color+'" stroke="#f4f4f5" stroke-opacity=".45" stroke-width="2"/>');
