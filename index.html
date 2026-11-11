@@ -2096,11 +2096,10 @@ main > .view-section.hidden { display: none !important; }
     if (actionButton && actionButton !== button) restoreActionButton();
     if (actionButton === button) return;
     actionButton = button;
-    actionButtonHTML = button.innerHTML;
+    var isInput = /^(INPUT)$/.test(button.tagName);
+    actionButtonHTML = isInput ? button.value : button.innerHTML;
     actionButtonDisabled = button.disabled;
     var status = kind === 'saving' ? 'Saving' : kind === 'loading' ? 'Loading' : kind === 'opening' ? 'Opening' : 'Working';
-    var isInput = /^(INPUT)$/.test(button.tagName);
-    var originalValue = isInput ? button.value : '';
     button.setAttribute('aria-busy', 'true');
     button.classList.add('mat-action-is-busy');
     if (isInput) button.value = status + '...';
