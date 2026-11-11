@@ -2,7 +2,7 @@
 
 Medical Admission Pro-এর interface যেন বিভিন্ন device, input method এবং assistive technology ব্যবহারকারী শিক্ষার্থীদের জন্য সহজবোধ্য হয়—এটাই লক্ষ্য।
 
-পূর্ণ development guideline ও checklist: [ACCESSIBILITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/ACCESSIBILITY.md)।
+পূর্ণ development guideline ও checklist: [ACCESSIBILITY.md](../guides/ACCESSIBILITY.md)।
 
 ## User tips
 
