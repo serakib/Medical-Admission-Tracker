@@ -3555,11 +3555,12 @@ function matPromoAdminMemberConfig_(row, code) {
   return {code:String(code || row.AdminCode || '').trim().toUpperCase(),enabled:String(row.AdminEnabled || 'TRUE').toUpperCase() !== 'FALSE',rewardPB:reward,limitCount:count,limitPeriod:period};
 }
 function matPromoCountForLimit_(rows, userId, code, period, windowKey) {
-  // Count every redemption by this member in the active window. Derive the window
-  // from RedeemedAt so older ledger rows (created before LimitPeriod/LimitWindow
-  // columns existed) are included when a limit is configured later.
+  // Limits apply to the specific code and member, not to unrelated codes the
+  // member may have redeemed in the same period.
+  const targetCode = String(code || '').trim().toUpperCase();
   return rows.filter(function (row) {
     if (String(row.UserID || '').trim() !== String(userId || '').trim()) return false;
+    if (String(row.Code || '').trim().toUpperCase() !== targetCode) return false;
     const redeemedAt = row.RedeemedAt ? new Date(row.RedeemedAt) : null;
     if (redeemedAt && !isNaN(redeemedAt.getTime())) {
       return matPromoWindowKey_(period, redeemedAt) === windowKey;
