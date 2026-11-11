@@ -16,18 +16,22 @@ const attempts = 12;
 async function requestWithRetry(url) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    let response;
     try {
-      const response = await fetch(url, {
+      response = await fetch(url, {
         redirect: 'follow',
         signal: AbortSignal.timeout(timeoutMs),
         headers: { 'user-agent': 'Medical-Admission-Tracker-Live-Smoke-Test' }
       });
-      if (response.ok) return response;
-      lastError = new Error(`HTTP ${response.status} for ${url}`);
-      if (response.status < 500 && response.status !== 429) throw lastError;
     } catch (error) {
       lastError = error;
+      if (attempt < attempts) await sleep(5000);
+      continue;
     }
+
+    if (response.ok) return response;
+    lastError = new Error(`HTTP ${response.status} for ${url}`);
+    if (response.status < 500 && response.status !== 429) break;
     if (attempt < attempts) await sleep(5000);
   }
   throw lastError || new Error(`Could not reach ${url}`);
