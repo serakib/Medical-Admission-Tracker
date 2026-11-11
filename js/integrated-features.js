@@ -1712,7 +1712,7 @@
     const assetFolders = {
       hairStyle:'hair', eyeShape:'eyes', eyebrowShape:'eyebrows',
       expression:'mouths', nose:'nose', facialHair:'facial-hair',
-      glasses:'accessories', hat:'headwear', clothingType:'clothing', petType:'pets'
+      glasses:'accessories', hat:'headwear', clothingType:'clothing', petType:'pets', characterPreset:'characters'
     };
     const manifest = window.MedAvatarCreator.assetManifest?.categories || {};
     const findAsset = (folder, value) => {
