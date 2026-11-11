@@ -88,7 +88,10 @@
     return period;
   }
   function accountKey() {
-    return (app.authUser && app.authUser.uid) || localStorage.getItem(GUEST_ID_KEY) || 'guest';
+    if (typeof app.getLocalIdentityKey === 'function') return app.getLocalIdentityKey();
+    if (app.authUser && app.authUser.uid) return String(app.authUser.uid);
+    if (getGuestToken() && !readExpiredGuest()) return String(localStorage.getItem(GUEST_ID_KEY) || 'guest');
+    return 'visitor';
   }
   function readSelectedRank() {
     try {
@@ -299,13 +302,9 @@
     // Use the same stable local account key before and after identity sync.
     // Previously the first read could use "anonymous" while the later write
     // used the server identity, making the saved snapshot appear to be missing.
-    var identity = '';
-    try {
-      identity = String((app.authUser && app.authUser.uid) || localStorage.getItem(GUEST_ID_KEY) ||
-        (currentProfile && (currentProfile.userId || currentProfile.uid)) || '');
-    } catch (_) {
-      identity = String((app.authUser && app.authUser.uid) || (currentProfile && (currentProfile.userId || currentProfile.uid)) || '');
-    }
+    // Public Visitor caches are always account-neutral. Never let a stale
+    // Guest ID or a previous profile select a private account cache.
+    var identity = currentUserId();
     var scope = identity ? identity.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 96) : 'anonymous';
     var base = CACHE_KEY + '_v3_' + (scope || 'anonymous');
     if (period === 'weekly') return base + '_weekly';
@@ -319,13 +318,9 @@
     // One-time compatibility read for snapshots saved by the previous v2 key scheme.
     // Copy a found snapshot into the stable v3 key so future visits use one location.
     if (!Array.isArray(rows)) {
-      var legacyIds = [];
-      try {
-        legacyIds.push(String((app.authUser && app.authUser.uid) || ''));
-        legacyIds.push(String(localStorage.getItem(GUEST_ID_KEY) || ''));
-        legacyIds.push(String(currentUserId() || ''));
-        legacyIds.push('anonymous');
-      } catch (_) { legacyIds.push(String(currentUserId() || ''), 'anonymous'); }
+      // Legacy account caches may be read only for the verified current identity.
+      // Visitors may read the public anonymous snapshot, never a former Guest cache.
+      var legacyIds = [String(currentUserId() || ''), 'anonymous'];
       for (var i = 0; i < legacyIds.length && !Array.isArray(rows); i++) {
         var legacyScope = legacyIds[i].replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 96) || 'anonymous';
         var suffix = period === 'weekly' ? '_weekly' : (period === 'friends' ? '_friends' : '_monthly');
@@ -368,7 +363,8 @@
   }
   function currentUserId() {
     if (app.authUser && app.authUser.uid) return String(app.authUser.uid);
-    return String((currentProfile && (currentProfile.userId || currentProfile.uid)) || localStorage.getItem(GUEST_ID_KEY) || '');
+    if (!getGuestToken() || readExpiredGuest()) return '';
+    return String(localStorage.getItem(GUEST_ID_KEY) || '');
   }
   function rankClass(rank) {
     var value = String(rank || '').toLowerCase();
@@ -422,10 +418,13 @@
 
   function applyProfile(user) {
     if (!user) return null;
-    currentProfile = user;
-    var profile = Object.assign({}, app.profile || {});
     var incomingUserId = String(user.userId || user.uid || user.playerId || '');
-    var previousUserId = String(profile.userId || profile.uid || '');
+    var previousProfile = app.profile || {};
+    var previousUserId = String(previousProfile.userId || previousProfile.uid || '');
+    // Never carry private fields from a different account into a newly active identity.
+    var profile = previousUserId && incomingUserId && previousUserId === incomingUserId
+      ? Object.assign({}, previousProfile) : {};
+    currentProfile = user;
     var previousAvatar = previousUserId && incomingUserId && previousUserId === incomingUserId
       ? safeText(profile.avatar || '', 20000) : '';
     profile.uid = user.uid || user.userId || user.playerId || profile.uid || '';
@@ -469,7 +468,7 @@
     // Preserve queued local activity until the server acknowledges it; otherwise use
     // the server's latest current streak instead of reviving a stale pre-gap value.
     try {
-      var localProgressKey = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+      var localProgressKey = 'med_account_progress_v1_' + accountKey();
       var localStreakProgress = parseJson(localStorage.getItem(localProgressKey), {}) || {};
       var localStreak = Math.max(0, Number(localStreakProgress.streak) || 0);
       var serverStreak = Math.max(0, Number(user.streak) || 0);
@@ -527,7 +526,7 @@
     // Keep local profile widgets aligned with the server-authoritative Medical XP/RP.
     // Clear the retired client-side pending-PB queue so it cannot add rewards twice.
     try {
-      var progressKey = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+      var progressKey = 'med_account_progress_v1_' + accountKey();
       var localProgress = parseJson(localStorage.getItem(progressKey), {}) || {};
       localProgress.xp = profile.xp;
       localProgress.performanceBonus = profile.xp;
@@ -759,8 +758,17 @@
         detectedAt: new Date().toISOString()
       };
       try { localStorage.setItem(GUEST_EXPIRED_KEY, JSON.stringify(expiredInfo)); } catch (_) {}
+      // The expired Guest is no longer an active identity. Switch the UI and
+      // local-storage scope back to Visitor without deleting its old local records.
+      currentProfile = null;
+      app.profile = null;
       updateVisitorAccessUI();
-      try { window.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { source: 'guest-session-expired' } })); } catch (_) {}
+      try {
+        if (typeof app.renderAccountProfile === 'function') app.renderAccountProfile();
+        if (typeof app.loadProgressStats === 'function') app.loadProgressStats();
+        window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guestExpired: true } }));
+        window.dispatchEvent(new CustomEvent('student-progress-updated', { detail: { source: 'guest-session-expired' } }));
+      } catch (_) {}
       throw new Error('Your previous Guest session is no longer available. You can browse publicly or create a new Guest account.');
     }
     if (!response.guestToken) throw new Error('Guest API returned no guest token.');
@@ -928,7 +936,7 @@
           streakActivityDates: Array.isArray(progress.streakActivityDates) ? progress.streakActivityDates.slice(-366) : []
         }, creds));
         if (response.user) applyProfile(response.user);
-        var key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+        var key = 'med_account_progress_v1_' + accountKey();
         var local = parseJson(localStorage.getItem(key), {}) || {};
         // Only clear the pending marker when the backend explicitly confirms success.
         if (response.success === true || response.synced === true || response.streakSynced === true) {
