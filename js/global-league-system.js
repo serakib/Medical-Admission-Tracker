@@ -2902,7 +2902,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     modal.innerHTML = '<div id="mat-visitor-access-panel" role="dialog" aria-modal="true" aria-label="Create account"></div>';
     document.body.appendChild(modal);
     document.addEventListener('click', async function (event) {
-      var target = event.target && event.target.closest ? event.target.closest('[data-va-open-guest],[data-va-open-signup],[data-va-mode],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest]') : null;
+      var target = event.target && event.target.closest ? event.target.closest('[data-va-open-guest],[data-va-open-signup],[data-va-mode],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest],[data-va-external-login]') : null;
       if (!target) return;
       event.preventDefault();
       event.stopPropagation();
@@ -2911,6 +2911,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (target.hasAttribute('data-va-open-signup')) { openVisitorAccess('signup'); return; }
       if (target.hasAttribute('data-va-back')) { renderVisitorAccessStep('choices'); return; }
       if (target.hasAttribute('data-va-new-guest')) { renderVisitorAccessStep('guest-form'); return; }
+      if (target.hasAttribute('data-va-external-login')) { window.location.href = 'https://serakib.github.io/Medical-Admission-Tracker-login/?mode=login'; return; }
       if (target.hasAttribute('data-va-resume-guest')) {
         var index = Number(target.getAttribute('data-va-resume-guest')) || 0;
         var status = document.getElementById('mat-va-status');
