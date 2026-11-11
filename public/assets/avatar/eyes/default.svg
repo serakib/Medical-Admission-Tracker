@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- eyes / default; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<!-- eyes / default; Avataaars by Pablo Stanley. Source: scripts/data/avataaars-style-definition.json. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 36.27" width="84" height="36.27" fill="none" role="img" aria-label="eyes / default">
-<g transform="translate(10 8)"></g>
+<g transform="translate(10 8)"><circle cx="6" cy="6" r="6" fill="#000000" fill-opacity=".6"/><circle cx="58" cy="6" r="6" fill="#000000" fill-opacity=".6"/></g>
 </svg>
