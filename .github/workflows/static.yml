@@ -43,7 +43,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node22-npm-
 
-      # package.json is the single source of truth for the exact direct build dependencies.
+      # Repair a stale lockfile before the production clean install.
+      # The lockfile sync workflow commits the resulting lockfile back to main.
+      - name: Synchronize npm lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
       - name: Install project build dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
