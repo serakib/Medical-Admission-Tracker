@@ -46,12 +46,18 @@
     catch (_) { return ''; }
   };
   const userId = () => {
+    if (typeof app.getLocalIdentityKey === 'function') {
+      const identity = String(app.getLocalIdentityKey() || '');
+      return identity === 'visitor' ? '' : identity;
+    }
     if (app.authUser?.uid) return String(app.authUser.uid);
     try {
+      const token = String(localStorage.getItem('med_sheet_guest_token_v1') || '').trim();
+      const expired = !!localStorage.getItem('med_guest_session_expired_v1');
       const guestId = String(localStorage.getItem('med_sheet_guest_id_v1') || '').trim();
-      if (guestId) return guestId;
+      if (token && guestId && !expired) return guestId;
     } catch (_) {}
-    return String(app.profile?.userId || app.profile?.uid || '');
+    return '';
   };
   // Per-account local snapshot keeps Friends & Requests immediately usable while a refresh runs.
   const CONNECTION_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
