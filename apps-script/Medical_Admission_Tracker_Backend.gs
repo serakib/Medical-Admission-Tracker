@@ -400,7 +400,11 @@ function processDailyWeeklyPromotionReview() {
 
       // Rank promotion is based only on this Saturday-Friday week's earned RP.
       // Month-to-date RP must not re-promote a student after the weekly reset.
-      const periodPromotion = matApplyPeriodRankPromotion_(student, weeklyEarnedRP, 0);
+      // Zero weekly RP must never trigger any weekly promotion, regardless of
+      // stored RP, rank milestone state, or a stale Promotion Zone calculation.
+      const periodPromotion = weeklyEarnedRP > 0
+        ? matApplyPeriodRankPromotion_(student, weeklyEarnedRP, 0)
+        : { promoted: 0, rank: String(student.Rank || MAT_RANKS[0]) };
       let rankIndex = MAT_RANKS.indexOf(String(student.Rank || MAT_RANKS[0]));
       if (rankIndex < 0) rankIndex = 0;
       const promotionZoneThreshold = matRankPromotionZoneThreshold_(rankIndex);
@@ -411,7 +415,8 @@ function processDailyWeeklyPromotionReview() {
           LastWeeklyPromotionReviewDate: today
         });
         promoted += periodPromotion.promoted;
-      } else if (rankIndex < MAT_RANKS.length - 1 &&
+      } else if (weeklyEarnedRP > 0 &&
+          rankIndex < MAT_RANKS.length - 1 &&
           promotionZoneThreshold > 0 &&
           weeklyEarnedRP >= promotionZoneThreshold) {
         const nextRankIndex = rankIndex + 1;
@@ -2211,6 +2216,12 @@ function matPublicStudentDirectoryEntry_(student, weeklyByUser, examStatsByUser)
   const stats = (examStatsByUser && examStatsByUser[uid]) || { matches: 0, correct: 0, wrong: 0, accuracy: 0, streak: 0 };
   profile.weeklyRP = weeklyRP;
   profile.weeklyRankPoints = weeklyRP;
+  if (String(student.AccountType || '').toUpperCase() === 'GUEST') {
+    profile.guestAutoDeletionAt = matGuestAutoDeletionAt_(student, weeklyRP);
+    profile.guestDeletionPending = !!String(student.GuestDeletionScheduledAt || '').trim();
+    profile.guestDeletionScheduledAt = String(student.GuestDeletionScheduledAt || '');
+    profile.guestDeletionReason = String(student.GuestDeletionReason || '');
+  }
   profile.matches = Math.max(0, matFiniteNumber_(stats.matches, 0));
   profile.completedExams = profile.matches;
   profile.correctCount = Math.max(0, matFiniteNumber_(stats.correct, 0));
