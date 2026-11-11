@@ -63,8 +63,14 @@ Before configuring one:
 
 Do not send private student records, credentials, or other sensitive payloads to third-party services. Prefer GitHub Actions for repository-native CI, validation, and release automation; use webhooks only when an external receiver is actually required.
 
-## Branch and review controls
+## Main branch protection
 
-The repository currently has an active main ruleset that prevents branch deletion and non-fast-forward updates. It does not currently require pull-request reviews or passing status checks.
+The active `Main` ruleset already blocks branch deletion and non-fast-forward updates. To require every change to pass the repository checks before reaching `main`, configure these additional rules in **Settings → Rules → Rulesets → Main → Edit**:
 
-Review branch rules in Settings → Rules → Rulesets before enabling stricter requirements. For a single-maintainer repository, avoid a required approval rule that would block the maintainer from merging their own changes. Requiring the existing validation check can be a useful next step once its exact status-check name is confirmed.
+1. Target the `main` branch.
+2. Enable **Require a pull request before merging**.
+3. Keep the required approval count at **0** for this single-maintainer repository; otherwise the maintainer can block their own changes.
+4. Under **Require status checks to pass**, add the exact check **Build and validate** (GitHub Actions). This job is provided by `.github/workflows/validate.yml`.
+5. Save the ruleset. Keep deletion and non-fast-forward protections enabled.
+
+The workflow and check are already present in the repository. The ruleset is a GitHub-hosted repository setting and cannot be changed by committing a file to the repository.

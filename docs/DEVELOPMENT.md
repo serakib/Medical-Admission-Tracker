@@ -4,19 +4,19 @@ This guide covers repository development only. It does not require editing the d
 
 ## Requirements
 
-- Node.js 20 or newer (GitHub Actions currently validates with Node.js 22).
+- Node.js 22 (the repository's default version is recorded in `.nvmrc`).
 - npm, included with Node.js.
 - Git.
 
-## Install build dependencies
+## Install dependencies
 
 From the repository root:
 
 ```bash
-npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund
+npm ci --prefer-offline --no-audit --no-fund
 ```
 
-The exact direct build-tool versions are maintained in `package.json`. The same installation command is used by GitHub Actions.
+Use `npm ci` for clean, reproducible installs. It installs exactly the dependency tree recorded in `package-lock.json` and fails if the lockfile is out of sync with `package.json`.
 
 ## Common commands
 
@@ -33,11 +33,32 @@ Run `npm test` before pushing changes.
 
 ## GitHub Actions
 
-- **Pull requests:** `.github/workflows/validate.yml` runs the complete test suite. It does not deploy the site.
-- **Pushes to `main`:** `.github/workflows/static.yml` runs the same test suite, prepares the Pages artifact and deploys only after validation passes.
+- **Pull requests:** `.github/workflows/validate.yml` runs the complete test suite with `npm ci` and `npm test`. It does not deploy the site.
+- **Pushes to `main`:** `.github/workflows/static.yml` runs the same clean install and test suite, prepares the Pages artifact and deploys only after validation passes.
+- **Dependency manifest changes:** `.github/workflows/sync-npm-lockfile.yml` regenerates and verifies `package-lock.json` when `package.json` changes.
 - **Version tags:** `.github/workflows/publish-release.yml` creates a GitHub Release for tags matching `vMAJOR.MINOR.PATCH`.
 
-The production deployment and pull-request validation both call `npm test`; keep validation logic in `package.json` scripts instead of duplicating shell commands in workflow files.
+Keep validation logic in `package.json` scripts instead of duplicating shell commands in workflow files.
+
+## Updating dependencies
+
+1. Change the exact dependency version in `package.json`.
+2. Regenerate the lockfile with:
+
+   ```bash
+   npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+   ```
+
+3. Verify the clean install and full test suite:
+
+   ```bash
+   npm ci --no-audit --no-fund
+   npm test
+   ```
+
+4. Commit `package.json` and `package-lock.json` together.
+
+Dependabot opens monthly update pull requests for npm packages and GitHub Actions. Major-version upgrades must pass the repository validation workflow and receive a compatibility review before merging.
 
 ## Generated files and safe editing
 
@@ -47,6 +68,3 @@ The production deployment and pull-request validation both call `npm test`; keep
 - For account, XP, rank, RP and leaderboard changes, trace the server-authoritative data flow before changing client-side display logic.
 - Keep changes focused and run `npm test` before opening a pull request.
 
-## Dependency updates
-
-Dependabot checks npm dependencies and GitHub Actions monthly. Review its pull requests and confirm the validation workflow passes before merging updates.

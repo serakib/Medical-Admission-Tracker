@@ -1,5 +1,10 @@
 # 🩺 Medical Admission Pro with Rakib
 
+[![Pages deployment](https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/static.yml/badge.svg)](https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/static.yml)
+[![Pull request validation](https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml/badge.svg)](https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml)
+[![Dependabot](https://img.shields.io/badge/dependencies-managed%20by-Dependabot-025E8C?logo=dependabot)](https://github.com/serakib/Medical-Admission-Tracker/network/updates)
+
+
 ### বাংলাদেশের Medical Admission প্রস্তুতির জন্য একটি Smart Practice Platform
 
 **Practice smarter. Track your progress. Prepare with confidence.**
