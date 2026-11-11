@@ -1082,8 +1082,8 @@ class MedicalExamApp {
         // Make the selected theme unmistakable: sun for light, moon for dark.
         const themeButtons = document.querySelectorAll('button[onclick*="toggleTheme"]');
         const icon = isDark
-            ? '<svg class="theme-toggle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486A9 9 0 1 1 11.514 3.015a7 7 0 0 0 9.471 9.471Z"></path></svg>'
-            : '<svg class="theme-toggle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg>';
+            ? '<i class="fa-solid fa-moon theme-toggle-icon" aria-hidden="true"></i>'
+            : '<i class="fa-solid fa-sun theme-toggle-icon" aria-hidden="true">';
         themeButtons.forEach((themeToggle) => {
             const isFloatingToggle = themeToggle.id === 'theme-toggle';
             themeToggle.innerHTML = isFloatingToggle ? icon : icon + ' Toggle theme';
@@ -1092,8 +1092,8 @@ class MedicalExamApp {
             themeToggle.setAttribute('aria-pressed', String(isDark));
             themeToggle.dataset.themeState = isDark ? 'dark' : 'light';
             if (animateIcon) {
-                const svg = themeToggle.querySelector('svg');
-                if (svg) svg.classList.add('theme-icon-animate');
+                const themeIcon = themeToggle.querySelector('.theme-toggle-icon');
+                if (themeIcon) themeIcon.classList.add('theme-icon-animate');
             }
         })
     }
