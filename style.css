@@ -2121,3 +2121,53 @@ body.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-cou
   width:100%;min-width:0;max-width:none;min-height:40px;text-align:left;cursor:pointer;
 }
 
+
+
+/* Monthly countdowns use the same compact clickable capsule design as Weekly Ranking. */
+.leaderboard-week-countdown.mat-monthly-countdown-row{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex-wrap:wrap!important;gap:7px!important;width:100%;max-width:100%;margin:8px 0 0!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger{
+  display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex:0 1 auto!important;gap:7px!important;width:auto!important;min-width:0!important;
+  max-width:100%!important;min-height:0!important;padding:6px 9px!important;
+  border-width:1px!important;border-style:solid!important;border-radius:999px!important;
+  font-size:10.5px!important;font-weight:750!important;line-height:1.35!important;
+  white-space:nowrap!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+  text-align:left!important;cursor:pointer!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger span{
+  flex:0 1 auto!important;min-width:0!important;font-size:10.5px!important;
+  font-weight:800!important;line-height:1.35!important;letter-spacing:.01em!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger strong{
+  flex:0 1 auto!important;min-width:0!important;font-size:10px!important;
+  font-weight:900!important;line-height:1.35!important;text-align:left!important;
+  font-variant-numeric:tabular-nums!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger--reset{
+  color:#b45309!important;border-color:rgba(245,158,11,.28)!important;background:rgba(245,158,11,.09)!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger--weekly{
+  color:#047857!important;border-color:rgba(16,185,129,.28)!important;background:rgba(16,185,129,.09)!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger .fa-chevron-right{
+  flex:0 0 auto!important;margin-left:1px!important;font-size:8px!important;opacity:.65!important;
+}
+html.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger--reset,
+body.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger--reset{
+  color:#fcd34d!important;border-color:rgba(245,158,11,.3)!important;background:rgba(245,158,11,.1)!important;
+}
+html.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger--weekly,
+body.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger--weekly{
+  color:#6ee7b7!important;border-color:rgba(16,185,129,.3)!important;background:rgba(16,185,129,.1)!important;
+}
+@media(max-width:560px){
+  .leaderboard-week-countdown.mat-monthly-countdown-row{gap:6px!important}
+  .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger{
+    flex:0 1 auto!important;width:auto!important;white-space:normal!important;
+    padding:6px 8px!important;font-size:10px!important;
+  }
+  .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-trigger strong{font-size:9.5px!important}
+}
