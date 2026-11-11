@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#059669"/><stop offset="1" stop-color="#0284c7"/></linearGradient>
+    <linearGradient id="book" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dffcf1"/></linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="17" fill="#0b1d2b"/>
+  <path d="M8 15a8 8 0 0 1 8-8h32a8 8 0 0 1 8 8v34a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8z" fill="url(#bg)" opacity=".2"/>
+  <path d="M12 17c8-3 14-2 20 2 6-4 12-5 20-2v29c-8-3-14-2-20 2-6-4-12-5-20-2z" fill="url(#book)" stroke="#a7f3d0" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M32 19v29M17 24c4-1 8-.7 11 1M17 31c4-1 8-.7 11 1M47 24c-4-1-8-.7-11 1M47 31c-4-1-8-.7-11 1" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round"/>
+  <path d="M32 9v8m-5-4h10" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="9" r="2.5" fill="#fbbf24"/>
+</svg>
