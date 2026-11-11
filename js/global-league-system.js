@@ -1,6 +1,9 @@
 /* Medical Admission Tracker — Firebase + dedicated Google Sheets API adapter.
  * Medical profiles, exam rewards, ranks and leaderboard use this site's own backend.
  */
+
+// Capture the page entry before waiting for app/auth initialization.
+var MED_VISITOR_PAGE_ENTRY_AT = Date.now();
 (function waitForMedicalApp() {
   'use strict';
   var app = window.app;
@@ -2891,7 +2894,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   var visitorAccessUIInstalled = false;
   // The automatic Visitor prompt is measured from the first page entry, not
   // from auth initialization. It can never appear during the first 30 seconds.
-  var visitorAccessEntryAt = Date.now();
+  var visitorAccessEntryAt = MED_VISITOR_PAGE_ENTRY_AT;
   var visitorAccessAutoPrompted = false;
   var visitorAccessAutoTimer = null;
   function scheduleVisitorAccessPrompt() {
