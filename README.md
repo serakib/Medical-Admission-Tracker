@@ -6,6 +6,7 @@
   <a href="https://github.com/serakib/Medical-Admission-Tracker/security/dependabot"><img src="https://img.shields.io/badge/Dependabot-monthly%20updates%20configured-025E8C?logo=dependabot" alt="Dependabot monthly updates configured"></a>
 </p>
 
+<p align="center"><sub>Deployment status reflects the latest successful or failed build on <code>main</code>. Pull request validation checks proposed changes separately; a failed PR check does not mean the live website deployment has failed.</sub></p>
 
 ### বাংলাদেশের Medical Admission প্রস্তুতির জন্য একটি Smart Practice Platform
 
