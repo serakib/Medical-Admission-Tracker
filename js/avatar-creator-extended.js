@@ -166,7 +166,18 @@
         : c && c.ageGroup === 'mature'
           ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".5"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
           : '';
-    const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
+    let baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
+    // Render generated SVG avatars inline so picker thumbnails do not depend on
+    // browser data-URI image decoding. Uploaded/external images keep the img path.
+    const svgPrefix = 'data:image/svg+xml;charset=utf-8,';
+    if (String(source || '').startsWith(svgPrefix)) {
+      try {
+        const inlineMarkup = decodeURIComponent(String(source).slice(svgPrefix.length));
+        if (inlineMarkup.startsWith('<svg ') && inlineMarkup.endsWith('</svg>')) {
+          baseImage = inlineMarkup.replace('<svg ', '<svg class="med-avatar-base med-avatar-inline-svg" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true" ');
+        }
+      } catch (_) { /* Keep the img fallback if decoding fails. */ }
+    }
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       '</span>';
