@@ -41,7 +41,7 @@
       overlay.className = 'mat-profile-modal';
       overlay.hidden = true;
       overlay.innerHTML = '<section class="mat-profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="mat-profile-modal-title">' +
-        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
         '<h2 id="mat-profile-modal-title">আভাটার আপডেট</h2>' +
         '<div class="mat-profile-modal-actions">' +
           '<button type="button" class="mat-profile-modal-action mat-profile-modal-edit">আভাটার এডিট করো</button>' +
@@ -78,7 +78,7 @@
       button.type = 'button';
       button.className = 'mat-profile-edit-badge';
       button.setAttribute('aria-label', 'আভাটার আপডেট');
-      button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+      button.innerHTML = '<i class="fa-solid fa-pen" aria-hidden="true"></i>';
       button.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
