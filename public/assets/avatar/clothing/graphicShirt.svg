@@ -2,5 +2,5 @@
 <!-- clothes / graphicShirt; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / graphicShirt">
 <path d="M100.5 39.3c18.5 0 33.5-9.62 33.5-21.5q0-1.65-.38-3.23A72 72 0 0 1 200 86.36v8.95H0v-8.95A72 72 0 0 1 67.4 14.5a14 14 0 0 0-.4 3.3c0 11.88 15 21.5 33.5 21.5" fill="var(--avatar-clothes, #000000)"></path>
-<clothesGraphic transform="translate(45 44.3)"></clothesGraphic>
+<g data-component="clothesGraphic" transform="translate(45 44.3)"></g>
 </svg>
