@@ -1141,9 +1141,17 @@ class MedicalExamApp {
     }
 
     openAccountAuth(mode = 'login') {
-        // Switch account -> separate Login portal.
+        // A protected feature must offer Guest / Sign Up / Login to a public
+        // visitor. Only an already active identity uses Switch -> Login portal.
         if (mode === 'login') {
-            if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
+            const hasGuest = !!localStorage.getItem('med_sheet_guest_token_v1') &&
+                !localStorage.getItem('med_guest_session_expired_v1');
+            if (!this.authUser && !hasGuest && window.MedVisitorAccess &&
+                typeof window.MedVisitorAccess.open === 'function') {
+                window.MedVisitorAccess.open();
+            } else if (typeof window.redirectToLogin === 'function') {
+                window.redirectToLogin();
+            }
             return;
         }
         // Add account -> collect Name, College and Batch here first. The Login
