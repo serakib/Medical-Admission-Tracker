@@ -15,8 +15,9 @@
     "check:svg": "node scripts/generate-avatar-svg-parts.mjs --check",
     "check:integrity": "node scripts/check-integrity.mjs",
     "test:navigation": "node scripts/test-navigation.mjs",
-    "validate": "npm run build && npm run check:svg && npm run check:integrity && npm run test:navigation",
-    "test": "npm run validate"
+    "validate": "npm run build && npm run check:syntax && npm run check:svg && npm run check:integrity && npm run test:navigation",
+    "test": "npm run validate",
+    "check:syntax": "node scripts/check-syntax.mjs"
   },
   "devDependencies": {
     "@fortawesome/free-brands-svg-icons": "6.4.0",
