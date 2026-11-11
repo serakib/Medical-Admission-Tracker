@@ -48,6 +48,15 @@
       : source.slice();
     return choices.hairStyle.filter(([value]) => allowed.includes(value));
   };
+  // Keep clothing silhouettes/styles curated by the selected character type.
+  // DiceBear Avataaars does not expose a separate gender switch; hair and
+  // clothing variants therefore provide the visible character distinction.
+  const clothingChoicesFor = gender => {
+    const allowed = gender === 'female'
+      ? ['shirtScoopNeck','blazerAndShirt','blazerAndSweater','hoodie','overall']
+      : ['shirtCrewNeck','shirtVNeck','collarAndSweater','blazerAndShirt','hoodie','overall'];
+    return choices.clothingType.filter(([value]) => allowed.includes(value));
+  };
   const inferGenderFromHair = hair => femaleHair.includes(String(hair || '')) && !maleHair.includes(String(hair || '')) ? 'female' : 'male';
   const normalize = input => {
     const result = {...defaults};
@@ -60,6 +69,8 @@
     result.ageGroup = choices.ageGroup.some(([value]) => value === supplied.ageGroup) ? supplied.ageGroup : defaults.ageGroup;
     const allowedHair = hairChoicesFor(result.gender, result.ageGroup).map(([value]) => value);
     if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
+    const allowedClothing = clothingChoicesFor(result.gender).map(([value]) => value);
+    if (!allowedClothing.includes(result.clothingType)) result.clothingType = allowedClothing[0] || defaults.clothingType;
     if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
     if (input && typeof input === 'object') {
       const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'];
@@ -131,11 +142,13 @@
   const renderLayersMarkup = (source, input, className) => {
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
-    const ageLines = c && c.ageGroup === 'adult'
-      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".24"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
-      : c && c.ageGroup === 'mature'
-        ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".48"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
-        : '';
+    const ageLines = c && c.ageGroup === 'youngAdult'
+      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width=".8" stroke-linecap="round" opacity=".12"><path d="M116 151q-2 2-2 4m50-4q2 2 2 4"/></g></svg>'
+      : c && c.ageGroup === 'adult'
+        ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".3"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
+        : c && c.ageGroup === 'mature'
+          ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".5"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
+          : '';
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
@@ -153,6 +166,7 @@
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
     if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
+    if (fieldKey === 'clothingType') return clothingChoicesFor(config.gender).map(([value,label])=>({value,label}));
     if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
     return (base.choices[fieldKey] || []).slice();
   };
