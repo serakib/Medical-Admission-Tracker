@@ -2095,7 +2095,11 @@ main > .view-section.hidden { display: none !important; }
   function markActionButton(button) {
     if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return null;
     var existing = actionRecordByButton.get(button);
-    if (existing && !existing.restored) return existing;
+    if (existing && !existing.restored) {
+      activeActionRecord = existing;
+      setTimeout(function () { if (activeActionRecord === existing && existing.pending === 0) activeActionRecord = null; }, 0);
+      return existing;
+    }
     var isInput = button.tagName === 'INPUT';
     var original = isInput ? button.value : button.innerHTML;
     var kind = actionType(button);
