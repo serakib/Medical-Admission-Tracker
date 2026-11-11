@@ -703,9 +703,35 @@ class MedicalExamApp {
 
     showPreviousYears() { this.showView('previous'); this.renderPreviousYearList(); }
     renderPreviousYearList() {
-        const years=[...new Set(this.questionBank.filter(q=>q.year && q.isPreviousYear).map(q=>q.year))].sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
-        const el=document.getElementById('previous-year-list'); if(!el) return;
-        el.innerHTML=years.map(y=>`<button onclick="app.selectPreviousYear('${this.escapeHtml(y).replace(/'/g,"\\'")}')" class="p-4 text-right rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-medical-500 shadow-sm"><div class="text-xs text-gray-500">Previous Year</div><div class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">${this.escapeHtml(y)}</div><div class="text-xs text-medical-600 mt-1">${this.questionBank.filter(q=>q.year===y&&q.isPreviousYear).length} questions</div></button>`).join('');
+        const years=[...new Set(this.questionBank.filter(q=>q.year && q.isPreviousYear).map(q=>q.year))]
+            .sort((a,b)=>b.localeCompare(a,undefined,{numeric:true}));
+        const el=document.getElementById('previous-year-list');
+        if(!el) return;
+
+        const fragment=document.createDocumentFragment();
+        years.forEach(year => {
+            const count=this.questionBank.filter(q=>q.year===year&&q.isPreviousYear).length;
+            const button=document.createElement('button');
+            button.type='button';
+            button.className='p-4 text-right rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-medical-500 shadow-sm';
+            button.addEventListener('click',()=>this.selectPreviousYear(year));
+
+            const eyebrow=document.createElement('div');
+            eyebrow.className='text-xs text-gray-500';
+            eyebrow.textContent='Previous Year';
+
+            const heading=document.createElement('div');
+            heading.className='text-xl font-extrabold text-gray-900 dark:text-white mt-1';
+            heading.textContent=String(year);
+
+            const countLabel=document.createElement('div');
+            countLabel.className='text-xs text-medical-600 mt-1';
+            countLabel.textContent=this.t(`${count} questions`,`${count}টি প্রশ্ন`);
+
+            button.append(eyebrow,heading,countLabel);
+            fragment.appendChild(button);
+        });
+        el.replaceChildren(fragment);
     }
     selectPreviousYear(year) { this.previousSelectedYear=year; this.previousShowAnswers=false; document.getElementById('previous-browser')?.classList.remove('hidden'); this.renderPreviousQuestions(); }
     togglePreviousAnswers(){ this.previousShowAnswers=!this.previousShowAnswers; this.renderPreviousQuestions(); }
