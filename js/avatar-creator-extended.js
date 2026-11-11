@@ -11,7 +11,7 @@
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
     nose: [['default','স্বাভাবিক']],
     gender: [['male','পুরুষ'],['female','নারী']],
-    ageGroup: [['teen','কিশোর/কিশোরী · ১৩–১৭'],['youngAdult','তরুণ/তরুণী · ১৮–২৫'],['adult','প্রাপ্তবয়স্ক · ২৬–৪০'],['mature','পরিণত বয়স · ৪১+']],
+    ageGroup: [['teen','HSC শিক্ষার্থী · ১৬–১৮']],
     hairStyle: [
       ['shortFlat','ছোট সোজা'],['shortCurly','ছোট কোঁকড়া'],['shortRound','গোল ছোট'],['shortWaved','ঢেউ খেলানো ছোট'],
       ['sides','সাইড পার্ট'],['theCaesar','সিজার কাট'],['theCaesarAndSidePart','সিজার + সাইড পার্ট'],
@@ -36,35 +36,36 @@
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
-    gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
+    gender:'male', ageGroup:'teen', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
-    glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb', clothingGraphic:'none',
+    glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'blazerAndShirt', clothingColor:'333344', clothingGraphic:'none',
     petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
   };
 
     const characterPresets = [
-    // Each preset is a complete starting identity, not a hair-only recolour.
+    // All 20 starting identities are configured for HSC-age students (16–18).
+    // No adult/mature presets or facial-hair defaults are included.
     ...[
-      ['m01','male','youngAdult','#edb98a','shortFlat','2c1b18','default','defaultNatural','smile','none','hoodie','2563eb'],
-      ['m02','male','youngAdult','#c9916b','shortCurly','4a312c','happy','raisedExcited','smile','beardLight','blazerAndShirt','333344'],
-      ['m03','male','adult','#a96f4e','sides','2c1b18','side','flatNatural','serious','beardMedium','shirtCrewNeck','10b981'],
-      ['m04','male','youngAdult','#dfb38e','theCaesar','724133','squint','default','twinkle','none','shirtVNeck','dc2626'],
-      ['m05','male','adult','#80543e','shaggy','2c1b18','eyeRoll','angry','default','beardMajestic','blazerAndSweater','7c3aed'],
-      ['m06','male','youngAdult','#f2d2b4','shortWaved','b58143','happy','defaultNatural','smile','moustacheFancy','collarAndSweater','2563eb'],
-      ['m07','male','adult','#5e4034','dreads','2c1b18','default','flatNatural','serious','beardMedium','overall','10b981'],
-      ['m08','male','youngAdult','#c9916b','froBand','a55728','side','raisedExcited','concerned','none','shirtScoopNeck','dc2626'],
-      ['m09','male','mature','#a96f4e','shavedSides','2c1b18','squint','angry','serious','moustacheMagnum','blazerAndShirt','333344'],
-      ['m10','male','youngAdult','#dfb38e','shaggyMullet','724133','happy','raisedExcited','twinkle','beardLight','hoodie','7c3aed'],
-      ['f01','female','youngAdult','#edb98a','longButNotTooLong','2c1b18','happy','raisedExcited','smile','none','blazerAndShirt','7c3aed'],
-      ['f02','female','youngAdult','#c9916b','bob','4a312c','side','defaultNatural','twinkle','none','shirtCrewNeck','2563eb'],
-      ['f03','female','adult','#a96f4e','curly','2c1b18','default','flatNatural','serious','none','blazerAndSweater','10b981'],
-      ['f04','female','youngAdult','#dfb38e','bun','b58143','wink','raisedExcited','smile','none','shirtVNeck','dc2626'],
-      ['f05','female','adult','#80543e','bigHair','2c1b18','squint','angry','concerned','none','collarAndSweater','333344'],
-      ['f06','female','youngAdult','#f2d2b4','straight01','a55728','hearts','defaultNatural','twinkle','none','hoodie','2563eb'],
-      ['f07','female','adult','#5e4034','hijab','2c1b18','default','flatNatural','smile','none','blazerAndShirt','10b981'],
-      ['f08','female','youngAdult','#c9916b','frida','724133','happy','raisedExcited','smile','none','overall','dc2626'],
-      ['f09','female','mature','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
-      ['f10','female','youngAdult','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtScoopNeck','333344']
+      ['m01','male','teen','#edb98a','shortFlat','2c1b18','default','defaultNatural','smile','none','blazerAndShirt','333344'],
+      ['m02','male','teen','#c9916b','shortCurly','4a312c','happy','raisedExcited','smile','none','hoodie','2563eb'],
+      ['m03','male','teen','#a96f4e','sides','2c1b18','side','flatNatural','serious','none','shirtCrewNeck','10b981'],
+      ['m04','male','teen','#dfb38e','theCaesar','724133','squint','default','twinkle','none','hoodie','dc2626'],
+      ['m05','male','teen','#80543e','shaggy','2c1b18','eyeRoll','angry','default','none','blazerAndSweater','7c3aed'],
+      ['m06','male','teen','#f2d2b4','shortWaved','b58143','happy','defaultNatural','smile','none','collarAndSweater','2563eb'],
+      ['m07','male','teen','#5e4034','dreads','2c1b18','default','flatNatural','serious','none','hoodie','10b981'],
+      ['m08','male','teen','#c9916b','froBand','a55728','side','raisedExcited','concerned','none','shirtCrewNeck','dc2626'],
+      ['m09','male','teen','#a96f4e','shavedSides','2c1b18','squint','angry','serious','none','blazerAndShirt','333344'],
+      ['m10','male','teen','#dfb38e','shaggyMullet','724133','happy','raisedExcited','twinkle','none','hoodie','7c3aed'],
+      ['f01','female','teen','#edb98a','longButNotTooLong','2c1b18','happy','raisedExcited','smile','none','blazerAndShirt','333344'],
+      ['f02','female','teen','#c9916b','bob','4a312c','side','defaultNatural','twinkle','none','shirtCrewNeck','2563eb'],
+      ['f03','female','teen','#a96f4e','curly','2c1b18','default','flatNatural','serious','none','blazerAndSweater','10b981'],
+      ['f04','female','teen','#dfb38e','straight01','b58143','wink','raisedExcited','smile','none','shirtCrewNeck','dc2626'],
+      ['f05','female','teen','#80543e','bigHair','2c1b18','squint','angry','concerned','none','collarAndSweater','333344'],
+      ['f06','female','teen','#f2d2b4','straight01','a55728','hearts','defaultNatural','twinkle','none','hoodie','2563eb'],
+      ['f07','female','teen','#5e4034','hijab','2c1b18','default','flatNatural','smile','none','blazerAndShirt','10b981'],
+      ['f08','female','teen','#c9916b','frida','724133','happy','raisedExcited','smile','none','hoodie','dc2626'],
+      ['f09','female','teen','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
+      ['f10','female','teen','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtCrewNeck','333344']
     ].map(([id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,facialHair,clothingType,clothingColor],index)=>({
       id,characterPreset:id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
       facialHair,clothingType,clothingColor,glasses:index%4===0?'round':'none',
@@ -75,12 +76,9 @@
   const entries = Object.entries(choices);
   const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','dreads','dreads01','dreads02','froBand'];
   const femaleHair = ['bigHair','bob','bun','curly','curvy','frida','frizzle','fro','hijab','longButNotTooLong','miaWallace','straight01','straight02','straightAndStrand'];
-  const hairChoicesFor = (gender, ageGroup) => {
+  const hairChoicesFor = gender => {
     const source = gender === 'female' ? femaleHair : maleHair;
-    const allowed = ageGroup === 'teen'
-      ? source.filter(value => value !== 'bun')
-      : source.slice();
-    return choices.hairStyle.filter(([value]) => allowed.includes(value));
+    return choices.hairStyle.filter(([value]) => source.includes(value));
   };
   const inferGenderFromHair = hair => femaleHair.includes(String(hair || '')) && !maleHair.includes(String(hair || '')) ? 'female' : 'male';
   const normalize = input => {
@@ -91,10 +89,11 @@
     });
     const supplied = input && typeof input === 'object' ? input : {};
     result.gender = supplied.gender === 'female' || supplied.gender === 'male' ? supplied.gender : inferGenderFromHair(supplied.hairStyle);
-    result.ageGroup = choices.ageGroup.some(([value]) => value === supplied.ageGroup) ? supplied.ageGroup : defaults.ageGroup;
+    // The avatar creator is for HSC students: legacy adult/mature values normalize to teen.
+    result.ageGroup = 'teen';
     const requestedPreset = characterPresets.find(item => item.id === supplied.characterPreset && item.gender === result.gender);
     result.characterPreset = requestedPreset ? requestedPreset.id : (result.gender === 'female' ? 'f01' : 'm01');
-    const allowedHair = hairChoicesFor(result.gender, result.ageGroup).map(([value]) => value);
+    const allowedHair = hairChoicesFor(result.gender).map(([value]) => value);
     if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
     if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
     const selectedPreset = characterPresets.find(item => item.id === result.characterPreset);
