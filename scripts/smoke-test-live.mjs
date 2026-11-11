@@ -52,6 +52,37 @@ assert.match(html, /<title>[^<]+<\/title>/i, 'The live page should have a title.
 assert.match(html, /id=["']view-home["']/i, 'The main home view should exist.');
 assert.match(html, /id=["']dash-total-questions["']/i, 'The question-count dashboard element should exist.');
 
+// Verify the actual published PWA entry points and offline study resources.
+const manifest = await fetchJson('manifest.webmanifest');
+assert.equal(manifest.display, 'standalone', 'PWA manifest must use standalone display mode.');
+assert.equal(manifest.start_url, './index.html', 'PWA start URL is incorrect.');
+assert.ok(Array.isArray(manifest.icons) && manifest.icons.some(icon => icon.sizes === '192x192') &&
+  manifest.icons.some(icon => icon.sizes === '512x512'), 'PWA manifest must provide 192px and 512px icons.');
+
+const offlineResponse = await requestWithRetry(new URL('offline.html', baseUrl));
+const offlineHtml = await offlineResponse.text();
+assert.match(offlineHtml, /js\/offline-study\.js/, 'Offline practice page must load its local study script.');
+assert.doesNotMatch(offlineHtml, /https?:\/\/(?:cdn\.|www\.googleapis|www\.gstatic)/i,
+  'Offline practice page must not depend on external scripts or styles.');
+
+const [serviceWorkerResponse, offlineScriptResponse, pwaScriptResponse] = await Promise.all([
+  requestWithRetry(new URL('service-worker.js', baseUrl)),
+  requestWithRetry(new URL('js/offline-study.js', baseUrl)),
+  requestWithRetry(new URL('js/pwa.js', baseUrl))
+]);
+const serviceWorkerSource = await serviceWorkerResponse.text();
+const offlineScriptSource = await offlineScriptResponse.text();
+const pwaScriptSource = await pwaScriptResponse.text();
+assert.match(serviceWorkerSource, /addEventListener\(['"]install['"]/);
+assert.match(serviceWorkerSource, /addEventListener\(['"]fetch['"]/);
+assert.match(serviceWorkerSource, /data\/questions\.json/);
+assert.match(offlineScriptSource, /correctAnswer/);
+assert.match(offlineScriptSource, /med_offline_practice_history_v1/);
+assert.match(pwaScriptSource, /serviceWorker\.register/);
+assert.match(html, /rel=["']manifest["']/i, 'Published homepage must reference the PWA manifest.');
+assert.match(html, /js\/system-tools\.js/, 'Published homepage must load the system tools module.');
+console.log('OK PWA: manifest, service worker, offline page and offline question practice are published.');
+
 // Validate the live question bank and its dashboard metadata, not only asset URLs.
 async function fetchJson(relativePath) {
   const response = await requestWithRetry(new URL(relativePath, baseUrl));
