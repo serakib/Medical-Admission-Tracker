@@ -1988,6 +1988,27 @@ html.dark .mat-monthly-countdown-capsule--weekly,body.dark .mat-monthly-countdow
   :where(button:active,[role="button"]:active){transform:none}
 }
 
+
+
+/* Visitor account guidance: two distinct, readable information capsules. */
+.mat-va-guidance-list{display:grid;gap:8px;margin:0 0 13px}
+.mat-va-guidance-capsule{
+  display:flex;align-items:flex-start;gap:9px;min-width:0;
+  padding:10px 12px;border:1px solid rgba(148,163,184,.28);
+  border-radius:15px;background:rgba(148,163,184,.07);
+  color:var(--mat-va-title,#1e293b);text-align:left;
+}
+.mat-va-guidance-capsule>span{flex:0 0 auto;font-size:16px;line-height:1.35}
+.mat-va-guidance-capsule strong{display:block;margin:0 0 3px;font-size:12px;font-weight:850;line-height:1.4}
+.mat-va-guidance-capsule p{margin:0!important;font-size:11px;line-height:1.55;color:var(--mat-va-muted,#64748b)}
+.mat-va-guidance-capsule--timer{border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.07)}
+.mat-va-guidance-capsule--account{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.07)}
+html.dark .mat-va-guidance-capsule,body.dark .mat-va-guidance-capsule{background:rgba(148,163,184,.08);border-color:rgba(148,163,184,.22);color:#f8fafc}
+html.dark .mat-va-guidance-capsule p,body.dark .mat-va-guidance-capsule p{color:#cbd5e1}
+html.dark .mat-va-guidance-capsule--timer,body.dark .mat-va-guidance-capsule--timer{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.3)}
+html.dark .mat-va-guidance-capsule--account,body.dark .mat-va-guidance-capsule--account{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3)}
+@media(max-width:480px){.mat-va-guidance-capsule{padding:9px 10px;gap:8px}.mat-va-guidance-capsule p{font-size:10.5px}}
+
 /* Weekly leaderboard timers: compact, independent capsules for quick scanning. */
 .leaderboard-week-countdown.mat-weekly-countdown-row{
   display:flex!important;align-items:center!important;justify-content:flex-start!important;
