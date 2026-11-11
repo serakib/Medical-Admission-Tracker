@@ -1,0 +1,40 @@
+name: Live service health monitor
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-health-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    name: Check live site, question bank and backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Verify live application and backend
+        run: node scripts/smoke-test-live.mjs https://serakib.github.io/Medical-Admission-Tracker/
+
+      - name: Write health summary
+        if: always()
+        run: |
+          {
+            echo "## Medical Admission Pro — live health check"
+            echo "- Website: https://serakib.github.io/Medical-Admission-Tracker/"
+            echo "- Checks: homepage, local assets, question bank, dashboard counts and Apps Script API health"
+            echo "- Result: ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"
