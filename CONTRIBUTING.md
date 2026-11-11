@@ -32,7 +32,7 @@ Provide clear steps and relevant environment details. Never include passwords, a
 ## Project standards
 
 - Follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
-- Follow [ACCESSIBILITY.md](./ACCESSIBILITY.md), especially for keyboard operation, visible focus, form feedback, reduced motion, responsive layout, and Bangla text.
+- Follow [ACCESSIBILITY.md](./docs/guides/ACCESSIBILITY.md), especially for keyboard operation, visible focus, form feedback, reduced motion, responsive layout, and Bangla text.
 - Follow [SECURITY.md](./SECURITY.md) when handling credentials, student data, and vulnerability reports.
 
 ## Labels, milestones, and releases
