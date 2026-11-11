@@ -2040,10 +2040,42 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var closeButton = popup.querySelector('[data-week-popup-close]');
     if (closeButton) closeButton.focus();
   }
-  function openLeaderboardCountdownPopup(title, contentHtml) {
+  function createLeaderboardCountdownPopupContent(entries, description, weekRange) {
+    var fragment = document.createDocumentFragment();
+    var group = document.createElement('div');
+    group.className = 'leaderboard-week-popup-countdowns';
+
+    (Array.isArray(entries) ? entries : []).forEach(function (entry) {
+      var row = document.createElement('p');
+      row.className = 'leaderboard-week-popup-countdown' + (entry.className ? ' ' + entry.className : '');
+      row.appendChild(document.createTextNode(String(entry.label || '')));
+      var value = document.createElement('strong');
+      if (entry.attribute) value.setAttribute(entry.attribute, '');
+      value.textContent = String(entry.value == null ? '' : entry.value);
+      row.appendChild(value);
+      group.appendChild(row);
+    });
+    fragment.appendChild(group);
+
+    var detail = document.createElement('div');
+    detail.className = 'leaderboard-week-popup-description';
+    if (weekRange && typeof weekRange === 'object') {
+      detail.appendChild(document.createTextNode('এই সপ্তাহ: '));
+      var dates = document.createElement('strong');
+      dates.textContent = String(weekRange.start || '') + ' – ' + String(weekRange.end || '');
+      detail.appendChild(dates);
+      detail.appendChild(document.createTextNode(' (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, Monthly RP অপরিবর্তিত থাকবে।'));
+    } else {
+      detail.textContent = String(description || '');
+    }
+    if (detail.textContent) fragment.appendChild(detail);
+    return fragment;
+  }
+
+  function openLeaderboardCountdownPopup(title, contentNode) {
     var popup = ensureLeaderboardWeekPopup();
     var content = popup.querySelector('[data-week-popup-content]');
-    if (content) content.innerHTML = contentHtml;
+    if (content) content.replaceChildren(contentNode);
     showLeaderboardCountdownPopup(title);
   }
   function matCountdownText_(seconds) {
@@ -2092,14 +2124,16 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var resetButton = monthlyNote.querySelector('[data-open-month-reset-popup]');
     if (resetButton) resetButton.addEventListener('click', function () {
       openLeaderboardCountdownPopup('⏳ মাসিক Hard Reset — countdown',
-        '<div class="leaderboard-week-popup-countdowns"><p class="leaderboard-week-popup-countdown">⏳ পরবর্তী Hard Reset <strong data-monthly-reset-popup>' + monthlyResetText + '</strong></p></div>' +
-        '<div class="leaderboard-week-popup-description">প্রতি মাসের ১ তারিখ বাংলাদেশ সময় রাত ১টায় Monthly Ranking-এর Hard Reset হয়।</div>');
+        createLeaderboardCountdownPopupContent([
+          { label:'⏳ পরবর্তী Hard Reset ', value:monthlyResetText, attribute:'data-monthly-reset-popup' }
+        ], 'প্রতি মাসের ১ তারিখ বাংলাদেশ সময় রাত ১টায় Monthly Ranking-এর Hard Reset হয়.'));
     });
     var weeklyButton = monthlyNote.querySelector('[data-open-month-weekly-popup]');
     if (weeklyButton) weeklyButton.addEventListener('click', function () {
       openLeaderboardCountdownPopup('🛡️ Weekly Review — countdown',
-        '<div class="leaderboard-week-popup-countdowns"><p class="leaderboard-week-popup-countdown leaderboard-week-popup-review">🛡️ পরবর্তী Weekly Review <strong data-monthly-weekly-review-popup>' + weeklyReviewText + '</strong></p></div>' +
-        '<div class="leaderboard-week-popup-description">প্রতি শনিবার বাংলাদেশ সময় রাত ১টায় Weekly Review সম্পন্ন হয় এবং Weekly Ranking-এর নতুন সময়সীমা শুরু হয়।</div>');
+        createLeaderboardCountdownPopupContent([
+          { label:'🛡️ পরবর্তী Weekly Review ', value:weeklyReviewText, attribute:'data-monthly-weekly-review-popup', className:'leaderboard-week-popup-review' }
+        ], 'প্রতি শনিবার বাংলাদেশ সময় রাত ১টায় Weekly Review সম্পন্ন হয় এবং Weekly Ranking-এর নতুন সময়সীমা শুরু হয়।'));
     });
     var resetPopup = document.querySelector('[data-monthly-reset-popup]');
     var weeklyPopup = document.querySelector('[data-monthly-weekly-review-popup]');
@@ -2151,7 +2185,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var minutes = Math.floor(remainingSeconds % 3600 / 60);
     var seconds = remainingSeconds % 60;
     var countdown = days + ' দিন ' + hours + ' ঘণ্টা ' + minutes + ' মিনিট ' + seconds + ' সেকেন্ড';
-    var weekDescription = 'এই সপ্তাহ: <strong>' + displayDateKey(weekStartKey) + ' – ' + displayDateKey(weekEndKey) + '</strong> (বাংলাদেশ সময়)। শনিবার রাত ১২টায় নতুন সপ্তাহ শুরু হবে; Weekly RP নতুন সময়সীমা থেকে গণনা হবে, Monthly RP অপরিবর্তিত থাকবে।';
+    var weekRange = { start:displayDateKey(weekStartKey), end:displayDateKey(weekEndKey) };
     note.className = 'leaderboard-week-countdown mat-weekly-countdown-row';
     note.setAttribute('role', 'status');
     var dailyReview = matNextDhakaDailyReview_();
@@ -2174,13 +2208,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     }
     if (refreshButton && refreshButton.parentNode !== note) note.appendChild(refreshButton);
     var popupContent = popup.querySelector('[data-week-popup-content]');
-    if (popupContent) popupContent.innerHTML =
-      '<div class="leaderboard-week-popup-countdowns">' +
-        '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ <strong data-weekly-countdown-popup>' + countdown + '</strong></p>' +
-        '<p class="leaderboard-week-popup-countdown leaderboard-week-popup-review" data-promotion-review-countdown-popup><span data-review-label>🔁 ' + dailyLabel + '</span><strong>' + matCountdownText_((dailyReview.timestamp - Date.now()) / 1000) + '</strong></p>' +
-      '</div>' +
-      '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
-      '<p>Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।</p>';
+    if (popupContent) popupContent.replaceChildren(createLeaderboardCountdownPopupContent([
+      { label:'⏳ নতুন সপ্তাহ ', value:countdown, attribute:'data-weekly-countdown-popup' },
+      { label:'🔁 ' + dailyLabel + ' ', value:matCountdownText_((dailyReview.timestamp - Date.now()) / 1000), attribute:'data-promotion-review-countdown-popup', className:'leaderboard-week-popup-review' }
+    ], 'Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।', weekRange));
     var popupToolsForWeekly = popup.querySelector('[data-week-popup-tools]');
     if (popupToolsForWeekly) popupToolsForWeekly.hidden = false;
     var openButton = note.querySelector('[data-open-week-popup]');
@@ -2192,13 +2223,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var liveDailyValue = liveDailyButton && liveDailyButton.querySelector('strong');
       var popupReview = matNextDhakaDailyReview_();
       var popupReviewLabel = popupReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
-      if (popupBody) popupBody.innerHTML =
-        '<div class="leaderboard-week-popup-countdowns">' +
-          '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ <strong data-weekly-countdown-popup>' + (liveWeekValue ? liveWeekValue.textContent : countdown) + '</strong></p>' +
-          '<p class="leaderboard-week-popup-countdown leaderboard-week-popup-review" data-promotion-review-countdown-popup><span data-review-label>🔁 ' + (liveDailyLabel ? liveDailyLabel.textContent.replace(/^🔁\s*/, '') : popupReviewLabel) + '</span><strong>' + (liveDailyValue ? liveDailyValue.textContent : matCountdownText_((popupReview.timestamp - Date.now()) / 1000)) + '</strong></p>' +
-        '</div>' +
-        '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
-        '<p>Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।</p>';
+      if (popupBody) popupBody.replaceChildren(createLeaderboardCountdownPopupContent([
+        { label:'⏳ নতুন সপ্তাহ ', value:liveWeekValue ? liveWeekValue.textContent : countdown, attribute:'data-weekly-countdown-popup' },
+        { label:'🔁 ' + (liveDailyLabel ? liveDailyLabel.textContent.replace(/^🔁\\s*/, '') : popupReviewLabel) + ' ', value:liveDailyValue ? liveDailyValue.textContent : matCountdownText_((popupReview.timestamp - Date.now()) / 1000), attribute:'data-promotion-review-countdown-popup', className:'leaderboard-week-popup-review' }
+      ], 'Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।', weekRange));
       showLeaderboardCountdownPopup('⏳ Weekly Ranking — নতুন সপ্তাহের countdown', true);
     });
     var dailyButton = note.querySelector('[data-open-daily-review-popup]');
@@ -2207,8 +2235,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var currentLabel = currentReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
       var currentValue = matCountdownText_((currentReview.timestamp - Date.now()) / 1000);
       openLeaderboardCountdownPopup('🔁 ' + currentLabel + ' — countdown',
-        '<div class="leaderboard-week-popup-countdowns"><p class="leaderboard-week-popup-countdown leaderboard-week-popup-review"><span data-review-label>🔁 ' + currentLabel + '</span><strong data-promotion-review-countdown-popup>' + currentValue + '</strong></p></div>' +
-        '<div class="leaderboard-week-popup-description">' + (currentReview.weekday === 6 ? 'শনিবার রাত ১টায় Weekly Hard Reset হয়।' : 'প্রতিদিন বাংলাদেশ সময় রাত ১টায় Daily Review সম্পন্ন হয়।') + '</div>');
+        createLeaderboardCountdownPopupContent([
+          { label:'🔁 ' + currentLabel + ' ', value:currentValue, attribute:'data-promotion-review-countdown-popup', className:'leaderboard-week-popup-review' }
+        ], currentReview.weekday === 6 ? 'শনিবার রাত ১টায় Weekly Hard Reset হয়।' : 'প্রতিদিন বাংলাদেশ সময় রাত ১টায় Daily Review সম্পন্ন হয়.'));
     });
   }
   function renderWeeklyCountdown() {
