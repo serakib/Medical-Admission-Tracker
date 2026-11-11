@@ -2077,8 +2077,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var weeklyReviewText = matCountdownText_(weeklyReviewSeconds);
     monthlyNote.className = 'leaderboard-week-countdown mat-monthly-countdown-row';
     monthlyNote.innerHTML =
-      '<button type="button" class="leaderboard-week-details mat-weekly-countdown-capsule mat-monthly-countdown-trigger mat-monthly-countdown-trigger--reset" data-open-month-reset-popup aria-haspopup="dialog"><span>⏳ মাসিক Hard Reset</span><strong data-monthly-reset-countdown>' + monthlyResetText + '</strong><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
-      '<button type="button" class="leaderboard-week-details mat-weekly-countdown-capsule mat-monthly-countdown-trigger mat-monthly-countdown-trigger--weekly" data-open-month-weekly-popup aria-haspopup="dialog"><span>🛡️ Weekly Review</span><strong data-monthly-weekly-review-countdown>' + weeklyReviewText + '</strong><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
+      '<button type="button" class="leaderboard-week-details mat-weekly-countdown-capsule mat-weekly-countdown-capsule--week" data-open-month-reset-popup aria-haspopup="dialog"><span>⏳ মাসিক Hard Reset</span><strong data-monthly-reset-countdown>' + monthlyResetText + '</strong><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
+      '<button type="button" class="leaderboard-week-details mat-weekly-countdown-capsule mat-weekly-countdown-capsule--review" data-open-month-weekly-popup aria-haspopup="dialog"><span>🛡️ Weekly Review</span><strong data-monthly-weekly-review-countdown>' + weeklyReviewText + '</strong><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>';
     monthlyNote.setAttribute('role', 'group');
     monthlyNote.setAttribute('aria-live', 'off');
     var resetButton = monthlyNote.querySelector('[data-open-month-reset-popup]');
