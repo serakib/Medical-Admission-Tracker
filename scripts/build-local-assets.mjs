@@ -67,7 +67,13 @@ const symbols = [];
 const missing = [];
 for (const name of [...iconNames].sort()) {
   const family = preferredFamily.get(name) || 'solid';
-  const definition = iconMaps[family]?.get(name);
+  const iconAliases = {
+    'grid-2': 'table-cells',
+    'hand-wave': 'hand',
+    'minus-circle': 'circle-minus',
+    'shield-check': 'shield-halved'
+  };
+  const definition = iconMaps[family]?.get(iconAliases[name] || name);
   if (!definition) { missing.push(family + ':' + name); continue; }
   const [width, height, , , rawPaths] = definition.icon;
   const paths = Array.isArray(rawPaths) ? rawPaths : [rawPaths];
