@@ -30,6 +30,7 @@
     hatColor: [['dc2626','লাল'],['2563eb','নীল'],['7c3aed','বেগুনি'],['10b981','সবুজ'],['f8fafc','সাদা'],['333344','ডার্ক']],
     clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার']],
     clothingColor: [['2563eb','নীল'],['7c3aed','বেগুনি'],['dc2626','লাল'],['333344','ডার্ক গ্রে'],['10b981','সবুজ'],['f8fafc','সাদা']],
+    clothingGraphic: [['none','নেই']],
     petType: [['none','নেই'],['chick','ছোট ছানা'],['cat','বিড়াল'],['bear','সাদা ভালুক']],
     headphones: [['none','নেই'],['#24242b','কালো'],['#2563eb','নীল'],['#dc2626','লাল'],['#10b981','সবুজ'],['#f8fafc','সাদা']],
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
@@ -37,7 +38,7 @@
   const defaults = {
     gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
-    glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
+    glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb', clothingGraphic:'none',
     petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
   };
 
@@ -134,6 +135,8 @@
       clothesVariant:c.clothingType,
       clothesProbability:'100',
       clothesColor:hex(c.clothingColor),
+      clothesGraphic:c.clothingGraphic === 'none' ? 'bat' : c.clothingGraphic,
+      clothesGraphicProbability:c.clothingGraphic === 'none' ? '0' : '100',
       // The avatar SVG stays transparent; the selected background is rendered by the full preview panel.
     });
     return 'https://api.dicebear.com/10.x/avataaars/svg?' + params.toString();
@@ -164,6 +167,7 @@
         hatColor:p.get('hatColor') || defaults.hatColor,
         clothingType:p.get('clothesVariant') || defaults.clothingType,
         clothingColor:p.get('clothesColor') || defaults.clothingColor,
+        clothingGraphic:p.get('clothesGraphicProbability') === '0' ? 'none' : (p.get('clothesGraphic') || 'none'),
         petType:meta.pet || defaults.petType,
         background:meta.bg || p.get('backgroundColor') || defaults.background
       };
@@ -485,7 +489,7 @@
       const categoryFields = {
         hairStyle:'hair', eyeShape:'eyes', eyebrowShape:'eyebrows',
         expression:'mouths', nose:'nose', facialHair:'facial-hair',
-        glasses:'accessories', hat:'headwear', clothingType:'clothing'
+        glasses:'accessories', hat:'headwear', clothingType:'clothing', clothingGraphic:'clothing-graphics'
       };
       Object.entries(categoryFields).forEach(([fieldKey, category]) => {
         const assets = Array.isArray(manifest.categories[category]) ? manifest.categories[category] : [];
