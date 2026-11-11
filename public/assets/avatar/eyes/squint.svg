@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- eyes / squint; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<!-- eyes / squint; Avataaars by Pablo Stanley. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 36.27" width="84" height="36.27" fill="none" role="img" aria-label="eyes / squint">
-<g transform="translate(2 5)"></g>
-<path d="M18.82 20.3a25 25 0 0 1-5.64 0 6 6 0 1 1 5.64 0m52 0a25 25 0 0 1-5.64 0 6 6 0 1 1 5.64 0" fill="#000000" fill-opacity=".7"></path>
+<g transform="translate(2 5)"><ellipse cx="14" cy="7.72" rx="14" ry="7.72" fill="#ffffff"/><ellipse cx="66" cy="7.72" rx="14" ry="7.72" fill="#ffffff"/></g>
+<path d="M18.82 20.3a25 25 0 0 1-5.64 0 6 6 0 1 1 5.64 0m52 0a25 25 0 0 1-5.64 0 6 6 0 1 1 5.64 0" fill="#000000" fill-opacity=".7"/>
 </svg>
