@@ -20,6 +20,14 @@ updates:
           - "minor"
           - "patch"
 
+      # Major framework upgrades require a deliberate migration and must not
+      # be proposed as routine dependency bumps.
+      ignore:
+        - dependency-name: "firebase"
+          update-types: ["version-update:semver-major"]
+        - dependency-name: "tailwindcss"
+          update-types: ["version-update:semver-major"]
+
   # Keep GitHub Actions used by repository automation current.
   - package-ecosystem: "github-actions"
     directory: "/"
