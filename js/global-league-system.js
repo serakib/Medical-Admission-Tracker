@@ -2538,6 +2538,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       year: safeText(meta.year || (app.examState && app.examState.year) || '', 40),
       timeUsed: safeText(meta.timeUsed || '', 20)
     };
+    // A public Visitor may complete exams and keep their learning history locally.
+    // Do not call the Medical API, open the account dialog, or queue an anonymous result.
+    if (!app.authUser && (!getGuestToken() || readExpiredGuest())) {
+      return saveReward({
+        success: false,
+        pending: false,
+        synced: false,
+        localOnly: true,
+        attemptId: attemptId,
+        xpGained: null,
+        rankPointsDelta: null,
+        pbGained: null,
+        message: 'Visitor mode: এই exam result শুধু এই device-এ localভাবে সংরক্ষিত। Server-এ verified profile, result, XP/RP ও leaderboard progress রাখতে Guest বা Registered Account তৈরি করুন।'
+      });
+    }
     try {
       await syncIdentity();
       item.userId = currentUserId();
@@ -2851,7 +2866,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var panel = document.getElementById('mat-visitor-access-panel');
     if (!panel) return;
     var close = '<button type="button" data-va-close aria-label="Close" style="float:right;border:0;background:transparent;font-size:23px;color:#64748b;cursor:pointer">×</button>';
-    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account তৈরি করুন</h2><p style="font-size:13px;line-height:1.7;color:var(--mat-va-muted,#64748b);margin:8px 0 0">Website ঘুরে দেখা, theme বদলানো এবং public settings ব্যবহার করতে Login লাগবে না। শুধু account-এ save বা sync করতে হয়—এমন কাজের সময় Guest বা Sign Up বেছে নিন।</p></div>';
+    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">নিজের তথ্য Server-এ সংরক্ষণ করুন</h2><p style="font-size:13px;line-height:1.7;color:var(--mat-va-muted,#64748b);margin:8px 0 0">Visitor হিসেবে website ব্যবহার, public latest information ও leaderboard দেখা এবং practice করতে পারবেন। আপনার practice ও progress এই device-এ local থাকবে; server-এ verified হবে না। নিজের profile, exam result ও verified XP/RP server-এ সংরক্ষণ ও sync করতে Guest বা Registered Account তৈরি করুন।</p></div>';
     var fieldStyle = 'width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#0f172a;font:inherit;margin-top:6px';
     var labelStyle = 'display:block;font-size:13px;font-weight:700;color:var(--mat-va-title,#334155);margin:12px 0 0';
     var back = '<button type="button" data-va-back style="border:0;background:transparent;color:#64748b;font-weight:700;padding:8px 0;cursor:pointer">← Back</button>';
@@ -2893,7 +2908,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     document.head.appendChild(style);
     var bar = document.createElement('div');
     bar.id = 'mat-visitor-access-bar';
-    bar.innerHTML = '<span>Account-ভিত্তিক কাজের জন্য</span><button type="button" data-va-open-guest>Continue as Guest</button><button type="button" data-va-open-signup>Sign Up</button>';
+    bar.innerHTML = '<span>নিজের progress Server-এ রাখতে Account তৈরি করুন</span><button type="button" data-va-open-guest>Continue as Guest</button><button type="button" data-va-open-signup>Sign Up</button>';
     document.body.appendChild(bar);
     var modal = document.createElement('div');
     modal.id = 'mat-visitor-access-modal';
