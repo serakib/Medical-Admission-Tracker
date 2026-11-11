@@ -1757,6 +1757,10 @@ function matGetLeaderboard_(period, userIds, includeUserIds) {
       userId: s.UserID, playerId: s.UserID, uid: s.UserID,
       username: s.Name || 'Medical Student', name: s.Name || 'Medical Student',
       accountType: s.AccountType || 'GUEST', isAdmin: String(s.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(s), isGoldName: matPromoHasGoldName_(s), showGoldName: String(s.ShowGoldName == null || s.ShowGoldName === '' ? 'TRUE' : s.ShowGoldName).toUpperCase() !== 'FALSE', college: s.College || '', batch: s.Batch || '',
+      guestAutoDeletionAt: matGuestAutoDeletionAt_(s, weeklyRP),
+      guestDeletionPending: String(s.GuestDeletionScheduledAt || '').trim() !== '',
+      guestDeletionScheduledAt: String(s.GuestDeletionScheduledAt || ''),
+      guestDeletionReason: String(s.GuestDeletionReason || ''),
       avatar: String(s.Avatar || ''), Avatar: String(s.Avatar || ''),
       xp: Number(s.XP || 0), level: Number(s.Level || 1),
       // Weekly leaderboard must never display a higher rank for a zero-Weekly-RP account.
