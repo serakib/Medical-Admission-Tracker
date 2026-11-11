@@ -168,7 +168,7 @@ var MED_VISITOR_PAGE_ENTRY_AT = Date.now();
     else if (typeof AbortController !== 'undefined') {
       requestController = new AbortController();
       init.signal = requestController.signal;
-      requestTimeout = setTimeout(function () { requestController.abort(); }, 25000);
+      requestTimeout = setTimeout(function () { requestController.abort(); }, 60000);
     }
     if (method === 'GET') {
       var params = new URLSearchParams();
@@ -191,7 +191,7 @@ var MED_VISITOR_PAGE_ENTRY_AT = Date.now();
       response = await fetch(url, init);
     } catch (error) {
       if (requestTimeout) clearTimeout(requestTimeout);
-      if (error && error.name === 'AbortError') throw new Error('Medical API response নিতে ২৫ সেকেন্ডের বেশি সময় লাগছে। Internet connection ও Apps Script deployment পরীক্ষা করে আবার চেষ্টা করুন।');
+      if (error && error.name === 'AbortError') throw new Error('Medical API response নিতে ১ মিনিটের বেশি সময় লাগছে। Internet connection ও Apps Script deployment পরীক্ষা করে আবার চেষ্টা করুন।');
       throw new Error(apiErrorMessage(error));
     }
     var body = '';
@@ -2473,7 +2473,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       );
       setLeaderboardRefreshBusy(false);
       setBackgroundSyncIndicator(false, false);
-    }, 35000);
+    }, 60000);
     try {
       // Public leaderboard fetch does not wait for Firebase or Guest identity sync.
       if (app.authStateResolved && (app.authUser || getGuestToken())) {
@@ -2515,8 +2515,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         requestTimeoutId = setTimeout(function () {
           requestTimedOut = true;
           if (requestController) requestController.abort();
-          reject(new Error('Leaderboard request timed out after 25 seconds.'));
-        }, 25000);
+          reject(new Error('Leaderboard request timed out after 60 seconds.'));
+        }, 60000);
       });
       var response;
       try {
