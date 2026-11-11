@@ -179,58 +179,39 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 ## 🗂️ Repository Structure
 
-The GitHub Pages entry files stay at the root. Application code is grouped by responsibility to keep day-to-day maintenance simple.
+A compact, responsibility-based layout. Keep deployment entry points at the root; maintain source, generated assets and documentation in their dedicated folders.
 
 ```text
 Medical-Admission-Tracker/
-├── .github/          # CI/CD, issue templates, policies and automation
-├── apps-script/      # Google Apps Script backend
-├── css/              # Stylesheets
-├── data/             # Question bank and metadata
-├── docs/             # Guides, architecture, project and student docs
-├── js/
-│   ├── avatar/       # Avatar renderer, presets and profile editor
-│   ├── config/       # Firebase and Apps Script endpoint configuration
-│   ├── core/         # Navigation and shared browser utilities
-│   ├── features/     # Practice, exams, dashboard, PWA and student tools
-│   ├── integrations/ # Firebase, backend and leaderboard adapters
-│   ├── vendor/       # Generated browser bundles; do not hand-edit
-│   ├── app.js        # Main application engine
-│   └── README.md     # JavaScript module map and safe-edit notes
-├── public/           # Images, icons, avatar and pet assets
-├── scripts/          # Build, asset generation and validation tools
-├── index.html        # GitHub Pages entry point
-├── legal.html        # Privacy, cookies and terms
-├── offline.html      # Offline fallback and practice page
-├── manifest.webmanifest
-├── service-worker.js
-├── package.json      # Build commands and dependencies
-├── package-lock.json
-├── CITATION.cff
-├── LICENSE.md
-└── README.md
+├── .github/       # Workflows, templates, policies
+├── apps-script/   # Apps Script backend
+├── css/           # Styles and design assets
+├── data/          # Question bank and metadata
+├── docs/          # Guides, architecture and project docs
+├── js/            # Application modules
+├── public/        # Images, icons and static assets
+├── scripts/       # Build, generation and test tools
+├── index.html     # Main Pages entry
+├── offline.html   # Offline practice entry
+├── legal.html     # Privacy and legal pages
+├── service-worker.js · manifest.webmanifest
+├── package.json · package-lock.json
+├── tailwind.config.cjs · robots.txt · sitemap.xml
+├── README.md · LICENSE.md · CITATION.cff
+└── .editorconfig · .gitattributes · .gitignore · .npmrc · .nvmrc
 ```
 
-| Working on… | Start here |
+| Task | Location |
 |---|---|
-| Page structure or script loading | [`index.html`](index.html) |
-| Layout, colors or responsive styling | [`css/style.css`](css/style.css) |
-| Exam engine or core behavior | [`js/app.js`](js/app.js) |
-| Avatar options and rendering | [`js/avatar/`](js/avatar/) · [module guide](js/README.md) |
-| Firebase/API configuration | [`js/config/`](js/config/) |
-| Navigation and shared browser utilities | [`js/core/`](js/core/) |
-| Student-facing features | [`js/features/`](js/features/) |
-| Backend and leaderboard integration | [`js/integrations/`](js/integrations/) |
-| Questions and subject metadata | [`data/`](data/) |
-| Builds, checks or generated assets | [Scripts guide](scripts/README.md) |
-| Technical or student documentation | [Documentation hub](docs/README.md) |
-| GitHub automation and project rules | [`.github/`](.github/) |
+| Frontend structure and styling | `index.html` · `css/` |
+| App logic and modules | `js/` · [module map](js/README.md) |
+| Question bank | `data/` |
+| Backend integration | `apps-script/` · `js/` |
+| Build and validation | `scripts/` · `package.json` |
+| Guides and architecture | [`docs/`](docs/README.md) |
+| CI, security and repository rules | [`.github/`](.github/) |
 
-**Maintenance rules**
-- Keep GitHub Pages entry files and deployment configuration at the repository root.
-- Edit source files, not generated build output; use the relevant script or `npm run build`.
-- Keep backend secrets in Apps Script Script Properties—never in frontend files or Git.
-- Run `npm test` from the repository root before merging.
+**Keep it maintainable:** edit source files rather than generated output, keep secrets out of Git, and run `npm test` before merging.
 
 ---
 
