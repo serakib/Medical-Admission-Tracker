@@ -1,0 +1,680 @@
+{
+  "version": "repo-tree-2dfa06dfac7ae61fff3f9e630ff667420ef7e401",
+  "generatedAt": "2026-11-11T12:36:52.990Z",
+  "total": 129,
+  "categories": {
+    "accessories": [
+      {
+        "id": "eyepatch",
+        "label": "Eyepatch",
+        "path": "./public/assets/avatar/accessories/eyepatch.svg"
+      },
+      {
+        "id": "kurt",
+        "label": "Kurt",
+        "path": "./public/assets/avatar/accessories/kurt.svg"
+      },
+      {
+        "id": "prescription01",
+        "label": "Prescription01",
+        "path": "./public/assets/avatar/accessories/prescription01.svg"
+      },
+      {
+        "id": "prescription02",
+        "label": "Prescription02",
+        "path": "./public/assets/avatar/accessories/prescription02.svg"
+      },
+      {
+        "id": "round",
+        "label": "Round",
+        "path": "./public/assets/avatar/accessories/round.svg"
+      },
+      {
+        "id": "sunglasses",
+        "label": "Sunglasses",
+        "path": "./public/assets/avatar/accessories/sunglasses.svg"
+      },
+      {
+        "id": "wayfarers",
+        "label": "Wayfarers",
+        "path": "./public/assets/avatar/accessories/wayfarers.svg"
+      }
+    ],
+    "base": [
+      {
+        "id": "face-and-body",
+        "label": "Face And Body",
+        "path": "./public/assets/avatar/base/face-and-body.svg"
+      }
+    ],
+    "characters": [
+      {
+        "id": "f01",
+        "label": "F01",
+        "path": "./public/assets/avatar/characters/f01.svg"
+      },
+      {
+        "id": "f02",
+        "label": "F02",
+        "path": "./public/assets/avatar/characters/f02.svg"
+      },
+      {
+        "id": "f03",
+        "label": "F03",
+        "path": "./public/assets/avatar/characters/f03.svg"
+      },
+      {
+        "id": "f04",
+        "label": "F04",
+        "path": "./public/assets/avatar/characters/f04.svg"
+      },
+      {
+        "id": "f05",
+        "label": "F05",
+        "path": "./public/assets/avatar/characters/f05.svg"
+      },
+      {
+        "id": "f06",
+        "label": "F06",
+        "path": "./public/assets/avatar/characters/f06.svg"
+      },
+      {
+        "id": "f07",
+        "label": "F07",
+        "path": "./public/assets/avatar/characters/f07.svg"
+      },
+      {
+        "id": "f08",
+        "label": "F08",
+        "path": "./public/assets/avatar/characters/f08.svg"
+      },
+      {
+        "id": "f09",
+        "label": "F09",
+        "path": "./public/assets/avatar/characters/f09.svg"
+      },
+      {
+        "id": "f10",
+        "label": "F10",
+        "path": "./public/assets/avatar/characters/f10.svg"
+      },
+      {
+        "id": "m01",
+        "label": "M01",
+        "path": "./public/assets/avatar/characters/m01.svg"
+      },
+      {
+        "id": "m02",
+        "label": "M02",
+        "path": "./public/assets/avatar/characters/m02.svg"
+      },
+      {
+        "id": "m03",
+        "label": "M03",
+        "path": "./public/assets/avatar/characters/m03.svg"
+      },
+      {
+        "id": "m04",
+        "label": "M04",
+        "path": "./public/assets/avatar/characters/m04.svg"
+      },
+      {
+        "id": "m05",
+        "label": "M05",
+        "path": "./public/assets/avatar/characters/m05.svg"
+      },
+      {
+        "id": "m06",
+        "label": "M06",
+        "path": "./public/assets/avatar/characters/m06.svg"
+      },
+      {
+        "id": "m07",
+        "label": "M07",
+        "path": "./public/assets/avatar/characters/m07.svg"
+      },
+      {
+        "id": "m08",
+        "label": "M08",
+        "path": "./public/assets/avatar/characters/m08.svg"
+      },
+      {
+        "id": "m09",
+        "label": "M09",
+        "path": "./public/assets/avatar/characters/m09.svg"
+      },
+      {
+        "id": "m10",
+        "label": "M10",
+        "path": "./public/assets/avatar/characters/m10.svg"
+      }
+    ],
+    "clothing-graphics": [
+      {
+        "id": "bat",
+        "label": "Bat",
+        "path": "./public/assets/avatar/clothing-graphics/bat.svg"
+      },
+      {
+        "id": "bear",
+        "label": "Bear",
+        "path": "./public/assets/avatar/clothing-graphics/bear.svg"
+      },
+      {
+        "id": "cumbia",
+        "label": "Cumbia",
+        "path": "./public/assets/avatar/clothing-graphics/cumbia.svg"
+      },
+      {
+        "id": "deer",
+        "label": "Deer",
+        "path": "./public/assets/avatar/clothing-graphics/deer.svg"
+      },
+      {
+        "id": "diamond",
+        "label": "Diamond",
+        "path": "./public/assets/avatar/clothing-graphics/diamond.svg"
+      },
+      {
+        "id": "hola",
+        "label": "Hola",
+        "path": "./public/assets/avatar/clothing-graphics/hola.svg"
+      },
+      {
+        "id": "pizza",
+        "label": "Pizza",
+        "path": "./public/assets/avatar/clothing-graphics/pizza.svg"
+      },
+      {
+        "id": "resist",
+        "label": "Resist",
+        "path": "./public/assets/avatar/clothing-graphics/resist.svg"
+      },
+      {
+        "id": "skull",
+        "label": "Skull",
+        "path": "./public/assets/avatar/clothing-graphics/skull.svg"
+      },
+      {
+        "id": "skulloutline",
+        "label": "SkullOutline",
+        "path": "./public/assets/avatar/clothing-graphics/skullOutline.svg"
+      }
+    ],
+    "clothing": [
+      {
+        "id": "blazerandshirt",
+        "label": "BlazerAndShirt",
+        "path": "./public/assets/avatar/clothing/blazerAndShirt.svg"
+      },
+      {
+        "id": "blazerandsweater",
+        "label": "BlazerAndSweater",
+        "path": "./public/assets/avatar/clothing/blazerAndSweater.svg"
+      },
+      {
+        "id": "collarandsweater",
+        "label": "CollarAndSweater",
+        "path": "./public/assets/avatar/clothing/collarAndSweater.svg"
+      },
+      {
+        "id": "graphicshirt",
+        "label": "GraphicShirt",
+        "path": "./public/assets/avatar/clothing/graphicShirt.svg"
+      },
+      {
+        "id": "hoodie",
+        "label": "Hoodie",
+        "path": "./public/assets/avatar/clothing/hoodie.svg"
+      },
+      {
+        "id": "overall",
+        "label": "Overall",
+        "path": "./public/assets/avatar/clothing/overall.svg"
+      },
+      {
+        "id": "shirtcrewneck",
+        "label": "ShirtCrewNeck",
+        "path": "./public/assets/avatar/clothing/shirtCrewNeck.svg"
+      },
+      {
+        "id": "shirtscoopneck",
+        "label": "ShirtScoopNeck",
+        "path": "./public/assets/avatar/clothing/shirtScoopNeck.svg"
+      },
+      {
+        "id": "shirtvneck",
+        "label": "ShirtVNeck",
+        "path": "./public/assets/avatar/clothing/shirtVNeck.svg"
+      }
+    ],
+    "eyebrows": [
+      {
+        "id": "angry",
+        "label": "Angry",
+        "path": "./public/assets/avatar/eyebrows/angry.svg"
+      },
+      {
+        "id": "angrynatural",
+        "label": "AngryNatural",
+        "path": "./public/assets/avatar/eyebrows/angryNatural.svg"
+      },
+      {
+        "id": "default",
+        "label": "Default",
+        "path": "./public/assets/avatar/eyebrows/default.svg"
+      },
+      {
+        "id": "defaultnatural",
+        "label": "DefaultNatural",
+        "path": "./public/assets/avatar/eyebrows/defaultNatural.svg"
+      },
+      {
+        "id": "flatnatural",
+        "label": "FlatNatural",
+        "path": "./public/assets/avatar/eyebrows/flatNatural.svg"
+      },
+      {
+        "id": "frownnatural",
+        "label": "FrownNatural",
+        "path": "./public/assets/avatar/eyebrows/frownNatural.svg"
+      },
+      {
+        "id": "raisedexcited",
+        "label": "RaisedExcited",
+        "path": "./public/assets/avatar/eyebrows/raisedExcited.svg"
+      },
+      {
+        "id": "raisedexcitednatural",
+        "label": "RaisedExcitedNatural",
+        "path": "./public/assets/avatar/eyebrows/raisedExcitedNatural.svg"
+      },
+      {
+        "id": "sadconcerned",
+        "label": "SadConcerned",
+        "path": "./public/assets/avatar/eyebrows/sadConcerned.svg"
+      },
+      {
+        "id": "sadconcernednatural",
+        "label": "SadConcernedNatural",
+        "path": "./public/assets/avatar/eyebrows/sadConcernedNatural.svg"
+      },
+      {
+        "id": "unibrownatural",
+        "label": "UnibrowNatural",
+        "path": "./public/assets/avatar/eyebrows/unibrowNatural.svg"
+      },
+      {
+        "id": "updown",
+        "label": "UpDown",
+        "path": "./public/assets/avatar/eyebrows/upDown.svg"
+      },
+      {
+        "id": "updownnatural",
+        "label": "UpDownNatural",
+        "path": "./public/assets/avatar/eyebrows/upDownNatural.svg"
+      }
+    ],
+    "eyes": [
+      {
+        "id": "closed",
+        "label": "Closed",
+        "path": "./public/assets/avatar/eyes/closed.svg"
+      },
+      {
+        "id": "cry",
+        "label": "Cry",
+        "path": "./public/assets/avatar/eyes/cry.svg"
+      },
+      {
+        "id": "default",
+        "label": "Default",
+        "path": "./public/assets/avatar/eyes/default.svg"
+      },
+      {
+        "id": "eyeroll",
+        "label": "EyeRoll",
+        "path": "./public/assets/avatar/eyes/eyeRoll.svg"
+      },
+      {
+        "id": "happy",
+        "label": "Happy",
+        "path": "./public/assets/avatar/eyes/happy.svg"
+      },
+      {
+        "id": "hearts",
+        "label": "Hearts",
+        "path": "./public/assets/avatar/eyes/hearts.svg"
+      },
+      {
+        "id": "side",
+        "label": "Side",
+        "path": "./public/assets/avatar/eyes/side.svg"
+      },
+      {
+        "id": "squint",
+        "label": "Squint",
+        "path": "./public/assets/avatar/eyes/squint.svg"
+      },
+      {
+        "id": "surprised",
+        "label": "Surprised",
+        "path": "./public/assets/avatar/eyes/surprised.svg"
+      },
+      {
+        "id": "wink",
+        "label": "Wink",
+        "path": "./public/assets/avatar/eyes/wink.svg"
+      },
+      {
+        "id": "winkwacky",
+        "label": "WinkWacky",
+        "path": "./public/assets/avatar/eyes/winkWacky.svg"
+      },
+      {
+        "id": "xdizzy",
+        "label": "XDizzy",
+        "path": "./public/assets/avatar/eyes/xDizzy.svg"
+      }
+    ],
+    "facial-hair": [
+      {
+        "id": "beardlight",
+        "label": "BeardLight",
+        "path": "./public/assets/avatar/facial-hair/beardLight.svg"
+      },
+      {
+        "id": "beardmajestic",
+        "label": "BeardMajestic",
+        "path": "./public/assets/avatar/facial-hair/beardMajestic.svg"
+      },
+      {
+        "id": "beardmedium",
+        "label": "BeardMedium",
+        "path": "./public/assets/avatar/facial-hair/beardMedium.svg"
+      },
+      {
+        "id": "moustachefancy",
+        "label": "MoustacheFancy",
+        "path": "./public/assets/avatar/facial-hair/moustacheFancy.svg"
+      },
+      {
+        "id": "moustachemagnum",
+        "label": "MoustacheMagnum",
+        "path": "./public/assets/avatar/facial-hair/moustacheMagnum.svg"
+      }
+    ],
+    "hair": [
+      {
+        "id": "bighair",
+        "label": "BigHair",
+        "path": "./public/assets/avatar/hair/bigHair.svg"
+      },
+      {
+        "id": "bob",
+        "label": "Bob",
+        "path": "./public/assets/avatar/hair/bob.svg"
+      },
+      {
+        "id": "bun",
+        "label": "Bun",
+        "path": "./public/assets/avatar/hair/bun.svg"
+      },
+      {
+        "id": "curly",
+        "label": "Curly",
+        "path": "./public/assets/avatar/hair/curly.svg"
+      },
+      {
+        "id": "curvy",
+        "label": "Curvy",
+        "path": "./public/assets/avatar/hair/curvy.svg"
+      },
+      {
+        "id": "dreads",
+        "label": "Dreads",
+        "path": "./public/assets/avatar/hair/dreads.svg"
+      },
+      {
+        "id": "dreads01",
+        "label": "Dreads01",
+        "path": "./public/assets/avatar/hair/dreads01.svg"
+      },
+      {
+        "id": "dreads02",
+        "label": "Dreads02",
+        "path": "./public/assets/avatar/hair/dreads02.svg"
+      },
+      {
+        "id": "frida",
+        "label": "Frida",
+        "path": "./public/assets/avatar/hair/frida.svg"
+      },
+      {
+        "id": "frizzle",
+        "label": "Frizzle",
+        "path": "./public/assets/avatar/hair/frizzle.svg"
+      },
+      {
+        "id": "fro",
+        "label": "Fro",
+        "path": "./public/assets/avatar/hair/fro.svg"
+      },
+      {
+        "id": "froband",
+        "label": "FroBand",
+        "path": "./public/assets/avatar/hair/froBand.svg"
+      },
+      {
+        "id": "longbutnottoolong",
+        "label": "LongButNotTooLong",
+        "path": "./public/assets/avatar/hair/longButNotTooLong.svg"
+      },
+      {
+        "id": "miawallace",
+        "label": "MiaWallace",
+        "path": "./public/assets/avatar/hair/miaWallace.svg"
+      },
+      {
+        "id": "shaggy",
+        "label": "Shaggy",
+        "path": "./public/assets/avatar/hair/shaggy.svg"
+      },
+      {
+        "id": "shaggymullet",
+        "label": "ShaggyMullet",
+        "path": "./public/assets/avatar/hair/shaggyMullet.svg"
+      },
+      {
+        "id": "shavedsides",
+        "label": "ShavedSides",
+        "path": "./public/assets/avatar/hair/shavedSides.svg"
+      },
+      {
+        "id": "shortcurly",
+        "label": "ShortCurly",
+        "path": "./public/assets/avatar/hair/shortCurly.svg"
+      },
+      {
+        "id": "shortflat",
+        "label": "ShortFlat",
+        "path": "./public/assets/avatar/hair/shortFlat.svg"
+      },
+      {
+        "id": "shortround",
+        "label": "ShortRound",
+        "path": "./public/assets/avatar/hair/shortRound.svg"
+      },
+      {
+        "id": "shortwaved",
+        "label": "ShortWaved",
+        "path": "./public/assets/avatar/hair/shortWaved.svg"
+      },
+      {
+        "id": "sides",
+        "label": "Sides",
+        "path": "./public/assets/avatar/hair/sides.svg"
+      },
+      {
+        "id": "straight01",
+        "label": "Straight01",
+        "path": "./public/assets/avatar/hair/straight01.svg"
+      },
+      {
+        "id": "straight02",
+        "label": "Straight02",
+        "path": "./public/assets/avatar/hair/straight02.svg"
+      },
+      {
+        "id": "straightandstrand",
+        "label": "StraightAndStrand",
+        "path": "./public/assets/avatar/hair/straightAndStrand.svg"
+      },
+      {
+        "id": "thecaesar",
+        "label": "TheCaesar",
+        "path": "./public/assets/avatar/hair/theCaesar.svg"
+      },
+      {
+        "id": "thecaesarandsidepart",
+        "label": "TheCaesarAndSidePart",
+        "path": "./public/assets/avatar/hair/theCaesarAndSidePart.svg"
+      }
+    ],
+    "headwear": [
+      {
+        "id": "hat",
+        "label": "Hat",
+        "path": "./public/assets/avatar/headwear/hat.svg"
+      },
+      {
+        "id": "hijab",
+        "label": "Hijab",
+        "path": "./public/assets/avatar/headwear/hijab.svg"
+      },
+      {
+        "id": "turban",
+        "label": "Turban",
+        "path": "./public/assets/avatar/headwear/turban.svg"
+      },
+      {
+        "id": "winterhat02",
+        "label": "WinterHat02",
+        "path": "./public/assets/avatar/headwear/winterHat02.svg"
+      },
+      {
+        "id": "winterhat03",
+        "label": "WinterHat03",
+        "path": "./public/assets/avatar/headwear/winterHat03.svg"
+      },
+      {
+        "id": "winterhat04",
+        "label": "WinterHat04",
+        "path": "./public/assets/avatar/headwear/winterHat04.svg"
+      },
+      {
+        "id": "winterhat1",
+        "label": "WinterHat1",
+        "path": "./public/assets/avatar/headwear/winterHat1.svg"
+      }
+    ],
+    "mouths": [
+      {
+        "id": "concerned",
+        "label": "Concerned",
+        "path": "./public/assets/avatar/mouths/concerned.svg"
+      },
+      {
+        "id": "default",
+        "label": "Default",
+        "path": "./public/assets/avatar/mouths/default.svg"
+      },
+      {
+        "id": "disbelief",
+        "label": "Disbelief",
+        "path": "./public/assets/avatar/mouths/disbelief.svg"
+      },
+      {
+        "id": "eating",
+        "label": "Eating",
+        "path": "./public/assets/avatar/mouths/eating.svg"
+      },
+      {
+        "id": "grimace",
+        "label": "Grimace",
+        "path": "./public/assets/avatar/mouths/grimace.svg"
+      },
+      {
+        "id": "sad",
+        "label": "Sad",
+        "path": "./public/assets/avatar/mouths/sad.svg"
+      },
+      {
+        "id": "screamopen",
+        "label": "ScreamOpen",
+        "path": "./public/assets/avatar/mouths/screamOpen.svg"
+      },
+      {
+        "id": "serious",
+        "label": "Serious",
+        "path": "./public/assets/avatar/mouths/serious.svg"
+      },
+      {
+        "id": "smile",
+        "label": "Smile",
+        "path": "./public/assets/avatar/mouths/smile.svg"
+      },
+      {
+        "id": "tongue",
+        "label": "Tongue",
+        "path": "./public/assets/avatar/mouths/tongue.svg"
+      },
+      {
+        "id": "twinkle",
+        "label": "Twinkle",
+        "path": "./public/assets/avatar/mouths/twinkle.svg"
+      },
+      {
+        "id": "vomit",
+        "label": "Vomit",
+        "path": "./public/assets/avatar/mouths/vomit.svg"
+      }
+    ],
+    "nose": [
+      {
+        "id": "default",
+        "label": "Default",
+        "path": "./public/assets/avatar/nose/default.svg"
+      }
+    ],
+    "other": [
+      {
+        "id": "favicon",
+        "label": "Favicon",
+        "path": "./public/assets/favicon.svg"
+      }
+    ],
+    "pets": [
+      {
+        "id": "bear",
+        "label": "Bear",
+        "path": "./public/assets/pets/bear.svg"
+      },
+      {
+        "id": "cat",
+        "label": "Cat",
+        "path": "./public/assets/pets/cat.svg"
+      },
+      {
+        "id": "chick",
+        "label": "Chick",
+        "path": "./public/assets/pets/chick.svg"
+      },
+      {
+        "id": "white-bear",
+        "label": "White Bear",
+        "path": "./public/assets/pets/white-bear.svg"
+      }
+    ]
+  }
+}
