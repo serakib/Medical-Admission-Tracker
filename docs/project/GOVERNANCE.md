@@ -17,13 +17,13 @@ The maintainer considers the project's educational purpose, student safety and p
 
 ## Contributions and review
 
-Read [CONTRIBUTING.md](./CONTRIBUTING.md) before proposing changes. All pull requests require maintainer review and are not automatically accepted. A pull request does not grant repository write access or permission to deploy backend changes.
+Read [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) before proposing changes. All pull requests require maintainer review and are not automatically accepted. A pull request does not grant repository write access or permission to deploy backend changes.
 
-The [Code of Conduct](./CODE_OF_CONDUCT.md) applies to project spaces and interactions.
+The [Code of Conduct](../../.github/CODE_OF_CONDUCT.md) applies to project spaces and interactions.
 
 ## Releases and urgent fixes
 
-The maintainer controls release decisions and publication. Release preparation follows [docs/RELEASING.md](./docs/RELEASING.md). Security issues must be reported privately as described in [SECURITY.md](./SECURITY.md); they should not be discussed in public issues before coordinated disclosure.
+The maintainer controls release decisions and publication. Release preparation follows [docs/RELEASING.md](./docs/RELEASING.md). Security issues must be reported privately as described in [SECURITY.md](../../.github/SECURITY.md); they should not be discussed in public issues before coordinated disclosure.
 
 ## Changes to governance
 
