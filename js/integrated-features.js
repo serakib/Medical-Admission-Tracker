@@ -1582,55 +1582,6 @@
     status.dataset.state = String(state || 'loading');
     status.hidden = !message;
   }
-  function avatarAssetPreviewMarkup(fieldKey, value, config) {
-    const esc = text => String(text || '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-    const colors = {'#24242b':'#24242b','#2563eb':'#2563eb','#dc2626':'#dc2626','#10b981':'#10b981','#f8fafc':'#f8fafc'};
-    const color = colors[value] || '#d1d5db';
-    const svg = body => '<span class="mat-avatar-asset-preview"><svg viewBox="0 0 96 72" aria-hidden="true">' + body + '</svg></span>';
-    if (fieldKey === 'eyeShape') {
-      const eyes = value === 'closed' ? '<path d="M15 34q10 10 20 0m26 0q10 10 20 0"/>' :
-        value === 'wink' ? '<circle cx="29" cy="34" r="8"/><path d="M59 35q10 8 19 0"/>' :
-        value === 'hearts' ? '<path d="M20 35c-10-10 4-20 10-8 7-12 20-2 10 8l-10 12zM56 35c-10-10 4-20 10-8 7-12 20-2 10 8L66 47z"/>' :
-        '<ellipse cx="29" cy="35" rx="10" ry="'+(value==='squint'?'5':'9')+'"/><ellipse cx="67" cy="35" rx="10" ry="'+(value==='squint'?'5':'9')+'"/><circle cx="29" cy="35" r="4" fill="#111"/><circle cx="67" cy="35" r="4" fill="#111"/>';
-      return svg(eyes.replace(/<ellipse/g,'<ellipse fill="none" stroke="#f4f4f5" stroke-width="3"').replace(/<path/g,'<path fill="none" stroke="#f4f4f5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"'));
-    }
-    if (fieldKey === 'eyebrowShape') {
-      const brow = value === 'angry' ? 'M15 25l28 9m10-9 28 9' : value === 'sadConcerned' ? 'M15 33l28-8m10 8 28-8' : value === 'raisedExcited' ? 'M15 25q14-12 28 0m10 0q14-12 28 0' : value === 'flatNatural' ? 'M15 28h28m10 0h28' : 'M15 29q14-7 28 0m10 0q14-7 28 0';
-      return svg('<path d="'+brow+'" fill="none" stroke="#2c1b18" stroke-width="5" stroke-linecap="round"/>');
-    }
-    if (fieldKey === 'expression') {
-      const mouth = value === 'serious' ? 'M29 46h38' : value === 'sad' || value === 'concerned' ? 'M28 52q20-22 40 0' : value === 'screamOpen' ? 'M39 38q9-8 18 0 8 22-9 22-17 0-9-22z' : value === 'twinkle' ? 'M28 45q20 18 40 0' : 'M28 42q20 23 40 0';
-      return svg('<path d="'+mouth+'" fill="'+(value==='screamOpen'?'#f472b6':'none')+'" stroke="#f4f4f5" stroke-width="4" stroke-linecap="round"/>');
-    }
-    if (fieldKey === 'petType') {
-      if (value === 'none') return svg('<circle cx="48" cy="37" r="18" fill="none" stroke="#9ca3af" stroke-width="3" stroke-dasharray="4 5"/>');
-      const pet = value === 'cat' ? '<path d="M25 30 21 12l18 10q9-4 18 0l18-10-4 18q8 25-23 31-31-6-23-31z"/>' : value === 'bear' ? '<circle cx="30" cy="22" r="10"/><circle cx="66" cy="22" r="10"/><circle cx="48" cy="39" r="27"/>' : '<ellipse cx="48" cy="41" rx="25" ry="24"/><path d="m29 28-7-12 18 7m29 5 7-12-18 7"/>';
-      return svg(pet+'<circle cx="39" cy="38" r="3" fill="#24242b"/><circle cx="57" cy="38" r="3" fill="#24242b"/><ellipse cx="48" cy="49" rx="5" ry="3" fill="#f472b6"/>').replace('<svg','<svg').replace(/<path/g,'<path fill="#f8fafc" stroke="#d1d5db" stroke-width="2"').replace(/<circle/g,'<circle fill="#f8fafc" stroke="#d1d5db" stroke-width="2"').replace(/<ellipse/g,'<ellipse fill="#f8fafc" stroke="#d1d5db" stroke-width="2"');
-    }
-    if (fieldKey === 'headphones') return value === 'none'
-      ? svg('<path d="M27 39v-7a21 21 0 0 1 42 0v7" fill="none" stroke="#9ca3af" stroke-width="6" stroke-linecap="round"/><rect x="21" y="36" width="12" height="23" rx="5" fill="none" stroke="#9ca3af" stroke-width="4"/><rect x="63" y="36" width="12" height="23" rx="5" fill="none" stroke="#9ca3af" stroke-width="4"/>')
-      : svg('<path d="M27 39v-7a21 21 0 0 1 42 0v7" fill="none" stroke="'+color+'" stroke-width="7" stroke-linecap="round"/><rect x="19" y="34" width="17" height="28" rx="6" fill="'+color+'" stroke="#f4f4f5" stroke-opacity=".45" stroke-width="2"/><rect x="60" y="34" width="17" height="28" rx="6" fill="'+color+'" stroke="#f4f4f5" stroke-opacity=".45" stroke-width="2"/>');
-    if (fieldKey === 'glasses') {
-      if (value === 'none') return svg('<path d="M15 35h66" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 6"/>');
-      const shape = value === 'round' ? '<circle cx="29" cy="37" r="15"/><circle cx="67" cy="37" r="15"/>' : value === 'sunglasses' ? '<path d="M12 26h34l-3 24H23q-8-4-11-24zm38 0h34q-3 20-11 24H53z"/>' : '<rect x="12" y="25" width="34" height="25" rx="7"/><rect x="50" y="25" width="34" height="25" rx="7"/>';
-      return svg(shape.replace(/<circle/g,'<circle fill="none" stroke="#e5e7eb" stroke-width="4"').replace(/<rect/g,'<rect fill="none" stroke="#e5e7eb" stroke-width="4"').replace(/<path/g,'<path fill="none" stroke="#e5e7eb" stroke-width="4"')+'<path d="M44 34h8" stroke="#e5e7eb" stroke-width="4"/>');
-    }
-    if (fieldKey === 'clothingType') return svg('<path d="m30 12 18 8 18-8 18 14-10 13-8-6v27H30V33l-8 6-10-13z" fill="'+(config.clothingColor ? '#'+String(config.clothingColor).replace('#','') : '#2563eb')+'" stroke="#e5e7eb" stroke-width="3" stroke-linejoin="round"/><path d="M39 18q9 12 18 0" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3"/>');
-    if (fieldKey === 'hat') return value === 'none'
-      ? svg('<path d="M17 52h62" stroke="#9ca3af" stroke-width="4" stroke-linecap="round" stroke-dasharray="4 6"/>')
-      : svg('<path d="M20 43q2-24 28-25 25 2 28 25v6H20z" fill="'+color+'" stroke="#e5e7eb" stroke-width="3"/><path d="M13 48h70q-3 10-35 10T13 48z" fill="'+color+'" stroke="#e5e7eb" stroke-width="3"/>');
-    if (fieldKey === 'hairStyle') {
-      const long = /long|straight|bob|curly|bigHair|frida|hijab|mia/i.test(value);
-      const curly = /curly|frizzle|fro|dread/i.test(value);
-      const hair = long ? 'M22 58V31q0-22 26-22t26 22v27l-10 5V35q-16-12-32 0v28z' : curly ? 'M20 40q-8-26 10-28 5-15 20-7 19-5 25 15 8 11 1 23l-9-8-8 5-8-6-10 6-9-6z' : 'M20 42q0-29 28-29t28 29l-9-8q-17-9-38 0z';
-      return svg('<path d="'+hair+'" fill="#'+String(config.hairColor||'2c1b18').replace('#','')+'" stroke="#e5e7eb" stroke-opacity=".65" stroke-width="2"/>');
-    }
-    if (fieldKey === 'facialHair') return value === 'none'
-      ? svg('<path d="M25 45h46" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 6"/>')
-      : svg('<path d="M24 27q24 16 48 0v19q-4 15-24 15T24 46z" fill="#'+String(config.facialHairColor||'2c1b18').replace('#','')+'" stroke="#e5e7eb" stroke-opacity=".55" stroke-width="2"/><path d="M34 29q14 9 28 0" fill="none" stroke="#f8fafc" stroke-opacity=".5" stroke-width="2"/>');
-    return '';
-  }
-
   function avatarOptionFieldMarkup(field, config) {
     const options = typeof window.MedAvatarCreator.getOptionsForField === 'function'
       ? window.MedAvatarCreator.getOptionsForField(field.key, config)
@@ -1646,10 +1597,6 @@
           const color = '#' + raw.replace(/^#/, '');
           visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background-color:' + color + '" aria-hidden="true"></span>';
         } else {
-          const isolatedAsset = avatarAssetPreviewMarkup(field.key, option.value, config);
-          if (isolatedAsset) {
-            visual = isolatedAsset;
-          } else {
           const thumbnailInput = field.key === 'characterPreset'
             ? window.MedAvatarCreator.applyCharacterPreset(option.value, config)
             : field.key === 'gender'
@@ -1660,9 +1607,8 @@
           const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
           const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
           visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
-          }
         }
-        return '<button type="button" class="mat-avatar-option' + (selected ? ' is-selected' : '') +
+        return '<button type="button" class="mat-avatar-option' + (field.key === 'characterPreset' ? ' mat-avatar-character-card' : '') + (selected ? ' is-selected' : '') +
           '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw +
           '" title="' + label.replace(/&/g,'&amp;').replace(/"/g,'&quot;') +
           '" aria-label="' + field.title + ': ' + label + '" aria-pressed="' + String(selected) + '">' + visual +
@@ -1861,7 +1807,7 @@
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-          '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
+          '</nav><div class="mat-avatar-options-scroll"><div class="mat-avatar-group-section is-active" id="mat-avatar-group-' + activeGroup.key + '" data-avatar-group-section="' + activeGroup.key + '">' + activeGroup.fields.map(fieldMarkup).join('') + '</div></div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
@@ -1879,23 +1825,7 @@
         livePanel.style.backgroundColor = '#' + background;
         livePanel.dataset.avatarBackground = background;
       }
-      const scroller = picker.querySelector('.mat-avatar-options-scroll');
-      if (scroller && scroller.dataset.navSync !== '1') {
-        scroller.dataset.navSync = '1';
-        scroller.addEventListener('scroll', () => {
-          const sections = Array.from(scroller.querySelectorAll('[data-avatar-group-section]'));
-          const top = scroller.getBoundingClientRect().top + 24;
-          let current = sections[0];
-          sections.forEach(section => { if (section.getBoundingClientRect().top <= top) current = section; });
-          if (!current) return;
-          activeAvatarGroup = current.dataset.avatarGroupSection;
-          picker.querySelectorAll('.mat-avatar-category').forEach(tab => {
-            const active = tab.dataset.avatarGroup === activeAvatarGroup;
-            tab.classList.toggle('is-active', active);
-            tab.setAttribute('aria-pressed', String(active));
-          });
-        }, {passive:true});
-      }
+
     }
   }
   function renderAvatarPickerWithTransition({focus=false} = {}) {
@@ -2065,18 +1995,10 @@
     }
     const avatarGroup = event.target.closest('[data-avatar-group]');
     if (avatarGroup) {
-      activeAvatarGroup = avatarGroup.dataset.avatarGroup;
-      const controls = avatarGroup.closest('.mat-avatar-controls');
-      controls?.querySelectorAll('.mat-avatar-category').forEach(tab => {
-        const active = tab === avatarGroup;
-        tab.classList.toggle('is-active', active);
-        tab.setAttribute('aria-pressed', String(active));
-      });
-      const scroller = controls?.querySelector('.mat-avatar-options-scroll');
-      const section = scroller?.querySelector('[data-avatar-group-section="' + activeAvatarGroup + '"]');
-      if (scroller && section) {
-        const top = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
-        scroller.scrollTo({top:scroller.scrollTop + top,behavior:'smooth'});
+      const nextGroup = avatarGroup.dataset.avatarGroup;
+      if (nextGroup && nextGroup !== activeAvatarGroup) {
+        activeAvatarGroup = nextGroup;
+        renderAvatarPicker();
       }
       return;
     }
@@ -3140,4 +3062,59 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   @media(max-width:760px){.mat-avatar-option:has(.mat-avatar-option-label){min-height:104px!important}.mat-avatar-option-label{font-size:10px}}
  `;
  document.head.appendChild(style);
+})();
+
+
+/* Avatar builder: real category tabs and portrait character cards. */
+(() => {
+  if (document.getElementById('mat-avatar-real-tabs-portrait-v4')) return;
+  const style = document.createElement('style');
+  style.id = 'mat-avatar-real-tabs-portrait-v4';
+  style.textContent = `
+    .mat-avatar-controls .mat-avatar-category-bar{
+      display:flex!important;flex:0 0 72px!important;align-items:center!important;justify-content:space-around!important;
+      gap:4px!important;margin:0!important;padding:7px 10px!important;overflow-x:auto!important;overflow-y:hidden!important;
+      border:0!important;border-bottom:1px solid #56565b!important;border-radius:26px 26px 0 0!important;background:#151515!important;
+    }
+    .mat-avatar-controls .mat-avatar-category{
+      position:relative!important;display:flex!important;flex:0 0 48px!important;width:48px!important;height:48px!important;
+      min-height:48px!important;align-items:center!important;justify-content:center!important;padding:0!important;
+      border:1px solid transparent!important;border-radius:15px!important;background:transparent!important;color:#c8c8cc!important;
+      transition:background .16s ease,border-color .16s ease,color .16s ease!important;
+    }
+    .mat-avatar-controls .mat-avatar-category svg{width:25px!important;height:25px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+    .mat-avatar-controls .mat-avatar-category.is-active{border-color:#73737a!important;background:#333338!important;color:#fff!important}
+    .mat-avatar-controls .mat-avatar-category.is-active:after{content:"";position:absolute;left:25%;right:25%;bottom:-8px;height:3px;border-radius:3px;background:#10b981}
+    .mat-avatar-options-scroll{display:block!important;flex:1 1 auto!important;min-height:0!important;padding:16px 18px 18px!important;overflow-y:auto!important;overflow-x:hidden!important}
+    .mat-avatar-group-section{display:block!important;margin:0!important}
+    .mat-avatar-option-section{margin:0 0 22px!important}
+    .mat-avatar-option-section h3{margin:0 0 12px!important;color:#f4f4f5!important;font-size:15px!important;font-weight:850!important}
+    .mat-avatar-option-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+    .mat-avatar-option{
+      position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;
+      min-width:0!important;min-height:0!important;aspect-ratio: .82!important;padding:7px!important;gap:5px!important;
+      border:1.5px solid #777!important;border-radius:16px!important;background:#3a3a3a!important;color:#fff!important;overflow:hidden!important;
+    }
+    .mat-avatar-option.is-selected{border:2px solid #10b95e!important;background:#3a3a3a!important;box-shadow:0 0 0 1px #10b95e!important}
+    .mat-avatar-option-preview-stack{position:relative!important;display:block!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:1/1!important;overflow:hidden!important;border-radius:10px!important}
+    .mat-avatar-option-preview-stack .med-avatar-base{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center bottom!important}
+    .mat-avatar-option-label{display:block!important;flex:0 0 auto!important;width:100%!important;min-height:18px!important;overflow:hidden!important;color:#fff!important;font-size:11px!important;font-weight:850!important;line-height:1.2!important;text-align:center!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+    .mat-avatar-character-card{min-height:158px!important}
+    .mat-avatar-character-card .mat-avatar-option-preview-stack{aspect-ratio: .9!important}
+    .mat-avatar-controls .mat-avatar-actions{flex:0 0 auto!important;margin:0!important;padding:12px 14px!important;border-top:1px solid #56565b!important;background:#111!important}
+    .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{min-height:54px!important;border-radius:16px!important;background:#12a34a!important;font-weight:900!important}
+    @media(max-width:850px){
+      .mat-avatar-controls .mat-avatar-category-bar{flex-basis:60px!important;min-height:60px!important;padding:5px 6px!important;justify-content:flex-start!important}
+      .mat-avatar-controls .mat-avatar-category{flex-basis:43px!important;width:43px!important;height:43px!important}
+      .mat-avatar-options-scroll{padding:12px 10px!important}
+      .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+      .mat-avatar-option{padding:5px!important;border-radius:12px!important}
+      .mat-avatar-character-card{min-height:132px!important}
+      .mat-avatar-option-label{font-size:10px!important}
+      .mat-avatar-controls .mat-avatar-actions{padding:8px!important}
+      .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{min-height:48px!important}
+    }
+    @media(max-width:390px){.mat-avatar-option-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+  `;
+  document.head.appendChild(style);
 })();
