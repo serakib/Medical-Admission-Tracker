@@ -646,7 +646,7 @@ function syncSidebarUserProfile(){
   }
   if(batchEl)batchEl.textContent=batch;
   if(avatarEl){
-    var accountId=(user&&user.uid)||((function(){try{return localStorage.getItem('med_sheet_guest_id_v1')||'guest';}catch(_){return 'guest';}})());
+    var accountId=(typeof app.getLocalIdentityKey==='function'?app.getLocalIdentityKey():((user&&user.uid)||'visitor'));
     var savedAvatar='',manualAvatar=false;
     try{
       savedAvatar=localStorage.getItem('med_profile_avatar_v1_'+accountId)||'';
