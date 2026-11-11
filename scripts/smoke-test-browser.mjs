@@ -28,6 +28,7 @@ try {
   const localOrigin = 'http://127.0.0.1:8765';
 
   page.on('pageerror', error => errors.push('PAGE ERROR: ' + error.stack));
+  page.on('requestfailed', request => failedRequests.push(request.url() + ' — ' + (request.failure()?.errorText || 'request failed')));
   page.on('console', message => {
     if (message.type() === 'error') errors.push('CONSOLE ERROR: ' + message.text());
   });
@@ -64,8 +65,13 @@ try {
   });
 
   console.log('Opening deployed files in Chromium via verified Node proxy: ' + baseUrl.href);
-  const response = await page.goto(localOrigin + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const response = await page.goto(localOrigin + '/', { waitUntil: 'commit', timeout: 30000 });
   assert.ok(response?.ok(), 'Homepage navigation failed: HTTP ' + (response?.status() ?? 'no response'));
+  // Do not let a stalled module script prevent diagnostics: capture the document
+  // as soon as headers arrive, then inspect app startup and all script failures.
+  await page.waitForLoadState('domcontentloaded', { timeout: 12000 }).catch(error => {
+    errors.push('DOM CONTENT LOADED TIMEOUT: ' + error.message);
+  });
 
   await page.waitForFunction(
     () => Boolean(window.app && typeof window.app.showView === 'function'),
