@@ -1,7 +1,9 @@
 name: Live service health monitor
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Build, validate and deploy to GitHub Pages"]
+    types: [completed]
     branches: [main]
   schedule:
     - cron: "17 */6 * * *"
@@ -16,6 +18,7 @@ concurrency:
 
 jobs:
   monitor:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     name: Check live site, question bank and backend
     runs-on: ubuntu-latest
     timeout-minutes: 10
