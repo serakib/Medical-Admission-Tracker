@@ -836,5 +836,6 @@ window.addEventListener('student-progress-updated',event=>{const p=event.detail|
 function mount(){card();if(adminAccessConfirmed)ensureAdminDashboard();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 window.addEventListener('mat:firebase-auth-ready',()=>{if($('mat-promo-card'))refresh();});
+window.addEventListener('student-auth-state-resolved',()=>{if($('mat-promo-card'))refresh();});
 new MutationObserver(()=>{if(document.body&&$('sidebar-student-profile-extras'))mount();}).observe(document.documentElement,{childList:true,subtree:true});
 })();
