@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
 const suppliedUrl = process.argv[2];
+const siteOnly = process.argv.includes('--site-only');
 if (!suppliedUrl) {
   console.error('Usage: node scripts/smoke-test-live.mjs <deployed-url>');
   process.exit(2);
@@ -108,37 +110,41 @@ assert.ok(displayedCount && displayedCount[1].trim() === `${questions.length}+`,
 console.log(`OK live question bank: ${questions.length} questions across ${Object.keys(subjectCounts).length} subjects.`);
 
 // Check the read-only backend health endpoint so stale Apps Script deployments are visible.
-const leaderboardConfigResponse = await requestWithRetry(new URL('js/leaderboard-config.js', baseUrl));
-const leaderboardConfigSource = await leaderboardConfigResponse.text();
-const apiUrlMatch = leaderboardConfigSource.match(/MED_LEADERBOARD_API_URL\s*=\s*['"]([^'"]+)['"]/);
-assert.ok(apiUrlMatch, 'Live leaderboard API URL is missing from its configuration.');
+if (!siteOnly) {
+  const backendSource = await readFile(new URL('../apps-script/Medical_Admission_Tracker_Backend.gs', import.meta.url), 'utf8');
+  const sourceVersion = backendSource.match(/const MAT_API_VERSION\s*=\s*['"]([^'"]+)['"]/);
+  const sourceCapabilitiesBlock = backendSource.match(/const MAT_API_CAPABILITIES\s*=\s*Object\.freeze\(\[([\s\S]*?)\]\);/);
+  assert.ok(sourceVersion, 'Backend source API version is missing.');
+  assert.ok(sourceCapabilitiesBlock, 'Backend source capability list is missing.');
+  const expectedCapabilities = [...sourceCapabilitiesBlock[1].matchAll(/['"]([^'"]+)['"]/g)].map(match => match[1]);
 
-const apiUrl = new URL(apiUrlMatch[1]);
-assert.equal(apiUrl.protocol, 'https:', 'Leaderboard API must use HTTPS.');
-assert.equal(apiUrl.hostname, 'script.google.com', 'Leaderboard API must use the expected Google Apps Script host.');
-apiUrl.searchParams.set('action', 'health');
+  const leaderboardConfigResponse = await requestWithRetry(new URL('js/leaderboard-config.js', baseUrl));
+  const leaderboardConfigSource = await leaderboardConfigResponse.text();
+  const apiUrlMatch = leaderboardConfigSource.match(/MED_LEADERBOARD_API_URL\s*=\s*['"]([^'"]+)['"]/);
+  assert.ok(apiUrlMatch, 'Live leaderboard API URL is missing from its configuration.');
 
-const backendResponse = await requestWithRetry(apiUrl);
-const backendHealth = await backendResponse.json();
-console.log('Backend health payload:', JSON.stringify(backendHealth));
-assert.equal(backendHealth.success, true, 'Medical backend health endpoint did not report success.');
-assert.equal(backendHealth.status, 'ok', 'Medical backend is not healthy.');
-assert.equal(backendHealth.service, 'Medical Admission Tracker API', 'Unexpected backend service response.');
-assert.match(String(backendHealth.apiVersion || ''), /^\d{4}\.\d{2}\.\d{2}\.\d+$/,
-  'Backend API version is missing or invalid.');
+  const apiUrl = new URL(apiUrlMatch[1]);
+  assert.equal(apiUrl.protocol, 'https:', 'Leaderboard API must use HTTPS.');
+  assert.equal(apiUrl.hostname, 'script.google.com', 'Leaderboard API must use the expected Google Apps Script host.');
+  apiUrl.searchParams.set('action', 'health');
 
-const requiredCapabilities = [
-  'firebase-token-auth',
-  'persistent-guest-accounts',
-  'server-profile-management',
-  'exam-rewards-idempotency',
-  'unique-attempted-question-id-sync'
-];
-const backendCapabilities = new Set(Array.isArray(backendHealth.capabilities) ? backendHealth.capabilities : []);
-for (const capability of requiredCapabilities) {
-  assert.ok(backendCapabilities.has(capability), `Backend is missing required capability: ${capability}.`);
+  const backendResponse = await requestWithRetry(apiUrl);
+  const backendHealth = await backendResponse.json();
+  console.log('Backend health payload:', JSON.stringify(backendHealth));
+  assert.equal(backendHealth.success, true, 'Medical backend health endpoint did not report success.');
+  assert.equal(backendHealth.status, 'ok', 'Medical backend is not healthy.');
+  assert.equal(backendHealth.service, 'Medical Admission Tracker API', 'Unexpected backend service response.');
+  assert.equal(backendHealth.apiVersion, sourceVersion[1],
+    \`Live backend version \${backendHealth.apiVersion || 'unknown'} does not match repository source \${sourceVersion[1]}. Redeploy the existing Apps Script Web App.\`);
+
+  const backendCapabilities = new Set(Array.isArray(backendHealth.capabilities) ? backendHealth.capabilities : []);
+  const missingCapabilities = expectedCapabilities.filter(capability => !backendCapabilities.has(capability));
+  assert.deepEqual(missingCapabilities, [],
+    \`Live backend is missing repository capabilities: \${missingCapabilities.join(', ')}. Redeploy the existing Apps Script Web App.\`);
+  console.log(\`OK backend health: API \${backendHealth.apiVersion}, all \${expectedCapabilities.length} source capabilities are deployed.\`);
+} else {
+  console.log('Backend health check skipped for site-only deployment verification.');
 }
-console.log(`OK backend health: API ${backendHealth.apiVersion}, ${backendCapabilities.size} capabilities.`);
 
 const references = new Set();
 for (const match of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
