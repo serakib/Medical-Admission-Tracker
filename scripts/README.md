@@ -25,7 +25,7 @@ GitHub validation workflow-তে `node scripts/generate-avatar-svg-parts.mjs --
 Node.js 20+ ব্যবহার করে repository root থেকে pinned build dependency install করে চালাও:
 
 ```bash
-npm install --no-save --no-package-lock tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.24.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
+npm install --no-save --no-package-lock tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.28.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
 node scripts/build-local-assets.mjs
 node scripts/generate-avatar-browser-definition.mjs
 node scripts/generate-avatar-asset-manifest.mjs
