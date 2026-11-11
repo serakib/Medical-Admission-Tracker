@@ -36,7 +36,7 @@
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
-    gender:'male', ageGroup:'teen', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
+    gender:'male', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'blazerAndShirt', clothingColor:'333344', clothingGraphic:'none',
     petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
@@ -66,8 +66,8 @@
       ['f08','female','teen','#c9916b','frida','724133','happy','raisedExcited','smile','none','hoodie','dc2626'],
       ['f09','female','teen','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
       ['f10','female','teen','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtCrewNeck','333344']
-    ].map(([id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,facialHair,clothingType,clothingColor],index)=>({
-      id,characterPreset:id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
+    ].map(([id,gender,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,facialHair,clothingType,clothingColor],index)=>({
+      id,characterPreset:id,gender,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
       facialHair,clothingType,clothingColor,glasses:index%4===0?'round':'none',
       hat:'none',hatColor:'dc2626',facialHairColor:'2c1b18',petType:'none',
       headphones:'none',background:['a5a8ff','f3d8e8','bde0fe','caffbf','ffe8a3'][index%5]
@@ -89,12 +89,11 @@
     const supplied = input && typeof input === 'object' ? input : {};
     result.gender = supplied.gender === 'female' || supplied.gender === 'male' ? supplied.gender : inferGenderFromHair(supplied.hairStyle);
     // The avatar creator is for HSC students: legacy adult/mature values normalize to teen.
-    result.ageGroup = 'teen';
     const requestedPreset = characterPresets.find(item => item.id === supplied.characterPreset && item.gender === result.gender);
     result.characterPreset = requestedPreset ? requestedPreset.id : (result.gender === 'female' ? 'f01' : 'm01');
     const allowedHair = hairChoicesFor(result.gender).map(([value]) => value);
     if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
-    if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
+    if (result.gender === 'female') result.facialHair = 'none';
     const selectedPreset = characterPresets.find(item => item.id === result.characterPreset);
     if (!selectedPreset || selectedPreset.gender !== result.gender) {
       result.characterPreset = result.gender === 'female' ? 'f01' : 'm01';
@@ -256,7 +255,7 @@
       if (!/^https:\/\/api\.dicebear\.com\/10\.x\/avataaars\/svg\?/i.test(raw)) return null;
       const p = new URL(raw).searchParams, top = p.get('topVariant') || defaults.hat;
       const meta = Object.fromEntries(String(p.get('seed') || '').split('|').slice(1).map(part => { const pair = part.split('='); return [pair[0], pair[1] || '']; }));
-      return normalize({skinTone:'#'+(p.get('skinColor') || hex(defaults.skinTone)),eyeShape:p.get('eyesVariant') || defaults.eyeShape,eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,expression:p.get('mouthVariant') || defaults.expression,nose:p.get('noseVariant') || defaults.nose,gender:meta.gender || inferGenderFromHair(meta.hair || top),characterPreset:meta.character || (meta.gender === 'female' ? 'f01' : 'm01'),headphones:meta.headphones || 'none',ageGroup:meta.age || defaults.ageGroup,hairStyle:meta.hair || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top),hairColor:p.get('hairColor') || defaults.hairColor,facialHair:p.get('facialHairProbability') === '0' ? 'none' : (p.get('facialHairVariant') || 'beardLight'),facialHairColor:p.get('facialHairColor') || defaults.facialHairColor,glasses:p.get('accessoriesProbability') === '0' ? 'none' : (p.get('accessoriesVariant') || 'round'),hat:meta.hat || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'].includes(top) ? top : 'none'),hatColor:p.get('hatColor') || defaults.hatColor,clothingType:p.get('clothesVariant') || defaults.clothingType,clothingColor:p.get('clothesColor') || defaults.clothingColor,clothingGraphic:p.get('clothesGraphicProbability') === '0' ? 'none' : (p.get('clothesGraphic') || 'none'),petType:meta.pet || defaults.petType,background:meta.bg || p.get('backgroundColor') || defaults.background});
+      return normalize({skinTone:'#'+(p.get('skinColor') || hex(defaults.skinTone)),eyeShape:p.get('eyesVariant') || defaults.eyeShape,eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,expression:p.get('mouthVariant') || defaults.expression,nose:p.get('noseVariant') || defaults.nose,gender:meta.gender || inferGenderFromHair(meta.hair || top),characterPreset:meta.character || (meta.gender === 'female' ? 'f01' : 'm01'),headphones:meta.headphones || 'none',hairStyle:meta.hair || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top),hairColor:p.get('hairColor') || defaults.hairColor,facialHair:p.get('facialHairProbability') === '0' ? 'none' : (p.get('facialHairVariant') || 'beardLight'),facialHairColor:p.get('facialHairColor') || defaults.facialHairColor,glasses:p.get('accessoriesProbability') === '0' ? 'none' : (p.get('accessoriesVariant') || 'round'),hat:meta.hat || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'].includes(top) ? top : 'none'),hatColor:p.get('hatColor') || defaults.hatColor,clothingType:p.get('clothesVariant') || defaults.clothingType,clothingColor:p.get('clothesColor') || defaults.clothingColor,clothingGraphic:p.get('clothesGraphicProbability') === '0' ? 'none' : (p.get('clothesGraphic') || 'none'),petType:meta.pet || defaults.petType,background:meta.bg || p.get('backgroundColor') || defaults.background});
     } catch (_) { return null; }
   };
   const escapeAttr = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -288,8 +287,8 @@
   base.choices = Object.fromEntries(Object.entries(choices).map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
-    if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
-    if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
+    if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender).map(([value,label])=>({value,label}));
+    if (fieldKey === 'facialHair' && (config.gender === 'female')) return [{value:'none',label:'নেই'}];
     return (base.choices[fieldKey] || []).slice();
   };
   base.defaultConfig = seed => {
@@ -304,7 +303,6 @@
     return normalize({
       ...defaults,
       gender:pick(choices.gender,identity,13),
-      ageGroup:'teen',
       skinTone:pick(choices.skinTone,identity,0),
       eyeShape:pick(choices.eyeShape.filter(([value])=>['default','happy','side','squint','eyeRoll','surprised'].includes(value)),identity,1),
       eyebrowShape:pick(choices.eyebrowShape,identity,2),
@@ -319,12 +317,12 @@
       background:pick(choices.background,identity,12)
     });
   };
-  base.characterPresets = characterPresets.map(({id,gender,ageGroup})=>({id,gender,ageGroup}));
+  base.characterPresets = characterPresets.map(({id,gender})=>({id,gender}));
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
     if (fieldKey === 'characterPreset') return characterPresets.filter(item=>item.gender===config.gender).map((item,index)=>({value:item.id,label:'চরিত্র '+(index+1)}));
-    if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
-    if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
+    if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender).map(([value,label])=>({value,label}));
+    if (fieldKey === 'facialHair' && (config.gender === 'female')) return [{value:'none',label:'নেই'}];
     return (base.choices[fieldKey] || []).slice();
   };
   base.applyCharacterPreset = (id, current) => {
@@ -604,7 +602,7 @@
       }).filter(Boolean);
       characterPresets.splice(0, characterPresets.length, ...discoveredPresets);
       choices.characterPreset = characterPresets.map((item, index) => [item.id, 'চরিত্র ' + (index + 1)]);
-      base.characterPresets = characterPresets.map(({id,gender,ageGroup}) => ({id,gender,ageGroup}));
+      base.characterPresets = characterPresets.map(({id,gender}) => ({id,gender}));
       base.choices.characterPreset = choices.characterPreset.map(([value,label]) => ({value,label}));
 
       // Keep the option lists synchronized with the actual SVG folders.
