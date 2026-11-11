@@ -4,7 +4,7 @@
 if(window.__matPromoUIInstalled)return;window.__matPromoUIInstalled=true;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function credentials(){
+async function credentials(action){
  // Reuse the app's existing Firebase v11 modular auth session.
  // Do not call firebase.auth(): the site does not initialize the compat default app.
  const app=window.app;
@@ -13,9 +13,20 @@ async function credentials(){
   const idToken=await user.getIdToken();
   return {idToken};
  }
- const token=localStorage.getItem('med_sheet_guest_token_v1')||'';
- if(token)return {guestToken:token};
- throw new Error('Firebase session পাওয়া যায়নি। Sign in সম্পন্ন হলে আবার চেষ্টা করুন।');
+ let token='',expired=false;
+ try{
+  token=String(localStorage.getItem('med_sheet_guest_token_v1')||'').trim();
+  expired=!!localStorage.getItem('med_guest_session_expired_v1');
+ }catch(_){}
+ if(token&&!expired)return {guestToken:token};
+ // Public promo information is read-only. It must remain visible to Visitors.
+ if(action==='getPromoInfo')return {};
+ // Redeeming changes server-side PB, so ask for a real Guest or Registered identity
+ // only after the Visitor explicitly submits the redeem form.
+ if(window.MedVisitorAccess&&typeof window.MedVisitorAccess.open==='function'){
+  window.MedVisitorAccess.open();
+ }
+ throw new Error('Promo Code redeem করতে Guest Account তৈরি করুন অথবা Registered Account-এ Login করুন।');
 }
 const REQUEST_TIMEOUT_MS=30000;
 async function api(action,fields){
@@ -33,7 +44,7 @@ async function api(action,fields){
  });
  try{
   const request=(async()=>{
-   const creds=await credentials();
+   const creds=await credentials(action);
    if(timedOut){const error=new Error('Request timed out after 30 seconds.');error.code='MAT_REQUEST_TIMEOUT';throw error;}
    const options={method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action},creds,fields||{}))};
    if(controller)options.signal=controller.signal;
@@ -807,13 +818,18 @@ async function refresh(){
   const d=await api('getPromoInfo');
   $('mat-promo-public-code').textContent=d.publicCode;
   $('mat-promo-public-meta').textContent=(d.publicType==='weekly'?'Weekly · Saturday only':'Daily · আজ রাত ১২টা পর্যন্ত')+' · '+Number(d.rewardPB||0).toLocaleString()+' PB · Bangladesh Time';
-  $('mat-promo-balance').textContent=Number(d.promoPB||0).toLocaleString()+' PB';
+  if(d.visitor===true){
+    $('mat-promo-balance').textContent='Account required';
+    $('mat-promo-message').textContent='Public Promo Code দেখা যাচ্ছে। Redeem করে PB balance server-এ সংরক্ষণ করতে Guest বা Registered Account প্রয়োজন।';
+   }else{
+    $('mat-promo-balance').textContent=Number(d.promoPB||0).toLocaleString()+' PB';
+   }
   if(d.assignedCode&&d.assignedCode!==d.publicCode){$('mat-promo-assigned-wrap').classList.remove('hidden');$('mat-promo-assigned-code').textContent=d.assignedCode;$('mat-promo-assigned-meta').textContent='আপনার জন্য নির্ধারিত code · PB ও limit Admin settings অনুযায়ী';}
   else $('mat-promo-assigned-wrap').classList.add('hidden');
   if(d.isAdmin&&d.adminCode){$('mat-promo-admin-code-wrap').classList.remove('hidden');$('mat-promo-admin-code').textContent=d.adminCode;}
   else $('mat-promo-admin-code-wrap').classList.add('hidden');
   if(d.isAdmin){adminAccessConfirmed=true;ensureAdminDashboard();await loadAdmin();}else{adminAccessConfirmed=false;const b=$('mat-admin-management-nav'),dash=$('mat-admin-dashboard');if(b)b.classList.add('hidden');if(dash)dash.classList.add('hidden');}
- }catch(e){$('mat-promo-public-code').textContent='Sign in করে Promo Code ব্যবহার করুন';$('mat-promo-message').textContent=e.message;}
+ }catch(e){$('mat-promo-public-code').textContent='Public code load হয়নি';$('mat-promo-message').textContent=e.message;}
  finally{refreshInFlight=false;if(refreshPending){refreshPending=false;Promise.resolve().then(refresh);}}
 }
 window.addEventListener('student-progress-updated',event=>{const p=event.detail||{};const appProfile=window.app&&window.app.profile||{};const currentId=String(appProfile.userId||appProfile.uid||'');const eventId=String(p.userId||p.uid||p.playerId||'');if(currentId&&eventId===currentId&&p.promoPB!=null&&$('mat-promo-balance'))$('mat-promo-balance').textContent=Number(p.promoPB||0).toLocaleString()+' PB';});
