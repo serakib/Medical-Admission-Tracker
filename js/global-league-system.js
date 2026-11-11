@@ -2883,6 +2883,23 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   // Public visitors can browse every section; account-dependent actions are gated.
   var visitorAccessUIInstalled = false;
+  // The automatic Visitor prompt is measured from the first page entry, not
+  // from auth initialization. It can never appear during the first 30 seconds.
+  var visitorAccessEntryAt = Date.now();
+  var visitorAccessAutoPrompted = false;
+  var visitorAccessAutoTimer = null;
+  function scheduleVisitorAccessPrompt() {
+    if (visitorAccessAutoPrompted || visitorAccessAutoTimer || !app.authStateResolved) return;
+    var remaining = Math.max(0, 30000 - (Date.now() - visitorAccessEntryAt));
+    visitorAccessAutoTimer = window.setTimeout(function () {
+      visitorAccessAutoTimer = null;
+      if (visitorAccessAutoPrompted || !isAccountFreeVisitor()) return;
+      var modal = document.getElementById('mat-visitor-access-modal');
+      if (modal && !modal.hidden) return;
+      visitorAccessAutoPrompted = true;
+      openVisitorAccess('choices');
+    }, remaining);
+  }
   function isAccountFreeVisitor() {
     return app.authStateResolved === true && !app.authUser && (!getGuestToken() || !!readExpiredGuest());
   }
@@ -2914,6 +2931,8 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (oldNudge) oldNudge.remove();
   }
   function openVisitorAccess(mode) {
+    visitorAccessAutoPrompted = true;
+    if (visitorAccessAutoTimer) { clearTimeout(visitorAccessAutoTimer); visitorAccessAutoTimer = null; }
     ensureVisitorAccessUI();
     var modal = document.getElementById('mat-visitor-access-modal');
     if (!modal) return;
@@ -2985,7 +3004,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     visitorAccessUIInstalled = true;
     var style = document.createElement('style');
     style.id = 'mat-visitor-access-styles';
-    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{position:relative;width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:54px 22px 22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}html.dark #mat-visitor-access-panel .mat-va-choice-card,body.dark #mat-visitor-access-panel .mat-va-choice-card{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}html.dark #mat-visitor-access-panel .mat-va-choice-card strong,body.dark #mat-visitor-access-panel .mat-va-choice-card strong{color:#f8fafc!important}html.dark #mat-visitor-access-panel .mat-va-choice-card small,body.dark #mat-visitor-access-panel .mat-va-choice-card small{color:#cbd5e1!important}html.dark #mat-visitor-access-panel .mat-va-visitor-note,body.dark #mat-visitor-access-panel .mat-va-visitor-note{background:#1f2937!important;color:#cbd5e1!important}#mat-visitor-access-panel .mat-va-choice-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.09)}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }.mat-va-info-card{padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}.mat-va-choice-signup{background:#fff;color:#0f172a}html.dark #mat-visitor-access-panel .mat-va-info-card,body.dark #mat-visitor-access-panel .mat-va-info-card{background:#1f2937;border-color:#374151}html.dark #mat-visitor-access-panel .mat-va-choice-signup,body.dark #mat-visitor-access-panel .mat-va-choice-signup{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}#mat-visitor-access-panel button:focus-visible{outline:3px solid rgba(14,165,233,.55);outline-offset:2px}@media(max-width:480px){#mat-visitor-access-panel{padding:18px}}';
+    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{position:relative;width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:54px 22px 22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}html.dark #mat-visitor-access-panel .mat-va-choice-card,body.dark #mat-visitor-access-panel .mat-va-choice-card{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}html.dark #mat-visitor-access-panel .mat-va-choice-card strong,body.dark #mat-visitor-access-panel .mat-va-choice-card strong{color:#f8fafc!important}html.dark #mat-visitor-access-panel .mat-va-choice-card small,body.dark #mat-visitor-access-panel .mat-va-choice-card small{color:#cbd5e1!important}html.dark #mat-visitor-access-panel .mat-va-visitor-note,body.dark #mat-visitor-access-panel .mat-va-visitor-note{background:#1f2937!important;color:#cbd5e1!important}#mat-visitor-access-panel .mat-va-choice-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.09)}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }.mat-va-info-card{padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}.mat-va-choice-signup{background:#fff;color:#0f172a}html.dark #mat-visitor-access-panel .mat-va-info-card,body.dark #mat-visitor-access-panel .mat-va-info-card{background:#1f2937;border-color:#374151}html.dark #mat-visitor-access-panel .mat-va-choice-signup,body.dark #mat-visitor-access-panel .mat-va-choice-signup{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}#mat-visitor-access-panel button:focus-visible{outline:3px solid rgba(14,165,233,.55);outline-offset:2px}@media(max-width:480px){#mat-visitor-access-panel{padding:54px 18px 18px}}';
     document.head.appendChild(style);
     var modal = document.createElement('div');
     modal.id = 'mat-visitor-access-modal';
@@ -3097,6 +3116,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     window.addEventListener('student-auth-state-resolved', function () {
       restoreVisitorLocalProfile();
       updateVisitorAccessUI();
+      scheduleVisitorAccessPrompt();
     });
     window.addEventListener('student-profile-loaded', updateVisitorAccessUI);
     window.MedVisitorAccess = Object.freeze({
@@ -3107,6 +3127,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     });
     restoreVisitorLocalProfile();
     updateVisitorAccessUI();
+    scheduleVisitorAccessPrompt();
   }
 
   function ensureUI() {
