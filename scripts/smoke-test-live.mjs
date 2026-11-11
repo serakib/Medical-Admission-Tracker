@@ -135,13 +135,13 @@ if (!siteOnly) {
   assert.equal(backendHealth.status, 'ok', 'Medical backend is not healthy.');
   assert.equal(backendHealth.service, 'Medical Admission Tracker API', 'Unexpected backend service response.');
   assert.equal(backendHealth.apiVersion, sourceVersion[1],
-    \`Live backend version \${backendHealth.apiVersion || 'unknown'} does not match repository source \${sourceVersion[1]}. Redeploy the existing Apps Script Web App.\`);
+    'Live backend version ' + (backendHealth.apiVersion || 'unknown') + ' does not match repository source ' + sourceVersion[1] + '. Redeploy the existing Apps Script Web App.');
 
   const backendCapabilities = new Set(Array.isArray(backendHealth.capabilities) ? backendHealth.capabilities : []);
   const missingCapabilities = expectedCapabilities.filter(capability => !backendCapabilities.has(capability));
   assert.deepEqual(missingCapabilities, [],
-    \`Live backend is missing repository capabilities: \${missingCapabilities.join(', ')}. Redeploy the existing Apps Script Web App.\`);
-  console.log(\`OK backend health: API \${backendHealth.apiVersion}, all \${expectedCapabilities.length} source capabilities are deployed.\`);
+    'Live backend is missing repository capabilities: ' + missingCapabilities.join(', ') + '. Redeploy the existing Apps Script Web App.');
+  console.log('OK backend health: API ' + backendHealth.apiVersion + ', all ' + expectedCapabilities.length + ' source capabilities are deployed.');
 } else {
   console.log('Backend health check skipped for site-only deployment verification.');
 }
