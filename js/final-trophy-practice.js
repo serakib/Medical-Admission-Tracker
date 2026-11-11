@@ -394,10 +394,21 @@
     const current = rankFromPoints(points);
     return { index: current.index, name: current.rank[0], nextName: current.index >= trophyRanks.length - 1 ? '' : trophyRanks[current.index + 1][0], progressRP: current.left, required: current.required, progress: current.progress, safeZoneRP: current.index >= trophyRanks.length - 1 ? 0 : Math.ceil(current.required * 0.3), atMax: current.index >= trophyRanks.length - 1 };
   }
+  function escapeTrophyMarkupValue(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    })[character]);
+  }
   function trophySvgForIndex(index, className) {
     const safeIndex = Math.max(0, Math.min(trophyRanks.length - 1, Number(index) || 0));
     const [name, main, dark, shine] = trophyRanks[safeIndex];
-    return '<svg class="' + String(className || 'vault-rank-trophy-svg') + '" viewBox="0 0 100 112" style="--trophy-glow:' + main + '" role="img" aria-label="' + name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + ' trophy">' +
+    const safeClassName = escapeTrophyMarkupValue(className || 'vault-rank-trophy-svg');
+    const safeAccessibleName = escapeTrophyMarkupValue(name + ' trophy');
+    return '<svg class="' + safeClassName + '" viewBox="0 0 100 112" style="--trophy-glow:' + main + '" role="img" aria-label="' + safeAccessibleName + '">' +
       '<path d="M28 22H10v15c0 15 10 24 25 24M72 22h18v15c0 15-10 24-25 24" fill="none" stroke="' + main + '" stroke-width="9"/>' +
       '<path d="M28 12h44v26c0 18-10 29-22 29S28 56 28 38Z" fill="' + main + '" stroke="' + shine + '" stroke-width="2"/>' +
       buildTrophyEmblem(safeIndex, main, dark, shine) +
@@ -414,7 +425,8 @@
     const apiRankIndex = rankIndexForName(apiRank);
     const index = apiRankIndex >= 0 ? apiRankIndex : current.index;
     const name = apiRankIndex >= 0 ? trophyRanks[apiRankIndex][0] : current.rank[0];
-    return '<span class="leader-rank-trophy" title="' + name + '">' + trophySvgForIndex(index, 'leader-rank-trophy-svg') + '<span class="leader-rank-trophy-copy"><strong>' + name + '</strong></span></span>';
+    const safeName = escapeTrophyMarkupValue(name);
+    return '<span class="leader-rank-trophy" title="' + safeName + '">' + trophySvgForIndex(index, 'leader-rank-trophy-svg') + '<span class="leader-rank-trophy-copy"><strong>' + safeName + '</strong></span></span>';
   }
   function installLeaderboardTrophyStyles() {
     if (document.getElementById('leader-rank-trophy-styles')) return;
