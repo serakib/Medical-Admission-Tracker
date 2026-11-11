@@ -980,6 +980,33 @@
     if (Object.prototype.hasOwnProperty.call(allowed, 'name') && allowed.name.length < 2) {
       throw new Error('নাম কমপক্ষে ২ অক্ষরের হতে হবে।');
     }
+    // Visitor profile edits and avatar selections are useful locally, but are
+    // deliberately not written to Medical Sheets or treated as verified data.
+    if (!app.authUser && (!getGuestToken() || readExpiredGuest())) {
+      var visitorKey = 'med_sheet_profile_v1_visitor';
+      var visitorProfile = parseJson(localStorage.getItem(visitorKey), {}) || {};
+      Object.keys(allowed).forEach(function (key) { visitorProfile[key] = allowed[key]; });
+      visitorProfile.accountType = 'VISITOR';
+      visitorProfile.localOnly = true;
+      visitorProfile.uid = '';
+      visitorProfile.userId = '';
+      visitorProfile.email = '';
+      try { localStorage.setItem(visitorKey, JSON.stringify(visitorProfile)); }
+      catch (_) { throw new Error('এই browser-এ local profile save করা যায়নি। Storage space পরীক্ষা করুন।'); }
+      app.profile = visitorProfile;
+      currentProfile = null;
+      if (typeof app.renderAccountProfile === 'function') {
+        try { app.renderAccountProfile(); } catch (error) { console.warn('[Visitor profile] UI refresh failed:', error); }
+      }
+      updateTopControls(visitorProfile);
+      var nameInput = document.getElementById('medical-profile-name');
+      var collegeInput = document.getElementById('medical-profile-college');
+      var batchInput = document.getElementById('medical-profile-batch');
+      if (nameInput && Object.prototype.hasOwnProperty.call(allowed, 'name')) nameInput.value = allowed.name;
+      if (collegeInput && Object.prototype.hasOwnProperty.call(allowed, 'college')) collegeInput.value = allowed.college;
+      if (batchInput && Object.prototype.hasOwnProperty.call(allowed, 'batch')) batchInput.value = allowed.batch;
+      return visitorProfile;
+    }
     var creds = await credentialsForCurrentUser();
     var response = await request(Object.assign({ action: 'updateProfile' }, creds, allowed));
     if (!response.user) throw new Error('Updated profile was not returned by the API.');
@@ -2855,6 +2882,27 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
   function isAccountFreeVisitor() {
     return app.authStateResolved === true && !app.authUser && (!getGuestToken() || !!readExpiredGuest());
   }
+  function restoreVisitorLocalProfile() {
+    if (!isAccountFreeVisitor()) return false;
+    var saved = parseJson(localStorage.getItem('med_sheet_profile_v1_visitor'), null);
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return false;
+    var visitorProfile = Object.assign({}, saved, {
+      accountType: 'VISITOR', localOnly: true, uid: '', userId: '', email: ''
+    });
+    app.profile = visitorProfile;
+    currentProfile = null;
+    if (typeof app.renderAccountProfile === 'function') {
+      try { app.renderAccountProfile(); } catch (error) { console.warn('[Visitor profile] Restore UI refresh failed:', error); }
+    }
+    updateTopControls(visitorProfile);
+    var nameInput = document.getElementById('medical-profile-name');
+    var collegeInput = document.getElementById('medical-profile-college');
+    var batchInput = document.getElementById('medical-profile-batch');
+    if (nameInput && document.activeElement !== nameInput) nameInput.value = safeText(visitorProfile.name || '', 80);
+    if (collegeInput && document.activeElement !== collegeInput) collegeInput.value = safeText(visitorProfile.college || '', 120);
+    if (batchInput && document.activeElement !== batchInput) batchInput.value = safeText(visitorProfile.batch || '', 40);
+    return true;
+  }
   function updateVisitorAccessUI() {
     var bar = document.getElementById('mat-visitor-access-bar');
     if (bar) bar.hidden = !isAccountFreeVisitor();
@@ -3027,7 +3075,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
       openVisitorAccess('choices');
     }, true);
-    window.addEventListener('student-auth-state-resolved', updateVisitorAccessUI);
+    window.addEventListener('student-auth-state-resolved', function () {
+      restoreVisitorLocalProfile();
+      updateVisitorAccessUI();
+    });
     window.addEventListener('student-profile-loaded', updateVisitorAccessUI);
     window.MedVisitorAccess = Object.freeze({
       open: function () { openVisitorAccess('choices'); },
@@ -3035,6 +3086,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       openSignupForm: function () { openVisitorAccess('signup'); },
       close: closeVisitorAccess
     });
+    restoreVisitorLocalProfile();
     updateVisitorAccessUI();
   }
 
@@ -3341,13 +3393,19 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           var savedBatch = safeText(updated.batch != null ? updated.batch : submittedBatch, 40);
           if (status) {
             status.className = 'text-sm font-semibold text-emerald-600 dark:text-emerald-400';
-            status.textContent = 'Saved ✓ — Leaderboard-এর জন্য কোনো personal information বাধ্যতামূলক নয়।';
-            status.title = 'Profile successfully saved to Medical Sheets. Firebase mirror syncs in the background.';
+            status.textContent = updated.localOnly === true
+              ? 'এই device-এ localভাবে save হয়েছে ✓ — server-এ verified বা synced নয়।'
+              : 'Server-এ save হয়েছে ✓ — Leaderboard-এর জন্য কোনো personal information বাধ্যতামূলক নয়।';
+            status.title = updated.localOnly === true
+              ? 'Visitor profile is stored only in this browser and is not server-verified.'
+              : 'Profile successfully saved to Medical Sheets. Firebase mirror syncs in the background.';
           }
           // A leaderboard refresh is secondary; it must not change the confirmed save result.
-          loadLeaderboard(true).catch(function (refreshError) {
-            console.warn('[Profile save] Leaderboard refresh failed after profile was saved:', refreshError);
-          });
+          if (updated.localOnly !== true) {
+            loadLeaderboard(true).catch(function (refreshError) {
+              console.warn('[Profile save] Leaderboard refresh failed after profile was saved:', refreshError);
+            });
+          }
         } catch (error) {
           var message = apiErrorMessage(error);
           if (status) {
