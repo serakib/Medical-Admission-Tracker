@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # Keep GitHub Actions used by repository automation current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "automation"
