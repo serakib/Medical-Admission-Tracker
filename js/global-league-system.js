@@ -2877,11 +2877,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       return;
     }
     if (mode === 'signup') {
-      panel.innerHTML = close + back + intro + '<form id="mat-visitor-signup-form"><label style="' + labelStyle + '">নাম *<input id="auth-name" name="name" maxlength="80" autocomplete="name" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">College *<input id="auth-college" name="college" maxlength="120" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Batch *<input id="auth-class" name="batch" maxlength="40" placeholder="যেমন: HSC 2027" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Email *<input id="auth-email" name="email" type="email" autocomplete="email" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Password *<input id="auth-password" name="password" type="password" minlength="6" autocomplete="new-password" required style="' + fieldStyle + '"></label><input id="auth-mobile" type="hidden" value=""><input id="auth-blood" type="hidden" value=""><p id="authMessage" role="status" style="font-size:13px;color:#dc2626;margin:10px 0"></p><button id="mat-va-submit" type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Review & Create Account</button></form>';
+      panel.innerHTML = close + back + intro + '<form id="mat-visitor-signup-form"><label style="' + labelStyle + '">নাম *<input name="name" maxlength="80" autocomplete="name" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">College *<input name="college" maxlength="120" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Batch *<input name="batch" maxlength="40" placeholder="যেমন: HSC 2027" required style="' + fieldStyle + '"></label><p style="font-size:12px;color:#64748b;line-height:1.6;margin:12px 0">প্রথমে আপনার Personal Information নিশ্চিত করুন। এরপর আলাদা secure Login page-এ Email ও Password দিয়ে account তৈরি করবেন।</p><p id="authMessage" role="status" style="font-size:13px;color:#dc2626;margin:10px 0"></p><button id="mat-va-submit" type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Continue to Secure Sign Up</button></form>';
       return;
     }
     if (mode === 'login') {
-      panel.innerHTML = close + back + intro + '<form id="mat-visitor-login-form"><label style="' + labelStyle + '">Email<input id="auth-email" type="email" autocomplete="email" required style="' + fieldStyle + '"></label><label style="' + labelStyle + '">Password<input id="auth-password" type="password" autocomplete="current-password" required style="' + fieldStyle + '"></label><input id="auth-name" type="hidden" value=""><input id="auth-college" type="hidden" value=""><input id="auth-class" type="hidden" value=""><input id="auth-mobile" type="hidden" value=""><input id="auth-blood" type="hidden" value=""><p id="authMessage" role="status" style="font-size:13px;color:#dc2626;margin:10px 0"></p><button type="submit" style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Login</button></form>';
+      panel.innerHTML = close + back + intro + '<p style="font-size:13px;color:var(--mat-va-muted,#64748b);line-height:1.6;margin:12px 0">আপনার existing account-এ নিরাপদে Login করতে আলাদা Login page-এ যান।</p><button type="button" data-va-external-login style="width:100%;border:0;border-radius:12px;padding:14px;background:#059669;color:#fff;font-weight:800;cursor:pointer">Open Login Page</button>';
     }
   }
   function ensureVisitorAccessUI() {
@@ -2954,13 +2954,27 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guest: true } }));
           return;
         }
-        if (form.id === 'mat-visitor-signup-form' || form.id === 'mat-visitor-login-form') {
-          var isSignup = form.id === 'mat-visitor-signup-form';
-          if (!window.app || typeof window.app.handleAuthSubmit !== 'function') throw new Error('Authentication service এখনো প্রস্তুত নয়।');
-          window.app.authMode = isSignup ? 'register' : 'login';
-          await window.app.handleAuthSubmit({ preventDefault: function () {} });
-          if (window.app.authUser) { closeVisitorAccess(); updateVisitorAccessUI(); }
-          else if (button) button.disabled = false;
+        if (form.id === 'mat-visitor-signup-form') {
+          var signupValues = Object.fromEntries(new FormData(form).entries());
+          var signupProfile = {
+            name: safeText(signupValues.name || '', 80),
+            college: safeText(signupValues.college || '', 120),
+            batch: safeText(signupValues.batch || '', 40)
+          };
+          if (signupProfile.name.length < 2 || !signupProfile.college || !signupProfile.batch) {
+            throw new Error('নাম, College ও Batch সঠিকভাবে পূরণ করুন।');
+          }
+          if (!window.confirm('আপনার Personal Information নিশ্চিত করবেন?\n\nনাম: ' + signupProfile.name + '\nCollege: ' + signupProfile.college + '\nBatch: ' + signupProfile.batch + '\n\nএরপর আলাদা Login page-এ account তৈরি করবেন।')) {
+            if (button) button.disabled = false;
+            return;
+          }
+          localStorage.setItem('med_pending_registration_v1', JSON.stringify(Object.assign({}, signupProfile, { createdAt: Date.now() })));
+          if (status) { status.style.color = '#059669'; status.textContent = 'তথ্য নিশ্চিত হয়েছে। Secure Sign Up page-এ নেওয়া হচ্ছে…'; }
+          window.location.href = 'https://serakib.github.io/Medical-Admission-Tracker-login/?mode=signup';
+          return;
+        }
+        if (form.id === 'mat-visitor-login-form') {
+          window.location.href = 'https://serakib.github.io/Medical-Admission-Tracker-login/?mode=login';
           return;
         }
       } catch (error) {
