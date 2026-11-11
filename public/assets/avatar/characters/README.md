@@ -9,4 +9,4 @@ Artwork path প্রতিটি SVG ফাইলের ভেতরে embedd
 
 Source: Avataaars by Pablo Stanley; see `../../ASSET-CREDITS.md`.
 
-**Runtime note:** এই preset files self-contained local vectors। Avatar Builder-এর live customization renderer এখনও DiceBear API URL তৈরি করে; তাই পুরো Builder-কে offline/local-only করতে renderer migration আলাদা করে প্রয়োজন।
+**Runtime note:** এই preset files self-contained local vectors। Avatar Builder-এর live customization renderer local Avataaars definition থেকে SVG তৈরি করে; নতুন portrait তৈরির জন্য DiceBear image API call প্রয়োজন হয় না। Preset card-এ এখানে থাকা original SVG file-ই দেখানো হয়।
