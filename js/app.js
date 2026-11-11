@@ -1083,7 +1083,7 @@ class MedicalExamApp {
         const themeButtons = document.querySelectorAll('button[onclick*="toggleTheme"]');
         const icon = isDark
             ? '<i class="fa-solid fa-moon theme-toggle-icon" aria-hidden="true"></i>'
-            : '<i class="fa-solid fa-sun theme-toggle-icon" aria-hidden="true">';
+            : '<i class="fa-solid fa-sun theme-toggle-icon" aria-hidden="true"></i>';
         themeButtons.forEach((themeToggle) => {
             const isFloatingToggle = themeToggle.id === 'theme-toggle';
             themeToggle.innerHTML = isFloatingToggle ? icon : icon + ' Toggle theme';
