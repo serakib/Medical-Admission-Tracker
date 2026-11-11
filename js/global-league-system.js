@@ -2979,10 +2979,6 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       var infoText = 'font-size:12px;line-height:1.65;color:var(--mat-va-muted,#64748b);margin:0';
       panel.innerHTML = close + back +
         '<div style="text-align:center;margin:0 0 14px"><h2 style="font-size:19px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account সম্পর্কে জানুন</h2><p style="font-size:12px;color:var(--mat-va-muted,#64748b);margin:5px 0 0">Visitor, Guest ও Registered Account-এর পার্থক্য</p></div>' +
-        '<div class="mat-va-guidance-list">' +
-          '<section class="mat-va-guidance-capsule mat-va-guidance-capsule--timer"><span aria-hidden="true">⏱️</span><div><strong>স্বয়ংক্রিয় Popup — একবারই</strong><p>Visitor হলে পেজে প্রবেশের ৩০ সেকেন্ড পর একবার দেখাবে। একই পেজে ৩০ সেকেন্ড পরপর আর দেখাবে না; আগে নিজে খুললেও আবার auto-popup আসবে না।</p></div></section>' +
-          '<section class="mat-va-guidance-capsule mat-va-guidance-capsule--account"><span aria-hidden="true">🔐</span><div><strong>Account প্রয়োজন হলে</strong><p>Guest বা Registered Account দরকার এমন কাজের জন্য Account option থেকে Guest, Sign Up বা Login বেছে নিন।</p></div></section>' +
-        '</div>' +
         '<div style="display:grid;gap:10px">' +
           '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Visitor — Account ছাড়াই</h3><p style="' + infoText + '">Public information, latest leaderboard, public profile ও practice ব্যবহার করতে পারবে। তোমার practice history, progress, profile ও avatar শুধু এই browser/device-এ local থাকবে; server-এ save বা sync হবে না। Browser-এর data মুছে গেলে local data হারাতে পারো।</p></section>' +
           '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Guest Account</h3><p style="' + infoText + '">নাম, College ও Batch নিশ্চিত করলে এই Medical Admission Tracker-এই server-side Guest Account তৈরি হবে। Email বা Password লাগবে না। তোমার account-এর profile, exam result, XP/RP ও progress server-এ save ও sync হবে।</p></section>' +
