@@ -194,6 +194,12 @@ The GitHub Wiki feature is enabled. The prepared Markdown guides are maintained 
 
 ---
 
+## 🔍 Repository Quality Audit
+
+A verified repository review, including current CI evidence, remaining production-readiness work, and recommended quality gates: [Repository Quality Audit](docs/REPOSITORY_QUALITY_AUDIT.md).
+
+---
+
 ## 🗂️ Project Management & Releases
 
 Repository planning and release operations are documented separately:
