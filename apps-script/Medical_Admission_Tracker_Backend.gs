@@ -25,9 +25,10 @@ const MAT_CONFIG = Object.freeze({
 });
 
 // Public, non-secret version/capability metadata for deployment verification.
-const MAT_API_VERSION = '2026.11.10.10';
+const MAT_API_VERSION = '2026.11.11.1';
 const MAT_API_CAPABILITIES = Object.freeze([
   'firebase-token-auth',
+  'unique-attempted-question-id-sync',
   'permanent-account-deletion-cleans-all-user-ledger-and-friend-records',
   'persistent-guest-accounts',
   'guest-creation-requires-name-college-batch-confirmation',
@@ -105,7 +106,7 @@ const MAT_EXAM_HEADERS = [
   'RecordType', 'AttemptID', 'UserID', 'ExamMode', 'Subject', 'ExamYear', 'TimeUsed', 'TotalQuestions', 'Correct',
   'Wrong', 'Score', 'XPEarned', 'RPEarned', 'PBEarned', 'RankBefore', 'RankAfter',
   'SubmittedAt', 'ActivityID', 'ActivityCreatedAt', 'ActivityMessage',
-  'NotificationStatus', 'SentAt', 'RetryCount', 'LastError', 'RewardStatus'
+  'NotificationStatus', 'SentAt', 'RetryCount', 'LastError', 'RewardStatus', 'QuestionIDs'
 ];
 
 // Keep server rank progression aligned with the existing Achievement Vault trophy order.
@@ -850,6 +851,12 @@ function matGetProgress_(p) {
         total: total,
         accuracy: (answered ? correct / answered * 100 : 0).toFixed(1) + '%',
         timeUsed: matFormatTimeUsed_(row.TimeUsed),
+        questionIds: (function () {
+          try {
+            const ids = JSON.parse(String(row.QuestionIDs || '[]'));
+            return Array.isArray(ids) ? Array.from(new Set(ids.map(function (id) { return String(id || '').trim(); }).filter(Boolean))).slice(0, 1000) : [];
+          } catch (_) { return []; }
+        })(),
         correct: correct,
         wrong: wrong,
         submittedAt: stamp
@@ -1397,6 +1404,7 @@ function matSubmitExam_(p) {
         RankBefore: rankBefore,
         RankAfter: rankPreview.rank,
         SubmittedAt: now,
+        QuestionIDs: JSON.stringify(Array.isArray(p.questionIds) ? Array.from(new Set(p.questionIds.map(function (id) { return matCleanText_(id, 160); }).filter(Boolean))).slice(0, 1000) : []),
         RewardStatus: 'PROCESSING'
       });
       existing = matFindExamByAttempt_(attemptId);
