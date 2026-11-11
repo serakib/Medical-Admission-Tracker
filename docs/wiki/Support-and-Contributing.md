@@ -10,7 +10,7 @@ Project-এ feedback, bug report ও improvement suggestion স্বাগত�
 | Bug report | [Bug Report Form](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=bug_report.yml) |
 | New feature idea | [Feature Request Form](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=feature_request.yml) |
 | Accessibility barrier | [Accessibility Report](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=accessibility_report.yml) |
-| Security vulnerability | [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md) |
+| Security vulnerability | [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/SECURITY.md) |
 
 ## Helpful bug report
 
@@ -35,7 +35,7 @@ Password, Firebase token, student record বা অন্য sensitive informati
 
 ## Project standards
 
-- [CONTRIBUTING.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/CONTRIBUTING.md)
-- [CODE_OF_CONDUCT.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/CODE_OF_CONDUCT.md)
+- [CONTRIBUTING.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/CODE_OF_CONDUCT.md)
 - [ACCESSIBILITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/ACCESSIBILITY.md)
-- [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md)
+- [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/SECURITY.md)
