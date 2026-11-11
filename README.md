@@ -179,6 +179,26 @@ Labels and milestone definitions are maintained in the .github directory and syn
 
 ---
 
+
+## 🧭 Repository Policies & Project Information
+
+- [Support and help](SUPPORT.md)
+- [Security policy](SECURITY.md)
+- [Accessibility guidelines](ACCESSIBILITY.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing guide](CONTRIBUTING.md)
+- [Project governance](GOVERNANCE.md)
+- [Project roadmap](ROADMAP.md)
+- [System architecture](ARCHITECTURE.md)
+- [Authors and maintainers](AUTHORS.md)
+- [Citation metadata](CITATION.cff)
+- [Privacy, cookies and terms](legal.html)
+- [License](LICENSE)
+
+Dependabot is configured for GitHub Actions workflow dependencies. See `.github/dependabot.yml`. Repository code ownership is defined in `CODEOWNERS`.
+
+The privacy notice, cookie information and terms are maintained together in **legal.html** to avoid conflicting duplicate policy documents.
+
 ## ©️ Copyright & License
 
 **Copyright (c) 2026 Rakib Hasan. All Rights Reserved.**
