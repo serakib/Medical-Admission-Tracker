@@ -2021,12 +2021,12 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     popup._closeLeaderboardWeekPopup = closePopup;
     return popup;
   }
-  function showLeaderboardCountdownPopup(title) {
+  function showLeaderboardCountdownPopup(title, showTools) {
     var popup = ensureLeaderboardWeekPopup();
     var heading = popup.querySelector('#leaderboard-week-popup-title');
     var tools = popup.querySelector('[data-week-popup-tools]');
     if (heading) heading.textContent = title;
-    if (tools) tools.hidden = true;
+    if (tools) tools.hidden = showTools !== true;
     popup.hidden = false;
     document.body.classList.add('leaderboard-week-popup-open');
     var closeButton = popup.querySelector('[data-week-popup-close]');
@@ -2177,7 +2177,21 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (popupToolsForWeekly) popupToolsForWeekly.hidden = false;
     var openButton = note.querySelector('[data-open-week-popup]');
     if (openButton) openButton.addEventListener('click', function () {
-      showLeaderboardCountdownPopup('⏳ Weekly Ranking — নতুন সপ্তাহের countdown');
+      var popupBody = popup.querySelector('[data-week-popup-content]');
+      var liveWeekValue = note.querySelector('[data-weekly-countdown]');
+      var liveDailyButton = note.querySelector('[data-promotion-review-countdown]');
+      var liveDailyLabel = liveDailyButton && liveDailyButton.querySelector('[data-review-label]');
+      var liveDailyValue = liveDailyButton && liveDailyButton.querySelector('strong');
+      var popupReview = matNextDhakaDailyReview_();
+      var popupReviewLabel = popupReview.weekday === 6 ? 'Weekly Hard Reset' : 'Daily Review';
+      if (popupBody) popupBody.innerHTML =
+        '<div class="leaderboard-week-popup-countdowns">' +
+          '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ <strong data-weekly-countdown-popup>' + (liveWeekValue ? liveWeekValue.textContent : countdown) + '</strong></p>' +
+          '<p class="leaderboard-week-popup-countdown leaderboard-week-popup-review" data-promotion-review-countdown-popup><span data-review-label>🔁 ' + (liveDailyLabel ? liveDailyLabel.textContent.replace(/^🔁\\s*/, '') : popupReviewLabel) + '</span><strong>' + (liveDailyValue ? liveDailyValue.textContent : matCountdownText_((popupReview.timestamp - Date.now()) / 1000)) + '</strong></p>' +
+        '</div>' +
+        '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
+        '<p>Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।</p>';
+      showLeaderboardCountdownPopup('⏳ Weekly Ranking — নতুন সপ্তাহের countdown', true);
     });
     var dailyButton = note.querySelector('[data-open-daily-review-popup]');
     if (dailyButton) dailyButton.addEventListener('click', function () {
