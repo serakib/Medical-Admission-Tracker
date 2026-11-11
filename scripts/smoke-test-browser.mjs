@@ -31,6 +31,7 @@ try {
   // The application-ready event is emitted only after the main app instance is constructed.
   await page.waitForFunction(
     () => Boolean(window.app && typeof window.app.showView === 'function'),
+    undefined,
     { timeout: 30000 }
   ).catch(() => {});
 
