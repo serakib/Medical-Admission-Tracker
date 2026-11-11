@@ -24,6 +24,7 @@ async function requestWithRetry(url) {
       });
       if (response.ok) return response;
       lastError = new Error(`HTTP ${response.status} for ${url}`);
+      if (response.status < 500 && response.status !== 429) throw lastError;
     } catch (error) {
       lastError = error;
     }
@@ -49,6 +50,7 @@ for (const match of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
       /^[a-z][a-z\d+.-]*:/i.test(raw)) continue;
   const target = new URL(raw, baseUrl);
   if (target.origin !== baseUrl.origin) continue;
+  target.hash = '';
   references.add(target.href);
 }
 
