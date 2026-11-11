@@ -108,7 +108,9 @@
       'M'+(cx-70)+' 117 Q'+(cx-86)+' 47 '+(cx-25)+' 27 Q'+(cx+44)+' 12 '+(cx+73)+' 77 L'+(cx+58)+' 122 Q'+cx+' 68 '+(cx-54)+' 107 Z',
       'M'+(cx-70)+' 115 Q'+(cx-69)+' 24 '+cx+' 27 Q'+(cx+70)+' 24 '+(cx+70)+' 115 L'+(cx+53)+' 93 Q'+cx+' 67 '+(cx-53)+' 93 Z'
     ];
-    const hairPath = hairShapes[index%hairShapes.length];
+    const hairStyleIndex = Math.abs(String(c.hairStyle || '').split('').reduce((n,ch)=>n+ch.charCodeAt(0),0)) % hairShapes.length;
+    const hairPath = hairShapes[(index + hairStyleIndex)%hairShapes.length];
+    const hatMarkup = c.hat === 'none' ? '' : '<path d="M'+(cx-76)+' 78 Q'+cx+' 8 '+(cx+76)+' 78 L'+(cx+62)+' 91 Q'+cx+' 61 '+(cx-62)+' 91Z" fill="#'+hex(c.hatColor)+'"/><path d="M'+(cx-82)+' 87 Q'+cx+' 105 '+(cx+82)+' 87" fill="none" stroke="#'+hex(c.hatColor)+'" stroke-width="12" stroke-linecap="round"/>';
     const eyeY = 119 + (index%3)*2;
     const eyeGap = 23 + (index%4)*2;
     const eyeRx = female ? 7 : 6.2;
@@ -122,12 +124,14 @@
       ? '<path d="M'+(cx-40)+' 153 Q'+cx+' 213 '+(cx+40)+' 153 Q'+(cx+27)+' 190 '+cx+' 190 Q'+(cx-27)+' 190 '+(cx-40)+' 153Z" fill="'+hair+'" opacity=".88"/>' : '';
     const glasses = c.glasses !== 'none' ? '<g fill="none" stroke="#273449" stroke-width="4"><rect x="'+(cx-eyeGap-14)+'" y="'+(eyeY-10)+'" width="29" height="22" rx="8"/><rect x="'+(cx+eyeGap-15)+'" y="'+(eyeY-10)+'" width="29" height="22" rx="8"/><path d="M'+(cx-4)+' '+eyeY+'h8"/></g>' : '';
     const shirt = '<path d="M45 280 Q50 222 88 207 L'+cx+' 222 L152 207 Q190 222 195 280Z" fill="'+outfit+'"/>';
-    const collar = female
-      ? '<path d="M94 210 Q120 238 146 210" fill="none" stroke="#fff" stroke-width="5" opacity=".8"/>'
+    const collar = c.clothingType === 'blazerAndShirt' || c.clothingType === 'blazerAndSweater'
+      ? '<path d="M88 207 L120 247 L152 207" fill="none" stroke="#fff" stroke-width="7"/><path d="M88 207 L74 280 M152 207 L166 280" stroke="#172033" stroke-width="5" opacity=".35"/>'
+      : c.clothingType === 'hoodie' ? '<path d="M88 211 Q120 255 152 211" fill="none" stroke="#fff" stroke-width="8" opacity=".55"/>'
+      : female ? '<path d="M94 210 Q120 238 146 210" fill="none" stroke="#fff" stroke-width="5" opacity=".8"/>'
       : '<path d="M102 214 L120 238 L138 214" fill="none" stroke="#fff" stroke-width="5" opacity=".8"/>';
     const ageMarks = c.ageGroup === 'mature' || c.ageGroup === 'adult' ? '<path d="M'+(cx-44)+' 145l-7 3m95-3 7 3" stroke="#765b4b" opacity=".42" fill="none" stroke-width="2"/>' : '';
     const hairExtra = female && ['f07','f08','f09'].includes(c.characterStyle) ? '<path d="M'+(cx-66)+' 86 Q'+(cx-92)+' 135 '+(cx-76)+' 184 Q'+(cx-59)+' 167 '+(cx-55)+' 135 M'+(cx+66)+' 86 Q'+(cx+92)+' 135 '+(cx+76)+' 184 Q'+(cx+59)+' 167 '+(cx+55)+' 135" fill="'+hair+'"/>' : '';
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" role="img" aria-label="Custom avatar"><metadata id="mat-avatar-config">'+escapeXml(JSON.stringify(c))+'</metadata><defs><clipPath id="faceClip"><path d="'+jaw+'"/></clipPath></defs><path d="'+shirt+'"/>'+collar+'<path d="M'+(cx-17)+' 185h34v34h-34z" fill="'+skin+'"/><path d="'+jaw+'" fill="'+skin+'" stroke="#593c30" stroke-opacity=".22" stroke-width="2"/><path d="'+hairPath+'" fill="'+hair+'"/>'+hairExtra+'<g fill="none" stroke="#8b5d48" stroke-width="2" opacity=".4"><path d="M'+(cx-40)+' 139q-5 5-2 9 M'+(cx+40)+' 139q5 5 2 9"/></g>'+brows+eyeMarkup+'<path d="M'+cx+' 127l-5 22q5 4 11 0" fill="none" stroke="#8f5c46" stroke-width="3" stroke-linecap="round"/><path d="'+mouth+'" fill="none" stroke="#8e3e46" stroke-width="3.5" stroke-linecap="round"/>'+beard+glasses+ageMarks+'<path d="M'+(cx-70)+' 113 Q'+(cx-78)+' 151 '+(cx-54)+' 172" fill="none" stroke="'+hair+'" stroke-width="'+(female?12:8)+'" stroke-linecap="round" opacity=".9"/><path d="M'+(cx+70)+' 113 Q'+(cx+78)+' 151 '+(cx+54)+' 172" fill="none" stroke="'+hair+'" stroke-width="'+(female?12:8)+'" stroke-linecap="round" opacity=".9"/></svg>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" role="img" aria-label="Custom avatar"><metadata id="mat-avatar-config">'+escapeXml(JSON.stringify(c))+'</metadata><defs><clipPath id="faceClip"><path d="'+jaw+'"/></clipPath></defs><path d="'+shirt+'"/>'+collar+'<path d="M'+(cx-17)+' 185h34v34h-34z" fill="'+skin+'"/><path d="'+jaw+'" fill="'+skin+'" stroke="#593c30" stroke-opacity=".22" stroke-width="2"/><path d="'+hairPath+'" fill="'+hair+'"/>'+hairExtra+hatMarkup+'<g class="eyes">'+eyeMarkup+'</g><g fill="none" stroke="#8b5d48" stroke-width="2" opacity=".4"><path d="M'+(cx-40)+' 139q-5 5-2 9 M'+(cx+40)+' 139q5 5 2 9"/></g>'+brows+'<path d="M'+cx+' 127l-5 22q5 4 11 0" fill="none" stroke="#8f5c46" stroke-width="3" stroke-linecap="round"/><path d="'+mouth+'" fill="none" stroke="#8e3e46" stroke-width="3.5" stroke-linecap="round"/>'+beard+glasses+ageMarks+'<path d="M'+(cx-70)+' 113 Q'+(cx-78)+' 151 '+(cx-54)+' 172" fill="none" stroke="'+hair+'" stroke-width="'+(female?12:8)+'" stroke-linecap="round" opacity=".9"/><path d="M'+(cx+70)+' 113 Q'+(cx+78)+' 151 '+(cx+54)+' 172" fill="none" stroke="'+hair+'" stroke-width="'+(female?12:8)+'" stroke-linecap="round" opacity=".9"/></svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29');
   };
   const buildUrl = input => characterSvg(input);
@@ -210,7 +214,7 @@
   const livingTimers = new WeakMap();
 
   function getLivingSvgText(source) {
-    if (/^data:image\\/svg\\+xml/i.test(String(source||''))) return Promise.reject(new Error('Inline custom avatar uses built-in SVG motion.'));
+    if (/^data:image\/svg\+xml/i.test(String(source||''))) return Promise.reject(new Error('Inline custom avatar uses built-in SVG motion.'));
     if (!livingSvgCache.has(source)) {
       const request = fetch(source, { mode:'cors', credentials:'omit', cache:'force-cache' })
         .then(response => {
