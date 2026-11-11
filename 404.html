@@ -3,75 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 Page Not Found</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#0f766e">
+  <title>404 | Medical Admission Tracker</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 0;
-      background-color: #fff;
-      font-family: sans-serif;
-    }
-
-    .page_404 {
-      padding: 40px 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: linear-gradient(145deg, #f0fdfa, #f8fafc 55%, #ecfeff);
+      color: #0f172a;
+      font-family: Arial, Helvetica, sans-serif;
       text-align: center;
     }
-
-    /* গুহার মানুষের লাফানোর GIF অ্যানিমেশন */
-    .four_zero_four_bg {
-      background-image: url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif');
-      height: 400px;
-      background-position: center;
-      background-repeat: no-repeat;
+    main {
+      width: min(100%, 680px);
+      padding: 44px 24px;
+      border: 1px solid #dbeafe;
+      border-radius: 24px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 20px 60px rgba(15, 118, 110, .10);
     }
-
-    .four_zero_four_bg h1 {
-      font-size: 80px;
+    .brand {
+      margin: 0 0 24px;
+      color: #0f766e;
+      font-size: clamp(19px, 4vw, 25px);
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .code {
       margin: 0;
+      color: #0f766e;
+      font-size: clamp(88px, 22vw, 144px);
+      font-weight: 900;
+      line-height: .95;
+      letter-spacing: -8px;
     }
-
-    .contant_box_404 {
-      margin-top: -50px;
+    h1 {
+      margin: 24px 0 10px;
+      font-size: clamp(23px, 5vw, 32px);
     }
-
-    .contant_box_404 h3 {
-      font-size: 28px;
-      margin-bottom: 10px;
+    p {
+      max-width: 460px;
+      margin: 0 auto;
+      color: #64748b;
+      font-size: 16px;
+      line-height: 1.7;
     }
-
-    .contant_box_404 p {
-      color: #666;
-      margin-bottom: 20px;
-    }
-
-    /* সবুজ বাটন */
-    .link_404 {
-      color: #fff !important;
-      padding: 10px 20px;
-      background: #39ac31;
-      margin: 20px 0;
-      display: inline-block;
-      text-decoration: none;
-      border-radius: 4px;
-      font-weight: bold;
+    .divider {
+      width: 56px;
+      height: 4px;
+      margin: 24px auto 0;
+      border-radius: 10px;
+      background: #14b8a6;
     }
   </style>
 </head>
 <body>
-
-  <section class="page_404">
-    <div class="container">
-      <div class="four_zero_four_bg">
-        <h1 class="text-center">404</h1>
-      </div>
-      
-      <div class="contant_box_404">
-        <h3 class="h2">Look like you're lost</h3>
-        <p>the page you are looking for not avaible!</p>
-        
-      </div>
-    </div>
-  </section>
-
+  <main>
+    <p class="brand">Medical Admission Tracker</p>
+    <p class="code" aria-label="Error 404">404</p>
+    <h1>Page Not Found</h1>
+    <p>Sorry, the page you are looking for does not exist, may have been moved, or is temporarily unavailable.</p>
+    <div class="divider" aria-hidden="true"></div>
+  </main>
 </body>
 </html>
