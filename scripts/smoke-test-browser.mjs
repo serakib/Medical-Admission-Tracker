@@ -12,6 +12,7 @@ baseUrl.protocol = 'https:';
 if (!baseUrl.pathname.endsWith('/')) baseUrl.pathname += '/';
 
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+let context;
 const errors = [];
 const failedRequests = [];
 const badResponses = [];
@@ -20,7 +21,7 @@ try {
   // Route browser traffic through Node's fetch. The live-site smoke test already
   // verifies Node network access; this avoids Chromium proxy/network restrictions
   // while still executing the exact deployed HTML, JS bundles, CSS and JSON.
-  const context = await browser.newContext({
+  context = await browser.newContext({
     viewport: { width: 1440, height: 960 },
     serviceWorkers: 'block'
   });
@@ -35,19 +36,23 @@ try {
 
   await page.route('**/*', async route => {
     const requestUrl = new URL(route.request().url());
-    let targetUrl = requestUrl.href;
 
-    if (requestUrl.origin === localOrigin) {
-      const relativePath = requestUrl.pathname.split('/').filter(Boolean).join('/');
-      targetUrl = relativePath
-        ? new URL(relativePath + requestUrl.search, baseUrl).href
-        : baseUrl.href;
+    // Only proxy this site's own files. Abort external services (Firebase, analytics,
+    // third-party APIs) so a slow external endpoint cannot hold the browser test open.
+    if (requestUrl.origin !== localOrigin) {
+      await route.abort('blockedbyclient').catch(() => {});
+      return;
     }
+
+    const relativePath = requestUrl.pathname.split('/').filter(Boolean).join('/');
+    const targetUrl = relativePath
+      ? new URL(relativePath + requestUrl.search, baseUrl).href
+      : baseUrl.href;
 
     try {
       const upstream = await fetch(targetUrl, {
         redirect: 'follow',
-        signal: AbortSignal.timeout(20000),
+        signal: AbortSignal.timeout(10000),
         headers: { 'user-agent': 'Medical-Admission-Tracker-Chromium-Smoke-Test' }
       });
       const body = Buffer.from(await upstream.arrayBuffer());
@@ -69,14 +74,14 @@ try {
   assert.ok(response?.ok(), 'Homepage navigation failed: HTTP ' + (response?.status() ?? 'no response'));
   // Do not let a stalled module script prevent diagnostics: capture the document
   // as soon as headers arrive, then inspect app startup and all script failures.
-  await page.waitForLoadState('domcontentloaded', { timeout: 12000 }).catch(error => {
+  await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(error => {
     errors.push('DOM CONTENT LOADED TIMEOUT: ' + error.message);
   });
 
   await page.waitForFunction(
     () => Boolean(window.app && typeof window.app.showView === 'function'),
     undefined,
-    { timeout: 20000 }
+    { timeout: 12000 }
   ).catch(() => {});
 
   const appState = await page.evaluate(() => ({
@@ -115,5 +120,6 @@ try {
   if (badResponses.length) console.error('HTTP error responses:\\n' + badResponses.join('\\n'));
   throw error;
 } finally {
-  await browser.close();
+  if (context) await context.close().catch(() => {});
+  await browser.close().catch(() => {});
 }
