@@ -1081,6 +1081,73 @@
       .mat-avatar-option-art{max-width:84px;max-height:84px}
     }
   `;
+
+  /* Final visual corrections: keep headphone hardware behind the portrait,
+     make color swatches render their actual selected colors, and prevent
+     clipped headings/options in the responsive customizer. */
+  avatarCustomizerStyle.textContent += `
+    #profile-avatar-picker.is-expanded .mat-avatar-workspace{
+      width:100%!important;max-width:1440px!important;min-width:0!important;
+      grid-template-columns:minmax(0,.72fr) minmax(0,1fr)!important;
+      gap:clamp(12px,2vw,28px)!important;box-sizing:border-box!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-controls,
+    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll,
+    #profile-avatar-picker.is-expanded .mat-avatar-group-section,
+    #profile-avatar-picker.is-expanded .mat-avatar-option-section{
+      min-width:0!important;width:100%;max-width:100%;box-sizing:border-box!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{
+      overflow-x:hidden!important;overflow-y:auto!important;
+      padding-left:clamp(14px,1.5vw,22px)!important;
+      padding-right:clamp(14px,1.5vw,22px)!important;
+      scroll-padding-inline:18px;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-group-section{margin-inline:0!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{
+      display:block!important;max-width:100%;overflow:visible!important;
+      white-space:normal!important;overflow-wrap:anywhere;line-height:1.5;padding-inline:1px;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category-navigation,
+    #profile-avatar-picker.is-expanded .mat-avatar-category-bar{
+      min-width:0!important;width:100%;box-sizing:border-box!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category-bar{
+      justify-content:space-between!important;padding-inline:8px!important;scroll-padding-inline:8px;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category{flex:1 1 0!important;min-width:42px!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch){
+      display:block!important;overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option .mat-avatar-swatch{
+      display:block!important;width:100%!important;height:100%!important;
+      min-width:0!important;min-height:0!important;border:0!important;border-radius:9px!important;
+      background:var(--swatch)!important;background-color:var(--swatch)!important;
+      opacity:1!important;visibility:visible!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{padding:2px!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .med-avatar-stack{
+      position:relative!important;isolation:isolate!important;
+    }
+    #profile-avatar-picker.is-expanded .med-avatar-stack .med-avatar-headphones{
+      position:absolute!important;inset:0!important;z-index:0!important;
+      display:block!important;width:100%!important;height:100%!important;
+      overflow:visible!important;pointer-events:none!important;
+    }
+    #profile-avatar-picker.is-expanded .med-avatar-stack .med-avatar-base{
+      position:absolute!important;inset:0!important;z-index:1!important;
+      width:100%!important;height:100%!important;object-fit:contain!important;
+    }
+    #profile-avatar-picker.is-expanded .med-avatar-stack .med-avatar-pet{z-index:3!important}
+    @media(max-width:760px){
+      #profile-avatar-picker.is-expanded .mat-avatar-workspace{
+        grid-template-columns:minmax(0,1fr)!important;
+        grid-template-rows:clamp(112px,21vh,180px) minmax(0,1fr)!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-category{flex:0 0 46px!important;min-width:46px!important}
+    }
+  `;
+
   document.head.appendChild(avatarCustomizerStyle);
 
   const avatarBuilderFinalStyle = document.createElement('style');
