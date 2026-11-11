@@ -493,7 +493,7 @@
         const keepNone = (choices[fieldKey] || []).filter(([value]) => value === 'none');
         const discovered = assets.map(asset => {
           const filename = String(asset.path || '').split('/').pop() || '';
-          const value = filename.replace(/\\.svg$/i, '');
+          const value = filename.replace(/\.svg$/i, '');
           if (!/^[a-zA-Z0-9_-]+$/.test(value)) return null;
           return [value, previous.get(value.toLowerCase()) || asset.label || value];
         }).filter(Boolean);
@@ -507,7 +507,7 @@
       const discoveredHair = Array.isArray(manifest.categories.hair) ? manifest.categories.hair : [];
       discoveredHair.forEach(asset => {
         const filename = String(asset.path || '').split('/').pop() || '';
-        const value = filename.replace(/\\.svg$/i, '');
+        const value = filename.replace(/\.svg$/i, '');
         if (!/^[a-zA-Z0-9_-]+$/.test(value)) return;
         if (!maleHair.includes(value)) maleHair.push(value);
         if (!femaleHair.includes(value)) femaleHair.push(value);
@@ -522,7 +522,7 @@
       }
       choices.petType = [['none','নেই'], ...petAssets.map(asset => {
         const filename = String(asset.path || '').split('/').pop() || '';
-        const id = filename.replace(/\\.svg$/i, '');
+        const id = filename.replace(/\.svg$/i, '');
         return [id === 'white-bear' ? 'bear' : id, id === 'white-bear' ? 'সাদা ভালুক' : (asset.label || id)];
       })].filter((item, index, list) => list.findIndex(candidate => candidate[0] === item[0]) === index);
       base.choices.petType = choices.petType.map(([value,label])=>({value,label}));
