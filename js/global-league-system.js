@@ -286,14 +286,15 @@
     window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guestLoggedOut: true } }));
     return true;
   }
-  function getRewardCache() { return parseJson(localStorage.getItem(REWARD_KEY), {}) || {}; }
+  function rewardCacheKey() { return REWARD_KEY + '_' + accountKey(); }
+  function getRewardCache() { return parseJson(localStorage.getItem(rewardCacheKey()), {}) || {}; }
   function saveReward(reward) {
     if (!reward || !reward.attemptId) return reward;
     var cache = getRewardCache();
     cache[String(reward.attemptId)] = reward;
     var keys = Object.keys(cache);
     if (keys.length > 150) keys.slice(0, keys.length - 150).forEach(function (k) { delete cache[k]; });
-    try { localStorage.setItem(REWARD_KEY, JSON.stringify(cache)); } catch (_) {}
+    try { localStorage.setItem(rewardCacheKey(), JSON.stringify(cache)); } catch (_) {}
     if (typeof window.updateExamRewardDisplay === 'function') window.updateExamRewardDisplay(reward);
     return reward;
   }
