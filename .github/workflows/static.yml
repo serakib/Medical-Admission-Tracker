@@ -69,6 +69,12 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
+      # Verify the actual published site and every local HTML asset after deployment.
+      - name: Smoke-test the live website
+        env:
+          DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node scripts/smoke-test-live.mjs "$DEPLOYED_URL"
+
       - name: Write deployment summary
         if: success()
         env:
