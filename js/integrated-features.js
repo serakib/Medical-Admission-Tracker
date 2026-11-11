@@ -1018,9 +1018,6 @@
       animation:matAvatarNaturalIdle 5.8s ease-in-out infinite;
       transform-origin:50% 55%;
     }
-    .med-avatar-stack .med-avatar-age-lines{
-      position:absolute;z-index:1;inset:0;width:100%;height:100%;
-      display:block;pointer-events:none;overflow:visible;
     }
     .profile-avatar.mat-avatar-living .med-avatar-stack .med-avatar-pet,
     #sidebar-user-avatar.mat-avatar-living .med-avatar-stack .med-avatar-pet{
@@ -1789,7 +1786,7 @@
       panel.dataset.avatarBackground = background;
     }
 
-    if (changedPart === 'gender' || changedPart === 'ageGroup' || changedPart === 'reset') {
+    if (changedPart === 'gender' || changedPart === 'reset') {
       const dependentFields = [
         { key:'hairStyle', title:'চুলের ধরন' },
         { key:'facialHair', title:'দাড়ি ও গোঁফ' }
