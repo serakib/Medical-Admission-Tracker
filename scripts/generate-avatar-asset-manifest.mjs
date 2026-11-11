@@ -21,7 +21,11 @@ function labelFromFilename(filename) {
     .replace(/\b\w/g, letter => letter.toUpperCase());
 }
 
-const files = walk(assetsRoot).sort((a, b) => a.localeCompare(b));
+// The avatar catalogue contains only editable character parts and pet companions.
+ // Do not pull the site favicon or generated Font Awesome sprite into the avatar manifest.
+const files = ['avatar', 'pets']
+  .flatMap(folder => walk(path.join(assetsRoot, folder)))
+  .sort((a, b) => a.localeCompare(b));
 const categories = {};
 for (const absolute of files) {
   const relative = path.relative(assetsRoot, absolute).split(path.sep).join('/');
