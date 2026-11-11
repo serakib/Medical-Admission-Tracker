@@ -2060,9 +2060,10 @@ main > .view-section.hidden { display: none !important; }
     var label = String(button && (button.getAttribute('data-loading-label') || button.innerText || button.value) || '').trim();
     if (!label) return '';
     if (/(save|saving|update|submit|create|add|delete|remove|clear|redeem|convert|send|upload|import|export|sync|apply|reset|restore|সেভ|সংরক্ষণ|জমা|আপডেট|তৈরি|যোগ|মুছ|পরিবর্তন|পাঠান)/i.test(label)) return 'saving';
-    if (/(load|loading|refresh|reload|fetch|search|খুঁজ|লোড|আনুন|রিফ্রেশ|দেখুন|open|view|history|profile|leaderboard)/i.test(label)) return 'loading';
+    if (/(load|loading|refresh|reload|fetch|search|খুঁজ|লোড|আনুন|রিফ্রেশ|দেখুন|history|profile|leaderboard)/i.test(label)) return 'loading';
+    if (/(open|view|go|back|next|continue|login|sign\s*up|guest|start|play|navigate|খুল|যাও|পরবর্তী|চালু)/i.test(label)) return 'opening';
     if (button && button.closest && button.closest('form')) return 'saving';
-    return '';
+    return 'working';
   }
 
   function restoreActionButton() {
@@ -2097,10 +2098,10 @@ main > .view-section.hidden { display: none !important; }
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
     button.classList.add('mat-action-is-busy');
-    var status = kind === 'saving' ? 'Saving' : 'Loading';
-    // Keep the original control label; the thin global progress bar already communicates background work.
+    var status = kind === 'saving' ? 'Saving' : kind === 'loading' ? 'Loading' : kind === 'opening' ? 'Opening' : 'Working';
+    button.innerHTML = '<span class="mat-action-feedback-label">' + status + '</span><span class="mat-animated-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
     actionRequestCount = 0;
-    finishActionButtonSoon(700);
+    finishActionButtonSoon(900);
   }
 
   var HIDE_DELAY_MS = 220;
