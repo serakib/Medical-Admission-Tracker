@@ -50,7 +50,7 @@ jobs:
         with:
           script: |
             const tag = context.ref.replace("refs/tags/", "");
-            if (!/^v\d+\\.\d+\\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(tag)) {
+            if (!/^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(tag)) {
               throw new Error(`Tag "${tag}" does not follow vMAJOR.MINOR.PATCH format.`);
             }
 
