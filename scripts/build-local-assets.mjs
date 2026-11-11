@@ -12,9 +12,11 @@ const run = (command, args) => {
   if (result.status !== 0) throw new Error('Build command failed: ' + command);
 };
 
+console.log('[assets] Building local Tailwind CSS...');
 const tailwindCli = path.join(root, 'node_modules', 'tailwindcss', 'lib', 'cli.js');
 run(process.execPath, [tailwindCli, '-c', 'tailwind.config.cjs', '-i', 'css/tailwind.input.css', '-o', 'css/tailwind.generated.css', '--minify']);
 
+console.log('[assets] Bundling local Firebase compat SDK...');
 fs.mkdirSync(path.join(root, 'js', 'vendor'), { recursive: true });
 await esbuild.build({
   entryPoints: ['scripts/firebase-compat-entry.js'],
@@ -40,7 +42,9 @@ const sourceFiles = [];
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walk(full);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'vendor') walk(full);
+    }
     else if (entry.isFile() && entry.name.endsWith('.js')) sourceFiles.push(full);
   }
 }
@@ -63,6 +67,7 @@ for (const file of sourceFiles) {
     if (!ignored.has(match[1]) && !match[1].startsWith('local-') && match[1] !== 'use') iconNames.add(match[1]);
   }
 }
+console.log('[assets] Generating local Font Awesome SVG sprite from ' + sourceFiles.length + ' source files...');
 const symbols = [];
 const missing = [];
 for (const name of [...iconNames].sort()) {
