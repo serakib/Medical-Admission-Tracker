@@ -538,7 +538,8 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
           if(status)status.textContent=message;
           if(icon)icon.className='fa-solid fa-triangle-exclamation';
           console.error('[Medical Admission Tracker] Startup error:',message);
-          window.setTimeout(function(){finish('অ্যাপ খোলা হচ্ছে...');},1400);
+          // Keep the diagnostic visible. Hiding this overlay after a failed app load
+          // leaves the user with a completely blank page and conceals the real failure.
         }
         window.MATInitialLoader={hide:function(){finish('ড্যাশবোর্ড প্রস্তুত...');}};
         window.addEventListener('medical-app-ready',function(){
