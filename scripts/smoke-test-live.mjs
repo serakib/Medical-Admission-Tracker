@@ -120,6 +120,7 @@ apiUrl.searchParams.set('action', 'health');
 
 const backendResponse = await requestWithRetry(apiUrl);
 const backendHealth = await backendResponse.json();
+console.log('Backend health payload:', JSON.stringify(backendHealth));
 assert.equal(backendHealth.success, true, 'Medical backend health endpoint did not report success.');
 assert.equal(backendHealth.status, 'ok', 'Medical backend is not healthy.');
 assert.equal(backendHealth.service, 'Medical Admission Tracker API', 'Unexpected backend service response.');
