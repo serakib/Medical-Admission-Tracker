@@ -60,7 +60,7 @@ for (const file of sourceFiles) {
     preferredFamily.set(match[2], match[1]);
   }
   for (const match of source.matchAll(/\bfa-([a-z0-9-]+)\b/g)) {
-    if (!ignored.has(match[1])) iconNames.add(match[1]);
+    if (!ignored.has(match[1]) && !match[1].startsWith('local-') && match[1] !== 'use') iconNames.add(match[1]);
   }
 }
 const symbols = [];
