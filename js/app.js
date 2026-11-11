@@ -3,7 +3,7 @@
  * Firebase configuration/auth remains external and is never hard-coded here.
  */
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import { 
     getAuth, 
     signInWithEmailAndPassword, 
@@ -19,7 +19,7 @@ import {
     deleteUser,
     setPersistence,
     browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+} from "firebase/auth";
 import {
     getFirestore,
     doc,
@@ -27,7 +27,7 @@ import {
     getDoc,
     deleteDoc,
     serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+} from "firebase/firestore";
 
 // Firebase Configuration & Initialization (firebaseApp নাম ব্যবহার করা হয়েছে ডুপ্লিকেট এড়াতে)
 const firebaseConfig = {
