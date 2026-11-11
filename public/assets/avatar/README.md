@@ -40,3 +40,11 @@ GitHub Pages deployment-এর আগে `scripts/generate-avatar-asset-manifest
 ## Editing and credits
 
 SVG text editor বা vector editor দিয়ে edit করা যায়। Original artwork source/license যাচাই করে [asset credits](../ASSET-CREDITS.md) এবং [attribution](../ATTRIBUTION.md) update করো।
+
+## HSC student avatar direction
+
+- Builder-এর ২০টি starting preset (১০টি ছেলে, ১০টি মেয়ে) HSC শিক্ষার্থীর ১৬–১৮ বছর বয়সের profile হিসেবে configured।
+- পুরোনো saved profile-এ adult/mature age value থাকলেও Builder এখন HSC age profile-এ normalize করে।
+- Preset-এ beard/moustache default নেই; HSC student mode-এ facial-hair control-ও দেখানো হয় না।
+- Default outfit blazer-and-shirt; অন্য preset-এ hoodie, shirt ও sweater-এর মতো student-friendly casual পোশাক রাখা হয়েছে।
+- Avatar artwork stylized cartoon, তাই বয়সকে photorealistically মাপার দাবি করা হচ্ছে না; লক্ষ্য হলো mature/adult styling বাদ দিয়ে student-appropriate look রাখা।
