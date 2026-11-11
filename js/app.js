@@ -2647,9 +2647,15 @@ window.handleAccountDeletion = function() {
       };
       return;
     }
-    const linkedProviders = Array.isArray(user?.providerData) ? user.providerData.map(provider => provider?.providerId).filter(Boolean) : [];
-    const hasEmailPassword = Boolean(user?.email && linkedProviders.includes('password'));
-    const hasGoogleProvider = linkedProviders.includes('google.com');
+    // Provider IDs are identifiers, not URLs. Use exact Set membership rather
+    // than string-substring checks so host-like IDs cannot be misread as URL filters.
+    const linkedProviderIds = new Set(
+        Array.isArray(user?.providerData)
+            ? user.providerData.map(provider => String(provider?.providerId || '')).filter(Boolean)
+            : []
+    );
+    const hasEmailPassword = Boolean(user?.email && linkedProviderIds.has('password'));
+    const hasGoogleProvider = linkedProviderIds.has('google.com');
     if (!user || user.isAnonymous || String(guestProfile.accountType || '').toUpperCase() === 'GUEST' || (!hasEmailPassword && !hasGoogleProvider)) {
         alert('এই account-এর supported sign-in provider দিয়ে sign in করে আবার চেষ্টা করুন।');
         return;
