@@ -1854,7 +1854,14 @@
       {key:'pets-bg',title:'পোষা সঙ্গী',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
       {key:'background',title:'ব্যাকগ্রাউন্ড',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
     ];
-    const config = pendingAvatarConfig || readAvatarConfig();
+    // Keep the selected Character card and the live SVG preview on one canonical config.
+    // Older saved configs can contain a gender/preset mismatch; normalize once before
+    // rendering either side so a male card can never be highlighted over a female preview.
+    const config = window.MedAvatarCreator.normalize(pendingAvatarConfig || readAvatarConfig());
+    if (avatarPickerExpanded) {
+      pendingAvatarConfig = config;
+      pendingAvatarSource = window.MedAvatarCreator.render(config);
+    }
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
     const fieldMarkup = field => avatarOptionFieldMarkup(field, config);
     const builderMarkup = avatarPickerExpanded
@@ -1930,16 +1937,16 @@
     }
   }
   function renderAvatarPickerWithTransition({focus=false} = {}) {
-    const panelBefore = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-preview-panel');
-    const previous = panelBefore?.querySelector('.profile-avatar-preview-stack')?.cloneNode(true) || null;
+    // Re-render a single live preview. Cloning the previous SVG into the panel
+    // could leave a second, partially clipped face behind when animationend was
+    // skipped (for example after a rapid category/character change).
     renderAvatarPicker();
     const panel = document.querySelector('#profile-avatar-picker.is-expanded .mat-avatar-preview-panel');
     const next = panel?.querySelector('.profile-avatar-preview-stack');
-    if (panel && previous && next && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      previous.classList.add('mat-avatar-transition-old');
+    if (panel && next && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      next.classList.remove('mat-avatar-transition-new');
+      void next.offsetWidth;
       next.classList.add('mat-avatar-transition-new');
-      panel.appendChild(previous);
-      previous.addEventListener('animationend', () => previous.remove(), {once:true});
       next.addEventListener('animationend', () => next.classList.remove('mat-avatar-transition-new'), {once:true});
     }
     if (panel && focus && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
