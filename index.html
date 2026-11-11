@@ -517,6 +517,12 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         window.addEventListener('medical-initial-data-ready',function(event){ready.questions=true;update(event.detail&&event.detail.success?'প্রশ্নব্যাংক লোড সম্পন্ন...':'প্রশ্নব্যাংক লোডে সমস্যা হয়েছে; বাকি প্রস্তুতি চলছে...','fa-database');},{once:true});
         window.addEventListener('student-auth-state-resolved',function(){ready.auth=true;update('অ্যাকাউন্ট সেশন যাচাই সম্পন্ন...','fa-user-check');},{once:true});
         window.addEventListener('medical-initial-leaderboard-ready',function(){ready.leaderboard=true;update('লিডারবোর্ড ডেটা লোড সম্পন্ন...','fa-trophy');},{once:true});
+        // Fail open: background Firebase/data requests must never trap the full-screen entry overlay.
+        window.setTimeout(function(){
+          if(finished || !overlay || !overlay.parentNode)return;
+          ready.page=true;ready.app=true;ready.questions=true;ready.auth=true;ready.leaderboard=true;
+          update('ওয়েবসাইট খোলা হচ্ছে...','fa-circle-check');
+        },8000);
         if(ready.page)update('পেজের কাঠামো প্রস্তুত...','fa-file-circle-check');
         if(ready.app)update('অ্যাপ চালু হচ্ছে...','fa-user-graduate');
       })();

@@ -45,11 +45,15 @@ jobs:
         run: node scripts/generate-avatar-browser-definition.mjs
       - name: Generate SVG asset manifest
         run: node scripts/generate-avatar-asset-manifest.mjs
+      - name: Prepare static Pages artifact
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git/' --exclude='node_modules/' --exclude='_site/' ./ _site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          # Publish the site without build-only dependencies.
+          path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
