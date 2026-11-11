@@ -136,7 +136,13 @@
       const selected = component && variant && component.variants && component.variants[variant];
       if (!selected) return '';
       const transform = element.attributes && element.attributes.transform ? ' transform="' + svgEscape(element.attributes.transform) + '"' : '';
-      return '<g data-avatar-part="' + svgEscape(name) + '" data-avatar-variant="' + svgEscape(variant) + '"' + transform + '>' + (selected.elements || []).map(child => renderDefinitionElement(child, colors)).join('') + '</g>';
+      const artwork = (selected.elements || []).map(child => renderDefinitionElement(child, colors)).join('');
+      const graphic = name === 'clothes' && c.clothingType === 'graphicShirt' && c.clothingGraphic !== 'none'
+        ? svgDefinition.components.clothesGraphic?.variants?.[c.clothingGraphic] : null;
+      const graphicMarkup = graphic
+        ? '<g data-avatar-part="clothesGraphic" transform="translate(47.9 32.8)">' + (graphic.elements || []).map(child => renderDefinitionElement(child, colors)).join('') + '</g>'
+        : '';
+      return '<g data-avatar-part="' + svgEscape(name) + '" data-avatar-variant="' + svgEscape(variant) + '"' + transform + '>' + artwork + graphicMarkup + '</g>';
     }).join('');
     return '<?xml version="1.0" encoding="UTF-8"?><!--MAT-AVATAR:' + btoa(JSON.stringify(c)) + '--><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280" fill="none" role="img" aria-label="Editable local student avatar">' + body + '</svg>';
   };
