@@ -50,7 +50,7 @@ jobs:
           mkdir -p _site
           rsync -a --exclude='.git/' --exclude='node_modules/' --exclude='_site/' ./ _site/
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           # Publish the site without build-only dependencies.
           path: '_site'
