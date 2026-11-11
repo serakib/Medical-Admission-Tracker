@@ -26,6 +26,8 @@ for (const required of ['rel="manifest"', 'js/pwa.js', 'js/system-tools.js']) {
 }
 assert.ok(offline.includes('js/offline-study.js'));
 assert.doesNotMatch(offline, /<script[^>]+https?:\/\//i, 'Offline page must not load remote scripts.');
+assert.ok(fs.existsSync(path.join(root, 'public/assets/pwa-icon.svg')));
+assert.match(worker, /pwa-icon\.svg/);
 assert.match(worker, /addEventListener\(['"]install['"]/);
 assert.match(worker, /addEventListener\(['"]activate['"]/);
 assert.match(worker, /addEventListener\(['"]fetch['"]/);
