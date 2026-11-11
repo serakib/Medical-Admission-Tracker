@@ -2949,25 +2949,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   // Public visitors can browse every section; account-dependent actions are gated.
   var visitorAccessUIInstalled = false;
-  // The automatic Visitor prompt is measured from the first page entry, not
-  // from auth initialization. It can never appear during the first 30 seconds.
-  var visitorAccessEntryAt = MED_VISITOR_PAGE_ENTRY_AT;
-  var visitorAccessAutoPrompted = false;
-  var visitorAccessAutoTimer = null;
+  // Never interrupt browsing, practice, or an in-progress task with an
+  // automatic account prompt. Account choices appear only after an explicit
+  // account-entry click or when the user submits an account-required action.
   function scheduleVisitorAccessPrompt() {
-    if (visitorAccessAutoPrompted || visitorAccessAutoTimer || !app.authStateResolved) return;
-    var remaining = Math.max(0, 30000 - (Date.now() - visitorAccessEntryAt));
-    visitorAccessAutoTimer = window.setTimeout(function () {
-      visitorAccessAutoTimer = null;
-      // Consume the one automatic prompt opportunity for this page load,
-      // even if the current account is not a Visitor. Never re-arm this timer.
-      if (visitorAccessAutoPrompted) return;
-      visitorAccessAutoPrompted = true;
-      if (!isAccountFreeVisitor()) return;
-      var modal = document.getElementById('mat-visitor-access-modal');
-      if (modal && !modal.hidden) return;
-      openVisitorAccess('choices');
-    }, remaining);
+    return;
   }
   function isAccountFreeVisitor() {
     return app.authStateResolved === true && !app.authUser && (!getGuestToken() || !!readExpiredGuest());
