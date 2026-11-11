@@ -160,6 +160,7 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 Detailed student guides, technical references, troubleshooting, security and accessibility documentation are organized in the repository's documentation hub.
 
 - [📖 Documentation Home](docs/wiki/Home.md)
+- [🛠️ Technical setup guides](docs/guides/README.md)
 - [🗂️ Complete Documentation Index](docs/wiki/README.md)
 - [🌐 GitHub Wiki](https://github.com/serakib/Medical-Admission-Tracker/wiki)
 

@@ -32,4 +32,4 @@ Project-এর মূল question collection repository-র questions.json file-
 - Typo, formatting ও Bangla text rendering check করতে হবে।
 - চিকিৎসা বা বিজ্ঞানভিত্তিক তথ্য হলে নির্ভরযোগ্য textbook বা official source দিয়ে verify করতে হবে।
 
-বিস্তারিত technical note: [QUESTION_BANK_GUIDE.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/QUESTION_BANK_GUIDE.md)।
+বিস্তারিত technical note: [QUESTION_BANK_GUIDE.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/QUESTION_BANK_GUIDE.md)।

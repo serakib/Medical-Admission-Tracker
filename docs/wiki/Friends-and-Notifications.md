@@ -27,7 +27,7 @@ Bell/notification center browser-side leaderboard ও friend activity snapshot �
 - এটি OS/browser push notification service নয়।
 - Firestore sync-এর জন্য existing rules-এর মধ্যে notification-state rule merge ও deploy করতে হয়।
 
-বিস্তারিত: [FIRESTORE_FRIENDS_RULES.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/FIRESTORE_FRIENDS_RULES.md)।
+বিস্তারিত: [FIRESTORE_FRIENDS_RULES.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/FIRESTORE_FRIENDS_RULES.md)।
 
 ## Privacy reminder
 

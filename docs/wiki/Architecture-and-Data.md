@@ -42,6 +42,6 @@ Firebase Authentication registered identity যাচাই করে। Browser
 
 ## Technical references
 
-- [Global Leaderboard API](https://github.com/serakib/Medical-Admission-Tracker/blob/main/GLOBAL_LEADERBOARD_API.md)
-- [Firebase Setup](https://github.com/serakib/Medical-Admission-Tracker/blob/main/FIREBASE_SETUP.md)
-- [Firestore Rules](https://github.com/serakib/Medical-Admission-Tracker/blob/main/FIRESTORE_FRIENDS_RULES.md)
+- [Global Leaderboard API](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/GLOBAL_LEADERBOARD_API.md)
+- [Firebase Setup](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/FIREBASE_SETUP.md)
+- [Firestore Rules](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/FIRESTORE_FRIENDS_RULES.md)

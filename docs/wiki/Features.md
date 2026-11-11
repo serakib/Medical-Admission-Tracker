@@ -45,4 +45,4 @@ Medical Admission Pro-তে পড়াশোনা, practice এবং progress 
 ## 🔔 In-site Notifications
 Website-এর bell/notification center-এ activity ও trophy-related update দেখা যায়। এটি browser/app-এর ভিতরের notification feed; OS বা browser push notification নয়।
 
-Feature availability ও exact behaviour release-এর সঙ্গে পরিবর্তিত হতে পারে। Technical behaviour-এর জন্য [API documentation](https://github.com/serakib/Medical-Admission-Tracker/blob/main/GLOBAL_LEADERBOARD_API.md) এবং live website দেখো।
+Feature availability ও exact behaviour release-এর সঙ্গে পরিবর্তিত হতে পারে। Technical behaviour-এর জন্য [API documentation](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/GLOBAL_LEADERBOARD_API.md) এবং live website দেখো।

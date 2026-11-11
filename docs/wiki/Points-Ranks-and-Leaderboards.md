@@ -26,7 +26,7 @@ Backend submitted correct/wrong count থেকে negative-marking-adjusted sco
 
 Backend documentation অনুযায়ী অন্তত 30 প্রশ্নের exam-এ weighted performance অনুযায়ী PB দেওয়া হয়। 40% পর্যন্ত score-এ PB নেই; 40%-এর ওপরে progressive band multiplier ব্যবহার হয়। PB আলাদা wallet-এ থাকে এবং নির্ধারিত সময়ের মধ্যে convert করা যায়।
 
-Exact calculation ও expiry behaviour: [Medical API documentation](https://github.com/serakib/Medical-Admission-Tracker/blob/main/GLOBAL_LEADERBOARD_API.md#rewards-and-rank-progression)।
+Exact calculation ও expiry behaviour: [Medical API documentation](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/GLOBAL_LEADERBOARD_API.md#rewards-and-rank-progression)।
 
 ## Leaderboard periods
 

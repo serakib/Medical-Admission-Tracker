@@ -32,6 +32,7 @@ Use this folder to find project-level information without searching through the 
 
 ## 📖 Student and technical guides
 
-For student-facing guides and detailed technical references, visit the [Documentation Wiki](../wiki/README.md).
+- [Student-facing Documentation Wiki](../wiki/README.md)
+- [Technical setup guides](../guides/README.md)
 
 For release and repository operations, see [Release checklist](../RELEASING.md) and [Repository management](../REPOSITORY_MANAGEMENT.md).
