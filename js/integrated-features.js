@@ -1311,6 +1311,64 @@
     }
   `;
   document.head.appendChild(avatarBuilderFinalStyle);
+
+  const avatarReferenceLayoutStyle = document.createElement('style');
+  avatarReferenceLayoutStyle.id = 'mat-avatar-reference-layout';
+  avatarReferenceLayoutStyle.textContent = `
+    /* Match the supplied reference: a clipped portrait card with the pet in front. */
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{
+      border-radius:30px!important;
+      overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .profile-avatar-preview-stack{
+      overflow:hidden!important;
+      border-radius:inherit!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-base,
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-inline-svg{
+      object-fit:cover!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{
+      left:24%!important;right:auto!important;bottom:-1%!important;
+      width:52%!important;height:39%!important;z-index:4!important;
+      object-fit:contain!important;transform-origin:50% 100%!important;
+    }
+    .mat-avatar-category-navigation{
+      display:flex;flex:0 0 68px;align-items:stretch;min-width:0;
+      border-bottom:1px solid #555;border-radius:inherit;background:#171717;
+    }
+    .mat-avatar-category-navigation .mat-avatar-category-arrow{
+      display:grid;place-items:center;flex:0 0 28px;width:28px;min-width:28px;
+      margin:0;padding:0;border:0;background:transparent;color:#888;cursor:pointer;
+    }
+    .mat-avatar-category-navigation .mat-avatar-category-arrow[hidden]{display:none!important}
+    .mat-avatar-category-navigation .mat-avatar-category-arrow:hover{color:#f4f4f5}
+    .mat-avatar-category-navigation .mat-avatar-category-arrow svg{
+      width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;
+      stroke-linecap:round;stroke-linejoin:round;
+    }
+    .mat-avatar-category-navigation .mat-avatar-category-bar{
+      display:flex;flex:1 1 auto;align-items:stretch;justify-content:space-around;
+      min-width:0;height:68px;margin:0;padding:0;overflow-x:auto;overflow-y:hidden;
+      border:0;border-radius:0;background:transparent;scrollbar-width:none;
+    }
+    .mat-avatar-category-navigation .mat-avatar-category-bar::-webkit-scrollbar{display:none}
+    .mat-avatar-category-navigation .mat-avatar-category{flex:1 0 48px;min-width:48px}
+    @media(max-width:767px){
+      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel{border-radius:16px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{
+        left:24%!important;right:auto!important;bottom:0!important;width:45%!important;height:36%!important;
+      }
+      .mat-avatar-category-navigation{flex-basis:56px}
+      .mat-avatar-category-navigation .mat-avatar-category-bar{height:56px}
+      .mat-avatar-category-navigation .mat-avatar-category-arrow{flex-basis:24px;width:24px;min-width:24px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .profile-avatar-preview-stack .med-avatar-pet{animation:none!important}
+    }
+  `;
+  document.head.appendChild(avatarReferenceLayoutStyle);
+
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
   // Keep broken remote avatar URLs from exposing their alt text in profile circles.
@@ -1805,9 +1863,11 @@
           '<section class="mat-avatar-preview-panel" style="background-color:#' + String(config.background || 'a5a8ff').replace(/^#/, '') + '"><button type="button" id="profile-avatar-reset" class="mat-avatar-reset">রিসেট করুন</button>' +
             window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') +
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
-          '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
+          '<section class="mat-avatar-controls"><div class="mat-avatar-category-navigation">' +
+            '<button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="-1" aria-label="আগের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>' +
+            '<nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-          '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
+            '</nav><button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="1" aria-label="পরের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
@@ -1816,6 +1876,19 @@
       (pendingUpload ? '<button type="button" id="profile-avatar-confirm" hidden>Confirm uploaded avatar</button>' : '') +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
     if (avatarPickerExpanded) {
+      const categoryBar = picker.querySelector('.mat-avatar-category-bar');
+      const syncCategoryArrows = () => {
+        if (!categoryBar) return;
+        const canScroll = categoryBar.scrollWidth > categoryBar.clientWidth + 2;
+        const previous = picker.querySelector('[data-avatar-category-scroll="-1"]');
+        const next = picker.querySelector('[data-avatar-category-scroll="1"]');
+        if (previous) previous.hidden = !canScroll || categoryBar.scrollLeft <= 2;
+        if (next) next.hidden = !canScroll || categoryBar.scrollLeft + categoryBar.clientWidth >= categoryBar.scrollWidth - 2;
+      };
+      if (categoryBar) {
+        categoryBar.addEventListener('scroll', syncCategoryArrows, {passive:true});
+        requestAnimationFrame(syncCategoryArrows);
+      }
       const scroller = picker.querySelector('.mat-avatar-options-scroll');
       if (scroller && !scroller.dataset.avatarNavObserver) {
         scroller.dataset.avatarNavObserver = '1';
@@ -1830,11 +1903,14 @@
               if (section.getBoundingClientRect().top <= marker) currentSection = section;
             });
             if (!currentSection) return;
-            activeAvatarGroup = currentSection.dataset.avatarGroupSection;
+            const nextActiveGroup = currentSection.dataset.avatarGroupSection;
+            const groupChanged = nextActiveGroup !== activeAvatarGroup;
+            activeAvatarGroup = nextActiveGroup;
             picker.querySelectorAll('.mat-avatar-category').forEach(tab => {
               const active = tab.dataset.avatarGroup === activeAvatarGroup;
               tab.classList.toggle('is-active', active);
               tab.setAttribute('aria-pressed', String(active));
+              if (active && groupChanged) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});
             });
           });
         }, {passive:true});
@@ -2018,6 +2094,13 @@
       window.MedAvatarProfileModal?.close();
       return;
     }
+    const categoryScrollButton = event.target.closest('[data-avatar-category-scroll]');
+    if (categoryScrollButton) {
+      const categoryBar = categoryScrollButton.closest('.mat-avatar-category-navigation')?.querySelector('.mat-avatar-category-bar');
+      const direction = Number(categoryScrollButton.dataset.avatarCategoryScroll) || 1;
+      categoryBar?.scrollBy({left:direction * 220,behavior:'smooth'});
+      return;
+    }
     const avatarGroup = event.target.closest('[data-avatar-group]');
     if (avatarGroup) {
       const nextGroup = avatarGroup.dataset.avatarGroup;
@@ -2030,6 +2113,7 @@
           const active = tab.dataset.avatarGroup === nextGroup;
           tab.classList.toggle('is-active', active);
           tab.setAttribute('aria-pressed', String(active));
+          if (active) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});
         });
         const top = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
         scroller.scrollTo({top:top, behavior:'smooth'});
