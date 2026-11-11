@@ -2928,31 +2928,30 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var panel = document.getElementById('mat-visitor-access-panel');
     if (!panel) return;
     var close = '<button type="button" data-va-close aria-label="Close" style="float:right;border:0;background:transparent;font-size:23px;color:#64748b;cursor:pointer">×</button>';
-    var intro = '<div style="text-align:center;margin:2px 28px 18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">কেন Account তৈরি করবে?</h2><p style="font-size:13px;line-height:1.6;color:var(--mat-va-muted,#64748b);margin:6px 0 0">তোমার প্রয়োজন অনুযায়ী নিচের option বেছে নাও</p></div>';
+    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">নিজের তথ্য Server-এ সংরক্ষণ করুন</h2></div>';
     var fieldStyle = 'width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#0f172a;font:inherit;margin-top:6px';
     var labelStyle = 'display:block;font-size:13px;font-weight:700;color:var(--mat-va-title,#334155);margin:12px 0 0';
     var back = '<button type="button" data-va-back style="border:0;background:transparent;color:#64748b;font-weight:700;padding:8px 0;cursor:pointer">← Back</button>';
     if (mode === 'choices') {
-      var choiceCard = 'width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:15px;border:1px solid #dbe3ec;border-radius:15px;background:#fff;color:#0f172a;cursor:pointer;box-sizing:border-box;transition:border-color .18s,transform .18s,box-shadow .18s';
-      var choiceIcon = 'width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:12px;font-size:20px';
-      var choiceCopy = 'display:block;min-width:0;flex:1';
-      var choiceTitle = 'display:block;font-size:14px;font-weight:850;line-height:1.35';
-      var choiceDescription = 'display:block;margin-top:4px;font-size:12px;font-weight:500;line-height:1.55;color:#64748b';
-      panel.innerHTML = close + intro +
+      var choiceIntro = '<div style="position:relative;text-align:center;margin:2px 28px 18px;padding:0 18px"><button type="button" data-va-info aria-label="Account information" title="Account সম্পর্কে জানুন" style="position:absolute;right:-20px;top:0;width:28px;height:28px;border:1px solid #cbd5e1;border-radius:50%;background:transparent;color:#64748b;font-size:15px;font-weight:800;cursor:pointer">i</button><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">নিজের তথ্য Server-এ সংরক্ষণ করুন</h2></div>';
+      panel.innerHTML = close + choiceIntro +
+        '<div style="display:grid;gap:11px">' +
+          '<button type="button" data-va-mode="guest" style="border:0;border-radius:12px;padding:14px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;font-weight:800;cursor:pointer">Continue as Guest</button>' +
+          '<button type="button" class="mat-va-choice-signup" data-va-mode="signup" style="border:1px solid #cbd5e1;border-radius:12px;padding:14px;background:#fff;color:#0f172a;font-weight:800;cursor:pointer">Sign Up</button>' +
+          '<button type="button" data-va-mode="login" style="border:0;background:transparent;color:#0284c7;padding:8px;font-weight:700;cursor:pointer">আগে Account থাকলে Login করুন</button>' +
+        '</div>';
+      return;
+    }
+    if (mode === 'info') {
+      var infoTitle = 'font-size:14px;font-weight:800;color:var(--mat-va-title,#0f172a);margin:0 0 5px';
+      var infoText = 'font-size:12px;line-height:1.65;color:var(--mat-va-muted,#64748b);margin:0';
+      panel.innerHTML = close + back +
+        '<div style="text-align:center;margin:0 0 16px"><h2 style="font-size:19px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account সম্পর্কে জানুন</h2><p style="font-size:12px;color:var(--mat-va-muted,#64748b);margin:5px 0 0">Visitor, Guest ও Registered Account-এর পার্থক্য</p></div>' +
         '<div style="display:grid;gap:10px">' +
-          '<button type="button" class="mat-va-choice-card" data-va-mode="guest" style="' + choiceCard + ';border-color:#86d9bd;background:#f0fdf8">' +
-            '<span style="' + choiceIcon + ';background:#d1fae5;color:#047857">☘</span>' +
-            '<span style="' + choiceCopy + '"><strong style="' + choiceTitle + ';color:#065f46">Guest Account</strong><small style="' + choiceDescription + '">নাম, College ও Batch দিয়ে Profile, Exam Result এবং XP/RP server-এ Save ও Sync করো। Email বা Password লাগবে না।</small></span>' +
-            '<span aria-hidden="true" style="font-size:20px;color:#059669">›</span>' +
-          '</button>' +
-          '<button type="button" class="mat-va-choice-card" data-va-mode="signup" style="' + choiceCard + '">' +
-            '<span style="' + choiceIcon + ';background:#e0e7ff;color:#4338ca">🔐</span>' +
-            '<span style="' + choiceCopy + '"><strong style="' + choiceTitle + '">Registered Account</strong><small style="' + choiceDescription + '">Email ও Password দিয়ে নিজের স্থায়ী Account তৈরি করো। Profile, Result ও Progress server-এ Sync থাকবে।</small></span>' +
-            '<span aria-hidden="true" style="font-size:20px;color:#64748b">›</span>' +
-          '</button>' +
-          '<button type="button" data-va-mode="login" style="width:100%;padding:11px 12px;border:0;border-radius:12px;background:transparent;color:#0284c7;font-size:13px;font-weight:750;cursor:pointer">আগে থেকেই Account আছে? Login করুন</button>' +
-        '</div>' +
-        '<p class="mat-va-visitor-note" style="margin:14px 3px 0;padding:10px 12px;border-radius:11px;background:#f1f5f9;color:#64748b;font-size:11px;line-height:1.55;text-align:center">Account ছাড়াও public information, latest leaderboard ও practice ব্যবহার করতে পারবে। Visitor-এর progress শুধু এই device-এ local থাকবে।</p>';
+          '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Visitor — Account ছাড়াই</h3><p style="' + infoText + '">Public information, latest leaderboard, public profile ও practice ব্যবহার করতে পারবে। তোমার practice history, progress, profile ও avatar শুধু এই browser/device-এ local থাকবে; server-এ save বা sync হবে না। Browser-এর data মুছে গেলে local data হারাতে পারো।</p></section>' +
+          '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Guest Account</h3><p style="' + infoText + '">নাম, College ও Batch নিশ্চিত করলে এই Medical Admission Tracker-এই server-side Guest Account তৈরি হবে। Email বা Password লাগবে না। তোমার account-এর profile, exam result, XP/RP ও progress server-এ save ও sync হবে।</p></section>' +
+          '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Registered Account</h3><p style="' + infoText + '">নাম, College ও Batch নিশ্চিত করার পর আলাদা secure Login page-এ Email ও Password দিয়ে Registered Account তৈরি করবে। এরপর profile, exam result ও progress তোমার account-এর সঙ্গে server-এ sync থাকবে।</p></section>' +
+        '</div>';
       return;
     }
     if (mode === 'guest') {
@@ -2985,7 +2984,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     visitorAccessUIInstalled = true;
     var style = document.createElement('style');
     style.id = 'mat-visitor-access-styles';
-    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}html.dark #mat-visitor-access-panel .mat-va-choice-card,body.dark #mat-visitor-access-panel .mat-va-choice-card{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}html.dark #mat-visitor-access-panel .mat-va-choice-card strong,body.dark #mat-visitor-access-panel .mat-va-choice-card strong{color:#f8fafc!important}html.dark #mat-visitor-access-panel .mat-va-choice-card small,body.dark #mat-visitor-access-panel .mat-va-choice-card small{color:#cbd5e1!important}html.dark #mat-visitor-access-panel .mat-va-visitor-note,body.dark #mat-visitor-access-panel .mat-va-visitor-note{background:#1f2937!important;color:#cbd5e1!important}#mat-visitor-access-panel .mat-va-choice-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.09)}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }@media(max-width:480px){#mat-visitor-access-panel{padding:18px}}';
+    style.textContent = '#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}html.dark #mat-visitor-access-panel .mat-va-choice-card,body.dark #mat-visitor-access-panel .mat-va-choice-card{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}html.dark #mat-visitor-access-panel .mat-va-choice-card strong,body.dark #mat-visitor-access-panel .mat-va-choice-card strong{color:#f8fafc!important}html.dark #mat-visitor-access-panel .mat-va-choice-card small,body.dark #mat-visitor-access-panel .mat-va-choice-card small{color:#cbd5e1!important}html.dark #mat-visitor-access-panel .mat-va-visitor-note,body.dark #mat-visitor-access-panel .mat-va-visitor-note{background:#1f2937!important;color:#cbd5e1!important}#mat-visitor-access-panel .mat-va-choice-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.09)}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }.mat-va-info-card{padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}.mat-va-choice-signup{background:#fff;color:#0f172a}html.dark #mat-visitor-access-panel .mat-va-info-card,body.dark #mat-visitor-access-panel .mat-va-info-card{background:#1f2937;border-color:#374151}html.dark #mat-visitor-access-panel .mat-va-choice-signup,body.dark #mat-visitor-access-panel .mat-va-choice-signup{background:#1f2937!important;border-color:#374151!important;color:#f9fafb!important}#mat-visitor-access-panel button:focus-visible{outline:3px solid rgba(14,165,233,.55);outline-offset:2px}@media(max-width:480px){#mat-visitor-access-panel{padding:18px}}';
     document.head.appendChild(style);
     var modal = document.createElement('div');
     modal.id = 'mat-visitor-access-modal';
@@ -2994,12 +2993,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     modal.innerHTML = '<div id="mat-visitor-access-panel" role="dialog" aria-modal="true" aria-label="Create account"></div>';
     document.body.appendChild(modal);
     document.addEventListener('click', async function (event) {
-      var target = event.target && event.target.closest ? event.target.closest('[data-va-mode],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest],[data-va-external-login]') : null;
+      var target = event.target && event.target.closest ? event.target.closest('[data-va-mode],[data-va-info],[data-va-back],[data-va-close],[data-va-resume-guest],[data-va-new-guest],[data-va-external-login]') : null;
       if (!target) return;
       event.preventDefault();
       event.stopPropagation();
       if (target.hasAttribute('data-va-close')) { closeVisitorAccess(); return; }
       if (target.hasAttribute('data-va-back')) { renderVisitorAccessStep('choices'); return; }
+      if (target.hasAttribute('data-va-info')) { renderVisitorAccessStep('info'); return; }
       if (target.hasAttribute('data-va-new-guest')) { renderVisitorAccessStep('guest-form'); return; }
       if (target.hasAttribute('data-va-external-login')) { window.location.href = 'https://serakib.github.io/Medical-Admission-Tracker-login/?mode=login'; return; }
       if (target.hasAttribute('data-va-resume-guest')) {
