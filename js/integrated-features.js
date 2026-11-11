@@ -1804,16 +1804,19 @@
         return id === wanted || (wanted === 'bear' && id === 'white-bear');
       }) || null;
     };
-    return '<section class="mat-avatar-option-section" data-avatar-field="' + field.key + '"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
+    return '<section class="mat-avatar-option-section" data-avatar-field="' + field.key + '"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid' + (field.key === 'skinTone' ? ' mat-avatar-skin-tone-grid' : '') + '">' +
       options.map(option => {
         const selected = config[field.key] === option.value;
         const raw = String(option.value);
         const label = String(option.label || raw);
+        const safeLabel = label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const isSkinTone = field.key === 'skinTone';
         const isColor = field.key !== 'headphones' && /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(raw);
         let visual = '';
         if (isColor) {
           const color = '#' + raw.replace(/^#/, '');
-          visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background-color:' + color + '" aria-hidden="true"></span>';
+          visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background-color:' + color + '" aria-hidden="true"></span>' +
+            (isSkinTone ? '<span class="mat-avatar-swatch-label">' + safeLabel + '</span>' : '');
         } else {
           let asset = null;
           const folder = assetFolders[field.key];
@@ -1838,10 +1841,11 @@
             visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
           }
         }
-        return '<button type="button" class="mat-avatar-option' + (field.key === 'characterPreset' ? ' mat-avatar-character-card' : '') + (selected ? ' is-selected' : '') +
+        return '<button type="button" class="mat-avatar-option' + (field.key === 'characterPreset' ? ' mat-avatar-character-card' : '') + (isSkinTone ? ' mat-avatar-skin-tone-option' : '') + (selected ? ' is-selected' : '') +
           '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw +
-          '" title="' + label.replace(/&/g,'&amp;').replace(/"/g,'&quot;') +
-          '" aria-label="' + field.title + ': ' + label + '" aria-pressed="' + String(selected) + '">' + visual +
+          (isSkinTone ? '" data-avatar-color="' + raw.replace(/^#/,'') : '') +
+          '" title="' + safeLabel + (isSkinTone ? ' · #' + raw.replace(/^#/,'') : '') +
+          '" aria-label="' + field.title + ': ' + safeLabel + (isSkinTone ? ', #' + raw.replace(/^#/,'') : '') + '" aria-pressed="' + String(selected) + '">' + visual +
           ((field.key === 'gender' || field.key === 'characterPreset') ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
       }).join('') +
     '</div></section>';
@@ -3431,6 +3435,85 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
       .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{min-height:48px!important}
     }
     @media(max-width:390px){.mat-avatar-option-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+  `;
+  document.head.appendChild(style);
+})();
+
+
+/* Skin-tone palette and explicit Light/Dark avatar-builder surfaces. */
+(() => {
+  if (document.getElementById('mat-avatar-skin-tone-theme-polish')) return;
+  const style = document.createElement('style');
+  style.id = 'mat-avatar-skin-tone-theme-polish';
+  style.textContent = `
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-grid{
+      display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+      gap:10px!important;align-items:stretch!important;overflow:visible!important;padding:2px 0 8px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{
+      display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+      gap:7px!important;min-width:0!important;width:auto!important;min-height:82px!important;height:auto!important;
+      max-width:none!important;aspect-ratio:auto!important;padding:9px 6px!important;
+      border:1.5px solid var(--mat-skin-card-border)!important;border-radius:14px!important;
+      background:var(--mat-skin-card-bg)!important;color:var(--mat-skin-label)!important;
+      box-shadow:0 1px 3px rgba(15,23,42,.08)!important;overflow:visible!important;
+      transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch{
+      display:block!important;width:36px!important;height:36px!important;min-width:36px!important;flex:0 0 36px!important;
+      border:2px solid var(--mat-skin-swatch-border)!important;border-radius:50%!important;
+      background:var(--swatch)!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10),0 1px 3px rgba(0,0,0,.12)!important;
+      opacity:1!important;filter:none!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch-label{
+      display:block!important;position:static!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;
+      color:var(--mat-skin-label)!important;font-size:11px!important;font-weight:800!important;line-height:1.25!important;
+      text-align:center!important;white-space:normal!important;overflow-wrap:anywhere!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option.is-selected{
+      border:2px solid var(--mat-skin-selected)!important;background:var(--mat-skin-selected-bg)!important;
+      box-shadow:0 0 0 2px var(--mat-skin-selected-ring),0 3px 10px rgba(16,185,129,.12)!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option.is-selected:after{
+      content:"✓";position:absolute;top:5px;right:5px;display:grid;place-items:center;width:17px;height:17px;
+      border-radius:50%;background:var(--mat-skin-selected);color:#fff;font-size:11px;font-weight:900;line-height:1;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option:focus-visible{outline:3px solid #0ea5e9!important;outline-offset:3px!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option:hover{transform:translateY(-1px)!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded{
+      --mat-skin-card-bg:#22222d;--mat-skin-card-border:#4a4a58;--mat-skin-swatch-border:rgba(255,255,255,.48);
+      --mat-skin-label:#f4f4f5;--mat-skin-selected:#10b981;--mat-skin-selected-bg:#1d302c;--mat-skin-selected-ring:rgba(16,185,129,.24);
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded{
+      --mat-skin-card-bg:#ffffff;--mat-skin-card-border:#d5dbe5;--mat-skin-swatch-border:rgba(15,23,42,.22);
+      --mat-skin-label:#334155;--mat-skin-selected:#059669;--mat-skin-selected-bg:#ecfdf5;--mat-skin-selected-ring:rgba(5,150,105,.20);
+      background:#f8fafc!important;color:#111827!important;
+    }
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-controls{background:#fff!important;border-color:#d7dee8!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-controls .mat-avatar-category-bar{background:#f1f5f9!important;border-bottom-color:#d8dee8!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-controls .mat-avatar-category{color:#64748b!important;background:transparent!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-controls .mat-avatar-category.is-active{color:#047857!important;background:#e6f7ef!important;border-color:#a7f3d0!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-options-scroll{background:#fff!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{color:#111827!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option:not(.mat-avatar-skin-tone-option){background:#f8fafc!important;border-color:#cbd5e1!important;color:#1f2937!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-option:not(.mat-avatar-skin-tone-option).is-selected{background:#ecfdf5!important;border-color:#059669!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-actions{background:#fff!important;border-top-color:#dbe2ea!important}
+    html[data-theme="light"] #profile-avatar-picker.is-expanded .mat-avatar-preview-caption{color:#1f2937!important;background:rgba(255,255,255,.88)!important;border-color:rgba(15,23,42,.12)!important}
+    html[data-theme="dark"] #profile-avatar-picker.is-expanded .mat-avatar-option-section h3{color:#f4f4f5!important}
+    @media(max-width:850px){
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{min-height:76px!important;padding:8px 4px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch{width:32px!important;height:32px!important;min-width:32px!important;flex-basis:32px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option .mat-avatar-swatch-label{font-size:10px!important}
+    }
+    @media(max-width:390px){
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{min-height:72px!important;border-radius:11px!important}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option{transition:none!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-skin-tone-option:hover{transform:none!important}
+    }
   `;
   document.head.appendChild(style);
 })();
