@@ -53,7 +53,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="./style.css?v=sitewide-button-feedback-20261111-1">
+    <link rel="stylesheet" href="./style.css?v=sitewide-button-feedback-20261111-2">
 
 
     <!-- Home-only Contact section styling (inspired by the portfolio Contact UI) -->
@@ -2058,7 +2058,6 @@ main > .view-section.hidden { display: none !important; }
   // Give save/load controls immediate, consistent feedback while their async work runs.
   function actionType(button) {
     var label = String(button && (button.getAttribute('data-loading-label') || button.innerText || button.value) || '').trim();
-    if (!label) return '';
     if (/(save|saving|update|submit|create|add|delete|remove|clear|redeem|convert|send|upload|import|export|sync|apply|reset|restore|সেভ|সংরক্ষণ|জমা|আপডেট|তৈরি|যোগ|মুছ|পরিবর্তন|পাঠান)/i.test(label)) return 'saving';
     if (/(load|loading|refresh|reload|fetch|search|খুঁজ|লোড|আনুন|রিফ্রেশ|দেখুন|history|profile|leaderboard)/i.test(label)) return 'loading';
     if (/(open|view|go|back|next|continue|login|sign\s*up|guest|start|play|navigate|খুল|যাও|পরবর্তী|চালু)/i.test(label)) return 'opening';
@@ -2070,7 +2069,11 @@ main > .view-section.hidden { display: none !important; }
     clearTimeout(actionRestoreTimer);
     actionRestoreTimer = 0;
     if (!actionButton) return;
-    actionButton.innerHTML = actionButtonHTML;
+    if (/^(INPUT)$/.test(actionButton.tagName)) {
+      actionButton.value = actionButtonHTML;
+    } else {
+      actionButton.innerHTML = actionButtonHTML;
+    }
     actionButton.disabled = actionButtonDisabled;
     actionButton.removeAttribute('aria-busy');
     actionButton.classList.remove('mat-action-is-busy');
@@ -2089,18 +2092,24 @@ main > .view-section.hidden { display: none !important; }
 
   function markActionButton(button) {
     var kind = actionType(button);
-    if (!kind || !button || button.disabled || button.getAttribute('aria-disabled') === 'true') return;
+    if (!button || button.disabled || button.getAttribute('aria-disabled') === 'true') return;
     if (actionButton && actionButton !== button) restoreActionButton();
     if (actionButton === button) return;
     actionButton = button;
     actionButtonHTML = button.innerHTML;
     actionButtonDisabled = button.disabled;
-    button.disabled = true;
+    var status = kind === 'saving' ? 'Saving' : kind === 'loading' ? 'Loading' : kind === 'opening' ? 'Opening' : 'Working';
+    var isInput = /^(INPUT)$/.test(button.tagName);
+    var originalValue = isInput ? button.value : '';
     button.setAttribute('aria-busy', 'true');
     button.classList.add('mat-action-is-busy');
-    var status = kind === 'saving' ? 'Saving' : kind === 'loading' ? 'Loading' : kind === 'opening' ? 'Opening' : 'Working';
-    button.innerHTML = '<span class="mat-action-feedback-label">' + status + '</span><span class="mat-animated-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
+    if (isInput) button.value = status + '...';
+    else button.innerHTML = '<span class="mat-action-feedback-label">' + status + '</span><span class="mat-animated-loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>';
     actionRequestCount = 0;
+    // Defer disabling until the current click has reached its original handler.
+    setTimeout(function () {
+      if (actionButton === button) button.disabled = true;
+    }, 0);
     finishActionButtonSoon(900);
   }
 
@@ -2286,28 +2295,17 @@ main > .view-section.hidden { display: none !important; }
   // downloads, external links and the existing multi-view app keep working.
   document.addEventListener('click', function (event) {
     var target = event.target && event.target.closest
-      ? event.target.closest('a[href], button, [role="button"], input[type="submit"]')
+      ? event.target.closest('button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"]')
       : null;
     if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
     if (isExamActive()) { hideGlobalBarForExam(); return; }
-    if (target.matches('a[download]') || target.getAttribute('target') === '_blank') return;
-    if (target.matches('a[href]')) {
-      var href = target.getAttribute('href') || '';
-      if (!href || href.charAt(0) === 'javascript:') return;
-      try {
-        var destination = new URL(target.href, window.location.href);
-        if (destination.origin !== window.location.origin) return;
-      } catch (_) { return; }
-    }
     // Sidebar navigation is synchronous UI routing, not a save/load action.
     // Bypass the generic loader completely so it cannot interfere with the
     // inline app navigation handler or its clicked DOM target.
     if (target.matches('.sidebar-nav button')) return;
 
     // PB conversion and promo redeem controls manage their own loading labels.
-    if (!target.matches('[data-pb-convert], [data-sidebar-pb-convert], #mat-promo-redeem-form button, #view-leaderboard button[onclick*="loadLeaderboard"], #view-leaderboard [data-leaderboard-period]')) {
-      markActionButton(target);
-    }
+    markActionButton(target);
     beginForAction();
     // Notification center is an in-page view. Do not let background Firebase
     // sync/polling keep its navigation progress bar visible indefinitely.
