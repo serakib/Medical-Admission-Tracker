@@ -110,7 +110,7 @@ console.log(`OK live question bank: ${questions.length} questions across ${Objec
 // Check the read-only backend health endpoint so stale Apps Script deployments are visible.
 const leaderboardConfigResponse = await requestWithRetry(new URL('js/leaderboard-config.js', baseUrl));
 const leaderboardConfigSource = await leaderboardConfigResponse.text();
-const apiUrlMatch = leaderboardConfigSource.match(/MED_LEADERBOARD_API_URL\\s*=\\s*['"]([^'"]+)['"]/);
+const apiUrlMatch = leaderboardConfigSource.match(/MED_LEADERBOARD_API_URL\s*=\\s*['"]([^'"]+)['"]/);
 assert.ok(apiUrlMatch, 'Live leaderboard API URL is missing from its configuration.');
 
 const apiUrl = new URL(apiUrlMatch[1]);
@@ -123,7 +123,7 @@ const backendHealth = await backendResponse.json();
 assert.equal(backendHealth.success, true, 'Medical backend health endpoint did not report success.');
 assert.equal(backendHealth.status, 'ok', 'Medical backend is not healthy.');
 assert.equal(backendHealth.service, 'Medical Admission Tracker API', 'Unexpected backend service response.');
-assert.match(String(backendHealth.apiVersion || ''), /^\\d{4}\\.\\d{2}\\.\\d{2}\\.\\d+$/,
+assert.match(String(backendHealth.apiVersion || ''), /^\d{4}\.\d{2}\.\d{2}\.\d+$/,
   'Backend API version is missing or invalid.');
 
 const requiredCapabilities = [
