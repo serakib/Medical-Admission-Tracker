@@ -4,7 +4,7 @@ Student account, exam progress এবং backend configuration সুরক্�
 
 ## Security policy
 
-Project-এর vulnerability reporting rules: [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md)।
+Project-এর vulnerability reporting rules: [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/SECURITY.md)।
 
 সাধারণ bug বা feature request public Issue Form-এ দেওয়া যায়। কিন্তু suspected security vulnerability public issue, discussion, pull request বা screenshot-এ প্রকাশ কোরো না।
 
@@ -50,5 +50,5 @@ Repository page-এ “There aren't any published security advisories” দে�
 
 ## Related references
 
-- [Repository Security Policy](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md)
+- [Repository Security Policy](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/SECURITY.md)
 - [GitHub Security Advisories](https://docs.github.com/en/code-security/concepts/vulnerability-reporting-and-management/repository-security-advisories)
