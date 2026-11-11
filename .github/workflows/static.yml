@@ -37,8 +37,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Cache npm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
       - name: Install pinned frontend build dependencies
-        run: npm install --no-save --no-package-lock tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.24.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
+        run: npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund --prefer-offline --no-audit --no-fund tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.24.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
       - name: Build local frontend assets
         run: node scripts/build-local-assets.mjs
       - name: Generate local Avataaars browser definition
