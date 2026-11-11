@@ -1,7 +1,7 @@
 # 📚 Question Bank Guide
 
 ## Question source
-Project-এর মূল question collection repository-র questions.json file-এ রাখা হয়।
+Project-এর মূল question collection repository-র data/questions.json file-এ রাখা হয়।
 
 বর্তমান normalized subject keys:
 - biology

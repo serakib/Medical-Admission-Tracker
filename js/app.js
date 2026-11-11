@@ -1,5 +1,5 @@
 /* Medical Admission Tester - application engine
- * Questions are loaded from ./questions.json at runtime.
+ * Questions are loaded from ./data/questions.json at runtime.
  * Firebase configuration/auth remains external and is never hard-coded here.
  */
 
@@ -247,7 +247,7 @@ class MedicalExamApp {
         const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         try {
-            const response = await fetch(`./questions.json${cacheBuster}`, {
+            const response = await fetch(`./data/questions.json${cacheBuster}`, {
                 cache: 'no-store',
                 headers: { 'Accept': 'application/json' },
                 signal: controller.signal

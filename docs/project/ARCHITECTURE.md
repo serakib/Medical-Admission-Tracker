@@ -5,7 +5,7 @@ This file is a high-level entry point to the technical architecture documentatio
 ## Main components
 
 - **Browser frontend:** `index.html`, `css/style.css`, `js/app.js` and supporting files provide the student-facing application. The site is published through GitHub Pages.
-- **Question data:** `questions.json` contains the question-bank data consumed by the frontend. `question-bank-info.json` provides related question-bank metadata.
+- **Question data:** `data/questions.json` contains the question-bank data consumed by the frontend. `data/question-bank-info.json` provides related question-bank metadata.
 - **Authentication:** the frontend integrates Firebase Authentication for account sign-in.
 - **Application backend:** `apps-script/Medical_Admission_Tracker_Backend.gs` contains the Google Apps Script backend. The application uses this service for server-side operations and data access.
 - **Data storage:** the current project documentation describes Google Sheets-backed application records and Firebase services. Exact responsibilities and deployed configuration are documented in the backend and operations guides.

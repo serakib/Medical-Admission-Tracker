@@ -19,7 +19,7 @@ Guest identity browser storage-এ রাখা token-এর সঙ্গে য
 Website-এ প্রদর্শিত guideline পরিবর্তিত হতে পারে। সংশ্লিষ্ট শিক্ষাবর্ষের official admission circular-ই authoritative।
 
 ## Question Bank-এ নতুন প্রশ্ন কীভাবে যোগ হয়?
-Question collection repository-র questions.json file-এ রাখা হয়। Source, year ও answer যাচাই ছাড়া প্রশ্ন যোগ করা উচিত নয়। [Question Bank](Question-Bank) দেখো।
+Question collection repository-র data/questions.json file-এ রাখা হয়। Source, year ও answer যাচাই ছাড়া প্রশ্ন যোগ করা উচিত নয়। [Question Bank](Question-Bank) দেখো।
 
 ## Bug report কোথায় করব?
 [Bug Report form](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=bug_report.yml) ব্যবহার করো। Password, token বা private student data attach কোরো না।
