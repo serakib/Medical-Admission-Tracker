@@ -1,84 +1,78 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Build, validate and deploy to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Never cancel an active production deployment.
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
+    name: Build, validate and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
+
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Setup Node.js
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
       - name: Cache npm downloads
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
           restore-keys: |
-            ${{ runner.os }}-npm-
-      - name: Install pinned frontend build dependencies
-        run: npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.24.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
-      - name: Build local frontend assets
-        run: node scripts/build-local-assets.mjs
-      - name: Generate local Avataaars browser definition
-        run: node scripts/generate-avatar-browser-definition.mjs
-      - name: Generate SVG asset manifest
-        run: node scripts/generate-avatar-asset-manifest.mjs
-      - name: Check syntax of every JavaScript and Apps Script file
-        shell: bash
-        run: |
-          set -euo pipefail
-          while IFS= read -r -d '' file; do
-            echo "Checking module $file"
-            node --input-type=module --check < "$file"
-          done < <(find . -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
-          while IFS= read -r -d '' file; do
-            echo "Checking Apps Script $file"
-            node --check < "$file"
-          done < <(find . -type f -name '*.gs' -not -path './.git/*' -print0)
-      - name: Verify SVG component files match the pinned original vectors
-        run: node scripts/generate-avatar-svg-parts.mjs --check
-      - name: Check local assets referenced by index.html
-        run: node scripts/check-integrity.mjs
-      - name: Check navigation regression
-        run: node scripts/test-navigation.mjs
-      - name: Prepare static Pages artifact
+            ${{ runner.os }}-node22-npm-
+
+      # package.json is the single source of truth for the exact direct build dependencies.
+      - name: Install project build dependencies
+        run: npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund
+
+      # Runs the asset build plus syntax, SVG, asset-integrity and navigation checks.
+      - name: Build and validate
+        run: npm test
+
+      - name: Prepare Pages artifact
         run: |
           mkdir -p _site
           rsync -a --exclude='.git/' --exclude='node_modules/' --exclude='_site/' ./ _site/
-      - name: Upload artifact
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Publish the site without build-only dependencies.
-          path: '_site'
+          path: _site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Write deployment summary
+        if: success()
+        env:
+          DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          {
+            echo "## GitHub Pages deployment"
+            echo "- Commit: `$GITHUB_SHA`"
+            echo "- URL: $DEPLOYED_URL"
+            echo "- Validation: passed"
+          } >> "$GITHUB_STEP_SUMMARY"

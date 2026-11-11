@@ -1,5 +1,25 @@
 version: 2
 updates:
+  # Keep npm build dependencies aligned with package.json.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "npm"
+    groups:
+      frontend-build-dependencies:
+        patterns:
+          - "@fortawesome/*"
+          - "esbuild"
+          - "firebase"
+          - "tailwindcss"
+        update-types:
+          - "minor"
+          - "patch"
+
   # Keep GitHub Actions used by repository automation current.
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -9,3 +29,7 @@ updates:
     labels:
       - "dependencies"
       - "automation"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

@@ -1,0 +1,16 @@
+# Normalize text files across Windows, macOS and Linux.
+* text=auto eol=lf
+
+# Preserve binary assets without line-ending conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary

@@ -2,52 +2,42 @@ name: Validate static app
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Keep only the newest validation run for a branch; stale runs waste build minutes.
+# Keep only the newest validation run for a pull-request branch.
 concurrency:
-  group: validate-${{ github.ref }}
+  group: validate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
+    name: Build and validate
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Cache npm downloads
         uses: actions/cache@v4
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
           restore-keys: |
-            ${{ runner.os }}-npm-
-      - name: Install pinned frontend build dependencies
-        run: npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.24.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
-      - name: Build local frontend assets
-        run: node scripts/build-local-assets.mjs
-      - name: Check syntax of every JavaScript and Apps Script file
-        shell: bash
-        run: |
-          set -euo pipefail
-          while IFS= read -r -d '' file; do
-            echo "Checking module $file"
-            node --input-type=module --check < "$file"
-          done < <(find . -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -not -path './node_modules/*' -print0)
-          while IFS= read -r -d '' file; do
-            echo "Checking Apps Script $file"
-            node --check < "$file"
-          done < <(find . -type f -name '*.gs' -not -path './.git/*' -print0)
-      - name: Verify SVG component files match the pinned original vectors
-        run: node scripts/generate-avatar-svg-parts.mjs --check
-      - name: Check local assets referenced by index.html
-        run: node scripts/check-integrity.mjs
-      - name: Check navigation regression
-        run: node scripts/test-navigation.mjs
+            ${{ runner.os }}-node22-npm-
+
+      - name: Install project build dependencies
+        run: npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund
+
+      # Use exactly the same validation command as the production deployment workflow.
+      - name: Build and validate
+        run: npm test
