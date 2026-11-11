@@ -929,7 +929,7 @@
     .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;opacity:0;transform:scale(.965);filter:blur(3px);transition:opacity .68s cubic-bezier(.22,.61,.36,1),transform .68s cubic-bezier(.22,.61,.36,1),filter .68s cubic-bezier(.22,.61,.36,1);pointer-events:none;will-change:opacity,transform,filter}
     #sidebar-user-avatar{position:relative}
     .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{position:absolute;right:-2px;bottom:-2px;z-index:20;display:grid;place-items:center;width:20px;height:20px;padding:0;border:2px solid #0a1220;border-radius:50%;background:#10b981;color:#052e20;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28)}
-    .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit i{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     html[data-theme="light"] .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{border-color:#fff}
     .mat-avatar-live-layer.is-visible{opacity:1;transform:scale(1);filter:blur(0)}
     .mat-avatar-live-layer>img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
@@ -1447,7 +1447,7 @@
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
   // Keep broken remote avatar URLs from exposing their alt text in profile circles.
   // This embedded portrait is local, so it also works offline and when the avatar CDN fails.
-  const avatarFallbackDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="64" fill="#7b1fa2"/><text x="64" y="86" text-anchor="middle" font-family="Arial,sans-serif" font-size="68" font-weight="800" fill="#ffffff">R</text></svg>');
+  const avatarFallbackAsset = './public/assets/avatar/characters/m01.svg';
   document.addEventListener('error', event => {
     const image = event.target;
     if (!(image instanceof HTMLImageElement)) return;
@@ -1456,7 +1456,7 @@
     if (!isAvatarImage || image.dataset.avatarFallbackApplied === '1') return;
     image.dataset.avatarFallbackApplied = '1';
     image.alt = '';
-    image.src = avatarFallbackDataUri;
+    image.src = avatarFallbackAsset;
   }, true);
   const avatarAccountId = () => {
     // Visitor avatar choices stay under a local-only Visitor key. Never invent
@@ -2107,7 +2107,7 @@
           edit.type = 'button';
           edit.className = 'mat-sidebar-avatar-edit';
           edit.setAttribute('aria-label','আভাটার এডিট');
-          edit.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+          edit.innerHTML = '<i class="fa-solid fa-pen" aria-hidden="true"></i>';
           edit.addEventListener('click',event => { event.preventDefault(); event.stopPropagation(); window.MedAvatarProfileModal?.open(); });
           wrapper.appendChild(edit);
         }
@@ -3260,10 +3260,9 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   .mat-avatar-option .mat-avatar-option-preview-stack{width:76px;height:76px;display:block}
   .mat-avatar-option .mat-avatar-option-preview-stack .med-avatar-base{width:100%;height:100%;object-fit:contain}
   .mat-avatar-asset-preview{display:flex;width:100%;height:70px;align-items:center;justify-content:center}
-  .mat-avatar-asset-preview svg{display:block;width:92px;height:68px;max-width:100%;overflow:visible}
+  .mat-avatar-asset-preview i{display:block;width:92px;height:68px;max-width:100%;overflow:visible}
   .mat-avatar-controls .mat-avatar-actions{flex:0 0 auto;padding:12px 14px!important;border-top:1px solid #5c5c5c!important;background:#111!important}
   .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{width:100%;min-height:54px!important;border:0!important;border-radius:16px!important;background:#12a34a!important;color:#fff!important;font-size:15px!important;font-weight:900!important}
-  .mat-avatar-headphones{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
   @media(max-width:850px){
    .mat-avatar-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(210px,34vh) minmax(0,1fr);gap:10px}
    .mat-avatar-preview-panel{min-height:0;height:100%;border-radius:20px!important}
