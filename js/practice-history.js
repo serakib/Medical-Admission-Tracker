@@ -4,7 +4,9 @@
   const ready = () => {
     const app = window.app;
     if (!app || typeof app.submitExam !== 'function') return;
-    const accountKey = () => String(app.authUser && app.authUser.uid || 'guest');
+    const accountKey = () => typeof app.getLocalIdentityKey === 'function'
+      ? app.getLocalIdentityKey()
+      : String(app.authUser && app.authUser.uid || 'visitor');
     const storageKey = () => 'med_practice_attempt_history_v1_' + accountKey();
     const safeRead = () => {
       try {
@@ -27,7 +29,7 @@
     function renderHistory(){
       const view=document.getElementById('view-practice');if(!view)return;let panel=document.getElementById('practice-attempt-history');
       if(!panel){panel=document.createElement('section');panel.id='practice-attempt-history';panel.className='practice-attempt-history';const host=document.getElementById('enhanced-review-history')||document.getElementById('practice-browser')||view;host.insertAdjacentElement('afterend',panel);}
-      const attempts=safeRead(),rk='med_review_history_v2_'+String(app.authUser&&app.authUser.uid||'guest');let reviews={};try{reviews=JSON.parse(localStorage.getItem(rk)||'{}')||{};}catch(_){}
+      const attempts=safeRead(),rk='med_review_history_v2_'+accountKey();let reviews={};try{reviews=JSON.parse(localStorage.getItem(rk)||'{}')||{};}catch(_){}
       const map=new Map();Object.values(attempts).filter(e=>e&&e.attempted).forEach(e=>{const r=reviews[e.key]||{};map.set(e.key,{...e,reviewed:!!r.reviewed,wrong:r.wrong===undefined?!e.correct:!!r.wrong});});
       Object.values(reviews).filter(e=>e&&(e.reviewed||e.wrong)).forEach(e=>{const p=map.get(e.key)||{};map.set(e.key,{...e,...p,key:e.key,question:p.question||e.question,reviewed:!!e.reviewed,wrong:!!e.wrong});});
       const entries=[...map.values()],wrong=entries.filter(e=>e.wrong),reviewed=entries.filter(e=>e.reviewed),shown=filter==='wrong'?wrong:reviewed;
@@ -76,7 +78,7 @@
           };
         });
         safeWrite(history);
-        const rk='med_review_history_v2_'+String(this.authUser&&this.authUser.uid||'guest');let rh={};try{rh=JSON.parse(localStorage.getItem(rk)||'{}')||{};}catch(_){}
+        const rk='med_review_history_v2_'+accountKey();let rh={};try{rh=JSON.parse(localStorage.getItem(rk)||'{}')||{};}catch(_){}
         state.questions.forEach((q,i)=>{const ans=state.userAnswers[i];if(ans===null||ans===undefined||ans==='')return;const key=questionKey(q),ci=Number(q&&q.answer),p=rh[key]||{key,question:q,reviewed:false,wrong:false};rh[key]={...p,key,question:q,userAnswerIndex:Number(ans),correctAnswerIndex:ci,wrong:Number(ans)!==ci,updatedAt:now};});
         try{localStorage.setItem(rk,JSON.stringify(rh));}catch(_){}renderHistory();
       }
