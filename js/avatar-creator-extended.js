@@ -8,7 +8,9 @@
     skinTone: [['#f2d2b4','হালকা বেইজ'],['#dfb38e','গম-রঙ'],['#c9916b','মাঝারি শ্যামলা'],['#a96f4e','শ্যামলা'],['#80543e','গাঢ় বাদামি'],['#5e4034','গভীর বাদামি']],
     eyeShape: [['default','স্বাভাবিক'],['happy','হাসিখুশি'],['closed','বন্ধ'],['side','পাশে তাকানো'],['wink','চোখ টেপা'],['hearts','হার্ট'],['squint','চোখ ছোট'],['eyeRoll','চোখ ঘোরানো']],
     eyebrowShape: [['defaultNatural','স্বাভাবিক'],['default','সাধারণ'],['raisedExcited','উঁচু'],['angry','গম্ভীর'],['sadConcerned','চিন্তিত'],['flatNatural','সমান']],
-    expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
+    expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত'],['disbelief','অবিশ্বাস'],['eating','খাচ্ছে'],['grimace','বিব্রত'],['tongue','জিহ্বা'],['vomit','বমি']],
+    nose: [['default','স্বাভাবিক']],
+    clothingGraphic: [['bat','Bat'],['bear','Bear'],['cumbia','Cumbia'],['deer','Deer'],['diamond','Diamond'],['hola','Hola'],['pizza','Pizza'],['resist','Resist'],['skull','Skull'],['skullOutline','Skull Outline']],
     nose: [['default','স্বাভাবিক']],
     gender: [['male','পুরুষ'],['female','নারী']],
     ageGroup: [['teen','HSC শিক্ষার্থী · ১৬–১৮']],
@@ -25,10 +27,10 @@
     hairColor: [['2c1b18','কালো'],['4a312c','গাঢ় বাদামি'],['724133','বাদামি'],['b58143','সোনালি বাদামি'],['a55728','কমলা-বাদামি'],['c93305','লাল']],
     facialHair: [['none','নেই'],['beardLight','হালকা দাড়ি'],['beardMedium','মাঝারি দাড়ি'],['beardMajestic','ঘন দাড়ি'],['moustacheFancy','গোঁফ'],['moustacheMagnum','ঘন গোঁফ']],
     facialHairColor: [['2c1b18','কালো'],['4a312c','বাদামি'],['724133','গাঢ় বাদামি'],['b58143','সোনালি বাদামি']],
-    glasses: [['none','নেই'],['round','গোল'],['prescription01','চশমা ১'],['prescription02','চশমা ২'],['wayfarers','ওয়েফেয়ার'],['sunglasses','সানগ্লাস']],
-    hat: [['none','নেই'],['hat','ক্যাপ'],['winterHat1','শীতের টুপি ১'],['winterHat02','শীতের টুপি ২'],['winterHat03','শীতের টুপি ৩'],['winterHat04','শীতের টুপি ৪'],['turban','পাগড়ি']],
+    glasses: [['none','নেই'],['round','গোল'],['prescription01','চশমা ১'],['prescription02','চশমা ২'],['wayfarers','ওয়েফেয়ার'],['sunglasses','সানগ্লাস'],['kurt','Kurt'],['eyepatch','Eyepatch']],
+    hat: [['none','নেই'],['hat','ক্যাপ'],['winterHat1','শীতের টুপি ১'],['winterHat02','শীতের টুপি ২'],['winterHat03','শীতের টুপি ৩'],['winterHat04','শীতের টুপি ৪'],['turban','পাগড়ি'],['hijab','হিজাব']],
     hatColor: [['dc2626','লাল'],['2563eb','নীল'],['7c3aed','বেগুনি'],['10b981','সবুজ'],['f8fafc','সাদা'],['333344','ডার্ক']],
-    clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার']],
+    clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার'],['graphicShirt','গ্রাফিক টি-শার্ট']],
     clothingColor: [['2563eb','নীল'],['7c3aed','বেগুনি'],['dc2626','লাল'],['333344','ডার্ক গ্রে'],['10b981','সবুজ'],['f8fafc','সাদা']],
     clothingGraphic: [['none','নেই']],
     petType: [['none','নেই'],['chick','ছোট ছানা'],['cat','বিড়াল'],['bear','সাদা ভালুক']],
@@ -39,7 +41,7 @@
     gender:'male', ageGroup:'teen', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'blazerAndShirt', clothingColor:'333344', clothingGraphic:'none',
-    petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
+    petType:'none', headphones:'none', characterPreset:'m01', clothingGraphic:'bat', nose:'default', background:'a5a8ff'
   };
 
     const characterPresets = [
@@ -73,7 +75,6 @@
       headphones:'none',background:['a5a8ff','f3d8e8','bde0fe','caffbf','ffe8a3'][index%5]
     }))
   ];
-  const entries = Object.entries(choices);
   const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','dreads','dreads01','dreads02','froBand'];
   const femaleHair = ['bigHair','bob','bun','curly','curvy','frida','frizzle','fro','hijab','longButNotTooLong','miaWallace','straight01','straight02','straightAndStrand'];
   const hairChoicesFor = gender => {
@@ -83,7 +84,7 @@
   const inferGenderFromHair = hair => femaleHair.includes(String(hair || '')) && !maleHair.includes(String(hair || '')) ? 'female' : 'male';
   const normalize = input => {
     const result = {...defaults};
-    entries.forEach(([key,list]) => {
+    Object.entries(choices).forEach(([key,list]) => {
       const value = input && input[key];
       if (list.some(([v]) => v === value)) result[key] = value;
     });
@@ -112,7 +113,7 @@
   const buildUrl = input => {
     const c = normalize(input);
     const params = new URLSearchParams({
-      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|character='+c.characterPreset+'|bg='+hex(c.background)+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle+'|headphones='+c.headphones,
+      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|character='+c.characterPreset+'|bg='+hex(c.background)+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle+'|headphones='+c.headphones+'|graphic='+c.clothingGraphic+'|nose='+c.nose,
       size:'512',
       skinColor:hex(c.skinTone),
       topVariant:c.hat !== 'none' ? c.hat : c.hairStyle,
@@ -168,6 +169,8 @@
         clothingColor:p.get('clothesColor') || defaults.clothingColor,
         clothingGraphic:p.get('clothesGraphicProbability') === '0' ? 'none' : (p.get('clothesGraphic') || 'none'),
         petType:meta.pet || defaults.petType,
+        clothingGraphic:meta.graphic || defaults.clothingGraphic,
+        nose:meta.nose || defaults.nose,
         background:meta.bg || p.get('backgroundColor') || defaults.background
       };
       return normalize(c);
