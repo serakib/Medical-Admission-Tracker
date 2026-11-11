@@ -15,6 +15,10 @@
 
 🌐 **Live Website:** [Medical Admission Pro](https://serakib.github.io/Medical-Admission-Tracker/)
 
+### 📌 Repository Resources
+
+[🛡️ Security Policy](.github/SECURITY.md) · [♿ Accessibility](docs/guides/ACCESSIBILITY.md) · [🤝 Code of Conduct](.github/CODE_OF_CONDUCT.md) · [🧑‍💻 Contributing](.github/CONTRIBUTING.md) · [📚 Documentation](docs/README.md)
+
 Medical Admission Pro হলো বাংলাদেশের HSC একাদশ–দ্বাদশ শ্রেণির শিক্ষার্থী এবং Medical Admission পরীক্ষার্থীদের জন্য তৈরি একটি online MCQ practice platform। এখানে Question Bank, Practice, Model Test, Previous Year Questions, Result Analysis এবং Leaderboard—সবকিছু এক জায়গায় পাওয়া যাবে।
 
 ---
