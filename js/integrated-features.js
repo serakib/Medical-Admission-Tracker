@@ -1065,6 +1065,25 @@
     }
   `;
 
+  avatarCustomizerStyle.textContent += `
+    /* Each local SVG is a separate, evenly sized selectable asset tile. */
+    .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .mat-avatar-option{display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1;min-height:0;padding:10px;border:2px solid #858585;border-radius:15px;background:#393939;overflow:hidden}
+    .mat-avatar-option.is-selected{border:2px solid #10b981;background:#393939;box-shadow:0 0 0 1px #10b98122}
+    .mat-avatar-option-art-frame{display:grid;place-items:center;width:100%;height:100%;min-height:0;overflow:hidden}
+    .mat-avatar-option-art{display:block;width:100%;height:100%;max-width:112px;max-height:112px;object-fit:contain}
+    .mat-avatar-option-none{display:grid;place-items:center;width:76%;height:76%;border:2px dashed #858585;border-radius:14px;color:#e5e7eb;font-size:14px;font-weight:800}
+    .mat-avatar-option:has(.mat-avatar-swatch){width:52px;min-width:52px;height:52px;min-height:52px;aspect-ratio:1;padding:0;border:0;border-radius:11px;background:transparent;box-shadow:none}
+    .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:11px;background:var(--swatch)}
+    .mat-avatar-option:has(.mat-avatar-swatch).is-selected{border:2px solid #10b981;padding:2px}
+    .mat-avatar-option:has(.mat-avatar-swatch).is-selected .mat-avatar-swatch{border-radius:8px}
+    .mat-avatar-option:focus-visible{outline:3px solid #34d399;outline-offset:2px}
+    @media(max-width:760px){
+      .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .mat-avatar-option{padding:7px}
+      .mat-avatar-option-art{max-width:84px;max-height:84px}
+    }
+  `;
   document.head.appendChild(avatarCustomizerStyle);
 
   const avatarBuilderFinalStyle = document.createElement('style');
@@ -1644,6 +1663,19 @@
     const options = typeof window.MedAvatarCreator.getOptionsForField === 'function'
       ? window.MedAvatarCreator.getOptionsForField(field.key, config)
       : (window.MedAvatarCreator.choices[field.key] || []);
+    const assetFolders = {
+      hairStyle:'hair', eyeShape:'eyes', eyebrowShape:'eyebrows',
+      expression:'mouths', nose:'nose', facialHair:'facial-hair',
+      glasses:'accessories', hat:'headwear', clothingType:'clothing', petType:'pets'
+    };
+    const manifest = window.MedAvatarCreator.assetManifest?.categories || {};
+    const findAsset = (folder, value) => {
+      const list = Array.isArray(manifest[folder]) ? manifest[folder] : [];
+      return list.find(asset => {
+        const filename = String(asset.path || '').split('/').pop() || '';
+        return filename.replace(/\\.svg$/i, '').toLowerCase() === String(value || '').toLowerCase();
+      }) || null;
+    };
     return '<section class="mat-avatar-option-section" data-avatar-field="' + field.key + '"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
       options.map(option => {
         const selected = config[field.key] === option.value;
@@ -1655,22 +1687,34 @@
           const color = '#' + raw.replace(/^#/, '');
           visual = '<span class="mat-avatar-swatch" style="--swatch:' + color + ';background-color:' + color + '" aria-hidden="true"></span>';
         } else {
-          const thumbnailInput = field.key === 'characterPreset'
-            ? window.MedAvatarCreator.applyCharacterPreset(option.value, config)
-            : field.key === 'gender'
-              ? window.MedAvatarCreator.applyCharacterPreset(option.value === 'female' ? 'f01' : 'm01', config)
-              : Object.assign({}, config, { [field.key]: option.value });
-          if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
-          if (field.key !== 'petType') thumbnailInput.petType = 'none';
-          const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
-          const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
-          visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
+          let asset = null;
+          const folder = assetFolders[field.key];
+          if (folder && raw !== 'none') asset = findAsset(folder, raw);
+          // Hijab is stored with headwear parts, not hairstyle parts.
+          if (!asset && field.key === 'hairStyle' && raw.toLowerCase() === 'hijab') asset = findAsset('headwear', raw);
+          if (asset && asset.path) {
+            const safePath = String(asset.path).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+            visual = '<span class="mat-avatar-option-art-frame"><img class="mat-avatar-option-art" src="' + safePath + '" alt="" loading="lazy" decoding="async" draggable="false"></span>';
+          } else if (raw === 'none') {
+            visual = '<span class="mat-avatar-option-none">নেই</span>';
+          } else {
+            const thumbnailInput = field.key === 'characterPreset'
+              ? window.MedAvatarCreator.applyCharacterPreset(option.value, config)
+              : field.key === 'gender'
+                ? window.MedAvatarCreator.applyCharacterPreset(option.value === 'female' ? 'f01' : 'm01', config)
+                : Object.assign({}, config, { [field.key]: option.value });
+            if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
+            if (field.key !== 'petType') thumbnailInput.petType = 'none';
+            const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
+            const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
+            visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
+          }
         }
         return '<button type="button" class="mat-avatar-option' + (field.key === 'characterPreset' ? ' mat-avatar-character-card' : '') + (selected ? ' is-selected' : '') +
           '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw +
           '" title="' + label.replace(/&/g,'&amp;').replace(/"/g,'&quot;') +
           '" aria-label="' + field.title + ': ' + label + '" aria-pressed="' + String(selected) + '">' + visual +
-          (field.key === 'gender' || field.key === 'characterPreset' ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
+          ((field.key === 'gender' || field.key === 'characterPreset') ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
       }).join('') +
     '</div></section>';
   }
@@ -1833,6 +1877,8 @@
     const avatarCategoryIcons = {
       body:'<circle cx="12" cy="7" r="3.2"/><path d="M5 21v-2.2a7 7 0 0 1 14 0V21M8 12l-2 2m10-2 2 2"/>',
       eyes:'<path d="M2.5 12s3.4-5 9.5-5 9.5 5 9.5 5-3.4 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.2"/>',
+      eyebrows:'<path d="M3 9c3-3 6-3 9-1m0 0c3-2 6-2 9 1"/>',
+      nose:'<path d="M12 4v9c0 2 2 3 4 3"/>',
       mouth:'<path d="M4 14c2.2 4 13.8 4 16 0"/><path d="M6 12h12"/>',
       hair:'<path d="M4 13a8 8 0 0 1 16 0v2H4zM4 12c0-5 3-8 8-8s8 3 8 8M8 5l-2-2m10 2 2-2"/>',
       beard:'<path d="M5 9c0 7 3 12 7 12s7-5 7-12M5 9l-2-3m16 3 2-3M8 14l4 3 4-3"/>',
@@ -1844,8 +1890,11 @@
     };
     const groups = [
       {key:'character',title:'চরিত্র',icon:'body',fields:[{key:'gender',title:'Gender / লিঙ্গ'},{key:'characterPreset',title:'চরিত্র বেছে নাও'},{key:'ageGroup',title:'বয়স'}]},
-      {key:'face',title:'মুখ ও ত্বক',icon:'mouth',fields:[{key:'skinTone',title:'ত্বকের রঙ'},{key:'expression',title:'মুখের অভিব্যক্তি'}]},
-      {key:'eyes',title:'চোখ ও ভ্রু',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
+      {key:'face',title:'মুখ ও ত্বক',icon:'mouth',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
+      {key:'eyes',title:'চোখ',icon:'eyes',fields:[{key:'eyeShape',title:'চোখের ধরন'}]},
+      {key:'eyebrows',title:'ভ্রু',icon:'eyebrows',fields:[{key:'eyebrowShape',title:'ভ্রুর ধরন'}]},
+      {key:'nose',title:'নাক',icon:'nose',fields:[{key:'nose',title:'নাকের ধরন'}]},
+      {key:'mouth',title:'মুখ',icon:'mouth',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
       {key:'hair',title:'চুল',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'দাড়ি ও গোঁফ',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'চশমা ও টুপি',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
@@ -1936,6 +1985,10 @@
 
     }
   }
+  window.addEventListener('med-avatar-assets-updated', () => {
+    if (avatarPickerExpanded) renderAvatarPicker();
+  });
+
   function renderAvatarPickerWithTransition({focus=false} = {}) {
     // Re-render a single live preview. Cloning the previous SVG into the panel
     // could leave a second, partially clipped face behind when animationend was
