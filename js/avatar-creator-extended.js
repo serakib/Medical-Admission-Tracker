@@ -553,16 +553,17 @@
   // Pages deploy. Keep each original SVG file as an <img src>; never redraw/recolor it.
   base.loadAssetManifest = async function () {
     try {
-      const response = await fetch('./public/assets/asset-manifest.json?refresh=' + Date.now(), {cache:'no-store'});
+      const response = await fetch('./public/assets/asset-manifest.json', {cache:'no-cache'});
       if (!response.ok) throw new Error('SVG asset manifest HTTP ' + response.status);
       const manifest = await response.json();
       if (!manifest || typeof manifest !== 'object' || !manifest.categories) throw new Error('Invalid SVG asset manifest');
       base.assetManifest = manifest;
       const petAssets = Array.isArray(manifest.categories.pets) ? manifest.categories.pets : [];
       const nextPets = {};
+      const assetVersion = encodeURIComponent(String(manifest.version || ''));
       petAssets.forEach(asset => {
         if (asset && /^[a-z0-9_-]+$/.test(String(asset.id || '')) && typeof asset.path === 'string') {
-          nextPets[asset.id] = asset.path;
+          nextPets[asset.id] = asset.path + (assetVersion ? '?v=' + assetVersion : '');
         }
       });
       // Keep older saved "bear" selections working when the actual file is white-bear.svg.
