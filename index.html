@@ -2212,7 +2212,7 @@ main > .view-section.hidden { display: none !important; }
   function finish() {
     if (!active || pending > 0) return;
     var thisGeneration = generation;
-    var wait = Math.max(0, MIN_VISIBLE_MS - (Date.now() - startedAt));
+    var wait = 0;
     clearTimeout(idleTimer);
     idleTimer = setTimeout(function () {
       if (!active || pending > 0 || thisGeneration !== generation) return;
