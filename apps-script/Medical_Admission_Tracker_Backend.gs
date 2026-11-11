@@ -3827,20 +3827,57 @@ function matPromoSheets_(){
  };
 }
 function matGetPromoInfo_(p) {
- const u=matAuthenticate_(p), c=matPromoPublic_(), all=matPromoReadConfig_();
- const member=all.members.find(x=>String(x.UserID)===String(u.UserID))||{};
- const global=all.global||{};
- const assigned=String(member.Code||'').trim() || String(global.Code||'').trim();
- const effective=matPromoEffectiveConfig_(u,c.type,c.code);
- let admin=false,fixedCode='';
- const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();
- if(token){const identity=matVerifyFirebaseIdToken_(token);if(identity.emailVerified===true){u.Email=String(identity.email||'').trim().toLowerCase();admin=String(u.AccountType||'').toUpperCase()==='REGISTERED'&&matPromoIsAdmin_(u);if(admin)fixedCode=matPromoFixedCode_();}}
- const adminPromo=admin?matPromoEffectiveConfig_(u,'unlimited',fixedCode):null;
- const adminCodeEnabled=!!(admin&&fixedCode&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'&&adminPromo&&adminPromo.enabled);
- return {success:true,publicCode:c.code,publicType:c.type,rewardPB:effective.rewardPB==null?c.reward:effective.rewardPB,
-   assignedCode:assigned,assignedRewardPB:effective.rewardPB,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin:admin,
-   adminCode:adminCodeEnabled?fixedCode:'',
-   adminCodeEnabled:adminCodeEnabled};
+  const u = matAuthenticate_(p);
+  const c = matPromoPublic_();
+  const all = matPromoReadConfig_();
+  const member = all.members.find(function (row) {
+    return String(row.UserID) === String(u.UserID);
+  }) || {};
+  const global = all.global || {};
+  const assigned = String(member.Code || '').trim() || String(global.Code || '').trim();
+  const effective = matPromoEffectiveConfig_(u, c.type, c.code);
+
+  let admin = false;
+  let adminCode = '';
+  let adminCodeEnabled = false;
+  let adminCodeRewardPB = 100000;
+
+  // Admin-only details require a valid Firebase ID token and a registered
+  // account that is present in the backend Admin allow-list.
+  const token = String(p && (p.idToken || p.firebaseIdToken) || '').trim();
+  if (token) {
+    const identity = matVerifyFirebaseIdToken_(token);
+    if (identity.emailVerified === true) {
+      u.Email = String(identity.email || '').trim().toLowerCase();
+      admin = String(u.AccountType || '').toUpperCase() === 'REGISTERED' && matPromoIsAdmin_(u);
+    }
+  }
+
+  if (admin) {
+    const hasIndividualAdminCode = String(member.AdminCode || '').trim() !== '';
+    const configuredCode = hasIndividualAdminCode ? member.AdminCode : matPromoFixedCode_();
+    const adminConfig = matPromoAdminMemberConfig_(member, configuredCode);
+    const masterCodeEnabled = hasIndividualAdminCode ||
+      matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE';
+
+    adminCode = adminConfig.code;
+    adminCodeEnabled = !!adminCode && adminConfig.enabled && masterCodeEnabled;
+    adminCodeRewardPB = adminConfig.rewardPB;
+  }
+
+  return {
+    success: true,
+    publicCode: c.code,
+    publicType: c.type,
+    rewardPB: effective.rewardPB == null ? c.reward : effective.rewardPB,
+    assignedCode: assigned,
+    assignedRewardPB: effective.rewardPB,
+    promoPB: Math.max(0, matFiniteNumber_(u.PromoPB, 0)),
+    isAdmin: admin,
+    adminCode: admin && adminCodeEnabled ? adminCode : '',
+    adminCodeEnabled: admin && adminCodeEnabled,
+    adminCodeRewardPB: admin && adminCodeEnabled ? adminCodeRewardPB : null
+  };
 }
 
 function matPromoValidateCustomCode_(code) {
