@@ -745,6 +745,9 @@ var MED_VISITOR_PAGE_ENTRY_AT = Date.now();
       throw new Error('Your previous Guest session has expired. You can browse publicly or create a new Guest account.');
     }
     var savedToken = getGuestToken();
+    if (!savedToken) {
+      throw new Error('Visitor mode-এ কোনো Guest account স্বয়ংক্রিয়ভাবে তৈরি হবে না। Guest চালু করতে Account থেকে নিজে Create Guest Account নির্বাচন করুন।');
+    }
     var response;
     try {
       response = await request({ action: 'createGuest', guestToken: savedToken });
@@ -1098,6 +1101,9 @@ var MED_VISITOR_PAGE_ENTRY_AT = Date.now();
         ? ownProfile.showGoldName !== false
         : (raw.showGoldName !== false && raw.ShowGoldName !== false),
       guestAutoDeletionAt: safeText(raw.guestAutoDeletionAt || raw.GuestAutoDeletionAt || '', 40),
+      guestDeletionPending: raw.guestDeletionPending === true || raw.GuestDeletionPending === true,
+      guestDeletionScheduledAt: safeText(raw.guestDeletionScheduledAt || raw.GuestDeletionScheduledAt || '', 40),
+      guestDeletionReason: safeText(raw.guestDeletionReason || raw.GuestDeletionReason || '', 240),
       xp: xp,
       totalRP: Math.max(0, Number(raw.totalRP != null ? raw.totalRP : (raw.lifetimeRP != null ? raw.lifetimeRP : raw.TotalRP)) || (isCurrentAccount ? Number(ownProfile.totalRP || ownProfile.lifetimeRP || 0) : 0)),
       lifetimeRP: Math.max(0, Number(raw.lifetimeRP != null ? raw.lifetimeRP : (raw.totalRP != null ? raw.totalRP : raw.TotalRP)) || (isCurrentAccount ? Number(ownProfile.lifetimeRP || ownProfile.totalRP || 0) : 0)),
