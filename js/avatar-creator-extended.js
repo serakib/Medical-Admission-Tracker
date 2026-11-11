@@ -135,46 +135,51 @@
   const svgAssetMarkup = (category, variant, instanceKey) => {
     const asset = findManifestAsset(category, variant);
     if (!asset || typeof asset.content !== 'string' || !asset.content.trim()) return null;
-    const parsed = new DOMParser().parseFromString(asset.content, 'image/svg+xml');
-    if (parsed.querySelector('parsererror') || parsed.documentElement.localName !== 'svg') {
-      throw new Error('Malformed SVG asset: ' + asset.path);
-    }
-    const sourceRoot = parsed.documentElement.cloneNode(true);
-    sourceRoot.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(node => node.remove());
-    const ids = new Map();
-    [sourceRoot, ...Array.from(sourceRoot.querySelectorAll('*'))].forEach(node => {
-      const id = node.getAttribute?.('id');
-      if (id) ids.set(id, instanceKey + '-' + id);
-    });
-    [sourceRoot, ...Array.from(sourceRoot.querySelectorAll('*'))].forEach(node => {
-      if (!node.attributes) return;
-      Array.from(node.attributes).forEach(attribute => {
-        const name = attribute.name.toLowerCase();
-        let value = attribute.value;
-        if (name.startsWith('on')) {
-          node.removeAttribute(attribute.name);
-          return;
-        }
-        if ((name === 'href' || name.endsWith(':href')) && value && !value.startsWith('#')) {
-          node.removeAttribute(attribute.name);
-          return;
-        }
-        if (name === 'id' && ids.has(value)) value = ids.get(value);
-        value = value.replace(/url\(#([^)]*)\)/g, (whole, id) => ids.has(id) ? 'url(#' + ids.get(id) + ')' : whole);
-        if ((name === 'href' || name.endsWith(':href')) && value.startsWith('#') && ids.has(value.slice(1))) {
-          value = '#' + ids.get(value.slice(1));
-        }
-        if (name === 'aria-labelledby' || name === 'aria-describedby') {
-          value = value.split(/\s+/).map(id => ids.get(id) || id).join(' ');
-        }
-        node.setAttribute(attribute.name, value);
+    try {
+      const parsed = new DOMParser().parseFromString(asset.content, 'image/svg+xml');
+      if (parsed.querySelector('parsererror') || parsed.documentElement.localName !== 'svg') {
+        throw new Error('Malformed SVG asset: ' + asset.path);
+      }
+      const sourceRoot = parsed.documentElement.cloneNode(true);
+      sourceRoot.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(node => node.remove());
+      const ids = new Map();
+      [sourceRoot, ...Array.from(sourceRoot.querySelectorAll('*'))].forEach(node => {
+        const id = node.getAttribute?.('id');
+        if (id) ids.set(id, instanceKey + '-' + id);
       });
-    });
-    const serializer = new XMLSerializer();
-    return Array.from(sourceRoot.childNodes)
-      .filter(node => node.nodeType === 1 && !['title','desc'].includes(String(node.localName || '').toLowerCase()))
-      .map(node => serializer.serializeToString(node))
-      .join('');
+      [sourceRoot, ...Array.from(sourceRoot.querySelectorAll('*'))].forEach(node => {
+        if (!node.attributes) return;
+        Array.from(node.attributes).forEach(attribute => {
+          const name = attribute.name.toLowerCase();
+          let value = attribute.value;
+          if (name.startsWith('on')) {
+            node.removeAttribute(attribute.name);
+            return;
+          }
+          if ((name === 'href' || name.endsWith(':href')) && value && !value.startsWith('#')) {
+            node.removeAttribute(attribute.name);
+            return;
+          }
+          if (name === 'id' && ids.has(value)) value = ids.get(value);
+          value = value.replace(/url\(#([^)]*)\)/g, (whole, id) => ids.has(id) ? 'url(#' + ids.get(id) + ')' : whole);
+          if ((name === 'href' || name.endsWith(':href')) && value.startsWith('#') && ids.has(value.slice(1))) {
+            value = '#' + ids.get(value.slice(1));
+          }
+          if (name === 'aria-labelledby' || name === 'aria-describedby') {
+            value = value.split(/\s+/).map(id => ids.get(id) || id).join(' ');
+          }
+          node.setAttribute(attribute.name, value);
+        });
+      });
+      const serializer = new XMLSerializer();
+      return Array.from(sourceRoot.childNodes)
+        .filter(node => node.nodeType === 1 && !['title','desc'].includes(String(node.localName || '').toLowerCase()))
+        .map(node => serializer.serializeToString(node))
+        .join('');
+    } catch (error) {
+      console.warn('[Avatar SVG] Skipping invalid local component:', asset.path, error);
+      return null;
+    }
   };
   const buildManifestSvgMarkup = c => {
     const requiredBase = svgAssetMarkup('base', 'face-and-body', 'mat-base');
