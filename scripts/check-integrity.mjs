@@ -112,6 +112,10 @@ if (fs.existsSync(questionsPath) && fs.existsSync(metadataPath)) {
     if (metadata.practiceTaggedQuestions !== practiceTagged) failures.push('Question metadata practiceTaggedQuestions is out of sync.');
     if (metadata.yearTaggedQuestions !== yearTagged) failures.push('Question metadata yearTaggedQuestions is out of sync.');
     if (metadata.untaggedYearQuestions !== untaggedYear) failures.push('Question metadata untaggedYearQuestions is out of sync.');
+    const dashboardCount = html.match(/id=["']dash-total-questions["'][^>]*>([^<]*)</i);
+    if (!dashboardCount || dashboardCount[1].trim() !== `${questions.length}+`) {
+      failures.push('Dashboard question-count fallback is out of sync with questions.json.');
+    }
   }
 }
 
