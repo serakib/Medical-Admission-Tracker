@@ -1,0 +1,30 @@
+{
+  "name": "medical-admission-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static GitHub Pages application for the Medical Admission Tracker.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:assets": "node scripts/build-local-assets.mjs",
+    "build:avatar-browser": "node scripts/generate-avatar-browser-definition.mjs",
+    "build:avatar-manifest": "node scripts/generate-avatar-asset-manifest.mjs",
+    "build": "npm run build:assets && npm run build:avatar-browser && npm run build:avatar-manifest",
+    "check:syntax": "bash -c 'set -euo pipefail; while IFS= read -r -d "" file; do echo "Checking module $file"; node --input-type=module --check < "$file"; done < <(find . -type f \\( -name "*.js" -o -name "*.mjs" \\) -not -path "./.git/*" -not -path "./node_modules/*" -print0); while IFS= read -r -d "" file; do echo "Checking Apps Script $file"; node --check < "$file"; done < <(find . -type f -name "*.gs" -not -path "./.git/*" -print0)'",
+    "check:svg": "node scripts/generate-avatar-svg-parts.mjs --check",
+    "check:integrity": "node scripts/check-integrity.mjs",
+    "test:navigation": "node scripts/test-navigation.mjs",
+    "validate": "npm run build && npm run check:syntax && npm run check:svg && npm run check:integrity && npm run test:navigation",
+    "test": "npm run validate"
+  },
+  "devDependencies": {
+    "@fortawesome/free-brands-svg-icons": "6.4.0",
+    "@fortawesome/free-regular-svg-icons": "6.4.0",
+    "@fortawesome/free-solid-svg-icons": "6.4.0",
+    "esbuild": "0.24.2",
+    "firebase": "10.14.1",
+    "tailwindcss": "3.4.17"
+  }
+}
