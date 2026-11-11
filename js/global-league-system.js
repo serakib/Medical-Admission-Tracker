@@ -3631,7 +3631,9 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var result = originalShowViewWithLeaderboardGate(viewName, force);
     var controls = document.getElementById('med-rank-controls');
     if (controls) controls.style.display = viewName === 'home' ? 'flex' : 'none';
-    if (viewName === 'leaderboard') loadLeaderboard();
+    // Returning from a student profile should restore the already-rendered
+    // leaderboard DOM, not replace it with a fresh loading skeleton.
+    // Initial loading and explicit Refresh/tab changes already have their own paths.
     return result;
   };
   app.openLeaderboard = function () {
