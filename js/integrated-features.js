@@ -1775,7 +1775,7 @@
       background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
-      {key:'identity',title:'পরিচয়',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'ageGroup',title:'বয়স'}]},
+      {key:'identity',title:'পরিচয়',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'characterStyle',title:'তোমার Character বেছে নাও'},{key:'ageGroup',title:'বয়স'}]},
       {key:'face',title:'Face & Skin',icon:'body',fields:[{key:'skinTone',title:'শরীরের রঙ'},{key:'expression',title:'মুখ'}]},
       {key:'eyes',title:'Eyes & Brows',icon:'eyes',fields:[{key:'eyeShape',title:'চোখ'},{key:'eyebrowShape',title:'ভ্রু'}]},
       {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
