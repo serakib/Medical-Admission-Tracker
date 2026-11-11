@@ -64,7 +64,7 @@
       ['f09','female','mature','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
       ['f10','female','youngAdult','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtScoopNeck','333344']
     ].map(([id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,facialHair,clothingType,clothingColor],index)=>({
-      id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
+      id,characterPreset:id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
       facialHair,clothingType,clothingColor,glasses:index%4===0?'round':'none',
       hat:'none',hatColor:'dc2626',facialHairColor:'2c1b18',petType:'none',
       headphones:'none',background:['a5a8ff','f3d8e8','bde0fe','caffbf','ffe8a3'][index%5]
@@ -203,7 +203,7 @@
     const identity = String(seed || 'student-default');
     let h = 2166136261; for(let i=0;i<identity.length;i++) h=Math.imul(h^identity.charCodeAt(i),16777619);
     const preset = characterPresets[(Math.abs(h)>>>0)%characterPresets.length];
-    return normalize({...preset,background:choices.background[(Math.abs(h+12)>>>0)%choices.background.length][0]});
+    return normalize({...preset,characterPreset:preset.id,background:choices.background[(Math.abs(h+12)>>>0)%choices.background.length][0]});
   };
   /* Legacy defaultConfig implementation retained below only as unreachable compatibility text. */
   const legacyDefaultConfig = seed => {
