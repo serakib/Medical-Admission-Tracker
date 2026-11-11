@@ -458,7 +458,14 @@ class MedicalExamApp {
     openAuthModal(mode = this.authUser ? 'account' : 'login') {
         // Email/password authentication belongs exclusively to the separate Login portal.
         if (mode === 'login') {
-            if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
+            const hasGuest = !!localStorage.getItem('med_sheet_guest_token_v1') &&
+                !localStorage.getItem('med_guest_session_expired_v1');
+            if (!this.authUser && !hasGuest && window.MedVisitorAccess &&
+                typeof window.MedVisitorAccess.open === 'function') {
+                window.MedVisitorAccess.open();
+            } else if (typeof window.redirectToLogin === 'function') {
+                window.redirectToLogin();
+            }
             return;
         }
         if (mode === 'register') {
