@@ -2030,10 +2030,6 @@
 
     }
   }
-  window.addEventListener('med-avatar-assets-updated', () => {
-    if (avatarPickerExpanded) renderAvatarPicker();
-  });
-
   function renderAvatarPickerWithTransition({focus=false} = {}) {
     // Re-render a single live preview. Cloning the previous SVG into the panel
     // could leave a second, partially clipped face behind when animationend was
@@ -2113,8 +2109,12 @@
         const stored = localStorage.getItem(avatarKey()) || '';
         const manual = localStorage.getItem(manualAvatarKey()) === '1';
         const shared = String(app.profile?.avatar || '').replace(/#mat-(?:default|custom)-avatar$/i,'');
-        if (manual && isRenderableAvatarSource(stored)) customSource = stored;
-        else if (shared && shared !== gmailPhoto && isRenderableAvatarSource(shared) && !isLegacyPortraitAvatar(shared)) customSource = shared;
+        const recomposeLocalAvatar = source => {
+          const savedConfig = window.MedAvatarCreator.configFromAvatar(source);
+          return savedConfig ? window.MedAvatarCreator.render(savedConfig) : source;
+        };
+        if (manual && isRenderableAvatarSource(stored)) customSource = recomposeLocalAvatar(stored);
+        else if (shared && shared !== gmailPhoto && isRenderableAvatarSource(shared) && !isLegacyPortraitAvatar(shared)) customSource = recomposeLocalAvatar(shared);
       } catch (_) {}
       // Every account gets its own composed avatar and live facial motion.
       // A Gmail photo is an optional alternate portrait, never a prerequisite.
