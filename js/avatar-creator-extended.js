@@ -43,29 +43,28 @@
   };
 
     const characterPresets = [
-    // All 20 starting identities are configured for HSC-age students (16–18).
-    // No adult/mature presets or facial-hair defaults are included.
+    // Twenty editable starter identities; the age of the user is never stored.
     ...[
-      ['m01','male','teen','#edb98a','shortFlat','2c1b18','default','defaultNatural','smile','none','blazerAndShirt','333344'],
-      ['m02','male','teen','#c9916b','shortCurly','4a312c','happy','raisedExcited','smile','none','hoodie','2563eb'],
-      ['m03','male','teen','#a96f4e','sides','2c1b18','side','flatNatural','serious','none','shirtCrewNeck','10b981'],
-      ['m04','male','teen','#dfb38e','theCaesar','724133','squint','default','twinkle','none','hoodie','dc2626'],
-      ['m05','male','teen','#80543e','shaggy','2c1b18','eyeRoll','angry','default','none','blazerAndSweater','7c3aed'],
-      ['m06','male','teen','#f2d2b4','shortWaved','b58143','happy','defaultNatural','smile','none','collarAndSweater','2563eb'],
-      ['m07','male','teen','#5e4034','dreads','2c1b18','default','flatNatural','serious','none','hoodie','10b981'],
-      ['m08','male','teen','#c9916b','froBand','a55728','side','raisedExcited','concerned','none','shirtCrewNeck','dc2626'],
-      ['m09','male','teen','#a96f4e','shavedSides','2c1b18','squint','angry','serious','none','blazerAndShirt','333344'],
-      ['m10','male','teen','#dfb38e','shaggyMullet','724133','happy','raisedExcited','twinkle','none','hoodie','7c3aed'],
-      ['f01','female','teen','#edb98a','longButNotTooLong','2c1b18','happy','raisedExcited','smile','none','blazerAndShirt','333344'],
-      ['f02','female','teen','#c9916b','bob','4a312c','side','defaultNatural','twinkle','none','shirtCrewNeck','2563eb'],
-      ['f03','female','teen','#a96f4e','curly','2c1b18','default','flatNatural','serious','none','blazerAndSweater','10b981'],
-      ['f04','female','teen','#dfb38e','straight01','b58143','wink','raisedExcited','smile','none','shirtCrewNeck','dc2626'],
-      ['f05','female','teen','#80543e','bigHair','2c1b18','squint','angry','concerned','none','collarAndSweater','333344'],
-      ['f06','female','teen','#f2d2b4','straight01','a55728','hearts','defaultNatural','twinkle','none','hoodie','2563eb'],
-      ['f07','female','teen','#5e4034','hijab','2c1b18','default','flatNatural','smile','none','blazerAndShirt','10b981'],
-      ['f08','female','teen','#c9916b','frida','724133','happy','raisedExcited','smile','none','hoodie','dc2626'],
-      ['f09','female','teen','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
-      ['f10','female','teen','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtCrewNeck','333344']
+      ['m01','male','#edb98a','shortFlat','2c1b18','default','defaultNatural','smile','none','blazerAndShirt','333344'],
+      ['m02','male','#c9916b','shortCurly','4a312c','happy','raisedExcited','smile','none','hoodie','2563eb'],
+      ['m03','male','#a96f4e','sides','2c1b18','side','flatNatural','serious','none','shirtCrewNeck','10b981'],
+      ['m04','male','#dfb38e','theCaesar','724133','squint','default','twinkle','none','hoodie','dc2626'],
+      ['m05','male','#80543e','shaggy','2c1b18','eyeRoll','angry','default','none','blazerAndSweater','7c3aed'],
+      ['m06','male','#f2d2b4','shortWaved','b58143','happy','defaultNatural','smile','none','collarAndSweater','2563eb'],
+      ['m07','male','#5e4034','dreads','2c1b18','default','flatNatural','serious','none','hoodie','10b981'],
+      ['m08','male','#c9916b','froBand','a55728','side','raisedExcited','concerned','none','shirtCrewNeck','dc2626'],
+      ['m09','male','#a96f4e','shavedSides','2c1b18','squint','angry','serious','none','blazerAndShirt','333344'],
+      ['m10','male','#dfb38e','shaggyMullet','724133','happy','raisedExcited','twinkle','none','hoodie','7c3aed'],
+      ['f01','female','#edb98a','longButNotTooLong','2c1b18','happy','raisedExcited','smile','none','blazerAndShirt','333344'],
+      ['f02','female','#c9916b','bob','4a312c','side','defaultNatural','twinkle','none','shirtCrewNeck','2563eb'],
+      ['f03','female','#a96f4e','curly','2c1b18','default','flatNatural','serious','none','blazerAndSweater','10b981'],
+      ['f04','female','#dfb38e','straight01','b58143','wink','raisedExcited','smile','none','shirtCrewNeck','dc2626'],
+      ['f05','female','#80543e','bigHair','2c1b18','squint','angry','concerned','none','collarAndSweater','333344'],
+      ['f06','female','#f2d2b4','straight01','a55728','hearts','defaultNatural','twinkle','none','hoodie','2563eb'],
+      ['f07','female','#5e4034','hijab','2c1b18','default','flatNatural','smile','none','blazerAndShirt','10b981'],
+      ['f08','female','#c9916b','frida','724133','happy','raisedExcited','smile','none','hoodie','dc2626'],
+      ['f09','female','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
+      ['f10','female','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtCrewNeck','333344']
     ].map(([id,gender,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,facialHair,clothingType,clothingColor],index)=>({
       id,characterPreset:id,gender,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
       facialHair,clothingType,clothingColor,glasses:index%4===0?'round':'none',
