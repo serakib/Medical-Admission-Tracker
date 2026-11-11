@@ -102,7 +102,7 @@
       result.characterPreset = result.gender === 'female' ? 'f01' : 'm01';
     }
     if (input && typeof input === 'object') {
-      const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'];
+      const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'];
       if (hats.includes(input.hat)) result.hat = input.hat;
       if (/^#?[0-9a-f]{6}$/i.test(String(input.hatColor || ''))) result.hatColor = String(input.hatColor).replace(/^#/,'');
       if (/^#?[0-9a-f]{6}$/i.test(String(input.background || ''))) result.background = String(input.background).replace(/^#/,'');
@@ -471,6 +471,25 @@
       // Keep older saved "bear" selections working when the actual file is white-bear.svg.
       if (!nextPets.bear && nextPets['white-bear']) nextPets.bear = nextPets['white-bear'];
       base.assetPaths.pets = nextPets;
+
+      // Character cards are backed by the actual SVG files in /characters.
+      // Adding/removing a preset SVG therefore adds/removes its selectable option.
+      const characterAssets = Array.isArray(manifest.categories.characters) ? manifest.categories.characters : [];
+      const previousPresets = new Map(characterPresets.map(item => [String(item.id).toLowerCase(), item]));
+      const discoveredPresets = characterAssets.map(asset => {
+        const filename = String(asset.path || '').split('/').pop() || '';
+        const id = filename.replace(/\.svg$/i, '');
+        if (!/^[a-z0-9_-]+$/i.test(id)) return null;
+        const existing = previousPresets.get(id.toLowerCase());
+        if (existing) return existing;
+        const gender = /^f/i.test(id) ? 'female' : 'male';
+        const template = previousPresets.get(gender === 'female' ? 'f01' : 'm01') || characterPresets[0];
+        return template ? {...template, id, characterPreset:id, gender} : null;
+      }).filter(Boolean);
+      characterPresets.splice(0, characterPresets.length, ...discoveredPresets);
+      choices.characterPreset = characterPresets.map(item => [item.id, (item.gender === 'female' ? 'নারী ' : 'পুরুষ ') + item.id.toUpperCase()]);
+      base.characterPresets = characterPresets.map(({id,gender,ageGroup}) => ({id,gender,ageGroup}));
+      base.choices.characterPreset = choices.characterPreset.map(([value,label]) => ({value,label}));
 
       // Keep the option lists synchronized with the actual SVG folders.
       // Existing labels are preserved; newly added SVGs receive manifest labels.
