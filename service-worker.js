@@ -3,7 +3,7 @@
  * Authentication, Firebase, Apps Script and all POST requests always use the network.
  */
 const CACHE_PREFIX = 'mat-pwa-';
-const SHELL_CACHE = CACHE_PREFIX + 'shell-v2';
+const SHELL_CACHE = CACHE_PREFIX + 'shell-v3';
 const DATA_CACHE = CACHE_PREFIX + 'data-v1';
 const CORE_ASSETS = [
   './',
