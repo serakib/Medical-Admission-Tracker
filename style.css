@@ -1990,24 +1990,6 @@ html.dark .mat-monthly-countdown-capsule--weekly,body.dark .mat-monthly-countdow
 
 
 
-/* Visitor account guidance: two distinct, readable information capsules. */
-.mat-va-guidance-list{display:grid;gap:8px;margin:0 0 13px}
-.mat-va-guidance-capsule{
-  display:flex;align-items:flex-start;gap:9px;min-width:0;
-  padding:10px 12px;border:1px solid rgba(148,163,184,.28);
-  border-radius:15px;background:rgba(148,163,184,.07);
-  color:var(--mat-va-title,#1e293b);text-align:left;
-}
-.mat-va-guidance-capsule>span{flex:0 0 auto;font-size:16px;line-height:1.35}
-.mat-va-guidance-capsule strong{display:block;margin:0 0 3px;font-size:12px;font-weight:850;line-height:1.4}
-.mat-va-guidance-capsule p{margin:0!important;font-size:11px;line-height:1.55;color:var(--mat-va-muted,#64748b)}
-.mat-va-guidance-capsule--timer{border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.07)}
-.mat-va-guidance-capsule--account{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.07)}
-html.dark .mat-va-guidance-capsule,body.dark .mat-va-guidance-capsule{background:rgba(148,163,184,.08);border-color:rgba(148,163,184,.22);color:#f8fafc}
-html.dark .mat-va-guidance-capsule p,body.dark .mat-va-guidance-capsule p{color:#cbd5e1}
-html.dark .mat-va-guidance-capsule--timer,body.dark .mat-va-guidance-capsule--timer{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.3)}
-html.dark .mat-va-guidance-capsule--account,body.dark .mat-va-guidance-capsule--account{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3)}
-@media(max-width:480px){.mat-va-guidance-capsule{padding:9px 10px;gap:8px}.mat-va-guidance-capsule p{font-size:10.5px}}
 
 /* Weekly leaderboard timers: compact, independent capsules for quick scanning. */
 .leaderboard-week-countdown.mat-weekly-countdown-row{
@@ -2044,5 +2026,63 @@ html.dark .leaderboard-week-popup-content .leaderboard-week-popup-countdowns .le
   .mat-weekly-countdown-capsule{flex:0 1 auto;white-space:normal;font-size:10px;padding:6px 8px}
   .mat-weekly-countdown-capsule strong{font-size:9.5px}
   .leaderboard-week-popup-countdowns{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Countdown cards follow the Weekly Ranking popup's label/value layout. */
+.leaderboard-week-countdown.mat-monthly-countdown-row{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:stretch!important;gap:8px!important;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:8px;min-width:0;max-width:none;padding:9px 11px;
+  border-width:1px;border-style:solid;border-radius:13px;
+  font-size:11px;line-height:1.45;font-weight:750;white-space:normal;
+  box-shadow:none;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule span{
+  font-size:11px;font-weight:800;letter-spacing:0;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule strong{
+  min-width:0;font-size:10px;line-height:1.45;font-weight:900;
+  font-variant-numeric:tabular-nums;text-align:right;
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule--reset{
+  color:#b45309;border-color:rgba(245,158,11,.27);background:rgba(245,158,11,.09);
+}
+.leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule--weekly{
+  color:#047857;border-color:rgba(16,185,129,.27);background:rgba(16,185,129,.09);
+}
+html.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule--reset,
+body.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule--reset{
+  color:#fcd34d;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.1);
+}
+html.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule--weekly,
+body.dark .leaderboard-week-countdown.mat-monthly-countdown-row>.mat-monthly-countdown-capsule--weekly{
+  color:#6ee7b7;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.1);
+}
+.leaderboard-week-countdown.mat-weekly-countdown-row>.mat-weekly-countdown-capsule--review{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  flex:1 1 250px;gap:8px;min-width:0;max-width:100%;padding:9px 11px;
+  border:1px solid rgba(16,185,129,.25);border-radius:13px;
+  background:rgba(16,185,129,.08);color:#047857;
+  font-size:11px;line-height:1.45;font-weight:750;white-space:normal;
+  box-shadow:none;
+}
+.leaderboard-week-countdown.mat-weekly-countdown-row>.mat-weekly-countdown-capsule--review span{
+  font-size:11px;font-weight:800;letter-spacing:0;
+}
+.leaderboard-week-countdown.mat-weekly-countdown-row>.mat-weekly-countdown-capsule--review strong{
+  min-width:0;font-size:10px;line-height:1.45;font-weight:900;
+  font-variant-numeric:tabular-nums;text-align:right;
+}
+html.dark .leaderboard-week-countdown.mat-weekly-countdown-row>.mat-weekly-countdown-capsule--review,
+body.dark .leaderboard-week-countdown.mat-weekly-countdown-row>.mat-weekly-countdown-capsule--review{
+  color:#6ee7b7;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.12);
+}
+@media(max-width:560px){
+  .leaderboard-week-countdown.mat-monthly-countdown-row{grid-template-columns:minmax(0,1fr)!important}
+  .leaderboard-week-countdown.mat-weekly-countdown-row>.mat-weekly-countdown-capsule--review{flex-basis:100%}
 }
 
