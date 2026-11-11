@@ -123,9 +123,104 @@
     const children = (element.children || []).map(child => renderDefinitionElement(child, colors)).join('');
     return children ? '<'+tag+attrs+'>'+children+'</'+tag+'>' : '<'+tag+attrs+'/>';
   };
+  const normalizeAssetKey = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const findManifestAsset = (category, variant) => {
+    const list = base.assetManifest?.categories?.[category];
+    if (!Array.isArray(list)) return null;
+    const wanted = normalizeAssetKey(variant);
+    return list.find(asset => {
+      const filename = String(asset.path || '').split('/').pop().replace(/\.svg$/i, '');
+      return normalizeAssetKey(asset.id) === wanted || normalizeAssetKey(filename) === wanted;
+    }) || null;
+  };
+  const svgAssetMarkup = (category, variant, instanceKey) => {
+    const asset = findManifestAsset(category, variant);
+    if (!asset || typeof asset.content !== 'string' || !asset.content.trim()) return null;
+    const parsed = new DOMParser().parseFromString(asset.content, 'image/svg+xml');
+    if (parsed.querySelector('parsererror') || parsed.documentElement.localName !== 'svg') {
+      throw new Error('Malformed SVG asset: ' + asset.path);
+    }
+    const sourceRoot = parsed.documentElement.cloneNode(true);
+    sourceRoot.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(node => node.remove());
+    const ids = new Map();
+    [sourceRoot, ...Array.from(sourceRoot.querySelectorAll('*'))].forEach(node => {
+      const id = node.getAttribute?.('id');
+      if (id) ids.set(id, instanceKey + '-' + id);
+    });
+    [sourceRoot, ...Array.from(sourceRoot.querySelectorAll('*'))].forEach(node => {
+      if (!node.attributes) return;
+      Array.from(node.attributes).forEach(attribute => {
+        const name = attribute.name.toLowerCase();
+        let value = attribute.value;
+        if (name.startsWith('on')) {
+          node.removeAttribute(attribute.name);
+          return;
+        }
+        if ((name === 'href' || name.endsWith(':href')) && value && !value.startsWith('#')) {
+          node.removeAttribute(attribute.name);
+          return;
+        }
+        if (name === 'id' && ids.has(value)) value = ids.get(value);
+        value = value.replace(/url\(#([^)]*)\)/g, (whole, id) => ids.has(id) ? 'url(#' + ids.get(id) + ')' : whole);
+        if ((name === 'href' || name.endsWith(':href')) && value.startsWith('#') && ids.has(value.slice(1))) {
+          value = '#' + ids.get(value.slice(1));
+        }
+        if (name === 'aria-labelledby' || name === 'aria-describedby') {
+          value = value.split(/\s+/).map(id => ids.get(id) || id).join(' ');
+        }
+        node.setAttribute(attribute.name, value);
+      });
+    });
+    const serializer = new XMLSerializer();
+    return Array.from(sourceRoot.childNodes)
+      .filter(node => node.nodeType === 1 && !['title','desc'].includes(String(node.localName || '').toLowerCase()))
+      .map(node => serializer.serializeToString(node))
+      .join('');
+  };
+  const buildManifestSvgMarkup = c => {
+    const requiredBase = svgAssetMarkup('base', 'face-and-body', 'mat-base');
+    if (!requiredBase) return null;
+    const colors = svgColorMap(c);
+    const skin = svgEscape(colors.skin || '#edb98a');
+    const hair = svgEscape(colors.hair || '#2c1b18');
+    const clothes = svgEscape(colors.clothes || '#2563eb');
+    const facialHair = svgEscape(colors.facialHair || '#2c1b18');
+    const hat = svgEscape(colors.hat || '#dc2626');
+    const baseMarkup = '<g data-avatar-part="base">' + requiredBase + '</g>';
+    const part = (category, variant, name, transform, instanceKey) => {
+      if (!variant || variant === 'none') return '';
+      const artwork = svgAssetMarkup(category, variant, instanceKey || ('mat-' + name));
+      if (!artwork) return '';
+      return '<g data-avatar-part="' + svgEscape(name) + '" data-avatar-variant="' + svgEscape(variant) + '" transform="' + svgEscape(transform) + '">' + artwork + '</g>';
+    };
+    const clothing = part('clothing', c.clothingType, 'clothes', 'translate(40 184.7)', 'mat-clothes');
+    const graphic = c.clothingType === 'graphicShirt' && c.clothingGraphic !== 'none'
+      ? part('clothing-graphics', c.clothingGraphic, 'clothesGraphic', 'translate(85 229)', 'mat-clothes-graphic')
+      : '';
+    const mouth = part('mouths', c.expression, 'mouth', 'translate(94 140)', 'mat-mouth');
+    const nose = part('nose', c.nose || 'default', 'nose', 'translate(128 130)', 'mat-nose');
+    const eyes = part('eyes', c.eyeShape, 'eyes', 'translate(98 98)', 'mat-eyes');
+    const eyebrows = part('eyebrows', c.eyebrowShape, 'eyebrows', 'translate(91.86 82)', 'mat-eyebrows');
+    const topVariant = c.hat !== 'none' ? c.hat : c.hairStyle;
+    const topCategory = findManifestAsset('hair', topVariant) ? 'hair' : 'headwear';
+    const top = part(topCategory, topVariant, 'top', 'translate(8 0)', 'mat-top');
+    const beard = c.facialHair !== 'none'
+      ? part('facial-hair', c.facialHair, 'facialHair', 'translate(81 98)', 'mat-facial-hair')
+      : '';
+    const glasses = c.glasses !== 'none'
+      ? part('accessories', c.glasses, 'accessories', 'translate(75.77 46)', 'mat-accessories')
+      : '';
+    const body = baseMarkup + clothing + graphic + mouth + nose + eyes + eyebrows + top + beard + glasses;
+    return '<?xml version="1.0" encoding="UTF-8"?><!--MAT-AVATAR:' + btoa(JSON.stringify(c)) + '--><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280" fill="none" role="img" aria-label="Editable local student avatar" style="--avatar-skin:' + skin + ';--avatar-hair:' + hair + ';--avatar-clothes:' + clothes + ';--avatar-facialHair:' + facialHair + ';--avatar-accessories:#262e33;--avatar-hat:' + hat + '">' + body + '</svg>';
+  };
   const buildLocalSvgMarkup = input => {
+    const c = normalize(input);
+    // After deployment, the manifest contains the exact SVG source files from /public/assets.
+    // The pinned definition remains only a first-load fallback while that manifest is loading.
+    const manifestMarkup = buildManifestSvgMarkup(c);
+    if (manifestMarkup) return manifestMarkup;
     if (!svgDefinition || !svgDefinition.canvas || !svgDefinition.components) throw new Error('Local Avataaars definition is not loaded.');
-    const c = normalize(input), colors = svgColorMap(c);
+    const colors = svgColorMap(c);
     const variants = {clothes:c.clothingType,mouth:c.expression,nose:c.nose,eyes:c.eyeShape,eyebrows:c.eyebrowShape,top:c.hat !== 'none' ? c.hat : c.hairStyle};
     if (c.facialHair !== 'none') variants.facialHair = c.facialHair;
     if (c.glasses !== 'none') variants.accessories = c.glasses;
@@ -139,7 +234,7 @@
       const graphic = name === 'clothes' && c.clothingType === 'graphicShirt' && c.clothingGraphic !== 'none'
         ? svgDefinition.components.clothesGraphic?.variants?.[c.clothingGraphic] : null;
       const graphicMarkup = graphic
-        ? '<g data-avatar-part="clothesGraphic" transform="translate(47.9 32.8)">' + (graphic.elements || []).map(child => renderDefinitionElement(child, colors)).join('') + '</g>'
+        ? '<g data-avatar-part="clothesGraphic" transform="translate(45 44.3)">' + (graphic.elements || []).map(child => renderDefinitionElement(child, colors)).join('') + '</g>'
         : '';
       return '<g data-avatar-part="' + svgEscape(name) + '" data-avatar-variant="' + svgEscape(variant) + '"' + transform + '>' + artwork + graphicMarkup + '</g>';
     }).join('');
@@ -544,5 +639,5 @@
     }
   };
   window.MedAvatarCreator = base;
-  base.loadAssetManifest();
+  base.assetManifestReady = base.loadAssetManifest();
 })();
