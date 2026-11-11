@@ -2946,13 +2946,13 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     if (mode === 'info') {
       var infoTitle = 'font-size:14px;font-weight:800;color:var(--mat-va-title,#0f172a);margin:0 0 5px';
       var infoText = 'font-size:12px;line-height:1.65;color:var(--mat-va-muted,#64748b);margin:0';
-      panel.innerHTML = close + '<div style="padding-top:30px">' + back +
+      panel.innerHTML = close + back +
         '<div style="text-align:center;margin:0 0 16px"><h2 style="font-size:19px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account সম্পর্কে জানুন</h2><p style="font-size:12px;color:var(--mat-va-muted,#64748b);margin:5px 0 0">Visitor, Guest ও Registered Account-এর পার্থক্য</p></div>' +
         '<div style="display:grid;gap:10px">' +
           '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Visitor — Account ছাড়াই</h3><p style="' + infoText + '">Public information, latest leaderboard, public profile ও practice ব্যবহার করতে পারবে। তোমার practice history, progress, profile ও avatar শুধু এই browser/device-এ local থাকবে; server-এ save বা sync হবে না। Browser-এর data মুছে গেলে local data হারাতে পারো।</p></section>' +
           '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Guest Account</h3><p style="' + infoText + '">নাম, College ও Batch নিশ্চিত করলে এই Medical Admission Tracker-এই server-side Guest Account তৈরি হবে। Email বা Password লাগবে না। তোমার account-এর profile, exam result, XP/RP ও progress server-এ save ও sync হবে।</p></section>' +
           '<section class="mat-va-info-card"><h3 style="' + infoTitle + '">Registered Account</h3><p style="' + infoText + '">নাম, College ও Batch নিশ্চিত করার পর আলাদা secure Login page-এ Email ও Password দিয়ে Registered Account তৈরি করবে। এরপর profile, exam result ও progress তোমার account-এর সঙ্গে server-এ sync থাকবে।</p></section>' +
-        '</div></div>';
+        '</div>';
       return;
     }
     if (mode === 'guest') {
