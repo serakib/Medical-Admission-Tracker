@@ -1633,7 +1633,7 @@
         { key:'characterStyle', title:'তোমার Character বেছে নাও' },
         { key:'hairStyle', title:'চুলের ধরন' },
         { key:'facialHair', title:'দাড়ি ও গোঁফ' },
-        { key:'clothingType', title:'পোশাক' }
+        { key:'outfitStyle', title:'একই Gender-এর সব Character-এর পোশাক' }
       ];
       dependentFields.forEach(field => {
         const existing = picker.querySelector('[data-avatar-field="' + field.key + '"]');
@@ -1782,7 +1782,7 @@
       {key:'hair',title:'Hair',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'beard',title:'Beard & Mustache',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'Glasses & Hat',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
-      {key:'clothing',title:'Clothing',icon:'clothes',fields:[{key:'clothingType',title:'পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
+      {key:'clothing',title:'Wardrobe',icon:'clothes',fields:[{key:'outfitStyle',title:'একই Gender-এর সব Character-এর পোশাক'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
       {key:'pets-bg',title:'Pets',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
       {key:'background',title:'Background',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
     ];
