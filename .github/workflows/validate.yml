@@ -24,6 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Lint GitHub Actions workflows
+        uses: docker://rhysd/actionlint:1.7.7
+        with:
+          args: -color
+
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
