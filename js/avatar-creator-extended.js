@@ -9,6 +9,7 @@
     eyeShape: [['default','স্বাভাবিক'],['happy','হাসিখুশি'],['closed','বন্ধ'],['side','পাশে তাকানো'],['wink','চোখ টেপা'],['hearts','হার্ট'],['squint','চোখ ছোট'],['eyeRoll','চোখ ঘোরানো']],
     eyebrowShape: [['defaultNatural','স্বাভাবিক'],['default','সাধারণ'],['raisedExcited','উঁচু'],['angry','গম্ভীর'],['sadConcerned','চিন্তিত'],['flatNatural','সমান']],
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
+    nose: [['default','স্বাভাবিক']],
     gender: [['male','পুরুষ'],['female','নারী']],
     ageGroup: [['teen','কিশোর/কিশোরী · ১৩–১৭'],['youngAdult','তরুণ/তরুণী · ১৮–২৫'],['adult','প্রাপ্তবয়স্ক · ২৬–৪০'],['mature','পরিণত বয়স · ৪১+']],
     hairStyle: [
@@ -34,7 +35,7 @@
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
-    gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
+    gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
     petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
@@ -123,6 +124,7 @@
       eyebrowsProbability:'100',
       mouthVariant:c.expression,
       mouthProbability:'100',
+      noseVariant:c.nose || 'default',
       facialHairVariant:c.facialHair === 'none' ? 'beardLight' : c.facialHair,
       facialHairProbability:c.facialHair === 'none' ? '0' : '100',
       facialHairColor:hex(c.facialHairColor),
@@ -148,6 +150,7 @@
         eyeShape:p.get('eyesVariant') || defaults.eyeShape,
         eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,
         expression:p.get('mouthVariant') || defaults.expression,
+        nose:p.get('noseVariant') || defaults.nose,
         gender:meta.gender || inferGenderFromHair(meta.hair || top),
         characterPreset:meta.character || (meta.gender === 'female' ? 'f01' : 'm01'),
         headphones:meta.headphones || 'none',
@@ -476,7 +479,49 @@
       // Keep older saved "bear" selections working when the actual file is white-bear.svg.
       if (!nextPets.bear && nextPets['white-bear']) nextPets.bear = nextPets['white-bear'];
       base.assetPaths.pets = nextPets;
-      choices.petType = [['none','নেই'], ...petAssets.map(asset => [asset.id === 'white-bear' ? 'bear' : asset.id, asset.id === 'white-bear' ? 'White Bear' : (asset.label || asset.id)])].filter((item, index, list) => list.findIndex(candidate => candidate[0] === item[0]) === index);
+
+      // Keep the option lists synchronized with the actual SVG folders.
+      // Existing labels are preserved; newly added SVGs receive manifest labels.
+      const categoryFields = {
+        hairStyle:'hair', eyeShape:'eyes', eyebrowShape:'eyebrows',
+        expression:'mouths', nose:'nose', facialHair:'facial-hair',
+        glasses:'accessories', hat:'headwear', clothingType:'clothing'
+      };
+      Object.entries(categoryFields).forEach(([fieldKey, category]) => {
+        const assets = Array.isArray(manifest.categories[category]) ? manifest.categories[category] : [];
+        const previous = new Map((choices[fieldKey] || []).map(([value, label]) => [String(value).toLowerCase(), label]));
+        const keepNone = (choices[fieldKey] || []).filter(([value]) => value === 'none');
+        const discovered = assets.map(asset => {
+          const filename = String(asset.path || '').split('/').pop() || '';
+          const value = filename.replace(/\\.svg$/i, '');
+          if (!/^[a-zA-Z0-9_-]+$/.test(value)) return null;
+          return [value, previous.get(value.toLowerCase()) || asset.label || value];
+        }).filter(Boolean);
+        const merged = [...keepNone, ...discovered];
+        choices[fieldKey].splice(0, choices[fieldKey].length, ...merged);
+        base.choices[fieldKey] = choices[fieldKey].map(([value, label]) => ({value, label}));
+      });
+
+      // A newly added hairstyle is available to both character types unless a later
+      // curated gender rule explicitly removes it.
+      const discoveredHair = Array.isArray(manifest.categories.hair) ? manifest.categories.hair : [];
+      discoveredHair.forEach(asset => {
+        const filename = String(asset.path || '').split('/').pop() || '';
+        const value = filename.replace(/\\.svg$/i, '');
+        if (!/^[a-zA-Z0-9_-]+$/.test(value)) return;
+        if (!maleHair.includes(value)) maleHair.push(value);
+        if (!femaleHair.includes(value)) femaleHair.push(value);
+      });
+      const headwearAssets = Array.isArray(manifest.categories.headwear) ? manifest.categories.headwear : [];
+      if (headwearAssets.some(asset => String(asset.path || '').toLowerCase().endsWith('/hijab.svg'))) {
+        if (!femaleHair.includes('hijab')) femaleHair.push('hijab');
+      }
+      choices.petType = [['none','নেই'], ...petAssets.map(asset => {
+        const filename = String(asset.path || '').split('/').pop() || '';
+        const id = filename.replace(/\\.svg$/i, '');
+        return [id === 'white-bear' ? 'bear' : id, id === 'white-bear' ? 'সাদা ভালুক' : (asset.label || id)];
+      })].filter((item, index, list) => list.findIndex(candidate => candidate[0] === item[0]) === index);
+      base.choices.petType = choices.petType.map(([value,label])=>({value,label}));
       document.dispatchEvent(new CustomEvent('med-avatar-assets-updated', {detail:{manifest}}));
       return manifest;
     } catch (error) {
