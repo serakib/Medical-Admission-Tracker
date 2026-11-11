@@ -11,6 +11,7 @@ const CORE_ASSETS = [
   './offline.html',
   './manifest.webmanifest',
   './public/assets/favicon.svg',
+  './public/assets/pwa-icon.svg',
   './js/offline-study.js',
   './data/questions.json',
   './data/question-bank-info.json'
