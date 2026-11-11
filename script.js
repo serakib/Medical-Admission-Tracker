@@ -375,8 +375,39 @@ class MedicalExamApp {
         select.value = years.includes(previous) ? previous : 'all';
     }
 
+    getLocalIdentityKey() {
+        const registeredId = String(this.authUser?.uid || '').trim();
+        if (registeredId) return registeredId;
+        try {
+            const guestToken = String(localStorage.getItem('med_sheet_guest_token_v1') || '').trim();
+            const guestId = String(localStorage.getItem('med_sheet_guest_id_v1') || '').trim();
+            const guestExpired = !!localStorage.getItem('med_guest_session_expired_v1');
+            if (guestToken && guestId && !guestExpired) return guestId;
+        } catch (_) {}
+        return 'visitor';
+    }
+
+    getScopedLocalStorageKey(prefix) {
+        return String(prefix || 'med_local') + '_' + this.getLocalIdentityKey();
+    }
+
+    resetServerProgressForIdentity() {
+        const identity = this.getLocalIdentityKey();
+        if (this.__medicalLocalIdentityKey === identity) return false;
+        this.__medicalLocalIdentityKey = identity;
+        this.serverExamHistory = null;
+        this.__serverProgressOwner = '';
+        this.__serverProgressFetchedAt = 0;
+        this.__serverProgressLoading = false;
+        this.__serverProgressRequestOwner = '';
+        this.__serverProgressRequestSequence = (Number(this.__serverProgressRequestSequence) || 0) + 1;
+        const profileId = String(this.profile?.uid || this.profile?.userId || '').trim();
+        if (this.profile && profileId !== identity) this.profile = null;
+        return true;
+    }
+
     getHistoryKey() {
-        return this.authUser?.uid ? `med_history_${this.authUser.uid}` : 'med_history';
+        return this.getScopedLocalStorageKey('med_history');
     }
 
     escapeHtml(value) {
@@ -421,6 +452,7 @@ class MedicalExamApp {
 
     setAuthState(user, notice = '') {
         this.authUser = user || null;
+        this.resetServerProgressForIdentity();
         const button = document.getElementById('authStatusBtn');
         const icon = document.getElementById('authStatusIcon');
         const label = document.getElementById('authStatusLabel');
@@ -1303,7 +1335,7 @@ class MedicalExamApp {
         if (totalEl) totalEl.innerText = `${this.questionBank.length}+`;
     }
 
-    getSeenQuestionKey() { return this.authUser?.uid ? `med_seen_questions_${this.authUser.uid}` : 'med_seen_questions_guest'; }
+    getSeenQuestionKey() { return this.getScopedLocalStorageKey('med_seen_questions'); }
     getSeenQuestionIds() {
         try { const raw=JSON.parse(localStorage.getItem(this.getSeenQuestionKey())||'[]'); return new Set(Array.isArray(raw)?raw.map(String):[]); } catch { return new Set(); }
     }
@@ -1311,8 +1343,8 @@ class MedicalExamApp {
     markQuestionsSeen(questions) { const seen=this.getSeenQuestionIds(); questions.forEach(q=>{ if(q?.id!=null) seen.add(String(q.id)); }); this.saveSeenQuestionIds(seen); }
     getUnseenPool(pool) { const seen=this.getSeenQuestionIds(); return pool.filter(q=>q?.id!=null && !seen.has(String(q.id))); }
 
-    getAnsweredQuestionKey() { return this.authUser?.uid ? `med_answered_questions_${this.authUser.uid}` : 'med_answered_questions_guest'; }
-    getPracticedQuestionKey() { return this.authUser?.uid ? `med_practiced_questions_${this.authUser.uid}` : 'med_practiced_questions_guest'; }
+    getAnsweredQuestionKey() { return this.getScopedLocalStorageKey('med_answered_questions'); }
+    getPracticedQuestionKey() { return this.getScopedLocalStorageKey('med_practiced_questions'); }
     getPracticedQuestionIds() {
         try { const raw = JSON.parse(localStorage.getItem(this.getPracticedQuestionKey()) || '[]'); return new Set(Array.isArray(raw) ? raw.map(String) : []); } catch { return new Set(); }
     }
@@ -1850,10 +1882,10 @@ class MedicalExamApp {
     openSavedExamReview(attemptId) {
         const normalizeId = value => String(value ?? '').split('-').pop();
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-        const allHistory = [
-            ...localHistory,
-            ...(Array.isArray(this.serverExamHistory) ? this.serverExamHistory : [])
-        ];
+        const identity = this.getLocalIdentityKey();
+        const currentServerHistory = identity !== 'visitor' && this.__serverProgressOwner === identity &&
+            Array.isArray(this.serverExamHistory) ? this.serverExamHistory : [];
+        const allHistory = [...localHistory, ...currentServerHistory];
         const saved = allHistory.find(item => item && item.reviewData &&
             (String(item.attemptId) === String(attemptId) ||
              normalizeId(item.attemptId) === normalizeId(attemptId)));
@@ -1962,10 +1994,13 @@ class MedicalExamApp {
             hasGuestServerSession = !!localStorage.getItem('med_sheet_guest_token_v1') &&
                 !localStorage.getItem('med_guest_session_expired_v1');
         } catch (_) {}
-        const hasServerIdentity = Boolean(this.authUser || hasGuestServerSession);
+        const identity = this.getLocalIdentityKey();
+        const hasServerIdentity = identity !== 'visitor' && Boolean(this.authUser || hasGuestServerSession);
+        const hasCurrentServerHistory = hasServerIdentity && this.__serverProgressOwner === identity &&
+            Array.isArray(this.serverExamHistory);
         const localByAttemptId = new Map(localHistory.filter(item => item && item.attemptId).map(item => [String(item.attemptId), item]));
         const normalizeAttemptId = value => String(value ?? '').split('-').pop();
-        const historySource = Array.isArray(this.serverExamHistory) ? this.serverExamHistory : localHistory;
+        const historySource = hasCurrentServerHistory ? this.serverExamHistory : localHistory;
         const historyById = new Map();
         historySource.forEach(item => {
             if (!item) return;
@@ -1991,7 +2026,7 @@ class MedicalExamApp {
         const avgScore=attempts?(history.reduce((a,h)=>a+(parseFloat(h.score)||0),0)/attempts):0;
         const set=(id,val)=>{const el=document.getElementById(id);if(el)el.innerText=val;};
         set('dash-total-exams',attempts); set('prog-total-attempts',attempts); set('dash-best-score',best.toFixed(2)); set('prog-best-score',best.toFixed(2)); set('dash-avg-accuracy',`${avgAcc.toFixed(1)}%`); set('prog-avg-accuracy',`${avgAcc.toFixed(1)}%`); set('prog-avg-score',avgScore.toFixed(2));
-        const profileName=this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):'Guest Student';
+        const profileName=this.authUser?(this.profile?.name||this.authUser.displayName||this.authUser.email||'Student'):(hasGuestServerSession?(this.profile?.name||'Guest Student'):'Visitor');
         const profileNameElement=document.getElementById('profile-name');
         if(profileNameElement){
             const hasGoldName=this.authUser&&(this.profile?.isGoldName===true||this.profile?.isAdmin===true);
@@ -2017,7 +2052,7 @@ class MedicalExamApp {
         const coverage=total?Math.min(100,(answered.size/total)*100):0; set('profile-coverage',`${coverage.toFixed(0)}%`);
         const bar=document.getElementById('profile-progress-bar');if(bar)bar.style.width=`${coverage}%`;
         const note=document.getElementById('profile-performance-note');if(note) note.textContent=attempts?`আপনার গড় Accuracy ${avgAcc.toFixed(1)}% এবং Best Score ${best.toFixed(2)}। ধারাবাহিক practice করলে এই trend আরও উন্নত হবে।`:'এখনও কোনো exam attempt নেই। Practice বা Model Test শুরু করুন—আপনার progress এখানে automatically তৈরি হবে।';
-        const action=document.getElementById('profile-auth-action');if(action)action.textContent=this.authUser?'Account':'লগইন / রেজিস্টার';
+        const action=document.getElementById('profile-auth-action');if(action)action.textContent=(this.authUser||hasGuestServerSession)?'Account':'Create Account';
         const formatExamDate = item => {
             // Prefer the actual exam start timestamp. Older date-only values cannot
             // reliably provide a time, so never invent one for those records.
@@ -2058,9 +2093,15 @@ class MedicalExamApp {
         if (hasServerIdentity && league && typeof league.getProgress === 'function' &&
             !this.__serverProgressLoading &&
             (!this.__serverProgressFetchedAt || Date.now() - this.__serverProgressFetchedAt > 30000)) {
-            this.__serverProgressLoading = true;
             const appInstance = this;
+            const requestIdentity = identity;
+            const requestSequence = (Number(this.__serverProgressRequestSequence) || 0) + 1;
+            this.__serverProgressRequestSequence = requestSequence;
+            this.__serverProgressRequestOwner = requestIdentity;
+            this.__serverProgressLoading = true;
             league.getProgress().then(response => {
+                if (requestSequence !== appInstance.__serverProgressRequestSequence ||
+                    appInstance.getLocalIdentityKey() !== requestIdentity) return;
                 if (!response || !Array.isArray(response.attempts)) throw new Error('Server progress response is incomplete.');
                 const serverAttempts = response.attempts;
                 const localAttempts = JSON.parse(localStorage.getItem(appInstance.getHistoryKey()) || '[]');
@@ -2077,12 +2118,21 @@ class MedicalExamApp {
                 });
                 appInstance.serverExamHistory = Array.from(mergedById.values())
                     .sort((a, b) => Number(normalizeAttemptId(b.attemptId)) - Number(normalizeAttemptId(a.attemptId)));
+                appInstance.__serverProgressOwner = requestIdentity;
                 appInstance.__serverProgressFetchedAt = Date.now();
                 appInstance.loadProgressStats();
             }).catch(error => {
+                if (requestSequence !== appInstance.__serverProgressRequestSequence ||
+                    appInstance.getLocalIdentityKey() !== requestIdentity) return;
                 console.warn('[Account progress] Server sync failed; showing available local history.', error);
                 appInstance.__serverProgressFetchedAt = Date.now();
-            }).finally(() => { appInstance.__serverProgressLoading = false; });
+            }).finally(() => {
+                if (requestSequence === appInstance.__serverProgressRequestSequence &&
+                    appInstance.__serverProgressRequestOwner === requestIdentity) {
+                    appInstance.__serverProgressLoading = false;
+                    appInstance.__serverProgressRequestOwner = '';
+                }
+            });
         }
     }
 
@@ -2106,6 +2156,14 @@ class MedicalExamApp {
 })();
 
 window.app = new MedicalExamApp();
+
+window.addEventListener('student-auth-state-resolved', function () {
+    const appInstance = window.app;
+    if (!appInstance) return;
+    appInstance.resetServerProgressForIdentity();
+    appInstance.renderAccountProfile();
+    appInstance.loadProgressStats();
+});
 
 window.dispatchEvent(new Event('medical-app-ready'));
 
