@@ -2851,7 +2851,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     var panel = document.getElementById('mat-visitor-access-panel');
     if (!panel) return;
     var close = '<button type="button" data-va-close aria-label="Close" style="float:right;border:0;background:transparent;font-size:23px;color:#64748b;cursor:pointer">×</button>';
-    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account তৈরি করুন</h2><p style="font-size:13px;line-height:1.7;color:var(--mat-va-muted,#64748b);margin:8px 0 0">Website-এর সবকিছু দেখতে পারবেন। Quiz, Practice ও অন্যান্য কাজ করতে Account প্রয়োজন।</p></div>';
+    var intro = '<div style="text-align:center;margin-bottom:18px"><div style="font-size:27px;margin-bottom:8px">🎓</div><h2 style="font-size:21px;font-weight:850;margin:0;color:var(--mat-va-title,#0f172a)">Account তৈরি করুন</h2><p style="font-size:13px;line-height:1.7;color:var(--mat-va-muted,#64748b);margin:8px 0 0">Website ঘুরে দেখা, theme বদলানো এবং public settings ব্যবহার করতে Login লাগবে না। শুধু account-এ save বা sync করতে হয়—এমন কাজের সময় Guest বা Sign Up বেছে নিন।</p></div>';
     var fieldStyle = 'width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#0f172a;font:inherit;margin-top:6px';
     var labelStyle = 'display:block;font-size:13px;font-weight:700;color:var(--mat-va-title,#334155);margin:12px 0 0';
     var back = '<button type="button" data-va-back style="border:0;background:transparent;color:#64748b;font-weight:700;padding:8px 0;cursor:pointer">← Back</button>';
@@ -2889,11 +2889,11 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
     visitorAccessUIInstalled = true;
     var style = document.createElement('style');
     style.id = 'mat-visitor-access-styles';
-    style.textContent = '#mat-visitor-access-bar{position:fixed;z-index:2147482000;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:9px 11px;border:1px solid rgba(148,163,184,.35);border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 12px 38px rgba(15,23,42,.2);backdrop-filter:blur(14px);font:600 12px/1.4 system-ui,sans-serif;color:#334155}#mat-visitor-access-bar[hidden],#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-bar span{white-space:nowrap}#mat-visitor-access-bar button{border:0;border-radius:10px;padding:10px 12px;font-weight:800;white-space:nowrap;cursor:pointer}#mat-visitor-access-bar [data-va-open-guest]{background:#059669;color:#fff}#mat-visitor-access-bar [data-va-open-signup]{background:#0f172a;color:#fff}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}@media(max-width:480px){#mat-visitor-access-bar{width:calc(100vw - 20px);justify-content:center;gap:6px;padding:8px}#mat-visitor-access-bar span{display:none}#mat-visitor-access-bar button{flex:1;padding:11px 8px;font-size:11px}#mat-visitor-access-panel{padding:18px}}';
+    style.textContent = '#mat-visitor-access-bar{position:fixed;z-index:2147482000;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100vw - 24px);padding:9px 11px;border:1px solid rgba(148,163,184,.35);border-radius:16px;background:rgba(255,255,255,.96);box-shadow:0 12px 38px rgba(15,23,42,.2);backdrop-filter:blur(14px);font:600 12px/1.4 system-ui,sans-serif;color:#334155}#mat-visitor-access-bar[hidden],#mat-visitor-access-modal[hidden]{display:none!important}#mat-visitor-access-bar span{white-space:nowrap}#mat-visitor-access-bar button{border:0;border-radius:10px;padding:10px 12px;font-weight:800;white-space:nowrap;cursor:pointer}#mat-visitor-access-bar [data-va-open-guest]{background:#059669;color:#fff}#mat-visitor-access-bar [data-va-open-signup]{background:#0f172a;color:#fff}#mat-visitor-access-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:rgba(2,6,23,.68);backdrop-filter:blur(7px)}#mat-visitor-access-panel{width:min(100%,430px);max-height:min(88vh,760px);overflow:auto;box-sizing:border-box;padding:22px;border:1px solid rgba(148,163,184,.3);border-radius:20px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:system-ui,sans-serif}html.dark #mat-visitor-access-panel,body.dark #mat-visitor-access-panel{background:#111827;--mat-va-title:#f8fafc;--mat-va-muted:#cbd5e1}#mat-visitor-access-panel form{margin:0}#mat-visitor-access-panel button:disabled{opacity:.65;cursor:wait}.mat-va-dots{display:inline-flex;gap:2px;margin-left:3px}.mat-va-dots i{font-style:normal;animation:mat-va-dot 1s infinite ease-in-out}.mat-va-dots i:nth-child(2){animation-delay:.16s}.mat-va-dots i:nth-child(3){animation-delay:.32s}@keyframes mat-va-dot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)} }@media(max-width:480px){#mat-visitor-access-bar{width:calc(100vw - 20px);justify-content:center;gap:6px;padding:8px}#mat-visitor-access-bar span{display:none}#mat-visitor-access-bar button{flex:1;padding:11px 8px;font-size:11px}#mat-visitor-access-panel{padding:18px}}';
     document.head.appendChild(style);
     var bar = document.createElement('div');
     bar.id = 'mat-visitor-access-bar';
-    bar.innerHTML = '<span>কাজ করতে Account প্রয়োজন</span><button type="button" data-va-open-guest>Continue as Guest</button><button type="button" data-va-open-signup>Sign Up</button>';
+    bar.innerHTML = '<span>Account-ভিত্তিক কাজের জন্য</span><button type="button" data-va-open-guest>Continue as Guest</button><button type="button" data-va-open-signup>Sign Up</button>';
     document.body.appendChild(bar);
     var modal = document.createElement('div');
     modal.id = 'mat-visitor-access-modal';
@@ -2946,6 +2946,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
             return;
           }
           if (status) { status.style.color = '#059669'; status.textContent = 'Guest Account তৈরি হচ্ছে…'; }
+          if (button) button.innerHTML = 'Guest Account তৈরি হচ্ছে <span class="mat-va-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>';
           if (!window.MedGlobalLeague || typeof window.MedGlobalLeague.createGuestAccount !== 'function') throw new Error('Guest account service এখনো প্রস্তুত নয়।');
           await window.MedGlobalLeague.createGuestAccount({ name: name, college: college, batch: batch });
           app.authStateResolved = true;
@@ -2953,6 +2954,10 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
           closeVisitorAccess();
           updateVisitorAccessUI();
           window.dispatchEvent(new CustomEvent('student-auth-state-resolved', { detail: { user: null, guest: true } }));
+          var successToast = document.getElementById('mat-visitor-success-toast');
+          if (!successToast) { successToast = document.createElement('div'); successToast.id = 'mat-visitor-success-toast'; successToast.setAttribute('role', 'status'); successToast.setAttribute('aria-live', 'polite'); successToast.style.cssText = 'position:fixed;z-index:2147483647;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 28px);padding:13px 18px;border-radius:13px;background:#047857;color:#fff;box-shadow:0 12px 35px rgba(0,0,0,.25);font:700 14px/1.5 system-ui,sans-serif;text-align:center'; document.body.appendChild(successToast); }
+          successToast.textContent = '✓ Guest Account সফলভাবে তৈরি হয়েছে। এখন Guest mode চালু।';
+          window.setTimeout(function () { if (successToast && successToast.parentNode) successToast.parentNode.removeChild(successToast); }, 4500);
           return;
         }
         if (form.id === 'mat-visitor-signup-form') {
@@ -2983,27 +2988,19 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
         if (button) button.disabled = false;
       }
     }, true);
-    // Keep navigation/read-only views available, but block actions for anonymous visitors.
+    // Only explicitly marked actions are gated here. Feature APIs that need an
+    // identity call credentialsForCurrentUser(), which opens this same choice
+    // dialog at the point the protected action is submitted. Never intercept
+    // ordinary buttons, navigation, theme toggles, public settings, or form focus.
     document.addEventListener('click', function (event) {
       if (!isAccountFreeVisitor()) return;
-      var target = event.target;
-      if (!target || !target.closest) return;
-      if (target.closest('#mat-visitor-access-bar,#mat-visitor-access-modal')) return;
-      if (target.closest('a[href]')) return;
-      if (target.closest('.nav-btn,.sidebar-nav button,.sidebar-brand,[data-feature-view],[data-nav-view],button[onclick*="showView("],button[onclick*="goHome("]')) return;
-      var control = target.closest('button,input,select,textarea,[role="button"],[onclick],form');
-      if (!control) return;
+      var target = event.target && event.target.closest
+        ? event.target.closest('[data-va-requires-account],[data-auth-required]')
+        : null;
+      if (!target) return;
       event.preventDefault();
       event.stopPropagation();
       if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-      openVisitorAccess('choices');
-    }, true);
-    document.addEventListener('focusin', function (event) {
-      if (!isAccountFreeVisitor()) return;
-      var target = event.target;
-      if (!target || !target.matches || !target.matches('input,textarea,select')) return;
-      if (target.closest('#mat-visitor-access-modal')) return;
-      target.blur();
       openVisitorAccess('choices');
     }, true);
     window.addEventListener('student-auth-state-resolved', updateVisitorAccessUI);
