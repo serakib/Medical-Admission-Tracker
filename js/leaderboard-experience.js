@@ -872,7 +872,6 @@
       batch ? 'Class/Batch: ' + batch : ''
     ].filter(Boolean).join('\n') || 'College ও Class/Batch এখনো যোগ করা হয়নি');
     write('student-profile-rank-level', 'Rank: ' + currentRankTier + ' · Level ' + Math.max(1, Number(row.level) || 1));
-    renderGuestAutoDeletionCountdown(row);
     write('student-profile-xp', fmt(row.xp));
     write('student-profile-total-rp', fmt(row.totalRP ?? row.TotalRP ?? row.lifetimeRP ?? row.LifetimeRP ?? 0));
     write('student-profile-weekly-rp', fmt(row.weeklyRankPoints != null ? row.weeklyRankPoints : row.weeklyRP));
