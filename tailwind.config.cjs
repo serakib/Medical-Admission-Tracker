@@ -26,11 +26,8 @@ module.exports = {
       }
     }
   },
-  safelist: [
-    {
-      pattern: /(bg|text|border|ring|from|via|to)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/,
-      variants: ['dark', 'hover', 'focus', 'active']
-    }
-  ],
+  // Do not safelist every colour/opacity/variant combination. Tailwind scans
+  // the HTML and JS files above and emits only classes that the app actually uses.
+  safelist: [],
   plugins: []
 };
