@@ -1,0 +1,71 @@
+name: Sync npm lockfile
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "package.json"
+      - ".github/workflows/sync-npm-lockfile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: npm-lockfile-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-lockfile:
+    name: Generate and verify npm lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+
+      # npm writes a lockfile without running dependency lifecycle scripts.
+      - name: Generate package-lock.json
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Verify clean install from the generated lockfile
+        run: npm ci --no-audit --no-fund
+
+      - name: Run complete project validation
+        run: npm test
+
+      - name: Commit lockfile when it changes
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json is already synchronized."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: sync npm dependency lockfile"
+
+          # Retry against the latest main if another safe commit lands while this job runs.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "Committed the verified npm lockfile."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying against latest main."
+          done
+
+          echo "Could not push the lockfile after three attempts." >&2
+          exit 1
