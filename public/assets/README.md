@@ -18,6 +18,7 @@ Static image and illustration files used by the website.
 public/assets/
 ├── favicon.svg
 ├── pets/
+│   ├── README.md
 │   ├── bear.svg
 │   ├── white-bear.svg
 │   ├── cat.svg
@@ -37,6 +38,12 @@ Example:
 <img src="./public/assets/pets/cat.svg" alt="Cat">
 ```
 
-Keep new static SVG artwork in this folder. Put character/pet illustrations in `pets/` and other shared site graphics directly in `public/assets/`.
+## Avatar artwork and licensing
 
-See [ASSET-CREDITS.md](./ASSET-CREDITS.md) and [ATTRIBUTION.md](./ATTRIBUTION.md) for artwork credits and license requirements.
+The main student portrait is generated at runtime by the avatar renderer in `js/avatar-creator-extended.js`; the pet SVGs in `pets/` are optional companion artwork, not the main character.
+
+- [Asset credits](./ASSET-CREDITS.md)
+- [Attribution and license notes](./ATTRIBUTION.md)
+- [Pet SVG guide](./pets/README.md)
+
+When adding or modifying an asset, verify its source and license, test its rendering, and update the relevant credit/attribution file. Do not place secrets or private user data in this public folder.
