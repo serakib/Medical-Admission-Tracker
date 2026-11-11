@@ -1864,6 +1864,40 @@
       glasses:'accessories', hat:'headwear', clothingType:'clothing', clothingGraphic:'clothing-graphics', petType:'pets', characterPreset:'characters'
     };
     const manifest = window.MedAvatarCreator.assetManifest?.categories || {};
+    const validColor = (value, fallback) => {
+      const raw = String(value || '').replace(/^#/, '');
+      return /^[0-9a-f]{6}$/i.test(raw) ? '#' + raw : fallback;
+    };
+    const svgPreviewSource = asset => {
+      const version = String(window.MedAvatarCreator.assetManifest?.version || '');
+      const fallbackPath = String(asset.path || '') + (version ? '?v=' + encodeURIComponent(version) : '');
+      if (typeof asset.content !== 'string' || !asset.content.trim()) return fallbackPath;
+      try {
+        const parsed = new DOMParser().parseFromString(asset.content, 'image/svg+xml');
+        if (parsed.querySelector('parsererror') || parsed.documentElement.localName !== 'svg') return fallbackPath;
+        const root = parsed.documentElement;
+        const colors = [
+          '--avatar-skin:' + validColor(config.skinTone, '#edb98a'),
+          '--avatar-hair:' + validColor('#' + String(config.hairColor || '2c1b18').replace(/^#/, ''), '#2c1b18'),
+          '--avatar-clothes:' + validColor('#' + String(config.clothingColor || '2563eb').replace(/^#/, ''), '#2563eb'),
+          '--avatar-facialHair:' + validColor('#' + String(config.facialHairColor || '2c1b18').replace(/^#/, ''), '#2c1b18'),
+          '--avatar-accessories:#262e33',
+          '--avatar-hat:' + validColor('#' + String(config.hatColor || 'dc2626').replace(/^#/, ''), '#dc2626')
+        ];
+        root.setAttribute('style', colors.join(';'));
+        root.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(node => node.remove());
+        root.querySelectorAll('*').forEach(node => {
+          Array.from(node.attributes).forEach(attribute => {
+            const name = attribute.name.toLowerCase();
+            if (name.startsWith('on')) node.removeAttribute(attribute.name);
+            else if ((name === 'href' || name.endsWith(':href')) && attribute.value && !attribute.value.startsWith('#')) node.removeAttribute(attribute.name);
+          });
+        });
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(root));
+      } catch (_) {
+        return fallbackPath;
+      }
+    };
     const findAsset = (folder, value) => {
       const list = Array.isArray(manifest[folder]) ? manifest[folder] : [];
       return list.find(asset => {
@@ -1893,9 +1927,8 @@
           // Hijab is stored with headwear parts, not hairstyle parts.
           if (!asset && field.key === 'hairStyle' && raw.toLowerCase() === 'hijab') asset = findAsset('headwear', raw);
           if (asset && asset.path) {
-            const assetVersion = String(window.MedAvatarCreator.assetManifest?.version || '');
-            const versionedPath = String(asset.path) + (assetVersion ? '?v=' + encodeURIComponent(assetVersion) : '');
-            const safePath = versionedPath.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+            const previewSource = svgPreviewSource(asset);
+            const safePath = previewSource.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
             visual = '<span class="mat-avatar-option-art-frame"><img class="mat-avatar-option-art" src="' + safePath + '" alt="" loading="lazy" decoding="async" draggable="false"></span>';
           } else if (raw === 'none') {
             visual = '<span class="mat-avatar-option-none">নেই</span>';
