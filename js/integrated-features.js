@@ -1938,7 +1938,7 @@
       background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
-      {key:'character',title:'শিক্ষার্থী',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'characterPreset',title:'চরিত্র বেছে নাও'},{key:'ageGroup',title:'শিক্ষার্থীর বয়স'}]},
+      {key:'character',title:'শিক্ষার্থী',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'characterPreset',title:'চরিত্র বেছে নাও'}]},
       {key:'face',title:'মুখ ও ত্বক',icon:'mouth',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
       {key:'eyes',title:'চোখ',icon:'eyes',fields:[{key:'eyeShape',title:'চোখের ধরন'}]},
       {key:'eyebrows',title:'ভ্রু',icon:'eyebrows',fields:[{key:'eyebrowShape',title:'ভ্রুর ধরন'}]},
@@ -1971,7 +1971,7 @@
             '<button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="-1" aria-label="আগের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>' +
             '<nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-            '</nav><button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="1" aria-label="পরের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
+            '</nav><button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="1" aria-label="পরের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.filter(field => field.key !== 'clothingGraphic' || config.clothingType === 'graphicShirt').map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
@@ -2254,6 +2254,11 @@
       if (part === 'hairStyle') next.hat = 'none';
       if (part === 'hat' && value !== 'none') next.hairStyle = next.hairStyle || 'shortFlat';
       pendingAvatarConfig = window.MedAvatarCreator.normalize(next);
+      if (part === 'clothingType') {
+        pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
+        renderAvatarPickerWithTransition();
+        return;
+      }
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
       updateAvatarPreviewInPlace(part);
       return;
