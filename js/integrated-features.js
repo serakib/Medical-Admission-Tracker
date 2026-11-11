@@ -3094,7 +3094,7 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   .mat-avatar-controls .mat-avatar-options-scroll{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:16px 18px 20px!important;background:#111!important}
   .mat-avatar-option-section{margin:0 0 24px!important}
   .mat-avatar-option-section h3{color:#f4f4f5!important;font-size:15px!important;font-weight:850!important}
-  .mat-avatar-option-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important;gap:10px!important}
+  .mat-avatar-option-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
   .mat-avatar-option{min-height:94px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:10px!important;border:2px solid #8a8a8a!important;border-radius:16px!important;background:#3a3a3a!important;color:#fff!important}
   .mat-avatar-option.is-selected{border-color:#08b95c!important;background:#3a3a3a!important;box-shadow:0 0 0 1px #08b95c!important}
   .mat-avatar-option .mat-avatar-option-preview-stack{width:76px;height:76px;display:block}
@@ -3111,7 +3111,7 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
    .mat-avatar-controls{border-radius:20px!important}
    .mat-avatar-controls .mat-avatar-category-bar{flex-basis:58px!important;min-height:58px!important;border-radius:19px 19px 0 0!important;justify-content:flex-start!important}
    .mat-avatar-controls .mat-avatar-options-scroll{padding:11px 10px 14px!important}
-   .mat-avatar-option-grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))!important;gap:7px!important}
+   .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
    .mat-avatar-option{min-height:78px!important}
    .mat-avatar-controls .mat-avatar-actions{padding:8px!important}
    .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{min-height:48px!important}
