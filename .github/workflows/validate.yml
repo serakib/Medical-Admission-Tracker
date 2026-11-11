@@ -20,23 +20,23 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
       - name: Cache npm downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node22-npm-
 
       - name: Install project build dependencies
-        run: npm install --no-save --no-package-lock --prefer-offline --no-audit --no-fund
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       # Use exactly the same validation command as the production deployment workflow.
       - name: Build and validate
