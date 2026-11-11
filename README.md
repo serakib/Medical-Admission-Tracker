@@ -187,7 +187,7 @@ Medical-Admission-Tracker/
 ├── apps-script/   # Google Apps Script backend source
 ├── css/           # Application stylesheets
 ├── data/          # Question bank and question metadata
-├── docs/          # Setup, architecture, API and user guides
+├── docs/          # Guides, changelog, architecture and project docs
 ├── js/            # Core application and feature modules
 ├── public/        # Images, icons, avatar and pet assets
 ├── scripts/       # Build, asset generation and validation tools
@@ -198,7 +198,8 @@ Medical-Admission-Tracker/
 ├── service-worker.js
 ├── package.json   # Build tools and validation commands
 ├── package-lock.json
-└── README.md
+├── README.md
+└── CITATION.cff
 ```
 
 | Working on… | Start here |
@@ -241,7 +242,7 @@ Repository planning and release operations are documented separately:
 
 - [Project board, labels, milestones, and webhook setup](docs/REPOSITORY_MANAGEMENT.md)
 - [Release checklist](docs/RELEASING.md)
-- [Changelog](CHANGELOG.md)
+- [Changelog](docs/CHANGELOG.md)
 
 Labels and milestone definitions are maintained in the .github directory and synchronized through GitHub Actions. Version tags trigger generated release notes and a GitHub Release.
 
@@ -255,7 +256,7 @@ Project documentation is grouped by purpose so you can find the right guide quic
 - [📚 Project documentation hub](docs/project/README.md)
 - [🤝 Support and help](.github/SUPPORT.md)
 - [🛡️ Security policy](SECURITY.md)
-- [♿ Accessibility guidelines](ACCESSIBILITY.md)
+- [♿ Accessibility guidelines](docs/guides/ACCESSIBILITY.md)
 - [🤝 Code of Conduct](CODE_OF_CONDUCT.md)
 - [🧑‍💻 Contributing guide](CONTRIBUTING.md)
 - [📜 Project governance](docs/project/GOVERNANCE.md)
