@@ -12,7 +12,7 @@ permissions:
 
 # Never cancel an active production deployment.
 concurrency:
-  group: pages
+  group: pages-browser-verified
   cancel-in-progress: false
 
 jobs:
