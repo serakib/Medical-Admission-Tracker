@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- eyes / cry; Avataaars by Pablo Stanley. Source: scripts/data/avataaars-style-definition.json. -->
+<!-- eyes / cry; Avataaars by Pablo Stanley. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 36.27" width="84" height="36.27" fill="none" role="img" aria-label="eyes / cry">
 <path d="M11 19s-6 7.27-6 11.27a6 6 0 0 0 12 0c0-4-6-11.27-6-11.27" fill="#92d9ff"/>
 <g transform="translate(10 8)"><circle cx="6" cy="6" r="6" fill="#000000" fill-opacity=".6"/><circle cx="58" cy="6" r="6" fill="#000000" fill-opacity=".6"/></g>
