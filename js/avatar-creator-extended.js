@@ -178,18 +178,10 @@
   const renderLayersMarkup = (source, input, className) => {
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
-    const headphoneColors = {'#24242b':'#24242b','#2563eb':'#2563eb','#dc2626':'#dc2626','#10b981':'#10b981','#f8fafc':'#f8fafc'};
-    const headphoneColor = c && headphoneColors[c.headphones] ? headphoneColors[c.headphones] : '';
-    const headphones = headphoneColor ? '<svg class="med-avatar-headphones" viewBox="0 0 280 280" aria-hidden="true"><path d="M76 139V121a64 64 0 0 1 128 0v18" fill="none" stroke="'+headphoneColor+'" stroke-width="13" stroke-linecap="round"/><rect x="61" y="130" width="28" height="58" rx="12" fill="'+headphoneColor+'" stroke="#111827" stroke-opacity=".18" stroke-width="3"/><rect x="191" y="130" width="28" height="58" rx="12" fill="'+headphoneColor+'" stroke="#111827" stroke-opacity=".18" stroke-width="3"/></svg>' : '';
-    const ageLines = c && c.ageGroup === 'adult'
-      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".24"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
-      : c && c.ageGroup === 'mature'
-        ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".48"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
-        : '';
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
-    return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
+    return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
-      headphones + '</span>';
+      '</span>';
   };
   const randomize = seed => {
     let h = 2166136261, s = String(seed || 'student-avatar');
