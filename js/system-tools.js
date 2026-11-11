@@ -1,5 +1,3 @@
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
 (() => {
   'use strict';
   const ERROR_KEY = 'mat_client_error_log_v1';
@@ -15,8 +13,7 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-
   const safeJson = value => { try { return JSON.parse(value); } catch (_) { return null; } };
 
   function readErrors() {
-    const rows = safeJson(localStorage.getItem(ERROR_KEY) || '[]');
-    return Array.isArray(rows) ? rows.slice(-MAX_ERRORS) : [];
+    try { const rows = safeJson(localStorage.getItem(ERROR_KEY) || '[]'); return Array.isArray(rows) ? rows.slice(-MAX_ERRORS) : []; } catch (_) { return []; }
   }
   function recordError(type, rawMessage, rawStack) {
     try {
@@ -31,8 +28,8 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-
   window.addEventListener('unhandledrejection', event => recordError('unhandledrejection', event.reason?.message || event.reason, event.reason?.stack));
 
   async function fingerprint(identity) {
-    if (!crypto?.subtle) throw new Error('এই browser-এ secure backup verification support নেই।');
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(identity)));
+    if (!globalThis.crypto?.subtle) throw new Error('এই browser-এ secure backup verification support নেই।');
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(identity)));
     return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
   }
 
@@ -104,11 +101,13 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-
     const changes = [];
     Object.entries(keys).forEach(([name, key]) => {
       if (!Array.isArray(data[name])) return;
-      const incoming = data[name].filter(item => typeof item === 'string' || (item && typeof item === 'object'));
+      const incoming = name === 'history'
+        ? data[name].filter(item => item && typeof item === 'object' && !Array.isArray(item))
+        : data[name].filter(item => typeof item === 'string').map(item => item.slice(0, 200));
       const current = safeJson(localStorage.getItem(key) || '[]');
       const merged = name === 'history'
         ? mergeByKey(current, incoming, 'attemptId')
-        : [...new Set([...(Array.isArray(current) ? current : []), ...incoming.map(String)])].slice(-20000);
+        : [...new Set([...(Array.isArray(current) ? current.filter(item => typeof item === 'string') : []), ...incoming])].slice(-20000);
       changes.push([key, JSON.stringify(merged)]);
     });
     if (Array.isArray(data.offlinePracticeHistory)) {
@@ -239,8 +238,11 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-
       add('Firebase Auth', app?.authStateResolved && auth ? 'ok' : 'warn',
         app?.authStateResolved ? (user ? 'Signed in' : 'Auth ready · signed out') : 'Auth state এখনো resolve হয়নি');
       if (user?.uid && firestore) {
-        try { await getDoc(doc(firestore, 'students', user.uid)); add('Firestore', 'ok', 'নিজের student profile read সফল'); }
-        catch (error) { add('Firestore', 'fail', String(error?.code || error?.message || 'Read failed').slice(0, 120)); }
+        try {
+          const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+          await getDoc(doc(firestore, 'students', user.uid));
+          add('Firestore', 'ok', 'নিজের student profile read সফল');
+        } catch (error) { add('Firestore', 'fail', String(error?.code || error?.message || 'Read failed').slice(0, 120)); }
       } else add('Firestore', 'warn', 'নিজের profile read যাচাই করতে login প্রয়োজন');
       if (navigator.onLine && window.MED_LEADERBOARD_API_URL) {
         try {
