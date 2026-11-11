@@ -19,10 +19,10 @@ Use this folder to find project-level information without searching through the 
 |---|---|
 | Support | [Support guide](../../.github/SUPPORT.md) |
 | Code ownership | [CODEOWNERS](../../.github/CODEOWNERS) |
-| Security policy | [SECURITY.md](../../SECURITY.md) |
+| Security policy | [SECURITY.md](../../.github/SECURITY.md) |
 | Accessibility | [ACCESSIBILITY.md](../guides/ACCESSIBILITY.md) |
-| Code of Conduct | [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) |
-| Contributing | [CONTRIBUTING.md](../../CONTRIBUTING.md) |
+| Code of Conduct | [CODE_OF_CONDUCT.md](../../.github/CODE_OF_CONDUCT.md) |
+| Contributing | [CONTRIBUTING.md](../../.github/CONTRIBUTING.md) |
 
 ## ⚖️ Legal and citation
 
