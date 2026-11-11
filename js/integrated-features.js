@@ -2166,8 +2166,10 @@
     }
     const resetButton = event.target.closest('#profile-avatar-reset');
     if (resetButton) {
-      const latestSavedSource = readAvatar();
-      pendingAvatarConfig = window.MedAvatarCreator.configFromAvatar(latestSavedSource) || readAvatarConfig();
+      // Reset means return to the latest successfully saved avatar, not the
+      // generator's default character and not the previous unsaved preview.
+      // The saved config is the authoritative source for composed avatars.
+      pendingAvatarConfig = window.MedAvatarCreator.normalize(readAvatarConfig());
       pendingAvatarSource = window.MedAvatarCreator.render(pendingAvatarConfig);
       updateAvatarPreviewInPlace('reset');
       return;
