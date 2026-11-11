@@ -1911,9 +1911,9 @@
         return '<button type="button" class="mat-avatar-option' + (field.key === 'characterPreset' ? ' mat-avatar-character-card' : '') + (isSkinTone ? ' mat-avatar-skin-tone-option' : '') + (selected ? ' is-selected' : '') +
           '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw +
           (isSkinTone ? '" data-avatar-color="' + raw.replace(/^#/,'') : '') +
-          '" title="' + safeLabel + (isSkinTone ? ' · #' + raw.replace(/^#/,'') : '') +
-          '" aria-label="' + field.title + ': ' + safeLabel + (isSkinTone ? ', #' + raw.replace(/^#/,'') : '') + '" aria-pressed="' + String(selected) + '">' + visual +
-          ((field.key === 'gender' || field.key === 'characterPreset') ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
+          '" title="' + (field.key === 'characterPreset' ? 'চরিত্র' : safeLabel) + (isSkinTone ? ' · #' + raw.replace(/^#/,'') : '') +
+          '" aria-label="' + (field.key === 'characterPreset' ? 'চরিত্র' : field.title + ': ' + safeLabel) + (isSkinTone ? ', #' + raw.replace(/^#/,'') : '') + '" aria-pressed="' + String(selected) + '">' + visual +
+          (field.key === 'gender' ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
       }).join('') +
     '</div></section>';
   }
