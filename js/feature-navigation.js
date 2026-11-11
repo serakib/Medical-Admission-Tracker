@@ -123,7 +123,7 @@
   window.navigateFeatureView = showIndependent;
 
   // `interactive` can occur before module scripts execute; waiting until DOMContentLoaded
-  // ensures root script.js has had a chance to publish window.app.
+  // ensures main app module (js/app.js) has had a chance to publish window.app.
   if (document.readyState === 'complete') initialise();
   else document.addEventListener('DOMContentLoaded', initialise, { once: true });
 })(window, document);
