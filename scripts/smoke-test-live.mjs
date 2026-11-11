@@ -107,6 +107,38 @@ assert.ok(displayedCount && displayedCount[1].trim() === `${questions.length}+`,
 
 console.log(`OK live question bank: ${questions.length} questions across ${Object.keys(subjectCounts).length} subjects.`);
 
+// Check the read-only backend health endpoint so stale Apps Script deployments are visible.
+const leaderboardConfigResponse = await requestWithRetry(new URL('js/leaderboard-config.js', baseUrl));
+const leaderboardConfigSource = await leaderboardConfigResponse.text();
+const apiUrlMatch = leaderboardConfigSource.match(/MED_LEADERBOARD_API_URL\\s*=\\s*['"]([^'"]+)['"]/);
+assert.ok(apiUrlMatch, 'Live leaderboard API URL is missing from its configuration.');
+
+const apiUrl = new URL(apiUrlMatch[1]);
+assert.equal(apiUrl.protocol, 'https:', 'Leaderboard API must use HTTPS.');
+assert.equal(apiUrl.hostname, 'script.google.com', 'Leaderboard API must use the expected Google Apps Script host.');
+apiUrl.searchParams.set('action', 'health');
+
+const backendResponse = await requestWithRetry(apiUrl);
+const backendHealth = await backendResponse.json();
+assert.equal(backendHealth.success, true, 'Medical backend health endpoint did not report success.');
+assert.equal(backendHealth.status, 'ok', 'Medical backend is not healthy.');
+assert.equal(backendHealth.service, 'Medical Admission Tracker API', 'Unexpected backend service response.');
+assert.match(String(backendHealth.apiVersion || ''), /^\\d{4}\\.\\d{2}\\.\\d{2}\\.\\d+$/,
+  'Backend API version is missing or invalid.');
+
+const requiredCapabilities = [
+  'firebase-token-auth',
+  'persistent-guest-accounts',
+  'server-profile-management',
+  'exam-rewards-idempotency',
+  'unique-attempted-question-id-sync'
+];
+const backendCapabilities = new Set(Array.isArray(backendHealth.capabilities) ? backendHealth.capabilities : []);
+for (const capability of requiredCapabilities) {
+  assert.ok(backendCapabilities.has(capability), `Backend is missing required capability: ${capability}.`);
+}
+console.log(`OK backend health: API ${backendHealth.apiVersion}, ${backendCapabilities.size} capabilities.`);
+
 const references = new Set();
 for (const match of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
   const raw = match[1].trim();
