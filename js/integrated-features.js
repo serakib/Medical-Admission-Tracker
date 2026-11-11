@@ -1645,7 +1645,11 @@
           if (isolatedAsset) {
             visual = isolatedAsset;
           } else {
-          const thumbnailInput = Object.assign({}, config, { [field.key]: option.value });
+          const thumbnailInput = field.key === 'characterPreset'
+            ? window.MedAvatarCreator.applyCharacterPreset(option.value, config)
+            : field.key === 'gender'
+              ? window.MedAvatarCreator.applyCharacterPreset(option.value === 'female' ? 'f01' : 'm01', config)
+              : Object.assign({}, config, { [field.key]: option.value });
           if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
           if (field.key !== 'petType') thumbnailInput.petType = 'none';
           const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
@@ -1656,7 +1660,8 @@
         return '<button type="button" class="mat-avatar-option' + (selected ? ' is-selected' : '') +
           '" data-avatar-part="' + field.key + '" data-avatar-value="' + raw +
           '" title="' + label.replace(/&/g,'&amp;').replace(/"/g,'&quot;') +
-          '" aria-label="' + field.title + ': ' + label + '" aria-pressed="' + String(selected) + '">' + visual + '</button>';
+          '" aria-label="' + field.title + ': ' + label + '" aria-pressed="' + String(selected) + '">' + visual +
+          (field.key === 'gender' || field.key === 'characterPreset' ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
       }).join('') +
     '</div></section>';
   }
@@ -3115,6 +3120,19 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
    .mat-avatar-workspace{grid-template-rows:minmax(180px,29vh) minmax(0,1fr)}
    .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   }
+ `;
+ document.head.appendChild(style);
+})();
+
+;/* Character selector labels and thumbnail layout refinement. */
+(function(){
+ if(document.getElementById('mat-avatar-character-selector-refinement'))return;
+ const style=document.createElement('style');style.id='mat-avatar-character-selector-refinement';
+ style.textContent=`
+  .mat-avatar-option:has(.mat-avatar-option-label){min-height:118px!important;flex-direction:column!important;gap:4px!important}
+  .mat-avatar-option-label{display:block;color:#f4f4f5;font-size:11px;font-weight:800;line-height:1.2;text-align:center}
+  .mat-avatar-option:has(.mat-avatar-option-label) .mat-avatar-option-preview-stack{width:78px;height:78px}
+  @media(max-width:760px){.mat-avatar-option:has(.mat-avatar-option-label){min-height:104px!important}.mat-avatar-option-label{font-size:10px}}
  `;
  document.head.appendChild(style);
 })();
