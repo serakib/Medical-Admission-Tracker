@@ -39,11 +39,10 @@ for (const absolute of files) {
 }
 
 const manifest = {
-  version: files.map(file => {
-    const stat = fs.statSync(file);
+  version: crypto.createHash('sha256').update(files.map(file => {
     const hash = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
     return path.relative(assetsRoot, file).split(path.sep).join('/') + ':' + hash;
-  }).join('|'),
+  }).join('|')).digest('hex'),
   generatedAt: new Date().toISOString(),
   total: files.length,
   categories
