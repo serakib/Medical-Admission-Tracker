@@ -1807,7 +1807,7 @@
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
             groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-          '</nav><div class="mat-avatar-options-scroll"><div class="mat-avatar-group-section is-active" id="mat-avatar-group-' + activeGroup.key + '" data-avatar-group-section="' + activeGroup.key + '">' + activeGroup.fields.map(fieldMarkup).join('') + '</div></div>' +
+          '</nav><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
@@ -1815,6 +1815,31 @@
     picker.innerHTML = builderMarkup +
       (pendingUpload ? '<button type="button" id="profile-avatar-confirm" hidden>Confirm uploaded avatar</button>' : '') +
       '<span id="profile-avatar-upload-status" class="profile-avatar-upload-status" aria-live="polite"></span>';
+    if (avatarPickerExpanded) {
+      const scroller = picker.querySelector('.mat-avatar-options-scroll');
+      if (scroller && !scroller.dataset.avatarNavObserver) {
+        scroller.dataset.avatarNavObserver = '1';
+        let scrollFrame = 0;
+        scroller.addEventListener('scroll', () => {
+          if (scrollFrame) cancelAnimationFrame(scrollFrame);
+          scrollFrame = requestAnimationFrame(() => {
+            const sections = Array.from(scroller.querySelectorAll('[data-avatar-group-section]'));
+            const marker = scroller.getBoundingClientRect().top + 36;
+            let currentSection = sections[0];
+            sections.forEach(section => {
+              if (section.getBoundingClientRect().top <= marker) currentSection = section;
+            });
+            if (!currentSection) return;
+            activeAvatarGroup = currentSection.dataset.avatarGroupSection;
+            picker.querySelectorAll('.mat-avatar-category').forEach(tab => {
+              const active = tab.dataset.avatarGroup === activeAvatarGroup;
+              tab.classList.toggle('is-active', active);
+              tab.setAttribute('aria-pressed', String(active));
+            });
+          });
+        }, {passive:true});
+      }
+    }
     hydrateLivingAvatarFaces(picker);
     picker.classList.toggle('is-expanded', avatarPickerExpanded);
     if (avatarPickerExpanded) {
@@ -1996,9 +2021,18 @@
     const avatarGroup = event.target.closest('[data-avatar-group]');
     if (avatarGroup) {
       const nextGroup = avatarGroup.dataset.avatarGroup;
-      if (nextGroup && nextGroup !== activeAvatarGroup) {
+      const controls = avatarGroup.closest('.mat-avatar-controls');
+      const scroller = controls && controls.querySelector('.mat-avatar-options-scroll');
+      const section = scroller && scroller.querySelector('[data-avatar-group-section="' + nextGroup + '"]');
+      if (nextGroup && section && scroller) {
         activeAvatarGroup = nextGroup;
-        renderAvatarPicker();
+        controls.querySelectorAll('.mat-avatar-category').forEach(tab => {
+          const active = tab.dataset.avatarGroup === nextGroup;
+          tab.classList.toggle('is-active', active);
+          tab.setAttribute('aria-pressed', String(active));
+        });
+        const top = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+        scroller.scrollTo({top:top, behavior:'smooth'});
       }
       return;
     }
