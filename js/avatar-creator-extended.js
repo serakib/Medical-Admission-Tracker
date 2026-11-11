@@ -282,7 +282,7 @@
     return normalize({...preset,background:choices.background[(Math.abs(h+17)>>>0)%choices.background.length][0],petType:choices.petType[(Math.abs(h+29)>>>0)%choices.petType.length][0]});
   };
   const pick = (list, seed, index) => list[(Math.abs(String(seed||'student').split('').reduce((h,ch)=>Math.imul(h^ch.charCodeAt(0),16777619),2166136261)+index)>>>0)%list.length][0];
-  choices.characterPreset = characterPresets.map(item=>[item.id,(item.gender==='female'?'নারী ':'পুরুষ ')+item.id.toUpperCase()]);
+  choices.characterPreset = characterPresets.map((item,index)=>[item.id,'চরিত্র '+(index+1)]);
   base.choices = Object.fromEntries(Object.entries(choices).map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
@@ -320,7 +320,7 @@
   base.characterPresets = characterPresets.map(({id,gender,ageGroup})=>({id,gender,ageGroup}));
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
-    if (fieldKey === 'characterPreset') return characterPresets.filter(item=>item.gender===config.gender).map(item=>({value:item.id,label:(item.gender==='female'?'নারী ':'পুরুষ ')+item.id.toUpperCase()}));
+    if (fieldKey === 'characterPreset') return characterPresets.filter(item=>item.gender===config.gender).map((item,index)=>({value:item.id,label:'চরিত্র '+(index+1)}));
     if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
     if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
     return (base.choices[fieldKey] || []).slice();
@@ -585,7 +585,7 @@
         return template ? {...template, id, characterPreset:id, gender} : null;
       }).filter(Boolean);
       characterPresets.splice(0, characterPresets.length, ...discoveredPresets);
-      choices.characterPreset = characterPresets.map(item => [item.id, (item.gender === 'female' ? 'নারী ' : 'পুরুষ ') + item.id.toUpperCase()]);
+      choices.characterPreset = characterPresets.map((item, index) => [item.id, 'চরিত্র ' + (index + 1)]);
       base.characterPresets = characterPresets.map(({id,gender,ageGroup}) => ({id,gender,ageGroup}));
       base.choices.characterPreset = choices.characterPreset.map(([value,label]) => ({value,label}));
 
