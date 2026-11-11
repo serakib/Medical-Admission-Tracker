@@ -50,6 +50,63 @@ assert.match(html, /<title>[^<]+<\/title>/i, 'The live page should have a title.
 assert.match(html, /id=["']view-home["']/i, 'The main home view should exist.');
 assert.match(html, /id=["']dash-total-questions["']/i, 'The question-count dashboard element should exist.');
 
+// Validate the live question bank and its dashboard metadata, not only asset URLs.
+async function fetchJson(relativePath) {
+  const response = await requestWithRetry(new URL(relativePath, baseUrl));
+  const contentType = response.headers.get('content-type') || '';
+  assert.match(contentType, /json/i, `${relativePath} should be served as JSON.`);
+  return response.json();
+}
+
+const [questions, metadata] = await Promise.all([
+  fetchJson('data/questions.json'),
+  fetchJson('data/question-bank-info.json')
+]);
+
+assert.ok(Array.isArray(questions) && questions.length > 0, 'Live question bank must be a non-empty array.');
+assert.ok(metadata && typeof metadata === 'object', 'Live question-bank metadata must be an object.');
+
+const questionIds = new Set();
+const subjectCounts = {};
+let practiceTagged = 0;
+let yearTagged = 0;
+let untaggedYear = 0;
+
+for (const [index, question] of questions.entries()) {
+  const label = question?.id || `row ${index + 1}`;
+  assert.ok(question && typeof question === 'object', `Invalid question record: ${label}.`);
+  assert.ok(typeof question.id === 'string' && question.id.trim(), `Question ID missing: ${label}.`);
+  assert.ok(!questionIds.has(question.id), `Duplicate question ID: ${label}.`);
+  questionIds.add(question.id);
+  assert.ok(typeof question.question === 'string' && question.question.trim(), `Question text missing: ${label}.`);
+  assert.ok(typeof question.subject === 'string' && question.subject.trim(), `Question subject missing: ${label}.`);
+  subjectCounts[question.subject] = (subjectCounts[question.subject] || 0) + 1;
+  assert.ok(question.options && ['A', 'B', 'C', 'D'].every(key =>
+    typeof question.options[key] === 'string' && question.options[key].trim()
+  ), `Four valid answer options required: ${label}.`);
+  assert.match(String(question.correctAnswer || ''), /^[ABCD]$/i, `Invalid answer key: ${label}.`);
+  assert.ok(['easy', 'medium', 'hard'].includes(String(question.difficulty || '').toLowerCase()),
+    `Invalid difficulty: ${label}.`);
+
+  if (String(question.year || '').toLowerCase() === 'practice') practiceTagged++;
+  else if (question.year) yearTagged++;
+  else untaggedYear++;
+}
+
+const sortedCounts = counts => Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
+assert.equal(metadata.totalQuestions, questions.length, 'Live question total does not match metadata.');
+assert.deepEqual(sortedCounts(metadata.subjects || {}), sortedCounts(subjectCounts),
+  'Live subject counts do not match question-bank metadata.');
+assert.equal(metadata.practiceTaggedQuestions, practiceTagged, 'Practice-tagged count does not match metadata.');
+assert.equal(metadata.yearTaggedQuestions, yearTagged, 'Year-tagged count does not match metadata.');
+assert.equal(metadata.untaggedYearQuestions, untaggedYear, 'Untagged-year count does not match metadata.');
+
+const displayedCount = html.match(/id=["']dash-total-questions["'][^>]*>([^<]*)</i);
+assert.ok(displayedCount && displayedCount[1].trim() === `${questions.length}+`,
+  'Live dashboard question count does not match the published question bank.');
+
+console.log(`OK live question bank: ${questions.length} questions across ${Object.keys(subjectCounts).length} subjects.`);
+
 const references = new Set();
 for (const match of html.matchAll(/\b(?:src|href)\s*=\s*["']([^"']+)["']/gi)) {
   const raw = match[1].trim();
