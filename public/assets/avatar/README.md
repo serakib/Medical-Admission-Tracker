@@ -27,11 +27,15 @@ GitHub Pages deployment-এর আগে `scripts/generate-avatar-asset-manifest
 - SVG-এর original path অক্ষত থাকবে; manifest শুধু file list ও path রাখে।
 - Pet SVG manifest থেকে Avatar Builder-এর Pet choices-এ auto-load হয়।
 
-## Important current status
+## Live Builder integration
 
-এই category folder-গুলো repository-তে আছে, কিন্তু বর্তমানে এগুলোর মধ্যে character-part SVG file নেই। তাই এই মুহূর্তে এগুলোতে নতুন SVG যোগ না করলে Face/Hair/Eyes/Clothes-এর actual local asset দিয়ে preview তৈরি হবে না। Manifest নতুন file শনাক্ত করবে; নতুন character-part category-কে live Builder control ও SVG layer position-এর সঙ্গে connect করার implementation আলাদা কাজ।
+বর্তমান repository-তে Avatar Builder-এর জন্য ১০০টির বেশি আলাদা SVG part রাখা আছে। Builder manifest থেকে প্রতিটি category-র asset path পড়ে Hair, Eyes, Eyebrows, Nose, Mouth, Facial Hair, Accessories, Headwear, Clothing এবং Pet-এর option card-এ সংশ্লিষ্ট original SVG-টি আলাদাভাবে দেখায়।
 
-বর্তমান character renderer-এর existing behavior ও saved avatar compatibility অকারণে বদলাবে না। SVG files যোগ হলে তাদের viewBox, coordinate alignment, gender compatibility এবং layering পরীক্ষা করে তবেই preview-তে বসাতে হবে।
+- প্রতিটি SVG নিজের rectangular preview card-এ থাকে; পুরো avatar-কে thumbnail হিসেবে ব্যবহার করা হয় না।
+- Selected card-এ green border দেখা যায়।
+- Manifest build-এর সময় পুরো public/assets folder scan হয়; নতুন SVG যোগ বা মুছে দিলে পরবর্তী deployment-এ option list স্বয়ংক্রিয়ভাবে sync হয়।
+- Original SVG file, viewBox এবং artwork অপরিবর্তিত থাকে। Card-এ SVG-কে image হিসেবে দেখানো হয়; artwork redraw বা recolor করা হয় না।
+- সম্পূর্ণ character-এর live preview ও saved-avatar format আগের renderer দিয়েই চলতে থাকে, যাতে পুরোনো saved avatar compatibility নষ্ট না হয়।
 
 ## Editing and credits
 
