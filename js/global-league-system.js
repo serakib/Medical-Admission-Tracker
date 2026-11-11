@@ -2187,7 +2187,7 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
       if (popupBody) popupBody.innerHTML =
         '<div class="leaderboard-week-popup-countdowns">' +
           '<p class="leaderboard-week-popup-countdown">⏳ নতুন সপ্তাহ <strong data-weekly-countdown-popup>' + (liveWeekValue ? liveWeekValue.textContent : countdown) + '</strong></p>' +
-          '<p class="leaderboard-week-popup-countdown leaderboard-week-popup-review" data-promotion-review-countdown-popup><span data-review-label>🔁 ' + (liveDailyLabel ? liveDailyLabel.textContent.replace(/^🔁\\s*/, '') : popupReviewLabel) + '</span><strong>' + (liveDailyValue ? liveDailyValue.textContent : matCountdownText_((popupReview.timestamp - Date.now()) / 1000)) + '</strong></p>' +
+          '<p class="leaderboard-week-popup-countdown leaderboard-week-popup-review" data-promotion-review-countdown-popup><span data-review-label>🔁 ' + (liveDailyLabel ? liveDailyLabel.textContent.replace(/^🔁\s*/, '') : popupReviewLabel) + '</span><strong>' + (liveDailyValue ? liveDailyValue.textContent : matCountdownText_((popupReview.timestamp - Date.now()) / 1000)) + '</strong></p>' +
         '</div>' +
         '<div class="leaderboard-week-popup-description">' + weekDescription + '</div>' +
         '<p>Daily Review প্রতিদিন হয়; শনিবার রাত ১টায় Weekly Hard Reset হয়।</p>';
