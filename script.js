@@ -1957,6 +1957,12 @@ class MedicalExamApp {
 
     loadProgressStats() {
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
+        let hasGuestServerSession = false;
+        try {
+            hasGuestServerSession = !!localStorage.getItem('med_sheet_guest_token_v1') &&
+                !localStorage.getItem('med_guest_session_expired_v1');
+        } catch (_) {}
+        const hasServerIdentity = Boolean(this.authUser || hasGuestServerSession);
         const localByAttemptId = new Map(localHistory.filter(item => item && item.attemptId).map(item => [String(item.attemptId), item]));
         const normalizeAttemptId = value => String(value ?? '').split('-').pop();
         const historySource = Array.isArray(this.serverExamHistory) ? this.serverExamHistory : localHistory;
@@ -1996,7 +2002,7 @@ class MedicalExamApp {
         }
         const adminBadge=document.getElementById('profile-admin-badge');
         if(adminBadge) adminBadge.classList.toggle('hidden',!(this.authUser&&this.profile?.isAdmin===true));
-        set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):'Guest mode • আপনার progress এই device-এ সংরক্ষিত');
+        set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):(hasGuestServerSession?'Guest account · server-side profile active':'Visitor mode · progress শুধু এই device-এ localভাবে সংরক্ষিত'));
         set('profile-seen-count',answered.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
         set('profile-highest-weekly-rp',Math.max(0,Number(this.profile?.highestWeeklyRP)||0).toLocaleString());
         set('profile-weekly-rp',Math.max(0,Number(this.profile?.weeklyRP ?? this.profile?.weeklyRankPoints)||0).toLocaleString());
@@ -2048,12 +2054,6 @@ class MedicalExamApp {
         });}
         // Visitor progress is local-only. Fetch server history only for a verified
         // Registered identity or an active Medical Sheets Guest token.
-        let hasGuestServerSession = false;
-        try {
-            hasGuestServerSession = !!localStorage.getItem('med_sheet_guest_token_v1') &&
-                !localStorage.getItem('med_guest_session_expired_v1');
-        } catch (_) {}
-        const hasServerIdentity = Boolean(this.authUser || hasGuestServerSession);
         const league = window.MedGlobalLeague;
         if (hasServerIdentity && league && typeof league.getProgress === 'function' &&
             !this.__serverProgressLoading &&
