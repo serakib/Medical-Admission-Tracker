@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- facialHair / moustacheMagnum; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 121 120" width="121" height="120" fill="none" role="img" aria-label="facialHair / moustacheMagnum">
+<path d="M60 40.94c-2.5-3.34-12.27-4.75-19.28-3.48-9.65 1.76-13.74 12.3-12.5 14.22.77 1.19 2.48.8 4.26.38.8-.2 1.64-.38 2.4-.43 1.48-.09 3.34.22 5.44.57 4.98.82 11.37 1.88 17.63-1.51A6 6 0 0 0 60 48.84a6 6 0 0 0 2.05 1.85c6.25 3.39 12.64 2.33 17.62 1.5 2.11-.34 3.96-.65 5.45-.56a15 15 0 0 1 2.4.43c1.78.41 3.49.81 4.26-.38 1.24-1.91-2.85-12.46-12.5-14.22-7.01-1.27-16.78.14-19.28 3.48" fill="var(--avatar-facialHair, #000000)"></path>
+</svg>

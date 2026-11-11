@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mouth / tongue; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 38" width="92" height="38" fill="none" role="img" aria-label="mouth / tongue">
+<path d="M21 9.6C22.41 19.24 33.06 27 46 27c12.97 0 23.65-7.82 25-18.26.1-.4-.22-1.74-2.17-1.74H23.17c-1.79 0-2.3 1.24-2.17 2.6" fill="#000000" fill-opacity=".7" fill-rule="evenodd" clip-rule="evenodd"></path>
+<path d="M62 7H31a5 5 0 0 0 5 5h21a5 5 0 0 0 5-5" fill="#ffffff"></path>
+<path d="M35 17.5v9a11.5 11.5 0 0 0 23 0v-9c0-1.93-2.91-3.5-6.5-3.5-2.01 0-3.8.5-5 1.26a9.5 9.5 0 0 0-5-1.26c-3.59 0-6.5 1.57-6.5 3.5" fill="#ff4f6d"></path>
+</svg>

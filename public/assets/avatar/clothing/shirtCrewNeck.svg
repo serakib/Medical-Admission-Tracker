@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- clothes / shirtCrewNeck; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / shirtCrewNeck">
+<path d="M100.5 37.13c18.5 0 33.5-9.61 33.5-21.48q0-.52-.04-1.05A72 72 0 0 1 200 86.36v8.95H0v-8.95a72 72 0 0 1 67.05-71.83q-.05.55-.05 1.12c0 11.87 15 21.48 33.5 21.48" fill="var(--avatar-clothes, #000000)"></path>
+<path d="M100.5 44.07c21.89 0 39.64-12.05 39.64-26.92q0-.9-.1-1.79-3-.51-6.08-.76.04.52.04 1.05c0 11.87-15 21.48-33.5 21.48S67 27.52 67 15.65q0-.57.05-1.13a72 72 0 0 0-6.08.68q-.1.97-.1 1.95c0 14.87 17.74 26.92 39.63 26.92" fill="#000000" fill-opacity=".08"></path>
+</svg>

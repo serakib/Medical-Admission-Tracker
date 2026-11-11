@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- clothes / shirtScoopNeck; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / shirtScoopNeck">
+<path d="M100.5 51.13c27.34 0 49.5-13.2 49.5-29.48q0-2.04-.46-4.01A72 72 0 0 1 200 86.36v8.95H0v-8.95A72 72 0 0 1 51.53 17.3a18 18 0 0 0-.53 4.34c0 16.28 22.16 29.48 49.5 29.48" fill="var(--avatar-clothes, #000000)"></path>
+</svg>

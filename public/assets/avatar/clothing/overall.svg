@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- clothes / overall; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / overall">
+<path d="M164 23.94V95.3H36V23.94a72 72 0 0 1 26-8.95v44.32h76V14.99a72 72 0 0 1 26 8.95" fill="var(--avatar-clothes, #000000)"></path>
+<g transform="translate(44 63.3)"></g>
+</svg>

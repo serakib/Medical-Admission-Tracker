@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- top / winterHat02; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 280" width="260" height="280" fill="none" role="img" aria-label="top / winterHat02">
+<path d="M196 168h-2v56.05a9 9 0 1 0 2 0zm-126 8h-2v56.05a9 9 0 1 0 2 0z" fill="#f4f4f4"></path>
+<circle cx="132" cy="20" r="20" fill="#f4f4f4"></circle>
+<path d="M92.45 77.53h79.1c6.08 0 9.82 2.93 9.82 9V166c0 30.46 22.63 30.41 22.63 10.92v-73.87C204 68.8 186.77 21 132 21s-72 47.8-72 82.04v73.87c0 19.5 22.63 19.54 22.63-10.92V86.53c0-6.07 3.73-9 9.82-9" fill="var(--avatar-hat, #000000)"></path>
+<path d="M197.67 67H66.33C75.42 42.5 95.26 21 132 21s56.58 21.5 65.67 46" fill="#000000" fill-opacity=".2"></path>
+<path d="M90.2 33.73 101.5 50 114 32H92.66q-1.26.84-2.46 1.73M171.33 32H151l12.5 18 10.95-15.77q-1.52-1.15-3.12-2.23M132.5 50 120 32h25z" fill="#ffffff" fill-opacity=".5"></path>
+<path d="M98 59 85.5 41 73 59zm31 0-12.5-18L104 59zm18.5-18L160 59h-25zM191 59l-12.5-18L166 59z" fill="#000000" fill-opacity=".5"></path>
+</svg>

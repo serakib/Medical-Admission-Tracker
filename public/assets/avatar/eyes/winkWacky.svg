@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- eyes / winkWacky; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 36.27" width="84" height="36.27" fill="none" role="img" aria-label="eyes / winkWacky">
+<circle cx="68" cy="14" r="12" fill="#ffffff"></circle>
+<circle cx="68" cy="14" r="6" fill="#000000" fill-opacity=".7"></circle>
+<path d="M2.16 17.45C4.01 13.65 8.16 11 13 11c4.81 0 8.96 2.63 10.82 6.4.55 1.13-.24 2.05-1.03 1.37a15 15 0 0 0-9.8-3.43c-3.73 0-7.12 1.24-9.55 3.23-.9.73-1.82-.01-1.28-1.12" fill="#000000" fill-opacity=".6" fill-rule="evenodd" clip-rule="evenodd"></path>
+</svg>

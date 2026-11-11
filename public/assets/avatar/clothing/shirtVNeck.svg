@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- clothes / shirtVNeck; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / shirtVNeck">
+<path d="M60.68 15.24A72 72 0 0 0 0 86.36v8.95h200v-8.95a72 72 0 0 0-60.68-71.12 24 24 0 0 1-7.56 13.6l-29.08 26.23a4 4 0 0 1-5.36 0L68.24 28.84a24 24 0 0 1-7.56-13.6" fill="var(--avatar-clothes, #000000)"></path>
+</svg>

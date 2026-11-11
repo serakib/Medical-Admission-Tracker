@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mouth / eating; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 38" width="92" height="38" fill="none" role="img" aria-label="mouth / eating">
+<path d="M20 20.24q2.05.75 4.4.76c5.31 0 9.81-3.15 11.29-7.49 2.47 2.16 6.17 3.53 10.31 3.53s7.84-1.37 10.31-3.53C57.8 17.85 62.3 21 67.61 21q2.34-.01 4.39-.76h-.18c-6.33 0-11.8-4.9-11.8-10.56 0-4.18 2.32-7.72 5.69-9.68-5.5.8-9.73 5-9.9 10.1A17.6 17.6 0 0 1 46 12.9a17.5 17.5 0 0 1-9.8-2.8C36.01 5 31.8.8 26.3 0a11.2 11.2 0 0 1 5.68 9.68c0 5.66-5.47 10.57-11.8 10.57z" fill="#000000" fill-opacity=".6" opacity=".6"></path>
+<circle cx="9" cy="9" r="9" fill="#ff4646" fill-opacity=".2"></circle>
+<circle cx="83" cy="9" r="9" fill="#ff4646" fill-opacity=".2"></circle>
+</svg>

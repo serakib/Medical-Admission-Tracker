@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- clothes / blazerAndShirt; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / blazerAndShirt">
+<path d="M100.5 37.13c18.5 0 33.5-9.61 33.5-21.48q0-.52-.04-1.05A72 72 0 0 1 200 86.36v8.95H0v-8.95a72 72 0 0 1 67.05-71.83q-.05.55-.05 1.12c0 11.87 15 21.48 33.5 21.48" fill="#e5e5e5"></path>
+<path d="M100.5 44.07c21.89 0 39.64-12.05 39.64-26.92q0-.9-.1-1.79-3-.52-6.08-.76.04.53.04 1.05c0 11.87-15 21.48-33.5 21.48S67 27.52 67 15.65q0-.57.05-1.12a72 72 0 0 0-6.08.67q-.1.97-.1 1.95c0 14.87 17.74 26.92 39.63 26.92" fill="#000000" fill-opacity=".16"></path>
+<path d="M68.78 14.42 69 13.3c-2.96.05-6 1-6 1l-.42.66A72 72 0 0 0 0 86.36v8.94h74s-10.7-51.56-5.24-80.8zM126 95.3s11-53 5-82c2.96.05 6 1 6 1l.42.66A72 72 0 0 1 200 86.36v8.94z" fill="var(--avatar-clothes, #000000)"></path>
+<path d="M69 13.3c-6 29 5 82 5 82H58l-14-36 6-9-6-6 19-30s3.04-.95 6-1m62 0c6 29-5 82-5 82h16l14-36-6-9 6-6-19-30s-3.04-.95-6-1" fill="#000000" fill-opacity=".15" fill-rule="evenodd" clip-rule="evenodd"></path>
+<path d="m151.42 71.07.87-2.24 6.27-4.7a4 4 0 0 1 4.85.05l6.59 5.13z" fill="#e5e5e5"></path>
+</svg>

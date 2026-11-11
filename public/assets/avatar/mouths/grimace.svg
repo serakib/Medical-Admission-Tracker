@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mouth / grimace; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 38" width="92" height="38" fill="none" role="img" aria-label="mouth / grimace">
+<rect width="64" height="26" rx="13" fill="#000000" fill-opacity=".6" x="14" y="1"></rect>
+<rect width="60" height="22" rx="11" fill="#ffffff" x="16" y="3"></rect>
+<path d="M16.18 12H24V3.41A11 11 0 0 1 27 3h1v9h9V3h4v9h9V3h4v9h9V3h2q1.02 0 2 .18V12h8.82l.05.28v3.44l-.05.28H67v8.82q-.98.18-2 .18h-2v-9h-9v9h-4v-9h-9v9h-4v-9h-9v9h-1a11 11 0 0 1-3-.41V16h-7.82a11 11 0 0 1 0-4" fill="#e5e5e5"></path>
+</svg>
