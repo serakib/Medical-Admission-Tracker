@@ -2949,11 +2949,40 @@ style.textContent += '#leaderboard-list .overflow-x-auto{width:100%;max-width:10
 
   // Public visitors can browse every section; account-dependent actions are gated.
   var visitorAccessUIInstalled = false;
-  // Never interrupt browsing, practice, or an in-progress task with an
-  // automatic account prompt. Account choices appear only after an explicit
-  // account-entry click or when the user submits an account-required action.
-  function scheduleVisitorAccessPrompt() {
-    return;
+  // Show the one-time Visitor prompt 30 seconds after page entry, but
+  // defer it while the student is actively interacting with the site.
+  var visitorAccessEntryAt = MED_VISITOR_PAGE_ENTRY_AT;
+  var visitorAccessAutoPrompted = false;
+  var visitorAccessAutoTimer = null;
+  var visitorAccessLastActivityAt = Date.now();
+  ['pointerdown', 'keydown', 'touchstart', 'wheel', 'click', 'input', 'change'].forEach(function (eventName) {
+    document.addEventListener(eventName, function () {
+      visitorAccessLastActivityAt = Date.now();
+    }, { capture: true, passive: true });
+  });
+  function scheduleVisitorAccessPrompt(delayOverride) {
+    if (visitorAccessAutoPrompted || visitorAccessAutoTimer || !app.authStateResolved) return;
+    var remaining = typeof delayOverride === 'number'
+      ? delayOverride
+      : Math.max(0, 30000 - (Date.now() - visitorAccessEntryAt));
+    visitorAccessAutoTimer = window.setTimeout(function () {
+      visitorAccessAutoTimer = null;
+      if (visitorAccessAutoPrompted) return;
+      if (!isAccountFreeVisitor()) { visitorAccessAutoPrompted = true; return; }
+      var modal = document.getElementById('mat-visitor-access-modal');
+      if (modal && !modal.hidden) { visitorAccessAutoPrompted = true; return; }
+      var active = document.activeElement;
+      var editing = !!(active && (active.matches('input,textarea,select,[contenteditable="true"]') ||
+        active.closest && active.closest('form')));
+      var recentlyActive = Date.now() - visitorAccessLastActivityAt < 8000;
+      var busy = !!document.querySelector('[aria-busy="true"],button:disabled,[data-loading="true"]');
+      if (editing || recentlyActive || busy) {
+        scheduleVisitorAccessPrompt(5000);
+        return;
+      }
+      visitorAccessAutoPrompted = true;
+      openVisitorAccess('choices');
+    }, remaining);
   }
   function isAccountFreeVisitor() {
     return app.authStateResolved === true && !app.authUser && (!getGuestToken() || !!readExpiredGuest());
