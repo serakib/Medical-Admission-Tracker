@@ -114,6 +114,19 @@ Medical Admission Pro হলো বাংলাদেশের HSC একাদ�
 
 ---
 
+### 🛡️ 12. Reliability, Offline & Data Tools
+
+- **Live System Health:** Account Settings থেকে Question Bank, Firebase Auth, signed-in student's Firestore profile read এবং Apps Script API পরীক্ষা করা যাবে।
+- **Automatic Error Detection:** Browser-এর সাম্প্রতিক JavaScript errors এই device-এ locally রাখা ও download করা যাবে; কোনো remote error telemetry চালু করা হয়নি।
+- **Installable PWA:** সমর্থিত browser-এ app install করা যাবে।
+- **Offline Practice:** আগে cache করা question bank দিয়ে আলাদা offline MCQ practice করা যাবে। Offline result শুধু এই device-এ থাকে; Firebase, leaderboard ও server reward sync-এর জন্য internet প্রয়োজন।
+- **Data Backup & Restore:** Local exam history এবং practiced/seen/answered question IDs export ও একই account identity-তে merge করা যাবে। Password, login token, Firebase credentials, profile data এবং server-side XP/RP backup-এ রাখা হয় না।
+- **Performance Checks:** CI-তে generated CSS ও local Firebase compatibility bundle-এর size budget যাচাই হয়; app Firebase SDK-এর জন্য preconnect ব্যবহার করে।
+- **Security Automation:** CodeQL, Pull Request dependency review, npm audit এবং Dependabot update checks চালু।
+- **Deployment Verification:** প্রতিটি Pages deployment-এর পর live homepage, PWA manifest, offline resources, question bank ও local assets পরীক্ষা হয়। Scheduled monitor backend version/capabilities-ও পরীক্ষা করে।
+
+**Offline ও backup সীমা:** Offline Practice পূর্ণ website-এর replacement নয়। Backup-এ শুধু local study progress থাকে; Google Sheets/Apps Script এবং Firebase server-side data আলাদা service-এ থাকে।
+
 ## 🔬 Subjects
 
 Medical Admission preparation-এর জন্য পাঁচটি Subject:
