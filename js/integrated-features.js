@@ -2168,7 +2168,12 @@
               const active = tab.dataset.avatarGroup === activeAvatarGroup;
               tab.classList.toggle('is-active', active);
               tab.setAttribute('aria-pressed', String(active));
-              if (active && groupChanged) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});
+              if (active && groupChanged && categoryBar) {
+                 const tabRect = tab.getBoundingClientRect();
+                 const barRect = categoryBar.getBoundingClientRect();
+                 const left = categoryBar.scrollLeft + tabRect.left - barRect.left - (categoryBar.clientWidth - tab.clientWidth) / 2;
+                 categoryBar.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+               }
             });
           });
         }, {passive:true});
@@ -2379,7 +2384,15 @@
           const active = tab.dataset.avatarGroup === nextGroup;
           tab.classList.toggle('is-active', active);
           tab.setAttribute('aria-pressed', String(active));
-          if (active) tab.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});
+          if (active) {
+             const categoryBar = controls.querySelector('.mat-avatar-category-bar');
+             if (categoryBar) {
+               const tabRect = tab.getBoundingClientRect();
+               const barRect = categoryBar.getBoundingClientRect();
+               const left = categoryBar.scrollLeft + tabRect.left - barRect.left - (categoryBar.clientWidth - tab.clientWidth) / 2;
+               categoryBar.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+             }
+           }
         });
         const top = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
         scroller.scrollTo({top:top, behavior:'smooth'});
