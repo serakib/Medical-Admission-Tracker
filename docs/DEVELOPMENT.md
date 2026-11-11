@@ -36,7 +36,8 @@ Run `npm test` before pushing changes.
 - **Pull requests:** `.github/workflows/validate.yml` runs the complete test suite with `npm ci` and `npm test`. It does not deploy the site.
 - **Pushes to `main`:** `.github/workflows/static.yml` runs the same clean install and test suite, prepares the Pages artifact and deploys only after validation passes.
 - **Dependency manifest changes:** `.github/workflows/sync-npm-lockfile.yml` regenerates and verifies `package-lock.json` when `package.json` changes.
-- **Version tags:** `.github/workflows/publish-release.yml` creates a GitHub Release for tags matching `vMAJOR.MINOR.PATCH`.
+- **Version tags:** `.github/workflows/publish-release.yml` first checks out the exact tagged commit, performs a clean `npm ci`, and runs the complete `npm test` suite. Only a passing tag is published as a GitHub Release.
+- **Supply-chain security:** `.github/workflows/scorecard.yml` runs OpenSSF Scorecard on pushes to `main`, weekly, and on manual dispatch. Its SARIF report is uploaded to GitHub Code Scanning.
 
 Keep validation logic in `package.json` scripts instead of duplicating shell commands in workflow files.
 
