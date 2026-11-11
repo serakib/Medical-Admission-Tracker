@@ -9,13 +9,16 @@
 | `build-local-assets.mjs` | Tailwind CSS compile, Firebase compat SDK bundle এবং ব্যবহৃত Font Awesome SVG symbol sprite তৈরি করে। |
 | `firebase-compat-entry.js` | Firebase compat modules-এর local browser bundle entry point। |
 | `generate-avatar-browser-definition.mjs` | Local Avataaars source definition থেকে browser runtime data তৈরি করে। |
-| `generate-avatar-asset-manifest.mjs` | `public/assets/`-এর সব SVG scan করে deployment-এর সময় `public/assets/asset-manifest.json` তৈরি করে। |
+| `generate-avatar-asset-manifest.mjs` | `public/assets/`-এর সব SVG scan করে original SVG content ও path-সহ deployment manifest তৈরি করে। |
+| `generate-avatar-svg-parts.mjs` | Pinned Avataaars vector source থেকে official SVG component তৈরি বা `--check` দিয়ে existing component geometry যাচাই করে। |
 
 ## SVG manifest workflow
 
 GitHub Pages workflow (`.github/workflows/static.yml`) Pages artifact upload করার আগে generator চালায়। ফলে `public/assets/`-এ SVG add বা remove করে `main` branch-এ push করলে পরবর্তী deployment-এ manifest স্বয়ংক্রিয়ভাবে নতুন file list দিয়ে তৈরি হয়।
 
-Manifest-এ original SVG path থাকে; SVG artwork edit বা convert করা হয় না।
+Manifest-এ original SVG path ও source content থাকে; artwork redraw বা convert করা হয় না। Main Preview ও option thumbnail একই source content ব্যবহার করে।
+
+GitHub validation workflow-তে `node scripts/generate-avatar-svg-parts.mjs --check` চালানো হয়। কোনো official SVG component-এর vector shape বদলে বা বাদ পড়ে গেলে এই check fail করবে।
 
 ## Local frontend build
 
@@ -26,6 +29,7 @@ npm install --no-save --no-package-lock tailwindcss@3.4.17 firebase@10.14.1 esbu
 node scripts/build-local-assets.mjs
 node scripts/generate-avatar-browser-definition.mjs
 node scripts/generate-avatar-asset-manifest.mjs
+node scripts/generate-avatar-svg-parts.mjs --check
 ```
 
 Build output (`css/tailwind.generated.css`, `js/vendor/firebase-compat.js`, `public/assets/icons/fontawesome.svg`) deployment-এর সময় generate হয়; এগুলো আলাদা করে commit করা বাধ্যতামূলক নয়.
