@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use or refer to Medical Admission Pro, please cite this repository."
+title: "Medical Admission Pro with Rakib"
+type: software
+authors:
+  - family-names: Hasan
+    given-names: Rakib
+repository-code: "https://github.com/serakib/Medical-Admission-Tracker"
+url: "https://serakib.github.io/Medical-Admission-Tracker/"
+abstract: >-
+  A web-based MCQ practice and medical-admission preparation platform
+  for HSC Class XI–XII students and medical admission candidates in Bangladesh.
