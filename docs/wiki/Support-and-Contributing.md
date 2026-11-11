@@ -37,5 +37,5 @@ Password, Firebase token, student record বা অন্য sensitive informati
 
 - [CONTRIBUTING.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/CONTRIBUTING.md)
 - [CODE_OF_CONDUCT.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/CODE_OF_CONDUCT.md)
-- [ACCESSIBILITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/ACCESSIBILITY.md)
+- [ACCESSIBILITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/docs/guides/ACCESSIBILITY.md)
 - [SECURITY.md](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md)
