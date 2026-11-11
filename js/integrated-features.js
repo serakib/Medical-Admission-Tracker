@@ -1938,14 +1938,13 @@
       background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
     };
     const groups = [
-      {key:'character',title:'চরিত্র',icon:'body',fields:[{key:'gender',title:'Gender / লিঙ্গ'},{key:'characterPreset',title:'চরিত্র বেছে নাও'},{key:'ageGroup',title:'বয়স'}]},
+      {key:'character',title:'শিক্ষার্থী',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'characterPreset',title:'চরিত্র বেছে নাও'},{key:'ageGroup',title:'শিক্ষার্থীর বয়স'}]},
       {key:'face',title:'মুখ ও ত্বক',icon:'mouth',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
       {key:'eyes',title:'চোখ',icon:'eyes',fields:[{key:'eyeShape',title:'চোখের ধরন'}]},
       {key:'eyebrows',title:'ভ্রু',icon:'eyebrows',fields:[{key:'eyebrowShape',title:'ভ্রুর ধরন'}]},
       {key:'nose',title:'নাক',icon:'nose',fields:[{key:'nose',title:'নাকের ধরন'}]},
       {key:'mouth',title:'মুখ',icon:'mouth',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
       {key:'hair',title:'চুল',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
-      {key:'beard',title:'দাড়ি ও গোঁফ',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'চশমা ও টুপি',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'headphones',title:'হেডফোন',icon:'headphones',fields:[{key:'headphones',title:'হেডফোন / কানের অ্যাক্সেসরি'}]},
       {key:'clothing',title:'পোশাক',icon:'clothes',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'পোশাকের রঙ'},{key:'clothingGraphic',title:'পোশাকের ডিজাইন'}]},
