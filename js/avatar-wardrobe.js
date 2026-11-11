@@ -256,6 +256,7 @@
     const gold = '#f5c451';
     const white = '#f8fafc';
     const dark = '#273449';
+    const mint = '#6ee7b7';
     const isFemale = config.gender === 'female';
     const marks = {
       m01: '',
