@@ -1158,6 +1158,7 @@
       display:flex!important;flex-wrap:wrap!important;gap:7px!important;
       overflow:visible!important;padding:2px 0 5px!important;
     }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-grid:has(.mat-avatar-swatch){display:flex!important;flex-wrap:wrap!important;gap:12px!important}
     #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch){
       display:grid!important;place-items:center!important;flex:0 0 36px!important;
       width:36px!important;min-width:36px!important;height:36px!important;
@@ -1712,7 +1713,7 @@
     const assetFolders = {
       hairStyle:'hair', eyeShape:'eyes', eyebrowShape:'eyebrows',
       expression:'mouths', nose:'nose', facialHair:'facial-hair',
-      glasses:'accessories', hat:'headwear', clothingType:'clothing', petType:'pets', characterPreset:'characters'
+      glasses:'accessories', hat:'headwear', clothingType:'clothing', clothingGraphic:'clothing-graphics', petType:'pets', characterPreset:'characters'
     };
     const manifest = window.MedAvatarCreator.assetManifest?.categories || {};
     const findAsset = (folder, value) => {
@@ -1947,7 +1948,7 @@
       {key:'beard',title:'দাড়ি ও গোঁফ',icon:'beard',fields:[{key:'facialHair',title:'দাড়ি ও গোঁফ'},{key:'facialHairColor',title:'দাড়ির রঙ'}]},
       {key:'glasses-hat',title:'চশমা ও টুপি',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
       {key:'headphones',title:'হেডফোন',icon:'headphones',fields:[{key:'headphones',title:'হেডফোন / কানের অ্যাক্সেসরি'}]},
-      {key:'clothing',title:'পোশাক',icon:'clothes',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'পোশাকের রঙ'}]},
+      {key:'clothing',title:'পোশাক',icon:'clothes',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'পোশাকের রঙ'},{key:'clothingGraphic',title:'পোশাকের ডিজাইন'}]},
       {key:'pets-bg',title:'পোষা সঙ্গী',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
       {key:'background',title:'ব্যাকগ্রাউন্ড',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
     ];
