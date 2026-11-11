@@ -1615,7 +1615,7 @@
         const selected = config[field.key] === option.value;
         const raw = String(option.value);
         const label = String(option.label || raw);
-        const isColor = /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(raw);
+        const isColor = field.key !== 'headphones' && /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(raw);
         let visual = '';
         if (isColor) {
           const color = '#' + raw.replace(/^#/, '');
