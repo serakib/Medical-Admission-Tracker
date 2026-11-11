@@ -3,10 +3,11 @@
 <p align="center">
   <a href="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/static.yml"><img src="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/static.yml/badge.svg?branch=main&amp;event=push" alt="Pages deployment status for the latest main-branch push"></a>
   <a href="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml"><img src="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml/badge.svg?branch=main&amp;event=push" alt="Main branch validation status"></a>
+  <a href="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/monitor-live.yml"><img src="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/monitor-live.yml/badge.svg?branch=main" alt="Live website and backend health status"></a>
   <a href="https://github.com/serakib/Medical-Admission-Tracker/security/dependabot"><img src="https://img.shields.io/badge/Dependabot-monthly%20updates%20configured-025E8C?logo=dependabot" alt="Dependabot monthly updates configured"></a>
 </p>
 
-<p align="center"><sub>Deployment status reflects the latest successful or failed build on <code>main</code>. Pull request validation checks proposed changes separately; a failed PR check does not mean the live website deployment has failed.</sub></p>
+<p align="center"><sub>Deployment checks verify the published site after every deployment. The live health monitor independently checks the website, local assets, question bank and read-only backend health every 6 hours. Pull request validation checks proposed changes separately.</sub></p>
 
 ### বাংলাদেশের Medical Admission প্রস্তুতির জন্য একটি Smart Practice Platform
 
