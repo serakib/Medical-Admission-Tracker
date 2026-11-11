@@ -83,8 +83,8 @@ const requiredFiles = [
   '.github/workflows/scorecard.yml',
   '.github/workflows/monitor-live.yml',
   '.github/workflows/publish-release.yml',
-  'SECURITY.md',
-  'CONTRIBUTING.md'
+  '.github/SECURITY.md',
+  '.github/CONTRIBUTING.md'
 ];
 
 for (const relativePath of requiredFiles) {
