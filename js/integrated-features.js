@@ -2020,7 +2020,7 @@
     avatarPickerExpanded = true;
     pendingAvatarConfig = pendingAvatarConfig || readAvatarConfig();
     pendingAvatarSource = pendingAvatarSource || window.MedAvatarCreator.render(pendingAvatarConfig);
-    activeAvatarGroup = 'identity';
+    activeAvatarGroup = 'character';
     renderAvatarPicker();
   });
   document.addEventListener('click', event => {
