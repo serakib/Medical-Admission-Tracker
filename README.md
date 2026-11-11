@@ -177,23 +177,47 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 ---
 
-## 🗂️ Repository Structure — কোথায় কী Edit করবে
+## 🗂️ Repository Structure
 
-| Location | কী আছে | কোন কাজের জন্য খুলবে |
-|---|---|---|
-| [index.html](index.html) | Website entry point ও page structure | HTML layout বা script/style loading |
-| [css/style.css](css/style.css) | Main stylesheet | Design, colors, spacing ও responsive layout |
-| [js/app.js](js/app.js) | Main application engine | Exam flow, question loading, result ও core app logic |
-| [js/ folder guide](js/README.md) | Feature JavaScript modules | Avatar, leaderboard, profile, notifications ও practice |
-| [data/questions.json](data/questions.json) | Main question bank | প্রশ্ন, options, answer ও explanation edit |
-| [data/question-bank-info.json](data/question-bank-info.json) | Question-bank metadata | Question count ও subject summary |
-| [apps-script/](apps-script/README.md) | Google Apps Script backend | Server-side profile, rewards, leaderboard ও API logic |
-| [public/assets/](public/assets/) | Public images and SVG assets | Static image and pet assets |
-| [docs/](docs/README.md) | Guides and project documentation | Setup, API, architecture ও troubleshooting |
-| [scripts/](scripts/README.md) | Repository validation tools | Integrity ও navigation checks |
-| `.github/` | Issues, workflows and automation | GitHub Actions ও repository settings |
+A compact map of the codebase. Open the linked guide before changing an unfamiliar module.
 
-**গুরুত্বপূর্ণ:** GitHub Pages-এর জন্য `index.html`, `favicon.svg`, `legal.html`, `sitemap.xml` ও `robots.txt` Root-এ রাখা হয়েছে। Question data এখন `data/` folder থেকে load হয়।
+```text
+Medical-Admission-Tracker/
+├── .github/       # CI/CD, Dependabot, issue templates and repo automation
+├── apps-script/   # Google Apps Script backend source
+├── css/           # Application stylesheets
+├── data/          # Question bank and question metadata
+├── docs/          # Setup, architecture, API and user guides
+├── js/            # Core application and feature modules
+├── public/        # Images, icons, avatar and pet assets
+├── scripts/       # Build, asset generation and validation tools
+├── index.html     # GitHub Pages entry point
+├── legal.html     # Privacy, cookies and terms
+├── offline.html   # Offline fallback page
+├── manifest.webmanifest
+├── service-worker.js
+├── package.json   # Build tools and validation commands
+├── package-lock.json
+└── README.md
+```
+
+| Working on… | Start here |
+|---|---|
+| Page structure or script loading | [`index.html`](index.html) |
+| Layout, colors or responsive styling | [`css/style.css`](css/style.css) |
+| Exam engine or core behavior | [`js/app.js`](js/app.js) · [JS module guide](js/README.md) |
+| Questions and subject metadata | [`data/`](data/) |
+| Profiles, rewards, ranks or API | [Backend guide](apps-script/README.md) |
+| Images, icons or avatar parts | [`public/assets/`](public/assets/) |
+| Builds, checks or generated assets | [Scripts guide](scripts/README.md) |
+| Technical or student documentation | [Documentation hub](docs/README.md) |
+| GitHub automation and project rules | [`.github/`](.github/) |
+
+**Maintenance rules**
+- Keep GitHub Pages entry files and deployment configuration at the repository root.
+- Edit source files, not generated build output; use the relevant script or `npm run build`.
+- Keep backend secrets in Apps Script Script Properties—never in frontend files or Git.
+- Run `npm test` from the repository root before merging changes.
 
 ---
 
