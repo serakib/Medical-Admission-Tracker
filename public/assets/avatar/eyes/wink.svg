@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- eyes / wink; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<!-- eyes / wink; Avataaars by Pablo Stanley. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 36.27" width="84" height="36.27" fill="none" role="img" aria-label="eyes / wink">
-<g transform="translate(10 8)"></g>
+<g transform="translate(10 8)"><circle cx="6" cy="6" r="6" fill="#000000" fill-opacity=".6"/><path d="M46.6 8.96c1.59-3.92 5.55-6.86 10.37-7.2 4.8-.33 9.12 2 11.24 5.64.63 1.09-.1 2.06-.93 1.43-2.59-1.93-6.15-3-10-2.73a15 15 0 0 0-9.33 3.9c-.84.79-1.81.11-1.35-1.03" fill="#000000" fill-opacity=".6" fill-rule="evenodd" clip-rule="evenodd"/></g>
 </svg>
