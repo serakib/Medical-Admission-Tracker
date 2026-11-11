@@ -71,8 +71,8 @@ assert.doesNotMatch(offlineHtml, /https?:\/\/(?:cdn\.|www\.googleapis|www\.gstat
 
 const [serviceWorkerResponse, offlineScriptResponse, pwaScriptResponse] = await Promise.all([
   requestWithRetry(new URL('service-worker.js', baseUrl)),
-  requestWithRetry(new URL('js/offline-study.js', baseUrl)),
-  requestWithRetry(new URL('js/pwa.js', baseUrl))
+  requestWithRetry(new URL('js/features/offline-study.js', baseUrl)),
+  requestWithRetry(new URL('js/features/pwa.js', baseUrl))
 ]);
 const serviceWorkerSource = await serviceWorkerResponse.text();
 const offlineScriptSource = await offlineScriptResponse.text();
@@ -154,7 +154,7 @@ if (!siteOnly) {
   assert.ok(sourceCapabilitiesBlock, 'Backend source capability list is missing.');
   const expectedCapabilities = [...sourceCapabilitiesBlock[1].matchAll(/['"]([^'"]+)['"]/g)].map(match => match[1]);
 
-  const leaderboardConfigResponse = await requestWithRetry(new URL('js/leaderboard-config.js', baseUrl));
+  const leaderboardConfigResponse = await requestWithRetry(new URL('js/config/leaderboard-config.js', baseUrl));
   const leaderboardConfigSource = await leaderboardConfigResponse.text();
   const apiUrlMatch = leaderboardConfigSource.match(/MED_LEADERBOARD_API_URL\s*=\s*['"]([^'"]+)['"]/);
   assert.ok(apiUrlMatch, 'Live leaderboard API URL is missing from its configuration.');
