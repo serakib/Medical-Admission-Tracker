@@ -159,16 +159,16 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 | Location | কী আছে | কোন কাজের জন্য খুলবে |
 |---|---|---|
-| `index.html` | Website entry point ও page structure | HTML layout বা script/style loading |
-| `css/style.css` | Main stylesheet | Design, colors, spacing ও responsive layout |
-| `js/app.js` | Main application engine | Exam flow, question loading, result ও core app logic |
-| `js/` | Feature JavaScript modules | Avatar, leaderboard, profile, notifications ও practice |
-| `data/questions.json` | Main question bank | প্রশ্ন, options, answer ও explanation edit |
-| `data/question-bank-info.json` | Question-bank metadata | Question count ও subject summary |
-| `apps-script/` | Google Apps Script backend | Server-side profile, rewards, leaderboard ও API logic |
-| `public/assets/` | Public images and SVG assets | Static image and pet assets |
-| `docs/` | Guides and project documentation | Setup, API, architecture ও troubleshooting |
-| `scripts/` | Repository validation tools | Integrity ও navigation checks |
+| [index.html](index.html) | Website entry point ও page structure | HTML layout বা script/style loading |
+| [css/style.css](css/style.css) | Main stylesheet | Design, colors, spacing ও responsive layout |
+| [js/app.js](js/app.js) | Main application engine | Exam flow, question loading, result ও core app logic |
+| [js/ folder guide](js/README.md) | Feature JavaScript modules | Avatar, leaderboard, profile, notifications ও practice |
+| [data/questions.json](data/questions.json) | Main question bank | প্রশ্ন, options, answer ও explanation edit |
+| [data/question-bank-info.json](data/question-bank-info.json) | Question-bank metadata | Question count ও subject summary |
+| [apps-script/](apps-script/README.md) | Google Apps Script backend | Server-side profile, rewards, leaderboard ও API logic |
+| [public/assets/](public/assets/) | Public images and SVG assets | Static image and pet assets |
+| [docs/](docs/README.md) | Guides and project documentation | Setup, API, architecture ও troubleshooting |
+| [scripts/](scripts/README.md) | Repository validation tools | Integrity ও navigation checks |
 | `.github/` | Issues, workflows and automation | GitHub Actions ও repository settings |
 
 **গুরুত্বপূর্ণ:** GitHub Pages-এর জন্য `index.html`, `favicon.svg`, `legal.html`, `sitemap.xml` ও `robots.txt` Root-এ রাখা হয়েছে। Question data এখন `data/` folder থেকে load হয়।
@@ -179,6 +179,7 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 Detailed student guides, technical references, troubleshooting, security and accessibility documentation are organized in the repository's documentation hub.
 
+- [🗂️ Full Documentation Hub](docs/README.md)
 - [📖 Documentation Home](docs/wiki/Home.md)
 - [🛠️ Technical setup guides](docs/guides/README.md)
 - [🗂️ Complete Documentation Index](docs/wiki/README.md)
