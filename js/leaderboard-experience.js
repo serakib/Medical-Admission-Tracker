@@ -804,25 +804,32 @@
     if (bar) bar.setAttribute('aria-valuenow', String(percent));
   }
 
-  function renderGuestAutoDeletionCountdown(row) {
+  function renderAccountDeletionCountdown(row) {
     const el = document.getElementById('student-profile-guest-deletion-countdown');
     if (guestAutoDeletionCountdownTimer) clearInterval(guestAutoDeletionCountdownTimer);
     guestAutoDeletionCountdownTimer = null;
     if (!el) return;
     const isGuest = String(row && row.accountType || '').toUpperCase() === 'GUEST';
-    const adminApproved = isGuest && row.guestDeletionPending === true && !!row.guestDeletionScheduledAt;
-    const deadline = Date.parse(String(adminApproved ? row.guestDeletionScheduledAt : (row && row.guestAutoDeletionAt || '')));
-    if (!isGuest || !Number.isFinite(deadline) || deadline <= 0) {
+    const scheduledAt = String(row && (row.accountDeletionScheduledAt || row.guestDeletionScheduledAt) || '').trim();
+    const pending = row && (row.accountDeletionPending === true || row.guestDeletionPending === true);
+    const scheduledDeadline = Date.parse(scheduledAt);
+    const hasScheduledDeletion = !!pending && Number.isFinite(scheduledDeadline) && scheduledDeadline > 0;
+    const automaticAt = String(row && (row.autoDeletionAt || row.guestAutoDeletionAt) || '').trim();
+    const automaticDeadline = Date.parse(automaticAt);
+    const useScheduled = hasScheduledDeletion;
+    const deadline = useScheduled ? scheduledDeadline : (isGuest ? automaticDeadline : NaN);
+    if (!Number.isFinite(deadline) || deadline <= 0) {
       el.classList.add('hidden'); el.textContent = ''; return;
     }
-    const reason = adminApproved ? String(row.guestDeletionReason || '').trim() : '';
+    const reason = useScheduled ? String(row.accountDeletionReason || row.guestDeletionReason || '').trim() : '';
     el.classList.remove('hidden');
     const tick = function () {
       const sec = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
       const countdown = sec
         ? Math.floor(sec / 86400) + 'd ' + Math.floor(sec % 86400 / 3600) + 'h ' + Math.floor(sec % 3600 / 60) + 'm ' + sec % 60 + 's'
         : 'Deletion deadline reached.';
-      el.textContent = (adminApproved ? 'Admin-approved account deletion countdown: ' : 'Guest account auto-delete in: ') + countdown + (reason ? ' · Admin message: ' + reason : '');
+      const prefix = useScheduled ? 'Account deletion in: ' : 'Automatic account deletion in: ';
+      el.textContent = prefix + countdown + (reason ? ' · Admin message: ' + reason : '');
       if (!sec && guestAutoDeletionCountdownTimer) { clearInterval(guestAutoDeletionCountdownTimer); guestAutoDeletionCountdownTimer = null; }
     };
     tick(); guestAutoDeletionCountdownTimer = setInterval(tick, 1000);
@@ -838,6 +845,7 @@
     const batch = safeText(row.batch || '', 40)
       .replace(/\bhsc\b/gi, 'HSC')
       .replace(/\bssc\b/gi, 'SSC');
+    renderAccountDeletionCountdown(row);
     const rawRank = safeText(row.rank || '—', 50);
     // Repair the missing initial B seen in older/malformed profile data.
     const currentRank = rawRank.replace(/^ronze(?=\s|$)/i, 'Bronze');
