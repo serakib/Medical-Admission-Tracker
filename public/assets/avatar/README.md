@@ -1,47 +1,46 @@
 # Avatar SVG Parts Library
 
-প্রতিটি category-তে Avatar Builder-এর individual editable SVG asset রাখা আছে। কোনো component-কে পুরো avatar thumbnail দিয়ে প্রতিস্থাপন করা হয় না।
+এই folder-এর **SVG file-গুলোই Avatar Builder-এর actual artwork source**। Character preview, Hair, Eyes, Eyebrows, Nose, Mouth, Beard, Clothes, Glasses ও Headwear—প্রতিটি component তার নিজের SVG file থেকে নেওয়া হয়। Artwork redraw বা substitute করা হয় না।
 
 ## Category folders
 
 - [`base/`](./base/) — Face/body foundation
-- [`hair/`](./hair/) — Hairstyles
-- [`headwear/`](./headwear/) — Hats, hijab, turban
-- [`eyes/`](./eyes/) — Eye expressions
-- [`eyebrows/`](./eyebrows/) — Eyebrow shapes
+- [`characters/`](./characters/) — Full Male/Female HSC student character cards
+- [`hair/`](./hair/) — Hairstyle
+- [`headwear/`](./headwear/) — Hat, hijab, turban
+- [`eyes/`](./eyes/) — Eye artwork
+- [`eyebrows/`](./eyebrows/) — Eyebrow artwork
 - [`nose/`](./nose/) — Nose
-- [`mouths/`](./mouths/) — Mouth expressions
-- [`facial-hair/`](./facial-hair/) — Beard and moustache
-- [`clothing/`](./clothing/) — Outfits
-- [`clothing-graphics/`](./clothing-graphics/) — Clothing prints
-- [`accessories/`](./accessories/) — Glasses and face accessories
-- [`pets/`](./pets/) — Companion illustrations
+- [`mouths/`](./mouths/) — Mouth/expression
+- [`facial-hair/`](./facial-hair/) — Beard/moustache
+- [`clothing/`](./clothing/) — Outfit
+- [`clothing-graphics/`](./clothing-graphics/) — Shirt graphics
+- [`accessories/`](./accessories/) — Glasses/accessories
+- [`pets/`](../pets/) — Optional companion SVGs
 
-## Complete character presets
+## How the live Preview uses the files
 
-[`characters/`](./characters/) contains 20 standalone editable character SVGs: M01–M10 and F01–F10।
+1. GitHub Pages deployment scans every SVG and embeds its exact source text in `public/assets/asset-manifest.json`.
+2. The browser loads that manifest and builds each avatar from the original SVG component files.
+3. Each component uses its own official `viewBox` and Avataaars canvas position; fill colors are supplied through the SVG custom properties.
+4. The same manifest also supplies the option-card artwork and character thumbnails.
+5. Removed files disappear from the next deployment's manifest and are no longer offered as selectable parts.
 
-## Live local renderer
+## Add or remove an SVG
 
-- Avatar Builder local `js/avataaars-local-definition.js` এবং local renderer ব্যবহার করে।
-- Renderer `scripts/data/avataaars-style-definition.json` থেকে SVG তৈরি করে; নতুন avatar generate করতে DiceBear image API call করে না।
-- আগের DiceBear URL থেকে saved config পড়ার compatibility রাখা হয়েছে।
-- Local SVG data URL-এ avatar configuration metadata থাকে; face motion local SVG-তেও কাজ করে।
+- Add a correctly named SVG to its matching category folder. Its filename becomes the option ID.
+- Delete an SVG to remove that option on the next GitHub Pages deployment.
+- Keep SVG `viewBox` and artwork coordinates intact. Components are placed using the official 280×280 Avataaars canvas.
+- For a new component category, the renderer must have a canvas placement/layer mapping before it can appear in the composed character. A file being detected in the manifest alone does not determine where an unknown category belongs.
 
-## Automatic asset manifest
+## Integrity check
 
-`scripts/generate-avatar-asset-manifest.mjs` `public/assets/`-এর সব SVG recursively scan করে `asset-manifest.json` তৈরি করে। GitHub Pages deployment workflow-তে generator চালানো হয়।
+The GitHub validation workflow runs:
 
-- নতুন SVG যোগ করলে পরবর্তী deployment-এ manifest-এ auto-detect হবে।
-- SVG delete করলে পরবর্তী deployment-এ manifest থেকে বাদ যাবে।
-- নতুন component variant runtime-এ যোগ করতে source definition ও generator mapping-ও update করতে হবে।
+```bash
+node scripts/generate-avatar-svg-parts.mjs --check
+```
 
-## Editing workflow
+This checks existing official component SVG geometry against the pinned vector source at `scripts/data/avataaars-style-definition.json`. Use `--write` only when deliberately regenerating official component artwork from that source.
 
-1. সংশ্লিষ্ট category folder-এর README পড়ো।
-2. SVG সরাসরি code editor বা vector editor দিয়ে edit করো।
-3. Official component definition বদলালে `scripts/data/avataaars-style-definition.json` edit করে `node scripts/generate-avatar-svg-parts.mjs --write` চালাও।
-4. Browser renderer data update করতে `node scripts/generate-avatar-browser-definition.mjs` চালাও।
-5. Asset list sync করতে `node scripts/generate-avatar-asset-manifest.mjs` চালাও।
-
-Source/license: [asset credits](../ASSET-CREDITS.md) এবং [attribution](../ATTRIBUTION.md)।
+Artwork credits and license notes: [ASSET-CREDITS.md](../ASSET-CREDITS.md) and [ATTRIBUTION.md](../ATTRIBUTION.md).
