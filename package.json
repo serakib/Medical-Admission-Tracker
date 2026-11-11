@@ -29,7 +29,8 @@
     "@fortawesome/free-solid-svg-icons": "6.4.0",
     "esbuild": "0.28.2",
     "firebase": "10.14.1",
-    "tailwindcss": "3.4.17"
+    "tailwindcss": "3.4.17",
+    "playwright": "1.65.0"
   },
   "overrides": {
     "undici": "6.29.1",
