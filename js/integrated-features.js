@@ -3254,6 +3254,82 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
 })();
 
 
+/* Final avatar-builder alignment guard: prevent clipped first columns and headings. */
+(() => {
+  if (document.getElementById('mat-avatar-layout-overflow-guard')) return;
+  const style = document.createElement('style');
+  style.id = 'mat-avatar-layout-overflow-guard';
+  style.textContent = `
+    #profile-avatar-picker.is-expanded,
+    #profile-avatar-picker.is-expanded * { box-sizing:border-box; }
+    #profile-avatar-picker.is-expanded .mat-avatar-workspace {
+      width:100%!important; max-width:1240px!important; min-width:0!important;
+      grid-template-columns:minmax(0,.72fr) minmax(0,1fr)!important;
+      margin-inline:auto!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-preview-panel,
+    #profile-avatar-picker.is-expanded .mat-avatar-controls {
+      min-width:0!important; width:100%!important; max-width:100%!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-controls {
+      display:flex!important; flex-direction:column!important; overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category-navigation {
+      display:flex!important; width:100%!important; min-width:0!important;
+      flex:0 0 68px!important; overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category-bar {
+      display:flex!important; flex:1 1 0!important; width:100%!important; min-width:0!important;
+      justify-content:flex-start!important; gap:6px!important;
+      padding-inline:10px!important; overflow-x:auto!important; overflow-y:hidden!important;
+      scroll-padding-inline:10px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-category {
+      flex:0 0 48px!important; min-width:48px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-options-scroll {
+      display:block!important; flex:1 1 0!important; width:100%!important;
+      min-width:0!important; min-height:0!important; max-width:100%!important;
+      padding:18px 20px 20px!important; margin:0!important;
+      overflow-x:hidden!important; overflow-y:auto!important;
+      overscroll-behavior:contain!important; scroll-padding-inline:20px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-group-section,
+    #profile-avatar-picker.is-expanded .mat-avatar-option-section {
+      display:block!important; width:100%!important; min-width:0!important;
+      max-width:100%!important; margin-inline:0!important; padding-inline:0!important;
+      overflow:visible!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-section h3 {
+      display:block!important; width:100%!important; max-width:100%!important;
+      margin-inline:0!important; padding-inline:0!important;
+      white-space:normal!important; overflow-wrap:anywhere!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-grid {
+      width:100%!important; min-width:0!important; max-width:100%!important;
+      grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    }
+    @media(max-width:850px) {
+      #profile-avatar-picker.is-expanded .mat-avatar-workspace {
+        grid-template-columns:minmax(0,1fr)!important;
+        grid-template-rows:minmax(150px,26vh) minmax(0,1fr)!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-category-navigation {flex-basis:58px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-category-bar {padding-inline:7px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-options-scroll {padding:12px 12px 16px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option-grid {grid-template-columns:repeat(3,minmax(0,1fr))!important}
+    }
+    @media(max-width:420px) {
+      #profile-avatar-picker.is-expanded .mat-avatar-workspace {
+        grid-template-rows:minmax(132px,23vh) minmax(0,1fr)!important;
+      }
+      #profile-avatar-picker.is-expanded .mat-avatar-options-scroll {padding-inline:10px!important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
 ;/* MAT avatar builder refinement v2 — actual category toolbar and editor polish. */
 (function(){
   if(document.getElementById('mat-avatar-builder-refinement-v2'))return;
