@@ -2854,3 +2854,147 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   `;
   document.head.appendChild(style);
 })();
+
+
+;/* MAT avatar builder refinement v2 — actual category toolbar and editor polish. */
+(function(){
+  if(document.getElementById('mat-avatar-builder-refinement-v2'))return;
+  const style=document.createElement('style');
+  style.id='mat-avatar-builder-refinement-v2';
+  style.textContent=`
+    /* Screenshot-inspired monochrome capsule toolbar */
+    .mat-avatar-controls .mat-avatar-category-bar{
+      display:flex!important;flex:0 0 64px!important;align-items:center!important;
+      justify-content:space-between!important;gap:clamp(3px,.8vw,10px)!important;
+      min-width:0;margin:0 0 14px!important;padding:6px 10px!important;
+      overflow-x:auto!important;overflow-y:hidden!important;
+      border:1px solid #5b5a60!important;border-radius:999px!important;
+      background:linear-gradient(180deg,#17171a 0%,#101012 100%)!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 5px 18px rgba(0,0,0,.2);
+      scrollbar-width:none!important;-webkit-overflow-scrolling:touch;
+    }
+    .mat-avatar-controls .mat-avatar-category-bar::-webkit-scrollbar{display:none}
+    .mat-avatar-controls .mat-avatar-category{
+      position:relative;display:flex!important;flex:1 0 40px!important;
+      align-items:center!important;justify-content:center!important;
+      width:clamp(40px,5.2vw,54px);min-width:40px;height:48px;min-height:48px;
+      padding:0 6px!important;margin:0!important;border:1px solid transparent!important;
+      border-radius:13px!important;background:transparent!important;
+      color:#e8e8eb!important;font-size:0!important;line-height:1;
+      opacity:.88;transition:background .18s ease,border-color .18s ease,opacity .18s ease,transform .18s ease;
+    }
+    .mat-avatar-controls .mat-avatar-category svg{
+      display:block!important;width:25px!important;height:25px!important;
+      fill:none!important;stroke:#f1f1f3!important;stroke-width:1.85!important;
+      stroke-linecap:round!important;stroke-linejoin:round!important;
+      filter:grayscale(1);opacity:.96;
+    }
+    .mat-avatar-controls .mat-avatar-category.is-active{
+      border-color:#77767d!important;border-bottom-color:#77767d!important;
+      background:rgba(255,255,255,.10)!important;color:#fff!important;
+      opacity:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
+    }
+    .mat-avatar-controls .mat-avatar-category:hover{
+      background:rgba(255,255,255,.075)!important;color:#fff!important;
+      opacity:1;transform:translateY(-1px);
+    }
+    .mat-avatar-controls .mat-avatar-category:focus-visible{
+      outline:2px solid #e4e4e7!important;outline-offset:2px;
+    }
+    /* Clearer, tactile option cards */
+    .mat-avatar-controls .mat-avatar-options-scroll{
+      min-height:0;overscroll-behavior:contain;scrollbar-color:#55545d transparent;
+      scrollbar-width:thin;
+    }
+    .mat-avatar-controls .mat-avatar-option-section h3{
+      display:flex;align-items:center;gap:8px;margin:2px 0 12px;
+      color:#f2f2f4;font-size:14px;font-weight:850;letter-spacing:.01em;
+    }
+    .mat-avatar-controls .mat-avatar-option-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));
+      gap:9px;
+    }
+    .mat-avatar-controls .mat-avatar-option{
+      position:relative;min-width:0;min-height:48px;padding:9px 10px;
+      border:1px solid #3c3b45!important;border-radius:13px!important;
+      background:linear-gradient(180deg,#24242d,#1c1c24)!important;
+      color:#e9e9ed!important;font-size:12px;font-weight:700;
+      transition:border-color .16s ease,background .16s ease,transform .16s ease,box-shadow .16s ease;
+    }
+    .mat-avatar-controls .mat-avatar-option:hover{
+      border-color:#777681!important;background:#2a2a34!important;
+      transform:translateY(-1px);
+    }
+    .mat-avatar-controls .mat-avatar-option.is-selected{
+      border:1px solid #d4d4d8!important;
+      background:linear-gradient(180deg,#34343d,#292932)!important;
+      box-shadow:0 0 0 2px rgba(255,255,255,.10),inset 0 1px 0 rgba(255,255,255,.08)!important;
+    }
+    .mat-avatar-controls .mat-avatar-option:focus-visible{
+      outline:2px solid #e4e4e7!important;outline-offset:2px;
+    }
+    .mat-avatar-controls .mat-avatar-option:has(.mat-avatar-swatch){
+      width:46px;min-width:46px;height:46px;min-height:46px;
+      padding:3px!important;border:1px solid #55545e!important;
+      border-radius:12px!important;background:#202027!important;
+    }
+    .mat-avatar-controls .mat-avatar-option:has(.mat-avatar-swatch).is-selected{
+      border:2px solid #f1f1f3!important;box-shadow:0 0 0 2px #777!important;
+    }
+    .mat-avatar-controls .mat-avatar-swatch{
+      width:29px;height:29px;border:1px solid rgba(255,255,255,.32);
+      box-shadow:inset 0 1px 2px rgba(0,0,0,.15);
+    }
+    .mat-avatar-controls .mat-avatar-actions{
+      padding:12px 0 2px!important;border-top:1px solid #383840!important;
+      background:linear-gradient(180deg,rgba(25,25,32,0),#191920 24%)!important;
+    }
+    .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{
+      min-height:50px;border:1px solid rgba(255,255,255,.14)!important;
+      border-radius:14px!important;background:linear-gradient(135deg,#16a34a,#059669)!important;
+      box-shadow:0 5px 16px rgba(5,150,105,.2);
+      font-weight:900;letter-spacing:.01em;
+    }
+    .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button:hover{
+      filter:brightness(1.07);transform:translateY(-1px);
+    }
+    .mat-avatar-preview-panel{
+      border:1px solid #3e3d48!important;border-radius:22px!important;
+      background:radial-gradient(ellipse at 50% 36%,#292936 0%,#1b1b25 62%,#15151c 100%)!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 12px 34px rgba(0,0,0,.2);
+    }
+    .mat-avatar-preview-panel .profile-avatar-preview-stack{
+      filter:drop-shadow(0 12px 20px rgba(0,0,0,.22));
+    }
+    .mat-avatar-preview-caption{
+      color:#c8c8d0!important;background:rgba(12,12,16,.52)!important;
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(8px);
+    }
+    @media(max-width:760px){
+      .mat-avatar-controls{padding:10px!important;border-radius:18px!important}
+      .mat-avatar-controls .mat-avatar-category-bar{
+        flex:0 0 54px!important;justify-content:flex-start!important;
+        gap:5px!important;padding:5px 7px!important;margin-bottom:10px!important;
+      }
+      .mat-avatar-controls .mat-avatar-category{
+        flex:0 0 42px!important;width:42px;min-width:42px;height:42px;min-height:42px;
+      }
+      .mat-avatar-controls .mat-avatar-category svg{width:23px!important;height:23px!important}
+      .mat-avatar-controls .mat-avatar-option-grid{
+        grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px;
+      }
+      .mat-avatar-controls .mat-avatar-option{min-height:44px;padding:8px}
+      .mat-avatar-controls .mat-avatar-options-scroll{padding:2px 3px 10px 0}
+      .mat-avatar-controls .mat-avatar-actions{padding-top:9px!important}
+    }
+    @media(max-width:390px){
+      .mat-avatar-controls .mat-avatar-option-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .mat-avatar-controls .mat-avatar-category,.mat-avatar-controls .mat-avatar-option,
+      .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{transition:none!important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
