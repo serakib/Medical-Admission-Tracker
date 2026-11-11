@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- clothes / overall; Avataaars by Pablo Stanley. See ../../ASSET-CREDITS.md. -->
+<!-- clothes / overall; Avataaars by Pablo Stanley. Source: scripts/data/avataaars-style-definition.json. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 95.31" width="200" height="95.31" fill="none" role="img" aria-label="clothes / overall">
-<path d="M164 23.94V95.3H36V23.94a72 72 0 0 1 26-8.95v44.32h76V14.99a72 72 0 0 1 26 8.95" fill="var(--avatar-clothes, #000000)"></path>
-<g transform="translate(44 63.3)"></g>
+<path d="M164 23.94V95.3H36V23.94a72 72 0 0 1 26-8.95v44.32h76V14.99a72 72 0 0 1 26 8.95" fill="var(--avatar-clothes, #2563eb)"/>
+<g transform="translate(44 63.3)">
+<circle cx="5" cy="5" r="5" fill="#f4f4f4"/>
+<circle cx="107" cy="5" r="5" fill="#f4f4f4"/>
+</g>
 </svg>
