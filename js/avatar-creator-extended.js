@@ -10,10 +10,6 @@
     eyebrowShape: [['defaultNatural','স্বাভাবিক'],['default','সাধারণ'],['raisedExcited','উঁচু'],['angry','গম্ভীর'],['sadConcerned','চিন্তিত'],['flatNatural','সমান']],
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত']],
     gender: [['male','পুরুষ'],['female','নারী']],
-    characterStyle: [
-      ['m01','পুরুষ · ক্লাসিক'],['m02','পুরুষ · স্মার্ট'],['m03','পুরুষ · ক্যাজুয়াল'],['m04','পুরুষ · স্পোর্টি'],['m05','পুরুষ · আর্টিস্ট'],['m06','পুরুষ · স্কলার'],['m07','পুরুষ · মডার্ন'],['m08','পুরুষ · ট্র্যাডিশনাল'],['m09','পুরুষ · ইয়ুথ'],['m10','পুরুষ · এলিগ্যান্ট'],
-      ['f01','নারী · ক্লাসিক'],['f02','নারী · স্মার্ট'],['f03','নারী · ক্যাজুয়াল'],['f04','নারী · স্পোর্টি'],['f05','নারী · আর্টিস্ট'],['f06','নারী · স্কলার'],['f07','নারী · মডার্ন'],['f08','নারী · ট্র্যাডিশনাল'],['f09','নারী · ইয়ুথ'],['f10','নারী · এলিগ্যান্ট']
-    ],
     ageGroup: [['teen','কিশোর/কিশোরী · ১৩–১৭'],['youngAdult','তরুণ/তরুণী · ১৮–২৫'],['adult','প্রাপ্তবয়স্ক · ২৬–৪০'],['mature','পরিণত বয়স · ৪১+']],
     hairStyle: [
       ['shortFlat','ছোট সোজা'],['shortCurly','ছোট কোঁকড়া'],['shortRound','গোল ছোট'],['shortWaved','ঢেউ খেলানো ছোট'],
@@ -37,7 +33,7 @@
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
-    gender:'male', characterStyle:'m01', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
+    gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
     petType:'none', background:'a5a8ff'
@@ -52,15 +48,6 @@
       : source.slice();
     return choices.hairStyle.filter(([value]) => allowed.includes(value));
   };
-  // Keep clothing silhouettes/styles curated by the selected character type.
-  // DiceBear Avataaars does not expose a separate gender switch; hair and
-  // clothing variants therefore provide the visible character distinction.
-  const clothingChoicesFor = gender => {
-    const allowed = gender === 'female'
-      ? ['shirtScoopNeck','blazerAndShirt','blazerAndSweater','hoodie','overall']
-      : ['shirtCrewNeck','shirtVNeck','collarAndSweater','blazerAndShirt','hoodie','overall'];
-    return choices.clothingType.filter(([value]) => allowed.includes(value));
-  };
   const inferGenderFromHair = hair => femaleHair.includes(String(hair || '')) && !maleHair.includes(String(hair || '')) ? 'female' : 'male';
   const normalize = input => {
     const result = {...defaults};
@@ -71,12 +58,8 @@
     const supplied = input && typeof input === 'object' ? input : {};
     result.gender = supplied.gender === 'female' || supplied.gender === 'male' ? supplied.gender : inferGenderFromHair(supplied.hairStyle);
     result.ageGroup = choices.ageGroup.some(([value]) => value === supplied.ageGroup) ? supplied.ageGroup : defaults.ageGroup;
-    const validCharacterStyles = choices.characterStyle.filter(([value]) => value.startsWith(result.gender === 'female' ? 'f' : 'm'));
-    if (!validCharacterStyles.some(([value]) => value === result.characterStyle)) result.characterStyle = validCharacterStyles[0][0];
     const allowedHair = hairChoicesFor(result.gender, result.ageGroup).map(([value]) => value);
     if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
-    const allowedClothing = clothingChoicesFor(result.gender).map(([value]) => value);
-    if (!allowedClothing.includes(result.clothingType)) result.clothingType = allowedClothing[0] || defaults.clothingType;
     if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
     if (input && typeof input === 'object') {
       const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'];
@@ -87,97 +70,73 @@
     return result;
   };
   const hex = value => String(value || '').replace(/^#/,'');
-  const escapeXml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
-  const characterSvg = input => {
+  const buildUrl = input => {
     const c = normalize(input);
-    const female = c.gender === 'female';
-    const index = Math.max(0, (parseInt(c.characterStyle.slice(1),10)||1)-1);
-    const skin = c.skinTone;
-    const hair = '#' + hex(c.hairColor);
-    const outfit = '#' + hex(c.clothingColor);
-    const bg = '#' + hex(c.background);
-    const headWidths = [69,64,73,67,71,62,75,66,70,65];
-    const headWidth = headWidths[index];
-    const cx = 120 + ((index%3)-1)*2;
-    const faceWidths = [55,59,51,57,53,61,56,50,58,54];
-    const fw = faceWidths[index];
-    const jaw = female
-      ? 'M'+(cx-fw)+' 105 Q'+(cx-fw-3)+' 170 '+cx+' '+(194+(index%3)*3)+' Q'+(cx+fw+3)+' 170 '+(cx+fw)+' 105'
-      : 'M'+(cx-fw)+' 104 Q'+(cx-fw-7)+' '+(164+(index%4)*4)+' '+cx+' '+(190+(index%3)*3)+' Q'+(cx+fw+7)+' '+(164+(index%4)*4)+' '+(cx+fw)+' 104';
-    const hairShapes = [
-      'M'+(cx-69)+' 119 Q'+(cx-82)+' 28 '+cx+' 31 Q'+(cx+82)+' 28 '+(cx+69)+' 119 L'+(cx+51)+' 91 Q'+cx+' 63 '+(cx-50)+' 94 Z',
-      'M'+(cx-68)+' 116 Q'+(cx-73)+' 44 '+(cx-12)+' 28 Q'+(cx+66)+' 19 '+(cx+71)+' 104 L'+(cx+48)+' 86 Q'+cx+' 58 '+(cx-55)+' 91 Z',
-      'M'+(cx-70)+' 117 Q'+(cx-86)+' 47 '+(cx-25)+' 27 Q'+(cx+44)+' 12 '+(cx+73)+' 77 L'+(cx+58)+' 122 Q'+cx+' 68 '+(cx-54)+' 107 Z',
-      'M'+(cx-70)+' 115 Q'+(cx-69)+' 24 '+cx+' 27 Q'+(cx+70)+' 24 '+(cx+70)+' 115 L'+(cx+53)+' 93 Q'+cx+' 67 '+(cx-53)+' 93 Z',
-      'M'+(cx-72)+' 118 Q'+(cx-85)+' 56 '+(cx-32)+' 30 Q'+(cx+8)+' 13 '+(cx+70)+' 48 L'+(cx+74)+' 117 Q'+cx+' 68 '+(cx-58)+' 102Z',
-      'M'+(cx-72)+' 118 Q'+(cx-66)+' 18 '+(cx+4)+' 29 Q'+(cx+86)+' 35 '+(cx+65)+' 121 Q'+cx+' 68 '+(cx-52)+' 96Z',
-      'M'+(cx-72)+' 118 Q'+(cx-92)+' 34 '+(cx-18)+' 25 Q'+(cx+42)+' 8 '+(cx+72)+' 90 L'+(cx+56)+' 120 Q'+cx+' 70 '+(cx-54)+' 104Z',
-      'M'+(cx-70)+' 118 Q'+(cx-80)+' 31 '+(cx+2)+' 24 Q'+(cx+78)+' 31 '+(cx+70)+' 118 L'+(cx+58)+' 95 Q'+cx+' 56 '+(cx-56)+' 96Z',
-      'M'+(cx-70)+' 117 Q'+(cx-76)+' 48 '+(cx-45)+' 27 Q'+cx+' 5 '+(cx+70)+' 76 L'+(cx+60)+' 120 Q'+cx+' 76 '+(cx-55)+' 103Z',
-      'M'+(cx-72)+' 118 Q'+(cx-82)+' 40 '+(cx-8)+' 25 Q'+(cx+80)+' 18 '+(cx+72)+' 118 Q'+(cx+24)+' 74 '+(cx-48)+' 99Z'
-    ];
-    const hairStyleIndex = Math.abs(String(c.hairStyle || '').split('').reduce((n,ch)=>n+ch.charCodeAt(0),0)) % hairShapes.length;
-    const hairPath = hairShapes[(index + hairStyleIndex)%hairShapes.length];
-    const hatMarkup = c.hat === 'none' ? '' : '<path d="M'+(cx-76)+' 78 Q'+cx+' 8 '+(cx+76)+' 78 L'+(cx+62)+' 91 Q'+cx+' 61 '+(cx-62)+' 91Z" fill="#'+hex(c.hatColor)+'"/><path d="M'+(cx-82)+' 87 Q'+cx+' 105 '+(cx+82)+' 87" fill="none" stroke="#'+hex(c.hatColor)+'" stroke-width="12" stroke-linecap="round"/>';
-    const eyeY = 119 + (index%3)*2;
-    const eyeGap = 23 + (index%4)*2;
-    const eyeRx = female ? 7 : 6.2;
-    const browWidth = female ? 15 : 17;
-    const mouth = c.expression === 'serious' ? 'M106 166 Q120 168 134 166' : c.expression === 'sad' ? 'M106 171 Q120 159 134 171' : c.expression === 'concerned' ? 'M107 169 Q120 163 133 169' : 'M105 163 Q120 181 135 163';
-    const eyeMarkup = c.eyeShape === 'closed'
-      ? '<path d="M'+(cx-eyeGap-eyeRx)+' '+eyeY+' q'+eyeRx+' 7 '+(eyeRx*2)+' 0 M'+(cx+eyeGap-eyeRx)+' '+eyeY+' q'+eyeRx+' 7 '+(eyeRx*2)+' 0" fill="none" stroke="#30251f" stroke-width="3" stroke-linecap="round"/>'
-      : '<g fill="#fff"><ellipse cx="'+(cx-eyeGap)+'" cy="'+eyeY+'" rx="'+eyeRx+'" ry="8"/><ellipse cx="'+(cx+eyeGap)+'" cy="'+eyeY+'" rx="'+eyeRx+'" ry="8"/></g><g fill="#30251f"><ellipse cx="'+(cx-eyeGap)+'" cy="'+eyeY+'" rx="3.2" ry="5"/><ellipse cx="'+(cx+eyeGap)+'" cy="'+eyeY+'" rx="3.2" ry="5"/></g><g fill="#fff"><circle cx="'+(cx-eyeGap-1)+'" cy="'+(eyeY-2)+'" r="1.5"/><circle cx="'+(cx+eyeGap-1)+'" cy="'+(eyeY-2)+'" r="1.5"/></g>';
-    const brows = '<path d="M'+(cx-eyeGap-browWidth/2)+' '+(eyeY-14)+' q'+(browWidth/2)+' -5 '+browWidth+' 0 M'+(cx+eyeGap-browWidth/2)+' '+(eyeY-14)+' q'+(browWidth/2)+' -5 '+browWidth+' 0" fill="none" stroke="'+hair+'" stroke-width="'+(female?3:4)+'" stroke-linecap="round"/>';
-    const beard = !female && c.facialHair !== 'none' && c.ageGroup !== 'teen'
-      ? '<path d="M'+(cx-40)+' 153 Q'+cx+' 213 '+(cx+40)+' 153 Q'+(cx+27)+' 190 '+cx+' 190 Q'+(cx-27)+' 190 '+(cx-40)+' 153Z" fill="'+hair+'" opacity=".88"/>' : '';
-    const glasses = c.glasses !== 'none' ? '<g fill="none" stroke="#273449" stroke-width="4"><rect x="'+(cx-eyeGap-14)+'" y="'+(eyeY-10)+'" width="29" height="22" rx="8"/><rect x="'+(cx+eyeGap-15)+'" y="'+(eyeY-10)+'" width="29" height="22" rx="8"/><path d="M'+(cx-4)+' '+eyeY+'h8"/></g>' : '';
-    const shirt = '<path d="M45 280 Q50 222 88 207 L'+cx+' 222 L152 207 Q190 222 195 280Z" fill="'+outfit+'"/>';
-    const collar = c.clothingType === 'blazerAndShirt' || c.clothingType === 'blazerAndSweater'
-      ? '<path d="M88 207 L120 247 L152 207" fill="none" stroke="#fff" stroke-width="7"/><path d="M88 207 L74 280 M152 207 L166 280" stroke="#172033" stroke-width="5" opacity=".35"/>'
-      : c.clothingType === 'hoodie' ? '<path d="M88 211 Q120 255 152 211" fill="none" stroke="#fff" stroke-width="8" opacity=".55"/>'
-      : female ? '<path d="M94 210 Q120 238 146 210" fill="none" stroke="#fff" stroke-width="5" opacity=".8"/>'
-      : '<path d="M102 214 L120 238 L138 214" fill="none" stroke="#fff" stroke-width="5" opacity=".8"/>';
-    const ageMarks = c.ageGroup === 'mature' || c.ageGroup === 'adult' ? '<path d="M'+(cx-44)+' 145l-7 3m95-3 7 3" stroke="#765b4b" opacity=".42" fill="none" stroke-width="2"/>' : '';
-    const hairExtra = female && ['f07','f08','f09'].includes(c.characterStyle) ? '<path d="M'+(cx-66)+' 86 Q'+(cx-92)+' 135 '+(cx-76)+' 184 Q'+(cx-59)+' 167 '+(cx-55)+' 135 M'+(cx+66)+' 86 Q'+(cx+92)+' 135 '+(cx+76)+' 184 Q'+(cx+59)+' 167 '+(cx+55)+' 135" fill="'+hair+'"/>' : '';
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" role="img" aria-label="Custom avatar"><metadata id="mat-avatar-config">'+escapeXml(JSON.stringify(c))+'</metadata><defs><clipPath id="faceClip"><path d="'+jaw+'"/></clipPath></defs>'+shirt+collar+'<path d="M'+(cx-17)+' 185h34v34h-34z" fill="'+skin+'"/><path d="'+jaw+'" fill="'+skin+'" stroke="#593c30" stroke-opacity=".22" stroke-width="2"/><path d="'+hairPath+'" fill="'+hair+'"/>'+hairExtra+hatMarkup+'<g class="eyes">'+eyeMarkup+'</g><g fill="none" stroke="#8b5d48" stroke-width="2" opacity=".4"><path d="M'+(cx-40)+' 139q-5 5-2 9 M'+(cx+40)+' 139q5 5 2 9"/></g>'+brows+'<path d="M'+cx+' 127l-5 22q5 4 11 0" fill="none" stroke="#8f5c46" stroke-width="3" stroke-linecap="round"/><path d="'+mouth+'" fill="none" stroke="#8e3e46" stroke-width="3.5" stroke-linecap="round"/>'+beard+glasses+ageMarks+'<path d="M'+(cx-70)+' 113 Q'+(cx-78)+' 151 '+(cx-54)+' 172" fill="none" stroke="'+hair+'" stroke-width="'+(female?12:8)+'" stroke-linecap="round" opacity=".9"/><path d="M'+(cx+70)+' 113 Q'+(cx+78)+' 151 '+(cx+54)+' 172" fill="none" stroke="'+hair+'" stroke-width="'+(female?12:8)+'" stroke-linecap="round" opacity=".9"/></svg>';
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29');
+    const params = new URLSearchParams({
+      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|bg='+hex(c.background)+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
+      size:'512',
+      skinColor:hex(c.skinTone),
+      topVariant:c.hat !== 'none' ? c.hat : c.hairStyle,
+      topProbability:'100',
+      hairColor:hex(c.hairColor),
+      eyesVariant:c.eyeShape,
+      eyesProbability:'100',
+      eyebrowsVariant:c.eyebrowShape,
+      eyebrowsProbability:'100',
+      mouthVariant:c.expression,
+      mouthProbability:'100',
+      facialHairVariant:c.facialHair === 'none' ? 'beardLight' : c.facialHair,
+      facialHairProbability:c.facialHair === 'none' ? '0' : '100',
+      facialHairColor:hex(c.facialHairColor),
+      accessoriesVariant:c.glasses === 'none' ? 'round' : c.glasses,
+      accessoriesProbability:c.glasses === 'none' ? '0' : '100',
+      hatColor:hex(c.hatColor),
+      clothesVariant:c.clothingType,
+      clothesProbability:'100',
+      clothesColor:hex(c.clothingColor),
+      // The avatar SVG stays transparent; the selected background is rendered by the full preview panel.
+    });
+    return 'https://api.dicebear.com/10.x/avataaars/svg?' + params.toString();
   };
-  const buildUrl = input => characterSvg(input);
   const configFromAvatar = source => {
     try {
       const raw = String(source || '').replace(/#mat-(?:default|custom)-avatar$/i,'');
-      if (/^data:image\/svg\+xml;charset=utf-8,/i.test(raw)) {
-        const svgText = decodeURIComponent(raw.slice(raw.indexOf(',')+1));
-        const doc = new DOMParser().parseFromString(svgText,'image/svg+xml');
-        const meta = doc.querySelector('metadata#mat-avatar-config');
-        if (meta) return normalize(JSON.parse(meta.textContent || '{}'));
-      }
-      return null;
+      if (!/^https:\/\/api\.dicebear\.com\/10\.x\/avataaars\/svg\?/i.test(raw)) return null;
+      const p = new URL(raw).searchParams;
+      const top = p.get('topVariant') || defaults.hat;
+      const meta = Object.fromEntries(String(p.get('seed') || '').split('|').slice(1).map(part => { const pair = part.split('='); return [pair[0], pair[1] || '']; }));
+      const c = {
+        skinTone:'#'+(p.get('skinColor') || hex(defaults.skinTone)),
+        eyeShape:p.get('eyesVariant') || defaults.eyeShape,
+        eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,
+        expression:p.get('mouthVariant') || defaults.expression,
+        gender:meta.gender || inferGenderFromHair(meta.hair || top),
+        ageGroup:meta.age || defaults.ageGroup,
+        hairStyle:meta.hair || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top),
+        hairColor:p.get('hairColor') || defaults.hairColor,
+        facialHair:p.get('facialHairProbability') === '0' ? 'none' : (p.get('facialHairVariant') || 'beardLight'),
+        facialHairColor:p.get('facialHairColor') || defaults.facialHairColor,
+        glasses:p.get('accessoriesProbability') === '0' ? 'none' : (p.get('accessoriesVariant') || 'round'),
+        hat:meta.hat || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'].includes(top) ? top : 'none'),
+        hatColor:p.get('hatColor') || defaults.hatColor,
+        clothingType:p.get('clothesVariant') || defaults.clothingType,
+        clothingColor:p.get('clothesColor') || defaults.clothingColor,
+        petType:meta.pet || defaults.petType,
+        background:meta.bg || p.get('backgroundColor') || defaults.background
+      };
+      return normalize(c);
     } catch (_) { return null; }
   };
   const escapeAttr = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const renderLayersMarkup = (source, input, className) => {
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
-    const ageLines = c && c.ageGroup === 'youngAdult'
-      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width=".8" stroke-linecap="round" opacity=".12"><path d="M116 151q-2 2-2 4m50-4q2 2 2 4"/></g></svg>'
-      : c && c.ageGroup === 'adult'
-        ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".3"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
-        : c && c.ageGroup === 'mature'
-          ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".5"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
-          : '';
-    let baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
-    // Render generated SVG avatars inline so picker thumbnails do not depend on
-    // browser data-URI image decoding. Uploaded/external images keep the img path.
-    const svgPrefix = 'data:image/svg+xml;charset=utf-8,';
-    if (String(source || '').startsWith(svgPrefix)) {
-      try {
-        const inlineMarkup = decodeURIComponent(String(source).slice(svgPrefix.length));
-        if (inlineMarkup.startsWith('<svg ') && inlineMarkup.endsWith('</svg>')) {
-          baseImage = inlineMarkup.replace('<svg ', '<svg class="med-avatar-base med-avatar-inline-svg" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true" ');
-        }
-      } catch (_) { /* Keep the img fallback if decoding fails. */ }
-    }
+    const ageLines = c && c.ageGroup === 'adult'
+      ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".24"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
+      : c && c.ageGroup === 'mature'
+        ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1.15" stroke-linecap="round" opacity=".48"><path d="M101 112q5 2 10 0m58 0q5 2 10 0M111 101l-4 1m66-1 4 1M117 151q-5 4-4 9m50-9q5 4 4 9M124 161q16 5 32 0"/></g></svg>'
+        : '';
+    const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
       '</span>';
@@ -193,9 +152,7 @@
   base.choices = Object.fromEntries(entries.map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
-    if (fieldKey === 'characterStyle') return choices.characterStyle.filter(([value]) => value.startsWith(config.gender === 'female' ? 'f' : 'm')).map(([value,label])=>({value,label}));
     if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
-    if (fieldKey === 'clothingType') return clothingChoicesFor(config.gender).map(([value,label])=>({value,label}));
     if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
     return (base.choices[fieldKey] || []).slice();
   };
@@ -223,7 +180,7 @@
   base.render = buildUrl;
   base.randomize = randomize;
   base.configFromAvatar = configFromAvatar;
-  base.isAvatar = value => /^data:image\/svg\+xml;charset=utf-8,/i.test(String(value||''));
+  base.isAvatar = value => /^https:\/\/api\.dicebear\.com\/10\.x\/avataaars\/svg\?/i.test(String(value||'')) || /^data:image\/svg\+xml;charset=utf-8,/i.test(String(value||''));
 
   /* Inline the trusted DiceBear SVG only for the large/live avatar surfaces.
      Keeping its component groups editable lets the eyes, brows, mouth and hair
@@ -233,7 +190,6 @@
   const livingTimers = new WeakMap();
 
   function getLivingSvgText(source) {
-    if (/^data:image\/svg\+xml/i.test(String(source||''))) return Promise.reject(new Error('Inline custom avatar uses built-in SVG motion.'));
     if (!livingSvgCache.has(source)) {
       const request = fetch(source, { mode:'cors', credentials:'omit', cache:'force-cache' })
         .then(response => {
