@@ -8,9 +8,11 @@ if (!suppliedUrl) {
 }
 
 const baseUrl = new URL(suppliedUrl);
+baseUrl.protocol = 'https:';
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
 const errors = [];
 const failedRequests = [];
+const badResponses = [];
 
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 960 } });
@@ -20,12 +22,15 @@ try {
   page.on('console', message => {
     if (message.type() === 'error') errors.push('CONSOLE ERROR: ' + message.text());
   });
+  page.on('response', response => {
+    if (response.status() >= 400) badResponses.push(response.status() + ' ' + response.url());
+  });
   page.on('requestfailed', request => {
     failedRequests.push(request.url() + ' — ' + (request.failure()?.errorText || 'request failed'));
   });
 
   console.log('Opening in Chromium: ' + baseUrl.href);
-  const response = await page.goto(baseUrl.href, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  const response = await page.goto(baseUrl.href, { waitUntil: 'commit', timeout: 30000 });
   assert.ok(response?.ok(), 'Homepage navigation failed: HTTP ' + (response?.status() ?? 'no response'));
 
   // The application-ready event is emitted only after the main app instance is constructed.
@@ -38,6 +43,7 @@ try {
   const appState = await page.evaluate(() => ({
     appExists: Boolean(window.app),
     appType: typeof window.app,
+    readyState: document.readyState,
     questionBankLoaded: Boolean(window.app?.questionsLoaded),
     questionCount: Array.isArray(window.app?.questionBank) ? window.app.questionBank.length : null,
     loaderExists: Boolean(document.getElementById('mat-initial-entry-loader')),
