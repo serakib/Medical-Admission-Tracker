@@ -1,51 +1,28 @@
 name: Security automation
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-  schedule:
-    - cron: "31 4 * * 1"
-  workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
-  security-events: write
+  pull-requests: read
 
 concurrency:
-  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  group: dependency-review-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  analyze:
-    name: CodeQL JavaScript and TypeScript
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-          build-mode: none
-      - name: Analyze
-        uses: github/codeql-action/analyze@v4
-        with:
-          category: "/language:javascript-typescript"
-
   dependency-review:
     name: Review pull request dependencies
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      # CodeQL is managed by GitHub's repository-level default setup.
+      # Do not upload advanced-setup SARIF results while default setup is enabled.
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
