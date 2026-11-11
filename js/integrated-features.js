@@ -1630,6 +1630,7 @@
 
     if (changedPart === 'gender' || changedPart === 'ageGroup' || changedPart === 'reset') {
       const dependentFields = [
+        { key:'characterStyle', title:'তোমার Character বেছে নাও' },
         { key:'hairStyle', title:'চুলের ধরন' },
         { key:'facialHair', title:'দাড়ি ও গোঁফ' },
         { key:'clothingType', title:'পোশাক' }
