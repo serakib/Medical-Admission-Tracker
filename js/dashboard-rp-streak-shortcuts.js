@@ -144,8 +144,11 @@
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const number = value => Math.max(0, Number(value) || 0).toLocaleString();
+  const localIdentity = () => typeof app.getLocalIdentityKey === 'function'
+    ? app.getLocalIdentityKey()
+    : String(app.authUser && app.authUser.uid || 'visitor');
   // Count only time while this site tab is visible; persist daily totals per account.
-  const siteTimeKey = () => 'mat_site_active_time_v1_' + ((app && app.authUser && app.authUser.uid) || 'guest');
+  const siteTimeKey = () => 'mat_site_active_time_v1_' + localIdentity();
   let siteTimeLastTick = Date.now();
   function recordSiteTime() {
     const now = Date.now();
@@ -190,7 +193,7 @@
     try {
       // Read through the same account-scoped progress API used by exam rewards.
       if (typeof app.getAccountProgress === 'function') return app.getAccountProgress() || {};
-      const key = 'med_account_progress_v1_' + ((app.authUser && app.authUser.uid) || 'guest');
+      const key = 'med_account_progress_v1_' + localIdentity();
       return JSON.parse(localStorage.getItem(key) || '{}') || {};
     } catch (_) { return {}; }
   }
@@ -261,7 +264,7 @@
     try {
       const examHistoryKey = typeof app.getHistoryKey === 'function'
         ? app.getHistoryKey()
-        : 'med_history_' + ((app.authUser && app.authUser.uid) || 'guest');
+        : 'med_history_' + localIdentity();
       const attempts = JSON.parse(localStorage.getItem(examHistoryKey) || '[]');
       if (Array.isArray(attempts)) attempts.forEach(attempt => {
         if (!attempt || !attempt.attemptId) return;
@@ -457,7 +460,7 @@
     const highest = Math.max(current, Number(source.highestStreak ?? source.maxStreak ?? highestFallback) || 0);
     const counts = publicStudent ? new Map() : attemptedQuestionCounts();
     const buildLeaderboardInfo = () => {
-      const weeklySnapshotKey = 'med_streak_weekly_snapshots_v1_' + String((app.authUser && app.authUser.uid) || app.profile?.userId || app.profile?.uid || 'guest');
+      const weeklySnapshotKey = 'med_streak_weekly_snapshots_v1_' + String(localIdentity());
       const today = dhakaTodayDate();
       const previousDate = dateOffset(today, -1);
       const getWeeklyRows = period => {
