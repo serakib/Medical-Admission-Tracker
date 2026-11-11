@@ -419,9 +419,24 @@
     };
     const expression = () => {
       if (document.hidden) { later(expression, 1800); return; }
-      if (motion.mouth && Math.random() < 0.34) {
-        motion.mouth.classList.add('is-soft-smile');
-        later(() => motion.mouth?.classList.remove('is-soft-smile'), 520 + Math.random() * 260);
+      if (motion.mouth) {
+        const speak = Math.random() < 0.62;
+        if (speak) {
+          motion.mouth.classList.remove('is-soft-smile');
+          motion.mouth.classList.add('is-speaking');
+          later(() => {
+            motion.mouth?.classList.remove('is-speaking');
+            if (Math.random() < 0.55) {
+              later(() => {
+                motion.mouth?.classList.add('is-speaking');
+                later(() => motion.mouth?.classList.remove('is-speaking'), 145);
+              }, 115);
+            }
+          }, 145);
+        } else if (Math.random() < 0.45) {
+          motion.mouth.classList.add('is-soft-smile');
+          later(() => motion.mouth?.classList.remove('is-soft-smile'), 520 + Math.random() * 260);
+        }
       }
       if (motion.hair && Math.random() < 0.3) {
         motion.hair.classList.add('is-swaying');
@@ -490,8 +505,9 @@
         '.mat-avatar-eye-blink.is-blinking{transform:scaleY(.055)}',
         '.mat-avatar-brow-motion{transform-box:fill-box;transform-origin:center;transition:transform .38s ease}',
         '.mat-avatar-brow-motion.is-raised{transform:translateY(-.75px)}',
-        '.mat-avatar-mouth-motion{transform-box:fill-box;transform-origin:center;transition:transform .42s ease}',
+        '.mat-avatar-mouth-motion{transform-box:fill-box;transform-origin:center;transition:transform .16s ease,filter .2s ease}',
         '.mat-avatar-mouth-motion.is-soft-smile{transform:scaleY(1.045)}',
+        '.mat-avatar-mouth-motion.is-speaking{transform:scaleY(1.16) scaleX(1.035);filter:brightness(1.035)}',
         '.mat-avatar-hair-motion{transform-box:fill-box;transform-origin:50% 80%;transition:transform .55s ease}',
         '.mat-avatar-hair-motion.is-swaying{transform:rotate(.35deg)}',
         '@media(prefers-reduced-motion:reduce){.mat-avatar-eye-gaze,.mat-avatar-eye-blink,.mat-avatar-brow-motion,.mat-avatar-mouth-motion,.mat-avatar-hair-motion{transition:none!important}}'
