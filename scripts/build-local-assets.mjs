@@ -14,7 +14,7 @@ const run = (command, args) => {
 
 console.log('[assets] Building local Tailwind CSS...');
 const tailwindCli = path.join(root, 'node_modules', 'tailwindcss', 'lib', 'cli.js');
-run(process.execPath, [tailwindCli, '-c', 'tailwind.config.cjs', '-i', 'css/tailwind.input.css', '-o', 'css/tailwind.generated.css', '--minify']);
+run(process.execPath, [tailwindCli, '-c', 'config/tailwind.config.cjs', '-i', 'css/tailwind.input.css', '-o', 'css/tailwind.generated.css', '--minify']);
 
 console.log('[assets] Bundling local Firebase compat SDK...');
 fs.mkdirSync(path.join(root, 'js', 'vendor'), { recursive: true });

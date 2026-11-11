@@ -191,12 +191,13 @@ Medical-Admission-Tracker/
 ├── js/            # Application modules
 ├── public/        # Images, icons and static assets
 ├── scripts/       # Build, generation and test tools
+├── config/        # Build tool configuration
 ├── index.html     # Main Pages entry
 ├── offline.html   # Offline practice entry
 ├── legal.html     # Privacy and legal pages
 ├── service-worker.js · manifest.webmanifest
 ├── package.json · package-lock.json
-├── tailwind.config.cjs · robots.txt · sitemap.xml
+├── robots.txt · sitemap.xml
 ├── README.md · LICENSE.md · CITATION.cff
 └── .editorconfig · .gitattributes · .gitignore · .npmrc · .nvmrc
 ```
