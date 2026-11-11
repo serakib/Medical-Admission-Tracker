@@ -368,9 +368,6 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
       #mat-initial-entry-loader:before{transform:scale(1.45)}
       #mat-initial-entry-loader:after{transform:scale(1.9)}
       #mat-initial-entry-loader.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
-      /* The overlay is removed by the app-ready event; this keyframe remains a visual fallback only. */
-      #mat-initial-entry-loader{animation:matEntryLoaderFailsafe 30s steps(1,end) forwards}
-      @keyframes matEntryLoaderFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
       #mat-initial-entry-loader .mat-entry-loader-card{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:min(100%,420px);gap:18px;text-align:center}
       #mat-initial-entry-loader .mat-entry-loader-mark{display:grid;place-items:center;width:92px;height:92px;border:1px solid rgba(110,231,183,.34);border-radius:25px;background:linear-gradient(145deg,rgba(16,185,129,.2),rgba(14,116,144,.16));box-shadow:0 0 42px rgba(20,184,166,.16),inset 0 1px rgba(255,255,255,.08);color:#6ee7b7;font-size:39px;animation:matEntryPulse 2s ease-in-out infinite}
       #mat-initial-entry-loader .mat-entry-loader-title{font-size:clamp(21px,5vw,27px);font-weight:800;line-height:1.45;letter-spacing:.01em}
@@ -514,15 +511,6 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
           console.error('[Medical Admission Tracker] Unhandled promise rejection:',event.reason);
         });
       })();
-    </script>
-    <script id="mat-entry-loader-independent-failsafe">
-      // Independent backup in case the main app/module initialization throws an error.
-      window.setTimeout(function(){
-        var loader=document.getElementById("mat-initial-entry-loader");
-        if(!loader)return;
-        loader.classList.add("is-leaving");
-        window.setTimeout(function(){if(loader.parentNode)loader.parentNode.removeChild(loader);},400);
-      },5500);
     </script>
 
     <!-- Fixed responsive sidebar navigation -->
