@@ -1952,3 +1952,35 @@ html.dark .mat-monthly-countdown-capsule--weekly,body.dark .mat-monthly-countdow
   .leaderboard-week-countdown.mat-monthly-countdown-row{gap:6px!important}
   .mat-monthly-countdown-capsule{flex:1 1 100%;justify-content:space-between;white-space:normal;padding:6px 9px;font-size:10px}
 }
+
+/* Site-wide button feedback: clear hover, press, focus and in-progress states. */
+:where(button,[role="button"],input[type="button],input[type="submit"],input[type="reset"],.btn){
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease,background-color .16s ease,border-color .16s ease,opacity .16s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+@media (hover:hover){
+  :where(button:not(:disabled),[role="button"]:not([aria-disabled="true"]),input[type="button"]:not(:disabled),input[type="submit"]:not(:disabled),input[type="reset"]:not(:disabled),.btn):hover{
+    filter:brightness(1.10);
+    box-shadow:0 4px 14px rgba(0,0,0,.16);
+  }
+}
+:where(button:not(:disabled),[role="button"]:not([aria-disabled="true"]),input[type="button"]:not(:disabled),input[type="submit"]:not(:disabled),input[type="reset"]:not(:disabled),.btn):active{
+  transform:translateY(1px) scale(.975);
+  filter:brightness(.94);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
+}
+:where(button,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],.btn):focus-visible{
+  outline:2px solid #8b5cf6;
+  outline-offset:3px;
+}
+:where(button[aria-busy="true"],button.mat-action-is-busy,[role="button"][aria-busy="true"]){
+  cursor:progress!important;
+  opacity:.82;
+  pointer-events:none;
+}
+.mat-action-feedback-label{display:inline-block;vertical-align:middle}
+.mat-action-is-busy .mat-animated-loading-dots{display:inline-flex!important}
+@media(prefers-reduced-motion:reduce){
+  :where(button,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],.btn){transition:none}
+  :where(button:active,[role="button"]:active){transform:none}
+}
