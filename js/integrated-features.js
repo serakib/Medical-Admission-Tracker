@@ -1388,6 +1388,52 @@
   `;
   document.head.appendChild(avatarReferenceLayoutStyle);
 
+  const avatarAssetCardStyle = document.createElement('style');
+  avatarAssetCardStyle.id = 'mat-avatar-individual-svg-card-style';
+  avatarAssetCardStyle.textContent = `
+    /* Final override: the library shows one original SVG per rectangular tile. */
+    #profile-avatar-picker.is-expanded .mat-avatar-option-grid{
+      display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option{
+      display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+      width:100%!important;min-width:0!important;min-height:0!important;aspect-ratio:1!important;
+      padding:10px!important;border:2px solid #858585!important;border-radius:15px!important;
+      background:#393939!important;box-shadow:none!important;overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option.is-selected{
+      border:2px solid #10b981!important;background:#393939!important;box-shadow:0 0 0 1px #10b98122!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-art-frame{
+      display:grid!important;place-items:center!important;width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-art{
+      display:block!important;width:100%!important;height:100%!important;max-width:112px!important;max-height:112px!important;object-fit:contain!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option-none{
+      display:grid!important;place-items:center!important;width:76%!important;height:76%!important;
+      border:2px dashed #858585!important;border-radius:14px!important;color:#e5e7eb!important;font-size:14px!important;font-weight:800!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch){
+      width:52px!important;min-width:52px!important;height:52px!important;min-height:52px!important;aspect-ratio:1!important;
+      padding:0!important;border:0!important;border-radius:11px!important;background:transparent!important;box-shadow:none!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{
+      width:100%!important;height:100%!important;border:0!important;border-radius:11px!important;background:var(--swatch)!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{
+      border:2px solid #10b981!important;padding:2px!important;
+    }
+    #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected .mat-avatar-swatch{border-radius:8px!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-option:focus-visible{outline:3px solid #34d399!important;outline-offset:2px!important}
+    @media(max-width:760px){
+      #profile-avatar-picker.is-expanded .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option{padding:7px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-option-art{max-width:84px!important;max-height:84px!important}
+    }
+  `;
+  document.head.appendChild(avatarAssetCardStyle);
+
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
   // Keep broken remote avatar URLs from exposing their alt text in profile circles.
@@ -1673,7 +1719,9 @@
       const list = Array.isArray(manifest[folder]) ? manifest[folder] : [];
       return list.find(asset => {
         const filename = String(asset.path || '').split('/').pop() || '';
-        return filename.replace(/\\.svg$/i, '').toLowerCase() === String(value || '').toLowerCase();
+        const id = filename.replace(/\.svg$/i, '').toLowerCase();
+        const wanted = String(value || '').toLowerCase();
+        return id === wanted || (wanted === 'bear' && id === 'white-bear');
       }) || null;
     };
     return '<section class="mat-avatar-option-section" data-avatar-field="' + field.key + '"><h3>' + field.title + '</h3><div class="mat-avatar-option-grid">' +
