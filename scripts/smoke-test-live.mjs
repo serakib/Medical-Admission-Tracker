@@ -7,7 +7,11 @@ if (!suppliedUrl) {
 }
 
 const baseUrl = new URL(suppliedUrl);
-assert.ok(baseUrl.protocol === 'https:', 'The deployed site URL must use HTTPS.');
+if (baseUrl.protocol !== 'http:' && baseUrl.protocol !== 'https:') {
+  throw new Error('The deployed site URL must use HTTP or HTTPS.');
+}
+// GitHub Pages may return an HTTP page_url; always test the secure canonical origin.
+baseUrl.protocol = 'https:';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const timeoutMs = 15000;
