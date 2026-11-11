@@ -1781,7 +1781,8 @@ class MedicalExamApp {
                 subject: document.getElementById('setup-subject')?.value || state.subject || 'all',
                 year: document.getElementById('setup-year')?.value || state.year || 'all',
                 timeUsed: minsUsed + ':' + String(secsUsed).padStart(2, '0'),
-                accuracy, attemptId, maxCombo: maxCorrectStreak
+                accuracy, attemptId, maxCombo: maxCorrectStreak,
+                questionIds: questions.filter((question, index) => question?.id != null && answers[index] !== null && answers[index] !== undefined).map(question => String(question.id))
             })).then(reward => {
                 if (typeof window.updateExamRewardDisplay === 'function') {
                     window.updateExamRewardDisplay(reward || { attemptId, pending: true, message: 'Reward sync-এর অপেক্ষায় আছে।' });
@@ -1984,6 +1985,17 @@ class MedicalExamApp {
             if (index >= 20 && item && item.reviewData) delete item.reviewData;
         });
         localStorage.setItem(this.getHistoryKey(), JSON.stringify(history));
+        // Persist every actually answered question ID independently of the 20-attempt
+        // review snapshot limit, so unique-question stats survive old review pruning.
+        try {
+            const practiced = this.getPracticedQuestionIds();
+            const questions = Array.isArray(attempt?.reviewData?.questions) ? attempt.reviewData.questions : [];
+            const answers = Array.isArray(attempt?.reviewData?.userAnswers) ? attempt.reviewData.userAnswers : [];
+            questions.forEach((question, index) => {
+                if (question?.id != null && answers[index] !== null && answers[index] !== undefined) practiced.add(String(question.id));
+            });
+            localStorage.setItem(this.getPracticedQuestionKey(), JSON.stringify([...practiced]));
+        } catch (error) { console.warn('[Progress] Could not persist practiced question IDs:', error); }
         this.loadProgressStats();
     }
 
@@ -2019,6 +2031,20 @@ class MedicalExamApp {
             Number(normalizeAttemptId(b.attemptId)) - Number(normalizeAttemptId(a.attemptId))
         );
         const answered=this.getAnsweredQuestionIds();
+        const practiced=this.getPracticedQuestionIds();
+        answered.forEach(id => practiced.add(String(id)));
+        // Server history carries question IDs for cross-device unique-question stats.
+        // Local review snapshots backfill attempts made before that field was deployed.
+        history.forEach(attempt => {
+            const serverIds = Array.isArray(attempt?.questionIds) ? attempt.questionIds : [];
+            serverIds.forEach(id => { if (id != null && String(id)) practiced.add(String(id)); });
+            const questions = Array.isArray(attempt?.reviewData?.questions) ? attempt.reviewData.questions : [];
+            const answers = Array.isArray(attempt?.reviewData?.userAnswers) ? attempt.reviewData.userAnswers : [];
+            questions.forEach((question, index) => {
+                if (question?.id != null && answers[index] !== null && answers[index] !== undefined) practiced.add(String(question.id));
+            });
+        });
+        try { localStorage.setItem(this.getPracticedQuestionKey(), JSON.stringify([...practiced])); } catch (_) {}
         const total=this.questionBank.length||520;
         const attempts=history.length;
         const best=attempts?Math.max(...history.map(h=>parseFloat(h.score)||0)):0;
@@ -2038,7 +2064,7 @@ class MedicalExamApp {
         const adminBadge=document.getElementById('profile-admin-badge');
         if(adminBadge) adminBadge.classList.toggle('hidden',!(this.authUser&&this.profile?.isAdmin===true));
         set('profile-email',this.authUser?(this.profile?.email||this.authUser.email||'Signed in'):(hasGuestServerSession?'Guest account · server-side profile active':'Visitor mode · progress শুধু এই device-এ localভাবে সংরক্ষিত'));
-        set('profile-seen-count',answered.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
+        set('profile-seen-count',practiced.size); set('profile-attempt-count',attempts); set('profile-best-score',best.toFixed(2)); set('profile-accuracy',`${avgAcc.toFixed(1)}%`);
         set('profile-highest-weekly-rp',Math.max(0,Number(this.profile?.highestWeeklyRP)||0).toLocaleString());
         set('profile-weekly-rp',Math.max(0,Number(this.profile?.weeklyRP ?? this.profile?.weeklyRankPoints)||0).toLocaleString());
         set('profile-lifetime-rp',Math.max(0,Number(this.profile?.totalRP ?? this.profile?.TotalRP ?? this.profile?.lifetimeRP ?? this.profile?.LifetimeRP)||0).toLocaleString());
