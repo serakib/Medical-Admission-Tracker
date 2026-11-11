@@ -476,7 +476,7 @@
       // Keep older saved "bear" selections working when the actual file is white-bear.svg.
       if (!nextPets.bear && nextPets['white-bear']) nextPets.bear = nextPets['white-bear'];
       base.assetPaths.pets = nextPets;
-      choices.petType = [['none','নেই'], ...petAssets.map(asset => [asset.id, asset.label || asset.id])];
+      choices.petType = [['none','নেই'], ...petAssets.map(asset => [asset.id === 'white-bear' ? 'bear' : asset.id, asset.id === 'white-bear' ? 'White Bear' : (asset.label || asset.id)])].filter((item, index, list) => list.findIndex(candidate => candidate[0] === item[0]) === index);
       document.dispatchEvent(new CustomEvent('med-avatar-assets-updated', {detail:{manifest}}));
       return manifest;
     } catch (error) {
