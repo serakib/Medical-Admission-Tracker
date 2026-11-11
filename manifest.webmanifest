@@ -11,16 +11,16 @@
   "theme_color": "#059669",
   "icons": [
     {
-      "src": "./public/assets/favicon.svg",
+      "src": "./public/assets/pwa-icon.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "./public/assets/favicon.svg",
+      "src": "./public/assets/pwa-icon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -28,7 +28,13 @@
       "name": "Offline Practice",
       "short_name": "Offline Practice",
       "url": "./offline.html",
-      "icons": [{ "src": "./public/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [
+        {
+          "src": "./public/assets/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ]
 }
