@@ -4,7 +4,7 @@
 
 **Practice smarter. Track your progress. Prepare with confidence.**
 
-[🌐 Website](https://serakib.github.io/Medical-Admission-Tracker/) · [📦 Source Code](https://github.com/serakib/Medical-Admission-Tracker) · [🛠️ Report a Bug](https://github.com/serakib/Medical-Admission-Tracker/issues/new/choose) · [🔐 Security Policy](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md)
+[🌐 Website](https://serakib.github.io/Medical-Admission-Tracker/) · [📦 Source Code](https://github.com/serakib/Medical-Admission-Tracker) · [🛠️ Report a Bug](https://github.com/serakib/Medical-Admission-Tracker/issues/new/choose) · [🔐 Security Policy](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/SECURITY.md)
 
 ---
 
@@ -72,7 +72,7 @@ Website-এ প্রদর্শিত marks distribution, exam duration এব
 - সাধারণ সমস্যা: [Bug Report](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=bug_report.yml)
 - নতুন idea: [Feature Request](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=feature_request.yml)
 - Accessibility barrier: [Accessibility Report](https://github.com/serakib/Medical-Admission-Tracker/issues/new?template=accessibility_report.yml)
-- Security concern: public issue নয়—[Security Policy](https://github.com/serakib/Medical-Admission-Tracker/blob/main/SECURITY.md) অনুসরণ করো।
+- Security concern: public issue নয়—[Security Policy](https://github.com/serakib/Medical-Admission-Tracker/blob/main/.github/SECURITY.md) অনুসরণ করো।
 
 ---
 
