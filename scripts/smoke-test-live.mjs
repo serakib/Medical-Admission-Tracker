@@ -59,6 +59,10 @@ assert.equal(manifest.start_url, './index.html', 'PWA start URL is incorrect.');
 assert.ok(Array.isArray(manifest.icons) && manifest.icons.some(icon => icon.sizes === '192x192') &&
   manifest.icons.some(icon => icon.sizes === '512x512'), 'PWA manifest must provide 192px and 512px icons.');
 
+for (const icon of manifest.icons) {
+  const iconResponse = await requestWithRetry(new URL(icon.src, baseUrl));
+  assert.ok(iconResponse.ok, 'PWA icon is not published: ' + icon.src);
+}
 const offlineResponse = await requestWithRetry(new URL('offline.html', baseUrl));
 const offlineHtml = await offlineResponse.text();
 assert.match(offlineHtml, /js\/offline-study\.js/, 'Offline practice page must load its local study script.');
@@ -80,6 +84,7 @@ assert.match(offlineScriptSource, /correctAnswer/);
 assert.match(offlineScriptSource, /med_offline_practice_history_v1/);
 assert.match(pwaScriptSource, /serviceWorker\.register/);
 assert.match(html, /rel=["']manifest["']/i, 'Published homepage must reference the PWA manifest.');
+assert.match(html, /id=["']mat-home-offline-link["']/, 'Home dashboard must expose Offline Practice.');
 assert.match(html, /js\/system-tools\.js/, 'Published homepage must load the system tools module.');
 console.log('OK PWA: manifest, service worker, offline page and offline question practice are published.');
 
