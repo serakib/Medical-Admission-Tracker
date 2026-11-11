@@ -2,7 +2,7 @@
 
 ## Architecture and source of truth
 
-The website uses Firebase Authentication for registered accounts and a dedicated Google Apps Script + Google Sheets API for Medical profiles, exam attempts, XP/RP/PB, ranks, streaks, friends, leaderboards, and server-side maintenance. The Google Apps Script backend source lives in `apps-script/Medical_Admission_Tracker_Backend.gs`; its Web App URL is set in `js/leaderboard-config.js`.
+The website uses Firebase Authentication for registered accounts and a dedicated Google Apps Script + Google Sheets API for Medical profiles, exam attempts, XP/RP/PB, ranks, streaks, friends, leaderboards, and server-side maintenance. The Google Apps Script backend source lives in `apps-script/Medical_Admission_Tracker_Backend.gs`; its Web App URL is set in `js/config/leaderboard-config.js`.
 
 The Medical API is independent of the site's Get in Touch/contact endpoint. Do not route contact messages through the reward API.
 

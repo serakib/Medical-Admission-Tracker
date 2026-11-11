@@ -179,37 +179,49 @@ Exam Submit করার পর Result বা Reward update না হলে এ
 
 ## 🗂️ Repository Structure
 
-A compact map of the codebase. Open the linked guide before changing an unfamiliar module.
+The GitHub Pages entry files stay at the root. Application code is grouped by responsibility to keep day-to-day maintenance simple.
 
 ```text
 Medical-Admission-Tracker/
-├── .github/       # CI/CD, Dependabot, issue templates and repo automation
-├── apps-script/   # Google Apps Script backend source
-├── css/           # Application stylesheets
-├── data/          # Question bank and question metadata
-├── docs/          # Guides, changelog, architecture and project docs
-├── js/            # Core application and feature modules
-├── public/        # Images, icons, avatar and pet assets
-├── scripts/       # Build, asset generation and validation tools
-├── index.html     # GitHub Pages entry point
-├── legal.html     # Privacy, cookies and terms
-├── offline.html   # Offline fallback page
+├── .github/          # CI/CD, issue templates, policies and automation
+├── apps-script/      # Google Apps Script backend
+├── css/              # Stylesheets
+├── data/             # Question bank and metadata
+├── docs/             # Guides, architecture, project and student docs
+├── js/
+│   ├── avatar/       # Avatar renderer, presets and profile editor
+│   ├── config/       # Firebase and Apps Script endpoint configuration
+│   ├── core/         # Navigation and shared browser utilities
+│   ├── features/     # Practice, exams, dashboard, PWA and student tools
+│   ├── integrations/ # Firebase, backend and leaderboard adapters
+│   ├── vendor/       # Generated browser bundles; do not hand-edit
+│   ├── app.js        # Main application engine
+│   └── README.md     # JavaScript module map and safe-edit notes
+├── public/           # Images, icons, avatar and pet assets
+├── scripts/          # Build, asset generation and validation tools
+├── index.html        # GitHub Pages entry point
+├── legal.html        # Privacy, cookies and terms
+├── offline.html      # Offline fallback and practice page
 ├── manifest.webmanifest
 ├── service-worker.js
-├── package.json   # Build tools and validation commands
+├── package.json      # Build commands and dependencies
 ├── package-lock.json
-├── README.md
-└── CITATION.cff
+├── CITATION.cff
+├── LICENSE.md
+└── README.md
 ```
 
 | Working on… | Start here |
 |---|---|
 | Page structure or script loading | [`index.html`](index.html) |
 | Layout, colors or responsive styling | [`css/style.css`](css/style.css) |
-| Exam engine or core behavior | [`js/app.js`](js/app.js) · [JS module guide](js/README.md) |
+| Exam engine or core behavior | [`js/app.js`](js/app.js) |
+| Avatar options and rendering | [`js/avatar/`](js/avatar/) · [module guide](js/README.md) |
+| Firebase/API configuration | [`js/config/`](js/config/) |
+| Navigation and shared browser utilities | [`js/core/`](js/core/) |
+| Student-facing features | [`js/features/`](js/features/) |
+| Backend and leaderboard integration | [`js/integrations/`](js/integrations/) |
 | Questions and subject metadata | [`data/`](data/) |
-| Profiles, rewards, ranks or API | [Backend guide](apps-script/README.md) |
-| Images, icons or avatar parts | [`public/assets/`](public/assets/) |
 | Builds, checks or generated assets | [Scripts guide](scripts/README.md) |
 | Technical or student documentation | [Documentation hub](docs/README.md) |
 | GitHub automation and project rules | [`.github/`](.github/) |
@@ -218,7 +230,7 @@ Medical-Admission-Tracker/
 - Keep GitHub Pages entry files and deployment configuration at the repository root.
 - Edit source files, not generated build output; use the relevant script or `npm run build`.
 - Keep backend secrets in Apps Script Script Properties—never in frontend files or Git.
-- Run `npm test` from the repository root before merging changes.
+- Run `npm test` from the repository root before merging.
 
 ---
 

@@ -32,7 +32,7 @@ node scripts/generate-avatar-asset-manifest.mjs
 node scripts/generate-avatar-svg-parts.mjs --check
 ```
 
-Build output (`css/tailwind.generated.css`, `js/vendor/firebase-compat.js`, `public/assets/icons/fontawesome.svg`) deployment-এর সময় generate হয়; এগুলো আলাদা করে commit করা বাধ্যতামূলক নয়.
+Build output (`css/tailwind.generated.css`, `js/vendor/firebase-compat.js`, `js/avatar/avataaars-local-definition.js`, `public/assets/icons/fontawesome.svg`) deployment-এর সময় generate হয়; এগুলো আলাদা করে commit করা বাধ্যতামূলক নয়.
 
 ## Local check
 

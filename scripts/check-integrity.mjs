@@ -53,15 +53,22 @@ if (fs.existsSync(cssRoot)) {
 
 // Check explicit local asset paths embedded in JavaScript.
 const jsRoot = path.join(root, 'js');
-if (fs.existsSync(jsRoot)) {
-  for (const entry of fs.readdirSync(jsRoot, { withFileTypes: true })) {
+function inspectJavaScriptDirectory(directory) {
+  if (!fs.existsSync(directory)) return;
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const target = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'vendor') inspectJavaScriptDirectory(target);
+      continue;
+    }
     if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
-    const source = fs.readFileSync(path.join(jsRoot, entry.name), 'utf8');
+    const source = fs.readFileSync(target, 'utf8');
     for (const match of source.matchAll(/["']((?:\.\/)?public\/assets\/[^"'\s]+)["']/g)) {
-      checkLocalReference(match[1], root, entry.name);
+      checkLocalReference(match[1], root, path.relative(root, target));
     }
   }
 }
+inspectJavaScriptDirectory(jsRoot);
 
 // Validate the question bank and keep its published metadata in sync.
 const questionsPath = path.join(root, 'data', 'questions.json');

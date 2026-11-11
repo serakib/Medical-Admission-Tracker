@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const source = await readFile(new URL('../js/feature-navigation.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../js/core/feature-navigation.js', import.meta.url), 'utf8');
 
 class FakeClassList {
   constructor(initial = []) { this.values = new Set(initial); }

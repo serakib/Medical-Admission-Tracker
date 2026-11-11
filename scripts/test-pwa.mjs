@@ -9,9 +9,9 @@ const manifest = JSON.parse(read('manifest.webmanifest'));
 const html = read('index.html');
 const offline = read('offline.html');
 const worker = read('service-worker.js');
-const offlineScript = read('js/offline-study.js');
-const pwaScript = read('js/pwa.js');
-const tools = read('js/system-tools.js');
+const offlineScript = read('js/features/offline-study.js');
+const pwaScript = read('js/features/pwa.js');
+const tools = read('js/features/system-tools.js');
 
 assert.equal(manifest.display, 'standalone');
 assert.equal(manifest.start_url, './index.html');
@@ -21,10 +21,10 @@ for (const size of ['192x192', '512x512']) {
   assert.ok(icon, 'Missing PWA icon size ' + size);
   assert.ok(fs.existsSync(path.join(root, icon.src.replace(/^\.\//, ''))), 'Missing PWA icon file ' + icon.src);
 }
-for (const required of ['rel="manifest"', 'js/pwa.js', 'js/system-tools.js']) {
+for (const required of ['rel="manifest"', 'js/features/pwa.js', 'js/features/system-tools.js']) {
   assert.ok(html.includes(required), 'index.html must include ' + required);
 }
-assert.ok(offline.includes('js/offline-study.js'));
+assert.ok(offline.includes('js/features/offline-study.js'));
 assert.doesNotMatch(offline, /<script[^>]+https?:\/\//i, 'Offline page must not load remote scripts.');
 assert.ok(fs.existsSync(path.join(root, 'public/assets/pwa-icon.svg')));
 assert.match(worker, /pwa-icon\.svg/);

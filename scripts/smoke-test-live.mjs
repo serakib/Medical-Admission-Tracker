@@ -65,7 +65,7 @@ for (const icon of manifest.icons) {
 }
 const offlineResponse = await requestWithRetry(new URL('offline.html', baseUrl));
 const offlineHtml = await offlineResponse.text();
-assert.match(offlineHtml, /js\/offline-study\.js/, 'Offline practice page must load its local study script.');
+assert.match(offlineHtml, /js\/features\/offline-study\.js/, 'Offline practice page must load its local study script.');
 assert.doesNotMatch(offlineHtml, /https?:\/\/(?:cdn\.|www\.googleapis|www\.gstatic)/i,
   'Offline practice page must not depend on external scripts or styles.');
 
@@ -85,7 +85,7 @@ assert.match(offlineScriptSource, /med_offline_practice_history_v1/);
 assert.match(pwaScriptSource, /serviceWorker\.register/);
 assert.match(html, /rel=["']manifest["']/i, 'Published homepage must reference the PWA manifest.');
 assert.match(html, /id=["']mat-home-offline-link["']/, 'Home dashboard must expose Offline Practice.');
-assert.match(html, /js\/system-tools\.js/, 'Published homepage must load the system tools module.');
+assert.match(html, /js\/features\/system-tools\.js/, 'Published homepage must load the system tools module.');
 console.log('OK PWA: manifest, service worker, offline page and offline question practice are published.');
 
 // Validate the live question bank and its dashboard metadata, not only asset URLs.

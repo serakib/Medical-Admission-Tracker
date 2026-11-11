@@ -1,47 +1,34 @@
 # JavaScript Modules
 
-`index.html` loads the app engine and feature modules from this folder. Keep script order in `index.html` unchanged unless dependencies have been checked.
+The browser entry point is `app.js`. Feature code is grouped by responsibility so related files stay together. Script loading order is controlled in the root `index.html`; preserve that order when editing its script list.
 
-## File responsibilities
+## Directory map
 
-| File | Main responsibility |
+| Location | Responsibility |
 |---|---|
-| `app.js` | Core app engine, exams, question loading and results |
-| `firebase-config.js` | Firebase client configuration |
-| `leaderboard-config.js` | Apps Script API endpoint configuration |
-| `feature-navigation.js` | In-app navigation and feature-view compatibility |
-| `avatar-creator.js` | Compatibility bootstrap for the avatar renderer |
-| `avatar-creator-extended.js` | Avatar presets, customization options, SVG URL generation, SVG layers and facial motion |
-| `avatar-profile-modal.js` | Profile avatar edit modal and entry point |
-| `integrated-features.js` | Exam review/history, account helpers and Avatar Builder UI integration |
-| `global-league-system.js` | Firebase/Apps Script adapter for student profiles, rewards, ranks and leaderboard sync |
-| `leaderboard-experience.js` | Leaderboard UI, student portraits and leaderboard interactions |
-| `final-exam-type-lifetime.js` | Exam-type and lifetime leaderboard behavior |
-| `final-trophy-practice.js` | Practice instructions and lifetime trophy progression |
-| `practice-history.js` | Persistent history of attempted Practice questions |
-| `dashboard-rp-streak-shortcuts.js` | Dashboard RP, streak and shortcut UI |
-| `activity-notifications.js` | In-site activity notifications |
-| `student-ai.js` | Student Life Support AI interface and conversation behavior |
-| `break-reminder.js` | Study break reminder |
-| `animated-loading-dots.js` | Animated loading/status dots |
-| `firebase.js`, `firebase-integration.js` | Compatibility entry points; check the app engine before changing authentication behavior |
+| `app.js` | Main application engine, exams, question loading and results |
+| `avatar/` | Avatar presets, SVG renderer, profile editor and generated avatar definition |
+| `config/` | Public Firebase settings and Apps Script endpoint configuration |
+| `core/` | Navigation and shared browser utilities |
+| `features/` | Practice, exams, dashboard, notifications, PWA and student tools |
+| `integrations/` | Firebase/Apps Script adapters, profile and leaderboard integration |
+| `vendor/` | Generated third-party browser bundles; never hand-edit |
 
-## Avatar Builder: where to start
+## Key modules
 
-Read these files in order:
+- `config/leaderboard-config.js` — dedicated Apps Script API URL.
+- `integrations/global-league-system.js` — server-backed profiles, rewards, ranks and leaderboard sync.
+- `integrations/integrated-features.js` — exam review/history, account helpers and Avatar Builder integration.
+- `integrations/leaderboard-experience.js` — leaderboard presentation and interactions.
+- `features/practice-history.js` — attempted Practice question history.
+- `features/pwa.js` and `features/offline-study.js` — install/offline experience.
+- `features/system-tools.js` — local diagnostics and progress backup/restore.
 
-1. `avatar-creator.js` — compatibility bootstrap; it does not contain the main artwork.
-2. `avatar-creator-extended.js` — character presets, available parts, configuration normalization and SVG rendering.
-3. `integrated-features.js` — builder layout, category navigation, option cards, selected state and live preview.
-4. `avatar-profile-modal.js` — how the profile opens the editor.
+## Safe editing rules
 
-The selected character card and the live preview must always use the same normalized configuration. Do not keep a stale/duplicate preview layer after a character change.
-
-## Safe editing notes
-
-- Trace the caller and data flow before changing a module.
-- Check `index.html` script order before adding or moving script tags.
-- Profile, XP, RP, rank and leaderboard values may be server-authoritative; inspect the backend adapter before changing their calculation.
-- Never add passwords, private keys, tokens or other secrets to client-side files.
-- Compatibility files may intentionally contain very little code. Do not duplicate the main implementation there.
-- After a change, test the affected feature, a fresh page load and the mobile layout.
+- Trace callers and data flow before changing a module.
+- Keep script order in `index.html` unchanged unless dependencies are checked.
+- Treat XP, RP, rank, rewards and leaderboard values as server-authoritative; inspect the Apps Script adapter before changing them.
+- Keep private credentials and tokens out of browser code.
+- Generated bundles and avatar definitions are rebuilt by `npm run build`; edit their source/generator instead.
+- Run `npm test` before merging.

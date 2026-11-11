@@ -10,7 +10,7 @@ The existing `students/{uid}` Firestore document may continue storing private ad
 
 ## 3. Dedicated Medical Sheets API
 
-`js/leaderboard-config.js` points at the dedicated Apps Script Web App.
+`js/config/leaderboard-config.js` points at the dedicated Apps Script Web App.
 - Registered users authenticate using a Firebase ID token verified by the API.
 - Guests use a random server-issued Guest token stored locally.
 - Profiles, rewards, exam history, PB, streaks, leaderboard data, and Friends records use the private Google Sheets backend.
