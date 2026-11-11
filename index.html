@@ -368,9 +368,9 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
       #mat-initial-entry-loader:before{transform:scale(1.45)}
       #mat-initial-entry-loader:after{transform:scale(1.9)}
       #mat-initial-entry-loader.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
-      /* Hard CSS failsafe: the splash must never trap visitors, even if app JS stalls. */
-      #mat-initial-entry-loader{animation:matEntryLoaderFailsafe 5s steps(1,end) forwards!important}
-      @keyframes matEntryLoaderFailsafe{to{opacity:0!important;visibility:hidden!important;pointer-events:none!important;display:none!important}}
+      /* The overlay is removed by the app-ready event; this keyframe remains a visual fallback only. */
+      #mat-initial-entry-loader{animation:matEntryLoaderFailsafe 30s steps(1,end) forwards}
+      @keyframes matEntryLoaderFailsafe{to{opacity:0;visibility:hidden;pointer-events:none}}
       #mat-initial-entry-loader .mat-entry-loader-card{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:min(100%,420px);gap:18px;text-align:center}
       #mat-initial-entry-loader .mat-entry-loader-mark{display:grid;place-items:center;width:92px;height:92px;border:1px solid rgba(110,231,183,.34);border-radius:25px;background:linear-gradient(145deg,rgba(16,185,129,.2),rgba(14,116,144,.16));box-shadow:0 0 42px rgba(20,184,166,.16),inset 0 1px rgba(255,255,255,.08);color:#6ee7b7;font-size:39px;animation:matEntryPulse 2s ease-in-out infinite}
       #mat-initial-entry-loader .mat-entry-loader-title{font-size:clamp(21px,5vw,27px);font-weight:800;line-height:1.45;letter-spacing:.01em}
@@ -471,7 +471,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
       </div>
       <div class="mat-entry-loader-footer">মেডিকেল ভর্তি প্রস্তুতি • Practice · Model Test · Progress</div>
     </div>
-    <script>
+    <script id="mat-initial-loader-runtime">
       (function(){
         if(window.__MATInitialLoaderInstalled)return;
         window.__MATInitialLoaderInstalled=true;
@@ -480,59 +480,39 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var status=document.getElementById('mat-entry-loader-status-text');
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
-        var ready={page:document.readyState==='complete',app:!!window.app,questions:false,auth:false,leaderboard:false};
-        var finished=false, displayedProgress=0, startedAt=Date.now(), finishScheduled=false;
-        var minimumDisplayMs=6000;
-        var weights={page:10,app:10,questions:40,auth:20,leaderboard:20};
-        function toBangla(value){return String(value).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯');}
-        function update(message,iconClass){
-          if(!fill||finished)return;
-          var value=Object.keys(ready).reduce(function(total,key){return total+(ready[key]?weights[key]:0);},0);
-          displayedProgress=Math.max(displayedProgress,value);
-          fill.style.width=displayedProgress+'%';
-          if(percent)percent.textContent=toBangla(displayedProgress)+'%';
-          if(status)status.textContent=message;
-          if(icon)icon.className='fa-solid '+iconClass;
-          if(Object.keys(ready).every(function(key){return ready[key];}))finish();
-        }
-        function finish(){
-          if(finished)return;
-          var remaining=minimumDisplayMs-(Date.now()-startedAt);
-          if(remaining>0){
-            if(!finishScheduled){
-              finishScheduled=true;
-              window.setTimeout(function(){finishScheduled=false;finish();},remaining);
-            }
-            return;
-          }
+        var finished=false;
+        function finish(message){
+          if(finished||!overlay)return;
           finished=true;
-          displayedProgress=100;
-          fill.style.width='100%';
+          if(fill)fill.style.width='100%';
           if(percent)percent.textContent='১০০%';
-          if(status)status.textContent='প্রয়োজনীয় প্রাথমিক লোডিং সম্পন্ন!';
+          if(status)status.textContent=message||'ড্যাশবোর্ড প্রস্তুত...';
           if(icon)icon.className='fa-solid fa-circle-check';
+          overlay.classList.add('is-leaving');
           window.setTimeout(function(){
-            overlay.classList.add('is-leaving');
-            window.setTimeout(function(){if(overlay&&overlay.parentNode)overlay.parentNode.removeChild(overlay);},340);
-          },220);
+            if(overlay.parentNode)overlay.parentNode.removeChild(overlay);
+          },360);
         }
-        function hide(){ if(Object.keys(ready).every(function(key){return ready[key];}))finish(); }
-        window.MATInitialLoader={hide:hide};
-        update('ওয়েবসাইট প্রস্তুত করা হচ্ছে...','fa-gear');
-        document.addEventListener('DOMContentLoaded',function(){ready.page=true;update('পেজের কাঠামো প্রস্তুত...','fa-file-circle-check');},{once:true});
-        window.addEventListener('load',function(){ready.page=true;update('প্রয়োজনীয় ফাইল লোড হয়েছে...','fa-file-circle-check');},{once:true});
-        window.addEventListener('medical-app-ready',function(){ready.app=true;update('অ্যাপ চালু হচ্ছে...','fa-user-graduate');},{once:true});
-        window.addEventListener('medical-initial-data-ready',function(event){ready.questions=true;update(event.detail&&event.detail.success?'প্রশ্নব্যাংক লোড সম্পন্ন...':'প্রশ্নব্যাংক লোডে সমস্যা হয়েছে; বাকি প্রস্তুতি চলছে...','fa-database');},{once:true});
-        window.addEventListener('student-auth-state-resolved',function(){ready.auth=true;update('অ্যাকাউন্ট সেশন যাচাই সম্পন্ন...','fa-user-check');},{once:true});
-        window.addEventListener('medical-initial-leaderboard-ready',function(){ready.leaderboard=true;update('লিডারবোর্ড ডেটা লোড সম্পন্ন...','fa-trophy');},{once:true});
-        // Fail open: background Firebase/data requests must never trap the full-screen entry overlay.
-        window.setTimeout(function(){
-          if(finished || !overlay || !overlay.parentNode)return;
-          ready.page=true;ready.app=true;ready.questions=true;ready.auth=true;ready.leaderboard=true;
-          update('ওয়েবসাইট খোলা হচ্ছে...','fa-circle-check');
-        },8000);
-        if(ready.page)update('পেজের কাঠামো প্রস্তুত...','fa-file-circle-check');
-        if(ready.app)update('অ্যাপ চালু হচ্ছে...','fa-user-graduate');
+        function showStartupError(message){
+          if(finished||!overlay)return;
+          if(status)status.textContent=message;
+          if(icon)icon.className='fa-solid fa-triangle-exclamation';
+          console.error('[Medical Admission Tracker] Startup error:',message);
+          window.setTimeout(function(){finish('অ্যাপ খোলা হচ্ছে...');},1400);
+        }
+        window.MATInitialLoader={hide:function(){finish('ড্যাশবোর্ড প্রস্তুত...');}};
+        window.addEventListener('medical-app-ready',function(){
+          finish('ড্যাশবোর্ড প্রস্তুত...');
+        },{once:true});
+        window.addEventListener('error',function(event){
+          var source=String(event.filename||event.target&&event.target.src||'');
+          if(/app\.bundle\.js|firebase-compat\.js/.test(source)){
+            showStartupError('মূল অ্যাপের ফাইল চালু হয়নি: '+(event.message||'স্ক্রিপ্ট লোডে সমস্যা'));
+          }
+        },true);
+        window.addEventListener('unhandledrejection',function(event){
+          console.error('[Medical Admission Tracker] Unhandled promise rejection:',event.reason);
+        });
       })();
     </script>
     <script id="mat-entry-loader-independent-failsafe">
@@ -2339,7 +2319,7 @@ main > .view-section.hidden { display: none !important; }
 <script src="./js/avatar/avataaars-local-definition.js?v=local-svg-renderer-20261111-1"></script>
 <script src="./js/avatar/avatar-creator-extended.js?v=avatar-live-complete-20261111-3"></script>
 <script type="module" src="./js/features/student-ai.js"></script>
-<script type="module" src="./js/app.js?v=single-source-ui-icons-20261111-1"></script>
+<script type="module" src="./js/vendor/app.bundle.js?v=local-firebase-modular-20261111-1"></script>
 <script type="module" src="./js/integrations/integrated-features.js?v=avatar-reference-layout-20261111-2"></script>
 <script src="./js/avatar/avatar-profile-modal.js?v=single-source-ui-icons-20261111-1" defer></script>
 <script src="./js/features/final-trophy-practice.js?v=immortal-single-rank-20261101-1" defer></script>
