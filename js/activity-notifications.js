@@ -51,12 +51,15 @@
   }
   function accountId() {
     const app = window.app || {};
+    if (typeof app.getLocalIdentityKey === 'function') return String(app.getLocalIdentityKey());
     if (app.authUser && app.authUser.uid) return String(app.authUser.uid);
     try {
+      const guestToken = String(localStorage.getItem('med_sheet_guest_token_v1') || '').trim();
+      const guestExpired = !!localStorage.getItem('med_guest_session_expired_v1');
       const guestId = String(localStorage.getItem('med_sheet_guest_id_v1') || '').trim();
-      if (guestId) return guestId;
+      if (guestToken && guestId && !guestExpired) return guestId;
     } catch (_) {}
-    return String(app.profile && (app.profile.userId || app.profile.uid) || 'guest');
+    return 'visitor';
   }
   function stateKey() { return STORAGE_PREFIX + accountId(); }
   function signedInUid() {
