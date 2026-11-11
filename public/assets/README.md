@@ -1,9 +1,9 @@
 # Static SVG Assets
 
-Reusable website artwork. The Avatar Builder's separate editable vector parts are in [avatar/](./avatar/).
+Website-এর reusable visual assets local repository-তে রাখা হয়।
 
-- [Avatar SVG library](./avatar/README.md): character base, hair, headwear, facial features, clothing and accessories.
-- [Pet illustrations](./pets/): companion artwork.
-- [favicon.svg](./favicon.svg): site icon.
+- [Avatar library](./avatar/): complete character presets ও editable avatar component SVG।
+- [Pet illustrations](./pets/): Avatar Builder companion artwork।
+- [favicon.svg](./favicon.svg): site favicon।
 
-From the repository root, reference assets with paths beginning `./public/assets/`.
+Avatar asset edit, category guide, source definition এবং manifest generation-এর জন্য [avatar README](./avatar/README.md) দেখো।
