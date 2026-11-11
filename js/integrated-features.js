@@ -3670,3 +3670,21 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   `;
   document.head.appendChild(style);
 })();
+
+
+/* Icon-font glyph sizing for the shared SVG sprite used by avatar navigation. */
+(() => {
+  if (document.getElementById('mat-avatar-navigation-icon-size')) return;
+  const style = document.createElement('style');
+  style.id = 'mat-avatar-navigation-icon-size';
+  style.textContent = `
+    #profile-avatar-picker.is-expanded .mat-avatar-category i{font-size:25px!important;line-height:1!important}
+    #profile-avatar-picker.is-expanded .mat-avatar-category-arrow i{font-size:18px!important;line-height:1!important}
+    #profile-avatar-picker.is-expanded .profile-avatar-builder-header i{font-size:19px!important;line-height:1!important}
+    @media(max-width:760px){
+      #profile-avatar-picker.is-expanded .mat-avatar-category i{font-size:22px!important}
+      #profile-avatar-picker.is-expanded .mat-avatar-category-arrow i{font-size:16px!important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
