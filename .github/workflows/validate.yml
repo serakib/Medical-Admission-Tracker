@@ -35,6 +35,8 @@ jobs:
             echo "Checking Apps Script $file"
             node --check < "$file"
           done < <(find . -type f -name '*.gs' -not -path './.git/*' -print0)
+      - name: Verify SVG component files match the pinned original vectors
+        run: node scripts/generate-avatar-svg-parts.mjs --check
       - name: Check local assets referenced by index.html
         run: node scripts/check-integrity.mjs
       - name: Check navigation regression
