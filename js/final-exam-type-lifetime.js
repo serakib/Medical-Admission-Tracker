@@ -10,7 +10,8 @@
   style.textContent = '#view-setup #setup-mode-options,#view-setup #setup-subject-area,#view-setup .time-btn{display:none!important} #view-setup .q-count-btn:not([data-final-count="50"]):not([data-final-count="100"]){display:none!important} #view-setup #setup-question-count-options{grid-template-columns:repeat(2,minmax(0,1fr))!important} #weekly-reset-setting,label[for="weekly-reset-setting"],.league-banner{display:none!important} #final-exam-type-panel{border:1px solid rgba(16,185,129,.24);border-radius:16px;padding:16px;background:rgba(16,185,129,.045)} #final-exam-type-panel label{display:block;font-weight:800;font-size:.9rem;margin-bottom:8px} #final-exam-type{width:100%;border:1px solid #94a3b8;border-radius:12px;padding:12px;background:var(--surface,#fff);color:inherit} #final-exam-type-help{margin-top:8px;font-size:.8rem;color:#64748b;line-height:1.6} html.dark #final-exam-type{background:#1f2937}';
   document.head.appendChild(style);
 
-  const historyKey = () => 'med_review_history_v2_' + (app.authUser?.uid || 'guest');
+  const localIdentity = () => typeof app.getLocalIdentityKey === 'function' ? app.getLocalIdentityKey() : String(app.authUser?.uid || 'visitor');
+  const historyKey = () => 'med_review_history_v2_' + localIdentity();
   const qKey = q => String(q?.id || [q?.subject,q?.year,q?.question || q?.questionText].join('|')).toLowerCase().replace(/\s+/g,' ').trim();
   const readHistory = () => { try { const x=JSON.parse(localStorage.getItem(historyKey())||'{}'); return x && typeof x==='object' && !Array.isArray(x) ? x : {}; } catch (_) { return {}; } };
   const writeHistory = value => { try { localStorage.setItem(historyKey(),JSON.stringify(value)); } catch (_) {} };
@@ -141,7 +142,7 @@
   const oldRankUpdate=app.updateProfileRanks?.bind(app);
   if(oldRankUpdate)app.updateProfileRanks=function(rows=[]){
     const sorted=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>Number(b.rankPoints??b.points??0)-Number(a.rankPoints??a.points??0));
-    const uid=this.authUser?.uid||'guest_local', index=sorted.findIndex(row=>row.uid===uid);
+    const uid=localIdentity(), index=sorted.findIndex(row=>row.uid===uid);
     const live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');
     if(live)live.textContent=index>=0?'#'+(index+1):'—';if(best)best.textContent=index>=0?'#'+(index+1):'—';
   };
