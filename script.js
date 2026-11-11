@@ -456,6 +456,19 @@ class MedicalExamApp {
     }
 
     openAuthModal(mode = this.authUser ? 'account' : 'login') {
+        // Email/password authentication belongs exclusively to the separate Login portal.
+        if (mode === 'login') {
+            if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
+            return;
+        }
+        if (mode === 'register') {
+            if (window.MedVisitorAccess && typeof window.MedVisitorAccess.openSignupForm === 'function') {
+                window.MedVisitorAccess.openSignupForm();
+            } else if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') {
+                window.MedVisitorAccess.open();
+            }
+            return;
+        }
         const modal = document.getElementById('authModal');
         if (!modal) return;
         modal.classList.remove('hidden');
@@ -1128,16 +1141,30 @@ class MedicalExamApp {
     }
 
     openAccountAuth(mode = 'login') {
-        const modal = document.getElementById('authModal');
-        if (modal) {
-            this.openAuthModal(mode);
+        // Switch account -> separate Login portal.
+        if (mode === 'login') {
+            if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
             return;
         }
-        if (typeof window.redirectToLogin === 'function') {
-            window.redirectToLogin();
+        // Add account -> collect Name, College and Batch here first. The Login
+        // portal will collect email/password only after the confirmation step.
+        if (mode === 'register') {
+            if (window.MedVisitorAccess && typeof window.MedVisitorAccess.openSignupForm === 'function') {
+                window.MedVisitorAccess.openSignupForm();
+            } else if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') {
+                window.MedVisitorAccess.open();
+            } else {
+                console.warn('Visitor sign-up form is not ready yet.');
+            }
             return;
         }
-        console.warn('Account sign-in UI is not available in this build.');
+        // Account details are shown in-app only for an already active identity.
+        const hasGuest = String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+        if (mode === 'account' && (this.authUser || hasGuest)) {
+            this.openAuthModal('account');
+            return;
+        }
+        if (typeof window.redirectToLogin === 'function') window.redirectToLogin();
     }
 
     showView(viewName, force = false) {
@@ -2250,10 +2277,10 @@ onAuthStateChanged(auth, (user) => {
 
 // গ্লোবাল রিডাইরেক্ট এবং লগআউট ফাংশন
 window.redirectToLogin = function() {
-    // Preserve the active Guest before moving to the separate Registered login page.
+    // Preserve a Guest session when the student explicitly chooses to switch
+    // to a registered account. The Guest account itself is never sent to Login.
     try { window.MedGlobalLeague?.preserveActiveGuestForRegisteredLogin?.(); } catch (error) { console.warn("Guest preservation before login navigation failed:", error); }
-    // Login is a full-page destination; avoid an extra confirmation popup.
-    window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/";
+    window.location.href = "https://serakib.github.io/Medical-Admission-Tracker-login/?mode=login";
 };
 
 window.handleLogout = function() {
