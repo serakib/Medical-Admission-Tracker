@@ -10,8 +10,7 @@
     eyebrowShape: [['defaultNatural','স্বাভাবিক'],['default','সাধারণ'],['raisedExcited','উঁচু'],['angry','গম্ভীর'],['sadConcerned','চিন্তিত'],['flatNatural','সমান']],
     expression: [['smile','হাসি'],['default','স্বাভাবিক'],['serious','গম্ভীর'],['sad','মন খারাপ'],['screamOpen','অবাক'],['twinkle','উজ্জ্বল'],['concerned','চিন্তিত'],['disbelief','অবিশ্বাস'],['eating','খাচ্ছে'],['grimace','বিব্রত'],['tongue','জিহ্বা'],['vomit','বমি']],
     nose: [['default','স্বাভাবিক']],
-    clothingGraphic: [['bat','Bat'],['bear','Bear'],['cumbia','Cumbia'],['deer','Deer'],['diamond','Diamond'],['hola','Hola'],['pizza','Pizza'],['resist','Resist'],['skull','Skull'],['skullOutline','Skull Outline']],
-    nose: [['default','স্বাভাবিক']],
+    clothingGraphic: [['none','নেই']],
     gender: [['male','পুরুষ'],['female','নারী']],
     ageGroup: [['teen','HSC শিক্ষার্থী · ১৬–১৮']],
     hairStyle: [
@@ -41,7 +40,7 @@
     gender:'male', ageGroup:'teen', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile', nose:'default',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'blazerAndShirt', clothingColor:'333344', clothingGraphic:'none',
-    petType:'none', headphones:'none', characterPreset:'m01', clothingGraphic:'bat', nose:'default', background:'a5a8ff'
+    petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
   };
 
     const characterPresets = [
