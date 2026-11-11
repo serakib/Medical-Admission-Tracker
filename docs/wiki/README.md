@@ -37,5 +37,5 @@ https://docs.github.com/en/communities/documenting-your-project-with-wikis/addin
 - [GitHub Repository](https://github.com/serakib/Medical-Admission-Tracker)
 - [Issues & Feedback](https://github.com/serakib/Medical-Admission-Tracker/issues)
 - [Security Policy](../../SECURITY.md)
-- [Accessibility Guidelines](../../ACCESSIBILITY.md)
+- [Accessibility Guidelines](../guides/ACCESSIBILITY.md)
 - [Contribution Guide](../../CONTRIBUTING.md)
