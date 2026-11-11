@@ -33,6 +33,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install pinned frontend build dependencies
+        run: npm install --no-save --no-package-lock tailwindcss@3.4.17 firebase@10.14.1 esbuild@0.24.2 @fortawesome/free-solid-svg-icons@6.4.0 @fortawesome/free-regular-svg-icons@6.4.0 @fortawesome/free-brands-svg-icons@6.4.0
+      - name: Build local frontend assets
+        run: node scripts/build-local-assets.mjs
       - name: Generate local Avataaars browser definition
         run: node scripts/generate-avatar-browser-definition.mjs
       - name: Generate SVG asset manifest

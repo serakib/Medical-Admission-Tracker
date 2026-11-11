@@ -1,0 +1,30 @@
+/* Local SVG icon hosts replacing the remote Font Awesome webfont. */
+i.fa-local-icon-host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-style: normal;
+  line-height: 1;
+  vertical-align: -0.125em;
+}
+i.fa-local-icon-host > svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  overflow: visible;
+  fill: currentColor;
+}
+i.fa-local-icon-host.fa-fw { width: 1.25em; }
+i.fa-local-icon-host.fa-spin > svg,
+i.fa-local-icon-host.fa-pulse > svg {
+  animation: fa-local-spin 2s infinite linear;
+}
+@keyframes fa-local-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  i.fa-local-icon-host.fa-spin > svg,
+  i.fa-local-icon-host.fa-pulse > svg { animation-duration: 8s; }
+}
