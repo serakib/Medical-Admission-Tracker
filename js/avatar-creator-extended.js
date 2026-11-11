@@ -202,7 +202,7 @@
     const eyebrows = part('eyebrows', c.eyebrowShape, 'eyebrows', 'translate(91.86 82)', 'mat-eyebrows');
     const topVariant = c.hat !== 'none' ? c.hat : c.hairStyle;
     const topCategory = findManifestAsset('hair', topVariant) ? 'hair' : 'headwear';
-    const top = part(topCategory, topVariant, 'top', 'translate(8 0)', 'mat-top');
+    const top = part(topCategory, topVariant, 'top', 'translate(8)', 'mat-top');
     const beard = c.facialHair !== 'none'
       ? part('facial-hair', c.facialHair, 'facialHair', 'translate(81 98)', 'mat-facial-hair')
       : '';
