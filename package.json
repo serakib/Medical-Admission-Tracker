@@ -15,12 +15,13 @@
     "check:svg": "node scripts/generate-avatar-svg-parts.mjs --check",
     "check:integrity": "node scripts/check-integrity.mjs",
     "test:navigation": "node scripts/test-navigation.mjs",
-    "validate": "npm run build && npm run audit && npm run check:syntax && npm run check:svg && npm run check:integrity && npm run test:navigation && npm run test:pwa && npm run check:performance",
+    "validate": "npm run build && npm run audit && npm run check:syntax && npm run check:svg && npm run check:integrity && npm run test:navigation && npm run test:pwa && npm run check:performance && npm run check:repo-metadata",
     "test": "npm run validate",
     "check:syntax": "node scripts/check-syntax.mjs",
     "audit": "npm audit --audit-level=low",
     "test:pwa": "node scripts/test-pwa.mjs",
-    "check:performance": "node scripts/check-performance.mjs"
+    "check:performance": "node scripts/check-performance.mjs",
+    "check:repo-metadata": "node scripts/check-repo-metadata.mjs"
   },
   "devDependencies": {
     "@fortawesome/free-brands-svg-icons": "6.4.0",
