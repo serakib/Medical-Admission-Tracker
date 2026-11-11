@@ -1404,19 +1404,24 @@
   };
   const readAvatar = () => {
     const id = avatarAccountId();
-    let manual = false;
-    try { manual = localStorage.getItem(manualAvatarKey()) === '1'; } catch (_) {}
-    // The confirmed shared profile wins everywhere; browser-only avatar copies
-    // are migration/offline fallbacks, never competing sources of truth.
+    let manual = false, localValue = '';
+    try {
+      manual = localStorage.getItem(manualAvatarKey()) === '1';
+      localValue = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || '';
+    } catch (_) {}
+    // An explicitly selected local custom avatar takes precedence while offline
+    // or while its server confirmation is pending.
+    if (manual && isAvatarSource(localValue) && !isLegacyPortraitAvatar(stripAvatarDefaultMarker(localValue))) {
+      return stripAvatarDefaultMarker(localValue);
+    }
+    // The confirmed shared profile is authoritative across devices. A Gmail photo
+    // remains a single image; it is never passed through the character-layer renderer.
     const sharedRaw = String(app.profile?.avatar || '').trim();
     if (isRenderableAvatarSource(sharedRaw) && !isStoredDefaultAvatar(sharedRaw) && !isLegacyPortraitAvatar(stripAvatarDefaultMarker(sharedRaw))) return stripAvatarDefaultMarker(sharedRaw);
     const googleAvatar = readGoogleAvatar();
     if (googleAvatar && !manual) return googleAvatar;
-    try {
-      const value = localStorage.getItem(avatarKey()) || localStorage.getItem(legacyAvatarKey()) || '';
-      if (isLegacyPortraitAvatar(stripAvatarDefaultMarker(value))) return defaultAvatarForUser(id);
-      if (isAvatarSource(value)) return stripAvatarDefaultMarker(value);
-    } catch (_) {}
+    if (isLegacyPortraitAvatar(stripAvatarDefaultMarker(localValue))) return defaultAvatarForUser(id);
+    if (isAvatarSource(localValue)) return stripAvatarDefaultMarker(localValue);
     return defaultAvatarForUser(id);
   };
   let defaultAvatarSyncInFlight = null;
