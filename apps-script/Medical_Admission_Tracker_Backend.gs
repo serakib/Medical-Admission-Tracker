@@ -3473,7 +3473,7 @@ function matAdminSaveFixedPromoCode_(p){
  const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();
  if(!root||matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can change the Admin-only Promo Code settings.');
  const code=String(p.code||'').trim().toUpperCase();
- if(code.length<3||code.length>80||/^DAILY \\d{2}-\\d{2}-\\d{4}$/.test(code)||/^WEEK \\d{2} [A-Z]{3} - \\d{2} [A-Z]{3}$/.test(code))throw new Error('Admin-only Promo Code must be 3–80 characters and cannot use a reserved Daily/Weekly format.');
+ if(code.length<3||code.length>80||/^DAILY \d{2}-\d{2}-\d{4}$/.test(code)||/^WEEK \d{2} [A-Z]{3} - \d{2} [A-Z]{3}$/.test(code))throw new Error('Admin-only Promo Code must be 3–80 characters and cannot use a reserved Daily/Weekly format.');
  const reward=matSafeNonNegativeInt_(p.rewardPB,'Master Admin Reward PB');
  const limit=matSafeNonNegativeInt_(p.limitCount,'Master Admin redemption limit');
  const rawPeriod=String(p.limitPeriod||'').trim().toUpperCase();
@@ -3545,7 +3545,8 @@ function matPromoEffectiveConfig_(user, kind, publicCode) {
 function matPromoAdminMemberConfig_(row, code) {
   row = row || {};
   // A member-specific Admin override wins; otherwise use Super Admin's shared master settings.
-  const rewardDefault = matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB') || 100000, 'Master Admin Reward PB');
+  const configuredReward = matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB');
+  const rewardDefault = matSafeNonNegativeInt_(configuredReward === '' ? 100000 : configuredReward, 'Master Admin Reward PB');
   const limitDefault = matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT') || 0, 'Master Admin redemption limit');
   const periodDefault = matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD') || 'UNLIMITED');
   const reward = row.AdminRewardPB === '' || row.AdminRewardPB == null ? rewardDefault : matSafeNonNegativeInt_(row.AdminRewardPB, 'Admin Reward PB');
@@ -3573,12 +3574,13 @@ function matAdminGetPromoConfig_(p) {
   const root = String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL') || '').trim().toLowerCase();
   const canManage = !!root && matPromoEmail_(actor) === root;
   const g = all.global;
+  const fixedRewardRaw = matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB');
   return {success:true, canManage:canManage, global:{
     code:String(g.Code || ''), rewardPB:g.RewardPB === '' || g.RewardPB == null ? '' : Number(g.RewardPB),
     limitCount:g.LimitCount === '' || g.LimitCount == null ? '' : Number(g.LimitCount),
     limitPeriod:String(g.LimitPeriod || 'DAILY'), enabled:String(g.Enabled || 'TRUE') !== 'FALSE'
   }, fixedCode:canManage ? matPromoFixedCode_() : '',
-  fixedRewardPB:canManage ? matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_REWARD_PB') || 100000, 'Master Admin Reward PB') : null,
+  fixedRewardPB:canManage ? matSafeNonNegativeInt_(fixedRewardRaw === '' ? 100000 : fixedRewardRaw, 'Master Admin Reward PB') : null,
   fixedLimitCount:canManage ? matSafeNonNegativeInt_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_COUNT') || 0, 'Master Admin redemption limit') : null,
   fixedLimitPeriod:canManage ? matPromoNormalizePeriod_(matScriptProperty_('MAT_PROMO_FIXED_LIMIT_PERIOD') || 'UNLIMITED') : '',
   fixedEnabled:matScriptProperty_('MAT_PROMO_FIXED_ENABLED') !== 'FALSE'};
