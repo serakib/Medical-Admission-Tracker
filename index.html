@@ -2195,8 +2195,7 @@ main > .view-section.hidden { display: none !important; }
     trickleTimer = setInterval(trickle, 160);
     watchdogTimer = setTimeout(function () {
       pending = 0;
-      // Safety fallback: never leave a control stuck in its loading state.
-      restoreActionButton();
+      // Safety fallback for the page progress bar only; button feedback has its own lifecycle.
       finish();
     }, MAX_ACTIVE_MS);
   }
@@ -2260,8 +2259,7 @@ main > .view-section.hidden { display: none !important; }
     bar.classList.remove('is-finishing');
     watchdogTimer = setTimeout(function () {
       pending = 0;
-      // A stalled request must not leave the button showing Loading/Saving forever.
-      restoreActionButton();
+      // A stalled request must not leave the page progress bar running forever.
       finish();
     }, MAX_ACTIVE_MS);
   }
@@ -2297,17 +2295,14 @@ main > .view-section.hidden { display: none !important; }
     var nativeSend = xhrProto.send;
     xhrProto.send = function () {
       var xhr = this, ended = false;
+      var actionRequestRecord = trackActionRequestStart();
       function endOnce() {
         if (ended) return;
         ended = true;
         requestEnd();
-        if (actionButton) {
-          actionRequestCount = Math.max(0, actionRequestCount - 1);
-          if (actionRequestCount === 0) finishActionButtonSoon(550);
-        }
+        trackActionRequestEnd(actionRequestRecord);
       }
       requestStart();
-      if (actionButton) { actionRequestCount += 1; clearTimeout(actionRestoreTimer); }
       xhr.addEventListener('loadend', endOnce, { once: true });
       try { return nativeSend.apply(xhr, arguments); }
       catch (error) { endOnce(); throw error; }
