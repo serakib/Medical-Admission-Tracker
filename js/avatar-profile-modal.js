@@ -5,11 +5,11 @@
   const css = `
     .mat-profile-edit-wrap{position:relative!important}
     .mat-profile-edit-badge{position:absolute;right:0;bottom:0;display:grid;place-items:center;width:32px;height:32px;border:3px solid #1a1a24;border-radius:50%;background:#10b981;color:#121218;cursor:pointer;z-index:5}
-    .mat-profile-edit-badge svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .mat-profile-edit-badge i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .mat-profile-modal[hidden]{display:none!important}
     .mat-profile-modal{position:fixed;inset:0;z-index:100040;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
     .mat-profile-modal-card{position:relative;width:min(320px,100%);padding:24px;border-radius:16px;background:#1a1a24;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3)}
-     .mat-profile-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#fff;cursor:pointer}.mat-profile-modal-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+     .mat-profile-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#fff;cursor:pointer}.mat-profile-modal-close i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
     .mat-profile-modal h2{margin:0;padding:0 24px;text-align:center;font-size:19px;font-weight:850;line-height:1.5}
     .mat-profile-modal-actions{display:flex;flex-direction:column;gap:12px;margin-top:20px}
     .mat-profile-modal-status[hidden]{display:none!important}.mat-profile-modal-status{margin:12px 0 0;color:#ff8a80;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
@@ -41,7 +41,7 @@
       overlay.className = 'mat-profile-modal';
       overlay.hidden = true;
       overlay.innerHTML = '<section class="mat-profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="mat-profile-modal-title">' +
-        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+        '<button class="mat-profile-modal-close" type="button" aria-label="বন্ধ করুন"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
         '<h2 id="mat-profile-modal-title">আভাটার আপডেট</h2>' +
         '<div class="mat-profile-modal-actions">' +
           '<button type="button" class="mat-profile-modal-action mat-profile-modal-edit">আভাটার এডিট করো</button>' +
@@ -78,7 +78,7 @@
       button.type = 'button';
       button.className = 'mat-profile-edit-badge';
       button.setAttribute('aria-label', 'আভাটার আপডেট');
-      button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+      button.innerHTML = '<i class="fa-solid fa-pen" aria-hidden="true"></i>';
       button.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();

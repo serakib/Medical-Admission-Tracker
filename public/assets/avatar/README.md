@@ -44,3 +44,12 @@ node scripts/generate-avatar-svg-parts.mjs --check
 This checks existing official component SVG geometry against the pinned vector source at `scripts/data/avataaars-style-definition.json`. Use `--write` only when deliberately regenerating official component artwork from that source.
 
 Artwork credits and license notes: [ASSET-CREDITS.md](../ASSET-CREDITS.md) and [ATTRIBUTION.md](../ATTRIBUTION.md).
+
+
+## One-source display rule
+
+- Asset cards load the original manifest path directly with `<img src="./public/assets/...svg">`.
+- Do not serialize, recolor, duplicate, wrap, or convert a source asset into a `data:image/svg+xml` thumbnail for the option panel.
+- If an option has no matching original SVG, display its label as text. Never generate a substitute full-avatar thumbnail.
+- Color choices remain separate color swatches; they do not modify the artwork in the source asset card.
+- The headphone control remains hidden until the repository contains a real, separately editable headphone SVG.

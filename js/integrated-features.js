@@ -723,7 +723,7 @@
     #profile-avatar-picker.is-expanded .profile-avatar-builder-header{display:flex;align-items:center;gap:12px;flex:0 0 40px;width:100%;max-width:960px;margin:0 auto}
     #profile-avatar-picker.is-expanded .profile-avatar-builder-header h2{margin:0;color:#fff;font-size:clamp(18px,2.4vw,24px);font-weight:800;line-height:1.3}
     #profile-avatar-picker.is-expanded .profile-avatar-builder-header button{display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;border:1px solid #383846;border-radius:10px;background:#1a1a24;color:#fff}
-    #profile-avatar-picker.is-expanded .profile-avatar-builder-header svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    #profile-avatar-picker.is-expanded .profile-avatar-builder-header i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .mat-avatar-workspace{display:grid;grid-template-columns:340px minmax(0,1fr);gap:24px;width:100%;max-width:960px;min-height:0;flex:1;margin:0 auto;overflow:hidden}
     .mat-avatar-preview-panel{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:0;padding:20px;border-radius:16px;background:#1a1a24}
     .mat-avatar-reset{position:absolute;top:16px;right:16px;padding:6px 12px;border:1px solid #ffffff18;border-radius:12px;background:#ffffff12;color:#fff;font-size:12px;font-weight:700}
@@ -785,7 +785,7 @@
     .mat-avatar-category-bar{height:74px;flex:0 0 74px;align-items:stretch;justify-content:space-around;gap:0;margin:0;padding:0 8px;border-bottom:1px solid #77777b;border-radius:30px 30px 0 0;background:#171717;scrollbar-width:none}
     .mat-avatar-category-bar::-webkit-scrollbar{display:none}
     .mat-avatar-category{position:relative;display:grid;place-items:center;min-width:54px;min-height:72px;flex:1 0 54px;padding:8px 10px;border:0;border-bottom:4px solid transparent;border-radius:0;background:transparent;color:#777;font-size:0}
-    .mat-avatar-category svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mat-avatar-category i{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .mat-avatar-category.is-active{border-bottom-color:#10b981;color:#10b981}
     .mat-avatar-category:hover{color:#d1d5db}
     .mat-avatar-category.is-active:hover{color:#10b981}
@@ -814,7 +814,7 @@
       .mat-avatar-controls{border-radius:20px}
       .mat-avatar-category-bar{height:60px;flex-basis:60px;border-radius:20px 20px 0 0;justify-content:flex-start;overflow-x:auto}
       .mat-avatar-category{min-width:48px;min-height:58px;flex-basis:48px;padding:7px}
-      .mat-avatar-category svg{width:22px;height:22px}
+      .mat-avatar-category i{width:22px;height:22px}
       .mat-avatar-options-scroll{padding:14px 12px;gap:18px}
       .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
       .mat-avatar-option{min-height:48px;padding:6px}
@@ -846,7 +846,7 @@
     .mat-avatar-category-bar{display:flex;flex:0 0 68px;align-items:stretch;justify-content:space-around;gap:0;min-width:0;margin:0;padding:0 8px;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid #555;border-radius:inherit;background:#171717;scrollbar-width:none}
     .mat-avatar-category-bar::-webkit-scrollbar{display:none}
     .mat-avatar-category{display:grid;place-items:center;flex:1 0 48px;min-width:48px;min-height:66px;padding:8px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#888;font-size:0!important}
-    .mat-avatar-category svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mat-avatar-category i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .mat-avatar-category.is-active{border-bottom-color:#10b981;color:#10b981}
     .mat-avatar-options-scroll{display:block!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;scrollbar-width:thin;scrollbar-color:#45454d transparent;padding:20px 18px 24px!important;scroll-behavior:smooth}
     .mat-avatar-group-section{display:grid;gap:20px;margin:0 0 30px}
@@ -878,7 +878,7 @@
       .mat-avatar-controls{border-radius:16px}
       .mat-avatar-category-bar{height:56px;flex-basis:56px;justify-content:flex-start;overflow-x:auto}
       .mat-avatar-category{min-width:46px;min-height:54px;flex-basis:46px}
-      .mat-avatar-category svg{width:21px;height:21px}
+      .mat-avatar-category i{width:21px;height:21px}
       .mat-avatar-options-scroll{padding:13px 11px 18px!important}
       .mat-avatar-option-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
       .mat-avatar-option{min-height:60px}
@@ -914,7 +914,7 @@
     .mat-avatar-option:has(.mat-avatar-swatch) .mat-avatar-swatch{width:100%;height:100%;border:0;border-radius:9px}
     .mat-avatar-option:has(.mat-avatar-swatch).is-selected{padding:2px}
     .mat-avatar-category{font-size:0!important}
-    .mat-avatar-category svg{width:25px;height:25px}
+    .mat-avatar-category i{width:25px;height:25px}
     .mat-avatar-preview-caption{display:none!important}
     .mat-avatar-controls{min-height:0}
     .mat-avatar-actions{position:relative;flex:0 0 auto}
@@ -929,7 +929,7 @@
     .mat-avatar-live-layer{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;opacity:0;transform:scale(.965);filter:blur(3px);transition:opacity .68s cubic-bezier(.22,.61,.36,1),transform .68s cubic-bezier(.22,.61,.36,1),filter .68s cubic-bezier(.22,.61,.36,1);pointer-events:none;will-change:opacity,transform,filter}
     #sidebar-user-avatar{position:relative}
     .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{position:absolute;right:-2px;bottom:-2px;z-index:20;display:grid;place-items:center;width:20px;height:20px;padding:0;border:2px solid #0a1220;border-radius:50%;background:#10b981;color:#052e20;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28)}
-    .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit i{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     html[data-theme="light"] .sidebar-user-avatar-wrap .mat-sidebar-avatar-edit{border-color:#fff}
     .mat-avatar-live-layer.is-visible{opacity:1;transform:scale(1);filter:blur(0)}
     .mat-avatar-live-layer>img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
@@ -1128,11 +1128,6 @@
     #profile-avatar-picker.is-expanded .mat-avatar-option:has(.mat-avatar-swatch).is-selected{padding:2px!important}
     #profile-avatar-picker.is-expanded .mat-avatar-preview-panel .med-avatar-stack{
       position:relative!important;isolation:isolate!important;
-    }
-    #profile-avatar-picker.is-expanded .med-avatar-stack .med-avatar-headphones{
-      position:absolute!important;inset:0!important;z-index:0!important;
-      display:block!important;width:100%!important;height:100%!important;
-      overflow:visible!important;pointer-events:none!important;
     }
     #profile-avatar-picker.is-expanded .med-avatar-stack .med-avatar-base{
       position:absolute!important;inset:0!important;z-index:1!important;
@@ -1427,7 +1422,7 @@
     }
     .mat-avatar-category-navigation .mat-avatar-category-arrow[hidden]{display:none!important}
     .mat-avatar-category-navigation .mat-avatar-category-arrow:hover{color:#f4f4f5}
-    .mat-avatar-category-navigation .mat-avatar-category-arrow svg{
+    .mat-avatar-category-navigation .mat-avatar-category-arrow i{
       width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;
       stroke-linecap:round;stroke-linejoin:round;
     }
@@ -1581,13 +1576,20 @@
     }
   `;
 
+  avatarAssetCardStyle.textContent += `
+    #profile-avatar-picker.is-expanded .mat-avatar-option-fallback-label{
+      display:grid!important;place-items:center!important;width:100%!important;height:100%!important;
+      padding:7px!important;color:inherit!important;font-size:12px!important;font-weight:850!important;
+      line-height:1.35!important;text-align:center!important;overflow-wrap:anywhere!important;
+    }
+  `;
   document.head.appendChild(avatarAssetCardStyle);
 
   /* Per-account avatar selector with multi-upload support for raster and SVG images. */
   const avatarChoices = Array.from({length:16}, (_, i) => window.MedAvatarCreator.render(window.MedAvatarCreator.defaultConfig('student-preset-' + i)));
   // Keep broken remote avatar URLs from exposing their alt text in profile circles.
   // This embedded portrait is local, so it also works offline and when the avatar CDN fails.
-  const avatarFallbackDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="64" fill="#7b1fa2"/><text x="64" y="86" text-anchor="middle" font-family="Arial,sans-serif" font-size="68" font-weight="800" fill="#ffffff">R</text></svg>');
+  const avatarFallbackAsset = './public/assets/avatar/characters/m01.svg';
   document.addEventListener('error', event => {
     const image = event.target;
     if (!(image instanceof HTMLImageElement)) return;
@@ -1596,7 +1598,7 @@
     if (!isAvatarImage || image.dataset.avatarFallbackApplied === '1') return;
     image.dataset.avatarFallbackApplied = '1';
     image.alt = '';
-    image.src = avatarFallbackDataUri;
+    image.src = avatarFallbackAsset;
   }, true);
   const avatarAccountId = () => {
     // Visitor avatar choices stay under a local-only Visitor key. Never invent
@@ -1864,40 +1866,6 @@
       glasses:'accessories', hat:'headwear', clothingType:'clothing', clothingGraphic:'clothing-graphics', petType:'pets', characterPreset:'characters'
     };
     const manifest = window.MedAvatarCreator.assetManifest?.categories || {};
-    const validColor = (value, fallback) => {
-      const raw = String(value || '').replace(/^#/, '');
-      return /^[0-9a-f]{6}$/i.test(raw) ? '#' + raw : fallback;
-    };
-    const svgPreviewSource = asset => {
-      const version = String(window.MedAvatarCreator.assetManifest?.version || '');
-      const fallbackPath = String(asset.path || '') + (version ? '?v=' + encodeURIComponent(version) : '');
-      if (typeof asset.content !== 'string' || !asset.content.trim()) return fallbackPath;
-      try {
-        const parsed = new DOMParser().parseFromString(asset.content, 'image/svg+xml');
-        if (parsed.querySelector('parsererror') || parsed.documentElement.localName !== 'svg') return fallbackPath;
-        const root = parsed.documentElement;
-        const colors = [
-          '--avatar-skin:' + validColor(config.skinTone, '#edb98a'),
-          '--avatar-hair:' + validColor('#' + String(config.hairColor || '2c1b18').replace(/^#/, ''), '#2c1b18'),
-          '--avatar-clothes:' + validColor('#' + String(config.clothingColor || '2563eb').replace(/^#/, ''), '#2563eb'),
-          '--avatar-facialHair:' + validColor('#' + String(config.facialHairColor || '2c1b18').replace(/^#/, ''), '#2c1b18'),
-          '--avatar-accessories:#262e33',
-          '--avatar-hat:' + validColor('#' + String(config.hatColor || 'dc2626').replace(/^#/, ''), '#dc2626')
-        ];
-        root.setAttribute('style', colors.join(';'));
-        root.querySelectorAll('script,foreignObject,iframe,object,embed').forEach(node => node.remove());
-        root.querySelectorAll('*').forEach(node => {
-          Array.from(node.attributes).forEach(attribute => {
-            const name = attribute.name.toLowerCase();
-            if (name.startsWith('on')) node.removeAttribute(attribute.name);
-            else if ((name === 'href' || name.endsWith(':href')) && attribute.value && !attribute.value.startsWith('#')) node.removeAttribute(attribute.name);
-          });
-        });
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(root));
-      } catch (_) {
-        return fallbackPath;
-      }
-    };
     const findAsset = (folder, value) => {
       const list = Array.isArray(manifest[folder]) ? manifest[folder] : [];
       return list.find(asset => {
@@ -1914,7 +1882,7 @@
         const label = String(option.label || raw);
         const safeLabel = label.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         const isSkinTone = field.key === 'skinTone';
-        const isColor = field.key !== 'headphones' && /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(raw);
+        const isColor = /^(?:#[0-9a-f]{6}|[0-9a-f]{6})$/i.test(raw);
         let visual = '';
         if (isColor) {
           const color = '#' + raw.replace(/^#/, '');
@@ -1927,22 +1895,15 @@
           // Hijab is stored with headwear parts, not hairstyle parts.
           if (!asset && field.key === 'hairStyle' && raw.toLowerCase() === 'hijab') asset = findAsset('headwear', raw);
           if (asset && asset.path) {
-            const previewSource = svgPreviewSource(asset);
-            const safePath = previewSource.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+            const assetVersion = String(window.MedAvatarCreator.assetManifest?.version || '');
+            const assetPath = String(asset.path) + (assetVersion ? '?v=' + encodeURIComponent(assetVersion) : '');
+            const safePath = assetPath.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
             visual = '<span class="mat-avatar-option-art-frame"><img class="mat-avatar-option-art" src="' + safePath + '" alt="" loading="lazy" decoding="async" draggable="false"></span>';
           } else if (raw === 'none') {
             visual = '<span class="mat-avatar-option-none">নেই</span>';
           } else {
-            const thumbnailInput = field.key === 'characterPreset'
-              ? window.MedAvatarCreator.applyCharacterPreset(option.value, config)
-              : field.key === 'gender'
-                ? window.MedAvatarCreator.applyCharacterPreset(option.value === 'female' ? 'f01' : 'm01', config)
-                : Object.assign({}, config, { [field.key]: option.value });
-            if (field.key === 'hairStyle') thumbnailInput.hat = 'none';
-            if (field.key !== 'petType') thumbnailInput.petType = 'none';
-            const thumbnailConfig = window.MedAvatarCreator.normalize(thumbnailInput);
-            const thumbnailSource = window.MedAvatarCreator.render(thumbnailConfig);
-            visual = window.MedAvatarCreator.renderLayersMarkup(thumbnailSource, thumbnailConfig, 'mat-avatar-option-preview-stack');
+            // No corresponding source SVG: show text instead of creating placeholder portrait art.
+            visual = '<span class="mat-avatar-option-fallback-label">' + safeLabel + '</span>';
           }
         }
         return '<button type="button" class="mat-avatar-option' + (field.key === 'characterPreset' ? ' mat-avatar-character-card' : '') + (isSkinTone ? ' mat-avatar-skin-tone-option' : '') + (selected ? ' is-selected' : '') +
@@ -1950,7 +1911,7 @@
           (isSkinTone ? '" data-avatar-color="' + raw.replace(/^#/,'') : '') +
           '" title="' + (field.key === 'characterPreset' ? 'চরিত্র' : safeLabel) + (isSkinTone ? ' · #' + raw.replace(/^#/,'') : '') +
           '" aria-label="' + (field.key === 'characterPreset' ? 'চরিত্র' : field.title + ': ' + safeLabel) + (isSkinTone ? ', #' + raw.replace(/^#/,'') : '') + '" aria-pressed="' + String(selected) + '">' + visual +
-          (field.key === 'gender' ? '<span class="mat-avatar-option-label">' + label + '</span>' : '') + '</button>';
+          '</button>';
       }).join('') +
     '</div></section>';
   }
@@ -2111,29 +2072,27 @@
     }
 
     const avatarCategoryIcons = {
-      body:'<circle cx="12" cy="7" r="3.2"/><path d="M5 21v-2.2a7 7 0 0 1 14 0V21M8 12l-2 2m10-2 2 2"/>',
-      eyes:'<path d="M2.5 12s3.4-5 9.5-5 9.5 5 9.5 5-3.4 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.2"/>',
-      eyebrows:'<path d="M3 9c3-3 6-3 9-1m0 0c3-2 6-2 9 1"/>',
-      nose:'<path d="M12 4v9c0 2 2 3 4 3"/>',
-      mouth:'<path d="M4 14c2.2 4 13.8 4 16 0"/><path d="M6 12h12"/>',
-      hair:'<path d="M4 13a8 8 0 0 1 16 0v2H4zM4 12c0-5 3-8 8-8s8 3 8 8M8 5l-2-2m10 2 2-2"/>',
-      beard:'<path d="M5 9c0 7 3 12 7 12s7-5 7-12M5 9l-2-3m16 3 2-3M8 14l4 3 4-3"/>',
-      glasses:'<path d="M2 10h3l1 7h5l2-5h-2l2 5h5l1-7h3M11 12h2"/>',
-      headphones:'<path d="M4 13v-2a8 8 0 0 1 16 0v2M3 13h4v7H5a2 2 0 0 1-2-2zm14 0h4v5a2 2 0 0 1-2 2h-2z"/>',
-      clothes:'<path d="m8 4 4 2 4-2 5 4-3 4-2-2v10H8V10l-2 2-3-4z"/>',
-      pets:'<path d="M7 10c-2-3-5-2-5 1 0 2 2 3 4 2m11-3c2-3 5-2 5 1 0 2-2 3-4 2M8 17c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/>',
-      background:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/>'
+      body:'fa-solid fa-user',
+      skin:'fa-solid fa-droplet',
+      eyes:'fa-solid fa-eye',
+      eyebrows:'fa-solid fa-eye-low-vision',
+      nose:'fa-solid fa-circle-dot',
+      mouth:'fa-solid fa-face-smile',
+      hair:'fa-solid fa-scissors',
+      glasses:'fa-solid fa-glasses',
+      clothes:'fa-solid fa-shirt',
+      pets:'fa-solid fa-paw',
+      background:'fa-solid fa-palette'
     };
     const groups = [
       {key:'character',title:'শিক্ষার্থী',icon:'body',fields:[{key:'gender',title:'লিঙ্গ'},{key:'characterPreset',title:'চরিত্র বেছে নাও'}]},
-      {key:'face',title:'মুখ ও ত্বক',icon:'mouth',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
+      {key:'face',title:'মুখ ও ত্বক',icon:'skin',fields:[{key:'skinTone',title:'ত্বকের রঙ'}]},
       {key:'eyes',title:'চোখ',icon:'eyes',fields:[{key:'eyeShape',title:'চোখের ধরন'}]},
       {key:'eyebrows',title:'ভ্রু',icon:'eyebrows',fields:[{key:'eyebrowShape',title:'ভ্রুর ধরন'}]},
       {key:'nose',title:'নাক',icon:'nose',fields:[{key:'nose',title:'নাকের ধরন'}]},
       {key:'mouth',title:'মুখ',icon:'mouth',fields:[{key:'expression',title:'মুখের অভিব্যক্তি'}]},
       {key:'hair',title:'চুল',icon:'hair',fields:[{key:'hairStyle',title:'চুলের ধরন'},{key:'hairColor',title:'চুলের রঙ'}]},
       {key:'glasses-hat',title:'চশমা ও টুপি',icon:'glasses',fields:[{key:'glasses',title:'চশমা'},{key:'hat',title:'টুপি'},{key:'hatColor',title:'টুপি রঙ'}]},
-      {key:'headphones',title:'হেডফোন',icon:'headphones',fields:[{key:'headphones',title:'হেডফোন / কানের অ্যাক্সেসরি'}]},
       {key:'clothing',title:'পোশাক',icon:'clothes',fields:[{key:'clothingType',title:'পোশাকের ধরন'},{key:'clothingColor',title:'পোশাকের রঙ'},{key:'clothingGraphic',title:'পোশাকের ডিজাইন'}]},
       {key:'pets-bg',title:'পোষা সঙ্গী',icon:'pets',fields:[{key:'petType',title:'পোষা সঙ্গী'}]},
       {key:'background',title:'ব্যাকগ্রাউন্ড',icon:'background',fields:[{key:'background',title:'ব্যাকগ্রাউন্ড'}]}
@@ -2149,16 +2108,16 @@
     const activeGroup = groups.find(group => group.key === activeAvatarGroup) || groups[0];
     const fieldMarkup = field => avatarOptionFieldMarkup(field, config);
     const builderMarkup = avatarPickerExpanded
-      ? '<header class="profile-avatar-builder-header"><button type="button" id="profile-avatar-builder-back" aria-label="ফিরে যাও"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><h2>তোমার আভাটার বানাও</h2></header>' +
+      ? '<header class="profile-avatar-builder-header"><button type="button" id="profile-avatar-builder-back" aria-label="ফিরে যাও"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button><h2>তোমার আভাটার বানাও</h2></header>' +
         '<div class="mat-avatar-workspace">' +
           '<section class="mat-avatar-preview-panel" style="background-color:#' + String(config.background || 'a5a8ff').replace(/^#/, '') + '"><button type="button" id="profile-avatar-reset" class="mat-avatar-reset">রিসেট করুন</button>' +
             window.MedAvatarCreator.renderLayersMarkup(window.MedAvatarCreator.render(config), config, 'profile-avatar-preview-stack') +
             '<span class="mat-avatar-preview-caption">Live Preview</span></section>' +
           '<section class="mat-avatar-controls"><div class="mat-avatar-category-navigation">' +
-            '<button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="-1" aria-label="আগের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>' +
+            '<button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="-1" aria-label="আগের ক্যাটাগরি" hidden><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
             '<nav class="mat-avatar-category-bar" aria-label="Avatar categories">' +
-            groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + avatarCategoryIcons[group.icon] + '</svg></button>').join('') +
-            '</nav><button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="1" aria-label="পরের ক্যাটাগরি" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.filter(field => field.key !== 'clothingGraphic' || config.clothingType === 'graphicShirt').map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
+            groups.map(group => '<button type="button" class="mat-avatar-category' + (group.key === activeGroup.key ? ' is-active' : '') + '" data-avatar-group="' + group.key + '" aria-label="' + group.title + '" aria-pressed="' + String(group.key === activeGroup.key) + '"><i class="' + avatarCategoryIcons[group.icon] + '" aria-hidden="true"></i></button>').join('') +
+            '</nav><button type="button" class="mat-avatar-category-arrow" data-avatar-category-scroll="1" aria-label="পরের ক্যাটাগরি" hidden><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div><div class="mat-avatar-options-scroll">' + groups.map(group => '<div class="mat-avatar-group-section" id="mat-avatar-group-' + group.key + '" data-avatar-group-section="' + group.key + '">' + group.fields.filter(field => field.key !== 'clothingGraphic' || config.clothingType === 'graphicShirt').map(fieldMarkup).join('') + '</div>').join('') + '</div>' +
           '<div class="mat-avatar-actions"><button type="button" id="profile-avatar-confirm" class="profile-avatar-confirm-button"' + (pendingAvatarSource === current ? ' disabled' : '') + '>কনফার্ম করো</button><span id="mat-avatar-save-feedback" class="mat-avatar-save-feedback" role="status" aria-live="polite" hidden></span></div></section>' +
         '</div>'
       : '';
@@ -2294,7 +2253,7 @@
           edit.type = 'button';
           edit.className = 'mat-sidebar-avatar-edit';
           edit.setAttribute('aria-label','আভাটার এডিট');
-          edit.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>';
+          edit.innerHTML = '<i class="fa-solid fa-pen" aria-hidden="true"></i>';
           edit.addEventListener('click',event => { event.preventDefault(); event.stopPropagation(); window.MedAvatarProfileModal?.open(); });
           wrapper.appendChild(edit);
         }
@@ -3322,7 +3281,7 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
       color:#e8e8eb!important;font-size:0!important;line-height:1;
       opacity:.88;transition:background .18s ease,border-color .18s ease,opacity .18s ease,transform .18s ease;
     }
-    .mat-avatar-controls .mat-avatar-category svg{
+    .mat-avatar-controls .mat-avatar-category i{
       display:block!important;width:25px!important;height:25px!important;
       fill:none!important;stroke:#f1f1f3!important;stroke-width:1.85!important;
       stroke-linecap:round!important;stroke-linejoin:round!important;
@@ -3419,7 +3378,7 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
       .mat-avatar-controls .mat-avatar-category{
         flex:0 0 42px!important;width:42px;min-width:42px;height:42px;min-height:42px;
       }
-      .mat-avatar-controls .mat-avatar-category svg{width:23px!important;height:23px!important}
+      .mat-avatar-controls .mat-avatar-category i{width:23px!important;height:23px!important}
       .mat-avatar-controls .mat-avatar-option-grid{
         grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px;
       }
@@ -3467,7 +3426,6 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
   .mat-avatar-asset-preview svg{display:block;width:92px;height:68px;max-width:100%;overflow:visible}
   .mat-avatar-controls .mat-avatar-actions{flex:0 0 auto;padding:12px 14px!important;border-top:1px solid #5c5c5c!important;background:#111!important}
   .mat-avatar-controls .mat-avatar-actions .profile-avatar-confirm-button{width:100%;min-height:54px!important;border:0!important;border-radius:16px!important;background:#12a34a!important;color:#fff!important;font-size:15px!important;font-weight:900!important}
-  .mat-avatar-headphones{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
   @media(max-width:850px){
    .mat-avatar-workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(210px,34vh) minmax(0,1fr);gap:10px}
    .mat-avatar-preview-panel{min-height:0;height:100%;border-radius:20px!important}
@@ -3519,7 +3477,7 @@ document.addEventListener('student-progress-updated',()=>{renderRankCard();rende
       border:1px solid transparent!important;border-radius:15px!important;background:transparent!important;color:#c8c8cc!important;
       transition:background .16s ease,border-color .16s ease,color .16s ease!important;
     }
-    .mat-avatar-controls .mat-avatar-category svg{width:25px!important;height:25px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+    .mat-avatar-controls .mat-avatar-category i{width:25px!important;height:25px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
     .mat-avatar-controls .mat-avatar-category.is-active{border-color:#73737a!important;background:#333338!important;color:#fff!important}
     .mat-avatar-controls .mat-avatar-category.is-active:after{content:"";position:absolute;left:25%;right:25%;bottom:-8px;height:3px;border-radius:3px;background:#10b981}
     .mat-avatar-options-scroll{display:block!important;flex:1 1 auto!important;min-height:0!important;padding:16px 18px 18px!important;overflow-y:auto!important;overflow-x:hidden!important}
