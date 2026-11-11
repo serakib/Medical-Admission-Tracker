@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#059669">
+  <meta name="description" content="ইন্টারনেট ছাড়াই সংরক্ষিত মেডিকেল ভর্তি MCQ অনুশীলন করুন।">
+  <link rel="icon" href="./public/assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>Offline Practice | Medical Admission Pro</title>
+  <style>
+    :root{color-scheme:light dark;--bg:#f1f5f9;--panel:#fff;--ink:#102a35;--muted:#64748b;--accent:#059669;--line:#dbe4ea}
+    @media(prefers-color-scheme:dark){:root{--bg:#0b1720;--panel:#142532;--ink:#e7f2f7;--muted:#a4b5c2;--line:#304452}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{width:min(760px,100% - 28px);margin:28px auto 56px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    a,.btn{color:var(--accent);font-weight:700}.card{margin-top:18px;padding:clamp(18px,4vw,30px);border:1px solid var(--line);border-radius:22px;background:var(--panel);box-shadow:0 12px 34px #0f172a0b}
+    .muted{color:var(--muted)}.pill{display:inline-block;padding:4px 10px;border-radius:99px;background:#05966918;color:var(--accent);font-size:13px;font-weight:800}
+    h1{font-size:clamp(1.5rem,4vw,2rem);line-height:1.2;margin:14px 0 4px}h2{font-size:1.2rem;margin:14px 0}
+    button,select{font:inherit}button{border:0;border-radius:12px;padding:12px 16px;background:var(--accent);color:white;font-weight:800;cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}.option{display:block;width:100%;text-align:left;margin:10px 0;background:transparent;color:var(--ink);border:1px solid var(--line)}
+    .option[aria-pressed=true]{border-color:var(--accent);background:#05966916}.option.correct{border-color:#059669;background:#05966918}.option.wrong{border-color:#dc2626;background:#dc262618}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.hidden{display:none!important}
+    #feedback{padding:12px;border-radius:12px;background:#05966914;margin-top:14px}.progress{height:7px;background:var(--line);border-radius:99px;overflow:hidden}.progress>span{display:block;height:100%;width:0;background:var(--accent)}
+    footer{margin-top:22px;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top"><a href="./index.html">← মূল ওয়েবসাইট</a><span class="pill" id="network-state">Offline Practice</span></div>
+  <h1>ইন্টারনেট ছাড়াই MCQ অনুশীলন</h1>
+  <p class="muted">প্রশ্নব্যাংক আগে একবার অনলাইনে লোড হয়ে cache-এ থাকলে এই অংশটি offline-এ ব্যবহার করা যাবে। ফলাফল এই device-এ সংরক্ষিত হবে; online account-এ sync হবে না।</p>
+  <section class="card" id="loading-card"><strong>প্রশ্নব্যাংক প্রস্তুত হচ্ছে…</strong><p class="muted">প্রথমবার offline ব্যবহারের আগে ওয়েবসাইটটি ইন্টারনেটসহ খুলুন।</p></section>
+  <section class="card hidden" id="quiz-card">
+    <div class="row"><span class="pill" id="subject-label">Mixed</span><span class="muted" id="question-counter">প্রশ্ন ১</span></div>
+    <div class="progress" style="margin:14px 0"><span id="progress-bar"></span></div>
+    <h2 id="question-text"></h2>
+    <div id="options"></div>
+    <div id="feedback" class="hidden" aria-live="polite"></div>
+    <div class="row" style="margin-top:18px"><button id="next-btn" disabled>পরের প্রশ্ন</button><button id="finish-btn" class="hidden">ফলাফল দেখুন</button></div>
+  </section>
+  <section class="card hidden" id="result-card" aria-live="polite">
+    <span class="pill">Session complete</span><h2 id="result-title">অনুশীলন শেষ</h2><p id="result-summary"></p>
+    <div class="row"><button id="again-btn">আবার অনুশীলন</button><a href="./index.html">Online Dashboard</a></div>
+  </section>
+  <footer>Offline Practice কেবল এই device-এ progress রাখে। Firebase, leaderboard, login এবং server sync-এর জন্য internet প্রয়োজন।</footer>
+</main>
+<script src="./js/offline-study.js" defer></script>
+</body>
+</html>
