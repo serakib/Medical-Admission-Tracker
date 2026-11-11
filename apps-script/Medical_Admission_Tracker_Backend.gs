@@ -3398,7 +3398,14 @@ function matAdminRemoveMember_(p){
 function matAdminSuspendMember_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can suspend Admin Members.');const e=String(p.email||'').trim().toLowerCase(),minutes=Math.round(Number(p.durationMinutes));if(!e||e===root)throw new Error('Super Admin cannot be suspended.');if(!Number.isSafeInteger(minutes)||minutes<1||minutes>525600)throw new Error('Suspension must be between 1 minute and 365 days.');const sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(!r||String(r.Status||'').toUpperCase()==='REMOVED')throw new Error('Active Admin Member not found.');const until=new Date(Date.now()+minutes*60000).toISOString();matUpdateObjectRow_(sh,r._rowNumber,{Status:'SUSPENDED',SuspendedUntil:until,UpdatedAt:matNowIso_(),UpdatedBy:root});MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;return {success:true,email:e,status:'SUSPENDED',suspendedUntil:until};}
 function matAdminReactivateMember_(p){const actor=matPromoRequireAdmin_(p),root=String(matScriptProperty_('MAT_SUPER_ADMIN_EMAIL')||'').trim().toLowerCase();if(matPromoEmail_(actor)!==root)throw new Error('Only Super Admin can reactivate Admin Members.');const e=String(p.email||'').trim().toLowerCase();if(!e||e===root)throw new Error('Invalid Admin Member.');const sh=matPromoSheets_().admins,r=matReadObjects_(sh).find(x=>String(x.Email||'').toLowerCase()===e);if(!r||String(r.Status||'').toUpperCase()==='REMOVED')throw new Error('Admin Member not found or already removed.');matUpdateObjectRow_(sh,r._rowNumber,{Status:'ACTIVE',SuspendedUntil:'',UpdatedAt:matNowIso_(),UpdatedBy:root});MAT_PROMO_ADMIN_EMAIL_LOOKUP_=null;return {success:true,email:e,status:'ACTIVE'};}
 function matGetPromoInfo_(p){
- const u=matAuthenticate_(p),c=matPromoPublic_();
+ const c=matPromoPublic_();
+ let u=null;
+ // The public Daily/Weekly code is read-only information. A Visitor or an
+ // expired/invalid Guest session may read it, but receives no private balance,
+ // assigned code, or Admin data.
+ try{u=matAuthenticate_(p||{});}catch(_){
+  return {success:true,visitor:true,publicCode:c.code,publicType:c.type,rewardPB:c.reward,promoPB:null,isAdmin:false,adminCode:''};
+ }
  let verifiedEmail='',isAdmin=false;
  const token=String(p&&(p.idToken||p.firebaseIdToken)||'').trim();
  if(token){
@@ -3409,7 +3416,7 @@ function matGetPromoInfo_(p){
   u.Email=verifiedEmail;
   isAdmin=matPromoIsAdmin_(u);
  }
- return {success:true,publicCode:c.code,publicType:c.type,rewardPB:c.reward,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin,adminCode:isAdmin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'?matPromoFixedCode_():''};
+ return {success:true,visitor:false,publicCode:c.code,publicType:c.type,rewardPB:c.reward,promoPB:Math.max(0,matFiniteNumber_(u.PromoPB,0)),isAdmin,adminCode:isAdmin&&matScriptProperty_('MAT_PROMO_FIXED_ENABLED')!=='FALSE'?matPromoFixedCode_():''};
 }
 function matRedeemPromoCode_(p){
  const u=matAuthenticate_(p),input=String(p.code||'').trim().toUpperCase();if(!input)throw new Error('Promo Code লিখুন।');
