@@ -1092,19 +1092,26 @@ class MedicalExamApp {
         const email = document.getElementById('account-profile-email');
         const status = document.getElementById('account-profile-status');
         const theme = document.getElementById('account-theme-status');
-        if (name) name.textContent = user?.displayName || (user?.email ? user.email.split('@')[0] : 'Guest Student');
-        if (email) email.textContent = user?.email || 'Guest mode · Sign in to connect your account';
+        const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
+        let hasGuestToken = false;
+        try {
+            hasGuestToken = !!localStorage.getItem('med_sheet_guest_token_v1') &&
+                !localStorage.getItem('med_guest_session_expired_v1');
+        } catch (_) {}
+        const hasGuestSession = Boolean(window.MedGlobalLeague && window.app?.profile && isGuestProfile && hasGuestToken);
+        const isRegisteredUser = Boolean(user && !isGuestProfile);
+        const isVisitor = !user && !hasGuestSession;
+        if (name) name.textContent = user?.displayName || (user?.email ? user.email.split('@')[0] : (hasGuestSession ? (window.app?.profile?.name || 'Guest Student') : 'Visitor'));
+        if (email) email.textContent = user
+            ? (user.email || user.displayName || 'Registered account')
+            : (hasGuestSession ? 'Guest account · Server-side profile' : 'Visitor mode · এই device-এ local data');
         if (status) {
-            status.textContent = user ? 'Signed in' : 'Guest account';
-            status.className = user
+            status.textContent = isRegisteredUser ? 'Registered account' : (hasGuestSession ? 'Guest account · Server-backed' : 'Visitor mode · Local-only');
+            status.className = isRegisteredUser || hasGuestSession
                 ? 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
                 : 'inline-flex mt-3 rounded-full px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100';
         }
         if (theme) theme.textContent = this.currentTheme === 'dark' ? 'Dark mode is active' : 'Light mode is active';
-        const isGuestProfile = Boolean(user?.isAnonymous) || String(window.app?.profile?.accountType || '').toUpperCase() === 'GUEST';
-        const hasGuestSession = !!(window.MedGlobalLeague && window.app?.profile && isGuestProfile &&
-            localStorage.getItem('med_sheet_guest_token_v1') && !localStorage.getItem('med_guest_session_expired_v1'));
-        const isRegisteredUser = Boolean(user && !isGuestProfile);
         const accountAuthTarget = document.getElementById('account-profile-auth-target');
         if (accountAuthTarget) {
             accountAuthTarget.innerHTML = (isRegisteredUser || hasGuestSession)
@@ -2039,10 +2046,16 @@ class MedicalExamApp {
             }
             tbody.appendChild(tr);
         });}
-        // Refresh account progress from the authenticated Medical Sheets API.
-        // Keep local history visible until the first successful server response.
+        // Visitor progress is local-only. Fetch server history only for a verified
+        // Registered identity or an active Medical Sheets Guest token.
+        let hasGuestServerSession = false;
+        try {
+            hasGuestServerSession = !!localStorage.getItem('med_sheet_guest_token_v1') &&
+                !localStorage.getItem('med_guest_session_expired_v1');
+        } catch (_) {}
+        const hasServerIdentity = Boolean(this.authUser || hasGuestServerSession);
         const league = window.MedGlobalLeague;
-        if (league && typeof league.getProgress === 'function' &&
+        if (hasServerIdentity && league && typeof league.getProgress === 'function' &&
             !this.__serverProgressLoading &&
             (!this.__serverProgressFetchedAt || Date.now() - this.__serverProgressFetchedAt > 30000)) {
             this.__serverProgressLoading = true;
@@ -2129,6 +2142,33 @@ window.updateExamRewardDisplay = function (reward) {
     const pbEl = document.getElementById('res-pb-earned');
     const rankEl = document.getElementById('res-rank-earned');
     const statusEl = document.getElementById('res-reward-status');
+    let visitorAccountCta = panel.querySelector('#visitor-result-account-cta');
+    if (reward.localOnly) {
+        if (xpEl) xpEl.textContent = '—';
+        if (rpEl) rpEl.textContent = '—';
+        if (pbEl) pbEl.textContent = '—';
+        if (rankEl) rankEl.textContent = '';
+        if (statusEl) statusEl.textContent = reward.message || 'Visitor mode: result শুধু এই device-এ localভাবে সংরক্ষিত।';
+        panel.dataset.rewardState = 'local-only';
+        if (!visitorAccountCta) {
+            visitorAccountCta = document.createElement('button');
+            visitorAccountCta.id = 'visitor-result-account-cta';
+            visitorAccountCta.type = 'button';
+            visitorAccountCta.className = 'mt-3 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2';
+            visitorAccountCta.textContent = 'Server-এ নিজের progress রাখতে Account তৈরি করুন';
+            visitorAccountCta.addEventListener('click', () => {
+                if (window.MedVisitorAccess && typeof window.MedVisitorAccess.open === 'function') {
+                    window.MedVisitorAccess.open();
+                } else if (statusEl) {
+                    statusEl.textContent = 'Account options এখনো প্রস্তুত নয়। পেজ reload করে আবার চেষ্টা করুন।';
+                }
+            });
+            panel.appendChild(visitorAccountCta);
+        }
+        visitorAccountCta.hidden = false;
+        return;
+    }
+    if (visitorAccountCta) visitorAccountCta.hidden = true;
     if (reward.success && !reward.pending) {
         const xp = reward.xpGained == null || !Number.isFinite(Number(reward.xpGained)) ? null : Number(reward.xpGained);
         const rp = reward.rankPointsDelta == null || !Number.isFinite(Number(reward.rankPointsDelta)) ? null : Number(reward.rankPointsDelta);
