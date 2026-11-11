@@ -90,6 +90,8 @@
     const supplied = input && typeof input === 'object' ? input : {};
     result.gender = supplied.gender === 'female' || supplied.gender === 'male' ? supplied.gender : inferGenderFromHair(supplied.hairStyle);
     result.ageGroup = choices.ageGroup.some(([value]) => value === supplied.ageGroup) ? supplied.ageGroup : defaults.ageGroup;
+    const requestedPreset = characterPresets.find(item => item.id === supplied.characterPreset && item.gender === result.gender);
+    result.characterPreset = requestedPreset ? requestedPreset.id : (result.gender === 'female' ? 'f01' : 'm01');
     const allowedHair = hairChoicesFor(result.gender, result.ageGroup).map(([value]) => value);
     if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
     if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
