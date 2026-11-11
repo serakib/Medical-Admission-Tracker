@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/static.yml"><img src="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/static.yml/badge.svg?branch=main&amp;event=push" alt="Pages deployment status for the latest main-branch push"></a>
-  <a href="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml"><img src="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml/badge.svg?event=pull_request" alt="Latest pull request validation status"></a>
+  <a href="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml"><img src="https://github.com/serakib/Medical-Admission-Tracker/actions/workflows/validate.yml/badge.svg?branch=main&amp;event=push" alt="Main branch validation status"></a>
   <a href="https://github.com/serakib/Medical-Admission-Tracker/security/dependabot"><img src="https://img.shields.io/badge/Dependabot-monthly%20updates%20configured-025E8C?logo=dependabot" alt="Dependabot monthly updates configured"></a>
 </p>
 
