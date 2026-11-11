@@ -117,7 +117,7 @@ function collectExpectedShapes(nodes, result = []) {
 
 function collectLocalShapes(source) {
   const result = [];
-  const re = /<(path|circle|ellipse|rect|line|polyline|polygon|text|use)\\b([^>]*)>/g;
+  const re = /<(path|circle|ellipse|rect|line|polyline|polygon|text|use)\b([^>]*)>/g;
   let match;
   while ((match = re.exec(source))) {
     const attrs = {};
