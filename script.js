@@ -2825,7 +2825,9 @@ window.handleAccountDeletion = function() {
   const app = window.app;
   if (!app || app.__examProgressFoundation) return;
   app.__examProgressFoundation = true;
-  const accountKey = () => 'med_account_progress_v1_' + (app.authUser?.uid || 'guest');
+  const accountKey = () => typeof app.getScopedLocalStorageKey === 'function'
+    ? app.getScopedLocalStorageKey('med_account_progress_v1')
+    : 'med_account_progress_v1_' + (app.authUser?.uid || 'visitor');
   const PENDING_PB_DELAY_MS = 2 * 60 * 60 * 1000;
   const pendingPBTotal = progress => (Array.isArray(progress.pendingPBEntries) ? progress.pendingPBEntries : []).reduce((sum, entry) => sum + Math.max(0, Number(entry.amount) || 0), 0);
   const readProgress = () => {
