@@ -4,71 +4,102 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, follow">
-  <meta name="theme-color" content="#0f766e">
   <title>404 | Medical Admission Tracker</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: linear-gradient(145deg, #f0fdfa, #f8fafc 55%, #ecfeff);
-      color: #0f172a;
-      font-family: Arial, Helvetica, sans-serif;
+      padding: 0;
+      background-color: #fff;
+      font-family: sans-serif;
+    }
+
+    .page_404 {
+      padding: 40px 16px;
       text-align: center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    main {
-      width: min(100%, 680px);
-      padding: 44px 24px;
-      border: 1px solid #dbeafe;
-      border-radius: 24px;
-      background: rgba(255,255,255,.92);
-      box-shadow: 0 20px 60px rgba(15, 118, 110, .10);
-    }
-    .brand {
-      margin: 0 0 24px;
-      color: #0f766e;
-      font-size: clamp(19px, 4vw, 25px);
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-    .code {
-      margin: 0;
-      color: #0f766e;
-      font-size: clamp(88px, 22vw, 144px);
-      font-weight: 900;
-      line-height: .95;
-      letter-spacing: -8px;
-    }
-    h1 {
-      margin: 24px 0 10px;
-      font-size: clamp(23px, 5vw, 32px);
-    }
-    p {
-      max-width: 460px;
+
+    .container {
+      width: 100%;
+      max-width: 900px;
       margin: 0 auto;
-      color: #64748b;
-      font-size: 16px;
-      line-height: 1.7;
     }
-    .divider {
-      width: 56px;
-      height: 4px;
-      margin: 24px auto 0;
-      border-radius: 10px;
-      background: #14b8a6;
+
+    .brand_404 {
+      color: #222;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 18px;
+    }
+
+    /* গুহার মানুষের লাফানোর GIF অ্যানিমেশন */
+    .four_zero_four_bg {
+      background-image: url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif');
+      height: 400px;
+      max-width: 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+    }
+
+    .four_zero_four_bg h1 {
+      font-size: clamp(64px, 12vw, 80px);
+      margin: 0;
+    }
+
+    .contant_box_404 {
+      margin-top: -50px;
+      padding: 0 12px;
+    }
+
+    .contant_box_404 h3 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .contant_box_404 p {
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 480px) {
+      .four_zero_four_bg {
+        height: 280px;
+      }
+
+      .contant_box_404 {
+        margin-top: -25px;
+      }
+
+      .contant_box_404 h3 {
+        font-size: 23px;
+      }
     }
   </style>
 </head>
 <body>
-  <main>
-    <p class="brand">Medical Admission Tracker</p>
-    <p class="code" aria-label="Error 404">404</p>
-    <h1>Page Not Found</h1>
-    <p>Sorry, the page you are looking for does not exist, may have been moved, or is temporarily unavailable.</p>
-    <div class="divider" aria-hidden="true"></div>
-  </main>
+
+  <section class="page_404">
+    <div class="container">
+      <p class="brand_404">Medical Admission Tracker</p>
+      <div class="four_zero_four_bg">
+        <h1 class="text-center">404</h1>
+      </div>
+
+      <div class="contant_box_404">
+        <h3 class="h2">Look like you're lost</h3>
+        <p>The page you are looking for is not available!</p>
+      </div>
+    </div>
+  </section>
+
 </body>
 </html>
