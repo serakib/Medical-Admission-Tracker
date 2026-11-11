@@ -1891,7 +1891,9 @@
           // Hijab is stored with headwear parts, not hairstyle parts.
           if (!asset && field.key === 'hairStyle' && raw.toLowerCase() === 'hijab') asset = findAsset('headwear', raw);
           if (asset && asset.path) {
-            const safePath = String(asset.path).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+            const assetVersion = String(window.MedAvatarCreator.assetManifest?.version || '');
+            const versionedPath = String(asset.path) + (assetVersion ? '?v=' + encodeURIComponent(assetVersion) : '');
+            const safePath = versionedPath.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
             visual = '<span class="mat-avatar-option-art-frame"><img class="mat-avatar-option-art" src="' + safePath + '" alt="" loading="lazy" decoding="async" draggable="false"></span>';
           } else if (raw === 'none') {
             visual = '<span class="mat-avatar-option-none">নেই</span>';
