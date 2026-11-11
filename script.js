@@ -810,7 +810,7 @@ class MedicalExamApp {
     updateProfileRanks(rows=[]) {
         const liveEl=document.getElementById('profile-live-rank');
         const bestEl=document.getElementById('profile-best-rank');
-        const uid=this.authUser?.uid||'guest_local';
+        const uid=this.getLocalIdentityKey();
         const safe=(Array.isArray(rows)?rows:[]).slice().sort((a,b)=>Number(b.rankPoints??b.points??0)-Number(a.rankPoints??a.points??0));
         const index=safe.findIndex(row=>row.uid===uid);
         if(liveEl)liveEl.textContent=index>=0?'#'+(index+1):'—';
