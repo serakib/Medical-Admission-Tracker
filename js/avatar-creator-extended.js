@@ -30,14 +30,46 @@
     clothingType: [['hoodie','হুডি'],['blazerAndShirt','ব্লেজার'],['blazerAndSweater','ব্লেজার ও সোয়েটার'],['shirtCrewNeck','গোল গলার টি-শার্ট'],['shirtVNeck','ভি-নেক'],['shirtScoopNeck','সাধারণ শার্ট'],['overall','ওভারঅল'],['collarAndSweater','কলার সোয়েটার']],
     clothingColor: [['2563eb','নীল'],['7c3aed','বেগুনি'],['dc2626','লাল'],['333344','ডার্ক গ্রে'],['10b981','সবুজ'],['f8fafc','সাদা']],
     petType: [['none','নেই'],['chick','ছোট ছানা'],['cat','বিড়াল'],['bear','সাদা ভালুক']],
+    headphones: [['none','নেই'],['#24242b','কালো'],['#2563eb','নীল'],['#dc2626','লাল'],['#10b981','সবুজ'],['#f8fafc','সাদা']],
     background: [['a5a8ff','ল্যাভেন্ডার'],['f3d8e8','পিঙ্ক'],['bde0fe','আকাশি'],['caffbf','মিন্ট'],['ffe8a3','হালকা হলুদ'],['121218','ডার্ক']]
   };
   const defaults = {
     gender:'male', ageGroup:'youngAdult', skinTone:'#edb98a', eyeShape:'default', eyebrowShape:'defaultNatural', expression:'smile',
     hairStyle:'shortFlat', hairColor:'2c1b18', facialHair:'none', facialHairColor:'2c1b18',
     glasses:'none', hat:'none', hatColor:'dc2626', clothingType:'hoodie', clothingColor:'2563eb',
-    petType:'none', background:'a5a8ff'
+    petType:'none', headphones:'none', characterPreset:'m01', background:'a5a8ff'
   };
+
+    const characterPresets = [
+    // Each preset is a complete starting identity, not a hair-only recolour.
+    ...[
+      ['m01','male','youngAdult','#edb98a','shortFlat','2c1b18','default','defaultNatural','smile','none','hoodie','2563eb'],
+      ['m02','male','youngAdult','#c9916b','shortCurly','4a312c','happy','raisedExcited','smile','beardLight','blazerAndShirt','333344'],
+      ['m03','male','adult','#a96f4e','sides','2c1b18','side','flatNatural','serious','beardMedium','shirtCrewNeck','10b981'],
+      ['m04','male','youngAdult','#dfb38e','theCaesar','724133','squint','default','twinkle','none','shirtVNeck','dc2626'],
+      ['m05','male','adult','#80543e','shaggy','2c1b18','eyeRoll','angry','default','beardMajestic','blazerAndSweater','7c3aed'],
+      ['m06','male','youngAdult','#f2d2b4','shortWaved','b58143','happy','defaultNatural','smile','moustacheFancy','collarAndSweater','2563eb'],
+      ['m07','male','adult','#5e4034','dreads','2c1b18','default','flatNatural','serious','beardMedium','overall','10b981'],
+      ['m08','male','youngAdult','#c9916b','froBand','a55728','side','raisedExcited','concerned','none','shirtScoopNeck','dc2626'],
+      ['m09','male','mature','#a96f4e','shavedSides','2c1b18','squint','angry','serious','moustacheMagnum','blazerAndShirt','333344'],
+      ['m10','male','youngAdult','#dfb38e','shaggyMullet','724133','happy','raisedExcited','twinkle','beardLight','hoodie','7c3aed'],
+      ['f01','female','youngAdult','#edb98a','longButNotTooLong','2c1b18','happy','raisedExcited','smile','none','blazerAndShirt','7c3aed'],
+      ['f02','female','youngAdult','#c9916b','bob','4a312c','side','defaultNatural','twinkle','none','shirtCrewNeck','2563eb'],
+      ['f03','female','adult','#a96f4e','curly','2c1b18','default','flatNatural','serious','none','blazerAndSweater','10b981'],
+      ['f04','female','youngAdult','#dfb38e','bun','b58143','wink','raisedExcited','smile','none','shirtVNeck','dc2626'],
+      ['f05','female','adult','#80543e','bigHair','2c1b18','squint','angry','concerned','none','collarAndSweater','333344'],
+      ['f06','female','youngAdult','#f2d2b4','straight01','a55728','hearts','defaultNatural','twinkle','none','hoodie','2563eb'],
+      ['f07','female','adult','#5e4034','hijab','2c1b18','default','flatNatural','smile','none','blazerAndShirt','10b981'],
+      ['f08','female','youngAdult','#c9916b','frida','724133','happy','raisedExcited','smile','none','overall','dc2626'],
+      ['f09','female','mature','#a96f4e','straight02','4a312c','side','sadConcerned','concerned','none','blazerAndSweater','7c3aed'],
+      ['f10','female','youngAdult','#dfb38e','miaWallace','2c1b18','wink','default','twinkle','none','shirtScoopNeck','333344']
+    ].map(([id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,facialHair,clothingType,clothingColor],index)=>({
+      id,gender,ageGroup,skinTone,hairStyle,hairColor,eyeShape,eyebrowShape,expression,
+      facialHair,clothingType,clothingColor,glasses:index%4===0?'round':'none',
+      hat:'none',hatColor:'dc2626',facialHairColor:'2c1b18',petType:'none',
+      headphones:'none',background:['a5a8ff','f3d8e8','bde0fe','caffbf','ffe8a3'][index%5]
+    }))
+  ];
   const entries = Object.entries(choices);
   const maleHair = ['shortFlat','shortCurly','shortRound','shortWaved','sides','theCaesar','theCaesarAndSidePart','shaggy','shaggyMullet','shavedSides','dreads','dreads01','dreads02','froBand'];
   const femaleHair = ['bigHair','bob','bun','curly','curvy','frida','frizzle','fro','hijab','longButNotTooLong','miaWallace','straight01','straight02','straightAndStrand'];
@@ -61,6 +93,10 @@
     const allowedHair = hairChoicesFor(result.gender, result.ageGroup).map(([value]) => value);
     if (!allowedHair.includes(result.hairStyle)) result.hairStyle = allowedHair[0] || defaults.hairStyle;
     if (result.gender === 'female' || result.ageGroup === 'teen') result.facialHair = 'none';
+    const selectedPreset = characterPresets.find(item => item.id === result.characterPreset);
+    if (!selectedPreset || selectedPreset.gender !== result.gender) {
+      result.characterPreset = result.gender === 'female' ? 'f01' : 'm01';
+    }
     if (input && typeof input === 'object') {
       const hats = ['none','hat','winterHat1','winterHat02','winterHat03','winterHat04','turban'];
       if (hats.includes(input.hat)) result.hat = input.hat;
@@ -73,7 +109,7 @@
   const buildUrl = input => {
     const c = normalize(input);
     const params = new URLSearchParams({
-      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|bg='+hex(c.background)+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle,
+      seed:'medavatar|gender='+c.gender+'|age='+c.ageGroup+'|character='+c.characterPreset+'|bg='+hex(c.background)+'|pet='+c.petType+'|hat='+c.hat+'|hair='+c.hairStyle+'|headphones='+c.headphones,
       size:'512',
       skinColor:hex(c.skinTone),
       topVariant:c.hat !== 'none' ? c.hat : c.hairStyle,
@@ -111,6 +147,8 @@
         eyebrowShape:p.get('eyebrowsVariant') || defaults.eyebrowShape,
         expression:p.get('mouthVariant') || defaults.expression,
         gender:meta.gender || inferGenderFromHair(meta.hair || top),
+        characterPreset:meta.character || (meta.gender === 'female' ? 'f01' : 'm01'),
+        headphones:meta.headphones || 'none',
         ageGroup:meta.age || defaults.ageGroup,
         hairStyle:meta.hair || (['hat','winterHat1','winterHat02','winterHat03','winterHat04','turban','hijab'].includes(top) ? defaults.hairStyle : top),
         hairColor:p.get('hairColor') || defaults.hairColor,
@@ -131,6 +169,9 @@
   const renderLayersMarkup = (source, input, className) => {
     const c = input && typeof input === 'object' ? normalize(input) : null;
     const pet = c && c.petType !== 'none' ? base.assetPaths?.pets?.[c.petType] : '';
+    const headphoneColors = {'#24242b':'#24242b','#2563eb':'#2563eb','#dc2626':'#dc2626','#10b981':'#10b981','#f8fafc':'#f8fafc'};
+    const headphoneColor = c && headphoneColors[c.headphones] ? headphoneColors[c.headphones] : '';
+    const headphones = headphoneColor ? '<svg class="med-avatar-headphones" viewBox="0 0 280 280" aria-hidden="true"><path d="M76 139V121a64 64 0 0 1 128 0v18" fill="none" stroke="'+headphoneColor+'" stroke-width="13" stroke-linecap="round"/><rect x="61" y="130" width="28" height="58" rx="12" fill="'+headphoneColor+'" stroke="#111827" stroke-opacity=".18" stroke-width="3"/><rect x="191" y="130" width="28" height="58" rx="12" fill="'+headphoneColor+'" stroke="#111827" stroke-opacity=".18" stroke-width="3"/></svg>' : '';
     const ageLines = c && c.ageGroup === 'adult'
       ? '<svg class="med-avatar-age-lines" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="#765b4b" stroke-width="1" stroke-linecap="round" opacity=".24"><path d="M111 151q-3 3-3 6m54-6q3 3 3 6M124 161q16 4 32 0"/></g></svg>'
       : c && c.ageGroup === 'mature'
@@ -139,17 +180,17 @@
     const baseImage = '<img class="med-avatar-base" src="' + escapeAttr(source) + '" alt="" draggable="false">';
     return '<span class="med-avatar-stack ' + escapeAttr(className || '') + '">' + baseImage + ageLines +
       (pet ? '<img class="med-avatar-pet" src="' + escapeAttr(pet) + '" alt="" aria-hidden="true" draggable="false">' : '') +
-      '</span>';
+      headphones + '</span>';
   };
   const randomize = seed => {
     let h = 2166136261, s = String(seed || 'student-avatar');
     for (let i=0;i<s.length;i++) h = Math.imul(h ^ s.charCodeAt(i),16777619);
-    const out = {};
-    entries.forEach(([key,list],index) => out[key] = list[(Math.abs(h + index*2654435761) >>> 0) % list.length][0]);
-    return normalize(out);
+    const preset = characterPresets[(Math.abs(h)>>>0)%characterPresets.length];
+    return normalize({...preset,background:choices.background[(Math.abs(h+17)>>>0)%choices.background.length][0],petType:choices.petType[(Math.abs(h+29)>>>0)%choices.petType.length][0]});
   };
   const pick = (list, seed, index) => list[(Math.abs(String(seed||'student').split('').reduce((h,ch)=>Math.imul(h^ch.charCodeAt(0),16777619),2166136261)+index)>>>0)%list.length][0];
-  base.choices = Object.fromEntries(entries.map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
+  choices.characterPreset = characterPresets.map(item=>[item.id,(item.gender==='female'?'নারী ':'পুরুষ ')+item.id.toUpperCase()]);
+  base.choices = Object.fromEntries(Object.entries(choices).map(([key,list]) => [key,list.map(([value,label])=>({value,label}))]));
   base.getOptionsForField = (fieldKey, input) => {
     const config = normalize(input || defaults);
     if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
@@ -157,6 +198,13 @@
     return (base.choices[fieldKey] || []).slice();
   };
   base.defaultConfig = seed => {
+    const identity = String(seed || 'student-default');
+    let h = 2166136261; for(let i=0;i<identity.length;i++) h=Math.imul(h^identity.charCodeAt(i),16777619);
+    const preset = characterPresets[(Math.abs(h)>>>0)%characterPresets.length];
+    return normalize({...preset,background:choices.background[(Math.abs(h+12)>>>0)%choices.background.length][0]});
+  };
+  /* Legacy defaultConfig implementation retained below only as unreachable compatibility text. */
+  const legacyDefaultConfig = seed => {
     const identity = String(seed || 'student-default');
     return normalize({
       ...defaults,
@@ -175,6 +223,19 @@
       petType:'none',
       background:pick(choices.background,identity,12)
     });
+  };
+  base.characterPresets = characterPresets.map(({id,gender,ageGroup})=>({id,gender,ageGroup}));
+  base.getOptionsForField = (fieldKey, input) => {
+    const config = normalize(input || defaults);
+    if (fieldKey === 'characterPreset') return characterPresets.filter(item=>item.gender===config.gender).map(item=>({value:item.id,label:(item.gender==='female'?'নারী ':'পুরুষ ')+item.id.toUpperCase()}));
+    if (fieldKey === 'hairStyle') return hairChoicesFor(config.gender, config.ageGroup).map(([value,label])=>({value,label}));
+    if (fieldKey === 'facialHair' && (config.gender === 'female' || config.ageGroup === 'teen')) return [{value:'none',label:'নেই'}];
+    return (base.choices[fieldKey] || []).slice();
+  };
+  base.applyCharacterPreset = (id, current) => {
+    const preset = characterPresets.find(item=>item.id===String(id));
+    if (!preset) return normalize(current || defaults);
+    return normalize({...preset,background:current?.background || preset.background});
   };
   base.normalize = normalize;
   base.render = buildUrl;
