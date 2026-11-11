@@ -515,6 +515,10 @@
       const headwearAssets = Array.isArray(manifest.categories.headwear) ? manifest.categories.headwear : [];
       if (headwearAssets.some(asset => String(asset.path || '').toLowerCase().endsWith('/hijab.svg'))) {
         if (!femaleHair.includes('hijab')) femaleHair.push('hijab');
+        if (!choices.hairStyle.some(([value]) => value === 'hijab')) {
+          choices.hairStyle.push(['hijab','হিজাব']);
+          base.choices.hairStyle = choices.hairStyle.map(([value,label])=>({value,label}));
+        }
       }
       choices.petType = [['none','নেই'], ...petAssets.map(asset => {
         const filename = String(asset.path || '').split('/').pop() || '';
