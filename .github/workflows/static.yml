@@ -76,12 +76,6 @@ jobs:
           DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
         run: node scripts/smoke-test-live.mjs "$DEPLOYED_URL" --site-only
 
-      # Load the real page in Chromium and assert that the app initializes and removes the splash.
-        continue-on-error: true
-        timeout-minutes: 2
-        env:
-          DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
-
       - name: Write deployment summary
         if: success()
         env:
