@@ -1498,6 +1498,7 @@
     }
   `;
 
+  avatarAssetCardStyle.textContent += `
     /* Desktop/tablet workspace geometry: keep both columns inside the viewport. */
     #profile-avatar-picker.is-expanded .mat-avatar-workspace{
       display:grid!important;
@@ -1578,6 +1579,7 @@
         max-height:22vh!important;
       }
     }
+  `;
 
   document.head.appendChild(avatarAssetCardStyle);
 
