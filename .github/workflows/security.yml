@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       # CodeQL is managed by GitHub's repository-level default setup.
       # Do not upload advanced-setup SARIF results while default setup is enabled.
