@@ -4,7 +4,7 @@ This guide covers repository development only. It does not require editing the d
 
 ## Requirements
 
-- Node.js 22 (the repository's default version is recorded in `.nvmrc`).
+- Node.js 22.23.4 (the exact repository runtime is recorded in `.nvmrc`).
 - npm, included with Node.js.
 - Git.
 
@@ -35,16 +35,17 @@ Run `npm test` before pushing changes.
 
 - **Pull requests:** `.github/workflows/validate.yml` runs Actionlint against every GitHub Actions workflow, then performs the complete application test suite with `npm ci` and `npm test`. It does not deploy the site.
 - **Pushes to `main`:** `.github/workflows/static.yml` runs the same clean install and test suite, prepares the Pages artifact and deploys only after validation passes.
-- **Dependency manifest changes:** `.github/workflows/sync-npm-lockfile.yml` regenerates and verifies `package-lock.json` when `package.json` changes.
-- **Version tags:** `.github/workflows/publish-release.yml` first checks out the exact tagged commit, performs a clean `npm ci`, and runs the complete `npm test` suite. Only a passing tag is published as a GitHub Release.
+- **Dependency changes:** update `package.json` and `package-lock.json` together in the same pull request. CI uses `npm ci` and blocks validation/deployment when the lockfile is missing or out of sync; it never rewrites dependencies during deployment.
+- **Version tags:** `.github/workflows/publish-release.yml` checks out the exact tagged commit, performs a clean `npm ci`, and runs the complete `npm test` suite. Only a passing tag is published as a GitHub Release.
 - **Supply-chain security:** `.github/workflows/scorecard.yml` runs OpenSSF Scorecard on pushes to `main`, weekly, and on manual dispatch. Its SARIF report is uploaded to GitHub Code Scanning.
+- **Runtime consistency:** CI reads the exact Node.js version from `.nvmrc`; use the same version locally.
 
 Keep validation logic in `package.json` scripts instead of duplicating shell commands in workflow files.
 
 ## Updating dependencies
 
 1. Change the exact dependency version in `package.json`.
-2. Regenerate the lockfile with:
+2. Regenerate the lockfile locally with:
 
    ```bash
    npm install --package-lock-only --ignore-scripts --no-audit --no-fund
@@ -57,7 +58,7 @@ Keep validation logic in `package.json` scripts instead of duplicating shell com
    npm test
    ```
 
-4. Commit `package.json` and `package-lock.json` together.
+4. Commit `package.json` and `package-lock.json` together in the same pull request.
 
 Dependabot opens monthly update pull requests for npm packages and GitHub Actions. Major-version upgrades must pass the repository validation workflow and receive a compatibility review before merging.
 
@@ -68,4 +69,3 @@ Dependabot opens monthly update pull requests for npm packages and GitHub Action
 - Keep public Firebase configuration separate from private credentials. Never commit service-account keys, private tokens, passwords or student secrets.
 - For account, XP, rank, RP and leaderboard changes, trace the server-authoritative data flow before changing client-side display logic.
 - Keep changes focused and run `npm test` before opening a pull request.
-
