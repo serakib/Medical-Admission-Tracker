@@ -521,9 +521,12 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         var icon=document.getElementById('mat-entry-loader-icon');
         var percent=document.getElementById('mat-entry-loader-percent');
         var finished=false;
+        var startupFallbackTimer=0;
+        var startupErrorMessage='';
         function finish(message){
           if(finished||!overlay)return;
           finished=true;
+          window.clearTimeout(startupFallbackTimer);
           if(fill)fill.style.width='100%';
           if(percent)percent.textContent='১০০%';
           if(status)status.textContent=message||'ড্যাশবোর্ড প্রস্তুত...';
@@ -535,6 +538,7 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         }
         function showStartupError(message){
           if(finished||!overlay)return;
+          startupErrorMessage=message;
           if(status)status.textContent=message;
           if(icon)icon.className='fa-solid fa-triangle-exclamation';
           console.error('[Medical Admission Tracker] Startup error:',message);
@@ -544,6 +548,8 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         window.MATInitialLoader={hide:function(){finish('ড্যাশবোর্ড প্রস্তুত...');}};
         window.addEventListener('medical-app-ready',function(){
           finish('ড্যাশবোর্ড প্রস্তুত...');
+          var notice=document.getElementById('mat-startup-recovery-notice');
+          if(notice)notice.remove();
         },{once:true});
         window.addEventListener('error',function(event){
           var source=String(event.filename||event.target&&event.target.src||'');
@@ -554,6 +560,30 @@ html[data-theme="light"] .sidebar-overlay.overlay-visible{background:rgba(15,23,
         window.addEventListener('unhandledrejection',function(event){
           console.error('[Medical Admission Tracker] Unhandled promise rejection:',event.reason);
         });
+        // Never leave a full-screen splash covering a partially available page forever.
+        // The notice is non-blocking and lets the visitor retry if startup did not finish.
+        startupFallbackTimer=window.setTimeout(function(){
+          if(finished||!overlay)return;
+          var notice=document.createElement('div');
+          notice.id='mat-startup-recovery-notice';
+          notice.setAttribute('role','alert');
+          notice.style.cssText='position:fixed;top:12px;left:12px;right:12px;z-index:2147483647;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #f59e0b;border-radius:12px;background:#fffbeb;color:#78350f;box-shadow:0 8px 28px rgba(0,0,0,.18);font:600 14px/1.5 system-ui,sans-serif';
+          var message=document.createElement('span');
+          message.textContent=startupErrorMessage||'ওয়েবসাইট চালু হতে বেশি সময় লাগছে। কিছু অংশ ঠিকমতো কাজ নাও করতে পারে।';
+          var retry=document.createElement('button');
+          retry.type='button';
+          retry.textContent='আবার চেষ্টা করুন';
+          retry.style.cssText='flex:0 0 auto;padding:8px 12px;border:0;border-radius:8px;background:#92400e;color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer';
+          retry.addEventListener('click',function(){window.location.reload();});
+          notice.appendChild(message);
+          notice.appendChild(retry);
+          (document.body||document.documentElement).appendChild(notice);
+          finished=true;
+          overlay.classList.add('is-leaving');
+          window.setTimeout(function(){
+            if(overlay.parentNode)overlay.parentNode.removeChild(overlay);
+          },360);
+        },15000);
       })();
     </script>
 

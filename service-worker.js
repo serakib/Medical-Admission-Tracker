@@ -3,7 +3,7 @@
  * Authentication, Firebase, Apps Script and all POST requests always use the network.
  */
 const CACHE_PREFIX = 'mat-pwa-';
-const SHELL_CACHE = CACHE_PREFIX + 'shell-v3';
+const SHELL_CACHE = CACHE_PREFIX + 'shell-v4';
 const DATA_CACHE = CACHE_PREFIX + 'data-v1';
 const CORE_ASSETS = [
   './',
@@ -84,14 +84,33 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Cache-first for same-origin static assets; never intercept external APIs.
+  // Always revalidate executable code and styles while online. Cache-first here
+  // can pin an old app bundle under an unchanged query string after a deployment.
+  // Fall back to the last working copy only when the network is unavailable.
+  if (request.destination === 'script' || request.destination === 'style') {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request, { cache: 'no-cache' });
+        if (response.ok) {
+          const cache = await caches.open(SHELL_CACHE);
+          await cache.put(request, response.clone()).catch(() => {});
+        }
+        return response;
+      } catch (error) {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        throw error;
+      }
+    })());
+    return;
+  }
+
+  // Images and fonts are stable presentation assets and remain cache-first.
   event.respondWith((async () => {
     const cached = await caches.match(request);
     if (cached) return cached;
     const response = await fetch(request);
-    if (response.ok && (request.destination === 'script' ||
-        request.destination === 'style' || request.destination === 'image' ||
-        request.destination === 'font')) {
+    if (response.ok && (request.destination === 'image' || request.destination === 'font')) {
       const cache = await caches.open(SHELL_CACHE);
       cache.put(request, response.clone()).catch(() => {});
     }

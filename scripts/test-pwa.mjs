@@ -33,6 +33,10 @@ assert.match(worker, /addEventListener\(['"]activate['"]/);
 assert.match(worker, /addEventListener\(['"]fetch['"]/);
 assert.match(worker, /offline\.html/);
 assert.match(worker, /data\/questions\.json/);
+assert.match(worker, /shell-v4/);
+assert.match(worker, /request\.destination === 'script' \|\| request\.destination === 'style'/);
+assert.match(worker, /fetch\(request, \{ cache: 'no-cache' \}\)/,
+  'JavaScript and CSS must revalidate online instead of serving stale cache-first copies.');
 assert.match(worker, /request\.method !== 'GET'/);
 assert.match(worker, /url\.origin !== self\.location\.origin/);
 assert.match(offlineScript, /correctAnswer/);
