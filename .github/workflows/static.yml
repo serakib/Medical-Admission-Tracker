@@ -25,35 +25,32 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
 
       - name: Cache npm downloads
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node22-npm-
 
-      # Repair a stale lockfile before the production clean install.
-      # The lockfile sync workflow commits the resulting lockfile back to main.
       - name: Synchronize npm lockfile
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
       - name: Install project build dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
-      # Runs the asset build plus syntax, SVG, asset-integrity and navigation checks.
       - name: Build and validate
         run: npm test
 
@@ -63,15 +60,14 @@ jobs:
           rsync -a --exclude='.git/' --exclude='node_modules/' --exclude='_site/' ./ _site/
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
 
-      # Verify the actual published site and every local HTML asset after deployment.
       - name: Smoke-test the live website
         env:
           DEPLOYED_URL: ${{ steps.deployment.outputs.page_url }}
