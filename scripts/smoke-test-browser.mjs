@@ -28,7 +28,16 @@ const server = createServer(async (request, response) => {
   }
 
   const incoming = new URL(request.url || '/', 'http://127.0.0.1');
-  const relativePath = incoming.pathname.replace(/^\\/+/, '');
+  const basePath = baseUrl.pathname.endsWith('/') ? baseUrl.pathname : baseUrl.pathname + '/';
+  let relativePath = incoming.pathname;
+  if (relativePath === '/' || relativePath === basePath || relativePath === basePath.slice(0, -1)) {
+    relativePath = '';
+  } else if (relativePath.startsWith(basePath)) {
+    // Strip the GitHub Pages project-site prefix before resolving against baseUrl.
+    relativePath = relativePath.slice(basePath.length);
+  } else {
+    relativePath = relativePath.split('/').filter(Boolean).join('/');
+  }
   const targetUrl = relativePath
     ? new URL(relativePath + incoming.search, baseUrl).href
     : baseUrl.href;
