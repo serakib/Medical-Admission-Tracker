@@ -31,6 +31,8 @@ Provide clear steps and relevant environment details. Never include passwords, a
 
 ## Project standards
 
+- When changing dependencies, update `package.json` and `package-lock.json` together in the same pull request. Run `npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, then verify with `npm ci` and `npm test`.
+- Use the Node.js version recorded in the repository's `.nvmrc` file.
 - Follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 - Follow [ACCESSIBILITY.md](../docs/guides/ACCESSIBILITY.md), especially for keyboard operation, visible focus, form feedback, reduced motion, responsive layout, and Bangla text.
 - Follow [SECURITY.md](./SECURITY.md) when handling credentials, student data, and vulnerability reports.
