@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: npm-lockfile-sync
@@ -19,12 +19,15 @@ jobs:
   sync-lockfile:
     name: Generate and verify npm lockfile
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 20
     steps:
       - name: Checkout latest main
         uses: actions/checkout@v7
         with:
           ref: main
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -44,6 +47,8 @@ jobs:
         run: npm test
 
       - name: Commit lockfile when it changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           git add package-lock.json
@@ -64,7 +69,7 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git rebase origin/main
-            if git push origin HEAD:main; then
+            if git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)" push origin HEAD:main; then
               echo "Committed the verified npm lockfile."
               exit 0
             fi
