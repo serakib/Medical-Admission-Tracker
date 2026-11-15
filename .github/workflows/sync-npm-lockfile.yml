@@ -24,19 +24,18 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout latest main
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: main
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
 
-      # npm writes a lockfile without running dependency lifecycle scripts.
       - name: Generate package-lock.json
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
