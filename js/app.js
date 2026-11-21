@@ -890,6 +890,14 @@ class MedicalExamApp {
         if(this.bankSearch.trim()){const s=this.bankSearch.trim().toLowerCase();qs=qs.filter(q=>[q.question,q.question_bn,q.question_en,q.source,q.subject,q.year].join(' ').toLowerCase().includes(s));}
         return qs;
     }
+    scheduleQuestionBankRender(){
+        clearTimeout(this.__questionBankRenderTimer);
+        this.__questionBankRenderTimer = setTimeout(() => {
+            this.__questionBankRenderTimer = null;
+            this.renderQuestionBank();
+        }, 110);
+    }
+
     renderQuestionBank(){
         const list = document.getElementById('question-bank-list');
         if (!list) return;
