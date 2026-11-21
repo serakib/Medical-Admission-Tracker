@@ -98,15 +98,15 @@ const server = createServer(async (request, response) => {
       : upstreamPath;
     if (body) {
       proxiedAssets.push(targetPath);
-      if (/\\.(?:m?js)$/i.test(targetPath)) {
+      if (/\.(?:m?js)$/i.test(targetPath)) {
         // Mark every same-origin JS file, including classic/deferred scripts.
         // Preserve an initial "use strict" directive when present.
         const source = body.toString('utf8');
         const prologueLength = directivePrologueEnd(source);
         const instrumented = source.slice(0, prologueLength) +
-          "\\nconsole.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
+          "\nconsole.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
           source.slice(prologueLength) +
-          "\\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n";
+          "\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n";
         body = Buffer.from(instrumented, 'utf8');
       }
     }
