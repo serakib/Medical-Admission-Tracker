@@ -153,12 +153,10 @@ class MedicalExamApp {
                 window.dispatchEvent(new CustomEvent('medical-initial-leaderboard-ready'));
             });
         safeRun('exam setup', () => this.updateSetupUI());
-        safeRun('practice browser', () => this.renderPracticeBrowser());
 
         this.__initialQuestionBankPromise.then(() => {
             safeRun('subject counts', () => this.updateSubjectCountsUI());
             safeRun('exam setup after question refresh', () => this.updateSetupUI());
-            safeRun('practice browser after question refresh', () => this.renderPracticeBrowser());
             if (uiError) {
                 this.setDataStatus('error', 'প্রশ্নগুলো লোড হয়েছে, কিন্তু পেজের কিছু অংশ দেখাতে সমস্যা হয়েছে। Console error পরীক্ষা করুন।');
             } else {
@@ -169,7 +167,6 @@ class MedicalExamApp {
             // the rest of the website remains usable.
             safeRun('subject counts after question error', () => this.updateSubjectCountsUI());
             safeRun('exam setup after question error', () => this.updateSetupUI());
-            safeRun('practice browser after question error', () => this.renderPracticeBrowser());
             this.setDataStatus('error', loadError?.message || 'questions.json লোড করা যায়নি।');
         });
     }
@@ -240,15 +237,14 @@ class MedicalExamApp {
     }
 
     async loadQuestionBank() {
-        const cacheBuster = `?v=${Date.now()}`;
         const controller = new AbortController();
         // Keep the timeout active through response.json(); fetch() alone only covers
         // receiving the response headers, not necessarily reading the response body.
         const timeoutId = setTimeout(() => controller.abort(), 15000);
 
         try {
-            const response = await fetch(`./data/questions.json${cacheBuster}`, {
-                cache: 'no-store',
+            const response = await fetch('./data/questions.json', {
+                cache: 'no-cache',
                 headers: { 'Accept': 'application/json' },
                 signal: controller.signal
             });
@@ -880,7 +876,7 @@ class MedicalExamApp {
             this.__initialQuestionBankPromise.then(()=>{
                 if(this.questionsLoaded){
                     this.updateSubjectCountsUI(); this.updateSetupUI();
-                    this.renderPracticeBrowser(); this.renderQuestionBank();
+                    this.renderQuestionBank();
                 }
             }).catch(error=>this.setDataStatus('error',error.message||'প্রশ্ন ব্যাংক লোড করা যায়নি।'));
             return;
@@ -895,11 +891,37 @@ class MedicalExamApp {
         return qs;
     }
     renderQuestionBank(){
-        const list=document.getElementById('question-bank-list'); if(!list)return; const qs=this.getFilteredBank();
-        const count=document.getElementById('question-bank-count'); if(count)count.textContent=this.t(`${qs.length} questions`,`মোট ${qs.length}টি প্রশ্ন`);
-        list.innerHTML='';
-        qs.forEach((q,i)=>{const card=document.createElement('article');card.className='bank-card';const opts=q.options.map((o,j)=>`<div class="bank-option"><b>${'ABCD'[j]}</b><span>${this.escapeHtml(this.getLocalizedOption(q,j))}</span></div>`).join('');card.innerHTML=`<div class="bank-meta"><span>${this.escapeHtml(this.localizedSubject(q.subject))}</span><span>${this.escapeHtml(q.year||this.t('practice','Practice'))}</span></div><h3>${i+1}. ${this.escapeHtml(this.getLocalizedQuestionText(q))}</h3><div class="bank-options">${opts}</div><button class="bank-answer-btn" type="button">${this.t('Show Answer','উত্তর দেখুন')}</button><div class="bank-answer hidden"><strong>${this.t('Correct Answer','সঠিক উত্তর')}:</strong> ${q.correctAnswer}<br>${this.escapeHtml(this.language==='en'?(q.explanation_en||q.explanation||''):(q.explanation||''))}</div>`;card.querySelector('.bank-answer-btn').onclick=()=>{const a=card.querySelector('.bank-answer');a.classList.toggle('hidden');card.querySelector('.bank-answer-btn').textContent=a.classList.contains('hidden')?this.t('Show Answer','উত্তর দেখুন'):this.t('Hide Answer','উত্তর লুকান')};list.appendChild(card);});
-        if(!qs.length)list.innerHTML=`<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><h3>${this.t('No questions found','কোনো প্রশ্ন পাওয়া যায়নি')}</h3><p>${this.t('Try another filter or search term.','অন্য filter বা search ব্যবহার করুন।')}</p></div>`;
+        const list = document.getElementById('question-bank-list');
+        if (!list) return;
+
+        const questions = this.getFilteredBank();
+        const count = document.getElementById('question-bank-count');
+        if (count) count.textContent = this.t(`${questions.length} questions`, `মোট ${questions.length}টি প্রশ্ন`);
+
+        // Build off-DOM, then commit once to avoid repeated live-DOM mutations.
+        const fragment = document.createDocumentFragment();
+        questions.forEach((question, index) => {
+            const card = document.createElement('article');
+            card.className = 'bank-card';
+            const options = question.options.map((option, optionIndex) =>
+                `<div class="bank-option"><b>${'ABCD'[optionIndex]}</b><span>${this.escapeHtml(this.getLocalizedOption(question, optionIndex))}</span></div>`
+            ).join('');
+            card.innerHTML = `<div class="bank-meta"><span>${this.escapeHtml(this.localizedSubject(question.subject))}</span><span>${this.escapeHtml(question.year || this.t('practice', 'Practice'))}</span></div><h3>${index + 1}. ${this.escapeHtml(this.getLocalizedQuestionText(question))}</h3><div class="bank-options">${options}</div><button class="bank-answer-btn" type="button">${this.t('Show Answer', 'উত্তর দেখুন')}</button><div class="bank-answer hidden"><strong>${this.t('Correct Answer', 'সঠিক উত্তর')}:</strong> ${question.correctAnswer}<br>${this.escapeHtml(this.language === 'en' ? (question.explanation_en || question.explanation || '') : (question.explanation || ''))}</div>`;
+            card.querySelector('.bank-answer-btn').onclick = () => {
+                const answer = card.querySelector('.bank-answer');
+                answer.classList.toggle('hidden');
+                card.querySelector('.bank-answer-btn').textContent = answer.classList.contains('hidden')
+                    ? this.t('Show Answer', 'উত্তর দেখুন')
+                    : this.t('Hide Answer', 'উত্তর লুকান');
+            };
+            fragment.appendChild(card);
+        });
+
+        if (!questions.length) {
+            list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><h3>${this.t('No questions found', 'কোনো প্রশ্ন পাওয়া যায়নি')}</h3><p>${this.t('Try another filter or search term.', 'অন্য filter বা search ব্যবহার করুন।')}</p></div>`;
+            return;
+        }
+        list.replaceChildren(fragment);
     }
 
     // Browser mode is independent of quiz mode. It never starts a timer or marks answers.
