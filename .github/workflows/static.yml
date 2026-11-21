@@ -66,6 +66,9 @@ jobs:
         with:
           path: _site
 
+      - name: Wait for Pages artifact metadata
+        run: sleep 5
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
