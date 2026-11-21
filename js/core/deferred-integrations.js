@@ -2,6 +2,7 @@
 (() => {
   'use strict';
   let started = false;
+  window.__matIntegrationsReady = false;
 
   const waitForApp = () => window.app
     ? Promise.resolve()
@@ -31,15 +32,19 @@
       ['leaderboard experience', () => import('../vendor/leaderboard-experience.min.js')]
     ];
 
+    const failures = [];
     for (const [name, load] of modules) {
       await yieldToBrowser();
       try {
         await load();
       } catch (error) {
+        failures.push(name);
         console.error('[Medical Admission Tracker] Could not load ' + name + ':', error);
       }
     }
 
+    window.__matIntegrationFailures = failures;
+    window.__matIntegrationsReady = failures.length === 0;
     window.dispatchEvent(new Event('mat:integrations-ready'));
   }
 
