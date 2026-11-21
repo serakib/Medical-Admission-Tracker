@@ -153,10 +153,12 @@ class MedicalExamApp {
                 window.dispatchEvent(new CustomEvent('medical-initial-leaderboard-ready'));
             });
         safeRun('exam setup', () => this.updateSetupUI());
+        safeRun('practice browser', () => this.renderPracticeBrowser());
 
         this.__initialQuestionBankPromise.then(() => {
             safeRun('subject counts', () => this.updateSubjectCountsUI());
             safeRun('exam setup after question refresh', () => this.updateSetupUI());
+            safeRun('practice browser after question refresh', () => this.renderPracticeBrowser());
             if (uiError) {
                 this.setDataStatus('error', 'প্রশ্নগুলো লোড হয়েছে, কিন্তু পেজের কিছু অংশ দেখাতে সমস্যা হয়েছে। Console error পরীক্ষা করুন।');
             } else {
@@ -167,6 +169,7 @@ class MedicalExamApp {
             // the rest of the website remains usable.
             safeRun('subject counts after question error', () => this.updateSubjectCountsUI());
             safeRun('exam setup after question error', () => this.updateSetupUI());
+            safeRun('practice browser after question error', () => this.renderPracticeBrowser());
             this.setDataStatus('error', loadError?.message || 'questions.json লোড করা যায়নি।');
         });
     }
