@@ -43,6 +43,10 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+const matStartupTrace = label => {
+    if (window.__MAT_STARTUP_DEBUG) console.log('[MAT-APP-TRACE] ' + label);
+};
+
 let QUESTION_BANK = [];
 
 class MedicalExamApp {
@@ -103,18 +107,23 @@ class MedicalExamApp {
     }
 
     async init() {
+        matStartupTrace('init:start');
         this.applyTheme();
+        matStartupTrace('init:theme');
         this.initButtonFeedback();
         this.applyLanguage();
         history.replaceState({ app: true }, '', window.location.href);
         this.showView('home');
         this.setDataStatus('loading');
+        matStartupTrace('init:home-rendered');
 
         this.initAuth();
+        matStartupTrace('init:auth-started');
 
         // Start the initial data refresh immediately and keep it independent from navigation.
         // The same in-flight question request is reused if the user opens Q.Bank meanwhile.
         let loadError = null;
+        matStartupTrace('init:question-load-start');
         this.__initialQuestionBankPromise = this.loadQuestionBank();
         this.__initialQuestionBankPromise = this.__initialQuestionBankPromise.catch(error => {
             loadError = error;
@@ -142,7 +151,9 @@ class MedicalExamApp {
             }
         };
 
+        matStartupTrace('init:progress-start');
         safeRun('progress stats', () => this.loadProgressStats());
+        matStartupTrace('init:progress-done');
         this.__initialLeaderboardPromise = Promise.resolve()
             .then(() => this.loadLeaderboard(true))
             .catch(error => {
@@ -153,6 +164,7 @@ class MedicalExamApp {
                 window.dispatchEvent(new CustomEvent('medical-initial-leaderboard-ready'));
             });
         safeRun('exam setup', () => this.updateSetupUI());
+        matStartupTrace('init:setup-done');
 
         this.__initialQuestionBankPromise.then(() => {
             safeRun('subject counts', () => this.updateSubjectCountsUI());
@@ -237,6 +249,7 @@ class MedicalExamApp {
     }
 
     async loadQuestionBank() {
+        matStartupTrace('questions:fetch-start');
         const controller = new AbortController();
         // Keep the timeout active through response.json(); fetch() alone only covers
         // receiving the response headers, not necessarily reading the response body.
@@ -253,7 +266,9 @@ class MedicalExamApp {
                 throw new Error(`questions.json (${response.status})`);
             }
 
+            matStartupTrace('questions:response-received');
             const raw = await response.json();
+            matStartupTrace('questions:json-parsed');
             if (!Array.isArray(raw)) {
                 throw new Error('questions.json-এ একটি JSON array থাকতে হবে।');
             }
@@ -266,6 +281,7 @@ class MedicalExamApp {
             }
 
             this.questionBank = normalized;
+            matStartupTrace('questions:normalized-' + normalized.length);
             this.questionsLoaded = true;
             this.populateYearFilter();
         } catch (error) {
@@ -413,21 +429,26 @@ class MedicalExamApp {
     }
 
     initAuth() {
+        matStartupTrace('auth:init');
         try {
             setPersistence(this.auth, browserLocalPersistence).catch(err => {
                 console.warn('Firebase persistence could not be set:', err);
             });
 
             onAuthStateChanged(this.auth, async user => {
+                matStartupTrace('auth:callback-start');
                 this.authStateResolved = false;
                 try {
                     this.setAuthState(user);
+                    matStartupTrace('auth:set-state-done');
                     if (user) await this.loadUserProfile();
+                    matStartupTrace('auth:profile-done');
                 } catch (error) {
                     // Auth readiness must resolve even if a secondary UI/profile step fails.
                     console.error('Auth state UI update failed:', error);
                 } finally {
                     this.authStateResolved = true;
+                    matStartupTrace('auth:callback-finally');
                     try {
                         window.dispatchEvent(new CustomEvent('student-auth-state-resolved', {
                             detail: { user: user || null }
@@ -447,6 +468,7 @@ class MedicalExamApp {
     }
 
     setAuthState(user, notice = '') {
+        matStartupTrace('auth:set-state-start');
         this.authUser = user || null;
         this.resetServerProgressForIdentity();
         const button = document.getElementById('authStatusBtn');
@@ -480,6 +502,7 @@ class MedicalExamApp {
         this.renderAccountProfile();
 
         this.loadProgressStats();
+        matStartupTrace('auth:set-state-end');
         // The Medical Sheets API adapter loads the authoritative leaderboard after auth resolves.
     }
 
@@ -2056,6 +2079,7 @@ class MedicalExamApp {
     }
 
     loadProgressStats() {
+        matStartupTrace('progress:start');
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
         let hasGuestServerSession = false;
         try {
@@ -2237,7 +2261,9 @@ class MedicalExamApp {
     document.head.appendChild(style);
 })();
 
+matStartupTrace('app:construct-start');
 window.app = new MedicalExamApp();
+matStartupTrace('app:construct-end');
 
 window.addEventListener('student-auth-state-resolved', function () {
     const appInstance = window.app;
