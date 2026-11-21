@@ -154,6 +154,9 @@ try {
     });
     window.addEventListener('medical-app-ready', () => {
       console.log('[MAT-TRACE] received medical-app-ready');
+      Promise.resolve().then(() => console.log('[MAT-TRACE] app-microtask-ran'));
+      setTimeout(() => console.log('[MAT-TRACE] app-timer-ran'), 0);
+      requestAnimationFrame(() => console.log('[MAT-TRACE] app-raf-ran'));
     });
 
     // Trace the first DOMContentLoaded handlers and mutation callbacks so a
