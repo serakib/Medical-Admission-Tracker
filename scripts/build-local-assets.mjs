@@ -24,30 +24,23 @@ await esbuild.build({
   platform: 'browser',
   format: 'esm',
   target: ['es2020'],
-  minify: true,
   outfile: 'js/vendor/app.bundle.js',
   legalComments: 'none',
   sourcemap: false
 });
 
-const deferredIntegrationBundles = [
-  ['js/integrations/integrated-features.js', 'js/vendor/integrated-features.min.js'],
-  ['js/integrations/global-league-system.js', 'js/vendor/global-league-system.min.js'],
-  ['js/integrations/leaderboard-experience.js', 'js/vendor/leaderboard-experience.min.js']
-];
-for (const [entryPoint, outfile] of deferredIntegrationBundles) {
-  await esbuild.build({
-    entryPoints: [entryPoint],
-    bundle: false,
-    platform: 'browser',
-    format: 'esm',
-    target: ['es2020'],
-    minify: true,
-    legalComments: 'none',
-    sourcemap: false,
-    outfile
-  });
-}
+console.log('[assets] Bundling local Firebase compat SDK...');
+fs.mkdirSync(path.join(root, 'js', 'vendor'), { recursive: true });
+await esbuild.build({
+  entryPoints: ['scripts/firebase-compat-entry.js'],
+  bundle: true,
+  platform: 'browser',
+  format: 'iife',
+  target: ['es2019'],
+  outfile: 'js/vendor/firebase-compat.js',
+  legalComments: 'none',
+  minify: true
+});
 
 const packages = {
   solid: require('@fortawesome/free-solid-svg-icons'),
@@ -72,7 +65,7 @@ walk(path.join(root, 'js'));
 sourceFiles.push(path.join(root, 'index.html'));
 const ignored = new Set([
   'solid','regular','brands','spin','pulse','fw','ul','li','border','inverse',
-  'symbol','pull-left','pull-right','flip-horizontal','flip-vertical','rotate-90','rotate-180',
+  'pull-left','pull-right','flip-horizontal','flip-vertical','rotate-90','rotate-180',
   'rotate-270','beat','fade','bounce','shake','beat-fade','flip','spin-pulse','spin-reverse',
   'xs','sm','lg','xl','2xl','2x','3x','4x','5x','6x','7x','8x','9x'
 ]);
@@ -84,7 +77,7 @@ for (const file of sourceFiles) {
     preferredFamily.set(match[2], match[1]);
   }
   for (const match of source.matchAll(/\bfa-([a-z0-9-]+)\b/g)) {
-    if (!ignored.has(match[1]) && !match[1].startsWith('local-') && match[1] !== 'use' && match[1] !== 'symbol') iconNames.add(match[1]);
+    if (!ignored.has(match[1]) && !match[1].startsWith('local-') && match[1] !== 'use') iconNames.add(match[1]);
   }
 }
 console.log('[assets] Generating local Font Awesome SVG sprite from ' + sourceFiles.length + ' source files...');
@@ -110,4 +103,4 @@ const spriteDir = path.join(root, 'public', 'assets', 'icons');
 fs.mkdirSync(spriteDir, { recursive: true });
 fs.writeFileSync(path.join(spriteDir, 'fontawesome.svg'),
   '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>' + symbols.join('') + '</defs></svg>\n');
-console.log('Built minified main app bundle, local Tailwind CSS, and ' + symbols.length + ' Font Awesome SVG symbols.');
+console.log('Built local Tailwind CSS, Firebase compat bundle, and ' + symbols.length + ' Font Awesome SVG symbols.');
