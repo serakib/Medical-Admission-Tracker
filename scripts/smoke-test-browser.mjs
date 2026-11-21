@@ -148,6 +148,7 @@ try {
   const page = await context.newPage();
   page.setDefaultTimeout(8000);
   await page.addInitScript(() => {
+    window.__MAT_STARTUP_DEBUG = true;
     document.addEventListener('readystatechange', () => {
       console.log('[MAT-TRACE] readyState=' + document.readyState);
     });
@@ -162,7 +163,7 @@ try {
   ));
   page.on('console', message => {
     const messageText = message.text();
-    if (messageText.includes('[MAT-TRACE]')) moduleTraceEvents.push(messageText);
+    if (messageText.includes('[MAT-TRACE]') || messageText.includes('[MAT-APP-TRACE]')) moduleTraceEvents.push(messageText);
     if (message.type() === 'error') errors.push('CONSOLE ERROR: ' + messageText);
   });
 
