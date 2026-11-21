@@ -1,4 +1,4 @@
-/* Load non-critical integration layers after the initial page becomes responsive. */
+/* Keep the dashboard interactive first, then load the existing integrations in order. */
 (() => {
   'use strict';
   let started = false;
@@ -16,7 +16,7 @@
     if (typeof window.requestIdleCallback === 'function') {
       window.requestIdleCallback(() => resolve(), { timeout: 1200 });
     } else {
-      window.setTimeout(resolve, 120);
+      window.setTimeout(resolve, 80);
     }
   });
 
@@ -27,12 +27,12 @@
     await waitForPageLoad();
 
     const modules = [
-      ['integrated features', () => import('../vendor/integrated-features.min.js')],
-      ['leaderboard backend', () => import('../vendor/global-league-system.min.js')],
-      ['leaderboard experience', () => import('../vendor/leaderboard-experience.min.js')]
+      ['integrated features', () => import('../integrations/integrated-features.js')],
+      ['leaderboard backend', () => import('../integrations/global-league-system.js')],
+      ['leaderboard experience', () => import('../integrations/leaderboard-experience.js')]
     ];
-
     const failures = [];
+
     for (const [name, load] of modules) {
       await yieldToBrowser();
       try {
@@ -48,9 +48,5 @@
     window.dispatchEvent(new Event('mat:integrations-ready'));
   }
 
-  if (window.app) {
-    loadIntegrations();
-  } else {
-    window.addEventListener('medical-app-ready', loadIntegrations, { once: true });
-  }
+  loadIntegrations();
 })();
