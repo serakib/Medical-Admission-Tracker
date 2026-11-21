@@ -6,8 +6,7 @@
 
 | Script | কাজ |
 |---|---|
-| `build-local-assets.mjs` | Tailwind CSS compile, Firebase compat SDK bundle এবং ব্যবহৃত Font Awesome SVG symbol sprite তৈরি করে। |
-| `firebase-compat-entry.js` | Firebase compat modules-এর local browser bundle entry point। |
+| `build-local-assets.mjs` | Tailwind CSS compile, minified modular Firebase app bundle এবং ব্যবহৃত Font Awesome SVG symbol sprite তৈরি করে। |
 | `generate-avatar-browser-definition.mjs` | Local Avataaars source definition থেকে browser runtime data তৈরি করে। |
 | `generate-avatar-asset-manifest.mjs` | `public/assets/avatar/` ও `public/assets/pets/`-এর SVG scan করে original content, path ও content hash-সহ deployment manifest তৈরি করে। |
 | `generate-avatar-svg-parts.mjs` | Pinned Avataaars vector source থেকে official SVG component তৈরি বা `--check` দিয়ে existing component geometry যাচাই করে। |
