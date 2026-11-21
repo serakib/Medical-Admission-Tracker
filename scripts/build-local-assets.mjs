@@ -24,22 +24,10 @@ await esbuild.build({
   platform: 'browser',
   format: 'esm',
   target: ['es2020'],
+  minify: true,
   outfile: 'js/vendor/app.bundle.js',
   legalComments: 'none',
   sourcemap: false
-});
-
-console.log('[assets] Bundling local Firebase compat SDK...');
-fs.mkdirSync(path.join(root, 'js', 'vendor'), { recursive: true });
-await esbuild.build({
-  entryPoints: ['scripts/firebase-compat-entry.js'],
-  bundle: true,
-  platform: 'browser',
-  format: 'iife',
-  target: ['es2019'],
-  outfile: 'js/vendor/firebase-compat.js',
-  legalComments: 'none',
-  minify: true
 });
 
 const packages = {
@@ -103,4 +91,4 @@ const spriteDir = path.join(root, 'public', 'assets', 'icons');
 fs.mkdirSync(spriteDir, { recursive: true });
 fs.writeFileSync(path.join(spriteDir, 'fontawesome.svg'),
   '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>' + symbols.join('') + '</defs></svg>\n');
-console.log('Built local Tailwind CSS, Firebase compat bundle, and ' + symbols.length + ' Font Awesome SVG symbols.');
+console.log('Built minified main app bundle, local Tailwind CSS, and ' + symbols.length + ' Font Awesome SVG symbols.');
