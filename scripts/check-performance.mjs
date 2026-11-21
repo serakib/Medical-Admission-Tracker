@@ -14,7 +14,7 @@ assert.ok(cssBytes <= 250 * 1024, 'Generated Tailwind CSS exceeds the 250 KB per
 const appBundleBytes = stat('js/vendor/app.bundle.js');
 assert.ok(appBundleBytes <= 2.5 * 1024 * 1024,
   'Main application bundle exceeds the 2.5 MB performance budget: ' + appBundleBytes);
-assert.doesNotMatch(html, /firebase-compat\\.js|firebase-config\\.js/i,
+assert.doesNotMatch(html, /firebase-compat\.js|firebase-config\.js/i,
   'Do not load the unused Firebase compatibility SDK or duplicate config script.');
 assert.match(html, /rel=["']modulepreload["'][^>]+app\\.bundle\\.js/i,
   'Preload the main app module so it can download while HTML is parsed.');
