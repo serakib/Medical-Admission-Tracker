@@ -22,14 +22,6 @@ const slowRequests = [];
 const moduleTraceEvents = [];
 const proxiedAssets = [];
 let proxiedRequests = 0;
-const tracedModulePaths = new Set([
-  "/js/features/student-ai.js",
-  "/js/vendor/app.bundle.js",
-  "/js/integrations/integrated-features.js",
-  "/js/integrations/global-league-system.js",
-  "/js/integrations/leaderboard-experience.js",
-  "/js/features/system-tools.js"
-]);
 let browser;
 let context;
 let serverStarted = false;
@@ -76,16 +68,17 @@ const server = createServer(async (request, response) => {
       : upstreamPath;
     if (body) {
       proxiedAssets.push(targetPath);
-      if (tracedModulePaths.has(targetPath)) {
-        // Add non-invasive begin/end markers around top-level ESM execution.
-        // The trace identifies the module whose synchronous evaluation never returns.
+      if (/\\.(?:m?js)$/i.test(targetPath)) {
+        // Mark every same-origin JS file, including classic/deferred scripts.
+        // Preserve an initial "use strict" directive when present.
         const source = body.toString('utf8');
-        body = Buffer.from(
-          "console.log('[MAT-TRACE] BEGIN " + targetPath + "');\n" +
-          source +
-          "\nconsole.log('[MAT-TRACE] END " + targetPath + "');\n",
-          'utf8'
-        );
+        const strictPrefix = source.match(/^([\\s\\uFEFF]*(?:(?:\\/\\/[^\\n]*(?:\\n|$)|\\/\\*[\\s\\S]*?\\*\\/)\\s*)*['"]use strict['"]\\s*;?)/);
+        const prologue = strictPrefix ? strictPrefix[0] : '';
+        const instrumented = prologue +
+          "\\nconsole.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
+          source.slice(prologue.length) +
+          "\\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n";
+        body = Buffer.from(instrumented, 'utf8');
       }
     }
     const headers = Object.fromEntries(
