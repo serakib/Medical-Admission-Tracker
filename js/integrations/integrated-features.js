@@ -2429,8 +2429,18 @@
       document.querySelectorAll('.profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living').forEach(element => element._matAvatarSwitchState?.());
     }, 10000);
   }
-  const avatarMotionObserver = new MutationObserver(() => {
-    if (installAvatarLiveTransitions._queued) return;
+  // Only re-run avatar setup when a new avatar subtree is inserted. Watching
+  // every body mutation made unrelated dashboard updates repeatedly rescan and
+  // rehydrate every avatar, creating avoidable main-thread work during startup.
+  const avatarMotionSelector = '#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar,#sidebar-user-avatar';
+  const avatarMotionObserver = new MutationObserver(records => {
+    const hasNewAvatar = records.some(record => Array.from(record.addedNodes).some(node =>
+      node.nodeType === 1 && (
+        node.matches(avatarMotionSelector) ||
+        node.querySelector(avatarMotionSelector)
+      )
+    ));
+    if (!hasNewAvatar || installAvatarLiveTransitions._queued) return;
     installAvatarLiveTransitions._queued = true;
     requestAnimationFrame(() => {
       installAvatarLiveTransitions._queued = false;
