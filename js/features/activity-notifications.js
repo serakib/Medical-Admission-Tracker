@@ -66,7 +66,7 @@
     const app = window.app || {};
     if (app.authUser && app.authUser.uid) return String(app.authUser.uid);
     try {
-      const user = window.firebase && typeof window.firebase.auth === 'function' && window.firebase.auth().currentUser;
+      const user = window.__matFirebaseAuthUser || null;
       return user && user.uid ? String(user.uid) : '';
     } catch (_) { return ''; }
   }
