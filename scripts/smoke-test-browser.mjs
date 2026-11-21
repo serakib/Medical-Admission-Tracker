@@ -26,6 +26,36 @@ let browser;
 let context;
 let serverStarted = false;
 
+function directivePrologueEnd(source) {
+  let index = source.charCodeAt(0) === 0xFEFF ? 1 : 0;
+  while (index < source.length) {
+    while (index < source.length && /\\s/.test(source[index])) index += 1;
+    if (source.startsWith('//', index)) {
+      const newline = source.indexOf('\\n', index + 2);
+      index = newline < 0 ? source.length : newline + 1;
+      continue;
+    }
+    if (source.startsWith('/*', index)) {
+      const end = source.indexOf('*/', index + 2);
+      if (end < 0) return index;
+      index = end + 2;
+      continue;
+    }
+    const quote = source[index];
+    if ((quote === "'" || quote === '"') &&
+        source.slice(index + 1, index + 11) === 'use strict') {
+      const endQuote = source.indexOf(quote, index + 1);
+      if (endQuote >= 0) {
+        index = endQuote + 1;
+        while (index < source.length && /\\s/.test(source[index])) index += 1;
+        if (source[index] === ';') index += 1;
+      }
+    }
+    return index;
+  }
+  return index;
+}
+
 function withTimeout(promise, milliseconds, label) {
   let timer;
   return Promise.race([
@@ -72,11 +102,10 @@ const server = createServer(async (request, response) => {
         // Mark every same-origin JS file, including classic/deferred scripts.
         // Preserve an initial "use strict" directive when present.
         const source = body.toString('utf8');
-        const strictPrefix = source.match(/^([\\s\\uFEFF]*(?:(?:\\/\\/[^\\n]*(?:\\n|$)|\\/\\*[\\s\\S]*?\\*\\/)\\s*)*['"]use strict['"]\\s*;?)/);
-        const prologue = strictPrefix ? strictPrefix[0] : '';
-        const instrumented = prologue +
+        const prologueLength = directivePrologueEnd(source);
+        const instrumented = source.slice(0, prologueLength) +
           "\\nconsole.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
-          source.slice(prologue.length) +
+          source.slice(prologueLength) +
           "\\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n";
         body = Buffer.from(instrumented, 'utf8');
       }
