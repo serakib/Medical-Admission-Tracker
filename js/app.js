@@ -1317,9 +1317,14 @@ class MedicalExamApp {
                 el.classList.toggle('hidden', !visible);
                 el.setAttribute('aria-hidden', visible ? 'false' : 'true');
                 if (visible) {
+                    // Avoid forcing a synchronous layout across the entire dashboard during startup.
+                    // Reapply the entry animation on the next frame after the browser paints the view.
                     el.classList.remove('view-reenter');
-                    void el.offsetWidth;
-                    el.classList.add('view-reenter');
+                    window.requestAnimationFrame(() => {
+                        if (el.isConnected && !el.classList.contains('hidden')) {
+                            el.classList.add('view-reenter');
+                        }
+                    });
                 }
             }
         });
