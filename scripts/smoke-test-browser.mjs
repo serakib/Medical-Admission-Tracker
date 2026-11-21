@@ -19,7 +19,17 @@ const errors = [];
 const failedRequests = [];
 const badResponses = [];
 const slowRequests = [];
+const moduleTraceEvents = [];
+const proxiedAssets = [];
 let proxiedRequests = 0;
+const tracedModulePaths = new Set([
+  "/js/features/student-ai.js",
+  "/js/vendor/app.bundle.js",
+  "/js/integrations/integrated-features.js",
+  "/js/integrations/global-league-system.js",
+  "/js/integrations/leaderboard-experience.js",
+  "/js/features/system-tools.js"
+]);
 let browser;
 let context;
 let serverStarted = false;
@@ -59,7 +69,22 @@ const server = createServer(async (request, response) => {
       signal: AbortSignal.timeout(10000),
       headers: { 'user-agent': 'Medical-Admission-Tracker-Chromium-Smoke-Test' }
     });
-    const body = request.method === 'HEAD' ? null : Buffer.from(await upstream.arrayBuffer());
+    let body = request.method === 'HEAD' ? null : Buffer.from(await upstream.arrayBuffer());
+    const targetPath = new URL(targetUrl).pathname;
+    if (body) {
+      proxiedAssets.push(targetPath);
+      if (tracedModulePaths.has(targetPath)) {
+        // Add non-invasive begin/end markers around top-level ESM execution.
+        // The trace identifies the module whose synchronous evaluation never returns.
+        const source = body.toString('utf8');
+        body = Buffer.from(
+          "console.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
+          source +
+          "\\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n",
+          'utf8'
+        );
+      }
+    }
     const headers = Object.fromEntries(
       [...upstream.headers.entries()].filter(([name]) =>
         ['content-type', 'cache-control', 'etag', 'last-modified', 'expires'].includes(name.toLowerCase())
@@ -97,13 +122,23 @@ try {
   });
   const page = await context.newPage();
   page.setDefaultTimeout(8000);
+  await page.addInitScript(() => {
+    document.addEventListener('readystatechange', () => {
+      console.log('[MAT-TRACE] readyState=' + document.readyState);
+    });
+    window.addEventListener('medical-app-ready', () => {
+      console.log('[MAT-TRACE] received medical-app-ready');
+    });
+  });
 
   page.on('pageerror', error => errors.push('PAGE ERROR: ' + error.stack));
   page.on('requestfailed', request => failedRequests.push(
     request.url() + ' — ' + (request.failure()?.errorText || 'request failed')
   ));
   page.on('console', message => {
-    if (message.type() === 'error') errors.push('CONSOLE ERROR: ' + message.text());
+    const messageText = message.text();
+    if (messageText.includes('[MAT-TRACE]')) moduleTraceEvents.push(messageText);
+    if (message.type() === 'error') errors.push('CONSOLE ERROR: ' + messageText);
   });
 
   await page.route('**/*', async route => {
@@ -133,7 +168,9 @@ try {
   ).catch(() => {});
 
   console.log('Inspecting browser app state...');
-  const appState = await withTimeout(page.evaluate(() => ({
+  let appState = null;
+  try {
+    appState = await withTimeout(page.evaluate(() => ({
     appExists: Boolean(window.app),
     appType: typeof window.app,
     readyState: document.readyState,
@@ -147,16 +184,24 @@ try {
     })(),
     title: document.title,
     bodyText: (document.body?.innerText || '').slice(0, 1200)
-  })), 10000, 'Browser state evaluation');
+    })), 10000, 'Browser state evaluation');
+  } catch (stateError) {
+    errors.push('BROWSER STATE EVALUATION: ' + (stateError?.message || String(stateError)));
+  }
 
-  console.log('Browser app state: ' + JSON.stringify(appState, null, 2));
+  if (appState) console.log('Browser app state: ' + JSON.stringify(appState, null, 2));
+  else console.log('Browser app state could not be read; the page main thread may be blocked.');
   console.log('Same-origin assets proxied: ' + proxiedRequests);
+  console.log('Scripts/assets fetched: ' + proxiedAssets.filter(path => /\\.(?:m?js)(?:$|\\?)/i.test(path)).join(' | '));
+  if (moduleTraceEvents.length) console.log('Module execution trace:\\n' + moduleTraceEvents.join('\\n'));
+  else console.log('Module execution trace: no trace events received.');
   if (errors.length) console.log('Browser errors:\n' + errors.join('\n'));
   if (failedRequests.length) console.log('Failed requests:\n' + failedRequests.join('\n'));
   if (badResponses.length) console.log('HTTP error responses:\n' + badResponses.join('\n'));
   if (slowRequests.length) console.log('Slow requests:\n' + slowRequests.join('\n'));
 
   assert.ok(proxiedRequests > 0, 'No site assets reached the local proxy.');
+  assert.ok(appState, 'Browser main thread did not respond to state inspection.');
   assert.equal(appState.appExists, true,
     'The main application never created window.app. Inspect browser errors and failed requests above.');
   assert.equal(appState.loaderVisible, false,
