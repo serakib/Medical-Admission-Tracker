@@ -1,10 +1,6 @@
 /* Integrated exam, review-history, and account helpers.
    Keeps the existing application and Question Bank as the source of truth. */
 
-const onPageLoad = callback => {
-  if (document.readyState === 'complete') setTimeout(callback, 0);
-  else window.addEventListener('load', callback, { once: true });
-};
 
 (() => {
   'use strict';
@@ -1719,6 +1715,16 @@ const onPageLoad = callback => {
   const legacyAvatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
   const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
   const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
+function hydrateLivingAvatarFaces(scope = document) {
+  const hydrate = window.MedAvatarCreator?.hydrateLivingFace;
+  if (typeof hydrate !== 'function' || !scope?.querySelectorAll) return;
+  const selector = '.profile-avatar-stack,.profile-avatar-preview-stack,.account-avatar-stack,.leaderboard-avatar-stack,.podium-avatar-stack,.leaderboard-me-stack';
+  const stacks = new Set(scope.matches?.(selector) ? [scope] : []);
+  scope.querySelectorAll(selector).forEach(stack => stacks.add(stack));
+  stacks.forEach(stack => {
+    hydrate(stack).catch(error => console.warn('[Avatar motion] Face hydration skipped:', error));
+  });
+}
   // Google/Gmail photo is saved separately in the Avatar Vault; it is not an uploaded/custom avatar.
   const googleAvatarKey = () => 'med_profile_google_avatar_v1_' + avatarAccountId();
   const readGoogleAvatar = () => {
