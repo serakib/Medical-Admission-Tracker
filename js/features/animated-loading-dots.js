@@ -48,7 +48,7 @@
       scanScheduled = false;
       var processed = 0;
       while (scanQueue.length && processed < 120 &&
-        (!deadline || deadline.timeRemaining() > 2 || processed === 0)) {
+        (!deadline || deadline.timeRemaining() > 2 || processed < 40)) {
         var walker = scanQueue[0];
         var node = walker.nextNode();
         if (!node) {
@@ -61,7 +61,7 @@
       if (scanQueue.length) scheduleScan();
     };
     if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(run, { timeout: 1000 });
+      window.requestIdleCallback(run, { timeout: 300 });
     } else {
       window.setTimeout(function () { run(null); }, 32);
     }
