@@ -96,6 +96,7 @@ class MedicalExamApp {
         this.auth = auth;
         this.authMode = 'login';
         this.authReady = false;
+        this.authInitScheduled = false;
         this.authStateResolved = false;
         this.__medicalRegistrationInProgress = false;
         this.examActive = false;
@@ -118,8 +119,8 @@ class MedicalExamApp {
         this.setDataStatus('loading');
         matStartupTrace('init:home-rendered');
 
-        this.initAuth();
-        matStartupTrace('init:auth-started');
+        this.scheduleAuthInitialization();
+        matStartupTrace('init:auth-scheduled');
 
         // Start the initial data refresh immediately and keep it independent from navigation.
         // The same in-flight question request is reused if the user opens Q.Bank meanwhile.
@@ -427,6 +428,30 @@ class MedicalExamApp {
         return String(value ?? '').replace(/[&<>"']/g, ch => ({
             '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
         }[ch]));
+    }
+
+    scheduleAuthInitialization() {
+        if (this.authReady || this.authInitScheduled) return;
+        this.authInitScheduled = true;
+        const start = () => {
+            if (this.authReady) {
+                this.authInitScheduled = false;
+                return;
+            }
+            // Let the first dashboard frame and browser load finish before Firebase
+            // restores persisted auth state. Public browsing stays available meanwhile.
+            const initialize = () => {
+                this.authInitScheduled = false;
+                this.initAuth();
+            };
+            if (typeof window.requestIdleCallback === 'function') {
+                window.requestIdleCallback(initialize, { timeout: 1800 });
+            } else {
+                window.setTimeout(initialize, 0);
+            }
+        };
+        if (document.readyState === 'complete') start();
+        else window.addEventListener('load', start, { once: true });
     }
 
     initAuth() {
