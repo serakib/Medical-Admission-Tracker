@@ -1,7 +1,13 @@
 /* Integrated exam, review-history, and account helpers.
    Keeps the existing application and Question Bank as the source of truth. */
 
-// Shared for the independent leaderboard integration at the end of this file.
+// Shared by independent integration IIFEs in this module.
+const onPageLoad = callback => {
+  if (document.readyState === 'complete') setTimeout(callback, 0);
+  else window.addEventListener('load', callback, { once: true });
+};
+
+// Shared across separate integration IIFEs, including leaderboard rendering.
 function hydrateLivingAvatarFaces(scope = document) {
   const hydrate = window.MedAvatarCreator?.hydrateLivingFace;
   if (typeof hydrate !== 'function' || !scope?.querySelectorAll) return;
@@ -13,11 +19,17 @@ function hydrateLivingAvatarFaces(scope = document) {
   });
 }
 
+
 (() => {
   'use strict';
   const app = window.app;
   if (!app || app.__integratedFeaturesInstalled) return;
   app.__integratedFeaturesInstalled = true;
+
+  const onPageLoad = callback => {
+    if (document.readyState === 'complete') setTimeout(callback, 0);
+    else window.addEventListener('load', callback, { once: true });
+  };
 
   const REVIEW_KEY = () => app.getScopedLocalStorageKey('med_review_history_v2');
   const ACCOUNT_KEY = 'med_recent_accounts_v1';
@@ -696,7 +708,7 @@ function hydrateLivingAvatarFaces(scope = document) {
     }
   };
 
-  window.addEventListener('load', () => {
+  onPageLoad(() => {
     renderReviewPanel();
     renderAccountList();
   });
@@ -1726,6 +1738,16 @@ function hydrateLivingAvatarFaces(scope = document) {
   const legacyAvatarKey = () => 'med_profile_avatar_v1_' + avatarAccountId();
   const manualAvatarKey = () => 'med_profile_avatar_manual_v1_' + avatarAccountId();
   const uploadedAvatarKey = () => 'med_profile_uploaded_avatars_v1_' + avatarAccountId();
+function hydrateLivingAvatarFaces(scope = document) {
+  const hydrate = window.MedAvatarCreator?.hydrateLivingFace;
+  if (typeof hydrate !== 'function' || !scope?.querySelectorAll) return;
+  const selector = '.profile-avatar-stack,.profile-avatar-preview-stack,.account-avatar-stack,.leaderboard-avatar-stack,.podium-avatar-stack,.leaderboard-me-stack';
+  const stacks = new Set(scope.matches?.(selector) ? [scope] : []);
+  scope.querySelectorAll(selector).forEach(stack => stacks.add(stack));
+  stacks.forEach(stack => {
+    hydrate(stack).catch(error => console.warn('[Avatar motion] Face hydration skipped:', error));
+  });
+}
   // Google/Gmail photo is saved separately in the Avatar Vault; it is not an uploaded/custom avatar.
   const googleAvatarKey = () => 'med_profile_google_avatar_v1_' + avatarAccountId();
   const readGoogleAvatar = () => {
@@ -2437,21 +2459,18 @@ function hydrateLivingAvatarFaces(scope = document) {
       document.querySelectorAll('.profile-avatar.mat-avatar-living,#sidebar-user-avatar.mat-avatar-living').forEach(element => element._matAvatarSwitchState?.());
     }, 10000);
   }
-  // Ignore unrelated dashboard mutations, but still react to changes inside
-  // an avatar or when an avatar subtree is inserted.
+  // Only re-run avatar setup when a new avatar subtree is inserted. Watching
+  // every body mutation made unrelated dashboard updates repeatedly rescan and
+  // rehydrate every avatar, creating avoidable main-thread work during startup.
   const avatarMotionSelector = '#view-profile .profile-hero .profile-avatar,#view-account .profile-hero .profile-avatar,#sidebar-user-avatar';
   const avatarMotionObserver = new MutationObserver(records => {
-    const hasAvatarMutation = records.some(record => {
-      const target = record.target?.nodeType === 1 ? record.target : record.target?.parentElement;
-      const changedInsideAvatar = !!(target &&
-        (target.matches?.(avatarMotionSelector) || target.closest?.(avatarMotionSelector)));
-      const insertedAvatar = Array.from(record.addedNodes).some(node =>
-        node.nodeType === 1 &&
-        (node.matches(avatarMotionSelector) || node.querySelector(avatarMotionSelector))
-      );
-      return changedInsideAvatar || insertedAvatar;
-    });
-    if (!hasAvatarMutation || installAvatarLiveTransitions._queued) return;
+    const hasNewAvatar = records.some(record => Array.from(record.addedNodes).some(node =>
+      node.nodeType === 1 && (
+        node.matches(avatarMotionSelector) ||
+        node.querySelector(avatarMotionSelector)
+      )
+    ));
+    if (!hasNewAvatar || installAvatarLiveTransitions._queued) return;
     installAvatarLiveTransitions._queued = true;
     requestAnimationFrame(() => {
       installAvatarLiveTransitions._queued = false;
@@ -2817,7 +2836,7 @@ function hydrateLivingAvatarFaces(scope = document) {
     renderAvatarPicker();
     ensureSharedAvatarExists().catch(() => {});
   });
-  window.addEventListener('load', () => {
+  onPageLoad(() => {
     renderAvatarPicker();
     ensureSharedAvatarExists().catch(() => {});
   });
@@ -3107,6 +3126,10 @@ function hydrateLivingAvatarFaces(scope = document) {
 (() => {
 'use strict';
 const app=window.app;if(!app||app.__comprehensiveRequirementsInstalled)return;app.__comprehensiveRequirementsInstalled=true;
+const onPageLoad = callback => {
+  if (document.readyState === 'complete') setTimeout(callback, 0);
+  else window.addEventListener('load', callback, { once: true });
+};
 const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','Grandmaster','Legend','Mythic'],roman=['V','IV','III','II','I'];
 const pkey=()=>app.getScopedLocalStorageKey('med_account_progress_v1');
 const progress=()=>{try{return typeof app.getAccountProgress==='function'?app.getAccountProgress():(JSON.parse(localStorage.getItem(pkey())||'{}')||{})}catch(_){return{}}};
@@ -3318,7 +3341,7 @@ if(oldLeaderboard)app.renderLeaderboardRows=function(rows){
   const p=progress(),r=rank(p.rankPoints),live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');
   if(live)live.textContent=r.name;if(best)best.textContent=r.name;return result
 };
-document.addEventListener('student-progress-updated',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});document.addEventListener('student-auth-state-changed',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});window.addEventListener('load',()=>{renderRankCard();renderSidebarAuth();setupPracticeUI();updatePracticeUI()});renderRankCard();renderSidebarAuth();setupPracticeUI();
+document.addEventListener('student-progress-updated',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});document.addEventListener('student-auth-state-changed',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});onPageLoad(()=>{renderRankCard();renderSidebarAuth();setupPracticeUI();updatePracticeUI()});renderRankCard();renderSidebarAuth();setupPracticeUI();
 })();
 
 
