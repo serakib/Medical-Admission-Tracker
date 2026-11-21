@@ -67,7 +67,7 @@ const server = createServer(async (request, response) => {
       : upstreamPath;
     if (body) {
       proxiedAssets.push(targetPath);
-
+    }
     const headers = Object.fromEntries(
       [...upstream.headers.entries()].filter(([name]) =>
         ['content-type', 'cache-control', 'etag', 'last-modified', 'expires'].includes(name.toLowerCase())
@@ -154,6 +154,7 @@ try {
     readyState: document.readyState,
     questionBankLoaded: Boolean(window.app?.questionsLoaded),
     questionCount: Array.isArray(window.app?.questionBank) ? window.app.questionBank.length : null,
+    integrationsReady: window.__matIntegrationsReady === true,
     loaderExists: Boolean(document.getElementById('mat-initial-entry-loader')),
     loaderVisible: (() => {
       const el = document.getElementById('mat-initial-entry-loader');
