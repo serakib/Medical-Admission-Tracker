@@ -7,6 +7,18 @@ const onPageLoad = callback => {
   else window.addEventListener('load', callback, { once: true });
 };
 
+// Shared across separate integration IIFEs, including leaderboard rendering.
+function hydrateLivingAvatarFaces(scope = document) {
+  const hydrate = window.MedAvatarCreator?.hydrateLivingFace;
+  if (typeof hydrate !== 'function' || !scope?.querySelectorAll) return;
+  const selector = '.profile-avatar-stack,.profile-avatar-preview-stack,.account-avatar-stack,.leaderboard-avatar-stack,.podium-avatar-stack,.leaderboard-me-stack';
+  const stacks = new Set(scope.matches?.(selector) ? [scope] : []);
+  scope.querySelectorAll(selector).forEach(stack => stacks.add(stack));
+  stacks.forEach(stack => {
+    hydrate(stack).catch(error => console.warn('[Avatar motion] Face hydration skipped:', error));
+  });
+}
+
 
 (() => {
   'use strict';
