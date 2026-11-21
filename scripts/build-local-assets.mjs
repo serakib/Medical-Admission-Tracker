@@ -72,7 +72,7 @@ walk(path.join(root, 'js'));
 sourceFiles.push(path.join(root, 'index.html'));
 const ignored = new Set([
   'solid','regular','brands','spin','pulse','fw','ul','li','border','inverse',
-  'pull-left','pull-right','flip-horizontal','flip-vertical','rotate-90','rotate-180',
+  'symbol','pull-left','pull-right','flip-horizontal','flip-vertical','rotate-90','rotate-180',
   'rotate-270','beat','fade','bounce','shake','beat-fade','flip','spin-pulse','spin-reverse',
   'xs','sm','lg','xl','2xl','2x','3x','4x','5x','6x','7x','8x','9x'
 ]);
