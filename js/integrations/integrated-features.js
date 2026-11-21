@@ -6,6 +6,11 @@
   if (!app || app.__integratedFeaturesInstalled) return;
   app.__integratedFeaturesInstalled = true;
 
+  const onPageLoad = callback => {
+    if (document.readyState === 'complete') setTimeout(callback, 0);
+    else window.addEventListener('load', callback, { once: true });
+  };
+
   const REVIEW_KEY = () => app.getScopedLocalStorageKey('med_review_history_v2');
   const ACCOUNT_KEY = 'med_recent_accounts_v1';
   const SUBJECT_WEIGHTS = [
@@ -683,7 +688,7 @@
     }
   };
 
-  window.addEventListener('load', () => {
+  onPageLoad(() => {
     renderReviewPanel();
     renderAccountList();
   });
@@ -2791,7 +2796,7 @@
     renderAvatarPicker();
     ensureSharedAvatarExists().catch(() => {});
   });
-  window.addEventListener('load', () => {
+  onPageLoad(() => {
     renderAvatarPicker();
     ensureSharedAvatarExists().catch(() => {});
   });
@@ -3292,7 +3297,7 @@ if(oldLeaderboard)app.renderLeaderboardRows=function(rows){
   const p=progress(),r=rank(p.rankPoints),live=document.getElementById('profile-live-rank'),best=document.getElementById('profile-best-rank');
   if(live)live.textContent=r.name;if(best)best.textContent=r.name;return result
 };
-document.addEventListener('student-progress-updated',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});document.addEventListener('student-auth-state-changed',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});window.addEventListener('load',()=>{renderRankCard();renderSidebarAuth();setupPracticeUI();updatePracticeUI()});renderRankCard();renderSidebarAuth();setupPracticeUI();
+document.addEventListener('student-progress-updated',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});document.addEventListener('student-auth-state-changed',()=>{renderRankCard();renderSidebarAuth();updatePracticeUI()});onPageLoad(()=>{renderRankCard();renderSidebarAuth();setupPracticeUI();updatePracticeUI()});renderRankCard();renderSidebarAuth();setupPracticeUI();
 })();
 
 
