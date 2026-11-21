@@ -30,6 +30,26 @@ await esbuild.build({
   sourcemap: false
 });
 
+const deferredIntegrationBundles = [
+  ['js/integrations/integrated-features.js', 'js/vendor/integrated-features.min.js'],
+  ['js/integrations/global-league-system.js', 'js/vendor/global-league-system.min.js'],
+  ['js/integrations/leaderboard-experience.js', 'js/vendor/leaderboard-experience.min.js'],
+  ['js/features/system-tools.js', 'js/vendor/system-tools.min.js']
+];
+for (const [entryPoint, outfile] of deferredIntegrationBundles) {
+  await esbuild.build({
+    entryPoints: [entryPoint],
+    bundle: false,
+    platform: 'browser',
+    format: 'esm',
+    target: ['es2020'],
+    minify: true,
+    legalComments: 'none',
+    sourcemap: false,
+    outfile
+  });
+}
+
 const packages = {
   solid: require('@fortawesome/free-solid-svg-icons'),
   regular: require('@fortawesome/free-regular-svg-icons'),
