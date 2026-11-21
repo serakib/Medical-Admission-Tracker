@@ -1,15 +1,16 @@
 /* Integrated exam, review-history, and account helpers.
    Keeps the existing application and Question Bank as the source of truth. */
+
+const onPageLoad = callback => {
+  if (document.readyState === 'complete') setTimeout(callback, 0);
+  else window.addEventListener('load', callback, { once: true });
+};
+
 (() => {
   'use strict';
   const app = window.app;
   if (!app || app.__integratedFeaturesInstalled) return;
   app.__integratedFeaturesInstalled = true;
-
-  const onPageLoad = callback => {
-    if (document.readyState === 'complete') setTimeout(callback, 0);
-    else window.addEventListener('load', callback, { once: true });
-  };
 
   const REVIEW_KEY = () => app.getScopedLocalStorageKey('med_review_history_v2');
   const ACCOUNT_KEY = 'med_recent_accounts_v1';
