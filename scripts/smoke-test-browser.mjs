@@ -70,7 +70,10 @@ const server = createServer(async (request, response) => {
       headers: { 'user-agent': 'Medical-Admission-Tracker-Chromium-Smoke-Test' }
     });
     let body = request.method === 'HEAD' ? null : Buffer.from(await upstream.arrayBuffer());
-    const targetPath = new URL(targetUrl).pathname;
+    const upstreamPath = new URL(targetUrl).pathname;
+    const targetPath = upstreamPath.startsWith(baseUrl.pathname)
+      ? '/' + upstreamPath.slice(baseUrl.pathname.length)
+      : upstreamPath;
     if (body) {
       proxiedAssets.push(targetPath);
       if (tracedModulePaths.has(targetPath)) {
@@ -78,9 +81,9 @@ const server = createServer(async (request, response) => {
         // The trace identifies the module whose synchronous evaluation never returns.
         const source = body.toString('utf8');
         body = Buffer.from(
-          "console.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
+          "console.log('[MAT-TRACE] BEGIN " + targetPath + "');\n" +
           source +
-          "\\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n",
+          "\nconsole.log('[MAT-TRACE] END " + targetPath + "');\n",
           'utf8'
         );
       }
@@ -192,7 +195,7 @@ try {
   if (appState) console.log('Browser app state: ' + JSON.stringify(appState, null, 2));
   else console.log('Browser app state could not be read; the page main thread may be blocked.');
   console.log('Same-origin assets proxied: ' + proxiedRequests);
-  console.log('Scripts/assets fetched: ' + proxiedAssets.filter(path => /\\.(?:m?js)(?:$|\\?)/i.test(path)).join(' | '));
+  console.log('Scripts/assets fetched: ' + proxiedAssets.filter(path => /\.(?:m?js)(?:$|\?)/i.test(path)).join(' | '));
   if (moduleTraceEvents.length) console.log('Module execution trace:\\n' + moduleTraceEvents.join('\\n'));
   else console.log('Module execution trace: no trace events received.');
   if (errors.length) console.log('Browser errors:\n' + errors.join('\n'));
