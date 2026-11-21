@@ -155,15 +155,48 @@ try {
     window.addEventListener('medical-app-ready', () => {
       console.log('[MAT-TRACE] received medical-app-ready');
     });
+
+    // Trace the first DOMContentLoaded handlers and mutation callbacks so a
+    // blocked renderer can be attributed to the script that owns the callback.
+    const nativeAdd = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function (type, listener, options) {
+      if (this === document && type === 'DOMContentLoaded' && typeof listener === 'function') {
+        const source = new Error().stack?.split('\\n').slice(2, 5).join(' <- ') || 'unknown';
+        const wrapped = function (event) {
+          console.log('[MAT-DIAG] DCL BEGIN ' + source);
+          try { return listener.call(this, event); }
+          finally { console.log('[MAT-DIAG] DCL END ' + source); }
+        };
+        return nativeAdd.call(this, type, wrapped, options);
+      }
+      return nativeAdd.call(this, type, listener, options);
+    };
+
+    const NativeObserver = window.MutationObserver;
+    window.MutationObserver = class extends NativeObserver {
+      constructor(callback) {
+        const source = new Error().stack?.split('\\n').slice(2, 5).join(' <- ') || 'unknown';
+        let calls = 0;
+        super((records, observer) => {
+          calls += 1;
+          const trace = calls <= 4;
+          if (trace) console.log('[MAT-DIAG] MO BEGIN #' + calls + ' records=' + records.length + ' ' + source);
+          try { return callback(records, observer); }
+          finally { if (trace) console.log('[MAT-DIAG] MO END #' + calls + ' ' + source); }
+        });
+      }
+    };
+    window.setInterval(() => console.log('[MAT-DIAG] HEARTBEAT'), 1000);
   });
 
   page.on('pageerror', error => errors.push('PAGE ERROR: ' + error.stack));
+  page.on('crash', () => errors.push('PAGE CRASH: Chromium renderer crashed.'));
   page.on('requestfailed', request => failedRequests.push(
     request.url() + ' — ' + (request.failure()?.errorText || 'request failed')
   ));
   page.on('console', message => {
     const messageText = message.text();
-    if (messageText.includes('[MAT-TRACE]') || messageText.includes('[MAT-APP-TRACE]')) moduleTraceEvents.push(messageText);
+    if (messageText.includes('[MAT-TRACE]') || messageText.includes('[MAT-APP-TRACE]') || messageText.includes('[MAT-DIAG]')) moduleTraceEvents.push(messageText);
     if (message.type() === 'error') errors.push('CONSOLE ERROR: ' + messageText);
   });
 
