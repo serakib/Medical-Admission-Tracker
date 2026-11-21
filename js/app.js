@@ -496,6 +496,7 @@ class MedicalExamApp {
     setAuthState(user, notice = '') {
         matStartupTrace('auth:set-state-start');
         this.authUser = user || null;
+        window.__matFirebaseAuthUser = this.authUser;
         this.resetServerProgressForIdentity();
         const button = document.getElementById('authStatusBtn');
         const icon = document.getElementById('authStatusIcon');
