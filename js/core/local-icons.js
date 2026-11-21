@@ -37,13 +37,13 @@
       node.appendChild(svg);
     }
 
-    if (node.getAttribute('data-local-fa-symbol') !== symbol) {
+    if (node.getAttribute('data-local-icon-symbol') !== symbol) {
       var useNode = svg.querySelector('use');
       if (useNode) {
         useNode.setAttribute('href', sprite + '#' + symbol);
         useNode.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', sprite + '#' + symbol);
       }
-      node.setAttribute('data-local-fa-symbol', symbol);
+      node.setAttribute('data-local-icon-symbol', symbol);
     }
     if (!node.classList.contains('fa-local-icon-host')) node.classList.add('fa-local-icon-host');
   }
