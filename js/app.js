@@ -99,6 +99,7 @@ class MedicalExamApp {
         this.authStateResolved = false;
         this.__medicalRegistrationInProgress = false;
         this.examActive = false;
+        this.hasShownInitialView = false;
         this.beforeUnloadHandler = (event) => { if (this.examActive && !this.examState.submitted) { event.preventDefault(); event.returnValue = ''; } };
         window.addEventListener('beforeunload', this.beforeUnloadHandler);
         window.addEventListener('popstate', () => { if (this.examActive && !this.examState.submitted) { history.pushState({ exam: true }, '', window.location.href); this.confirmSubmitExam('navigation'); } });
@@ -1301,6 +1302,8 @@ class MedicalExamApp {
     }
 
     showView(viewName, force = false) {
+        const isInitialView = !this.hasShownInitialView;
+        this.hasShownInitialView = true;
         if (this.examActive && !this.examState.submitted && !force && viewName !== 'exam') {
             this.confirmSubmitExam('navigation');
             return;
@@ -1316,15 +1319,17 @@ class MedicalExamApp {
                 const visible = v === viewName;
                 el.classList.toggle('hidden', !visible);
                 el.setAttribute('aria-hidden', visible ? 'false' : 'true');
-                if (visible) {
-                    // Avoid forcing a synchronous layout across the entire dashboard during startup.
-                    // Reapply the entry animation on the next frame after the browser paints the view.
+                if (visible && !isInitialView) {
+                    // Keep navigation transitions, but skip the expensive entrance animation
+                    // on the first dashboard paint so startup stays responsive.
                     el.classList.remove('view-reenter');
                     window.requestAnimationFrame(() => {
                         if (el.isConnected && !el.classList.contains('hidden')) {
                             el.classList.add('view-reenter');
                         }
                     });
+                } else if (visible) {
+                    el.classList.remove('view-reenter');
                 }
             }
         });
