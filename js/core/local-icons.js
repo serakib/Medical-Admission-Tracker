@@ -11,8 +11,8 @@
     'rotate-270','beat','fade','bounce','shake','beat-fade','flip','spin-pulse','spin-reverse',
     'xs','sm','lg','xl','2xl','2x','3x','4x','5x','6x','7x','8x','9x'
   ]);
-  var queuedIcons = [];
-  var queued = new WeakSet();
+  var scanQueue = [];
+  var queuedRoots = new WeakSet();
   var scheduled = false;
 
   function updateIcon(node) {
@@ -48,36 +48,42 @@
     if (!node.classList.contains('fa-local-icon-host')) node.classList.add('fa-local-icon-host');
   }
 
-  function enqueueIcon(node) {
-    if (!node || node.nodeType !== 1 || node.tagName !== 'I' ||
-        !node.matches('i[class*="fa-"]') || queued.has(node)) return;
-    queued.add(node);
-    queuedIcons.push(node);
-    schedule();
-  }
-
   function enqueueTree(root) {
-    if (!root || root.nodeType !== 1) return;
-    if (root.tagName === 'I') enqueueIcon(root);
-    if (root.querySelectorAll) root.querySelectorAll('i[class*="fa-"]').forEach(enqueueIcon);
+    if (!root || root.nodeType !== 1 || queuedRoots.has(root)) return;
+    queuedRoots.add(root);
+    if (root.tagName === 'I' && root.matches('i[class*="fa-"]')) updateIcon(root);
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: function (node) {
+        return node.tagName === 'I' && node.matches('i[class*="fa-"]')
+          ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      }
+    });
+    scanQueue.push(walker);
+    schedule();
   }
 
   function processQueue(deadline) {
     scheduled = false;
     var processed = 0;
-    while (queuedIcons.length && processed < 80 &&
-      (!deadline || deadline.timeRemaining() > 2 || processed === 0)) {
-      updateIcon(queuedIcons.shift());
+    while (scanQueue.length && processed < 100 &&
+      (!deadline || deadline.timeRemaining() > 2 || processed < 30)) {
+      var walker = scanQueue[0];
+      var node = walker.nextNode();
+      if (!node) {
+        scanQueue.shift();
+        continue;
+      }
+      updateIcon(node);
       processed += 1;
     }
-    if (queuedIcons.length) schedule();
+    if (scanQueue.length) schedule();
   }
 
   function schedule() {
-    if (scheduled) return;
+    if (scheduled || !scanQueue.length) return;
     scheduled = true;
     if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(processQueue, { timeout: 1200 });
+      window.requestIdleCallback(processQueue, { timeout: 300 });
     } else {
       window.setTimeout(function () { processQueue(null); }, 24);
     }
