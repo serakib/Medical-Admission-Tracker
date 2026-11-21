@@ -3097,6 +3097,10 @@ const onPageLoad = callback => {
 (() => {
 'use strict';
 const app=window.app;if(!app||app.__comprehensiveRequirementsInstalled)return;app.__comprehensiveRequirementsInstalled=true;
+const onPageLoad = callback => {
+  if (document.readyState === 'complete') setTimeout(callback, 0);
+  else window.addEventListener('load', callback, { once: true });
+};
 const tiers=['Bronze','Silver','Gold','Platinum','Emerald','Diamond','Master','Grandmaster','Legend','Mythic'],roman=['V','IV','III','II','I'];
 const pkey=()=>app.getScopedLocalStorageKey('med_account_progress_v1');
 const progress=()=>{try{return typeof app.getAccountProgress==='function'?app.getAccountProgress():(JSON.parse(localStorage.getItem(pkey())||'{}')||{})}catch(_){return{}}};
