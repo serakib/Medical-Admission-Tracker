@@ -1972,6 +1972,7 @@ class MedicalExamApp {
     openSavedExamReview(attemptId) {
         const normalizeId = value => String(value ?? '').split('-').pop();
         const localHistory = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
+        matStartupTrace('progress:local-history-' + localHistory.length);
         const identity = this.getLocalIdentityKey();
         const currentServerHistory = identity !== 'visitor' && this.__serverProgressOwner === identity &&
             Array.isArray(this.serverExamHistory) ? this.serverExamHistory : [];
@@ -2117,11 +2118,13 @@ class MedicalExamApp {
             // Keep one row per exam attempt; prefer the copy that has its local answer snapshot.
             if (!existing || (!existing.reviewData && merged.reviewData)) historyById.set(key, merged);
         });
+        matStartupTrace('progress:history-deduped-' + historyById.size);
         const history = Array.from(historyById.values()).sort((a, b) =>
             Number(normalizeAttemptId(b.attemptId)) - Number(normalizeAttemptId(a.attemptId))
         );
         const answered=this.getAnsweredQuestionIds();
         const practiced=this.getPracticedQuestionIds();
+        matStartupTrace('progress:question-id-sets-' + answered.size + '-' + practiced.size);
         answered.forEach(id => practiced.add(String(id)));
         // Server history carries question IDs for cross-device unique-question stats.
         // Local review snapshots backfill attempts made before that field was deployed.
@@ -2135,6 +2138,7 @@ class MedicalExamApp {
             });
         });
         try { localStorage.setItem(this.getPracticedQuestionKey(), JSON.stringify([...practiced])); } catch (_) {}
+        matStartupTrace('progress:ids-persisted');
         const total=this.questionBank.length||520;
         const attempts=history.length;
         const best=attempts?Math.max(...history.map(h=>parseFloat(h.score)||0)):0;
@@ -2189,6 +2193,7 @@ class MedicalExamApp {
             return part('weekday') + ' ' + part('month') + ' ' + part('day') + ' ' +
                 part('year') + ' ' + part('hour') + ':' + part('minute') + part('dayPeriod').toLowerCase();
         };
+        matStartupTrace('progress:metrics-rendered');
         const tbody=document.getElementById('prog-history-tbody');
         if(tbody){tbody.innerHTML=''; history.slice(0,10).forEach(item=>{
             const tr=document.createElement('tr');
@@ -2203,6 +2208,7 @@ class MedicalExamApp {
             }
             tbody.appendChild(tr);
         });}
+        matStartupTrace('progress:history-table-rendered');
         // Visitor progress is local-only. Fetch server history only for a verified
         // Registered identity or an active Medical Sheets Guest token.
         const league = window.MedGlobalLeague;
