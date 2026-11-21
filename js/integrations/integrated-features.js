@@ -1,6 +1,12 @@
 /* Integrated exam, review-history, and account helpers.
    Keeps the existing application and Question Bank as the source of truth. */
 
+// Shared by independent integration IIFEs in this module.
+const onPageLoad = callback => {
+  if (document.readyState === 'complete') setTimeout(callback, 0);
+  else window.addEventListener('load', callback, { once: true });
+};
+
 
 (() => {
   'use strict';
