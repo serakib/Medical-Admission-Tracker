@@ -33,8 +33,7 @@ await esbuild.build({
 const deferredIntegrationBundles = [
   ['js/integrations/integrated-features.js', 'js/vendor/integrated-features.min.js'],
   ['js/integrations/global-league-system.js', 'js/vendor/global-league-system.min.js'],
-  ['js/integrations/leaderboard-experience.js', 'js/vendor/leaderboard-experience.min.js'],
-  ['js/features/system-tools.js', 'js/vendor/system-tools.min.js']
+  ['js/integrations/leaderboard-experience.js', 'js/vendor/leaderboard-experience.min.js']
 ];
 for (const [entryPoint, outfile] of deferredIntegrationBundles) {
   await esbuild.build({
