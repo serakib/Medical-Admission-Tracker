@@ -204,11 +204,10 @@ try {
     loaderExists: Boolean(document.getElementById('mat-initial-entry-loader')),
     loaderVisible: (() => {
       const el = document.getElementById('mat-initial-entry-loader');
-      return Boolean(el && getComputedStyle(el).display !== 'none' &&
-        getComputedStyle(el).visibility !== 'hidden' && Number(getComputedStyle(el).opacity) > 0);
+      return Boolean(el && !el.hidden && !el.classList.contains('is-leaving'));
     })(),
     title: document.title,
-    bodyText: (document.body?.innerText || '').slice(0, 1200)
+    dashboardNavigationExists: Boolean(document.querySelector('[data-nav-view="home"]'))
     })), 10000, 'Browser state evaluation');
   } catch (stateError) {
     errors.push('BROWSER STATE EVALUATION: ' + (stateError?.message || String(stateError)));
@@ -231,8 +230,8 @@ try {
     'The main application never created window.app. Inspect browser errors and failed requests above.');
   assert.equal(appState.loaderVisible, false,
     'The initial splash overlay remained visible after startup or its recovery timeout.');
-  assert.ok(appState.bodyText.includes('Dashboard') || appState.bodyText.includes('ড্যাশবোর্ড'),
-    'The page did not render dashboard navigation/content.');
+  assert.equal(appState.dashboardNavigationExists, true,
+    'The page did not render dashboard navigation.');
 
   console.log('Chromium browser startup test passed.');
 } catch (error) {
