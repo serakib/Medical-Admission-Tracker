@@ -104,9 +104,9 @@ const server = createServer(async (request, response) => {
         const source = body.toString('utf8');
         const prologueLength = directivePrologueEnd(source);
         const instrumented = source.slice(0, prologueLength) +
-          "\nconsole.log('[MAT-TRACE] BEGIN " + targetPath + "');\\n" +
+          "\nconsole.log('[MAT-TRACE] BEGIN " + targetPath + "');\n" +
           source.slice(prologueLength) +
-          "\nconsole.log('[MAT-TRACE] END " + targetPath + "');\\n";
+          "\nconsole.log('[MAT-TRACE] END " + targetPath + "');\n";
         body = Buffer.from(instrumented, 'utf8');
       }
     }
