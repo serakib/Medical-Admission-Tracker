@@ -164,7 +164,7 @@ try {
     const nativeAdd = EventTarget.prototype.addEventListener;
     EventTarget.prototype.addEventListener = function (type, listener, options) {
       if (this === document && type === 'DOMContentLoaded' && typeof listener === 'function') {
-        const source = new Error().stack?.split('\\n').slice(2, 5).join(' <- ') || 'unknown';
+        const source = new Error().stack?.split('\n').slice(2, 5).join(' <- ') || 'unknown';
         const wrapped = function (event) {
           console.log('[MAT-DIAG] DCL BEGIN ' + source);
           try { return listener.call(this, event); }
@@ -178,7 +178,7 @@ try {
     const NativeObserver = window.MutationObserver;
     window.MutationObserver = class extends NativeObserver {
       constructor(callback) {
-        const source = new Error().stack?.split('\\n').slice(2, 5).join(' <- ') || 'unknown';
+        const source = new Error().stack?.split('\n').slice(2, 5).join(' <- ') || 'unknown';
         let calls = 0;
         super((records, observer) => {
           calls += 1;
